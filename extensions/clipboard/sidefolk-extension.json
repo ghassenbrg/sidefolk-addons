@@ -1,0 +1,159 @@
+{
+  "id": "dev.sidefolk.clipboard",
+  "name": "Clipboard",
+  "version": "1.0.0",
+  "sidefolk": ">=0.2",
+  "description": "Everything you copy, a shortcut away from any app: text with its formatting, links, pictures, files and code, searchable and pinnable. Copies from password managers are never kept; keys and card numbers are hidden and forgotten in two minutes. Nothing leaves your Mac.",
+  "tagline": "Everything you copy, a shortcut away",
+  "folk": "byte",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": {
+    "command": "bin/ext-clipboard"
+  },
+  "background": true,
+  "permissions": {
+    "clipboard": true
+  },
+  "palettes": {
+    "history": {
+      "title": "Clipboard",
+      "hotkey": "shift+cmd+c",
+      "placeholder": "Search what you copied"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "Clipboard",
+      "symbol": "doc.on.clipboard",
+      "refresh": 3
+    }
+  },
+  "tools": {
+    "recent_copies": {
+      "title": "Recent copies",
+      "risk": "medium",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "what did i copy",
+            "what have i copied",
+            "clipboard history",
+            "my clipboard history",
+            "show my clipboard history",
+            "my recent copies",
+            "recent copies"
+          ]
+        }
+      ]
+    },
+    "search_copies": {
+      "title": "Search copies",
+      "risk": "medium",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "find {query} in my clipboard",
+            "search my clipboard for {query}",
+            "search clipboard for {query}"
+          ]
+        }
+      ]
+    },
+    "copy_again": {
+      "title": "Copy again",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "copy number {number:integer} again",
+            "copy {number:integer} again"
+          ]
+        }
+      ]
+    },
+    "pause": {
+      "title": "Pause the history",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "pause clipboard history",
+            "pause my clipboard history",
+            "stop recording my clipboard",
+            "stop recording the clipboard"
+          ]
+        }
+      ]
+    },
+    "resume": {
+      "title": "Resume the history",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "resume clipboard history",
+            "resume my clipboard history",
+            "start recording my clipboard",
+            "start recording the clipboard"
+          ]
+        }
+      ]
+    },
+    "clear_history": {
+      "title": "Clear the history",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "clear clipboard history",
+            "clear my clipboard history",
+            "forget what i copied",
+            "delete my clipboard history"
+          ]
+        }
+      ]
+    },
+    "set_option": {
+      "title": "Clipboard setting",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "turn off clipboard history",
+            "stop keeping clipboard history"
+          ],
+          "input": {
+            "option": "keeping",
+            "on": false
+          }
+        },
+        {
+          "say": [
+            "turn on clipboard history",
+            "keep clipboard history"
+          ],
+          "input": {
+            "option": "keeping",
+            "on": true
+          }
+        }
+      ],
+      "ai": false
+    }
+  }
+}

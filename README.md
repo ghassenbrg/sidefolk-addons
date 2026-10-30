@@ -7,7 +7,7 @@ use. Sidefolk shows them in **Settings › Companion** (the dashed cards) and **
 | | What | |
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish) | 3D, 2–3.4 MB each |
-| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, System Vitals+ (a page in Home, Sidefolk 0.2 and later) | about 170 KB each |
+| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and for Sidefolk 0.2 and later System Vitals+, Clipboard and Keep Awake | about 170 KB each |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
 Built into the app are Mochi, Spark, the robot, the folks, and World Clock, Calculator, System Vitals and Weather.

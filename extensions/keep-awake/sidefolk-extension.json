@@ -1,0 +1,198 @@
+{
+  "id": "dev.sidefolk.keep-awake",
+  "name": "Keep Awake",
+  "version": "1.0.0",
+  "sidefolk": ">=0.2",
+  "description": "Keeps your Mac awake, and chat apps from marking you away, for as long as you say, until a time, while an app like Zoom is open, or until you stop it. Nothing moves on screen, and it lets go on battery or when the battery runs low.",
+  "tagline": "Your Mac awake and you active, for as long as you say",
+  "folk": "byte",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": {
+    "command": "bin/ext-keep-awake"
+  },
+  "background": true,
+  "permissions": {
+    "power": true
+  },
+  "pages": {
+    "awake": {
+      "title": "Keep Awake",
+      "symbol": "cup.and.saucer",
+      "refresh": 5,
+      "widget": true
+    }
+  },
+  "tools": {
+    "keep_awake": {
+      "title": "Keep the Mac awake",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "keep my mac awake",
+            "keep awake",
+            "keep the mac awake",
+            "don't let my mac sleep",
+            "dont let my mac sleep",
+            "caffeinate",
+            "stay awake"
+          ]
+        },
+        {
+          "say": [
+            "keep my mac awake for {minutes:integer} minutes",
+            "keep awake for {minutes:integer} minutes",
+            "keep my mac awake for {minutes:integer} min",
+            "stay awake for {minutes:integer} minutes"
+          ],
+          "input": {
+            "minutes": "{minutes}"
+          }
+        },
+        {
+          "say": [
+            "keep my mac awake for {hours:number} hours",
+            "keep awake for {hours:number} hours",
+            "stay awake for {hours:number} hours"
+          ],
+          "input": {
+            "hours": "{hours}"
+          }
+        },
+        {
+          "say": [
+            "keep my mac awake for an hour",
+            "keep awake for an hour",
+            "stay awake for an hour"
+          ],
+          "input": {
+            "hours": 1
+          }
+        },
+        {
+          "say": [
+            "keep my mac awake until {until}",
+            "keep awake until {until}",
+            "stay awake until {until}"
+          ],
+          "input": {
+            "until": "{until}"
+          }
+        },
+        {
+          "say": [
+            "keep me active",
+            "keep me online",
+            "keep my status active",
+            "keep me from going away",
+            "jiggle my mouse",
+            "mouse jiggler",
+            "stay active"
+          ],
+          "input": {
+            "active": true
+          }
+        },
+        {
+          "say": [
+            "keep me active for an hour",
+            "keep me online for an hour"
+          ],
+          "input": {
+            "active": true,
+            "hours": 1
+          }
+        },
+        {
+          "say": [
+            "keep my mac awake while {while_app} is open",
+            "keep awake while {while_app} is open",
+            "keep awake while {while_app} is running"
+          ],
+          "input": {
+            "while_app": "{while_app}"
+          }
+        }
+      ]
+    },
+    "stop_keeping_awake": {
+      "title": "Let the Mac sleep",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "stop keeping my mac awake",
+            "let my mac sleep",
+            "stop keeping awake",
+            "stop keep awake",
+            "stop keeping me active",
+            "decaffeinate",
+            "stop jiggling"
+          ]
+        }
+      ]
+    },
+    "awake_status": {
+      "title": "Keep Awake status",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "is my mac being kept awake",
+            "keep awake status",
+            "how long will my mac stay awake",
+            "am i being kept active"
+          ]
+        }
+      ]
+    },
+    "extend": {
+      "title": "Keep awake longer",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "keep awake {minutes:integer} minutes longer",
+            "keep my mac awake {minutes:integer} more minutes"
+          ],
+          "input": {
+            "minutes": "{minutes}"
+          }
+        }
+      ]
+    },
+    "set_option": {
+      "title": "Keep Awake setting",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "let my screen sleep while keeping awake"
+          ],
+          "input": {
+            "option": "screen",
+            "on": false
+          }
+        }
+      ],
+      "ai": false
+    }
+  },
+  "watchers": {
+    "ended": {
+      "title": "Keep Awake ended",
+      "description": "Tells you when keeping the Mac awake ends by itself: its time is up, or the app it waited on quit."
+    }
+  }
+}
