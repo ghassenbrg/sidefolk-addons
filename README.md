@@ -25,7 +25,8 @@ its sandbox. Sidefolk's DECISIONS D55 and SECURITY T33 have the whole of it.
 
 ```
 companions/<name>/    addon.json, characters/<name>.js, assets/<name>.glb, portraits/<name>.png, avatars/<name>.png
-extensions/<name>/    sidefolk-extension.json, icon.pdf, Sources/ (a Swift program on Kit/)
+extensions/<name>/    sidefolk-extension.json, icon.pdf, addon.json (its shelf: everyday, files, developer or fun),
+                      Sources/ (a Swift program on Kit/)
 Kit/                  a copy of Sidefolk's extensions/Kit (scripts/check.sh warns when they differ)
 Tests/                the extensions' own logic, with canned data
 scripts/              build.py (pack and sign), publish.sh (upload), check.sh (Sidefolk's validator)

@@ -135,6 +135,10 @@ def extensions(ident, work, previews, unsigned):
         entry = {"id": m["id"], "kind": "extension", "name": m["name"], "tagline": m.get("tagline", ""),
                  "description": m.get("description", ""), "author": m.get("author", "Sidefolk"), "version": m["version"],
                  "license": "Proprietary", "minimum_sidefolk": MINIMUM_SIDEFOLK}
+        # The gallery's shelf (everyday, files, developer, fun), from addon.json beside the manifest.
+        extra = json.loads((folder / "addon.json").read_text()) if (folder / "addon.json").exists() else {}
+        assert extra.get("category") in ("everyday", "files", "developer", "fun"), f"{name}: addon.json needs a category"
+        entry["category"] = extra["category"]
         if m.get("icon"):
             entry["preview"] = f"previews/{name}{Path(m['icon']).suffix}"
         entries.append(pack(name, entry, stage, ident, work))
