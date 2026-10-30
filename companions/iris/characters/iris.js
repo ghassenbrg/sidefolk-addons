@@ -41,7 +41,7 @@ export default {
       vec3 yellow = vec3(0.86, 0.6, 0.18);
       vec3 brown = vec3(0.07, 0.03, 0.016);
       c = yellow * (0.97 + 0.05 * smoothstep(0.6, 0.95, lum));
-      c = mix(c, brown * (0.75 + 0.8 * lum), max(ring, limb));
+      c = mix(c, brown * (0.8 + 0.45 * lum), max(ring, limb));
       c = mix(c, tex, finder * (1.0 - ring));
       c = mix(c, vec3(0.8, 0.3, 0.19) * (0.9 + 0.2 * lum), button);
       c = mix(c, brown * (0.9 + 0.3 * lum), cap);
@@ -59,15 +59,21 @@ export default {
     // The front is a flat sheet: a far-off axis makes the unwrap nearly a plain projection.
     unwrap: { R: 2.0, span: 0.8, cz: -1.67, cy: 0.1 },
     region: (x, y, z) => z > 0.12 && Math.abs(x) < 0.66 && y > -0.66 && y < 0.72,
-    colors: { ink: '#a07850', brow: '#4a3022', blush: '255,140,120', mouth: '#7a2a24', mouthLine: '#4a3022', lip: '#4a3022' },
+    colors: { ink: '#3a2216', brow: '#3a2216', blush: '255,140,120', mouth: '#7a2a24', mouthLine: '#4a3022', lip: '#4a3022' },
     // The lens: one eye, slate-blue glass over a black pupil. The second eye the engine builds is
     // taken away below, so the highlights are not doubled.
     iris: { deep: [0.025, 0.05, 0.085], rim: [0.08, 0.17, 0.28], glow: [0.22, 0.36, 0.52], glowAmt: 0.5, pupil: 0.46, glint: 1.1, travel: 0.18 },
     eyeForward: 3,
+    // The idle twinkle would draw a thin cross over a lens this big.
+    twinkle: false,
+    // Satin paint on the plastic: glossier, dark strokes catch the light and turn grey.
+    paintRoughness: 0.65,
     layout: {
       eye: { x: LENS[0], y: LENS[1], w: GLASS * 2 - 0.02, h: GLASS * 2 - 0.02, depth: 0.05, sink: 0.7 },
       mouth: { y: -0.43, scale: 2.1, line: 8 },
-      brow: { base: 1, y: 0.655, x: 0.11, len: 0.25, width: 26, arch: 16 },
+      // One thick arc over the lens, drawn as two halves whose inner ends rise to meet (each half
+      // keeps its own tilt for feelings).
+      brow: { base: 1, y: 0.66, x: 0.1, len: 0.24, width: 26, arch: 6, tilt: -0.26 },
       blush: { x: 0.48, y: -0.38, w: 0.1, h: 0.06, alpha: 0 },
     },
   },
@@ -76,9 +82,6 @@ export default {
   extras(c) {
     const second = c.eyes.pop();
     second.group.removeFromParent();
-    // The idle twinkle would draw a thin cross over a lens this big: only strong sparkles show.
-    const u = c.eyes[0].uniforms.uSparkle; let v = 0;
-    Object.defineProperty(u, 'value', { get: () => v, set: (x) => { v = x > 0.5 ? x : 0; } });
     // A lens has no cheeks: smiles would push a lower lid up over the glass.
     Object.defineProperty(c.eyes[0].uniforms.uLid.value, 'z', { get: () => 0, set: () => {} });
   },

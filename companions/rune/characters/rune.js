@@ -30,31 +30,43 @@ export default {
       float green = smoothstep(0.04, 0.12, s.g - s.b);
       float moss = smoothstep(0.1, 0.2, s.g - s.b) * smoothstep(0.6, 0.7, p.y) * step(p.x, 0.1);
       float lichen = green * (1.0 - moss);
-      // The gem: the amber oval on the chest, by place and colour.
-      float gem = (1.0 - smoothstep(0.85, 1.05, length(vec2(p.x / 0.075, (p.y + 0.33) / 0.1)))) * step(0.2, p.z) * smoothstep(0.15, 0.3, s.r - s.b);
-      // Warm grey stone with half of Meshy's mottling (its version is pale and busy).
-      c = vec3(0.25, 0.235, 0.19) * clamp(mix(1.0, lum / 0.75, 0.6), 0.72, 1.2);
-      c = mix(c, vec3(0.2, 0.25, 0.09) * (0.8 + 0.3 * lum), lichen * 0.6);
+      // The gem: the amber oval on the chest, by place and colour; glass with depth, bright in the
+      // middle and deepening to a dark amber edge.
+      float gr = length(vec2(p.x / 0.075, (p.y + 0.33) / 0.1));
+      float gem = (1.0 - smoothstep(0.85, 1.05, gr)) * step(0.2, p.z) * smoothstep(0.15, 0.3, s.r - s.b);
+      vec3 amber = mix(vec3(1.0, 0.68, 0.1), vec3(0.42, 0.14, 0.008), smoothstep(0.15, 0.95, gr));
+      // Warm grey granite, darker and greyer than Meshy's pale version, with most of its mottling,
+      // fine dark pits and pale grains, and grey-green lichen.
+      c = vec3(0.158, 0.155, 0.138) * clamp(mix(1.0, lum / 0.53, 0.7), 0.65, 1.35);
+      // (A high pass of the pile map at two scales: its fine peaks and hollows become specks.)
+      float speck = tri(uPlush, p, nR, 38.0) - tri(uPlush, p, nR, 11.0);
+      float pits = smoothstep(0.06, 0.16, speck) * (1.0 - moss), grains = smoothstep(-0.06, -0.16, speck) * (1.0 - moss);
+      c *= (1.0 - 0.4 * pits) * (1.0 + 0.2 * grains);
+      c = mix(c, vec3(0.16, 0.2, 0.08) * (0.8 + 0.3 * lum), lichen * 0.75);
       c = mix(c, vec3(0.075, 0.13, 0.02) * (0.65 + 0.7 * lum), moss);
-      c = mix(c, vec3(0.86, 0.5, 0.05) * (0.75 + 0.4 * lum), gem);
+      c = mix(c, amber * (0.85 + 0.3 * lum), gem);
       float grain = tri(uPlush, p, nR, 9.0);
       float pile = tri(uPlush, p, nR, 22.0);
-      bumpH = grain * 0.004 * (1.0 - moss) + pile * 0.016 * moss;
+      bumpH = (grain * 0.0025 - pits * 0.003) * (1.0 - moss) + pile * 0.016 * moss;
       c *= 0.96 + 0.06 * grain;
       rough = mix(0.92, 0.95, moss);
       rough = mix(rough, 0.18, gem);
       clear = gem;
       sheenTint = vec3(0.3, 0.55, 0.2) * moss;
       inner = 0.5 + 0.4 * moss;
-      glow = gem * vec3(0.34, 0.16, 0.01) * (0.6 + uPulse);`,
+      glow = gem * amber * vec3(0.4, 0.3, 0.2) * (0.6 + uPulse);`,
   }),
 
   face: {
     kind: 'ink',
+    // Round highlights only, as on the sheet: no idle twinkle cross.
+    twinkle: false,
     unwrap: { R: 1.0, span: 0.65, cz: -0.45, cy: 0.3 },
     region: (x, y, z) => z > 0.25 && Math.abs(x) < 0.6 && y > -0.05 && y < 0.75,
-    colors: { ink: '#2a2218', brow: '#4a4034', blush: '210,130,100', mouthLine: '#40382a', mouth: '#6a2a1c', lip: '#40382a' },
-    iris: { deep: [0.015, 0.007, 0.003], rim: [0.26, 0.11, 0.025], glow: [0.9, 0.5, 0.1], glowAmt: 0.45, pupil: 0.0 },
+    // Matte paint, so the smile reads as a dark carved groove.
+    paintRoughness: 0.92,
+    colors: { ink: '#2a2218', brow: '#4a4034', blush: '210,130,100', mouthLine: '#241c14', mouth: '#6a2a1c', lip: '#40382a' },
+    iris: { deep: [0.012, 0.005, 0.002], rim: [0.2, 0.08, 0.018], glow: [0.7, 0.36, 0.07], glowAmt: 0.38, pupil: 0.0 },
     layout: {
       eye: { x: 0.27, y: 0.26, w: 0.16, h: 0.21, depth: 0.045 },
       mouth: { y: 0.15, scale: 2.6, line: 7 },

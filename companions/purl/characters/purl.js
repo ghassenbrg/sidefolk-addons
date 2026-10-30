@@ -31,15 +31,29 @@ export default {
       float mustard = smoothstep(0.1, 0.18, s.r - s.b) * (1.0 - head) * smoothstep(0.0, 0.12, p.z);
       // Stitches only on the front: the back's are the ghost of a copied patch.
       float stitch = smoothstep(0.66, 0.78, lum) * (1.0 - head) * (1.0 - mustard) * smoothstep(-0.12, 0.0, p.z);
-      float detail = mix(0.12, 0.5, smoothstep(-0.2, 0.05, p.z));
-      vec3 oat = vec3(0.45, 0.37, 0.265) * clamp(mix(1.0, lum / 0.83, detail), 0.8, 1.15);
-      vec3 indigo = vec3(0.04, 0.053, 0.15) * clamp(mix(1.0, lum / 0.5, 0.5), 0.75, 1.2);
+      // The back keeps little of the texture's shading: there it is mostly ghosts of copied stitches.
+      float front = smoothstep(-0.2, 0.05, p.z);
+      vec3 oat = vec3(0.36, 0.305, 0.232) * clamp(mix(1.0, lum / 0.66, mix(0.1, 0.5, front)), 0.8, mix(1.03, 1.2, front));
+      vec3 indigo = vec3(0.028, 0.04, 0.105) * clamp(mix(1.0, lum / 0.22, 0.5), 0.75, 1.3);
       c = mix(indigo, oat, head * (1.0 - patchH));
-      c = mix(c, vec3(0.59, 0.33, 0.035) * clamp(mix(1.0, lum / 0.6, 0.5), 0.8, 1.2), mustard);
+      c = mix(c, vec3(0.47, 0.265, 0.028) * clamp(mix(1.0, lum / 0.32, 0.5), 0.75, 1.3), mustard);
       c = mix(c, vec3(0.86, 0.76, 0.56), stitch);
+      // Linen: threads over and under in a plain weave, projected from three sides of the rest pose;
+      // they fade out where they would be finer than a pixel (no shimmer at desktop size).
+      vec3 wN = pow(abs(nR), vec3(4.0)); wN /= wN.x + wN.y + wN.z;
+      float threads = 0.0;
+      for (int k = 0; k < 3; k++) {
+        vec2 q = (k == 0 ? p.zy : (k == 1 ? p.xz : p.xy)) * 95.0;
+        vec2 f = fract(q);
+        float warp = sin(f.x * 3.14159), weft = sin(f.y * 3.14159);
+        float h = mix(warp * (0.55 + 0.45 * weft), weft * (0.55 + 0.45 * warp), mod(floor(q.x) + floor(q.y), 2.0));
+        threads += (h - 0.55) * (1.0 - smoothstep(0.35, 0.9, length(fwidth(q)))) * (k == 0 ? wN.x : (k == 1 ? wN.y : wN.z));
+      }
       float weave = tri(uPlush, p, nR, 15.0);
-      bumpH = weave * 0.0025;
-      c *= 0.96 + 0.06 * weave;
+      // (Uneven, like real linen: the pile map thickens some threads and thins others.)
+      threads *= (0.55 + 0.9 * weave) * (1.0 - stitch);
+      bumpH = weave * 0.002 + threads * 0.0014;
+      c *= (0.96 + 0.06 * weave) * (1.0 + 0.07 * threads);
       rough = 0.93;
       float blueCloth = (1.0 - head + patchH) * (1.0 - mustard) * (1.0 - stitch);
       sheenTint = mix(vec3(0.62, 0.58, 0.5), vec3(0.2, 0.24, 0.42), blueCloth);
@@ -49,6 +63,10 @@ export default {
 
   face: {
     kind: 'ink',
+    // Round highlights only, as on the sheet: no idle twinkle cross.
+    twinkle: false,
+    // Matte ink, as on linen.
+    paintRoughness: 0.92,
     // A broad, almost flat face: a far-off axis keeps the features undistorted.
     unwrap: { R: 1.2, span: 0.75, cz: -0.67, cy: 0.4 },
     region: (x, y, z) => z > 0.2 && Math.abs(x) < 0.58 && y > -0.05 && y < 0.88,

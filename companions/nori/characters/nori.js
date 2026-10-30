@@ -22,6 +22,25 @@ export default {
   material: (body) => bodyMaterial(body, {
     params: { sheenRoughness: 0.45, roughness: 0.88 },
     surface: `
+      // Meshy's texture is fixed by place before anything reads it: it wrapped the face's cream round
+      // the nape, smudged it up the backs of the arms, and tore the edges of the paws and the tail's
+      // tip. On the sheet the head is charcoal all round behind the face (the border runs further
+      // forward higher up), and paws (rest pose: the arms' outer ends) and the tail's tip are cream
+      // with clean edges. The fur keeps its own mottling.
+      float lum0 = dot(s, vec3(0.3, 0.55, 0.15));
+      vec3 furT = vec3(0.031, 0.03, 0.035) * clamp(lum0 / 0.18, 0.8, 1.2);
+      vec3 creamT = vec3(0.93, 0.86, 0.72) * (0.97 + 0.03 * smoothstep(0.6, 0.95, lum0));
+      float napeZ = mix(-0.02, 0.1, smoothstep(-0.1, 0.25, p.y));
+      float mint0 = smoothstep(0.1, 0.2, s.g - s.r) * smoothstep(0.45, 0.6, s.g);
+      // (Below the ears, whose pink insides face forward, and above the scarf.)
+      float nape = smoothstep(napeZ + 0.03, napeZ - 0.03, p.z) * smoothstep(-0.12, -0.04, p.y) * (1.0 - smoothstep(0.5, 0.6, p.y)) * (1.0 - mint0);
+      float arms = smoothstep(0.38, 0.42, abs(p.x)) * smoothstep(-0.56, -0.5, p.y) * (1.0 - smoothstep(-0.16, -0.1, p.y))
+        * smoothstep(-0.26, -0.18, p.z);
+      float tailZ = smoothstep(0.1, 0.16, p.x) * (1.0 - smoothstep(-0.33, -0.27, p.z)) * (1.0 - smoothstep(-0.44, -0.38, p.y));
+      tex = mix(tex, furT, nape);
+      tex = mix(tex, mix(furT, creamT, smoothstep(0.54, 0.58, abs(p.x))), arms);
+      tex = mix(tex, mix(furT, creamT, smoothstep(0.45, 0.5, p.x)), tailZ);
+      s = pow(max(tex, vec3(0.0)), vec3(1.0 / 2.2));
       float lum = dot(s, vec3(0.3, 0.55, 0.15));
       float cream = smoothstep(0.55, 0.7, lum);
       float darkF = 1.0 - smoothstep(0.3, 0.44, lum);
@@ -32,6 +51,7 @@ export default {
       float earIn = smoothstep(0.6, 0.7, p.y) * step(0.1, abs(p.x)) * smoothstep(0.6, 0.72, lum);
       c = tex * vec3(0.9, 0.88, 0.92);
       c = mix(c, vec3(0.97, 0.9, 0.78) * (0.94 + 0.06 * lum), cream * (1.0 - earIn) * 0.55);
+      c = mix(c, vec3(0.78, 0.53, 0.44) * (0.75 + 0.3 * lum), earIn * 0.8);
       c = mix(c, vec3(0.08, 0.56, 0.34) * (0.9 + 0.2 * lum), mint * 0.9);
       c = mix(c, vec3(0.012, 0.012, 0.014), frame);
       float fur = tri(uPlush, p, nR, 6.0);
@@ -50,13 +70,20 @@ export default {
     kind: 'ink',
     unwrap: { R: 0.48, span: 0.5, cz: 0.07, cy: 0.22 },
     region: (x, y, z) => z > 0.2 && y > -0.12 && y < 0.5,
-    colors: { ink: '#2a1812', brow: '#2c2427', blush: '255,150,140', mouth: '#a8504a', lip: '#4a2420', mouthLine: '#4a2018' },
-    iris: { deep: [0.02, 0.009, 0.006], rim: [0.24, 0.11, 0.04], glow: [0.62, 0.3, 0.1], glowAmt: 0.42, pupil: 0.4 },
+    // Matte ink, as on felt: glossier paint catches the light and the brows read grey.
+    paintRoughness: 0.92,
+    // The sheet's eyes have round highlights only: no idle twinkle cross.
+    twinkle: false,
+    colors: { ink: '#2a1812', brow: '#16110f', blush: '255,150,140', mouth: '#a8504a', lip: '#4a2420', mouthLine: '#4a2018' },
+    // The sheet's eyes are a deep, almost black brown with a warm glint low in the iris.
+    iris: { deep: [0.01, 0.004, 0.002], rim: [0.13, 0.055, 0.018], glow: [0.4, 0.18, 0.06], glowAmt: 0.32, pupil: 0.55 },
     layout: {
       eye: { x: 0.215, y: 0.235, w: 0.17, h: 0.205, depth: 0.04 },
       nose: { y: 0.165, w: 0.072, h: 0.048, shape: 'fox', color: '#1c1a1c' },
-      mouth: { y: 0.08, scale: 1.25, line: 6 },
-      brow: { base: 0.95, y: 0.44, x: 0.25, len: 0.2, width: 9, arch: 6, tilt: 0.05 },
+      // A small cat's ω tucked under the nose, as on the sheet.
+      mouth: { y: 0.118, scale: 1.05, line: 6, cat: true },
+      // Short crisp arcs just above the frames' outer corners.
+      brow: { base: 1, y: 0.448, x: 0.27, len: 0.11, width: 13, arch: 9, tilt: 0.12 },
       blush: { x: 0.33, y: 0.1, w: 0.1, h: 0.06, alpha: 0.12 },
     },
   },
