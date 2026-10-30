@@ -1,0 +1,11 @@
+{
+  "id": "dev.sidefolk.theme.night-studio",
+  "kind": "theme",
+  "name": "Night Studio",
+  "tagline": "Indigo glass over a dusk landscape",
+  "description": "A focused evening workspace: deep indigo cards over a dusk landscape, periwinkle buttons, mint for good news. Calm for late hours, not a terminal. In light mode the hills turn to a lavender dawn.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "minimum_sidefolk": "0.1.0"
+}

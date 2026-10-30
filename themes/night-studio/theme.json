@@ -1,0 +1,74 @@
+{
+  "format": 1,
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "type": {
+    "display": "system",
+    "text": "system",
+    "exact": "mono",
+    "scale": 1.0,
+    "density": "regular"
+  },
+  "motion": "calm",
+  "layout": {
+    "preset": "board"
+  },
+  "id": "dev.sidefolk.theme.night-studio",
+  "name": "Night Studio",
+  "summary": "A focused evening workspace: indigo glass over a dusk landscape, periwinkle buttons, mint for good news.",
+  "shape": {
+    "control": 10,
+    "card": 14,
+    "window": 18
+  },
+  "companion": {
+    "nook": "cushion",
+    "suggests": "spark"
+  },
+  "colors": {
+    "dark": {
+      "ink": "#E9ECFF",
+      "inkMuted": "#9AA3C7",
+      "inkFaint": "#828BAF",
+      "surface": "#11172F",
+      "surfaceSunken": "#0E1328",
+      "surfaceRaised": "#1A2140",
+      "line": "#29315A",
+      "accent": "#6B78FF",
+      "onAccent": "#0B1022",
+      "accentSoft": "#252E62",
+      "link": "#9AA4FF",
+      "danger": "#FF7A90",
+      "dangerSoft": "#3A2240",
+      "onDanger": "#0B1022",
+      "success": "#5EE3B5",
+      "successSoft": "#173A36"
+    },
+    "light": {
+      "ink": "#1E2147",
+      "inkMuted": "#545A85",
+      "inkFaint": "#656991",
+      "surface": "#F8F7FF",
+      "surfaceSunken": "#F3F1FF",
+      "surfaceRaised": "#FFFFFF",
+      "line": "#E2E0F5",
+      "accent": "#5664F0",
+      "onAccent": "#FFFFFF",
+      "accentSoft": "#E6E8FF",
+      "link": "#4A56D8",
+      "danger": "#C4354D",
+      "dangerSoft": "#FDE6EA",
+      "onDanger": "#FFFFFF",
+      "success": "#1F8A68",
+      "successSoft": "#DDF5EC"
+    }
+  },
+  "material": {
+    "sidebar": "solid",
+    "page": "art/page.png",
+    "pageDark": "art/page-dark.png"
+  },
+  "art": {
+    "tile": "art/tile.png"
+  }
+}

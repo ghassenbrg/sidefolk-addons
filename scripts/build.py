@@ -211,6 +211,37 @@ def companions(ident, work, previews, prior):
     return entries
 
 
+def themes(ident, work, previews, prior):
+    """Themes (Sidefolk's D58, D64): theme.json and its PNGs, nothing else. Sidefolk checks them again on install."""
+    entries = []
+    folder_root = ROOT / "themes"
+    for folder in sorted(folder_root.iterdir()) if folder_root.exists() else []:
+        if not (folder / "addon.json").exists():
+            continue
+        name = folder.name
+        entry = json.loads((folder / "addon.json").read_text())
+        theme = json.loads((folder / "theme.json").read_text())
+        assert entry["kind"] == "theme" and entry["id"] == theme["id"], f"{name}: addon.json and theme.json must name the same theme"
+        assert entry["id"].startswith("dev.sidefolk.theme."), f"{name}: id"
+        assert entry["version"] == theme["version"], f"{name}: addon.json and theme.json must have the same version"
+        files = sorted(str(p.relative_to(folder)) for p in folder.rglob("*") if p.is_file() and p.name not in ("addon.json", ".DS_Store"))
+        others = [f for f in files if f != "theme.json" and not re.fullmatch(r"art/[a-z0-9-]+\.png", f)]
+        assert not others, f"{name}: a theme carries theme.json and art/*.png only, not {others}"
+        stage = DIST / "stage" / f"theme-{name}"
+        preview = folder / "art" / "tile.png"
+        if preview.exists():
+            shutil.copy(preview, previews / f"theme-{name}.png")
+            entry["preview"] = f"previews/theme-{name}.png"
+        entry["source"] = source_digest(files_in(folder), folder)
+        old = prior.get(entry["id"])
+        if old and old["version"] == entry["version"]:
+            entries.append(reuse(f"theme-{name}", entry, stage, old, work))
+            continue
+        shutil.copytree(folder, stage, ignore=shutil.ignore_patterns("addon.json", ".DS_Store"))
+        entries.append(pack(f"theme-{name}", entry, stage, ident, work))
+    return entries
+
+
 def extensions(ident, work, previews, unsigned, prior):
     flags = ["-c", "release"] + ([] if unsigned else ["--arch", "arm64", "--arch", "x86_64"])
     run("swift", "build", *flags, cwd=ROOT)
@@ -264,7 +295,8 @@ def main():
         d.mkdir(parents=True)
     # An ad-hoc build is only checked, never published, so it makes every pack itself.
     prior = {} if unsigned or "--rebuild" in sys.argv else published(ident, work)
-    addons = companions(ident, work, previews, prior) + extensions(ident, work, previews, unsigned, prior)
+    addons = (companions(ident, work, previews, prior) + extensions(ident, work, previews, unsigned, prior)
+              + themes(ident, work, previews, prior))
     (catalog / "catalog.json").write_text(json.dumps({"format": 1, "addons": addons}, indent=2, ensure_ascii=False) + "\n")
     count = run("git", "rev-list", "--count", "HEAD", cwd=ROOT, capture_output=True).stdout.strip() or "1"
     # A fixed name: Sidefolk always asks for catalog.zip.

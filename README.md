@@ -1,13 +1,14 @@
 # Sidefolk add-ons
 
 The add-on gallery of [Sidefolk](https://github.com/ghassenbrg/sidefolk), the desktop companion for macOS:
-companions and extensions that Sidefolk downloads only when someone picks them, so nobody carries what they don't
+companions, extensions and themes that Sidefolk downloads only when someone picks them, so nobody carries what they don't
 use. Sidefolk shows them in **Settings › Companion** (the dashed cards) and **Settings › Extensions › Gallery**.
 
 | | What | |
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish) | 3D, 2–3.4 MB each |
 | **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and for Sidefolk 0.2 and later System Vitals+, Clipboard and Keep Awake | about 170 KB each |
+| **Themes** | Daylight, Night Studio, Paper Garden: colours, type, a layout of Sidefolk's own pieces, a few pictures | 0.5–1.8 MB each |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
 Built into the app are Mochi, Spark, the robot, the folks, and World Clock, Calculator, System Vitals and Weather.
@@ -25,6 +26,7 @@ its sandbox. Sidefolk's DECISIONS D55 and SECURITY T33 have the whole of it.
 
 ```
 companions/<name>/    addon.json, characters/<name>.js, assets/<name>.glb, portraits/<name>.png, avatars/<name>.png
+themes/<name>/        addon.json, theme.json, art/*.png (Sidefolk checks it again and re-encodes the pictures)
 extensions/<name>/    sidefolk-extension.json, icon.pdf, addon.json (its shelf: everyday, files, developer or fun),
                       Sources/ (a Swift program on Kit/)
 Kit/                  a copy of Sidefolk's extensions/Kit (scripts/check.sh warns when they differ)

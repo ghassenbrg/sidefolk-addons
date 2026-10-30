@@ -1,5 +1,6 @@
 #!/bin/bash
-# Checks what scripts/build.py put in dist/stage with Sidefolk's own validator (`sidefolk ext validate`), and that
+# Checks what scripts/build.py put in dist/stage with Sidefolk's own validators (`sidefolk ext validate`, `sidefolk theme
+# check`), and that
 # Kit/ is still the copy of Sidefolk's extensions/Kit.
 #   SIDEFOLK_APP=../sidefolk scripts/check.sh      (a checkout of ghassenbrg/sidefolk; default ../sidefolk)
 set -euo pipefail
@@ -16,6 +17,16 @@ failed=0
 for manifest in dist/stage/*/sidefolk-extension.json; do
   folder="$(dirname "$manifest")"
   if SIDEFOLK_HOME="$HOME_DIR" "$CLI" ext validate --no-run "$folder" > "$HOME_DIR/out.txt" 2>&1; then
+    echo "ok      $(basename "$folder")"
+  else
+    echo "FAILED  $(basename "$folder")"; sed 's/^/        /' "$HOME_DIR/out.txt"; failed=1
+  fi
+done
+
+for theme in dist/stage/theme-*/theme.json; do
+  [[ -f "$theme" ]] || continue
+  folder="$(dirname "$theme")"
+  if "$CLI" theme check "$folder" > "$HOME_DIR/out.txt" 2>&1; then
     echo "ok      $(basename "$folder")"
   else
     echo "FAILED  $(basename "$folder")"; sed 's/^/        /' "$HOME_DIR/out.txt"; failed=1
