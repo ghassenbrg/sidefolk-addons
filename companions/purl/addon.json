@@ -1,0 +1,13 @@
+{
+  "id": "dev.sidefolk.companions.purl",
+  "kind": "companion",
+  "name": "Purl",
+  "tagline": "A little mended friend",
+  "description": "A stitched-linen ragdoll in 3D, with a big soft square head, a mustard patch mended onto its belly and rosy cheeks. Now and then it pats its patch, happy to be here.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "purl",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0"
+}

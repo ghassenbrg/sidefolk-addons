@@ -1,0 +1,13 @@
+{
+  "id": "dev.sidefolk.companions.iris",
+  "kind": "companion",
+  "name": "Iris",
+  "tagline": "A little camera scout",
+  "description": "A toy camera in 3D, butter yellow, with one huge glossy lens for an eye, a small viewfinder, a coral shutter button and two stubby brown arms and feet. It blinks with a lens cap and now and then zooms its lens in and out like a camera finding its focus.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "iris",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0"
+}

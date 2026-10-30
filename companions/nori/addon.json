@@ -1,0 +1,13 @@
+{
+  "id": "dev.sidefolk.companions.nori",
+  "kind": "companion",
+  "name": "Nori",
+  "tagline": "A bookish little cat",
+  "description": "A chibi tuxedo cat in 3D, on its hind legs, with charcoal felt fur, a cream face, round black glasses, a mint scarf and a curled tail with a cream tip. Now and then it pushes its glasses up with a paw.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "nori",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0"
+}

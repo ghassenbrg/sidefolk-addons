@@ -1,0 +1,13 @@
+{
+  "id": "dev.sidefolk.companions.rune",
+  "kind": "companion",
+  "name": "Rune",
+  "tagline": "A pocket-sized golem",
+  "description": "A little stone golem in 3D, with a big mossy boulder head, stone arms and an amber gem that glows brighter while it listens or thinks. Now and then it knocks its stone knuckles together.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "rune",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0"
+}
