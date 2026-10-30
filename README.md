@@ -58,8 +58,12 @@ for byte, because a copy of Sidefolk may hold a catalog naming its digest (a fre
 an add-on's files changed and its version didn't, the build stops and asks for a new version. `--rebuild` signs
 everything anew (a new certificate); copies holding the older catalog then fetch it again when a pack doesn't match.
 
-Raise an add-on's version for every change people should get: Sidefolk offers **Update** when the catalog's version
-is newer than the installed one, and never updates an add-on by itself.
+Raise an add-on's version for every change people should get. An extension is offered as **Update** when the
+catalog's version is newer than the installed one (it can act for the person, so it waits for them). A companion
+only draws, so Sidefolk updates it by itself: a look soon after launch and every six hours, and the one on the
+desktop swaps to the new version in place. A version that needs something newer than an older copy has (an engine
+feature, a new move) must say so with `minimum_sidefolk` (or a higher `engine`): copies that don't meet it skip
+that version and keep the one they have.
 
 ## Adding one
 
