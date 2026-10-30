@@ -36,6 +36,15 @@ COMPANION_FILES = ["characters/{n}.js", "assets/{n}.glb", "portraits/{n}.png", "
 MINIMUM_SIDEFOLK = "0.1.0"
 
 
+def minimum_sidefolk(requirement):
+    """The manifest's ">=0.2" as the catalog's "0.2.0": copies of Sidefolk older than that skip the version (an
+    extension using pages, say, which an older copy can't read)."""
+    m = re.fullmatch(r">=\s*(\d+)(?:\.(\d+))?(?:\.(\d+))?", (requirement or "").strip())
+    if not m:
+        return MINIMUM_SIDEFOLK
+    return ".".join(part or "0" for part in m.groups())
+
+
 def run(*args, **kw):
     return subprocess.run(args, check=True, text=True, **kw)
 
@@ -74,6 +83,34 @@ def source_digest(paths, base):
     return h.hexdigest()
 
 
+def pairs_digest(pairs):
+    """source_digest of (relative path, bytes) pairs, for files that are only in git history."""
+    h = hashlib.sha256()
+    for rel, data in sorted(pairs):
+        h.update(rel.encode() + b"\0")
+        h.update(hashlib.sha256(data).digest())
+    return h.hexdigest()
+
+
+def kit_versions():
+    """Kit/ as it was at each commit that changed it, newest first, as (relative path, bytes) pairs."""
+    revs = run("git", "log", "--format=%H", "--", "Kit", cwd=ROOT, capture_output=True).stdout.split()
+    out = []
+    for rev in revs:
+        names = run("git", "ls-tree", "-r", "--name-only", rev, "--", "Kit", cwd=ROOT, capture_output=True).stdout.split("\n")
+        files = [n for n in names if n and Path(n).name not in ("addon.json", ".DS_Store")]
+        out.append([(n, subprocess.run(["git", "show", f"{rev}:{n}"], cwd=ROOT, check=True, capture_output=True).stdout) for n in files])
+    return out
+
+
+def built_with_earlier_kit(folder, published_source):
+    """The extension's own files are as published, and only Kit/ changed since. Kit changes are additions old programs
+    don't use (a new part of the protocol), so the published pack still works: keeping it spares everyone an update
+    that changes nothing for them. An extension gets a Kit fix by raising its version."""
+    own = [(str(p.relative_to(ROOT)), p.read_bytes()) for p in files_in(folder)]
+    return any(pairs_digest(own + kit) == published_source for kit in kit_versions())
+
+
 def files_in(folder, skip=("addon.json", ".DS_Store")):
     return [p for p in folder.rglob("*") if p.is_file() and p.name not in skip]
 
@@ -96,10 +133,13 @@ def published(ident, work):
     return {a["id"]: a for a in data["addons"]}
 
 
-def reuse(name, entry, stage, old, work):
+def reuse(name, entry, stage, old, work, folder=None):
     """Takes the published pack of this version into dist/ instead of a new one, and stages its files."""
     if old.get("source") not in (None, entry["source"]):
-        sys.exit(f"{name}: its files changed since {entry['version']} was published. Raise its version.")
+        if folder is None or not built_with_earlier_kit(folder, old["source"]):
+            sys.exit(f"{name}: its files changed since {entry['version']} was published. Raise its version.")
+        # Still what the pack is made from: its own files and the Kit it was built with.
+        entry["source"] = old["source"]
     zip_path = DIST / old["file"]
     urllib.request.urlretrieve(f"{RELEASE}/{old['file']}", zip_path)
     assert zip_path.stat().st_size == old["bytes"] and sha256(zip_path) == old["sha256"], f"{name}: the published pack isn't what the catalog says"
@@ -189,7 +229,7 @@ def extensions(ident, work, previews, unsigned, prior):
             shutil.copy(folder / m["icon"], previews / f"{name}{suffix}")
         entry = {"id": m["id"], "kind": "extension", "name": m["name"], "tagline": m.get("tagline", ""),
                  "description": m.get("description", ""), "author": m.get("author", "Sidefolk"), "version": m["version"],
-                 "license": "Proprietary", "minimum_sidefolk": MINIMUM_SIDEFOLK}
+                 "license": "Proprietary", "minimum_sidefolk": minimum_sidefolk(m.get("sidefolk"))}
         # The gallery's shelf (everyday, files, developer, fun), from addon.json beside the manifest.
         extra = json.loads((folder / "addon.json").read_text()) if (folder / "addon.json").exists() else {}
         assert extra.get("category") in ("everyday", "files", "developer", "fun"), f"{name}: addon.json needs a category"
@@ -200,7 +240,7 @@ def extensions(ident, work, previews, unsigned, prior):
         entry["source"] = source_digest(files_in(folder) + files_in(ROOT / "Kit"), ROOT)
         old = prior.get(entry["id"])
         if old and old["version"] == entry["version"]:
-            entries.append(reuse(name, entry, stage, old, work))
+            entries.append(reuse(name, entry, stage, old, work, folder))
             continue
         (stage / "bin").mkdir(parents=True)
         shutil.copy(manifest_file, stage)

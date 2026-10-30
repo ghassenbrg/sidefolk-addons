@@ -1,0 +1,265 @@
+{
+  "id": "dev.sidefolk.system-vitals-plus",
+  "name": "System Vitals+",
+  "version": "1.0.0",
+  "sidefolk": ">=0.2",
+  "description": "The whole Mac in plain words: processor, graphics, memory, apps, disks, battery health, heat and network, as a page with live charts, a tile on Today, instant answers and a heads-up when something needs you. Nothing leaves your Mac.",
+  "tagline": "Your whole Mac at a glance, with live charts",
+  "folk": "byte",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": {
+    "command": "bin/ext-system-vitals-plus"
+  },
+  "permissions": {
+    "network": false
+  },
+  "pages": {
+    "mac": {
+      "title": "Your Mac",
+      "symbol": "gauge.with.dots.needle.67percent",
+      "refresh": 3,
+      "history": true,
+      "widget": true
+    }
+  },
+  "tools": {
+    "health": {
+      "title": "Mac health check",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "how's my mac",
+            "hows my mac",
+            "how is my mac",
+            "how is my mac doing",
+            "how's my mac doing",
+            "mac health",
+            "check my mac",
+            "is my mac ok",
+            "is my mac okay",
+            "mac status",
+            "system status",
+            "system health"
+          ]
+        }
+      ]
+    },
+    "cpu": {
+      "title": "Processor and graphics",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "cpu usage",
+            "processor usage",
+            "how busy is my mac",
+            "how busy is my cpu",
+            "cpu load",
+            "gpu usage"
+          ]
+        }
+      ]
+    },
+    "memory": {
+      "title": "Memory in detail",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "memory usage",
+            "ram usage",
+            "how much memory is free",
+            "how much ram is free",
+            "how much memory am i using",
+            "memory pressure"
+          ]
+        }
+      ]
+    },
+    "storage": {
+      "title": "Storage",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "storage",
+            "disk usage",
+            "how much space is left",
+            "how much space do i have",
+            "how much disk space do i have",
+            "free space"
+          ]
+        }
+      ]
+    },
+    "battery": {
+      "title": "Battery in detail",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "battery health",
+            "battery status",
+            "how's my battery",
+            "hows my battery",
+            "how is my battery",
+            "battery cycles",
+            "is my battery healthy"
+          ]
+        }
+      ]
+    },
+    "network": {
+      "title": "Network activity",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "network usage",
+            "network activity",
+            "what's my ip",
+            "whats my ip",
+            "what is my ip",
+            "my ip address",
+            "local ip"
+          ]
+        }
+      ]
+    },
+    "top_apps": {
+      "title": "What's using the Mac",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "what's slowing my mac",
+            "whats slowing my mac",
+            "what is slowing my mac",
+            "what's slowing down my mac",
+            "why is my mac slow",
+            "top apps",
+            "what's using my cpu",
+            "what's using my memory",
+            "what's using my ram",
+            "which app uses the most memory",
+            "which app uses the most cpu"
+          ]
+        }
+      ]
+    },
+    "specs": {
+      "title": "This Mac's specs",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "my mac's specs",
+            "mac specs",
+            "my mac specs",
+            "what chip do i have",
+            "how much ram do i have",
+            "how much memory do i have"
+          ]
+        }
+      ]
+    }
+  },
+  "watchers": {
+    "cpu_busy": {
+      "title": "Mac working hard",
+      "description": "Tells you when the processor stays very busy, and which app is behind it.",
+      "config": {
+        "above_percent": {
+          "type": "integer",
+          "description": "Tell above this share of the processor, in percent.",
+          "default": 90,
+          "minimum": 50,
+          "maximum": 100
+        }
+      }
+    },
+    "app_hog": {
+      "title": "An app using a lot",
+      "description": "Tells you when one app takes an unusual share of the processor or memory.",
+      "config": {
+        "cpu_percent": {
+          "type": "integer",
+          "description": "Tell when one app uses more than this share of the whole processor, in percent.",
+          "default": 40,
+          "minimum": 10,
+          "maximum": 100
+        },
+        "memory_gb": {
+          "type": "number",
+          "description": "Tell when one app holds more than this much memory, in gigabytes.",
+          "default": 8,
+          "minimum": 1
+        }
+      }
+    },
+    "memory_pressure": {
+      "title": "Memory tight",
+      "description": "Tells you when macOS runs short of memory and apps may slow down."
+    },
+    "hot": {
+      "title": "Mac running hot",
+      "description": "Tells you when the Mac gets hot enough to slow itself down."
+    },
+    "disk_low": {
+      "title": "Disk space low",
+      "description": "Tells you once when free space on the startup disk drops below a size.",
+      "config": {
+        "below_gb": {
+          "type": "number",
+          "description": "Warn below this many gigabytes free.",
+          "default": 15,
+          "minimum": 1
+        }
+      }
+    },
+    "battery_low": {
+      "title": "Battery low",
+      "description": "Tells you once when the battery drops below a level while it isn't plugged in.",
+      "config": {
+        "below_percent": {
+          "type": "integer",
+          "description": "Warn below this percentage.",
+          "default": 20,
+          "minimum": 1,
+          "maximum": 99
+        }
+      }
+    },
+    "battery_health": {
+      "title": "Battery worn",
+      "description": "Tells you when the battery's health drops below a level or it reports a fault.",
+      "config": {
+        "below_percent": {
+          "type": "integer",
+          "description": "Warn below this share of its charge when new, in percent.",
+          "default": 80,
+          "minimum": 50,
+          "maximum": 100
+        }
+      }
+    }
+  }
+}

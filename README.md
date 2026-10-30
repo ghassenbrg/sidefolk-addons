@@ -7,7 +7,7 @@ use. Sidefolk shows them in **Settings › Companion** (the dashed cards) and **
 | | What | |
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish) | 3D, 2–3.4 MB each |
-| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds | about 170 KB each |
+| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, System Vitals+ (a page in Home, Sidefolk 0.2 and later) | about 170 KB each |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
 Built into the app are Mochi, Spark, the robot, the folks, and World Clock, Calculator, System Vitals and Weather.
@@ -55,7 +55,8 @@ scripts/publish.sh              # uploads the new packs, then the catalog, to th
 
 A published version is never rebuilt: `build.py` keeps the release's pack of every version already there, byte
 for byte, because a copy of Sidefolk may hold a catalog naming its digest (a fresh signature changes the bytes). If
-an add-on's files changed and its version didn't, the build stops and asks for a new version. `--rebuild` signs
+an add-on's files changed and its version didn't, the build stops and asks for a new version. A change to Kit/ alone doesn't: an extension whose own files are as published keeps its pack (Kit changes
+are additions its program doesn't use); raise its version to ship it a Kit fix. `--rebuild` signs
 everything anew (a new certificate); copies holding the older catalog then fetch it again when a pack doesn't match.
 
 Raise an add-on's version for every change people should get. An extension is offered as **Update** when the
