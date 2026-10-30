@@ -1,0 +1,13 @@
+{
+  "id": "dev.sidefolk.companions.folio",
+  "kind": "companion",
+  "name": "Folio",
+  "tagline": "A folded little wish",
+  "description": "An origami character in 3D, folded from thick coral paper, with two paper fins and two folded feet. Now and then it flaps its fins and floats up like a sheet in a draught.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "folio",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0"
+}

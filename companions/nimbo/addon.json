@@ -1,0 +1,13 @@
+{
+  "id": "dev.sidefolk.companions.nimbo",
+  "kind": "companion",
+  "name": "Nimbo",
+  "tagline": "A dreamy little cloud",
+  "description": "A floating lavender cloud in 3D with a warm glow in its face and two little cloud puffs for hands. It hovers above its shadow, and now and then does a barrel roll in the air.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "nimbo",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0"
+}

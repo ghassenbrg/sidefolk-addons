@@ -1,0 +1,13 @@
+{
+  "id": "dev.sidefolk.companions.ember",
+  "kind": "companion",
+  "name": "Ember",
+  "tagline": "A curious little fox",
+  "description": "A chibi red fox in 3D, on its hind legs, with big amber eyes and a big fluffy tail that sways as it moves. Now and then it chases its own tail round and round, a little dizzy after.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "ember",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0"
+}

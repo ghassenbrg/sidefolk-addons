@@ -1,1 +1,67 @@
-# sidefolk-addons
+# Sidefolk add-ons
+
+The add-on gallery of [Sidefolk](https://github.com/ghassenbrg/sidefolk), the desktop companion for macOS:
+companions and extensions that Sidefolk downloads only when someone picks them, so nobody carries what they don't
+use. Sidefolk shows them in **Settings › Companion** (the dashed cards) and **Settings › Extensions › Gallery**.
+
+| | What | |
+|---|---|---|
+| **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish) | 3D, 2–3.4 MB each |
+| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds | about 170 KB each |
+
+Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
+Built into the app are Mochi, Spark, the robot, the folks, and World Clock, Calculator, System Vitals and Weather.
+
+## How Sidefolk trusts what it downloads
+
+Each add-on is published as a pack: a bundle `<name>.sidefolkaddon/Contents/{Info.plist, Resources/…}`, signed as
+a whole with Sidefolk's Developer ID (codesign seals every file), zipped. The catalog is a pack of its own. Before
+using anything, Sidefolk checks the signature against the Developer ID team its own Info.plist names, the
+identifier against the add-on it asked for, and the size and SHA-256 against the signed catalog. A companion is
+exactly four files; an extension goes through Sidefolk's usual install preview, with its permissions, and runs in
+its sandbox. Sidefolk's DECISIONS D55 and SECURITY T33 have the whole of it.
+
+## Layout
+
+```
+companions/<name>/    addon.json, characters/<name>.js, assets/<name>.glb, portraits/<name>.png, avatars/<name>.png
+extensions/<name>/    sidefolk-extension.json, icon.pdf, Sources/ (a Swift program on Kit/)
+Kit/                  a copy of Sidefolk's extensions/Kit (scripts/check.sh warns when they differ)
+Tests/                the extensions' own logic, with canned data
+scripts/              build.py (pack and sign), publish.sh (upload), check.sh (Sidefolk's validator)
+```
+
+The extensions' sandbox tests live in Sidefolk and run against a build of this repository beside it
+(`../sidefolk-addons`, or `SIDEFOLK_ADDONS_REPO`).
+
+## Working on it
+
+```sh
+swift test                                   # build the extensions and run their tests
+python3 scripts/build.py --unsigned          # pack everything, ad hoc (Sidefolk refuses these)
+SIDEFOLK_APP=../sidefolk scripts/check.sh    # Sidefolk's own manifest check on every extension
+```
+
+To try a build in Sidefolk before publishing it, run a debug copy of Sidefolk with `SIDEFOLK_ADDONS` set to this
+repository's `dist/` (signed with `scripts/build.py`): it reads the gallery from there instead of GitHub.
+
+## Publishing
+
+```sh
+python3 scripts/build.py        # signs with the keychain's Developer ID Application (or $SIDEFOLK_SIGN_IDENTITY)
+scripts/publish.sh              # uploads every pack, then the catalog, to the "gallery" release
+```
+
+Raise an add-on's version for every change people should get: Sidefolk offers **Update** when the catalog's version
+is newer than the installed one, and never updates an add-on by itself.
+
+## Adding one
+
+- **A companion** needs its character in Sidefolk too (a `CompanionChoice` and a stand-in rig), so new ones start
+  in Sidefolk's `sidefolk-3d-character` skill, which ends here. Community 3D companions wait for a data-only
+  character format: today's character files are code, which only Sidefolk's own signature may carry.
+- **An extension** is a folder like those in `extensions/`, with a manifest Sidefolk validates
+  ([Sidefolk's docs/EXTENSIONS.md](https://github.com/ghassenbrg/sidefolk/blob/main/docs/EXTENSIONS.md)). Add it
+  to `Package.swift` and open a pull request; ids under `dev.sidefolk.` are Sidefolk's own.
+
+Sidefolk is proprietary (its LICENSE); so are the add-ons here unless an `addon.json` or manifest says otherwise.

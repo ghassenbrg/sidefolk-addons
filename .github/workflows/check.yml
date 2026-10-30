@@ -1,0 +1,48 @@
+name: Check
+
+# Every push to main and every pull request: the extensions build and pass their tests, every add-on packs
+# (ad hoc: signing stays on the maintainer's Mac, scripts/build.py), and each extension passes Sidefolk's own
+# manifest check. Publishing is scripts/publish.sh, by hand.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Build, test, pack and validate
+    # The machine and Xcode Sidefolk itself builds with (its docs/RELEASE.md); the repository variables
+    # SIDEFOLK_MACOS_RUNNER and SIDEFOLK_XCODE change them.
+    runs-on: ${{ vars.SIDEFOLK_MACOS_RUNNER || 'xcode-27' }}
+    timeout-minutes: 45
+    env:
+      SIDEFOLK_XCODE: ${{ vars.SIDEFOLK_XCODE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the catalog's version is the commit count
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ghassenbrg/sidefolk
+          path: .sidefolk
+
+      - name: Select Xcode
+        run: scripts/ci/select-xcode.sh
+
+      - name: Build and test
+        run: swift test
+
+      - name: Pack every add-on (unsigned)
+        run: python3 scripts/build.py --unsigned
+
+      - name: Validate with Sidefolk
+        run: SIDEFOLK_APP=.sidefolk scripts/check.sh

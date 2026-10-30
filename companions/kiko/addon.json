@@ -1,0 +1,13 @@
+{
+  "id": "dev.sidefolk.companions.kiko",
+  "kind": "companion",
+  "name": "Kiko",
+  "tagline": "A young space explorer",
+  "description": "A chibi kid astronaut in 3D, in a padded mustard spacesuit with fluffy dark curls. Now and then it makes a slow moon jump, arms up, as if gravity were low.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "kiko",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0"
+}
