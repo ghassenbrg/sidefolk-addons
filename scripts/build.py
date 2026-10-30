@@ -3,6 +3,12 @@
 
     scripts/build.py              sign with the keychain's Developer ID Application (or $SIDEFOLK_SIGN_IDENTITY)
     scripts/build.py --unsigned   ad-hoc, for checks (CI): Sidefolk refuses these packs
+    scripts/build.py --rebuild    sign every pack anew, even versions already published (a new certificate)
+
+A signed build keeps the published pack of every version already in the release, byte for byte: a copy of Sidefolk
+may hold a catalog naming that pack's digest, and a pack rebuilt under the same name would no longer match it (each
+signature carries its own timestamp). Each entry records a digest of the files the pack is made from (`source`);
+when they changed but the version didn't, the build stops: raise the version.
 
 dist/ then holds <name>-<version>.zip for each add-on and catalog.zip, which scripts/publish.sh uploads, and
 dist/stage/<name>/ with each pack's files as Sidefolk installs them (for `sidefolk ext validate`).
@@ -18,11 +24,14 @@ import re
 import shutil
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 CATALOG_ID = "dev.sidefolk.addons.catalog"
+RELEASE = "https://github.com/ghassenbrg/sidefolk-addons/releases/download/gallery"
 COMPANION_FILES = ["characters/{n}.js", "assets/{n}.glb", "portraits/{n}.png", "avatars/{n}.png"]
 MINIMUM_SIDEFOLK = "0.1.0"
 
@@ -54,6 +63,53 @@ def sha256(path):
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def source_digest(paths, base):
+    """What a pack is made from: these files' paths (relative to `base`) and contents."""
+    h = hashlib.sha256()
+    for path in sorted(paths, key=lambda p: str(p.relative_to(base))):
+        h.update(str(path.relative_to(base)).encode() + b"\0")
+        h.update(hashlib.sha256(path.read_bytes()).digest())
+    return h.hexdigest()
+
+
+def files_in(folder, skip=("addon.json", ".DS_Store")):
+    return [p for p in folder.rglob("*") if p.is_file() and p.name not in skip]
+
+
+def published(ident, work):
+    """The entries of the catalog in the release now, by id (none before the first publish)."""
+    zip_path = work / "published-catalog.zip"
+    try:
+        urllib.request.urlretrieve(f"{RELEASE}/catalog.zip", zip_path)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return {}
+        raise
+    out = work / "published-catalog"
+    run("ditto", "-x", "-k", str(zip_path), str(out))
+    bundle = out / "catalog.sidefolkaddon"
+    run("codesign", "--verify", "--deep", "--strict",
+        f'-R=anchor apple generic and certificate leaf[subject.OU] = "{team(ident)}" and identifier "{CATALOG_ID}"', str(bundle))
+    data = json.loads((bundle / "Contents" / "Resources" / "catalog.json").read_text())
+    return {a["id"]: a for a in data["addons"]}
+
+
+def reuse(name, entry, stage, old, work):
+    """Takes the published pack of this version into dist/ instead of a new one, and stages its files."""
+    if old.get("source") not in (None, entry["source"]):
+        sys.exit(f"{name}: its files changed since {entry['version']} was published. Raise its version.")
+    zip_path = DIST / old["file"]
+    urllib.request.urlretrieve(f"{RELEASE}/{old['file']}", zip_path)
+    assert zip_path.stat().st_size == old["bytes"] and sha256(zip_path) == old["sha256"], f"{name}: the published pack isn't what the catalog says"
+    out = work / f"published-{name}"
+    run("ditto", "-x", "-k", str(zip_path), str(out))
+    shutil.rmtree(stage, ignore_errors=True)
+    shutil.copytree(out / f"{name}.sidefolkaddon" / "Contents" / "Resources", stage)
+    entry.update(file=old["file"], bytes=old["bytes"], sha256=old["sha256"])
+    print(f"kept    {old['file']} (published)")
+    return entry
 
 
 def sign(path, ident, runtime=False):
@@ -90,7 +146,7 @@ def pack(name, entry, payload, ident, work, file=None):
     return entry
 
 
-def companions(ident, work, previews):
+def companions(ident, work, previews, prior):
     entries = []
     for folder in sorted((ROOT / "companions").iterdir()):
         if not (folder / "addon.json").exists():
@@ -103,14 +159,19 @@ def companions(ident, work, previews):
         expected = sorted(f.format(n=name) for f in COMPANION_FILES)
         assert files == expected, f"{name}: needs exactly {expected}, has {files}"
         stage = DIST / "stage" / name
-        shutil.copytree(folder, stage, ignore=shutil.ignore_patterns("addon.json", ".DS_Store"))
         shutil.copy(folder / "avatars" / f"{name}.png", previews / f"{name}.png")
         entry["preview"] = f"previews/{name}.png"
+        entry["source"] = source_digest(files_in(folder), folder)
+        old = prior.get(entry["id"])
+        if old and old["version"] == entry["version"]:
+            entries.append(reuse(name, entry, stage, old, work))
+            continue
+        shutil.copytree(folder, stage, ignore=shutil.ignore_patterns("addon.json", ".DS_Store"))
         entries.append(pack(name, entry, stage, ident, work))
     return entries
 
 
-def extensions(ident, work, previews, unsigned):
+def extensions(ident, work, previews, unsigned, prior):
     flags = ["-c", "release"] + ([] if unsigned else ["--arch", "arm64", "--arch", "x86_64"])
     run("swift", "build", *flags, cwd=ROOT)
     binaries = Path(run("swift", "build", *flags, "--show-bin-path", cwd=ROOT, capture_output=True).stdout.strip())
@@ -123,15 +184,9 @@ def extensions(ident, work, previews, unsigned):
         m = json.loads(manifest_file.read_text())
         assert m["id"].startswith("dev.sidefolk.") and m["run"]["command"] == f"bin/ext-{name}", f"{name}: id and run.command"
         stage = DIST / "stage" / name
-        (stage / "bin").mkdir(parents=True)
-        shutil.copy(manifest_file, stage)
         if m.get("icon"):
-            shutil.copy(folder / m["icon"], stage)
             suffix = Path(m["icon"]).suffix
             shutil.copy(folder / m["icon"], previews / f"{name}{suffix}")
-        program = stage / "bin" / f"ext-{name}"
-        shutil.copy(binaries / f"ext-{name}", program)
-        sign(program, ident, runtime=True)
         entry = {"id": m["id"], "kind": "extension", "name": m["name"], "tagline": m.get("tagline", ""),
                  "description": m.get("description", ""), "author": m.get("author", "Sidefolk"), "version": m["version"],
                  "license": "Proprietary", "minimum_sidefolk": MINIMUM_SIDEFOLK}
@@ -141,6 +196,19 @@ def extensions(ident, work, previews, unsigned):
         entry["category"] = extra["category"]
         if m.get("icon"):
             entry["preview"] = f"previews/{name}{Path(m['icon']).suffix}"
+        # The program is built from the extension's folder and Kit/.
+        entry["source"] = source_digest(files_in(folder) + files_in(ROOT / "Kit"), ROOT)
+        old = prior.get(entry["id"])
+        if old and old["version"] == entry["version"]:
+            entries.append(reuse(name, entry, stage, old, work))
+            continue
+        (stage / "bin").mkdir(parents=True)
+        shutil.copy(manifest_file, stage)
+        if m.get("icon"):
+            shutil.copy(folder / m["icon"], stage)
+        program = stage / "bin" / f"ext-{name}"
+        shutil.copy(binaries / f"ext-{name}", program)
+        sign(program, ident, runtime=True)
         entries.append(pack(name, entry, stage, ident, work))
     return entries
 
@@ -154,7 +222,9 @@ def main():
     previews = catalog / "previews"
     for d in (work, previews, DIST / "stage"):
         d.mkdir(parents=True)
-    addons = companions(ident, work, previews) + extensions(ident, work, previews, unsigned)
+    # An ad-hoc build is only checked, never published, so it makes every pack itself.
+    prior = {} if unsigned or "--rebuild" in sys.argv else published(ident, work)
+    addons = companions(ident, work, previews, prior) + extensions(ident, work, previews, unsigned, prior)
     (catalog / "catalog.json").write_text(json.dumps({"format": 1, "addons": addons}, indent=2, ensure_ascii=False) + "\n")
     count = run("git", "rev-list", "--count", "HEAD", cwd=ROOT, capture_output=True).stdout.strip() or "1"
     # A fixed name: Sidefolk always asks for catalog.zip.

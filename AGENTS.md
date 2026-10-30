@@ -9,7 +9,9 @@ docs/SECURITY.md T33 before changing how packs are made.
 - When committing, never add a `Co-Authored-By` trailer.
 - Never publish (`scripts/publish.sh`) or push unless the maintainer asks: the release is what every copy of
   Sidefolk downloads.
-- Raise an add-on's `version` (addon.json or sidefolk-extension.json) whenever its files change.
+- Raise an add-on's `version` (addon.json or sidefolk-extension.json) whenever its files change. A published
+  version's pack is never replaced (`scripts/build.py` keeps it and stops when its files changed without a new
+  version); `--rebuild` only for a new signing certificate.
 - A companion's folder holds exactly its four files and addon.json; `scripts/build.py` refuses anything else.
 - `Kit/` is a copy of Sidefolk's `extensions/Kit`: change it there first, then copy it here.
 - An extension's words (name, tagline, description, tool titles) are also in Sidefolk's string catalog

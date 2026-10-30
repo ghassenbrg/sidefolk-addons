@@ -2,8 +2,9 @@
 # Uploads what scripts/build.py made to the "gallery" release, where Sidefolk reads the catalog
 # (https://github.com/ghassenbrg/sidefolk-addons/releases/download/gallery/catalog.zip).
 #   scripts/publish.sh
-# Packs go up first and the catalog last, so the catalog never names a file that isn't there yet. Packs of
-# versions the catalog no longer lists are removed afterwards.
+# Packs go up first and the catalog last, so the catalog never names a file that isn't there yet. A pack already in
+# the release with the same digest (a version build.py kept) isn't uploaded again. Packs of versions the catalog no
+# longer lists are removed afterwards.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 TAG=gallery
@@ -15,9 +16,13 @@ if ! gh release view "$TAG" >/dev/null 2>&1; then
   gh release create "$TAG" --title "Add-on gallery" --latest \
     --notes "Sidefolk's add-on gallery: companions and extensions Sidefolk downloads on demand. Each file is signed; Sidefolk checks it before using it."
 fi
-packs=(dist/*.zip)
-packs=("${packs[@]/dist\/catalog.zip}")
-gh release upload "$TAG" ${packs[@]} --clobber
+have=$(gh release view "$TAG" --json assets -q '.assets[] | "\(.name) \(.digest)"')
+packs=()
+for pack in dist/*.zip; do
+  [[ "$pack" == dist/catalog.zip ]] && continue
+  grep -qx "$(basename "$pack") sha256:$(shasum -a 256 "$pack" | cut -d' ' -f1)" <<<"$have" || packs+=("$pack")
+done
+(( ${#packs[@]} == 0 )) || gh release upload "$TAG" "${packs[@]}" --clobber
 gh release upload "$TAG" dist/catalog.zip --clobber
 
 keep=$(cd dist && ls *.zip)

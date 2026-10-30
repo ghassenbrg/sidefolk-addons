@@ -50,8 +50,13 @@ repository's `dist/` (signed with `scripts/build.py`): it reads the gallery from
 
 ```sh
 python3 scripts/build.py        # signs with the keychain's Developer ID Application (or $SIDEFOLK_SIGN_IDENTITY)
-scripts/publish.sh              # uploads every pack, then the catalog, to the "gallery" release
+scripts/publish.sh              # uploads the new packs, then the catalog, to the "gallery" release
 ```
+
+A published version is never rebuilt: `build.py` keeps the release's pack of every version already there, byte
+for byte, because a copy of Sidefolk may hold a catalog naming its digest (a fresh signature changes the bytes). If
+an add-on's files changed and its version didn't, the build stops and asks for a new version. `--rebuild` signs
+everything anew (a new certificate); copies holding the older catalog then fetch it again when a pack doesn't match.
 
 Raise an add-on's version for every change people should get: Sidefolk offers **Update** when the catalog's version
 is newer than the installed one, and never updates an add-on by itself.
