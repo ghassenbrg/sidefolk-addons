@@ -19,6 +19,8 @@ export default {
   marks: [0.5, 0.95, 0.15],
   blob: [1.5, 0.75],
   skip: ['sniff', 'sneeze'],
+  // One block, no neck: looking round turns the whole camera instead of twisting it.
+  turnWhole: 0.85,
 
   // Soft glossy plastic, coloured by place: the body butter yellow (Meshy's specks go), the lens a
   // chocolate ring around slate glass, the stub limbs the same chocolate, the shutter button coral.

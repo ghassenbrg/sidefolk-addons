@@ -69,7 +69,7 @@ export default {
     iris: { deep: [0.012, 0.005, 0.002], rim: [0.2, 0.08, 0.018], glow: [0.7, 0.36, 0.07], glowAmt: 0.38, pupil: 0.0 },
     layout: {
       eye: { x: 0.27, y: 0.26, w: 0.16, h: 0.21, depth: 0.045 },
-      mouth: { y: 0.15, scale: 2.6, line: 7 },
+      mouth: { y: 0.15, scale: 2.2, line: 8 },
       brow: { base: 0, y: 0.44, x: 0.27, len: 0.12, width: 9, arch: 6 },
       blush: { x: 0.4, y: 0.1, w: 0.1, h: 0.06, alpha: 0.12 },
     },
