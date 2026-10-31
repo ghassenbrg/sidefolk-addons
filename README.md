@@ -28,6 +28,7 @@ its sandbox. Sidefolk's DECISIONS D55 and SECURITY T33 have the whole of it.
 companions/<name>/    addon.json, characters/<name>.js, assets/<name>.glb, portraits/<name>.png, avatars/<name>.png
 themes/<name>/        addon.json, theme.json, art/*.png (Sidefolk checks it again and re-encodes the pictures)
 extensions/<name>/    sidefolk-extension.json, icon.pdf, addon.json (its shelf: everyday, files, developer or fun),
+                      strings/<language>.json (its words in Sidefolk's ten languages, Sidefolk D76),
                       Sources/ (a Swift program on Kit/); optionally licenses/ (packed as is) and frameworks
                       the program links (packed as lib/<Name>.framework/<Name>, signed like the program)
 Kit/                  a copy of Sidefolk's extensions/Kit (scripts/check.sh warns when they differ)
@@ -94,6 +95,12 @@ that version and keep the one they have.
   (people can hide it from Home's sidebar): an extension that is mostly an on/off switch puts that switch on its page's
   summary (`Summary(..., control: .toggle(...))`) with `"widget": true`, and Sidefolk shows it on Today's tile and
   beside the page in the sidebar, as Keep Awake does (Sidefolk's docs/EXTENSIONS.md › Pages).
+- **Every word in ten languages** (Sidefolk D76): write what people read as `L("English", ["name": value])` and
+  numbers, sizes and dates with `Format`; `../sidefolk/scripts/extension-strings.py sync extensions/<name>` writes
+  `strings/en.json` from the code, and each other language's file translates `text` and the manifest's words (name,
+  tagline, description, titles). `extension-strings.py check` lists what's missing; Sidefolk's `ExtensionLanguagesTests`
+  wants all of it for Sidefolk's own. `build.py` packs `strings/` and puts each language's name, tagline and description
+  in the catalog. Playtime keeps its words in code with the Kit's `Localized` (D75).
 - **What the Kit offers** follows Sidefolk's protocol: tools, watchers, pages (gauges, charts, switches, buttons, and
   since Sidefolk D68 `choice`, `field` and `list` with pictures), palettes (items with a picture, a swatch and a
   section; `PalettePreview` for the picked item in full; list actions like `clear`), and notices (`ext.on`, as
