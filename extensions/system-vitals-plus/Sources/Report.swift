@@ -46,10 +46,10 @@ enum Words {
     static func concerns(_ s: Snapshot) -> [Concern] {
         var out: [Concern] = []
         if let m = s.memory, m.pressure >= 2 {
-            let top = s.byMemory.first.map { " " + L("Quit apps you aren't using, starting with {app} ({memory}).", ["app": $0.name, "memory": memory($0.memory)]) } ?? ""
+            let top = s.byMemory.first.map { L("Quit apps you aren't using, starting with {app} ({memory}).", ["app": $0.name, "memory": memory($0.memory)]) } ?? ""
             out.append(m.pressure >= 4
-                ? Concern(tone: .bad, title: L("Memory is very tight"), advice: L("macOS is short of memory, so apps slow down or pause.") + top)
-                : Concern(tone: .warn, title: L("Memory is getting tight"), advice: L("macOS is squeezing memory to make room.") + top))
+                ? Concern(tone: .bad, title: L("Memory is very tight"), advice: Format.sentences([L("macOS is short of memory, so apps slow down or pause."), top]))
+                : Concern(tone: .warn, title: L("Memory is getting tight"), advice: Format.sentences([L("macOS is squeezing memory to make room."), top])))
         }
         switch s.thermal {
         case .critical:

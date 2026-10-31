@@ -16,7 +16,7 @@ enum Answers {
         if let m = s.memory { lines.append(L("Memory pressure is {pressure}.", ["pressure": w.pressureWord(m.pressure)])) }
         lines.append(L("Temperature: {heat}.", ["heat": w.thermalWord(s.thermal).0.lowercased(with: Language.locale)]))
         if let up = s.uptime { lines.append(L("On for {time}.", ["time": w.duration(up)])) }
-        return lines.joined(separator: " ")
+        return Format.sentences(lines)
     }
 
     static func cpu(_ s: Snapshot) -> String {
@@ -25,34 +25,34 @@ enum Answers {
         ])
         let l = s.cpu.loadAverage
         if l.count == 3 {
-            text += " " + L("Load average {one}, {five} and {fifteen} over 1, 5 and 15 minutes.",
-                            ["one": Format.number(l[0]), "five": Format.number(l[1]), "fifteen": Format.number(l[2])])
+            text = Format.sentences([text, L("Load average {one}, {five} and {fifteen} over 1, 5 and 15 minutes.",
+                            ["one": Format.number(l[0]), "five": Format.number(l[1]), "fifteen": Format.number(l[2])])])
         }
-        if let g = s.gpu { text += " " + L("Graphics {percent} busy.", ["percent": w.percent(g)]) }
+        if let g = s.gpu { text = Format.sentences([text, L("Graphics {percent} busy.", ["percent": w.percent(g)])]) }
         let busy = s.byCPU.prefix(5).map { "\($0.name) \(w.percent(s.share($0)))" }
-        text += " " + (busy.isEmpty ? L("No app is busy.") : L("Busiest: {apps} (share of the whole processor).", ["apps": list(busy)]))
-        return text
+        return Format.sentences([text, busy.isEmpty ? L("No app is busy.") : L("Busiest: {apps} (share of the whole processor).", ["apps": list(busy)])])
     }
 
     static func memory(_ s: Snapshot) -> String {
         guard let m = s.memory else { return L("The Mac didn't report its memory.") }
         var text = L("{used} of {total} in use; memory pressure is {pressure}.",
                      ["used": w.memory(m.used), "total": w.memory(m.total), "pressure": w.pressureWord(m.pressure)])
-        text += " " + L("Apps {apps}, kept by macOS {wired}, compressed {compressed}, cached files {cached} (free to reuse), swap {swap}.", [
+        text = Format.sentences([text, L("Apps {apps}, kept by macOS {wired}, compressed {compressed}, cached files {cached} (free to reuse), swap {swap}.", [
             "apps": w.memory(m.app), "wired": w.memory(m.wired), "compressed": w.memory(m.compressed), "cached": w.memory(m.cached),
             "swap": m.swapUsed > 0 ? w.memory(m.swapUsed) : L("none"),
-        ])
+        ])])
         let top = s.byMemory.prefix(5).map { "\($0.name) \(w.memory($0.memory))" }
-        if !top.isEmpty { text += " " + L("Most memory: {apps}.", ["apps": list(top)]) }
+        if !top.isEmpty { text = Format.sentences([text, L("Most memory: {apps}.", ["apps": list(top)])]) }
         return text
     }
 
     static func storage(_ s: Snapshot) -> String {
         guard !s.volumes.isEmpty else { return L("No disk reported its space.") }
-        return s.volumes.map { v in
+        let disks = s.volumes.map { v in
             L("{disk}: {free} free of {total} ({percent} used).",
               ["disk": v.name, "free": w.bytes(v.free), "total": w.bytes(v.total), "percent": w.percent(v.total > 0 ? v.used / v.total : 0)])
-        }.joined(separator: " ") + " " + L("Free space includes what macOS clears by itself when it needs room.")
+        }.joined(separator: " ")
+        return Format.sentences([disks, L("Free space includes what macOS clears by itself when it needs room.")])
     }
 
     static func battery(_ s: Snapshot) -> String {
@@ -66,7 +66,7 @@ enum Answers {
             parts.append(h >= 0.8 ? L("That's normal wear (Apple counts {percent} and above as normal).", ["percent": Format.percent(0.8)])
                 : L("That's below the {percent} Apple counts as normal.", ["percent": Format.percent(0.8)]))
         }
-        return parts.joined(separator: " ")
+        return Format.sentences(parts)
     }
 
     static func network(_ s: Snapshot) -> String {
@@ -75,7 +75,7 @@ enum Answers {
                      ["down": w.rate(n.down), "up": w.rate(n.up), "received": w.bytes(n.received), "sent": w.bytes(n.sent)])
         if let a = n.address {
             let address = a + (n.interface.map { " (\($0))" } ?? "")
-            text = L("This Mac's address on the network is {address}.", ["address": address]) + " " + text
+            text = Format.sentences([L("This Mac's address on the network is {address}.", ["address": address]), text])
         }
         return text
     }
@@ -85,11 +85,9 @@ enum Answers {
         let memory = s.byMemory.prefix(5).map { "\($0.name) \(w.memory($0.memory))" }
         var text = cpu.isEmpty ? L("Processor {percent} busy, no app busy.", ["percent": w.percent(s.cpu.load)])
             : L("Processor {percent} busy: {apps}.", ["percent": w.percent(s.cpu.load), "apps": list(cpu)])
-        text += " " + L("Memory: {apps}.", ["apps": list(memory)])
         let concerns = Words.concerns(s).filter { $0.tone != .info }
-        if !concerns.isEmpty { text += " " + concerns.map { L("{title}: {advice}", ["title": $0.title, "advice": $0.advice]) }.joined(separator: " ") }
-        else { text += " " + L("Nothing is straining the Mac.") }
-        return text
+        return Format.sentences([text, L("Memory: {apps}.", ["apps": list(memory)])]
+            + (concerns.isEmpty ? [L("Nothing is straining the Mac.")] : concerns.map { L("{title}: {advice}", ["title": $0.title, "advice": $0.advice]) }))
     }
 
     static func specs(_ s: Snapshot) -> String {
