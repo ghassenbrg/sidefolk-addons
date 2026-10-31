@@ -54,9 +54,12 @@ enum CopyMeScreen: GameScreen {
         }
     }
 
-    static let looks: [Games.CopyMe.Pad: (shape: String, color: String, move: String)] = [
-        .wave: ("circle", "blue", "accent:wave"), .hop: ("triangle", "green", "accent:hop"), .spin: ("star", "yellow", "accent:spin"),
-        .bow: ("square", "red", "accent:bow"), .otherWave: ("diamond", "purple", "accent:wave"),
+    /// Each pad's shape and colour, the companion's move, and Sidefolk's picture of that move (a waving hand, a hopping
+    /// bunny…), drawn instead of the shape where Sidefolk has it.
+    static let looks: [Games.CopyMe.Pad: (shape: String, color: String, move: String, art: String)] = [
+        .wave: ("circle", "blue", "accent:wave", "wave"), .hop: ("triangle", "green", "accent:hop", "hop"),
+        .spin: ("star", "yellow", "accent:spin", "spin"), .bow: ("square", "red", "accent:bow", "bow"),
+        .otherWave: ("diamond", "purple", "accent:wave", "wave_both"),
     ]
 
     static func name(_ pad: Games.CopyMe.Pad) -> String {
@@ -71,7 +74,7 @@ enum CopyMeScreen: GameScreen {
 
     static func board(_ s: CopyMeEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
         let g = s.game
-        let pads = g.pads.map { p in Pad(name(p), shape: looks[p]!.shape, color: looks[p]!.color, move: looks[p]!.move) }
+        let pads = g.pads.map { p in Pad(name(p), shape: looks[p]!.shape, color: looks[p]!.color, move: looks[p]!.move, art: looks[p]!.art) }
         // A new sequence plays when the round starts or grows; mid-copy, the pads just take presses.
         let replay = g.phase == .watching
         let best = max(g.best, g.copied)

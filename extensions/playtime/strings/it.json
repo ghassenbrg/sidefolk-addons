@@ -17,37 +17,48 @@
   },
   "games": {
     "daily_word": {
-      "title": "La parola del giorno"
+      "title": "La parola del giorno",
+      "tagline": "Una parola nuova ogni giorno"
     },
     "trivia": {
-      "title": "Quiz"
+      "title": "Quiz",
+      "tagline": "Domande su ogni argomento"
     },
     "tictactoe": {
-      "title": "Tris"
+      "title": "Tris",
+      "tagline": "Tre in fila vince"
     },
     "copy_me": {
-      "title": "Copiami"
+      "title": "Copiami",
+      "tagline": "Guarda le mosse, poi copiale"
     },
     "quick_paws": {
-      "title": "Zampe veloci"
+      "title": "Zampe veloci",
+      "tagline": "Premi appena dice Boop!"
     },
     "which_cup": {
-      "title": "Quale bicchiere?"
+      "title": "Quale bicchiere?",
+      "tagline": "Non perdere di vista la gemma"
     },
     "higher_lower": {
-      "title": "Più alto o più basso"
+      "title": "Più alto o più basso",
+      "tagline": "Caldo o freddo? Trova il numero"
     },
     "guess_animal": {
-      "title": "Indovina il mio animale"
+      "title": "Indovina il mio animale",
+      "tagline": "Sì o no, finché qualcuno indovina"
     },
     "balloon_words": {
-      "title": "Parole palloncino"
+      "title": "Parole palloncino",
+      "tagline": "Trova la parola prima che volino i palloncini"
     },
     "last_stick": {
-      "title": "L'ultimo bastoncino"
+      "title": "L'ultimo bastoncino",
+      "tagline": "Non prendere l’ultimo bastoncino!"
     },
     "memory_pairs": {
-      "title": "Coppie della memoria"
+      "title": "Coppie della memoria",
+      "tagline": "Gira due carte, trova le coppie"
     }
   },
   "text": {

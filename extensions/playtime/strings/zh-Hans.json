@@ -17,37 +17,48 @@
   },
   "games": {
     "daily_word": {
-      "title": "每日成语"
+      "title": "每日成语",
+      "tagline": "每天一个新词"
     },
     "trivia": {
-      "title": "答题"
+      "title": "答题",
+      "tagline": "各种主题的问答"
     },
     "tictactoe": {
-      "title": "井字棋"
+      "title": "井字棋",
+      "tagline": "连成三个就赢"
     },
     "copy_me": {
-      "title": "跟我学"
+      "title": "跟我学",
+      "tagline": "看清动作，再模仿"
     },
     "quick_paws": {
-      "title": "快爪比赛"
+      "title": "快爪比赛",
+      "tagline": "一说“噗！”就按下"
     },
     "which_cup": {
-      "title": "哪个杯子？"
+      "title": "哪个杯子？",
+      "tagline": "盯紧宝石"
     },
     "higher_lower": {
-      "title": "猜大小"
+      "title": "猜大小",
+      "tagline": "冷还是热？找出数字"
     },
     "guess_animal": {
-      "title": "猜猜我的动物"
+      "title": "猜猜我的动物",
+      "tagline": "是或否，直到猜中"
     },
     "balloon_words": {
-      "title": "气球猜词"
+      "title": "气球猜词",
+      "tagline": "气球飞走前猜出词语"
     },
     "last_stick": {
-      "title": "最后一根"
+      "title": "最后一根",
+      "tagline": "别拿最后一根！"
     },
     "memory_pairs": {
-      "title": "记忆配对"
+      "title": "记忆配对",
+      "tagline": "翻两张牌，找出一对"
     }
   },
   "text": {

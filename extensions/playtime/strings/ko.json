@@ -17,37 +17,48 @@
   },
   "games": {
     "daily_word": {
-      "title": "오늘의 단어"
+      "title": "오늘의 단어",
+      "tagline": "매일 새로운 단어 하나"
     },
     "trivia": {
-      "title": "퀴즈"
+      "title": "퀴즈",
+      "tagline": "모든 주제의 퀴즈"
     },
     "tictactoe": {
-      "title": "틱택토"
+      "title": "틱택토",
+      "tagline": "세 개를 이으면 승리"
     },
     "copy_me": {
-      "title": "따라 해 봐"
+      "title": "따라 해 봐",
+      "tagline": "동작을 보고 따라 해요"
     },
     "quick_paws": {
-      "title": "빠른 발"
+      "title": "빠른 발",
+      "tagline": "부프! 하는 순간 눌러요"
     },
     "which_cup": {
-      "title": "어느 컵?"
+      "title": "어느 컵?",
+      "tagline": "보석에서 눈을 떼지 마요"
     },
     "higher_lower": {
-      "title": "업 앤 다운"
+      "title": "업 앤 다운",
+      "tagline": "뜨거울까 차가울까? 숫자 찾기"
     },
     "guess_animal": {
-      "title": "동물 맞히기"
+      "title": "동물 맞히기",
+      "tagline": "예 아니요로 맞혀 봐요"
     },
     "balloon_words": {
-      "title": "풍선 단어"
+      "title": "풍선 단어",
+      "tagline": "풍선이 날아가기 전에 단어 찾기"
     },
     "last_stick": {
-      "title": "마지막 막대"
+      "title": "마지막 막대",
+      "tagline": "마지막 막대는 가져가지 마요!"
     },
     "memory_pairs": {
-      "title": "짝 맞추기"
+      "title": "짝 맞추기",
+      "tagline": "카드 두 장을 뒤집어 짝 찾기"
     }
   },
   "text": {

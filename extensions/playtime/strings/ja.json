@@ -17,37 +17,48 @@
   },
   "games": {
     "daily_word": {
-      "title": "今日のことば"
+      "title": "今日のことば",
+      "tagline": "毎日ひとつ、新しい言葉"
     },
     "trivia": {
-      "title": "クイズ"
+      "title": "クイズ",
+      "tagline": "いろんなジャンルのクイズ"
     },
     "tictactoe": {
-      "title": "まるばつ"
+      "title": "まるばつ",
+      "tagline": "3つ並べたら勝ち"
     },
     "copy_me": {
-      "title": "まねっこ"
+      "title": "まねっこ",
+      "tagline": "動きを見て、まねしよう"
     },
     "quick_paws": {
-      "title": "はやおし"
+      "title": "はやおし",
+      "tagline": "「ブープ!」の瞬間に押そう"
     },
     "which_cup": {
-      "title": "どのカップ？"
+      "title": "どのカップ？",
+      "tagline": "宝石から目をはなさないで"
     },
     "higher_lower": {
-      "title": "ハイ＆ロー"
+      "title": "ハイ＆ロー",
+      "tagline": "熱い?冷たい?数を当てよう"
     },
     "guess_animal": {
-      "title": "どうぶつ当て"
+      "title": "どうぶつ当て",
+      "tagline": "はい・いいえで当てっこ"
     },
     "balloon_words": {
-      "title": "ふうせんことば"
+      "title": "ふうせんことば",
+      "tagline": "風船が飛ぶ前に言葉を当てよう"
     },
     "last_stick": {
-      "title": "さいごの1本"
+      "title": "さいごの1本",
+      "tagline": "最後の1本を取らないで!"
     },
     "memory_pairs": {
-      "title": "神経衰弱"
+      "title": "神経衰弱",
+      "tagline": "2枚めくってペアを探そう"
     }
   },
   "text": {

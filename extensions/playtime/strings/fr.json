@@ -17,37 +17,48 @@
   },
   "games": {
     "daily_word": {
-      "title": "Le mot du jour"
+      "title": "Le mot du jour",
+      "tagline": "Un nouveau mot à trouver chaque jour"
     },
     "trivia": {
-      "title": "Quiz"
+      "title": "Quiz",
+      "tagline": "Des questions sur tous les sujets"
     },
     "tictactoe": {
-      "title": "Morpion"
+      "title": "Morpion",
+      "tagline": "Trois à la suite pour gagner"
     },
     "copy_me": {
-      "title": "Imite-moi"
+      "title": "Imite-moi",
+      "tagline": "Regardez les gestes, puis imitez-les"
     },
     "quick_paws": {
-      "title": "Pattes rapides"
+      "title": "Pattes rapides",
+      "tagline": "Appuyez dès qu’il dit Boop !"
     },
     "which_cup": {
-      "title": "Quel gobelet ?"
+      "title": "Quel gobelet ?",
+      "tagline": "Ne quittez pas la gemme des yeux"
     },
     "higher_lower": {
-      "title": "Plus ou moins"
+      "title": "Plus ou moins",
+      "tagline": "Chaud ou froid ? Trouvez le nombre"
     },
     "guess_animal": {
-      "title": "Devine mon animal"
+      "title": "Devine mon animal",
+      "tagline": "Oui ou non, jusqu’à deviner"
     },
     "balloon_words": {
-      "title": "Mots en ballons"
+      "title": "Mots en ballons",
+      "tagline": "Trouvez le mot avant que les ballons s’envolent"
     },
     "last_stick": {
-      "title": "Le dernier bâton"
+      "title": "Le dernier bâton",
+      "tagline": "Ne prenez pas le dernier bâton !"
     },
     "memory_pairs": {
-      "title": "Paires mémoire"
+      "title": "Paires mémoire",
+      "tagline": "Retournez deux cartes, trouvez les paires"
     }
   },
   "text": {

@@ -17,37 +17,48 @@
   },
   "games": {
     "daily_word": {
-      "title": "Wort des Tages"
+      "title": "Wort des Tages",
+      "tagline": "Jeden Tag ein neues Wort"
     },
     "trivia": {
-      "title": "Quiz"
+      "title": "Quiz",
+      "tagline": "Fragen zu jedem Thema"
     },
     "tictactoe": {
-      "title": "Tic-Tac-Toe"
+      "title": "Tic-Tac-Toe",
+      "tagline": "Drei in einer Reihe gewinnt"
     },
     "copy_me": {
-      "title": "Mach's nach"
+      "title": "Mach's nach",
+      "tagline": "Schau die Moves an, dann mach sie nach"
     },
     "quick_paws": {
-      "title": "Flinke Pfoten"
+      "title": "Flinke Pfoten",
+      "tagline": "Drück, sobald es Boop! sagt"
     },
     "which_cup": {
-      "title": "Welcher Becher?"
+      "title": "Welcher Becher?",
+      "tagline": "Lass den Edelstein nicht aus den Augen"
     },
     "higher_lower": {
-      "title": "Höher oder tiefer"
+      "title": "Höher oder tiefer",
+      "tagline": "Heiß oder kalt? Finde die Zahl"
     },
     "guess_animal": {
-      "title": "Rate mein Tier"
+      "title": "Rate mein Tier",
+      "tagline": "Ja oder nein, bis einer es errät"
     },
     "balloon_words": {
-      "title": "Ballonwörter"
+      "title": "Ballonwörter",
+      "tagline": "Finde das Wort, bevor die Ballons fliegen"
     },
     "last_stick": {
-      "title": "Das letzte Stäbchen"
+      "title": "Das letzte Stäbchen",
+      "tagline": "Nimm nicht das letzte Stäbchen!"
     },
     "memory_pairs": {
-      "title": "Memo-Paare"
+      "title": "Memo-Paare",
+      "tagline": "Zwei Karten umdrehen, Paare finden"
     }
   },
   "text": {

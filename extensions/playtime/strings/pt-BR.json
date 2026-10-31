@@ -17,37 +17,48 @@
   },
   "games": {
     "daily_word": {
-      "title": "Palavra do dia"
+      "title": "Palavra do dia",
+      "tagline": "Uma palavra nova por dia"
     },
     "trivia": {
-      "title": "Quiz"
+      "title": "Quiz",
+      "tagline": "Perguntas de todos os temas"
     },
     "tictactoe": {
-      "title": "Jogo da velha"
+      "title": "Jogo da velha",
+      "tagline": "Três em linha vence"
     },
     "copy_me": {
-      "title": "Me imite"
+      "title": "Me imite",
+      "tagline": "Veja os passos e copie"
     },
     "quick_paws": {
-      "title": "Patas rápidas"
+      "title": "Patas rápidas",
+      "tagline": "Aperte assim que disser Boop!"
     },
     "which_cup": {
-      "title": "Qual copo?"
+      "title": "Qual copo?",
+      "tagline": "Fique de olho na joia"
     },
     "higher_lower": {
-      "title": "Maior ou menor"
+      "title": "Maior ou menor",
+      "tagline": "Quente ou frio? Ache o número"
     },
     "guess_animal": {
-      "title": "Adivinhe meu bicho"
+      "title": "Adivinhe meu bicho",
+      "tagline": "Sim ou não, até alguém acertar"
     },
     "balloon_words": {
-      "title": "Palavras de balão"
+      "title": "Palavras de balão",
+      "tagline": "Ache a palavra antes que os balões voem"
     },
     "last_stick": {
-      "title": "O último palito"
+      "title": "O último palito",
+      "tagline": "Não pegue o último palito!"
     },
     "memory_pairs": {
-      "title": "Pares da memória"
+      "title": "Pares da memória",
+      "tagline": "Vire duas cartas, ache os pares"
     }
   },
   "text": {

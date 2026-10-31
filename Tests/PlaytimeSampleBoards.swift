@@ -7,6 +7,24 @@ import Foundation
 /// the start, a turn, the companion thinking, a point scored (its build-up and its verdict), and the end card won,
 /// lost or drawn when a seed got there.
 enum SampleBoards {
+    static let folder = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        .appendingPathComponent("extensions/playtime")
+
+    static func json(_ path: String) -> [String: Any] {
+        (try? Data(contentsOf: folder.appendingPathComponent(path))).flatMap { try? JSONSerialization.jsonObject(with: $0) } as? [String: Any] ?? [:]
+    }
+
+    /// Each game's `look` from the manifest and its tagline in the language, so Sidefolk dresses the samples (and draws
+    /// its menu) as it would the games.
+    static func dressed(_ out: [String: Any], _ id: String) -> [String: Any] {
+        var out = out
+        let game = (json("sidefolk-extension.json")["games"] as? [String: [String: Any]])?[id]
+        let words = ((json("strings/\(Language.code).json")["games"] as? [String: Any])?[id] as? [String: Any])
+        out["look"] = game?["look"]
+        out["tagline"] = words?["tagline"] ?? game?["tagline"]
+        return out
+    }
+
     static func write(to folder: String, languages: [String]) throws {
         for language in languages {
             try Language.with(language, strings: PlaytimeGameTests.strings) {
@@ -34,7 +52,7 @@ enum SampleBoards {
                         var out: [String: Any] = ["game": S.id, "title": titles[S.id]?.title ?? S.id, "symbol": titles[S.id]?.symbol ?? "gamecontroller",
                                                   "board": board.json]
                         if let before { out["previous"] = before.json }
-                        let data = try JSONSerialization.data(withJSONObject: out, options: [.sortedKeys])
+                        let data = try JSONSerialization.data(withJSONObject: dressed(out, S.id), options: [.sortedKeys])
                         FileManager.default.createFile(atPath: dir + "/\(S.id)-\(name).json", contents: data)
                     }
                 }
@@ -62,7 +80,7 @@ enum SampleBoards {
         func write(_ id: String, _ name: String, _ before: Board?, _ board: Board) throws {
             var out: [String: Any] = ["game": id, "title": titles[id]?.title ?? id, "symbol": titles[id]?.symbol ?? "gamecontroller", "board": board.json]
             if let before { out["previous"] = before.json }
-            FileManager.default.createFile(atPath: dir + "/\(id)-\(name).json", contents: try JSONSerialization.data(withJSONObject: out, options: [.sortedKeys]))
+            FileManager.default.createFile(atPath: dir + "/\(id)-\(name).json", contents: try JSONSerialization.data(withJSONObject: dressed(out, id), options: [.sortedKeys]))
         }
         PlaytimeRecords.update { $0 = PlaytimeRecords() }
         var d = DailyWordEngine.start(level: .fair, options: options, random: &random)

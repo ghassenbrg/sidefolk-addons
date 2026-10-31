@@ -16,6 +16,8 @@
     "daily_word": {
       "title": "Daily Word",
       "symbol": "textformat.abc",
+      "tagline": "One new word to find every day",
+      "look": "words",
       "say": [
         "daily word",
         "let's play daily word",
@@ -34,6 +36,8 @@
     "trivia": {
       "title": "Trivia",
       "symbol": "questionmark.bubble.fill",
+      "tagline": "Questions on every topic",
+      "look": "quiz",
       "say": [
         "let's play trivia",
         "play trivia",
@@ -59,6 +63,8 @@
     "tictactoe": {
       "title": "Tic-tac-toe",
       "symbol": "number",
+      "tagline": "Three in a row wins",
+      "look": "grid",
       "say": [
         "let's play tic-tac-toe",
         "let's play tic tac toe",
@@ -83,6 +89,8 @@
     "copy_me": {
       "title": "Copy Me",
       "symbol": "figure.dance",
+      "tagline": "Watch the moves, then copy them",
+      "look": "dance",
       "say": [
         "let's play copy me",
         "copy me",
@@ -105,6 +113,8 @@
     "quick_paws": {
       "title": "Quick Paws",
       "symbol": "bolt.fill",
+      "tagline": "Boop the moment it says Boop!",
+      "look": "arcade",
       "say": [
         "let's play quick paws",
         "quick paws",
@@ -128,6 +138,8 @@
     "which_cup": {
       "title": "Which Cup?",
       "symbol": "cup.and.saucer.fill",
+      "tagline": "Keep your eye on the gem",
+      "look": "cups",
       "say": [
         "let's play which cup",
         "which cup",
@@ -151,6 +163,8 @@
     "higher_lower": {
       "title": "Higher or Lower",
       "symbol": "arrow.up.arrow.down",
+      "tagline": "Hot or cold? Find the number",
+      "look": "numbers",
       "say": [
         "let's play higher or lower",
         "higher or lower",
@@ -169,6 +183,8 @@
     "guess_animal": {
       "title": "Guess My Animal",
       "symbol": "pawprint.fill",
+      "tagline": "Yes or no, until one guesses",
+      "look": "animals",
       "say": [
         "let's play guess my animal",
         "guess my animal",
@@ -187,6 +203,8 @@
     "balloon_words": {
       "title": "Balloon Words",
       "symbol": "balloon.2.fill",
+      "tagline": "Find the word before the balloons go",
+      "look": "balloons",
       "say": [
         "let's play balloon words",
         "balloon words",
@@ -210,6 +228,8 @@
     "last_stick": {
       "title": "Last Stick",
       "symbol": "line.3.horizontal",
+      "tagline": "Don’t take the last stick!",
+      "look": "sticks",
       "say": [
         "let's play last stick",
         "last stick",
@@ -233,6 +253,8 @@
     "memory_pairs": {
       "title": "Memory Pairs",
       "symbol": "square.grid.2x2.fill",
+      "tagline": "Turn two cards, find the pairs",
+      "look": "cards",
       "say": [
         "let's play memory pairs",
         "memory pairs",
