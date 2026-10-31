@@ -110,6 +110,22 @@
         }
       ]
     },
+    "skip_next": {
+      "title": "Skip the next copy",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "skip my next copy",
+            "don't keep my next copy",
+            "ignore my next copy",
+            "don't save my next copy"
+          ]
+        }
+      ]
+    },
     "clear_history": {
       "title": "Clear the history",
       "risk": "medium",
@@ -123,6 +139,30 @@
             "forget what i copied",
             "delete my clipboard history"
           ]
+        }
+      ]
+    },
+    "ignore": {
+      "title": "Ignore copies",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "ignore copies from {app}",
+            "stop keeping copies from {app}",
+            "don't keep copies from {app}"
+          ]
+        },
+        {
+          "say": [
+            "keep copies from {app} again"
+          ],
+          "input": {
+            "app": "{app}",
+            "on": false
+          }
         }
       ]
     },
