@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 import Network
 import CoreGraphics
 
@@ -125,20 +126,20 @@ final class Session {
     // MARK: Starting and stopping
 
     func share(_ target: Target, to receiver: Receiver) throws {
-        guard !busy else { throw ConnectionFailure(message: "Miraya is already busy with \(self.receiver?.name ?? "a TV"). Stop it first.") }
+        guard !busy else { throw ConnectionFailure(message: L("Miraya is already busy with {tv}. Stop it first.", ["tv": self.receiver?.name ?? L("a TV")])) }
         mode = .mirror; self.target = target; media = nil
         begin(receiver)
     }
 
     func play(_ media: Media, on receiver: Receiver) throws {
-        guard !busy else { throw ConnectionFailure(message: "Miraya is already busy with \(self.receiver?.name ?? "a TV"). Stop it first.") }
+        guard !busy else { throw ConnectionFailure(message: L("Miraya is already busy with {tv}. Stop it first.", ["tv": self.receiver?.name ?? L("a TV")])) }
         mode = .media; self.media = media; target = nil
         begin(receiver)
     }
 
     /// Pairs and stops: the TV is saved for later, nothing is shared.
     func pair(with receiver: Receiver) throws {
-        guard !busy else { throw ConnectionFailure(message: "Miraya is busy with \(self.receiver?.name ?? "a TV"). Stop it first.") }
+        guard !busy else { throw ConnectionFailure(message: L("Miraya is busy with {tv}. Stop it first.", ["tv": self.receiver?.name ?? L("a TV")])) }
         mode = .pair; target = nil; media = nil
         begin(receiver)
     }
@@ -165,13 +166,13 @@ final class Session {
     }
 
     func confirmPairing() throws {
-        guard phase == .pairing else { throw ConnectionFailure(message: "No TV is waiting for its code to be confirmed.") }
+        guard phase == .pairing else { throw ConnectionFailure(message: L("No TV is waiting for its code to be confirmed.")) }
         connection?.confirmPairing(code: pairingCode)
         phase = .authorizing; onChange?()
     }
 
     func forget(_ id: String) throws {
-        guard !busy || receiver?.id != id else { throw ConnectionFailure(message: "Stop sharing to that TV first.") }
+        guard !busy || receiver?.id != id else { throw ConnectionFailure(message: L("Stop sharing to that TV first.")) }
         try trust.remove(id)
         saved = trust.all(); onChange?()
     }
@@ -228,7 +229,7 @@ final class Session {
         switch message["op"] as? String {
         case "pending":
             guard [.connecting, .pairing, .authorizing, .reconnecting].contains(phase) else {
-                failed(ConnectionFailure(message: "The TV asked to pair at an unexpected time. Update Miraya on the TV.", retryable: false), receiver: receiver, generation: generation); return
+                failed(ConnectionFailure(message: L("The TV asked to pair at an unexpected time. Update Miraya on the TV."), retryable: false), receiver: receiver, generation: generation); return
             }
             phase = .authorizing
         case "welcome":
@@ -245,7 +246,7 @@ final class Session {
         case "ready":
             ready(message, session: session, receiver: receiver, generation: generation)
         case "rtcAnswer", "rtcCandidate":
-            guard let rtc else { failed(ConnectionFailure(message: "The TV sent video settings at an unexpected time.", retryable: false), receiver: receiver, generation: generation); return }
+            guard let rtc else { failed(ConnectionFailure(message: L("The TV sent video settings at an unexpected time."), retryable: false), receiver: receiver, generation: generation); return }
             rtc.receive(message)
         case "stats":
             stats(message)
@@ -255,34 +256,34 @@ final class Session {
             stop("Sharing ended on the TV.")
         case "error":
             let code = message["code"] as? String ?? "protocol"
-            let detail = message["message"] as? String ?? "The TV refused the connection."
-            let extra = code == "auth" ? " Forget this TV here, then pair again with the code on the TV." : ""
+            let detail = message["message"] as? String ?? L("The TV refused the connection.")
+            let extra = code == "auth" ? " " + L("Forget this TV here, then pair again with the code on the TV.") : ""
             failed(ConnectionFailure(message: detail + extra, retryable: code == "media" || code == "timeout"), receiver: receiver, generation: generation)
         default:
-            failed(ConnectionFailure(message: "The TV sent something this version doesn't know. Update Miraya on the TV.", retryable: false), receiver: receiver, generation: generation)
+            failed(ConnectionFailure(message: L("The TV sent something this version doesn't know. Update Miraya on the TV."), retryable: false), receiver: receiver, generation: generation)
         }
         onChange?()
     }
 
     private func welcome(_ message: [String: Any], session: TVConnection, receiver: Receiver, generation: UUID) {
         guard [.connecting, .authorizing, .reconnecting].contains(phase) else {
-            failed(ConnectionFailure(message: "The TV repeated its greeting. Update Miraya on the TV.", retryable: false), receiver: receiver, generation: generation); return
+            failed(ConnectionFailure(message: L("The TV repeated its greeting. Update Miraya on the TV."), retryable: false), receiver: receiver, generation: generation); return
         }
         guard (message["version"] as? Int) == 1, let rawID = message["receiverId"] as? String, UUID(uuidString: rawID) != nil,
               let token = message["token"] as? String, token.count >= 32, token.count <= 256, let name = message["name"] as? String else {
-            failed(ConnectionFailure(message: "This TV runs a Miraya this extension can't talk to.", retryable: false), receiver: receiver, generation: generation); return
+            failed(ConnectionFailure(message: L("This TV runs a Miraya this extension can't talk to."), retryable: false), receiver: receiver, generation: generation); return
         }
         let id = rawID.lowercased()
         let known = saved.first { $0.id == id }
         if let known, known.fingerprint != session.fingerprint {
-            failed(ConnectionFailure(message: "This TV's identity changed. Forget it here and compare a new code.", retryable: false), receiver: receiver, generation: generation); return
+            failed(ConnectionFailure(message: L("This TV's identity changed. Forget it here and compare a new code."), retryable: false), receiver: receiver, generation: generation); return
         }
         let record = TrustedReceiver(id: id, name: name, fingerprint: session.fingerprint, token: token, clientID: activeClientID,
                                      host: receiver.host ?? known?.host, port: receiver.host != nil ? receiver.port : known?.port)
         do {
             if known != record { try trust.save(record); saved = trust.all() }
         } catch {
-            failed(ConnectionFailure(message: "Couldn't save the pairing: \(error.localizedDescription)", retryable: false), receiver: receiver, generation: generation); return
+            failed(ConnectionFailure(message: L("Couldn't save the pairing: {error}", ["error": error.localizedDescription]), retryable: false), receiver: receiver, generation: generation); return
         }
         let current = Receiver(id: id, name: name, endpoint: receiver.endpoint, host: receiver.host, port: receiver.port)
         self.receiver = current; pairingCode = ""
@@ -292,7 +293,7 @@ final class Session {
         if mode == .pair { stop(); return }
         if mode == .media { startMedia(session: session, receiver: current, generation: generation); return }
         guard (message["transports"] as? [String])?.contains(RTCSignaling.transport) == true else {
-            failed(ConnectionFailure(message: "Update Miraya on the TV: this extension streams with its newer WebRTC engine.", retryable: false), receiver: receiver, generation: generation); return
+            failed(ConnectionFailure(message: L("Update Miraya on the TV: this extension streams with its newer WebRTC engine."), retryable: false), receiver: receiver, generation: generation); return
         }
         tvSize = (message["display"] as? [String: Any]).flatMap { d in
             (d["width"] as? Int).flatMap { w in (d["height"] as? Int).map { (w, $0) } }
@@ -316,7 +317,8 @@ final class Session {
         let known = saved.contains { $0.id == target.id }
         // A saved TV that dropped out mid-mirror gets three more tries, as in the Mac app; anything else stops.
         if failure.retryable && known && attempts < 3 && mode == .mirror && phase != .pairing {
-            attempts += 1; phase = .reconnecting; note = "\(failure.message) Trying again (\(attempts) of 3)."
+            attempts += 1; phase = .reconnecting
+            note = Said.shown(failure.message) + " " + L("Trying again ({attempt} of {tries}).", ["attempt": attempts, "tries": 3])
             retry?.cancel()
             retry = Task {
                 await engine?.stop()
@@ -327,7 +329,7 @@ final class Session {
         } else {
             Task { await engine?.stop() }
             let wasSharing = startedAt != nil
-            phase = .idle; problem = failure.message; note = nil; startedAt = nil
+            phase = .idle; problem = Said.shown(failure.message); note = nil; startedAt = nil
             releaseLentFiles()
             if wasSharing { lastEnd = (Date(), failure.message) }
         }

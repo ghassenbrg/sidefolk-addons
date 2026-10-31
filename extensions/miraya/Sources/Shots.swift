@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 import CoreGraphics
 import ImageIO
 @preconcurrency import ScreenCaptureKit
@@ -75,7 +76,7 @@ final class Shots {
         names = made
         onWindows?(windows.map { w in
             let app = w.owningApplication?.applicationName ?? ""
-            return Screens.Window(id: w.windowID, name: Screens.name(app: app, title: w.title), app: app.isEmpty ? "App" : app, title: w.title ?? "")
+            return Screens.Window(id: w.windowID, name: Screens.name(app: app, title: w.title), app: app.isEmpty ? L("App") : app, title: w.title ?? "")
         }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending })
         // The page may still show the round before; the one before that goes.
         try? FileManager.default.removeItem(at: folder.appendingPathComponent("\(round - 2)", isDirectory: true))

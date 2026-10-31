@@ -63,32 +63,33 @@ ext.tool("play_on_tv", "Play on TV", "Plays a video or audio file from this Mac,
     ])) { args in try await Tools.play(args) }
 
 ext.tool("stop", "Stop sharing", "Stops mirroring or the video on the TV, or a pairing that's under way.") { _ in
-    guard session.busy else { return "Nothing is on the TV from this Mac." }
+    guard session.busy else { return L("Nothing is on the TV from this Mac.") }
     session.stop("You stopped it.")
-    return "Stopped."
+    return L("Stopped.")
 }
 
 ext.tool("pause", "Pause sharing", "Pauses mirroring (the TV may keep the last picture) or the video playing on the TV.") { _ in
     try Tools.run { try session.pause() }
-    return session.mode == .media ? "Paused the video." : "Paused. Nothing new reaches the TV until you resume."
+    return session.mode == .media ? L("Paused the video.") : L("Paused. Nothing new reaches the TV until you resume.")
 }
 
 ext.tool("resume", "Resume sharing", "Resumes paused mirroring or the paused video on the TV.") { _ in
     try Tools.run { try session.resume() }
-    return "Resuming."
+    return L("Resuming.")
 }
 
 ext.tool("seek", "Skip in the video", "Jumps ahead or back in the video playing on the TV.",
          input: Schema.object(["seconds": Schema.integer("Seconds: positive ahead, negative back.", minimum: -3600, maximum: 3600)], required: ["seconds"])) { args in
     let seconds = Double(args.int("seconds") ?? 30)
     try Tools.run { try session.seek(by: seconds) }
-    return seconds >= 0 ? "Skipped ahead \(Int(seconds)) seconds." : "Went back \(Int(-seconds)) seconds."
+    return seconds >= 0 ? L(one: "Skipped ahead {count} second.", other: "Skipped ahead {count} seconds.", count: Int(seconds))
+        : L(one: "Went back {count} second.", other: "Went back {count} seconds.", count: Int(-seconds))
 }
 
 ext.tool("tv_volume", "TV volume", "Sets how loud Miraya plays on the TV, from 0 to 100 (the TV's own volume stays as it is).",
          input: Schema.object(["percent": Schema.integer("0 to 100.", minimum: 0, maximum: 100)], required: ["percent"])) { args in
     try Tools.run { try session.setVolume(Double(args.int("percent") ?? 100) / 100) }
-    return "Miraya's volume on the TV is \(args.int("percent") ?? 100)%."
+    return L("Miraya's volume on the TV is {percent}.", ["percent": Format.percent(points: Double(args.int("percent") ?? 100))])
 }
 
 ext.tool("pair_tv", "Pair with a TV", "Pairs this Mac with a TV running Miraya, by its name or by the address it shows "
@@ -97,35 +98,35 @@ ext.tool("pair_tv", "Pair with a TV", "Pairs this Mac with a TV running Miraya, 
 
 ext.tool("confirm_pairing", "Codes match · Pair", "The person saw the same six digits on the Mac and the TV.") { _ in
     try Tools.run { try session.confirmPairing() }
-    return "Now choose Allow on the TV with its remote."
+    return L("Now choose Allow on the TV with its remote.")
 }
 
 ext.tool("forget_tv", "Forget a TV", "Forgets a paired TV on this Mac; it needs a new code next time.",
          input: Schema.object(["tv": Schema.string("The TV's id or name.")], required: ["tv"])) { args in
     let words = try args.required("tv")
     guard let tv = session.saved.first(where: { $0.id == words || $0.name.caseInsensitiveCompare(words) == .orderedSame }) else {
-        throw Problem("No paired TV is called “\(words)”.")
+        throw Problem(L("No paired TV is called “{tv}”.", ["tv": words]))
     }
     try Tools.run { try session.forget(tv.id) }
-    return "Forgot \(tv.name). Pairing again needs a new code."
+    return L("Forgot {tv}. Pairing again needs a new code.", ["tv": tv.name])
 }
 
 ext.tool("choose_tv", "Choose a TV", "Chooses the TV that sharing goes to when none is named.",
          input: Schema.object(["tv": Schema.string("The TV's id or name.")], required: ["tv"])) { args in
     let words = try args.required("tv")
     guard let tv = session.tvs.compactMap(\.receiver).first(where: { $0.id == words }) ?? session.tv(named: words) else {
-        throw Problem("No TV is called “\(words)”.")
+        throw Problem(L("No TV is called “{tv}”.", ["tv": words]))
     }
     session.choices.lastTV = tv.id
-    return "Sharing goes to \(tv.name)."
+    return L("Sharing goes to {tv}.", ["tv": tv.name])
 }
 
 ext.tool("list_windows", "Windows to share", "Lists the open windows on Miraya's page, to share one.") { _ in
     do { windows = try await Screens.windows() } catch {
-        throw Problem("macOS hasn't allowed Sidefolk to record the screen yet, so windows can't be listed. Allow it in System Settings › "
-            + "Privacy & Security › Screen & System Audio Recording.")
+        throw Problem(L("macOS hasn't allowed Sidefolk to record the screen yet, so windows can't be listed. Allow it in System Settings › Privacy & Security › Screen & System Audio Recording."))
     }
-    return windows!.isEmpty ? "No window to share is open." : "\(windows!.count) windows are on Miraya's page."
+    return windows!.isEmpty ? L("No window to share is open.")
+        : L(one: "{count} window is on Miraya's page.", other: "{count} windows are on Miraya's page.", count: windows!.count)
 }
 
 ext.tool("set_option", "Miraya setting", "Changes a sharing choice: quality (a preset), sound, detail or follow_tv; or what the page "
@@ -136,29 +137,29 @@ ext.tool("set_option", "Miraya setting", "Changes a sharing choice: quality (a p
                                "on": Schema.boolean("On or off, for the others.")], required: ["option"])) { args in
     switch try args.required("option") {
     case "quality":
-        guard let q = args.string("value").flatMap(CaptureQuality.init(rawValue:)) else { throw Problem("Which quality?") }
+        guard let q = args.string("value").flatMap(CaptureQuality.init(rawValue:)) else { throw Problem(L("Which quality?")) }
         session.choices.quality = q.rawValue
     case "kind":
-        guard let kind = args.string("value"), ["display", "window", "area"].contains(kind) else { throw Problem("Share a display, a window or an area?") }
+        guard let kind = args.string("value"), ["display", "window", "area"].contains(kind) else { throw Problem(L("Share a display, a window or an area?")) }
         session.choices.kind = kind
         // Picking Window is when macOS asks to let Sidefolk record the screen, as in Miraya's app.
         if kind == "window", windows == nil { windows = try? await Screens.windows() }
-        return "Done."
+        return L("Done.")
     case "display", "window":
-        guard let id = args.string("value").flatMap(UInt32.init) else { throw Problem("Which one?") }
+        guard let id = args.string("value").flatMap(UInt32.init) else { throw Problem(L("Which one?")) }
         if args.string("option") == "display" { session.choices.display = id } else { session.choices.window = id }
-        return "Done."
+        return L("Done.")
     case "area":
-        guard let area = args.string("value"), MirayaPage.areas.contains(where: { $0.name == area }) else { throw Problem("Which part of the screen?") }
+        guard let area = args.string("value"), MirayaPage.areas.contains(where: { $0.name == area }) else { throw Problem(L("Which part of the screen?")) }
         session.choices.area = area
-        return "Done."
+        return L("Done.")
     case "sound": session.choices.sound = args.bool("on") ?? !session.choices.sound
     case "detail": session.choices.detail = args.bool("on") ?? !session.choices.detail
     case "follow_tv": session.choices.followTV = args.bool("on") ?? !session.choices.followTV
-    default: throw Problem("There's no such setting.")
+    default: throw Problem(L("There's no such setting."))
     }
     session.applyChoices()
-    return "Done."
+    return L("Done.")
 }
 
 ext.tool("tv_status", "What's on the TV", "Says what Miraya is sharing or playing on the TV now, if anything.") { _ in MirayaPage.sentence(session) }
@@ -168,16 +169,17 @@ ext.watcher("tv_on") { _, state in
     let on = Set(session.found.map(\.id)).intersection(session.saved.map(\.id))
     let before = Set(state["on"] as? [String] ?? [])
     let new = session.saved.filter { on.contains($0.id) && !before.contains($0.id) }
-    let summary = new.isEmpty ? "No paired TV turned on." : "\(new.map(\.name).joined(separator: " and ")) is on: say “mirror my screen” to share."
+    // What to say stays English: Sidefolk understands typed requests in English (its GLOSSARY, rule 1).
+    let summary = new.isEmpty ? L("No paired TV turned on.") : L("{tv} is on: say “mirror my screen” to share.", ["tv": Format.list(new.map(\.name))])
     return Check(triggered: !new.isEmpty && state["on"] != nil, state: ["on": Array(on).sorted()], summary: summary)
 }
 
 // Sharing that ended without the person stopping it: the TV's Back button, the network, the TV turned off.
 ext.watcher("ended") { _, state in
-    guard let end = session.lastEnd else { return Check(triggered: false, state: [:], summary: "Nothing ended yet.") }
+    guard let end = session.lastEnd else { return Check(triggered: false, state: [:], summary: L("Nothing ended yet.")) }
     let stamp = end.at.timeIntervalSince1970
     let new = (state["last"] as? Double).map { stamp > $0 } ?? false
-    return Check(triggered: new && end.why != "You stopped it.", state: ["last": stamp], summary: "Sharing to the TV ended: \(end.why)")
+    return Check(triggered: new && end.why != "You stopped it.", state: ["last": stamp], summary: L("Sharing to the TV ended: {why}", ["why": Said.shown(end.why)]))
 }
 
 await ext.serve()

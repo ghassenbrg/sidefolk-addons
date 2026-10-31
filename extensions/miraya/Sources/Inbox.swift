@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 
 /// How a file the person names reaches the TV. Sidefolk opens a named file only to a process started for that one call
 /// (D39), which ends with it; playing takes as long as the film. So that process makes a copy-on-write clone of the file
@@ -28,7 +29,7 @@ struct Inbox {
         let id = UUID().uuidString.lowercased()
         let source = URL(fileURLWithPath: file)
         guard Self.playable.contains(source.pathExtension.lowercased()) else {
-            throw ConnectionFailure(message: "\(source.lastPathComponent) isn't a video or audio file the TV can play.", retryable: false)
+            throw ConnectionFailure(message: L("{file} isn't a video or audio file the TV can play.", ["file": source.lastPathComponent]), retryable: false)
         }
         let video = try clone(source, as: "\(id).\(source.pathExtension.lowercased())")
         var subs: String?
@@ -36,7 +37,7 @@ struct Inbox {
             let s = URL(fileURLWithPath: subtitle)
             guard ["srt", "vtt"].contains(s.pathExtension.lowercased()) else {
                 try? FileManager.default.removeItem(atPath: video)
-                throw ConnectionFailure(message: "Subtitles must be an .srt or .vtt file.", retryable: false)
+                throw ConnectionFailure(message: L("Subtitles must be an .srt or .vtt file."), retryable: false)
             }
             subs = try clone(s, as: "\(id)-subtitles.\(s.pathExtension.lowercased())")
         }
@@ -46,16 +47,16 @@ struct Inbox {
     private func clone(_ source: URL, as name: String) throws -> String {
         var st = stat()
         guard lstat(source.path, &st) == 0, st.st_mode & S_IFMT == S_IFREG, st.st_size > 0 else {
-            throw ConnectionFailure(message: "\(source.lastPathComponent) isn't a file Miraya can read.", retryable: false)
+            throw ConnectionFailure(message: L("{file} isn't a file Miraya can read.", ["file": source.lastPathComponent]), retryable: false)
         }
         let target = dir.appendingPathComponent(name).path
         guard clonefile(source.path, target, UInt32(CLONE_NOFOLLOW)) == 0 else {
             let why = errno
             if why == EXDEV || why == ENOTSUP {
-                throw ConnectionFailure(message: "\(source.lastPathComponent) is on another disk. Copy it to your Mac's own disk first: Sidefolk lends Miraya "
-                    + "a copy-on-write copy, which only works on the same disk.", retryable: false)
+                throw ConnectionFailure(message: L("{file} is on another disk. Copy it to your Mac's own disk first: Sidefolk lends Miraya a copy-on-write copy, which only works on the same disk.",
+                                                   ["file": source.lastPathComponent]), retryable: false)
             }
-            throw ConnectionFailure(message: "Couldn't open \(source.lastPathComponent): \(String(cString: strerror(why))).", retryable: false)
+            throw ConnectionFailure(message: L("Couldn't open {file}: {error}.", ["file": source.lastPathComponent, "error": String(cString: strerror(why))]), retryable: false)
         }
         return target
     }
