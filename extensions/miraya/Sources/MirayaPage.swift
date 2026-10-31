@@ -224,7 +224,7 @@ enum MirayaPage {
             if n.fps > 0 { facts.append((L("On the TV"), "\(Format.integer(Int(n.fps.rounded()))) fps")) }
             if n.rttMs > 0 { facts.append((L("Network round trip"), "\(Format.integer(Int(n.rttMs.rounded()))) ms")) }
             if !n.picture.isEmpty { facts.append((L("Picture"), n.picture)) }
-            let sound = n.audioPending || (n.choices.audio == .tv && !n.audioConfirmed) ? L("Routing…") : n.choices.audio.label
+            let sound = n.audioPending || (n.choices.audio == .tv && !n.audioConfirmed) ? L("Routing…") : audioName(n.choices.audio)
             facts.append((L("Sound"), sound))
             let since = n.startedAt.map { " " + L("Since {time}.", ["time": Format.time($0)]) } ?? ""
             return Hero(paused ? L("Sharing to {tv} is paused", ["tv": tv]) : L("Sharing {what} to {tv}", ["what": sharedName(n), "tv": tv]),
@@ -367,15 +367,19 @@ enum MirayaPage {
                     style: .cards, presets.map { Option($0.0.rawValue, $0.1, detail: $0.0.label) }, selected: n.choices.quality,
                     tool: "set_option", input: ["option": "quality"]),
             .picker(L("Play system audio on"), detail: L("System audio only; the microphone is never shared. TV only temporarily mutes this Mac's entire output, including other apps."),
-                    style: .cards, Choices.AudioDestination.allCases.map { Option($0.rawValue, $0.label) },
+                    style: .cards, Choices.AudioDestination.allCases.map { Option($0.rawValue, audioName($0)) },
                     selected: n.choices.audio.rawValue, tool: "set_option", input: ["option": "audio_destination"]),
         ], place: .bottom, collapsed: true,
            detail: "\(qualityName(n.choices.preset)) · \(n.choices.preset.label) · " + soundLine(n))
     }
 
+    static func audioName(_ destination: Choices.AudioDestination) -> String {
+        switch destination { case .mac: L("Mac only"); case .tv: L("TV only"); case .both: L("Mac and TV") }
+    }
+
     /// The sound choice in a line: changing, or where it plays.
     static func soundLine(_ n: Now) -> String {
-        n.audioPending ? L("Updating sound…") : L("Sound: {destination}", ["destination": n.choices.audio.label])
+        n.audioPending ? L("Updating sound…") : L("Sound: {destination}", ["destination": audioName(n.choices.audio)])
     }
 
     static func more(_ n: Now) -> Section {

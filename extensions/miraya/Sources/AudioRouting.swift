@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 
 /// Talks to the host's output-mute guardian. Requests are asynchronous: the extension must never
 /// claim TV-only is active until Sidefolk confirms that the Mac output was muted.

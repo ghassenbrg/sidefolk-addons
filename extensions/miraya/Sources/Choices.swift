@@ -6,7 +6,7 @@ import Foundation
 struct Choices: Codable, Equatable {
     enum AudioDestination: String, CaseIterable {
         case mac, tv, both
-        var label: String { switch self { case .mac: L("Mac only"); case .tv: L("TV only"); case .both: L("Mac and TV") } }
+        var label: String { switch self { case .mac: "Mac only"; case .tv: "TV only"; case .both: "Mac and TV" } }
     }
     var quality = CaptureQuality.balanced.rawValue
     var sound = true
