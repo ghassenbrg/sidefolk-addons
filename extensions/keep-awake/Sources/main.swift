@@ -4,7 +4,7 @@ import SidefolkExtensionKit
 // Keep Awake, Sidefolk's own: the Mac stays awake, and chat apps keep seeing you as active, for as long as you say,
 // while an app is open, or until you stop it. It lets go by itself on battery or when the battery runs low. Power
 // assertions are macOS's own (what caffeinate uses); being active is a pointer move of nothing, made by Sidefolk.
-let ext = Extension(name: "keep-awake", version: "1.0.0")
+let ext = Extension(name: "keep-awake")
 let keeper = Keeper(folder: URL(fileURLWithPath: Paths.data, isDirectory: true))
 keeper.nudge = { ext.send("sidefolk/nudge") }
 

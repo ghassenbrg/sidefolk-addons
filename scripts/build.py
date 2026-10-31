@@ -8,7 +8,8 @@
 A signed build keeps the published pack of every version already in the release, byte for byte: a copy of Sidefolk
 may hold a catalog naming that pack's digest, and a pack rebuilt under the same name would no longer match it (each
 signature carries its own timestamp). Each entry records a digest of the files the pack is made from (`source`);
-when they changed but the version didn't, the build stops: raise the version.
+when they changed but a released version didn't, the build stops: raise the version. An extension not released yet
+goes out as its next snapshot instead (`snapshot_version`).
 
 dist/ then holds <name>-<version>.zip for each add-on and catalog.zip, which scripts/publish.sh uploads, and
 dist/stage/<name>/ with each pack's files as Sidefolk installs them (for `sidefolk ext validate`).
@@ -109,6 +110,17 @@ def built_with_earlier_kit(folder, published_source):
     that changes nothing for them. An extension gets a Kit fix by raising its version."""
     own = [(str(p.relative_to(ROOT)), p.read_bytes()) for p in files_in(folder)]
     return any(pairs_digest(own + kit) == published_source for kit in kit_versions())
+
+
+def snapshot_version(base, old, source, folder):
+    """An extension's version until the maintainer releases it, numbered as Sidefolk's own snapshots are:
+    `1.0.0-snapshot.<n>`, the published one while its files are the same, the next one when they changed. Sidefolk
+    orders them by n and offers each as an update, and the release, plain `1.0.0`, after all of them."""
+    m = re.fullmatch(rf"{re.escape(base)}-snapshot\.(\d+)", old["version"]) if old else None
+    if not m:
+        return f"{base}-snapshot.1"
+    same = old.get("source") in (None, source) or built_with_earlier_kit(folder, old["source"])
+    return old["version"] if same else f"{base}-snapshot.{int(m.group(1)) + 1}"
 
 
 def files_in(folder, skip=("addon.json", ".DS_Store")):
@@ -270,11 +282,16 @@ def extensions(ident, work, previews, unsigned, prior):
         # The program is built from the extension's folder and Kit/.
         entry["source"] = source_digest(files_in(folder) + files_in(ROOT / "Kit"), ROOT)
         old = prior.get(entry["id"])
+        # A version is a snapshot until addon.json says `"released": "<that version>"`; only a released one is held
+        # to "files changed, raise the version".
+        if extra.get("released") != m["version"]:
+            entry["version"] = snapshot_version(m["version"], old, entry["source"], folder)
         if old and old["version"] == entry["version"]:
             entries.append(reuse(name, entry, stage, old, work, folder))
             continue
         (stage / "bin").mkdir(parents=True)
-        shutil.copy(manifest_file, stage)
+        # The pack's manifest carries the version it ships as, which Sidefolk compares with the gallery's.
+        (stage / manifest_file.name).write_text(json.dumps({**m, "version": entry["version"]}, indent=2, ensure_ascii=False) + "\n")
         if m.get("icon"):
             shutil.copy(folder / m["icon"], stage)
         program = stage / "bin" / f"ext-{name}"
