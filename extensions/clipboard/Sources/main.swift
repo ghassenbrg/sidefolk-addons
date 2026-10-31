@@ -3,7 +3,7 @@ import SidefolkExtensionKit
 
 // Clipboard, Sidefolk's own: everything you copy, a shortcut away from any app, kept on this Mac. It runs in the
 // background (the clipboard has no notification), with the clipboard permission only: no internet, no files.
-let ext = Extension(name: "clipboard", version: "1.0.1")
+let ext = Extension(name: "clipboard", version: "1.0.0")
 let history = History(folder: URL(fileURLWithPath: Paths.data, isDirectory: true))
 let watch = Watch(history: history)
 
