@@ -2,16 +2,17 @@
 
 The add-on gallery of [Sidefolk](https://github.com/ghassenbrg/sidefolk), the desktop companion for macOS:
 companions, extensions and themes that Sidefolk downloads only when someone picks them, so nobody carries what they don't
-use. Sidefolk shows them in **Settings › Companion** (the dashed cards) and **Settings › Extensions › Gallery**.
+use. Sidefolk shows them in its Home window's **Gallery** (Sidefolk D84); Settings › Companion and Settings › Add-ons
+lead there too.
 
 | | What | |
 |---|---|---|
-| **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish) | 3D, 2–3.4 MB each |
-| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home (Sidefolk 0.1 snapshots from 515 on) Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Miraya 13 MB (WebRTC) |
-| **Themes** | Daylight, Night Studio, Paper Garden: colours, type, a layout of Sidefolk's own pieces, a few pictures | 0.5–1.8 MB each |
+| **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish), Iris (a camera scout), Nori (a tuxedo cat), Purl (a ragdoll), Rune (a stone golem) | 3D, a few MB each; their 2D forms are built into Sidefolk (D59) |
+| **Extensions** | Git, Currency, Playtime (eleven games and four puzzles in Sidefolk's Play panel), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
+| **Themes** | Daylight, Night Studio, Paper Garden: colours, type, density, a few pictures (a theme dresses Sidefolk, it doesn't arrange it: D84) | 0.5–1.8 MB each |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
-Built into the app are Mochi, Spark, the robot, the folks, and World Clock, Calculator, System Vitals and Weather.
+Built into the app are Mochi, Spark, the folks, and World Clock, Calculator, System Vitals and Weather.
 
 ## How Sidefolk trusts what it downloads
 
@@ -76,7 +77,7 @@ while it's a snapshot. A theme's packed `theme.json` carries that version too. T
 `"released": "1.0.0"` in its `addon.json`; the next build publishes plain `1.0.0`, which Sidefolk ranks above all
 its snapshots. From then on 1.0.0 is fixed: for the next change, raise the version (`1.1.0`), and its snapshots
 begin again. 1.0.0 stays in the gallery beside them, listed first, so people who take releases only
-(Settings › Updates) keep it until 1.1.0 is released.
+(Sidefolk's Settings › General › Updates) keep it until 1.1.0 is released.
 
 Once released, raise a companion's or theme's version for every change people should get. An extension is offered as **Update** when the
 catalog's version is newer than the installed one (it can act for the person, so it waits for them). A companion
@@ -101,11 +102,12 @@ that version and keep the one they have.
   `strings/en.json` from the code, and each other language's file translates `text` and the manifest's words (name,
   tagline, description, titles). `extension-strings.py check` lists what's missing; Sidefolk's `ExtensionLanguagesTests`
   wants all of it for Sidefolk's own. `build.py` packs `strings/` and puts each language's name, tagline and description
-  in the catalog. Playtime keeps its words in code with the Kit's `Localized` (D75).
+  in the catalog. Playtime's words and its games' phrases live there too (Sidefolk D79).
 - **What the Kit offers** follows Sidefolk's protocol: tools, watchers, pages (gauges, charts, switches, buttons, and
   since Sidefolk D68 `choice`, `field` and `list` with pictures), palettes (items with a picture, a swatch and a
-  section; `PalettePreview` for the picked item in full; list actions like `clear`), and notices (`ext.on`, as
-  Clipboard hears which app a copy came from). A picture is a file the program wrote in its own data folder
+  section; `PalettePreview` for the picked item in full; list actions like `clear`), notices (`ext.on`, as
+  Clipboard hears which app a copy came from), and games (boards from Sidefolk's fixed parts, played in its Play panel,
+  Sidefolk D75 and D79; Playtime is the example). A picture is a file the program wrote in its own data folder
   (`Paths.data`), named relative to it: make thumbnails once and small. Change Kit/ in Sidefolk first, then copy it here.
 
 Sidefolk is proprietary (its LICENSE); so are the add-ons here unless an `addon.json` or manifest says otherwise.

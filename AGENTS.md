@@ -9,9 +9,12 @@ docs/SECURITY.md T33 before changing how packs are made.
 - When committing, never add a `Co-Authored-By` trailer.
 - Never publish (`scripts/publish.sh`) or push unless the maintainer asks: the release is what every copy of
   Sidefolk downloads.
-- Raise an add-on's `version` (addon.json or sidefolk-extension.json) whenever its files change. A published
-  version's pack is never replaced (`scripts/build.py` keeps it and stops when its files changed without a new
-  version); `--rebuild` only for a new signing certificate.
+- Versions (README › Publishing): while an add-on is in snapshots, `scripts/build.py` numbers each change
+  (`1.0.0-snapshot.<n>`), so leave its `version` alone; once it is released (`"released"` in addon.json), raise the
+  version for the next change. A published pack is never replaced (`build.py` keeps it and stops when a released
+  version's files changed); `--rebuild` only for a new signing certificate.
+- A version that needs a newer Sidefolk names it in `addon.json`'s `minimum_sidefolk` (a snapshot, e.g.
+  `0.1.0-snapshot.661`, Sidefolk D83): Playtime needs 661 for its puzzles, Miraya 593 for `output_mute`.
 - A companion's folder holds exactly its four files and addon.json; `scripts/build.py` refuses anything else.
 - `Kit/` is a copy of Sidefolk's `extensions/Kit`: change it there first, then copy it here.
 - An extension's words live in its `strings/<language>.json`, ten languages (Sidefolk D76): change the English, then
