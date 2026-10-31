@@ -1,8 +1,8 @@
 {
   "id": "dev.sidefolk.clipboard",
   "name": "Clipboard",
-  "version": "1.0.0",
-  "sidefolk": ">=0.2",
+  "version": "1.0.1",
+  "sidefolk": ">=0.1",
   "description": "Everything you copy, a shortcut away from any app: text with its formatting, links, pictures, files and code, searchable and pinnable. Copies from password managers are never kept; keys and card numbers are hidden and forgotten in two minutes. Nothing leaves your Mac.",
   "tagline": "Everything you copy, a shortcut away",
   "folk": "byte",

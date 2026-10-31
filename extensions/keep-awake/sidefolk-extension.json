@@ -1,8 +1,8 @@
 {
   "id": "dev.sidefolk.keep-awake",
   "name": "Keep Awake",
-  "version": "1.0.0",
-  "sidefolk": ">=0.2",
+  "version": "1.0.1",
+  "sidefolk": ">=0.1",
   "description": "Keeps your Mac awake, and chat apps from marking you away, for as long as you say, until a time, while an app like Zoom is open, or until you stop it. Nothing moves on screen, and it lets go on battery or when the battery runs low.",
   "tagline": "Your Mac awake and you active, for as long as you say",
   "folk": "byte",

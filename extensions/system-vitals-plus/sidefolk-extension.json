@@ -1,8 +1,8 @@
 {
   "id": "dev.sidefolk.system-vitals-plus",
   "name": "System Vitals+",
-  "version": "1.0.0",
-  "sidefolk": ">=0.2",
+  "version": "1.0.1",
+  "sidefolk": ">=0.1",
   "description": "The whole Mac in plain words: processor, graphics, memory, apps, disks, battery health, heat and network, as a page with live charts, a tile on Today, instant answers and a heads-up when something needs you. Nothing leaves your Mac.",
   "tagline": "Your whole Mac at a glance, with live charts",
   "folk": "byte",
