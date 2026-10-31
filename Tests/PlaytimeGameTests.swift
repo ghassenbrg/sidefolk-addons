@@ -40,7 +40,7 @@ import Testing
                     #expect(forms["other"].map(slots) == slots(key), "\(language) \(key)")
                 }
             }
-            #expect((file["games"] as? [String: Any])?.count == 11, "\(language): every game's title")
+            #expect((file["games"] as? [String: Any])?.count == 15, "\(language): every game's title")
         }
     }
 

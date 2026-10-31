@@ -3,8 +3,8 @@
   "name": "Playtime",
   "version": "1.0.0",
   "sidefolk": ">=0.1",
-  "description": "A break with your companion: eleven games you play against it beside it on the desktop (Daily Word, trivia, tic-tac-toe, Copy Me and more), with your scores and streaks kept, and chance to pick a number or choose from a list.",
-  "tagline": "Eleven games with your companion, and random picks",
+  "description": "A break with your companion: ten games you play against it beside it on the desktop (trivia, tic-tac-toe, Copy Me and more) and five puzzles of your own (Daily Word, Sudoku and more), with your scores, best times and streaks kept, and chance to pick a number or choose from a list.",
+  "tagline": "Games and puzzles with your companion, and random picks",
   "folk": "play",
   "author": "Sidefolk",
   "icon": "icon.pdf",
@@ -268,6 +268,103 @@
         "짝 맞추기 하자",
         "来玩记忆配对",
         "لنلعب أزواج الذاكرة"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "plots": {
+      "title": "Garden Plots",
+      "symbol": "square.split.2x2.fill",
+      "tagline": "Split the garden into plots by their numbers",
+      "look": "plots",
+      "say": [
+        "garden plots",
+        "let's play garden plots",
+        "jouons aux parcelles du jardin",
+        "juguemos a parcelas del huerto",
+        "lass uns gartenparzellen spielen",
+        "giochiamo ai lotti dell'orto",
+        "vamos jogar canteiros da horta",
+        "畑わけをしよう",
+        "텃밭 나누기 하자",
+        "来玩菜园分地",
+        "لنلعب قطع الحديقة"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "seesaw": {
+      "title": "Seesaw",
+      "symbol": "heart.circle.fill",
+      "tagline": "Balance hearts and stars in every line",
+      "look": "seesaw",
+      "say": [
+        "seesaw",
+        "let's play seesaw",
+        "jouons à la bascule",
+        "juguemos al balancín",
+        "lass uns wippe spielen",
+        "giochiamo all'altalena",
+        "vamos jogar gangorra",
+        "シーソーをしよう",
+        "시소 하자",
+        "来玩跷跷板",
+        "لنلعب الميزان"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "sudoku": {
+      "title": "Sudoku",
+      "symbol": "square.grid.3x3.fill",
+      "tagline": "Each number once in every row, column and box",
+      "look": "sudoku",
+      "say": [
+        "sudoku",
+        "let's play sudoku",
+        "play sudoku",
+        "jouons au sudoku",
+        "juguemos al sudoku",
+        "lass uns sudoku spielen",
+        "giochiamo a sudoku",
+        "vamos jogar sudoku",
+        "数独をしよう",
+        "스도쿠 하자",
+        "来玩数独",
+        "لنلعب سودوكو"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "blossoms": {
+      "title": "Blossoms",
+      "symbol": "camera.macro",
+      "tagline": "One flower in every row, column and bed",
+      "look": "blossoms",
+      "say": [
+        "blossoms",
+        "let's play blossoms",
+        "jouons aux fleurettes",
+        "juguemos a las flores",
+        "lass uns blüten spielen",
+        "giochiamo ai fiori",
+        "vamos jogar flores",
+        "花ばたけをしよう",
+        "꽃밭 하자",
+        "来玩花开",
+        "لنلعب الأزهار"
       ],
       "levels": [
         "easy",

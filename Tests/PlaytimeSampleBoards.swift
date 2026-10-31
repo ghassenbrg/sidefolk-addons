@@ -68,6 +68,7 @@ enum SampleBoards {
                 try save(MemoryPairsScreen.self)
                 try save(DailyWordScreen.self)
                 try scripted(language: language, dir: dir, titles: titles)
+                try puzzles(language: language, dir: dir, titles: titles)
             }
         }
     }
@@ -145,6 +146,74 @@ enum SampleBoards {
             e = GameTable.play(GuessAnimalScreen.self, a.thinking ? .next : .answer(1), on: &a, random: &random)
         }
         try write(GuessAnimalScreen.id, "teach", nil, GuessAnimalScreen.board(a, events: e, options: options))
+    }
+
+    /// Each puzzle's moments: today's board, a rule broken, a hint, the solve and its end card, and a Hard board
+    /// part-played (Sudoku's 9 × 9 with notes, the size the panel must hold).
+    static func puzzles(language: String, dir: String, titles: [String: PlaytimePage.Game]) throws {
+        let o = PlaytimeScreensTests.options(language)
+        func write(_ id: String, _ name: String, _ before: Board?, _ board: Board) throws {
+            var out: [String: Any] = ["game": id, "title": titles[id]?.title ?? id, "symbol": titles[id]?.symbol ?? "gamecontroller", "board": board.json]
+            if let before { out["previous"] = before.json }
+            FileManager.default.createFile(atPath: dir + "/\(id)-\(name).json", contents: try JSONSerialization.data(withJSONObject: dressed(out, id), options: [.sortedKeys]))
+        }
+        /// Today's board, two right moves and a wrong one (a rule broken), back and a hint, the solve, then a Hard board.
+        func moments<K: PuzzleKind>(_ kind: K.Type, wrong: (PuzzleEngine<K>.State) -> [Move], hard: (inout PuzzleEngine<K>.State) -> Void = { _ in },
+                                    clicks: @escaping (K.Rules.Move, PuzzleEngine<K>.State) -> [Move]) throws {
+            PlaytimeRecords.update { $0 = PlaytimeRecords() }
+            var random = Games.Random(seed: 4)
+            var s = PuzzleEngine<K>.start(level: .fair, options: o, random: &random)
+            try write(K.id, "start", nil, PuzzleScreen<K>.board(s, events: [.opened], options: o))
+            for _ in 0..<6 {
+                _ = GameTable.play(PuzzleScreen<K>.self, .button("hint"), on: &s, random: &random)
+                for m in clicks(s.hint!.move, s) { _ = GameTable.play(PuzzleScreen<K>.self, m, on: &s, random: &random) }
+            }
+            var e: [Games.Event] = []
+            let wrongs = wrong(s)
+            for m in wrongs { e = GameTable.play(PuzzleScreen<K>.self, m, on: &s, random: &random) }
+            try write(K.id, "conflict", nil, PuzzleScreen<K>.board(s, events: e, options: o))
+            for _ in wrongs { _ = GameTable.play(PuzzleScreen<K>.self, .button("undo"), on: &s, random: &random) }
+            e = GameTable.play(PuzzleScreen<K>.self, .button("hint"), on: &s, random: &random)
+            try write(K.id, "hint", nil, PuzzleScreen<K>.board(s, events: e, options: o))
+            // The end card, after its build-up from the board before the last mark (the last hint's).
+            let boards = PlaytimeScreensTests.solve(K.self, &s, clicks: clicks)
+            try write(K.id, "end-win", boards.dropLast().last, boards.last!)
+            _ = GameTable.play(PuzzleScreen<K>.self, .choice(name: "level", value: "hard"), on: &s, random: &random)
+            hard(&s)
+            try write(K.id, "hard", nil, PuzzleScreen<K>.board(s, events: [], options: o))
+        }
+        // Rules broken on purpose: three hearts, a plot of the wrong size, a number twice in a row, blossoms touching.
+        try moments(SeesawKind.self, wrong: { s in
+            // Three open cells side by side, each clicked once: three hearts in a row.
+            let n = s.game.puzzle.size, g = s.game.grid
+            let start = g.indices.first { c in c % n <= n - 3 && (0..<3).allSatisfy { g[c + $0] == nil && s.game.puzzle.givens[c + $0] == nil } } ?? 0
+            return (0..<3).map { Move.cell(row: start / n, column: start % n + $0) }
+        }, clicks: { m, s in PlaytimeScreensTests.clicks(m, on: s.game.grid, size: s.game.puzzle.size) })
+        try moments(GardenPlotsKind.self, wrong: { s in
+            let b = s.game.puzzle
+            let clue = b.clues.first { c in !s.game.grid.contains { $0.contains(c.cell, width: b.width) } && c.area > 2 }!
+            return [.cell(row: clue.cell / b.width, column: clue.cell % b.width)]
+        }, clicks: { m, s in PlaytimeScreensTests.clicks(m, width: s.game.puzzle.width) })
+        try moments(SudokuKind.self, wrong: { s in
+            let n = s.game.puzzle.size, g = s.game.grid.digits
+            let cell = g.indices.first { g[$0] == 0 }!
+            let twin = (0..<n).map { cell / n * n + $0 }.first { g[$0] != 0 }!
+            return [.place(row: cell / n, column: cell % n, value: g[twin], note: false)]
+        }, hard: { s in
+            var random = Games.Random(seed: 9)
+            let n = s.game.puzzle.size
+            for (i, cell) in s.game.puzzle.givens.indices.filter({ s.game.puzzle.givens[$0] == 0 }).prefix(10).enumerated() {
+                let move: Move = i < 6 ? .place(row: cell / n, column: cell % n, value: s.game.puzzle.solution[cell], note: false)
+                    : .place(row: cell / n, column: cell % n, value: s.game.puzzle.solution[cell], note: true)
+                _ = GameTable.play(PuzzleScreen<SudokuKind>.self, move, on: &s, random: &random)
+            }
+        }, clicks: { m, s in PlaytimeScreensTests.clicks(m, size: s.game.puzzle.size) })
+        try moments(BlossomsKind.self, wrong: { s in
+            let n = s.game.puzzle.size, g = s.game.grid
+            let cell = g.indices.first { c in g[c] == nil && c % n < n - 1 && g[c + 1] == nil && !(0..<n).contains { g[c / n * n + $0] == .blossom } }!
+            return [.cell(row: cell / n, column: cell % n), .cell(row: cell / n, column: cell % n),
+                    .cell(row: cell / n, column: cell % n + 1), .cell(row: cell / n, column: cell % n + 1)]
+        }, clicks: { m, s in PlaytimeScreensTests.clicks(m, on: s.game.grid, size: s.game.puzzle.size) })
     }
 
     static func score(_ b: Board) -> String {

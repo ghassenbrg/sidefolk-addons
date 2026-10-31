@@ -16,6 +16,8 @@ extension Games {
         var streak = 0
         var bestStreak = 0
         var dailies = 0
+        /// The level practice boards were last dealt at, for the next one.
+        var lastLevel: String?
 
         init() {}
 
@@ -28,6 +30,7 @@ extension Games {
             streak = (try? c.decodeIfPresent(Int.self, forKey: .streak)) ?? 0
             bestStreak = (try? c.decodeIfPresent(Int.self, forKey: .bestStreak)) ?? 0
             dailies = (try? c.decodeIfPresent(Int.self, forKey: .dailies)) ?? 0
+            lastLevel = try? c.decodeIfPresent(String.self, forKey: .lastLevel)
         }
 
         /// A board solved: the daily's streak once a day (`day` is the board's day, nil for practice), the practice

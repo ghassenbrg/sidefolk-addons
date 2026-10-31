@@ -40,6 +40,8 @@ struct PlaytimeRecords: Codable, Equatable {
     var practiceWords: [String: [String]]?
     /// The logic puzzles' best times, daily streaks and practice tallies, by puzzle id (`PuzzleRecords.swift`).
     var puzzles: [String: Games.PuzzleRecord]?
+    /// Each puzzle's board of the day as far as played (a `PuzzleGame` as JSON), so reopening it carries on.
+    var puzzleDays: [String: Data]?
 
     static var file: String { Paths.data + "/records.json" }
     static var animalsFile: String { Paths.data + "/animals.json" }
