@@ -43,7 +43,8 @@ final class Session {
     private(set) var startedAt: Date?
     private(set) var lastEnd: (at: Date, why: String)?
     private(set) var saved: [TrustedReceiver] = []
-    private(set) var found: [Receiver] = []
+    /// What discovery saw last: names and ids any device on the network can claim, so only a pinned key is trusted.
+    var found: [Receiver] = []
 
     // What the TV and WebRTC report while sharing.
     private(set) var tvFPS = 0.0
@@ -94,20 +95,31 @@ final class Session {
         return rows
     }
 
-    /// A TV by what the person called it: a name, part of one ("living room"), or an address.
+    /// A TV by what the person called it: a name, part of one ("living room"), or an address. A TV the person paired
+    /// comes before any other the words fit, so a device that calls itself "Living Room TV" never stands in for the
+    /// paired one (a name is anyone's to advertise; Sidefolk D72).
     func tv(named words: String?) -> Receiver? {
         let list = tvs.compactMap(\.receiver)
+        let paired = list.filter { r in saved.contains { $0.id == r.id } }
         guard let words = words?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(), !words.isEmpty,
               !["the tv", "tv", "my tv", "the television"].contains(words) else {
-            // No name: the one there is, or the one used last.
+            // No name: the one there is, the one used last, or a paired one that's on.
             if list.count == 1 { return list[0] }
-            return list.first { $0.id == choices.lastTV } ?? found.first
+            return list.first { $0.id == choices.lastTV } ?? paired.first { r in found.contains { $0.id == r.id } } ?? found.first
         }
         let bare = words.replacingOccurrences(of: " tv", with: "").replacingOccurrences(of: "the ", with: "")
-        if let exact = list.first(where: { $0.name.lowercased() == words }) { return exact }
-        if let part = list.first(where: { $0.name.lowercased().contains(bare) }) { return part }
-        if let byAddress = list.first(where: { $0.address == words || $0.host == words }) { return byAddress }
+        for group in [paired, list.filter { r in !paired.contains(r) }] {
+            if let exact = group.first(where: { $0.name.lowercased() == words }) { return exact }
+            if let part = group.first(where: { $0.name.lowercased().contains(bare) }) { return part }
+            if let byAddress = group.first(where: { $0.address == words || $0.host == words }) { return byAddress }
+        }
         return nil
+    }
+
+    /// The pairing a connection to `receiver` must prove, by its key: the one with its id, or the one paired by its
+    /// address. Nil means a first contact, which the six digits on both screens authenticate before anything is shared.
+    func pin(for receiver: Receiver) -> TrustedReceiver? {
+        saved.first { $0.id == receiver.id || (receiver.host != nil && $0.host == receiver.host && ($0.port ?? 7421) == (receiver.port ?? 7421)) }
     }
 
     // MARK: Starting and stopping
@@ -180,7 +192,7 @@ final class Session {
             ?? (requested.host == nil ? (found.first { $0.id == requested.id } ?? requested) : requested)
         self.receiver = receiver
         phase = attempts == 0 ? .connecting : .reconnecting
-        let known = saved.first { $0.id == receiver.id || (receiver.host != nil && $0.host == receiver.host && ($0.port ?? 7421) == (receiver.port ?? 7421)) }
+        let known = pin(for: receiver)
         let session = TVConnection(); connection = session
         session.onControl = { [weak self, weak session] message in
             Task { @MainActor in

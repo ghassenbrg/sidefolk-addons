@@ -1,6 +1,7 @@
 import Foundation
 import Network
 import Testing
+import SidefolkExtensionKit
 @testable import ext_miraya
 
 /// Miraya's sending side with canned TVs and temporary files: nothing here reaches the network, records the screen or
@@ -63,6 +64,70 @@ struct MirayaTests {
         #expect(tv.receiver(found: [advertised])?.host == "192.168.1.20")
         try store.remove(tv.id)
         #expect(store.all().isEmpty)
+    }
+
+    static func endpoint(_ name: String) -> NWEndpoint { .service(name: name, type: "_miraya._tcp", domain: "local.", interface: nil) }
+
+    static func pairing(_ id: String, _ name: String, host: String? = nil) -> TrustedReceiver {
+        TrustedReceiver(id: id, name: name, fingerprint: String(repeating: "a", count: 64), token: String(repeating: "t", count: 43),
+                        clientID: UUID().uuidString, host: host, port: host == nil ? nil : 7421)
+    }
+
+    // Sidefolk lets a call that reaches only a paired TV run without a card after outside content (Sidefolk D72): a
+    // device that takes that TV's name, id or address must never get the screen in its place.
+    @Test func aDeviceUsingAPairedTVsNameNeverStandsInForIt() throws {
+        let folder = try Self.folder()
+        let paired = Self.pairing("6f1c2b9a-1111-4222-8333-944455556666", "Living Room TV")
+        try TrustStore(folder: folder).save(paired)
+        let s = Session(folder: folder)
+        let impostor = Receiver(id: "11111111-2222-4333-8444-555555555555", name: "Living Room TV", endpoint: Self.endpoint("Living Room TV (2)"))
+        s.found = [impostor, Receiver(id: paired.id, name: "Living Room TV", endpoint: Self.endpoint("Living Room TV"))]
+        #expect(s.tv(named: "Living Room TV")?.id == paired.id && s.tv(named: "living room")?.id == paired.id, "the paired one first")
+        #expect(Tools.reach("share_screen", Arguments(["tv": "living room"]), in: s) == .device(paired.id))
+        #expect(Tools.reach("share_screen", Arguments([:]), in: s) == .device(paired.id), "no TV named: the paired one that's on")
+
+        // Sidefolk binds the call to that id: it reaches the paired TV, and the connection demands its pinned key.
+        let bound = try Tools.tv(paired.id, in: s)
+        #expect(bound.id == paired.id && s.pin(for: bound)?.fingerprint == paired.fingerprint)
+        // A device advertising the paired TV's id is held to the same pin, and a different key is refused at TLS,
+        // before the token or any picture is sent.
+        #expect(s.pin(for: Receiver(id: paired.id, name: "Living Room TV", endpoint: Self.endpoint("Spoof")))?.fingerprint == paired.fingerprint)
+        #expect(!TVConnection.accepts(String(repeating: "b", count: 64), pinned: paired.fingerprint))
+        #expect(TVConnection.accepts(paired.fingerprint, pinned: paired.fingerprint))
+
+        // The paired TV is off: the name now fits only the other device, which isn't paired, so Sidefolk asks, and a
+        // call to it would first need the six digits compared on both screens (no pin: a first contact).
+        s.found = [impostor]
+        #expect(s.tv(named: "living room")?.id == impostor.id)
+        #expect(Tools.reach("share_screen", Arguments(["tv": "living room"]), in: s) == .unpaired)
+        #expect(s.pin(for: impostor) == nil)
+        #expect(throws: Problem.self) { try Tools.tv(paired.id, in: s) }
+    }
+
+    @Test func theCheckNamesOnlyAPinnedPairing() throws {
+        let folder = try Self.folder()
+        let byAddress = Self.pairing("6f1c2b9a-1111-4222-8333-944455556666", "Bedroom", host: "192.168.1.20")
+        try TrustStore(folder: folder).save(byAddress)
+        let s = Session(folder: folder)
+        #expect(Tools.reach("play_on_tv", Arguments(["tv": "192.168.1.20"]), in: s) == .device(byAddress.id), "paired by its address")
+        #expect(Tools.reach("play_on_tv", Arguments(["tv": "bedroom"]), in: s) == .device(byAddress.id))
+        #expect(Tools.reach("play_on_tv", Arguments([:]), in: s) == .device(byAddress.id), "the only TV")
+        #expect(Tools.reach("share_screen", Arguments(["tv": "192.168.1.30"]), in: s) == .unpaired, "an address never paired")
+        #expect(Tools.reach("share_screen", Arguments(["tv": "kitchen"]), in: s) == .unpaired, "no such TV")
+        // Nothing is on the TV: stopping or pausing reaches no device.
+        #expect(Tools.reach("stop", Arguments([:]), in: s) == .nothing && Tools.reach("pause", Arguments([:]), in: s) == .nothing)
+        #expect(Tools.reach("pair_tv", Arguments(["tv": "bedroom"]), in: s) == .unpaired, "only the tools that declare it")
+        // The manifest declares it on exactly the tools that send to the TV in use or the one named.
+        let manifest = try JSONSerialization.jsonObject(with: Data(contentsOf: Self.manifest)) as! [String: Any]
+        let tools = manifest["tools"] as! [String: [String: Any]]
+        #expect(Set(tools.filter { $0.value["reach"] as? String == "paired" }.keys)
+                == ["share_screen", "play_on_tv", "stop", "pause", "resume", "seek", "tv_volume"])
+        #expect(tools["share_screen"]?["device"] as? String == "tv" && tools["play_on_tv"]?["device"] as? String == "tv")
+    }
+
+    static var manifest: URL {
+        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("extensions/miraya/sidefolk-extension.json")
     }
 
     @Test func aNamedFileIsLentAsACloneAndGivenBack() throws {

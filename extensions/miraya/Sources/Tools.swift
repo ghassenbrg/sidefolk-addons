@@ -6,7 +6,7 @@ import SidefolkExtensionKit
 /// it went (a code to compare, Allow on the TV, or a picture on it).
 @MainActor
 enum Tools {
-    static func listing() -> String {
+    static func listing(in session: Session) -> String {
         let rows = session.tvs
         guard !rows.isEmpty else {
             return "No TV running Miraya is on this network right now. Open Miraya on the TV; or pair by the address it shows."
@@ -17,15 +17,41 @@ enum Tools {
         }.joined(separator: "\n")
     }
 
-    static func tv(_ words: String?) throws -> Receiver {
-        if let words, let address = address(words) { return address }
+    static func tv(_ words: String?) throws -> Receiver { try tv(words, in: session) }
+
+    /// The TV a call means: a paired TV's id (what Sidefolk binds a call it let through to, D72), an address, or a name.
+    static func tv(_ words: String?, in session: Session) throws -> Receiver {
+        if let words, let paired = session.saved.first(where: { $0.id == words.lowercased() }) {
+            guard let tv = paired.receiver(found: session.found) else { throw Problem("\(paired.name) isn't on now. Open Miraya on it.") }
+            return tv
+        }
+        if let words, let address = address(words, in: session) { return address }
         if let tv = session.tv(named: words) { return tv }
-        if let words { throw Problem("No TV called “\(words)” is on. These are around:\n\(listing())") }
+        if let words { throw Problem("No TV called “\(words)” is on. These are around:\n\(listing(in: session))") }
         throw Problem("No TV running Miraya is on this network. Open Miraya on the TV, or pair by the address it shows.")
     }
 
+    /// Which TV a call would reach, for Sidefolk to decide whether to ask the person (`sidefolk/paired.check`, D72):
+    /// found exactly as the call finds it, and named only when it's one the person paired, whose pinned key the
+    /// connection then demands. Sharing and playing reach the TV the call names; the rest act on what's on the TV now,
+    /// which shares or plays only once the TV proved its key (or the person compared the code). Stopping gives a TV
+    /// nothing, so it reaches no device in that sense.
+    static func reach(_ tool: String, _ args: Arguments, in session: Session) -> Paired {
+        switch tool {
+        case "share_screen", "play_on_tv":
+            guard let tv = try? tv(args.string("tv"), in: session), session.saved.contains(where: { $0.id == tv.id }) else { return .unpaired }
+            return .device(tv.id)
+        case "stop", "pause", "resume", "seek", "tv_volume":
+            guard session.busy, let current = session.receiver else { return .nothing }
+            if session.saved.contains(where: { $0.id == current.id }) { return .device(current.id) }
+            return tool == "stop" ? .nothing : .unpaired
+        default:
+            return .unpaired
+        }
+    }
+
     /// "192.168.1.20" or "192.168.1.20:7421", or a host name with a dot or a port.
-    static func address(_ words: String) -> Receiver? {
+    static func address(_ words: String, in session: Session) -> Receiver? {
         let text = words.trimmingCharacters(in: .whitespaces)
         guard !text.contains(" "), !text.contains("/") else { return nil }
         let parts = text.split(separator: ":", maxSplits: 1).map(String.init)

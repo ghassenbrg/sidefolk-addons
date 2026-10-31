@@ -49,6 +49,8 @@
       "risk": "medium",
       "category": "system",
       "mutates": true,
+      "reach": "paired",
+      "device": "tv",
       "commands": [
         {
           "say": [
@@ -86,6 +88,8 @@
       "risk": "medium",
       "category": "system",
       "mutates": true,
+      "reach": "paired",
+      "device": "tv",
       "paths": {
         "file": "read",
         "subtitles": "read"
@@ -108,6 +112,7 @@
       "risk": "low",
       "category": "system",
       "mutates": true,
+      "reach": "paired",
       "commands": [
         {
           "say": [
@@ -125,6 +130,7 @@
       "risk": "low",
       "category": "system",
       "mutates": true,
+      "reach": "paired",
       "commands": [
         {
           "say": [
@@ -140,6 +146,7 @@
       "risk": "low",
       "category": "system",
       "mutates": true,
+      "reach": "paired",
       "commands": [
         {
           "say": [
@@ -155,6 +162,7 @@
       "risk": "low",
       "category": "system",
       "mutates": true,
+      "reach": "paired",
       "commands": [
         {
           "say": [
@@ -178,7 +186,8 @@
       "title": "TV volume",
       "risk": "low",
       "category": "system",
-      "mutates": true
+      "mutates": true,
+      "reach": "paired"
     },
     "pair_tv": {
       "title": "Pair with a TV",

@@ -53,7 +53,7 @@ final class TVConnection: @unchecked Sendable {
             let ref = sec_trust_copy_ref(trust).takeRetainedValue()
             guard let chain = SecTrustCopyCertificateChain(ref) as? [SecCertificate], let leaf = chain.first else { complete(false); return }
             let hash = SHA256.hash(data: SecCertificateCopyData(leaf) as Data).map { String(format: "%02x", $0) }.joined()
-            let valid = expectedFingerprint.map { hash == $0 } ?? true
+            let valid = Self.accepts(hash, pinned: expectedFingerprint)
             self.fingerprint = hash; self.certificateMismatch = !valid
             self.identityVerified = valid && expectedFingerprint != nil
             complete(valid)
@@ -90,6 +90,13 @@ final class TVConnection: @unchecked Sendable {
         }
         queue.async { [weak self] in self?.installTimer() }
         nw.start(queue: queue)
+    }
+
+    /// Whether to talk to a TV whose certificate hashes to `hash`: a paired TV only with exactly its pinned key, so a
+    /// device that took its name, id or address fails here, before the token or anything else is sent; a first
+    /// contact with any key, which the six digits then authenticate.
+    static func accepts(_ hash: String, pinned: String?) -> Bool {
+        pinned.map { hash == $0 } ?? true
     }
 
     /// The person saw the same six digits on both screens. The code itself never goes to the TV.

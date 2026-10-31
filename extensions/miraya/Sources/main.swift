@@ -24,11 +24,14 @@ ext.background {
 
 ext.page("miraya") { _ in MirayaPage.make(session, windows: windows) }
 
+// Which TV a call would reach, asked by Sidefolk before it decides whether to ask the person (D72).
+ext.paired { tool, args in Tools.reach(tool, args, in: session) }
+
 ext.tool("find_tvs", "TVs around", "Lists the TVs running Miraya on this network and the paired ones, and whether each is on now. "
     + "Looks again on the network.") { _ in
     session.discovery.refresh()
     try? await Task.sleep(nanoseconds: 2_500_000_000)
-    return Tools.listing()
+    return Tools.listing(in: session)
 }
 
 ext.tool("share_screen", "Share screen to TV", "Mirrors the Mac's screen, one window, or part of a screen to a TV running Miraya, with the "
