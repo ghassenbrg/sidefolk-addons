@@ -149,7 +149,8 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
     /// A puzzle's companion is calm: a nod for a hint, a thoughtful look at a broken rule, a celebration only for the solve.
     static func cue(_ events: [Games.Event], _ s: Engine.State) -> Cue? {
         if events.contains(.roundOver(winner: .you)) {
-            return Cue(move: "celebrate", effect: "confetti", line: s.newBest ? "record" : "you_win", sound: "fanfare", look: "you")
+            // Not "you win": nobody lost. A line only for a new best.
+            return Cue(move: "celebrate", effect: "confetti", line: s.newBest ? "record" : nil, sound: "fanfare", look: "you")
         }
         if events.contains(.mistake) { return Cue(move: "think", effect: "question", look: "panel") }
         if events.contains(.hint) { return Cue(move: "nod", line: "hint_intro", sound: "whoosh", look: "panel") }
