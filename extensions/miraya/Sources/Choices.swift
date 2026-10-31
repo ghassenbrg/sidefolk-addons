@@ -1,7 +1,8 @@
 import Foundation
 
 /// How the person likes to share, kept between runs as the Mac app keeps them: the quality preset, whether the Mac's
-/// sound goes to the TV, detail before smoothness, the TV's own size as a ceiling, and the last TV used.
+/// sound goes to the TV, detail before smoothness, the TV's own size as a ceiling, the last TV used, and what the page
+/// has picked to share (a whole display, a window or a part of a display; each remembered for when it's picked again).
 struct Choices: Codable, Equatable {
     var quality = CaptureQuality.balanced.rawValue
     var sound = true
@@ -9,6 +10,11 @@ struct Choices: Codable, Equatable {
     var followTV = true
     var volume = 1.0
     var lastTV: String?
+    // Optional, so a file saved before them still reads.
+    var kind: String?
+    var display: UInt32?
+    var window: UInt32?
+    var area: String?
 
     var preset: CaptureQuality { CaptureQuality(rawValue: quality) ?? .balanced }
 
