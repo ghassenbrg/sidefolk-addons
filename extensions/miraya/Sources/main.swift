@@ -11,9 +11,13 @@ let ext = Extension(name: "miraya")
 let data = URL(fileURLWithPath: Paths.data, isDirectory: true)
 let session = Session(folder: data)
 var windows: [Screens.Window]?
+// Pictures of the displays and windows for the page's tiles; a round of them also says which windows are open.
+let shots = Shots(folder: data)
+shots.onWindows = { windows = $0 }
 
 ext.background {
     Inbox(folder: data).clearAll()
+    shots.clearAll()
     session.discovery.start()
     // Videos lent by the process Sidefolk starts for "play this file" (Inbox) are picked up here.
     while true {
@@ -22,7 +26,10 @@ ext.background {
     }
 }
 
-ext.page("miraya") { _ in MirayaPage.make(session, windows: windows) }
+ext.page("miraya") { _ in
+    shots.rendered(busy: session.busy, area: session.choices.kind == "area" ? session.choices.display : nil)
+    return MirayaPage.make(MirayaPage.now(session, windows: windows, shots: shots.names, canRecord: Shots.allowed))
+}
 
 // Which TV a call would reach, asked by Sidefolk before it decides whether to ask the person (D72).
 ext.paired { tool, args in Tools.reach(tool, args, in: session) }
@@ -121,14 +128,30 @@ ext.tool("list_windows", "Windows to share", "Lists the open windows on Miraya's
     return windows!.isEmpty ? "No window to share is open." : "\(windows!.count) windows are on Miraya's page."
 }
 
-ext.tool("set_option", "Miraya setting", "Changes a sharing choice: quality (a preset), sound, detail or follow_tv.",
-         input: Schema.object(["option": Schema.string("Which.", oneOf: ["quality", "sound", "detail", "follow_tv"]),
-                               "value": Schema.string("The preset, for quality.", oneOf: CaptureQuality.allCases.map(\.rawValue)),
+ext.tool("set_option", "Miraya setting", "Changes a sharing choice: quality (a preset), sound, detail or follow_tv; or what the page "
+    + "shares: kind (display, window or area), and which display, window or area.",
+         input: Schema.object(["option": Schema.string("Which.", oneOf: ["quality", "sound", "detail", "follow_tv", "kind", "display", "window", "area"]),
+                               "value": Schema.string("The preset for quality; display, window or area for kind; an id from the page, or an area's name.",
+                                                      maxLength: 40),
                                "on": Schema.boolean("On or off, for the others.")], required: ["option"])) { args in
     switch try args.required("option") {
     case "quality":
         guard let q = args.string("value").flatMap(CaptureQuality.init(rawValue:)) else { throw Problem("Which quality?") }
         session.choices.quality = q.rawValue
+    case "kind":
+        guard let kind = args.string("value"), ["display", "window", "area"].contains(kind) else { throw Problem("Share a display, a window or an area?") }
+        session.choices.kind = kind
+        // Picking Window is when macOS asks to let Sidefolk record the screen, as in Miraya's app.
+        if kind == "window", windows == nil { windows = try? await Screens.windows() }
+        return "Done."
+    case "display", "window":
+        guard let id = args.string("value").flatMap(UInt32.init) else { throw Problem("Which one?") }
+        if args.string("option") == "display" { session.choices.display = id } else { session.choices.window = id }
+        return "Done."
+    case "area":
+        guard let area = args.string("value"), MirayaPage.areas.contains(where: { $0.name == area }) else { throw Problem("Which part of the screen?") }
+        session.choices.area = area
+        return "Done."
     case "sound": session.choices.sound = args.bool("on") ?? !session.choices.sound
     case "detail": session.choices.detail = args.bool("on") ?? !session.choices.detail
     case "follow_tv": session.choices.followTV = args.bool("on") ?? !session.choices.followTV

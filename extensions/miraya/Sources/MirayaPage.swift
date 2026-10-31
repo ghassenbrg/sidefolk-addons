@@ -1,173 +1,352 @@
 import Foundation
+import CoreGraphics
 import SidefolkExtensionKit
 
-/// Miraya's page: what is happening now with its controls, the TVs around, what to share and how, and playing videos.
-/// It says only what is true: a TV is "on" when it answers on the network now, sharing is "on the TV" once the TV
-/// reported a picture.
+/// Miraya's page, laid out like Miraya's own Mac app: what is happening now on top with the one thing to do (Start
+/// sharing, the code to compare, Stop sharing), the TVs beside it with their state and the one chosen, what to share
+/// as pictures of the displays and windows, and the picture and sound as cards and switches. Each state has its own
+/// page: no TV, ready, pairing, waiting for the TV, sharing, paused, a video playing. It says only what is true: a TV
+/// is "on" when it answers on the network now, sharing is "live" once the TV reported a picture.
 @MainActor
 enum MirayaPage {
-    static func make(_ s: Session, windows: [Screens.Window]?) -> Page {
-        var sections: [Section] = []
-        if let problem = s.problem, !s.busy { sections.append(Section(nil, [.note(problem, tone: .bad)])) }
-        if s.busy { sections.append(now(s)) }
-        sections.append(tvs(s))
-        if s.mode == .mirror || !s.busy { sections += share(s, windows: windows) }
-        sections.append(Section("Play a video on the TV", [
-            .note("Drop a video on Sidefolk and say “play this on the TV”, or say “play ~/Movies/film.mp4 on the TV”. "
-                + "An HTTPS link to the video itself works too. Subtitles: an .srt or .vtt file beside it. "
-                + "The TV plays the original file; nothing is recorded or converted."),
-        ]))
-        return Page(summary: summary(s), sections: sections)
+    static let maxWindows = 12
+    static let areas: [(name: String, label: String)] = [("left", "Left half"), ("right", "Right half"), ("center", "Middle, 16:9")]
+
+    /// Everything the page shows, read from the session at one moment, so each state can be drawn (and tested) alone.
+    struct Now {
+        struct TV { var id: String; var name: String; var online: Bool; var paired: Bool }
+
+        var phase = Session.Phase.idle
+        var mode = Session.Mode.mirror
+        /// The TV in use, or the one sharing would go to.
+        var tv: TV?
+        var tvs: [TV] = []
+        var pairingCode = ""
+        var problem: String?
+        var note: String?
+        var discoveryProblem: String?
+        var target: Session.Target?
+        var startedAt: Date?
+        var fps = 0.0
+        var rttMs = 0.0
+        var picture = ""
+        var bitrate = 0.0
+        var drops = 0
+        var mediaTitle = ""
+        var mediaState = ""
+        var position = 0.0
+        var duration = 0.0
+        var seekable = false
+        var choices = Choices()
+        var displays: [Screens.Display] = []
+        /// nil: not listed yet (macOS hasn't let Sidefolk record, or nobody picked Window).
+        var windows: [Screens.Window]?
+        var canRecord = false
+        /// Pictures by what they show (`display:1`), in the data folder.
+        var shots: [String: String] = [:]
+
+        var busy: Bool { phase != .idle }
+        var tvName: String { tv?.name ?? "the TV" }
     }
 
-    // MARK: The line on top, and the Today tile
+    static func now(_ s: Session, windows: [Screens.Window]?, shots: [String: String], canRecord: Bool) -> Now {
+        let rows = s.tvs.map { row in
+            Now.TV(id: row.receiver?.id ?? row.saved?.id ?? "", name: row.receiver?.name ?? row.saved?.name ?? "TV", online: row.online, paired: row.saved != nil)
+        }
+        let current = s.receiver.map { r in rows.first { $0.id == r.id } ?? Now.TV(id: r.id, name: r.name, online: true, paired: false) }
+        let chosen = s.tv(named: nil).flatMap { r in rows.first { $0.id == r.id } }
+        return Now(phase: s.phase, mode: s.mode, tv: s.busy ? current : chosen, tvs: rows, pairingCode: s.pairingCode, problem: s.problem,
+                   note: s.note, discoveryProblem: s.discovery.problem, target: s.target, startedAt: s.startedAt, fps: s.tvFPS, rttMs: s.rttMs,
+                   picture: s.picture, bitrate: s.bitrate, drops: s.tvDrops, mediaTitle: s.media?.title ?? "", mediaState: s.mediaState,
+                   position: s.mediaPosition, duration: s.mediaDuration, seekable: s.mediaSeekable, choices: s.choices,
+                   displays: Screens.displays(), windows: windows, canRecord: canRecord, shots: shots)
+    }
 
-    static func summary(_ s: Session) -> Summary {
-        let tv = s.receiver?.name ?? "the TV"
-        switch s.phase {
+    static func make(_ n: Now) -> Page {
+        let top = Section(nil, [.hero(hero(n))])
+        switch n.phase {
+        case .pairing, .connecting, .reconnecting, .authorizing, .starting:
+            // One thing at a time: the code to compare, or what the TV is doing.
+            return Page(summary: summary(n), sections: [top])
+        case .sharing, .pausing, .paused:
+            if n.mode == .media { return Page(summary: summary(n), sections: [top, Section(nil, [.transport(transport(n))]), tvs(n)]) }
+            return Page(summary: summary(n), sections: [top, tvs(n), picture(n, live: true), more(n), connection(n)])
         case .idle:
-            let on = s.found.count
-            if on == 0 { return Summary("Miraya found no TV", detail: "Open Miraya on your Android TV, on the same network as this Mac.", tone: .neutral, symbol: "tv") }
-            let names = s.found.map(\.name)
-            return Summary("Miraya is ready", detail: on == 1 ? "\(names[0]) is on" : "\(on) TVs on: \(names.joined(separator: ", "))", tone: .neutral, symbol: "tv")
-        case .connecting: return Summary("Miraya is connecting to \(tv)…", tone: .info, symbol: "tv")
-        case .reconnecting: return Summary("Miraya is reconnecting to \(tv)…", detail: s.note ?? "", tone: .warn, symbol: "arrow.clockwise")
-        case .pairing: return Summary("Miraya's pairing code: \(spaced(s.pairingCode))", detail: "Check \(tv) shows the same six digits.", tone: .warn, symbol: "lock.shield")
+            return Page(summary: summary(n), sections: [top, tvs(n), what(n), picture(n, live: false), more(n), play(n)])
+        }
+    }
+
+    // MARK: What sharing would take, and the tool that starts it
+
+    /// What the page has picked to share, as `share_screen` takes it, its key among the pictures, and its name.
+    static func source(_ n: Now) -> (input: [String: Any], key: String, label: String)? {
+        let main = n.displays.first { $0.id == CGMainDisplayID() } ?? n.displays.first
+        let display = n.displays.first { $0.id == n.choices.display } ?? main
+        switch n.choices.kind ?? "display" {
+        case "window":
+            guard let windows = n.windows, let w = windows.first(where: { $0.id == n.choices.window }) ?? windows.first else { return nil }
+            return (["window_id": Int(w.id)], "window:\(w.id)", w.app)
+        case "area":
+            guard let display else { return nil }
+            let area = areas.first { $0.name == n.choices.area } ?? areas[2]
+            return (["area": area.name, "display": Int(display.id)], "area:\(area.name)", "the \(area.label.lowercased()) of your screen")
+        default:
+            guard let display else { return nil }
+            return (["display": Int(display.id)], "display:\(display.id)", n.displays.count > 1 ? "the " + displayName(display).lowercased() : "your screen")
+        }
+    }
+
+    static func start(_ n: Now) -> Action? {
+        guard let source = source(n) else { return nil }
+        return Action("Start sharing", tool: "share_screen", input: source.input, style: .primary, symbol: "play.fill")
+    }
+
+    // MARK: The line on the Today tile and beside the sidebar row, with the main button
+
+    static func summary(_ n: Now) -> Summary {
+        let tv = n.tvName
+        switch n.phase {
+        case .idle:
+            guard let chosen = n.tv else {
+                return Summary("Miraya found no TV", detail: "Open Miraya on your Android TV, on the same network as this Mac.", tone: .neutral, symbol: "tv")
+            }
+            guard chosen.online else { return Summary("\(tv) isn't on", detail: "Open Miraya on the TV to share to it.", tone: .neutral, symbol: "tv") }
+            let on = n.tvs.filter(\.online)
+            return Summary("Ready to share to \(tv)", detail: on.count > 1 ? "\(on.count) TVs on: \(on.map(\.name).joined(separator: ", "))" : "\(tv) is on",
+                           tone: .neutral, symbol: "tv", control: start(n).map { .action($0) })
+        case .connecting: return Summary("Connecting to \(tv)…", tone: .info, symbol: "tv", control: .action(cancel))
+        case .reconnecting: return Summary("Reconnecting to \(tv)…", detail: n.note ?? "", tone: .warn, symbol: "arrow.clockwise", control: .action(cancel))
+        case .pairing: return Summary("Pairing code \(spaced(n.pairingCode))", detail: "Check \(tv) shows the same six digits.", tone: .warn, symbol: "lock.shield")
         case .authorizing: return Summary("Choose Allow on \(tv)", detail: "Miraya is waiting for the TV's remote.", tone: .warn, symbol: "hand.raised")
         case .starting:
-            return Summary(s.mode == .media ? "Miraya is starting the video on \(tv)…" : "Miraya is starting to share to \(tv)…", tone: .info, symbol: "tv")
+            return Summary(n.mode == .media ? "Starting the video on \(tv)…" : "Starting to share to \(tv)…", tone: .info, symbol: "tv", control: .action(cancel))
         case .sharing:
-            if s.mode == .media {
-                return Summary("Miraya is playing on \(tv)", detail: "\(s.media?.title ?? "A video") · \(clock(s.mediaPosition)) of \(clock(s.mediaDuration))",
-                               tone: .good, symbol: "play.tv")
+            if n.mode == .media {
+                return Summary("Playing on \(tv)", detail: "\(n.mediaTitle) · \(clock(n.position)) of \(clock(n.duration))", tone: .good, symbol: "play.tv",
+                               control: .action(stop("Stop")))
             }
-            return Summary("Miraya is sharing \(s.target?.kind == .display ? "your screen" : (s.target?.label ?? "your screen")) to \(tv)",
-                           detail: [s.target?.kind == .display ? s.target?.label : nil, s.picture.isEmpty ? nil : s.picture].compactMap { $0 }.joined(separator: " · "),
-                           tone: .good, symbol: "rectangle.on.rectangle")
+            return Summary("Sharing \(sharedName(n)) to \(tv)", detail: n.picture, tone: .good, symbol: "rectangle.on.rectangle",
+                           control: .action(stop("Stop sharing")))
         case .pausing, .paused:
-            if s.mode == .media && s.mediaState == "ended" {
-                return Summary("The video finished on \(tv)", detail: s.media?.title ?? "", tone: .neutral, symbol: "checkmark.circle")
+            if n.mode == .media && n.mediaState == "ended" {
+                return Summary("The video finished on \(tv)", detail: n.mediaTitle, tone: .neutral, symbol: "checkmark.circle", control: .action(stop("Done")))
             }
-            return Summary(s.mode == .media ? "Miraya paused the video on \(tv)" : "Miraya paused sharing to \(tv)",
-                           detail: s.mode == .media ? (s.media?.title ?? "") : "The TV may still show the last picture.", tone: .warn, symbol: "pause.circle")
+            return Summary(n.mode == .media ? "Paused on \(tv)" : "Sharing to \(tv) is paused", detail: n.mode == .media ? n.mediaTitle : "",
+                           tone: .warn, symbol: "pause.circle", control: .action(stop(n.mode == .media ? "Stop" : "Stop sharing")))
         }
     }
 
-    // MARK: Now
+    static let cancel = Action("Cancel", tool: "stop", symbol: "xmark")
+    static func stop(_ label: String) -> Action { Action(label, tool: "stop", style: .destructive, symbol: "stop.fill") }
 
-    static func now(_ s: Session) -> Section {
-        let tv = s.receiver?.name ?? "the TV"
-        switch s.phase {
-        case .pairing:
-            return Section("Pair with \(tv)", [
-                .stat("Code on this Mac", spaced(s.pairingCode), tone: .warn, caption: "The same on the TV?"),
-                .note("If \(tv) shows the same six digits, they match. If not, cancel: something else may be answering for your TV."),
-                .button("Codes match · Pair", tool: "confirm_pairing", style: .primary, symbol: "checkmark.shield"),
-                .button("Cancel", tool: "stop", style: .secondary),
-            ])
-        case .authorizing:
-            return Section("Pair with \(tv)", [
-                .note("Choose Allow on the TV with its remote. Next time it connects without a code."),
-                .button("Cancel", tool: "stop"),
-            ])
-        case .connecting, .reconnecting, .starting:
-            var blocks: [Block] = [.note(s.note ?? (s.mode == .media ? "The TV is opening the video." : "Getting the TV and the video connection ready."))]
-            blocks.append(.button("Cancel", tool: "stop"))
-            return Section("Now", blocks)
-        case .sharing, .pausing, .paused:
-            if s.mode == .media { return playing(s) }
-            var facts: [(String, String)] = [("TV", tv), ("Sharing", s.target?.label ?? "Your screen")]
-            if !s.picture.isEmpty { facts.append(("Picture", s.picture)) }
-            if s.tvFPS > 0 { facts.append(("On the TV", "\(Int(s.tvFPS.rounded())) frames a second")) }
-            if s.rttMs > 0 { facts.append(("Network delay", "\(Int(s.rttMs.rounded())) ms there and back")) }
-            facts.append(("Sound", s.choices.sound ? "On the TV and this Mac" : "This Mac only"))
-            if let since = s.startedAt { facts.append(("Since", since.formatted(date: .omitted, time: .shortened))) }
-            return Section("Now", [
-                .facts(nil, facts),
-                s.phase == .paused ? .button("Resume", tool: "resume", style: .primary, symbol: "play.fill")
-                    : .button("Pause", tool: "pause", symbol: "pause.fill"),
-                .button("Stop sharing", tool: "stop", style: .destructive, symbol: "stop.fill"),
-            ])
+    // MARK: What is happening now
+
+    static func hero(_ n: Now) -> Hero {
+        let tv = n.tvName
+        switch n.phase {
         case .idle:
-            return Section(nil, [])
+            guard let chosen = n.tv else {
+                return Hero("No TV found yet", eyebrow: "Looking for TVs", detail: n.discoveryProblem
+                                ?? "Open Miraya on your Android TV, on the same network as this Mac. It shows up here by its room name.",
+                            tone: n.discoveryProblem == nil ? .neutral : .warn, symbol: "tv", busy: n.discoveryProblem == nil,
+                            actions: [Action("Look again", tool: "find_tvs", style: .primary, symbol: "arrow.clockwise")])
+            }
+            let source = source(n)
+            let what = source?.label ?? "a window"
+            var detail = "\(qualityName(n.choices.preset)), \(n.choices.preset.label) · " + (n.choices.sound ? "sound on the TV too" : "sound stays on this Mac")
+            var eyebrow = "Ready", tone = Tone.good
+            if !chosen.online { eyebrow = "\(tv) isn't on now"; tone = .warn; detail = "Open Miraya on the TV, then share. " + detail }
+            else if !chosen.paired { eyebrow = "New TV"; tone = .info; detail += ". The first time, you compare a six-digit code with the TV." }
+            var start = start(n) ?? Action("Start sharing", tool: "share_screen", style: .primary, symbol: "play.fill",
+                                           detail: "Choose a window to share first.", disabled: true)
+            if let problem = n.problem {
+                eyebrow = "Couldn't share"; tone = .bad; detail = problem
+                start.label = "Try again"
+            }
+            return Hero("Share \(what) to \(tv)", eyebrow: eyebrow, detail: detail, tone: tone, symbol: "tv",
+                        image: source.flatMap { n.shots[$0.key] }, actions: [start])
+        case .pairing:
+            return Hero("Compare with \(tv)", eyebrow: "Verify the TV", detail: "Make sure these six digits match the ones on the TV. "
+                            + "If they don't, cancel: something else may be answering for your TV.",
+                        tone: .warn, symbol: "lock.shield", code: n.pairingCode.isEmpty ? nil : spaced(n.pairingCode),
+                        actions: n.pairingCode.isEmpty ? [cancel]
+                            : [Action("Codes match · Pair", tool: "confirm_pairing", style: .primary, symbol: "checkmark.shield"), cancel])
+        case .authorizing:
+            return Hero("Choose Allow on \(tv)", eyebrow: "Waiting for the TV", detail: "Use the TV's remote. Next time this Mac connects without a code.",
+                        tone: .info, symbol: "hand.raised", busy: true, actions: [cancel])
+        case .connecting, .reconnecting, .starting:
+            let title = n.phase == .connecting ? "Connecting to \(tv)…" : n.phase == .reconnecting ? "Reconnecting to \(tv)…"
+                : n.mode == .media ? "Opening the video on \(tv)…" : "Starting to share to \(tv)…"
+            return Hero(title, eyebrow: n.phase == .reconnecting ? "Reconnecting" : "Connecting",
+                        detail: n.note ?? (n.mode == .media ? "The TV is opening the video." : "Getting the TV and a direct video connection ready."),
+                        tone: n.phase == .reconnecting ? .warn : .info, symbol: "tv", busy: true, actions: [cancel])
+        case .sharing, .pausing, .paused:
+            let paused = n.phase != .sharing
+            if n.mode == .media {
+                let ended = n.mediaState == "ended"
+                return Hero(n.mediaTitle.isEmpty ? "A video" : n.mediaTitle, eyebrow: ended ? "Finished" : paused ? "Paused on the TV" : "Playing on the TV",
+                            detail: "On \(tv)" + (n.picture.isEmpty ? "" : " · \(n.picture)") + ". The TV plays the original file; nothing is recorded.",
+                            tone: ended ? .neutral : paused ? .warn : .good, symbol: "play.tv", actions: [stop(ended ? "Done" : "Stop")])
+            }
+            var facts: [(String, String)] = []
+            if n.fps > 0 { facts.append(("On the TV", "\(Int(n.fps.rounded())) fps")) }
+            if n.rttMs > 0 { facts.append(("Delay", "\(Int(n.rttMs.rounded())) ms")) }
+            if !n.picture.isEmpty { facts.append(("Picture", n.picture)) }
+            facts.append(("Sound", n.choices.sound ? "On the TV" : "This Mac only"))
+            let since = n.startedAt.map { " Since \($0.formatted(date: .omitted, time: .shortened))." } ?? ""
+            return Hero(paused ? "Sharing to \(tv) is paused" : "Sharing \(sharedName(n)) to \(tv)",
+                        eyebrow: paused ? "Paused" : "Sharing · live",
+                        detail: paused ? "The TV may keep showing the last picture. Nothing new reaches it until you resume."
+                            : "Change the picture or sound below while you watch." + since,
+                        tone: paused ? .warn : .good, symbol: paused ? "pause.circle" : "rectangle.on.rectangle",
+                        image: n.target.flatMap(targetKey).flatMap { n.shots[$0] }, facts: paused ? [] : facts,
+                        actions: paused ? [Action("Resume", tool: "resume", style: .primary, symbol: "play.fill"), stop("Stop sharing")]
+                            : [Action("Pause", tool: "pause", symbol: "pause.fill"), stop("Stop sharing")])
         }
     }
 
-    static func playing(_ s: Session) -> Section {
-        var facts: [(String, String)] = [("TV", s.receiver?.name ?? "the TV"), ("Video", s.media?.title ?? "")]
-        facts.append(("Where", s.mediaDuration > 0 ? "\(clock(s.mediaPosition)) of \(clock(s.mediaDuration))" : clock(s.mediaPosition)))
-        if !s.picture.isEmpty { facts.append(("Picture", s.picture)) }
-        if !s.mediaState.isEmpty { facts.append(("Player", s.mediaState)) }
-        var blocks: [Block] = [.facts(nil, facts)]
-        if s.mediaSeekable { blocks.append(.button("Back 30 s", tool: "seek", input: ["seconds": -30], symbol: "gobackward.30")) }
-        blocks.append(s.phase == .paused ? .button("Play", tool: "resume", style: .primary, symbol: "play.fill")
-                                         : .button("Pause", tool: "pause", symbol: "pause.fill"))
-        if s.mediaSeekable { blocks.append(.button("Forward 30 s", tool: "seek", input: ["seconds": 30], symbol: "goforward.30")) }
-        blocks.append(.button("Stop", tool: "stop", style: .destructive, symbol: "stop.fill"))
-        return Section("Now", blocks)
+    static func targetKey(_ t: Session.Target) -> String? {
+        switch t.kind {
+        case .display: return "display:\(t.displayID)"
+        case .window: return t.windowID.map { "window:\($0)" }
+        case .area: return nil
+        }
+    }
+
+    static func sharedName(_ n: Now) -> String {
+        guard let t = n.target else { return "your screen" }
+        switch t.kind {
+        case .display: return n.displays.count > 1 ? "the " + t.label.lowercased() : "your screen"
+        case .window: return t.label.components(separatedBy: " · ")[0]
+        case .area: return t.label
+        }
+    }
+
+    // MARK: Playing a video
+
+    static func transport(_ n: Now) -> Transport {
+        let paused = n.phase != .sharing || n.mediaState == "paused"
+        var buttons: [Action] = []
+        if n.seekable { buttons.append(Action("Back 30 seconds", tool: "seek", input: ["seconds": -30], symbol: "gobackward.30")) }
+        buttons.append(paused ? Action("Play", tool: "resume", style: .primary, symbol: "play.fill") : Action("Pause", tool: "pause", style: .primary, symbol: "pause.fill"))
+        if n.seekable { buttons.append(Action("Forward 30 seconds", tool: "seek", input: ["seconds": 30], symbol: "goforward.30")) }
+        let state: Transport.State = n.mediaState == "ended" ? .stopped : ["buffering", "preparing", "loading"].contains(n.mediaState) ? .buffering
+            : paused ? .paused : .playing
+        return Transport(title: nil, detail: n.mediaState.isEmpty ? nil : n.mediaState.capitalized, position: n.position,
+                         duration: n.duration > 0 ? n.duration : nil, state: state, buttons: buttons)
+    }
+
+    static func play(_ n: Now) -> Section {
+        Section("Play a video on the TV", [
+            .field("Play a link", detail: "An https link to the video file or stream itself, not a web page. The TV plays the original.",
+                   placeholder: "https://example.com/film.mp4", button: "Play on TV", tool: "play_on_tv", key: "url"),
+            .note("A file on this Mac: drop it on your companion and say “play this on the TV”, or say “play ~/Movies/film.mp4 on the TV”. "
+                + "Subtitles: an .srt or .vtt file beside it."),
+        ], collapsed: true)
     }
 
     // MARK: TVs
 
-    static func tvs(_ s: Session) -> Section {
-        let rows = s.tvs
+    static func tvs(_ n: Now) -> Section {
         var blocks: [Block] = []
-        if rows.isEmpty {
-            blocks.append(.note("No TV yet. Open Miraya on the TV and keep it open; it appears here by its room name. "
-                + "Not showing up? Say “connect to the TV at 192.168.1.20” with the address the TV shows."))
-        } else {
-            blocks.append(.facts(nil, rows.map { row in
-                let name = row.receiver?.name ?? row.saved?.name ?? "TV"
-                let state = (row.online ? "On" : "Not seen now") + (row.saved != nil ? " · paired" : " · new: compare a code to pair")
-                return (name, state + (row.receiver?.id == s.choices.lastTV ? " · chosen" : ""))
-            }))
-            for row in rows {
-                guard let r = row.receiver else { continue }
-                if !s.busy && rows.count > 1 && r.id != s.choices.lastTV {
-                    blocks.append(.button("Use \(r.name)", tool: "choose_tv", input: ["tv": r.id], symbol: "tv"))
-                }
-                if row.saved != nil && !(s.busy && s.receiver?.id == r.id) {
-                    blocks.append(.button("Forget \(r.name)", tool: "forget_tv", input: ["tv": r.id], style: .secondary))
-                }
+        // Without a TV the hero says how to find one and looks again; here, only the address.
+        if !n.tvs.isEmpty {
+            let options = n.tvs.map { tv in
+                Option(tv.id, tv.name, detail: tv.online ? (tv.paired ? "Paired · on now" : "On now · not paired yet") : "Paired · not seen now",
+                       symbol: "tv", badge: tv.online ? (tv.paired ? Badge("Paired", tone: .good) : Badge("New", tone: .info)) : Badge("Off"),
+                       action: tv.paired && !n.busy ? Action("Forget", tool: "forget_tv", input: ["tv": tv.id], style: .plain,
+                                                             detail: "Forget this TV on this Mac; pairing again needs a new code.") : nil)
             }
+            blocks.append(.picker("Share to", detail: n.busy ? "Stop first to change the TV." : nil, style: .rows, options, selected: n.tv?.id ?? "",
+                                  tool: "choose_tv", key: "tv", disabled: n.busy))
         }
-        blocks.append(.button("Look again", tool: "find_tvs", symbol: "arrow.clockwise"))
-        if let problem = s.discovery.problem { blocks.append(.note(problem, tone: .warn)) }
-        return Section("TVs", blocks)
+        if let problem = n.discoveryProblem, n.tv != nil { blocks.append(.note(problem, tone: .warn)) }
+        if !n.busy {
+            if !n.tvs.isEmpty { blocks.append(.action(Action("Look again", tool: "find_tvs", style: .plain, symbol: "arrow.clockwise"))) }
+            blocks.append(.field("Not in the list?", detail: "Type the address Miraya shows on the TV.", placeholder: "192.168.1.20",
+                                 button: "Pair", tool: "pair_tv", key: "tv"))
+        }
+        return Section("TVs", blocks, place: .side)
     }
 
-    // MARK: What to share, and how
+    // MARK: What to share
 
-    static func share(_ s: Session, windows: [Screens.Window]?) -> [Section] {
-        let tv = s.tv(named: nil)
-        var what: [Block] = []
-        if tv == nil { what.append(.note("Choose a TV first: none is on or paired yet.")) }
-        let idle = !s.busy && tv != nil
-        for d in Screens.displays() {
-            what.append(.button("Share \(d.name)", tool: "share_screen", input: ["display": Int(d.id)], style: idle ? .primary : .secondary, symbol: "display"))
+    static func what(_ n: Now) -> Section {
+        let kind = n.choices.kind ?? "display"
+        var blocks: [Block] = [.picker("Share", style: .segmented, [Option("display", "A screen"), Option("window", "A window"), Option("area", "Part of a screen")],
+                                       selected: kind, tool: "set_option", input: ["option": "kind"])]
+        let picked = source(n).map { String($0.key.split(separator: ":")[1]) } ?? ""
+        switch kind {
+        case "window":
+            if let windows = n.windows, !windows.isEmpty {
+                let options = windows.prefix(maxWindows).map { w in
+                    Option("\(w.id)", w.app, detail: w.title.isEmpty ? nil : w.title, image: n.shots["window:\(w.id)"], symbol: "macwindow")
+                }
+                blocks.append(.picker("Window", detail: "Only this window goes to the TV, even while you use other apps. Its app's sound goes too.",
+                                      style: .tiles, Array(options), selected: picked, tool: "set_option", input: ["option": "window"]))
+            } else if n.windows != nil {
+                blocks.append(.note("No window to share is open."))
+            } else {
+                blocks.append(.note("To list the windows, macOS needs to let Sidefolk record the screen (Miraya runs inside Sidefolk).", tone: .info))
+                blocks.append(.action(Action("Show windows", tool: "list_windows", style: .secondary, symbol: "macwindow.on.rectangle")))
+            }
+        case "area":
+            let main = n.displays.first { $0.id == CGMainDisplayID() } ?? n.displays.first
+            let display = n.displays.first { $0.id == n.choices.display } ?? main
+            let options = areas.map { a in
+                Option(a.name, a.label, detail: display.map { "of the \(displayName($0).lowercased())" }, image: n.shots["area:\(a.name)"], symbol: "rectangle.dashed")
+            }
+            blocks.append(.picker("Part", detail: "Handy for one app beside another, or a video playing in the middle.", style: .tiles, options,
+                                  selected: picked, tool: "set_option", input: ["option": "area"]))
+        default:
+            let options = n.displays.map { d in
+                Option("\(d.id)", displayName(d), detail: d.name.components(separatedBy: " · ").dropFirst().first, image: n.shots["display:\(d.id)"], symbol: "display")
+            }
+            if !options.isEmpty {
+                blocks.append(.picker("Screen", style: .tiles, options, selected: picked, tool: "set_option", input: ["option": "display"]))
+            }
         }
-        if let windows {
-            if windows.isEmpty { what.append(.note("No window to share is open.")) }
-            for w in windows.prefix(10) { what.append(.button(w.name, tool: "share_screen", input: ["window_id": Int(w.id)], symbol: "macwindow")) }
-        } else {
-            what.append(.button("Show windows to share", tool: "list_windows", symbol: "macwindow.on.rectangle"))
+        if !n.canRecord && kind != "window" {
+            blocks.append(.note("Pictures of your screens show here once macOS lets Sidefolk record the screen: System Settings › Privacy & Security › "
+                + "Screen & System Audio Recording. Sharing the first time asks.", tone: .info))
         }
-        for (name, label) in [("left", "Left half"), ("right", "Right half"), ("center", "Middle (16:9)")] {
-            what.append(.button(label, tool: "share_screen", input: ["area": name], symbol: "rectangle.dashed"))
-        }
-        if let tv { what.insert(.note("To \(tv.name). Sidefolk asks macOS for screen recording the first time."), at: 0) }
+        return Section("What to share", blocks)
+    }
 
-        let current = s.choices.preset
-        var how: [Block] = CaptureQuality.allCases.map { q in
-            .button(q.label, tool: "set_option", input: ["option": "quality", "value": q.rawValue], style: q == current ? .primary : .secondary)
-        }
-        how.append(.toggle("The Mac's sound on the TV", detail: "Captured from this Mac, never the microphone. It keeps playing here too.",
-                           on: s.choices.sound, tool: "set_option", input: ["option": "sound"]))
-        how.append(.toggle("Picture detail first", detail: "Off: smoother motion, softer picture when the network is busy.",
-                           on: s.choices.detail, tool: "set_option", input: ["option": "detail"]))
-        how.append(.toggle("No bigger than the TV's own size", detail: "Saves the network when the TV's app shows less than 1080p.",
-                           on: s.choices.followTV, tool: "set_option", input: ["option": "follow_tv"]))
-        return [Section("Share", what), Section("Quality", how)]
+    static func displayName(_ d: Screens.Display) -> String { d.name.components(separatedBy: " · ")[0] }
+
+    // MARK: Picture and sound
+
+    static let presets: [(CaptureQuality, String)] = [(.lowBandwidth, "Slow network"), (.efficient, "Efficient"), (.efficientMotion, "Efficient motion"),
+                                                       (.balanced, "Balanced"), (.motion, "Smooth motion")]
+    static func qualityName(_ q: CaptureQuality) -> String { presets.first { $0.0 == q }?.1 ?? q.label }
+
+    static func picture(_ n: Now, live: Bool) -> Section {
+        Section("Picture & sound", [
+            .picker("Quality", detail: live ? "Changes while you share: the TV shows the new picture in a moment." : "The most the TV gets; the TV's own size can lower it.",
+                    style: .cards, presets.map { Option($0.0.rawValue, $0.1, detail: $0.0.label) }, selected: n.choices.quality,
+                    tool: "set_option", input: ["option": "quality"]),
+            .toggle("Play the Mac's sound on the TV", detail: "Only what this Mac plays, never the microphone. It keeps playing here too.",
+                    on: n.choices.sound, tool: "set_option", input: ["option": "sound"]),
+        ])
+    }
+
+    static func more(_ n: Now) -> Section {
+        Section("More picture settings", [
+            .toggle("Picture detail first", detail: "Off: smoother motion, softer picture when the network is busy.",
+                    on: n.choices.detail, tool: "set_option", input: ["option": "detail"]),
+            .toggle("No bigger than the TV's own size", detail: "Saves the network when the TV's app shows less than 1080p.",
+                    on: n.choices.followTV, tool: "set_option", input: ["option": "follow_tv"]),
+        ], collapsed: true)
+    }
+
+    static func connection(_ n: Now) -> Section {
+        var facts: [(String, String)] = [("TV", n.tvName), ("Sharing", n.target?.label ?? "Your screen")]
+        if n.bitrate > 0 { facts.append(("Sending", String(format: "%.1f Mb/s", n.bitrate / 1_000_000))) }
+        if n.rttMs > 0 { facts.append(("Network round trip", "\(Int(n.rttMs.rounded())) ms")) }
+        facts.append(("Frames dropped on the TV", "\(n.drops)"))
+        facts.append(("Connection", "Direct and encrypted, on your network"))
+        return Section("Connection details", [.facts(nil, facts)], collapsed: true)
     }
 
     // MARK: Words
@@ -181,7 +360,7 @@ enum MirayaPage {
 
     /// For a tool's answer: what is happening, in one sentence.
     static func sentence(_ s: Session) -> String {
-        let line = summary(s)
+        let line = summary(now(s, windows: nil, shots: [:], canRecord: false))
         return line.detail.isEmpty ? line.title + "." : "\(line.title): \(line.detail)."
     }
 }

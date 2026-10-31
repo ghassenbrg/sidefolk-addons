@@ -177,14 +177,22 @@ enum Screens {
         }
     }
 
-    struct Window { let id: UInt32; let name: String }
+    struct Window {
+        let id: UInt32
+        let name: String
+        var app = ""
+        var title = ""
+    }
 
     /// Windows people would share: ordinary app windows, big enough to see, named by app and title.
     static func windows() async throws -> [Window] {
         let content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: true)
         return content.windows
             .filter { $0.windowLayer == 0 && $0.frame.width >= 32 && $0.frame.height >= 32 }
-            .map { Window(id: $0.windowID, name: name(app: $0.owningApplication?.applicationName, title: $0.title)) }
+            .map { w in
+                let app = w.owningApplication?.applicationName ?? ""
+                return Window(id: w.windowID, name: name(app: app, title: w.title), app: app.isEmpty ? "App" : app, title: w.title ?? "")
+            }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
