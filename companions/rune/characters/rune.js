@@ -3,8 +3,18 @@
 // big glossy amber-brown eyes and a carved smile. Sheet: companions-3d/references/rune-sheet.webp.
 // Rig: blender/rig_rune.py.
 import { bodyMaterial } from '../engine/materials.js';
-import { add, raise, face } from '../engine/moves.js';
+import { add, raise, fwd, face } from '../engine/moves.js';
 import { damp, win } from '../engine/motion.js';
+
+// Settled on the ground: sitting low and heavy, legs out, hands resting on the ground at its sides.
+const settle = (t, P, C) => {
+  C?.stand?.(t, P);
+  P.root.py -= 0.17; P.root.rx -= 10; P.squash *= 0.98;
+  for (const [s, d] of [['L', 1], ['R', -1]]) {
+    add(P, 'thigh' + s, -80, 0, -d * 14);
+    raise(P, s, -6); fwd(P, s, -20);
+  }
+};
 
 export default {
   id: 'rune',
@@ -95,12 +105,26 @@ export default {
   pick: { head: { r: 0.62, at: [0, 0.35, 0.05] }, body: { r: 0.33, at: [0, -0.35, 0] }, tipR: 0.1 },
   fidgets: ['lookAround', 'tilt', 'smile', 'stretch', 'hop', 'blinkDouble', 'giggle'],
 
-  // The gem glows brighter while Rune pays attention.
+  // The gem glows brighter while Rune pays attention, and dims to a slow ember while it sleeps.
   dynamics(c, dt) {
     const busy = ['listening', 'hearing', 'thinking', 'working'].includes(c.loopName);
-    const target = busy ? 0.5 + 0.4 * Math.sin(c.time * (c.loopName === 'thinking' ? 5 : 3)) : 0;
+    const asleep = c.postureW.sleep.x;
+    const target = busy ? 0.5 + 0.4 * Math.sin(c.time * (c.loopName === 'thinking' ? 5 : 3))
+      : -0.4 * asleep * (0.75 + 0.25 * Math.sin(c.time * Math.PI * 2 * 0.2));
     const u = c.body.material.userData.u.uPulse;
     u.value = damp(u.value, target, 6, dt);
+  },
+
+  // A golem rests by settling like a stone: lying down it sits heavily with its legs out and its hands
+  // on the ground; asleep its boulder head sinks forward, moss up. (On its side or its tummy, the big
+  // head stayed upright over a toppled body.)
+  postures: {
+    lie: (t, P, C) => { settle(t, P, C); add(P, 'head', 6, 0, 5); },
+    sleep: (t, P, C) => {
+      settle(t, P, C);
+      const br = Math.sin(t * Math.PI * 2 * 0.2);
+      add(P, 'chest', 4 + br); add(P, 'head', 16 + br, 0, 6);
+    },
   },
 
   // Eggs of stone at the sides: a little forward and down from the modelled A-pose.

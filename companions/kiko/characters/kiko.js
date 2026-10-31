@@ -1,8 +1,11 @@
 // Kiko: a chibi kid astronaut: warm brown skin, fluffy dark curls, a padded mustard spacesuit with
 // a copper neck ring, plum gloves, knee pads, boots and backpack. Rig: blender/rig_kiko.py.
 import { bodyMaterial } from '../engine/materials.js';
-import { add, raise, face, hopY, doze } from '../engine/moves.js';
+import { add, raise, face, hopY, doze, POSTURES } from '../engine/moves.js';
 import { win } from '../engine/motion.js';
+
+// How much lower than the shared sit he sits.
+const SEAT = 0.08;
 
 export default {
   id: 'kiko',
@@ -79,8 +82,13 @@ export default {
   pick: { head: { r: 0.45, at: [0, 0.48, 0] }, body: { r: 0.3, at: [0, -0.4, 0] } },
   fidgets: ['lookAround', 'tilt', 'smile', 'stretch', 'hop', 'blinkDouble', 'giggle', 'scratch'],
 
-  // A child asleep on its tummy, gloves forward, read as crouching: he nods off sitting instead.
-  postures: { sleep: doze },
+  // His legs are long for the shared sit, which left him sitting on air: he sits lower. Asleep on his
+  // tummy, gloves forward, he read as crouching: he nods off sitting instead. (Lying down awake is the
+  // shared lie, on his tummy, chin up, legs swinging.)
+  postures: {
+    sit: (t, P) => { POSTURES.sit(t, P); P.root.py -= SEAT; },
+    sleep: (t, P) => { doze(t, P); P.root.py -= SEAT; },
+  },
 
   // Arms relaxed down from the modelled A-pose.
   stand(t, P) {

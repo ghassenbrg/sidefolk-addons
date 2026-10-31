@@ -6,6 +6,17 @@ import { bodyMaterial } from '../engine/materials.js';
 import { add, raise, fwd, handBend, face } from '../engine/moves.js';
 import { win } from '../engine/motion.js';
 
+// Sitting flopped on the floor, leaning back `back` degrees, legs out in a V, arms limp at the sides.
+const flop = (t, P, C, back) => {
+  C?.stand?.(t, P);
+  P.root.py -= 0.16; P.root.rx -= back; P.root.rz -= 3;
+  for (const [s, d] of [['L', 1], ['R', -1]]) {
+    add(P, 'thigh' + s, back - 90, 0, -d * 22);
+    raise(P, s, -14); fwd(P, s, -12);
+  }
+  add(P, 'footL', 0, 0, 8 * Math.sin(t * 1.2));
+};
+
 export default {
   id: 'purl',
   name: 'Purl',
@@ -98,6 +109,19 @@ export default {
   chains: [],
   pick: { head: { r: 0.62, at: [0, 0.4, 0.1] }, body: { r: 0.32, at: [0, -0.4, 0] }, tipR: 0.1 },
   fidgets: ['lookAround', 'tilt', 'smile', 'stretch', 'hop', 'blinkDouble', 'giggle'],
+
+  // A ragdoll at rest flops: lying down it sits back with its legs out in a V, arms flopped on the
+  // floor and its big head lolled to one side; asleep it slumps forward over its lap, head heavy.
+  // (On its side or its tummy, the huge head stayed upright over a toppled body.)
+  postures: {
+    lie: (t, P, C) => { flop(t, P, C, 26); add(P, 'head', 12, 0, 16); },
+    sleep: (t, P, C) => {
+      flop(t, P, C, 8);
+      for (const s of ['L', 'R']) fwd(P, s, 30);
+      const br = Math.sin(t * Math.PI * 2 * 0.2);
+      add(P, 'chest', 8 + br * 2); add(P, 'head', 22 + br * 1.5, 0, 20); P.squash *= 1 + br * 0.012;
+    },
+  },
 
   // The model holds its arms out almost level: relaxed down at the sides, paws a bit forward.
   stand(t, P) {
