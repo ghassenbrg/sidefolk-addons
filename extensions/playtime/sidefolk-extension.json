@@ -1,10 +1,10 @@
 {
   "id": "dev.sidefolk.playtime",
   "name": "Playtime",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "sidefolk": ">=0.1",
-  "description": "A break with your companion: a trivia quiz that keeps your score, and chance to pick a number or choose from a list.",
-  "tagline": "Trivia and random picks for a break",
+  "description": "A break with your companion: eleven games you play against it beside it on the desktop (Daily Word, trivia, tic-tac-toe, Copy Me and more), with your scores and streaks kept, and chance to pick a number or choose from a list.",
+  "tagline": "Eleven games with your companion, and random picks",
   "folk": "play",
   "author": "Sidefolk",
   "icon": "icon.pdf",
@@ -12,6 +12,256 @@
     "command": "bin/ext-playtime"
   },
   "permissions": {},
+  "games": {
+    "daily_word": {
+      "title": "Daily Word",
+      "symbol": "textformat.abc",
+      "say": [
+        "daily word",
+        "let's play daily word",
+        "word of the day",
+        "mot du jour",
+        "palabra del día",
+        "wort des tages",
+        "parola del giorno",
+        "palavra do dia",
+        "今日のことば",
+        "오늘의 단어",
+        "每日成语",
+        "كلمة اليوم"
+      ]
+    },
+    "trivia": {
+      "title": "Trivia",
+      "symbol": "questionmark.bubble.fill",
+      "say": [
+        "let's play trivia",
+        "play trivia",
+        "trivia",
+        "quiz me",
+        "let's do a quiz",
+        "jouons au quiz",
+        "juguemos a trivia",
+        "lass uns ein quiz spielen",
+        "giochiamo a un quiz",
+        "vamos jogar trivia",
+        "クイズしよう",
+        "퀴즈 하자",
+        "来玩问答",
+        "لنلعب مسابقة"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "tictactoe": {
+      "title": "Tic-tac-toe",
+      "symbol": "number",
+      "say": [
+        "let's play tic-tac-toe",
+        "let's play tic tac toe",
+        "tic tac toe",
+        "noughts and crosses",
+        "jouons au morpion",
+        "juguemos al tres en raya",
+        "lass uns tic-tac-toe spielen",
+        "giochiamo a tris",
+        "vamos jogar jogo da velha",
+        "まるばつゲームしよう",
+        "틱택토 하자",
+        "来玩井字棋",
+        "لنلعب إكس أو"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "copy_me": {
+      "title": "Copy Me",
+      "symbol": "figure.dance",
+      "say": [
+        "let's play copy me",
+        "copy me",
+        "jouons à imite-moi",
+        "juguemos a imítame",
+        "lass uns nachmachen spielen",
+        "giochiamo a copiami",
+        "vamos jogar me imite",
+        "まねっこしよう",
+        "따라 하기 하자",
+        "来玩跟我学",
+        "لنلعب قلّدني"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "quick_paws": {
+      "title": "Quick Paws",
+      "symbol": "bolt.fill",
+      "say": [
+        "let's play quick paws",
+        "quick paws",
+        "reflex game",
+        "jouons à pattes rapides",
+        "juguemos a patas rápidas",
+        "lass uns flinke pfoten spielen",
+        "giochiamo a zampe veloci",
+        "vamos jogar patas rápidas",
+        "はやおししよう",
+        "빠른 발 하자",
+        "来玩快爪比赛",
+        "لنلعب مخالب سريعة"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "which_cup": {
+      "title": "Which Cup?",
+      "symbol": "cup.and.saucer.fill",
+      "say": [
+        "let's play which cup",
+        "which cup",
+        "shell game",
+        "jouons au bonneteau",
+        "juguemos a qué vaso",
+        "lass uns das hütchenspiel spielen",
+        "giochiamo a quale bicchiere",
+        "vamos jogar qual copo",
+        "カップあてしよう",
+        "컵 맞히기 하자",
+        "来玩猜杯子",
+        "لنلعب أي كوب"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "higher_lower": {
+      "title": "Higher or Lower",
+      "symbol": "arrow.up.arrow.down",
+      "say": [
+        "let's play higher or lower",
+        "higher or lower",
+        "guess my number",
+        "jouons à plus ou moins",
+        "juguemos a mayor o menor",
+        "lass uns höher oder tiefer spielen",
+        "giochiamo a più alto o più basso",
+        "vamos jogar maior ou menor",
+        "ハイアンドローしよう",
+        "업 앤 다운 하자",
+        "来玩猜大小",
+        "لنلعب أكبر أم أصغر"
+      ]
+    },
+    "guess_animal": {
+      "title": "Guess My Animal",
+      "symbol": "pawprint.fill",
+      "say": [
+        "let's play guess my animal",
+        "guess my animal",
+        "animal game",
+        "jouons à devine mon animal",
+        "juguemos a adivina mi animal",
+        "lass uns rate mein tier spielen",
+        "giochiamo a indovina il mio animale",
+        "vamos jogar adivinhe meu bicho",
+        "どうぶつ当てしよう",
+        "동물 맞히기 하자",
+        "来玩猜动物",
+        "لنلعب خمن حيواني"
+      ]
+    },
+    "balloon_words": {
+      "title": "Balloon Words",
+      "symbol": "balloon.2.fill",
+      "say": [
+        "let's play balloon words",
+        "balloon words",
+        "hangman",
+        "jouons aux mots en ballons",
+        "juguemos a palabras globo",
+        "lass uns ballonwörter spielen",
+        "giochiamo a parole palloncino",
+        "vamos jogar palavras de balão",
+        "ふうせんことばしよう",
+        "풍선 단어 하자",
+        "来玩气球猜词",
+        "لنلعب كلمات البالونات"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "last_stick": {
+      "title": "Last Stick",
+      "symbol": "line.3.horizontal",
+      "say": [
+        "let's play last stick",
+        "last stick",
+        "nim",
+        "jouons au dernier bâton",
+        "juguemos al último palito",
+        "lass uns das letzte stäbchen spielen",
+        "giochiamo all'ultimo bastoncino",
+        "vamos jogar o último palito",
+        "さいごの1本しよう",
+        "마지막 막대 하자",
+        "来玩最后一根",
+        "لنلعب العود الأخير"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    },
+    "memory_pairs": {
+      "title": "Memory Pairs",
+      "symbol": "square.grid.2x2.fill",
+      "say": [
+        "let's play memory pairs",
+        "memory pairs",
+        "memory game",
+        "jouons au memory",
+        "juguemos a memoria",
+        "lass uns memo spielen",
+        "giochiamo a memory",
+        "vamos jogar jogo da memória",
+        "神経衰弱しよう",
+        "짝 맞추기 하자",
+        "来玩记忆配对",
+        "لنلعب أزواج الذاكرة"
+      ],
+      "levels": [
+        "easy",
+        "fair",
+        "hard"
+      ]
+    }
+  },
+  "pages": {
+    "playtime": {
+      "title": "Playtime",
+      "symbol": "gamecontroller.fill",
+      "refresh": 30,
+      "widget": true
+    }
+  },
   "tools": {
     "pick": {
       "title": "Random picks",
@@ -24,7 +274,8 @@
             "pick a number between {min:integer} and {max:integer}",
             "random number between {min:integer} and {max:integer}",
             "a random number between {min:integer} and {max:integer}",
-            "pick a number from {min:integer} to {max:integer}", "random number from {min:integer} to {max:integer}"
+            "pick a number from {min:integer} to {max:integer}",
+            "random number from {min:integer} to {max:integer}"
           ],
           "input": {
             "kind": "number",
@@ -34,7 +285,10 @@
         },
         {
           "say": [
-            "pick a number", "random number", "pick a random number", "give me a random number"
+            "pick a number",
+            "random number",
+            "pick a random number",
+            "give me a random number"
           ],
           "input": {
             "kind": "number"
@@ -42,9 +296,14 @@
         },
         {
           "say": [
-            "pick one: {choices:list}", "pick one of {choices:list}", "choose between {choices:list}",
-            "choose one of {choices:list}", "pick from {choices:list}", "pick between {choices:list}",
-            "help me pick between {choices:list}", "help me choose between {choices:list}"
+            "pick one: {choices:list}",
+            "pick one of {choices:list}",
+            "choose between {choices:list}",
+            "choose one of {choices:list}",
+            "pick from {choices:list}",
+            "pick between {choices:list}",
+            "help me pick between {choices:list}",
+            "help me choose between {choices:list}"
           ],
           "input": {
             "kind": "choice",
