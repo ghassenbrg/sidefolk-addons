@@ -67,10 +67,10 @@ import Testing
             if e["kind"] as? String == "word" { return .word(["一心一意", "七上八下", "人山人海", "三心二意", "十全十美", "五颜六色"][step % 6]) }
             return .text(name: e["name"] as! String, value: e["name"] as? String == "animal" ? "axolotl \(step)" : "Does it live in a lake?")
         }
+        if let b = ps.first(where: { $0["type"] as? String == "button" && $0["style"] as? String == "primary" }) { return .button(b["move"] as! String) }
         if let c = find("choice"), c["name"] as? String != "level" {
             return .choice(name: c["name"] as! String, value: ((c["options"] as! [[String: Any]])[0]["value"] as! String))
         }
-        if let b = ps.first(where: { $0["type"] as? String == "button" && $0["style"] as? String == "primary" }) { return .button(b["move"] as! String) }
         return nil
     }
 
@@ -99,6 +99,7 @@ import Testing
     @Test func everyGamePlaysToItsEnd() throws {
         try Language.with("en", strings: PlaytimeGameTests.strings) {
             for seed in [1, 2, 3] as [UInt64] {
+                try Self.play(TriviaScreen.self, seed: seed)
                 try Self.play(TicTacToeScreen.self, seed: seed)
                 try Self.play(CopyMeScreen.self, seed: seed)
                 try Self.play(QuickPawsScreen.self, seed: seed)

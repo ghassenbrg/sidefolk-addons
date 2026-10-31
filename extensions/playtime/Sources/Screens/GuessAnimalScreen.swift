@@ -127,6 +127,9 @@ enum GuessAnimalScreen: GameScreen {
                 cue = Cue(move: "sulk", prop: "none", line: "you_win", look: "you")
             }
         }
+        if s.outcome == .lost, let guess = g.guess {
+            parts.append(.prompt(L("It was {animal}!", ["animal": [guess.emoji, guess.name].filter { !$0.isEmpty }.joined(separator: " ")])))
+        }
         if let note = ScreenKit.refusal(events) { parts.append(note) }
         if let outcome = s.outcome {
             let line = outcome == .won ? L("Thank you! I'll remember {animal}.", ["animal": s.animal ?? ""]) : L("I got it!")

@@ -99,8 +99,8 @@ enum HigherLowerScreen: GameScreen {
         if s.mode == nil {
             parts = [.prompt(L("Pick a way to play"), eyebrow: L("Numbers from 1 to 100")),
                      .choice(name: "mode", style: .cards, options: [
-                         ChoiceOption("mine", L("Guess mine"), detail: L("{name} hides a number", ["name": o.companion]), symbol: "questionmark.square.fill"),
-                         ChoiceOption("yours", L("I'll guess yours"), detail: L("Think of a number"), symbol: "brain.head.profile"),
+                         ChoiceOption("mine", L("Guess mine"), detail: L("{name} hides one", ["name": o.companion]), symbol: "questionmark.square.fill"),
+                         ChoiceOption("yours", L("I'll guess yours"), detail: L("Think of one"), symbol: "brain.head.profile"),
                      ])]
             cue = Cue(move: "ready", line: "hello", look: "panel")
         } else if let game = s.mine {
@@ -111,7 +111,6 @@ enum HigherLowerScreen: GameScreen {
                 else { L("I'm hiding a number from 1 to 100. Guess it!") }
             let history = game.guesses.map { g -> (Int, String) in (g, g == game.shown ? "right" : g < game.low ? "higher" : "lower") }
             parts = [
-                .score(you: n, companion: Games.HigherLower.par, best: PlaytimeRecords.load().games[HigherLowerScreen.id]?.best),
                 .prompt(text, eyebrow: L("Guess {n} · par {par}", ["n": n + (game.found ? 0 : 1), "par": Games.HigherLower.par])),
             ]
             if last != nil, !game.found {
@@ -127,7 +126,7 @@ enum HigherLowerScreen: GameScreen {
             if events.contains(where: { if case .sealed = $0 { true } else { false } }) { cue = Cue(move: "tease", prop: "sealed_card", line: "hello") }
         } else if let game = s.yours {
             let range = L("Between {low} and {high}", ["low": game.low, "high": game.high])
-            parts = [.score(you: 0, companion: game.asked)]
+            parts = []
             if s.thinking {
                 parts.append(.prompt(L("Hmm… {range}…", ["range": range]), eyebrow: L("Question {n}", ["n": game.asked])))
                 after = events.compactMap { if case .think(let ms) = $0 { ms } else { nil } }.first ?? 900

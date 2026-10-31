@@ -49,8 +49,52 @@ enum SampleBoards {
                 try save(LastStickScreen.self)
                 try save(MemoryPairsScreen.self)
                 try save(DailyWordScreen.self)
+                try scripted(language: language, dir: dir, titles: titles)
             }
         }
+    }
+
+    /// Moments a bot clicking at random rarely reaches: Daily Word solved, Balloon Words won, the companion's animal
+    /// guess and being taught a new one.
+    static func scripted(language: String, dir: String, titles: [String: PlaytimePage.Game]) throws {
+        let options = PlaytimeScreensTests.options(language)
+        var random = Games.Random(seed: 3)
+        func write(_ id: String, _ name: String, _ before: Board?, _ board: Board) throws {
+            var out: [String: Any] = ["game": id, "title": titles[id]?.title ?? id, "symbol": titles[id]?.symbol ?? "gamecontroller", "board": board.json]
+            if let before { out["previous"] = before.json }
+            FileManager.default.createFile(atPath: dir + "/\(id)-\(name).json", contents: try JSONSerialization.data(withJSONObject: out, options: [.sortedKeys]))
+        }
+        PlaytimeRecords.update { $0 = PlaytimeRecords() }
+        var d = DailyWordEngine.start(level: .fair, options: options, random: &random)
+        let answer = Games.DailyWord.answer(day: d.game.day, language: d.game.language)
+        let others = Games.WordBank.daily(d.game.language).filter { $0 != answer }
+        var before = DailyWordScreen.board(d, events: [], options: options)
+        for word in others.prefix(2) { _ = GameTable.play(DailyWordScreen.self, .word(word), on: &d, random: &random) }
+        let rows = DailyWordScreen.board(d, events: [.reveal], options: options)
+        try write(DailyWordScreen.id, "rows", before, rows)
+        before = rows
+        let solved = GameTable.play(DailyWordScreen.self, .word(answer), on: &d, random: &random)
+        try write(DailyWordScreen.id, "end-win", before, DailyWordScreen.board(d, events: solved, options: options))
+
+        var b = BalloonWordsEngine.start(level: .fair, options: options, random: &random)
+        let wrong = b.game.keys.first { k in !b.game.units.contains { $0.key == k } }!
+        var e = GameTable.play(BalloonWordsScreen.self, .letter(wrong), on: &b, random: &random)
+        for unit in b.game.units where !unit.key.isEmpty && !b.game.over {
+            if !b.game.guessed.contains(unit.key) {
+                before = BalloonWordsScreen.board(b, events: e, options: options)
+                e = GameTable.play(BalloonWordsScreen.self, .letter(unit.key), on: &b, random: &random)
+            }
+        }
+        try write(BalloonWordsScreen.id, "end-win", before, BalloonWordsScreen.board(b, events: e, options: options))
+
+        var a = GuessAnimalEngine.start(level: .fair, options: options, random: &random)
+        while a.game.phase == .asking { e = GameTable.play(GuessAnimalScreen.self, .answer(0), on: &a, random: &random) }
+        try write(GuessAnimalScreen.id, "guess", nil, GuessAnimalScreen.board(a, events: e, options: options))
+        e = GameTable.play(GuessAnimalScreen.self, .answer(1), on: &a, random: &random)
+        while a.thinking || a.game.phase == .asking || a.game.phase == .guessing {
+            e = GameTable.play(GuessAnimalScreen.self, a.thinking ? .next : .answer(1), on: &a, random: &random)
+        }
+        try write(GuessAnimalScreen.id, "teach", nil, GuessAnimalScreen.board(a, events: e, options: options))
     }
 
     static func score(_ b: Board) -> String {

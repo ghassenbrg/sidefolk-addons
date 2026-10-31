@@ -75,8 +75,8 @@ enum CopyMeScreen: GameScreen {
         // A new sequence plays when the round starts or grows; mid-copy, the pads just take presses.
         let replay = g.phase == .watching
         let best = max(g.best, g.copied)
+        // No score pills: the companion only dances, it doesn't play against you here.
         var parts: [BoardPart] = [
-            .score(you: g.copied, companion: 0, best: best > 0 ? best : nil),
             .prompt(g.phase == .over ? L("Oops, that one was wrong!") : replay ? L("Watch {name}, then copy.", ["name": o.companion]) : L("Your turn: copy it."),
                     eyebrow: L(one: "{count} move · {level}", other: "{count} moves · {level}", count: g.length, ["level": ScreenKit.level(g.level)])),
             .play(.pads(pads, play: replay ? g.sequence.map { s in g.pads.firstIndex(of: s)! } : [], stepMs: g.stepMs, locked: g.phase == .over)),

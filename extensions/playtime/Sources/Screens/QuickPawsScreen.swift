@@ -84,7 +84,9 @@ enum QuickPawsScreen: GameScreen {
             : L("You {you} · {name} {companion}", ["you": ms(g.lastYouMs ?? 0), "name": o.companion, "companion": ms(g.lastCompanionMs ?? 0)])
         var parts: [BoardPart] = [
             ScreenKit.score(g.score, rounds: Games.QuickPaws.target),
-            .prompt(L("Boop the button the moment it says Boop!"), eyebrow: L("Round {n} · {level}", ["n": s.number, "level": ScreenKit.level(g.level)])),
+            .prompt(s.round != nil || g.lastCompanionMs == nil ? L("Boop the button the moment it says Boop!")
+                        : g.lastYouMs.map { $0 <= g.lastCompanionMs! } == true ? L("You were quicker!") : L("{name} was quicker.", ["name": o.companion]),
+                    eyebrow: L("Round {n} · {level}", ["n": s.number, "level": ScreenKit.level(g.level)])),
             .play(.reflex(afterMs: s.round?.waitMs, windowMs: s.round?.windowMs ?? Games.QuickPaws.window, wait: L("Steady…"), go: L("Boop!"),
                           early: L("Too soon!"), shows: shows)),
         ]

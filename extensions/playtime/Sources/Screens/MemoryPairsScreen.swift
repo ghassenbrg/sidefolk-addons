@@ -96,7 +96,7 @@ enum MemoryPairsScreen: GameScreen {
             let up = g.owner[i] != nil || g.faceUp.contains(i)
             let label = L("Card {n}", ["n": i + 1])
             return up ? Cell("symbol", value: symbols[g.cards[i]], companion: g.owner[i] == .companion || (g.owner[i] == nil && g.turn == .companion),
-                             state: g.owner[i] == nil ? nil : "disabled", label: label + ", " + name(g.cards[i]), animate: s.fresh == i ? "flip" : nil)
+                             label: label + ", " + name(g.cards[i]), animate: s.fresh == i ? "flip" : nil)
                 : Cell("card_back", label: label)
         }
         let thinking = events.compactMap { if case .think(let ms) = $0 { ms } else { nil } }.first
