@@ -3,7 +3,7 @@ import SidefolkExtensionKit
 import Testing
 @testable import ext_system_vitals_plus
 
-/// System Vitals+'s words with canned readings: what counts as a problem, what it says, and how the page is put
+/// Your Mac's (system-vitals-plus) words with canned readings: what counts as a problem, what it says, and how the page is put
 /// together. Its readings themselves run in Sidefolk's sandbox tests (ExtensionPageTests).
 @MainActor
 struct SystemVitalsPlusTests {

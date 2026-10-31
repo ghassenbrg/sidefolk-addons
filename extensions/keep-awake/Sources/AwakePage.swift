@@ -6,15 +6,19 @@ import SidefolkExtensionKit
 enum AwakePage {
     static func make(_ k: Keeper, now: Date = Date()) -> Page {
         let s = k.session
+        // The main switch, on the page's summary, its Today tile and its row in Home's sidebar: on keeps the Mac awake
+        // until stopped, with the choices below; off lets it sleep.
+        let main = Block.toggle("Keep awake", on: s != nil, tool: "keep_awake")
         let summary: Summary
         switch (s, k.hold) {
         case (let s?, .holding):
-            summary = Summary(headline(s, now: now), detail: how(s, nudges: k.nudges), tone: .good, symbol: "cup.and.saucer.fill")
+            summary = Summary(headline(s, now: now), detail: detail(s, nudges: k.nudges, now: now), tone: .good, symbol: "cup.and.saucer.fill",
+                              control: main)
         case (_?, .waiting(let why)):
-            summary = Summary("Waiting", detail: why, tone: .warn, symbol: "pause.circle.fill")
+            summary = Summary("Waiting", detail: why, tone: .warn, symbol: "pause.circle.fill", control: main)
         default:
             let last = k.lastEnd.map { "Last time: \($0.why) (\($0.at.formatted(date: .omitted, time: .shortened)))" } ?? ""
-            summary = Summary("Your Mac sleeps as usual", detail: last, tone: .neutral, symbol: "moon.zzz.fill")
+            summary = Summary("Your Mac sleeps as usual", detail: last, tone: .neutral, symbol: "moon.zzz.fill", control: main)
         }
 
         var start: [Block]
@@ -23,7 +27,6 @@ enum AwakePage {
                 .button("30 min", tool: "keep_awake", input: ["minutes": 30], symbol: "cup.and.saucer"),
                 .button("1 hour", tool: "keep_awake", input: ["minutes": 60]),
                 .button("2 hours", tool: "keep_awake", input: ["minutes": 120]),
-                .button("Until I stop it", tool: "keep_awake", style: .primary),
             ]
         } else {
             start = [.button("Stop", tool: "stop_keeping_awake", style: .destructive, symbol: "stop.fill")]
@@ -57,6 +60,13 @@ enum AwakePage {
         if let app = s.whileApp { return "Awake while \(app) is open" }
         guard let until = s.until else { return "Awake until you stop it" }
         return "Awake until \(until.formatted(date: .omitted, time: .shortened))"
+    }
+
+    /// Under the headline: the time left first, the one thing people glance at the tile for.
+    static func detail(_ s: Session, nudges: Int, now: Date) -> String {
+        let how = how(s, nudges: nudges)
+        guard let until = s.until else { return how }
+        return "\(Rules.left(until, now: now)) left · \(how)"
     }
 
     static func how(_ s: Session, nudges: Int) -> String {

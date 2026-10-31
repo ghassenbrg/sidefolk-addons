@@ -1,8 +1,9 @@
 import Foundation
 import SidefolkExtensionKit
 
-// System Vitals+, Sidefolk's own: the whole Mac in plain words, as a page in Home, a tile on Today, answers without
-// the AI and heads-ups from the companion. Everything is read from macOS itself: no internet, no files, no programs.
+// Your Mac, Sidefolk's own (once System Vitals+: its id and folder keep that name, so installs carry on): the whole Mac
+// in plain words, as a page in Home, a tile on Today, answers without the AI and heads-ups from the companion.
+// Everything is read from macOS itself: no internet, no files, no programs.
 let ext = Extension(name: "system-vitals-plus")
 
 ext.page("mac") { _ in MacPage.make(await Snapshot.take()) }

@@ -7,7 +7,7 @@ use. Sidefolk shows them in **Settings › Companion** (the dashed cards) and **
 | | What | |
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish) | 3D, 2–3.4 MB each |
-| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and for Sidefolk 0.2 and later System Vitals+, Clipboard and Keep Awake | about 170 KB each |
+| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home (Sidefolk 0.1 snapshots from 515 on) Your Mac, Clipboard and Keep Awake | about 170 KB each |
 | **Themes** | Daylight, Night Studio, Paper Garden: colours, type, a layout of Sidefolk's own pieces, a few pictures | 0.5–1.8 MB each |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).

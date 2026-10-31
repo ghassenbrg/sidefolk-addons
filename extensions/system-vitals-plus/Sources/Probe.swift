@@ -2,7 +2,7 @@ import Darwin
 import Foundation
 import IOKit
 
-/// Everything System Vitals+ reads, straight from macOS: Mach host statistics, sysctl, the I/O Registry and each
+/// Everything Your Mac reads, straight from macOS: Mach host statistics, sysctl, the I/O Registry and each
 /// process's own counters. No program runs and nothing leaves the Mac, so the sandbox needs nothing beyond its
 /// defaults. Rates (CPU, per app, network) are differences between two readings: the extension keeps the last one,
 /// and takes a second a moment later when it has none recent.

@@ -1,10 +1,10 @@
 {
   "id": "dev.sidefolk.system-vitals-plus",
-  "name": "System Vitals+",
+  "name": "Your Mac",
   "version": "1.0.0",
   "sidefolk": ">=0.1",
-  "description": "The whole Mac in plain words: processor, graphics, memory, apps, disks, battery health, heat and network, as a page with live charts, a tile on Today, instant answers and a heads-up when something needs you. Nothing leaves your Mac.",
-  "tagline": "Your whole Mac at a glance, with live charts",
+  "description": "Everything about this Mac, live and in plain words: processor, graphics, memory, apps, disks, battery health, heat and network, on a page with charts, a Today tile, instant answers and heads-ups. It does all System Vitals does, which rests while this is on. Nothing leaves your Mac.",
+  "tagline": "This Mac, live: charts, a Today tile and heads-ups",
   "folk": "byte",
   "author": "Sidefolk",
   "icon": "icon.pdf",
@@ -177,6 +177,13 @@
             "what chip do i have",
             "how much ram do i have",
             "how much memory do i have"
+          ]
+        },
+        {
+          "say": [
+            "about this mac",
+            "what mac do i have",
+            "uptime"
           ]
         }
       ]

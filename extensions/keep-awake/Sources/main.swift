@@ -21,7 +21,13 @@ ext.tool("keep_awake", "Keep the Mac awake", "Keeps the Mac (and by default its 
         "while_app": Schema.string("Only while this app is open, e.g. Zoom; ends when it quits."),
         "screen": Schema.boolean("Keep the screen on too (the page's choice if missing)."),
         "active": Schema.boolean("Keep chat and meeting apps seeing the person as active (the page's choice if missing)."),
+        "on": Schema.boolean("The page's main switch: false lets the Mac sleep again, as stop_keeping_awake does."),
     ])) { args in
+    // The main switch (Sidefolk D67) sends its new state here; off is the same as stop_keeping_awake.
+    if args.bool("on") == false {
+        keeper.stop()
+        return "Done: your Mac sleeps as usual again."
+    }
     let now = Date()
     var s = keeper.defaults
     s.started = now
