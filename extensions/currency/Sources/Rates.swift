@@ -30,7 +30,8 @@ enum Rates {
         let text = raw.trimmingCharacters(in: .whitespaces)
         let code = names[text.lowercased()] ?? text.uppercased()
         guard table.perEuro[code] != nil else {
-            throw Problem("The ECB doesn't publish a rate for “\(text)”. It covers EUR and \(table.perEuro.keys.filter { $0 != "EUR" }.sorted().joined(separator: ", ")).")
+            throw Problem(L("The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.",
+                             ["currency": text, "codes": table.perEuro.keys.filter { $0 != "EUR" }.sorted().joined(separator: ", ")]))
         }
         return code
     }
@@ -50,11 +51,21 @@ enum Rates {
 
     /// `<Cube time='2026-10-27'>` then `<Cube currency='USD' rate='1.0812'/>` lines.
     nonisolated static func parse(_ xml: String) throws -> Table {
-        guard let day = xml.firstMatch(of: /time=['"](\d{4}-\d{2}-\d{2})['"]/)?.1 else { throw Problem("The ECB's rates file had no date.") }
+        guard let day = xml.firstMatch(of: /time=['"](\d{4}-\d{2}-\d{2})['"]/)?.1 else { throw Problem(L("The ECB's rates file had no date.")) }
         var rates = ["EUR": 1.0]
         for m in xml.matches(of: /currency=['"]([A-Z]{3})['"]\s+rate=['"]([0-9.]+)['"]/) { rates[String(m.1)] = Double(m.2) }
-        guard rates.count > 1 else { throw Problem("The ECB's rates file had no rates.") }
+        guard rates.count > 1 else { throw Problem(L("The ECB's rates file had no rates.")) }
         return Table(day: String(day), perEuro: rates)
+    }
+
+    /// The ECB's day ("2026-10-27") as the person writes dates; English keeps the ECB's own way.
+    nonisolated static func day(_ iso: String) -> String {
+        let read = DateFormatter()
+        read.locale = Locale(identifier: "en_US_POSIX")
+        read.timeZone = TimeZone(identifier: "UTC")
+        read.dateFormat = "yyyy-MM-dd"
+        guard Language.code != "en", let date = read.date(from: iso) else { return iso }
+        return Format.date(date, year: true, timeZone: TimeZone(identifier: "UTC")!)
     }
 
     nonisolated static func rate(_ from: String, _ to: String, in table: Table) -> Double {
@@ -62,12 +73,12 @@ enum Rates {
     }
 
     nonisolated static func money(_ value: Double) -> String {
-        value.formatted(.number.precision(.fractionLength(2)).locale(Locale(identifier: "en_US")))
+        value.formatted(.number.precision(.fractionLength(2)).locale(Language.locale))
     }
 
     /// A rate keeps more digits than an amount: 1 USD = 0.8969 EUR.
     nonisolated static func rateText(_ value: Double) -> String {
-        value.formatted(.number.precision(.fractionLength(abs(value) >= 100 ? 0...2 : 2...4)).locale(Locale(identifier: "en_US")))
+        value.formatted(.number.precision(.fractionLength(abs(value) >= 100 ? 0...2 : 2...4)).locale(Language.locale))
     }
 
     static func convert(_ amount: Double, from: String, to: [String]) async throws -> String {
@@ -79,7 +90,7 @@ enum Rates {
             let rate = rate(source, code, in: table)
             lines.append("\(money(amount)) \(source) = \(money(amount * rate)) \(code) (1 \(source) = \(rateText(rate)) \(code))")
         }
-        return lines.joined(separator: "\n") + "\nECB reference rates of \(table.day)."
+        return lines.joined(separator: "\n") + "\n" + L("ECB reference rates of {day}.", ["day": day(table.day)])
     }
 
     /// Tells once when the rate goes above (or below) a line, and again only after it came back.
@@ -89,10 +100,11 @@ enum Rates {
         let rate = rate(from, to, in: table)
         let line: Double, above: Bool
         if let a = settings.double("above") { (line, above) = (a, true) } else if let b = settings.double("below") { (line, above) = (b, false) } else {
-            throw Problem("Give “above” or “below”: the rate to watch for.")
+            throw Problem(L("Give “above” or “below”: the rate to watch for."))
         }
         let past = above ? rate > line : rate < line
-        let summary = "1 \(from) = \(rateText(rate)) \(to) (ECB, \(table.day))" + (past ? ", \(above ? "above" : "below") \(rateText(line))." : ".")
+        let now = "1 \(from) = \(rateText(rate)) \(to) (" + L("ECB, {day}", ["day": day(table.day)]) + ")"
+        let summary = !past ? now + "." : above ? L("{rate}, above {line}.", ["rate": now, "line": rateText(line)]) : L("{rate}, below {line}.", ["rate": now, "line": rateText(line)])
         return Check(triggered: past && state["past"] as? Bool != true, state: ["past": past], summary: summary)
     }
 }

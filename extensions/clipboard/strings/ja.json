@@ -1,0 +1,197 @@
+{
+  "name": "クリップボード",
+  "tagline": "コピーしたものすべてを、ショートカットひとつで",
+  "description": "コピーしたものを、どのアプリからでもショートカットひとつで：書式付きテキスト、リンク、画像、ファイル、コードを検索・ピン留めできます。パスワード管理アプリからのコピーは保存せず、キーやカード番号は伏せて2分で消去します。データがMacの外に出ることはありません。",
+  "tools": {
+    "clear_history": {
+      "title": "履歴を消去"
+    },
+    "copy_again": {
+      "title": "もう一度コピー"
+    },
+    "ignore": {
+      "title": "コピーを無視"
+    },
+    "pause": {
+      "title": "履歴を一時停止"
+    },
+    "recent_copies": {
+      "title": "最近のコピー"
+    },
+    "resume": {
+      "title": "履歴を再開"
+    },
+    "search_copies": {
+      "title": "コピーを検索"
+    },
+    "set_option": {
+      "title": "クリップボードの設定"
+    },
+    "skip_next": {
+      "title": "次のコピーをスキップ"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "クリップボード"
+    }
+  },
+  "palettes": {
+    "history": {
+      "title": "クリップボード",
+      "placeholder": "コピーした内容を検索"
+    }
+  },
+  "text": {
+    ", ": "、",
+    "A clipboard type is one word, like public.png.": "クリップボードの種類は public.png のような1語です。",
+    "A regular expression: {example} leaves out six-digit codes.": "正規表現です。{example} なら6桁のコードを除外します。",
+    "Also left out": "ほかに除外しているもの",
+    "App": "アプリ",
+    "App name or bundle id": "アプリ名またはバンドルID",
+    "Apps": "アプリ",
+    "Ask about it": "質問する",
+    "At the bottom": "下に",
+    "Choosing a copy": "コピーを選んだとき",
+    "Clear history": "履歴を消去",
+    "Clear pinned too": "固定したものも消去",
+    "Cleared, pinned copies too.": "固定したコピーも含めて消去しました。",
+    "Cleared.": "消去しました。",
+    "Cleared. Pinned copies stay.": "消去しました。固定したコピーは残ります。",
+    "Cleared. {count} pinned copies stay.": {
+      "other": "消去しました。固定したコピー{count}件は残ります。"
+    },
+    "Clipboard type": "クリップボードの種類",
+    "Code": "コード",
+    "Copied": "コピー日時",
+    "Copies": "コピー",
+    "Copies from {app} are kept again.": "{app}からのコピーをまた保存します。",
+    "Copies from {app} aren't kept from now on.": "今後、{app}からのコピーは保存しません。",
+    "Copies marked {type} are kept again.": "{type}が付いたコピーをまた保存します。",
+    "Copies marked {type} aren't kept from now on.": "今後、{type}が付いたコピーは保存しません。",
+    "Copies matching {pattern} are kept again.": "{pattern}に一致するコピーをまた保存します。",
+    "Copies matching {pattern} aren't kept from now on.": "今後、{pattern}に一致するコピーは保存しません。",
+    "Copies, pinned ones aside. The oldest go first.": "固定したものを除くコピー数。古いものから削除されます。",
+    "Copy": "コピー",
+    "Done.": "完了しました。",
+    "Exact": "完全一致",
+    "Files": "ファイル",
+    "Files copied in Finder, by their place.": "Finderでコピーしたファイル（場所で保存）。",
+    "Find a link I copied": "コピーしたリンクを探す",
+    "First copied": "最初のコピー",
+    "Fonts, colours and links that came with copied text.": "コピーしたテキストに付いてきたフォント、色、リンク。",
+    "For apps that mark what they copy: com.apple.is-remote-clipboard leaves out your iPhone's copies.": "コピーに印を付けるアプリ向け：com.apple.is-remote-clipboard ならiPhoneからのコピーを除外します。",
+    "Forgotten": "消去",
+    "Formatting": "書式",
+    "From": "コピー元",
+    "Fuzzy": "あいまい",
+    "Hide passwords, keys and card numbers": "パスワード、キー、カード番号を隠す",
+    "History": "履歴",
+    "I couldn't find that copy.": "そのコピーは見つかりませんでした。",
+    "Ignore": "除外",
+    "Ignore a clipboard type": "クリップボードの種類を除外",
+    "Ignore an app": "アプリを除外",
+    "Ignore text that matches": "一致するテキストを除外",
+    "Ignore {app}": "{app}を除外",
+    "In the order the palette shows them. Copy puts one back on the clipboard.": "パレットと同じ順です。「コピー」でクリップボードに戻します。",
+    "Its name or bundle id, like 1Password or com.apple.keychainaccess.": "1Password や com.apple.keychainaccess のような名前またはバンドルID。",
+    "Keep a history of what I copy": "コピーした内容の履歴を残す",
+    "Keep files": "ファイルを残す",
+    "Keep formatting": "書式を残す",
+    "Keep it": "残す",
+    "Keep pictures": "画像を残す",
+    "Keep up to": "保存する数",
+    "Keep up to {limits} copies.": "保存数は {limits} から選べます。",
+    "Keeping up to {count} copies.": {
+      "other": "最大{count}件まで保存します。"
+    },
+    "Keeping your copies": "コピーを保存中",
+    "Keeping your copies again.": "コピーの保存を再開しました。",
+    "Last copied": "最後にコピー",
+    "Latest": "最新",
+    "Leave out": "除外",
+    "Length": "長さ",
+    "Links": "リンク",
+    "Most copied": "コピー回数順",
+    "No copy matches “{query}”.": "「{query}」に一致するコピーはありません。",
+    "Not keeping a history": "履歴を保存していません",
+    "Nothing copied yet.": "まだ何もコピーしていません。",
+    "On the clipboard again: {copy}.": "クリップボードに戻しました：{copy}。",
+    "On top": "上に",
+    "Only copies it": "コピーのみ",
+    "Order": "並び順",
+    "Passwords from password managers are never kept.": "パスワード管理アプリのパスワードは保存しません。",
+    "Pastes it": "ペースト",
+    "Pattern": "パターン",
+    "Pause {time}": "{time}一時停止",
+    "Paused until {time}": "{time}まで一時停止中",
+    "Paused until {time}: nothing you copy is kept until then.": "{time}まで一時停止しました。それまでにコピーしたものは保存しません。",
+    "Picture": "画像",
+    "Pictures": "画像",
+    "Pinned": "固定",
+    "Pinned copies": "固定したコピー",
+    "Pinned copies go top or bottom.": "固定したコピーは上（top）か下（bottom）です。",
+    "Remove": "削除",
+    "Remove it": "取り除く",
+    "Resume now": "今すぐ再開",
+    "Return": "Return",
+    "Rich text and web formatting, pasted back unless you ask for plain text.": "リッチテキストやWebの書式。プレーンテキストを選ばない限り、そのままペーストします。",
+    "Save my last copy to notes": "最後のコピーをメモに保存",
+    "Say which app, pattern or clipboard type.": "どのアプリ、パターン、クリップボードの種類かを指定してください。",
+    "Screenshots and copied images, {count} at most.": "スクリーンショットとコピーした画像、最大{count}件。",
+    "Search": "検索",
+    "Search is words, exact, fuzzy or regex.": "検索方式は words、exact、fuzzy、regex のいずれかです。",
+    "Size": "サイズ",
+    "Skip my next copy": "次のコピーを保存しない",
+    "Skipping your next copy": "次のコピーは保存しません",
+    "Text matching": "一致するテキスト",
+    "That copy is gone.": "そのコピーはもうありません。",
+    "That isn't a pattern Clipboard can read.": "クリップボードが読み取れるパターンではありません。",
+    "That's too long for an app's name.": "アプリ名としては長すぎます。",
+    "The app in front when you copied.": "コピーしたときに前面にあったアプリ。",
+    "The order is recent, first or count.": "並び順は recent、first、count のいずれかです。",
+    "There's no such setting.": "そのような設定はありません。",
+    "They show as dots, stay in memory only and are forgotten after two minutes.": "点で表示され、メモリ上にだけ置かれ、2分後に消去されます。",
+    "Today {time}": "今日 {time}",
+    "Turned off.": "オフにしました。",
+    "Turned on.": "オンにしました。",
+    "Type": "種類",
+    "What choosing a copy does. Option-Return does the other; Shift-Return pastes plain text.": "コピーを選んだときの動作。Option-Returnでもう一方、Shift-Returnでプレーンテキストをペーストします。",
+    "What did I copy today?": "今日コピーしたものは？",
+    "What it holds": "保存しているもの",
+    "Where your copies come from": "コピー元",
+    "Words": "単語",
+    "Words: all of them, anywhere. Fuzzy: the letters in order. Pattern: a regular expression.": "単語：すべての語をどこかに含む。あいまい：文字が順に並ぶ。パターン：正規表現。",
+    "Your next copy won't be kept.": "次のコピーは保存しません。",
+    "copied {count}×": "{count}回コピー",
+    "forgotten in {time}": "{time}後に消去",
+    "in {time}": "{time}後",
+    "just now": "たった今",
+    "kept (⇧↩ pastes without it)": "保持（⇧↩で書式なしペースト）",
+    "kept for good": "ずっと保存",
+    "looks like a password or key": "パスワードやキーのようです",
+    "pinned": "固定",
+    "without formatting": "書式なし",
+    "yesterday": "昨日",
+    "{count} characters": {
+      "other": "{count}文字"
+    },
+    "{count} copies": {
+      "other": "{count}件"
+    },
+    "{count} days ago": {
+      "other": "{count}日前"
+    },
+    "{count} lines": {
+      "other": "{count}行"
+    },
+    "{count} today": "今日 {count}件",
+    "{kept} kept · {today} today · open them from any app with the shortcut below": "{kept}件保存 · 今日{today}件 · 下のショートカットでどのアプリからでも開けます",
+    "{names} and {count} more": "{names} ほか{count}件",
+    "{status}, so there's nothing new.": "{status}のため、新しいものはありません。",
+    "{time} ago": "{time}前",
+    "“{pattern}” isn't a regular expression Clipboard can read.": "「{pattern}」はクリップボードが読み取れる正規表現ではありません。",
+    "↩ copies, ⌥↩ pastes": "↩でコピー、⌥↩でペースト",
+    "↩ pastes, ⌥↩ only copies": "↩でペースト、⌥↩でコピーのみ"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "Imágenes",
+  "tagline": "Detalles de fotos y copias convertidas",
+  "description": "Los detalles de una foto, y copias de imágenes convertidas a JPEG, PNG o HEIC, más pequeñas o sin su ubicación. Tus originales se quedan como están.",
+  "tools": {
+    "convert_images": {
+      "title": "Convertir imágenes"
+    },
+    "image_info": {
+      "title": "Detalles de una imagen"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "one": "Se hizo {count} copia en {folder} ({how}): {sizes}.",
+      "other": "Se hicieron {count} copias en {folder} ({how}): {sizes}."
+    },
+    "Nothing was converted.": "No se convirtió nada.",
+    "Skipped {count}:": "Omitidos {count}:",
+    "That's {count} pictures; do at most 200 at a time.": "Son {count} imágenes; haz como máximo 200 a la vez.",
+    "There are no pictures in {folder}.": "No hay imágenes en {folder}.",
+    "at most {size} px": "{size} px como máximo",
+    "it couldn't be decoded": "no se pudo decodificar",
+    "it couldn't be written": "no se pudo escribir",
+    "it records where it was taken (location)": "registra dónde se tomó (ubicación)",
+    "location removed": "ubicación eliminada",
+    "no location in it": "sin ubicación",
+    "not a picture I can read": "no es una imagen que pueda leer",
+    "taken {when}": "tomada el {when}",
+    "that format can't be written": "ese formato no se puede escribir",
+    "their own format": "su propio formato",
+    "with {camera}": "con {camera}",
+    "{count} frames": {
+      "one": "{count} fotograma",
+      "other": "{count} fotogramas"
+    },
+    "{file} isn't a picture I can read.": "{file} no es una imagen que pueda leer.",
+    "{file}: not a file in that folder": "{file}: no es un archivo de esa carpeta",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} px ({megapixels} megapíxeles)",
+    "{folder} isn't a folder.": "{folder} no es una carpeta."
+  }
+}

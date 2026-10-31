@@ -1,0 +1,27 @@
+{
+  "name": "Währungen",
+  "tagline": "Geld in 30 Währungen zum Tageskurs",
+  "description": "Rechnet Geld zwischen dem Euro und 30 wichtigen Währungen zu den täglichen Referenzkursen der Europäischen Zentralbank um und sagt dir, wenn ein Kurs eine Grenze überschreitet. Nichts über dich wird gesendet.",
+  "tools": {
+    "convert_currency": {
+      "title": "Geld umrechnen"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "Wechselkurs",
+      "description": "Sagt dir einmal Bescheid, wenn ein Wechselkurs über oder unter eine Linie geht."
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "EZB-Referenzkurse vom {day}.",
+    "ECB, {day}": "EZB, {day}",
+    "Give “above” or “below”: the rate to watch for.": "Gib „above“ oder „below“ an: den Kurs, auf den du achtest.",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "Die EZB veröffentlicht keinen Kurs für „{currency}“. Sie deckt EUR und {codes} ab.",
+    "The ECB's rates file had no date.": "Die Kursdatei der EZB hatte kein Datum.",
+    "The ECB's rates file had no rates.": "Die Kursdatei der EZB hatte keine Kurse.",
+    "{rate}, above {line}.": "{rate}, über {line}.",
+    "{rate}, below {line}.": "{rate}, unter {line}.",
+    "“{key}” must be a number.": "„{key}“ muss eine Zahl sein."
+  }
+}

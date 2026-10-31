@@ -1,0 +1,64 @@
+{
+  "name": "Ferramentas para desenvolvedores",
+  "tagline": "JSON, base64, JWTs, UUIDs e mais",
+  "description": "Para desenvolvedores: formatar JSON, codificar e decodificar base64, URLs e hexadecimal, decodificar JWTs, converter timestamps, criar UUIDs e verificar o checksum de um arquivo.",
+  "tools": {
+    "checksum": {
+      "title": "Checksum de um arquivo"
+    },
+    "generate": {
+      "title": "Gerar IDs"
+    },
+    "timestamp": {
+      "title": "Converter um timestamp"
+    },
+    "transform": {
+      "title": "Transformar texto"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "A JWT has three parts separated by dots.": "Um JWT tem três partes separadas por pontos.",
+    "Claims": "Claims",
+    "Expires": "Expira",
+    "Generate a uuid or a token.": "Gere um uuid ou um token.",
+    "Give Unix time (1730000000 or milliseconds) or an ISO 8601 date (2026-10-28T09:30:00Z).": "Informe um tempo Unix (1730000000 ou milissegundos) ou uma data ISO 8601 (2026-10-28T09:30:00Z).",
+    "Header": "Cabeçalho",
+    "Here: {date}": "Aqui: {date}",
+    "Issued": "Emitido",
+    "Not text: {size} ({hex}).": "Não é texto: {size} ({hex}).",
+    "Operations: {names}.": "Operações: {names}.",
+    "That isn't base64.": "Isso não é base64.",
+    "That isn't hexadecimal.": "Isso não é hexadecimal.",
+    "That isn't valid JSON": "Isso não é JSON válido",
+    "That isn't valid JSON: a comma before a closing bracket, at character {position}.": "Isso não é JSON válido: uma vírgula antes de um colchete de fechamento, no caractere {position}.",
+    "That isn't valid URL encoding.": "Isso não é uma codificação de URL válida.",
+    "The signature is not checked.": "A assinatura não é verificada.",
+    "Unix time {seconds} (milliseconds {milliseconds})": "Tempo Unix {seconds} (milissegundos {milliseconds})",
+    "Valid from": "Válido a partir de",
+    "expired": "expirado",
+    "still valid": "ainda válido",
+    "{algorithm} of {file}:": "{algorithm} de {file}:",
+    "{count} bytes": {
+      "one": "{count} byte",
+      "other": "{count} bytes"
+    },
+    "{count} bytes in UTF-8": {
+      "one": "{count} byte em UTF-8",
+      "other": "{count} bytes em UTF-8"
+    },
+    "{count} characters": {
+      "one": "{count} caractere",
+      "other": "{count} caracteres"
+    },
+    "{count} lines": {
+      "one": "{count} linha",
+      "other": "{count} linhas"
+    },
+    "{count} words": {
+      "one": "{count} palavra",
+      "other": "{count} palavras"
+    },
+    "{file} can't be read.": "Não é possível ler {file}."
+  }
+}

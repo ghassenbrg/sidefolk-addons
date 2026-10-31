@@ -1,0 +1,82 @@
+{
+  "name": "保持唤醒",
+  "tagline": "按你说的时长，让 Mac 保持唤醒、你保持活跃",
+  "description": "让 Mac 保持唤醒，并防止聊天应用把你标为离开：按你说的时长、到某个时间、在 Zoom 等应用打开期间，或直到你停止。屏幕上什么都不会动，使用电池或电量不足时会自动放开。",
+  "tools": {
+    "awake_status": {
+      "title": "保持唤醒状态"
+    },
+    "extend": {
+      "title": "延长保持唤醒"
+    },
+    "keep_awake": {
+      "title": "让 Mac 保持唤醒"
+    },
+    "set_option": {
+      "title": "保持唤醒设置"
+    },
+    "stop_keeping_awake": {
+      "title": "让 Mac 睡眠"
+    }
+  },
+  "watchers": {
+    "ended": {
+      "title": "保持唤醒已结束",
+      "description": "保持唤醒自行结束时告诉你：时间到了，或它等待的应用已退出。"
+    }
+  },
+  "pages": {
+    "awake": {
+      "title": "保持唤醒"
+    }
+  },
+  "text": {
+    "1 hour": "1 小时",
+    "2 hours": "2 小时",
+    "30 min more": "再加 30 分钟",
+    "Ask for more": "更多请求",
+    "Awake until you stop it": "保持唤醒，直到你停止",
+    "Awake until {time}": "保持唤醒至 {time}",
+    "Awake while {app} is open": "{app} 打开期间保持唤醒",
+    "Done: your Mac sleeps as usual again.": "完成：你的 Mac 恢复正常睡眠。",
+    "How": "方式",
+    "I couldn't read “{text}” as a time, like 6pm or 18:30.": "无法把“{text}”识别为时间，请写成 6pm 或 18:30 这样的形式。",
+    "It isn't kept awake for a set time.": "当前没有按设定时长保持唤醒。",
+    "Its time is up.": "时间到了。",
+    "Keep Awake ended: {why} Your Mac sleeps as usual again.": "保持唤醒已结束：{why}你的 Mac 恢复正常睡眠。",
+    "Keep Awake is on but waiting: {why}": "保持唤醒已开启，但正在等待：{why}",
+    "Keep awake": "保持唤醒",
+    "Keep me active for an hour": "让我保持活跃一小时",
+    "Keep me active in chat apps": "在聊天应用中保持活跃",
+    "Keep the screen on": "保持屏幕常亮",
+    "Last time: {why} ({time})": "上次：{why}（{time}）",
+    "Let go when the battery is under {percent}": "电量低于 {percent} 时停止",
+    "Nothing ended yet.": "尚无结束的会话。",
+    "Off: the Mac stays awake (downloads, builds) and the screen may sleep.": "关闭时：Mac 保持唤醒（下载、构建），屏幕可以休眠。",
+    "On battery it waits, and holds again when you plug in.": "使用电池时会等待，接上电源后再继续。",
+    "Only while plugged in": "仅在接通电源时",
+    "Screen may sleep": "屏幕可休眠",
+    "Screen on": "屏幕常亮",
+    "So keeping it awake never empties it.": "这样保持唤醒永远不会耗尽电池。",
+    "Stop": "停止",
+    "The battery is below {percent}, so it's letting the Mac rest.": "电量低于 {percent}，所以让 Mac 休息。",
+    "There's no such setting.": "没有这个设置。",
+    "Turned off.": "已关闭。",
+    "Turned on.": "已开启。",
+    "Until {time}": "直到 {time}",
+    "Waiting": "等待中",
+    "Waiting to be plugged in.": "正在等待接通电源。",
+    "While Zoom is open": "Zoom 打开期间",
+    "While you're away, Sidefolk moves the pointer by nothing about once a minute, so Slack, Teams and Zoom don't mark you away. You won't see it move.": "你离开时，Sidefolk 大约每分钟把指针移动零距离，让 Slack、Teams 和 Zoom 不会把你标为离开。你看不到它移动。",
+    "You stopped it.": "你停止了它。",
+    "Your Mac isn't being kept awake; it sleeps as usual.": "当前未保持唤醒，你的 Mac 照常睡眠。",
+    "Your Mac sleeps as usual": "你的 Mac 照常睡眠",
+    "Your Mac wasn't being kept awake.": "你的 Mac 没有被保持唤醒。",
+    "only plugged in": "仅接通电源时",
+    "showing you active": "显示你在线",
+    "showing you active ({count}× so far)": "显示你在线（已 {count} 次）",
+    "{app} isn't open. Open it first, or say how long instead.": "{app} 没有打开。请先打开它，或改为说明时长。",
+    "{app} quit.": "{app} 已退出。",
+    "{time} left": "剩余 {time}"
+  }
+}

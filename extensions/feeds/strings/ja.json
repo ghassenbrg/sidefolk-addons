@@ -1,0 +1,28 @@
+{
+  "name": "フィード",
+  "tagline": "ブログ、ニュース、ポッドキャストの新着",
+  "description": "ブログ、ニュースサイト、ポッドキャストのRSSまたはAtomフィードから最新の投稿を表示し、新しい投稿があれば知らせます。",
+  "tools": {
+    "read_feed": {
+      "title": "最新の投稿"
+    }
+  },
+  "watchers": {
+    "new_post": {
+      "title": "新しい投稿",
+      "description": "ブログ、ニュースサイト、ポッドキャストに新しい投稿があると知らせます。"
+    }
+  },
+  "text": {
+    ", ": "、",
+    "Give the feed's or the site's web address, like https://example.com/blog.": "フィードかサイトのWebアドレスを指定してください（例：https://example.com/blog）。",
+    "I couldn't find an RSS or Atom feed at {address}.": "{address}にRSSやAtomのフィードは見つかりませんでした。",
+    "New on {feed}: {posts} and {count} more.": "{feed}の新着：{posts}ほか{count}件。",
+    "New on {feed}: {posts}.": "{feed}の新着：{posts}。",
+    "No new posts on {feed}.": "{feed}に新しい投稿はありません。",
+    "The feed": "フィード",
+    "untitled": "無題",
+    "{feed} has no posts yet.": "{feed}にはまだ投稿がありません。",
+    "{feed}, latest {count}:": "{feed}の最新{count}件："
+  }
+}

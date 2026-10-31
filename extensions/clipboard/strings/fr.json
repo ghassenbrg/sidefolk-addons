@@ -1,0 +1,203 @@
+{
+  "name": "Presse-papiers",
+  "tagline": "Tout ce que vous copiez, à un raccourci",
+  "description": "Tout ce que vous copiez, à un raccourci de n’importe quelle app : texte avec sa mise en forme, liens, images, fichiers et code, à rechercher et à épingler. Les copies des gestionnaires de mots de passe ne sont jamais gardées ; les clés et numéros de carte sont masqués et oubliés au bout de deux minutes. Rien ne quitte votre Mac.",
+  "tools": {
+    "clear_history": {
+      "title": "Effacer l’historique"
+    },
+    "copy_again": {
+      "title": "Copier à nouveau"
+    },
+    "ignore": {
+      "title": "Ignorer des copies"
+    },
+    "pause": {
+      "title": "Mettre l’historique en pause"
+    },
+    "recent_copies": {
+      "title": "Copies récentes"
+    },
+    "resume": {
+      "title": "Reprendre l’historique"
+    },
+    "search_copies": {
+      "title": "Rechercher dans les copies"
+    },
+    "set_option": {
+      "title": "Réglage du presse-papiers"
+    },
+    "skip_next": {
+      "title": "Ignorer la prochaine copie"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "Presse-papiers"
+    }
+  },
+  "palettes": {
+    "history": {
+      "title": "Presse-papiers",
+      "placeholder": "Rechercher dans ce que vous avez copié"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "A clipboard type is one word, like public.png.": "Un type de presse-papiers est un seul mot, comme public.png.",
+    "A regular expression: {example} leaves out six-digit codes.": "Une expression régulière : {example} écarte les codes à six chiffres.",
+    "Also left out": "Également écartés",
+    "App": "App",
+    "App name or bundle id": "Nom de l’app ou identifiant",
+    "Apps": "Apps",
+    "Ask about it": "Poser une question",
+    "At the bottom": "En bas",
+    "Choosing a copy": "Choisir une copie",
+    "Clear history": "Effacer l’historique",
+    "Clear pinned too": "Effacer aussi les épinglées",
+    "Cleared, pinned copies too.": "Effacé, copies épinglées comprises.",
+    "Cleared.": "Effacé.",
+    "Cleared. Pinned copies stay.": "Effacé. Les copies épinglées restent.",
+    "Cleared. {count} pinned copies stay.": {
+      "one": "Effacé. {count} copie épinglée reste.",
+      "other": "Effacé. {count} copies épinglées restent."
+    },
+    "Clipboard type": "Type de presse-papiers",
+    "Code": "Code",
+    "Copied": "Copié",
+    "Copies": "Copies",
+    "Copies from {app} are kept again.": "Les copies de {app} sont de nouveau gardées.",
+    "Copies from {app} aren't kept from now on.": "Les copies de {app} ne sont plus gardées.",
+    "Copies marked {type} are kept again.": "Les copies marquées {type} sont de nouveau gardées.",
+    "Copies marked {type} aren't kept from now on.": "Les copies marquées {type} ne sont plus gardées.",
+    "Copies matching {pattern} are kept again.": "Les copies correspondant à {pattern} sont de nouveau gardées.",
+    "Copies matching {pattern} aren't kept from now on.": "Les copies correspondant à {pattern} ne sont plus gardées.",
+    "Copies, pinned ones aside. The oldest go first.": "Copies, hors épinglées. Les plus anciennes partent en premier.",
+    "Copy": "Copier",
+    "Done.": "C’est fait.",
+    "Exact": "Exact",
+    "Files": "Fichiers",
+    "Files copied in Finder, by their place.": "Les fichiers copiés dans le Finder, par leur emplacement.",
+    "Find a link I copied": "Trouver un lien copié",
+    "First copied": "Première copie",
+    "Fonts, colours and links that came with copied text.": "Polices, couleurs et liens venus avec le texte copié.",
+    "For apps that mark what they copy: com.apple.is-remote-clipboard leaves out your iPhone's copies.": "Pour les apps qui marquent ce qu’elles copient : com.apple.is-remote-clipboard écarte les copies de votre iPhone.",
+    "Forgotten": "Oubliée",
+    "Formatting": "Mise en forme",
+    "From": "Provenance",
+    "Fuzzy": "Approximative",
+    "Hide passwords, keys and card numbers": "Masquer mots de passe, clés et numéros de carte",
+    "History": "Historique",
+    "I couldn't find that copy.": "Impossible de trouver cette copie.",
+    "Ignore": "Ignorer",
+    "Ignore a clipboard type": "Ignorer un type de presse-papiers",
+    "Ignore an app": "Ignorer une app",
+    "Ignore text that matches": "Ignorer le texte qui correspond",
+    "Ignore {app}": "Ignorer {app}",
+    "In the order the palette shows them. Copy puts one back on the clipboard.": "Dans l’ordre de la palette. Copier en remet une dans le presse-papiers.",
+    "Its name or bundle id, like 1Password or com.apple.keychainaccess.": "Son nom ou son identifiant, comme 1Password ou com.apple.keychainaccess.",
+    "Keep a history of what I copy": "Garder un historique de mes copies",
+    "Keep files": "Garder les fichiers",
+    "Keep formatting": "Garder la mise en forme",
+    "Keep it": "La garder",
+    "Keep pictures": "Garder les images",
+    "Keep up to": "Garder jusqu’à",
+    "Keep up to {limits} copies.": "Gardez jusqu’à {limits} copies.",
+    "Keeping up to {count} copies.": {
+      "one": "Garde jusqu’à {count} copie.",
+      "other": "Garde jusqu’à {count} copies."
+    },
+    "Keeping your copies": "Garde vos copies",
+    "Keeping your copies again.": "Vos copies sont de nouveau gardées.",
+    "Last copied": "Dernière copie",
+    "Latest": "Dernières",
+    "Leave out": "Écarter",
+    "Length": "Longueur",
+    "Links": "Liens",
+    "Most copied": "Plus copiées",
+    "No copy matches “{query}”.": "Aucune copie ne correspond à « {query} ».",
+    "Not keeping a history": "Pas d’historique",
+    "Nothing copied yet.": "Rien de copié pour l’instant.",
+    "On the clipboard again: {copy}.": "De nouveau dans le presse-papiers : {copy}.",
+    "On top": "En haut",
+    "Only copies it": "La copie seulement",
+    "Order": "Ordre",
+    "Passwords from password managers are never kept.": "Les mots de passe des gestionnaires de mots de passe ne sont jamais gardés.",
+    "Pastes it": "La colle",
+    "Pattern": "Motif",
+    "Pause {time}": "Pause de {time}",
+    "Paused until {time}": "En pause jusqu’à {time}",
+    "Paused until {time}: nothing you copy is kept until then.": "En pause jusqu’à {time} : rien de ce que vous copiez n’est gardé d’ici là.",
+    "Picture": "Image",
+    "Pictures": "Images",
+    "Pinned": "Épinglées",
+    "Pinned copies": "Copies épinglées",
+    "Pinned copies go top or bottom.": "Les copies épinglées vont en haut ou en bas.",
+    "Remove": "Retirer",
+    "Remove it": "La retirer",
+    "Resume now": "Reprendre maintenant",
+    "Return": "Retour",
+    "Rich text and web formatting, pasted back unless you ask for plain text.": "Texte enrichi et mise en forme web, recollés sauf si vous demandez du texte brut.",
+    "Save my last copy to notes": "Mettre ma dernière copie dans les notes",
+    "Say which app, pattern or clipboard type.": "Indiquez quelle app, quel motif ou quel type de presse-papiers.",
+    "Screenshots and copied images, {count} at most.": "Captures d’écran et images copiées, {count} au plus.",
+    "Search": "Recherche",
+    "Search is words, exact, fuzzy or regex.": "La recherche est words, exact, fuzzy ou regex.",
+    "Size": "Taille",
+    "Skip my next copy": "Ignorer ma prochaine copie",
+    "Skipping your next copy": "Votre prochaine copie sera ignorée",
+    "Text matching": "Texte correspondant",
+    "That copy is gone.": "Cette copie n’existe plus.",
+    "That isn't a pattern Clipboard can read.": "Ce motif n’est pas lisible par Presse-papiers.",
+    "That's too long for an app's name.": "C’est trop long pour un nom d’app.",
+    "The app in front when you copied.": "L’app au premier plan quand vous avez copié.",
+    "The order is recent, first or count.": "L’ordre est recent, first ou count.",
+    "There's no such setting.": "Ce réglage n’existe pas.",
+    "They show as dots, stay in memory only and are forgotten after two minutes.": "Ils s’affichent en points, restent en mémoire seulement et sont oubliés au bout de deux minutes.",
+    "Today {time}": "Aujourd’hui {time}",
+    "Turned off.": "Désactivé.",
+    "Turned on.": "Activé.",
+    "Type": "Type",
+    "What choosing a copy does. Option-Return does the other; Shift-Return pastes plain text.": "Ce que fait le choix d’une copie. Option-Retour fait l’autre ; Maj-Retour colle du texte brut.",
+    "What did I copy today?": "Qu’ai-je copié aujourd’hui ?",
+    "What it holds": "Ce qu’il contient",
+    "Where your copies come from": "D’où viennent vos copies",
+    "Words": "Mots",
+    "Words: all of them, anywhere. Fuzzy: the letters in order. Pattern: a regular expression.": "Mots : tous, n’importe où. Approximative : les lettres dans l’ordre. Motif : une expression régulière.",
+    "Your next copy won't be kept.": "Votre prochaine copie ne sera pas gardée.",
+    "copied {count}×": "copiée {count}×",
+    "forgotten in {time}": "oubliée dans {time}",
+    "in {time}": "dans {time}",
+    "just now": "à l’instant",
+    "kept (⇧↩ pastes without it)": "gardée (⇧↩ colle sans)",
+    "kept for good": "gardées pour de bon",
+    "looks like a password or key": "ressemble à un mot de passe ou une clé",
+    "pinned": "épinglée",
+    "without formatting": "sans mise en forme",
+    "yesterday": "hier",
+    "{count} characters": {
+      "one": "{count} caractère",
+      "other": "{count} caractères"
+    },
+    "{count} copies": {
+      "one": "{count} copie",
+      "other": "{count} copies"
+    },
+    "{count} days ago": {
+      "one": "il y a {count} jour",
+      "other": "il y a {count} jours"
+    },
+    "{count} lines": {
+      "one": "{count} ligne",
+      "other": "{count} lignes"
+    },
+    "{count} today": "{count} aujourd’hui",
+    "{kept} kept · {today} today · open them from any app with the shortcut below": "{kept} gardées · {today} aujourd’hui · ouvrez-les depuis n’importe quelle app avec le raccourci ci-dessous",
+    "{names} and {count} more": "{names} et {count} de plus",
+    "{status}, so there's nothing new.": "{status} : rien de nouveau.",
+    "{time} ago": "il y a {time}",
+    "“{pattern}” isn't a regular expression Clipboard can read.": "« {pattern} » n’est pas une expression régulière lisible par Presse-papiers.",
+    "↩ copies, ⌥↩ pastes": "↩ copie, ⌥↩ colle",
+    "↩ pastes, ⌥↩ only copies": "↩ colle, ⌥↩ copie seulement"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "name": "개발자 도구",
+  "tagline": "JSON, base64, JWT, UUID 등",
+  "description": "개발자용: JSON 정리, base64·URL·16진수 인코딩과 디코딩, JWT 디코딩, 타임스탬프 변환, UUID 생성, 파일 체크섬 확인.",
+  "tools": {
+    "checksum": {
+      "title": "파일 체크섬"
+    },
+    "generate": {
+      "title": "ID 생성"
+    },
+    "timestamp": {
+      "title": "타임스탬프 변환"
+    },
+    "transform": {
+      "title": "텍스트 변환"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "A JWT has three parts separated by dots.": "JWT는 점으로 구분된 세 부분으로 이루어집니다.",
+    "Claims": "클레임",
+    "Expires": "만료",
+    "Generate a uuid or a token.": "uuid 또는 token을 생성하세요.",
+    "Give Unix time (1730000000 or milliseconds) or an ISO 8601 date (2026-10-28T09:30:00Z).": "Unix 시간(1730000000 또는 밀리초)이나 ISO 8601 날짜(2026-10-28T09:30:00Z)를 입력하세요.",
+    "Header": "헤더",
+    "Here: {date}": "여기: {date}",
+    "Issued": "발급",
+    "Not text: {size} ({hex}).": "텍스트가 아닙니다: {size}({hex}).",
+    "Operations: {names}.": "작업: {names}.",
+    "That isn't base64.": "base64가 아닙니다.",
+    "That isn't hexadecimal.": "16진수가 아닙니다.",
+    "That isn't valid JSON": "올바른 JSON이 아닙니다",
+    "That isn't valid JSON: a comma before a closing bracket, at character {position}.": "올바른 JSON이 아닙니다: {position}번째 문자에서 닫는 괄호 앞에 쉼표가 있습니다.",
+    "That isn't valid URL encoding.": "올바른 URL 인코딩이 아닙니다.",
+    "The signature is not checked.": "서명은 확인하지 않습니다.",
+    "Unix time {seconds} (milliseconds {milliseconds})": "Unix 시간 {seconds}(밀리초 {milliseconds})",
+    "Valid from": "유효 시작",
+    "expired": "만료됨",
+    "still valid": "아직 유효",
+    "{algorithm} of {file}:": "{file}의 {algorithm}:",
+    "{count} bytes": {
+      "other": "{count}바이트"
+    },
+    "{count} bytes in UTF-8": {
+      "other": "UTF-8 기준 {count}바이트"
+    },
+    "{count} characters": {
+      "other": "{count}자"
+    },
+    "{count} lines": {
+      "other": "{count}줄"
+    },
+    "{count} words": {
+      "other": "{count}단어"
+    },
+    "{file} can't be read.": "{file}을(를) 읽을 수 없습니다."
+  }
+}

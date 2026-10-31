@@ -1,0 +1,82 @@
+{
+  "name": "إبقاء مستيقظًا",
+  "tagline": "جهازك مستيقظ وأنت نشط، للمدة التي تريدها",
+  "description": "يبقي جهاز Mac مستيقظًا ويمنع تطبيقات الدردشة من وضعك في حالة غياب، للمدة التي تحددها أو حتى وقت معيّن أو ما دام تطبيق مثل Zoom مفتوحًا أو حتى توقفه. لا شيء يتحرك على الشاشة، ويتوقف عند العمل على البطارية أو حين تنخفض.",
+  "tools": {
+    "awake_status": {
+      "title": "حالة الإبقاء مستيقظًا"
+    },
+    "extend": {
+      "title": "إبقاؤه مستيقظًا لمدة أطول"
+    },
+    "keep_awake": {
+      "title": "إبقاء الـ Mac مستيقظًا"
+    },
+    "set_option": {
+      "title": "إعداد الإبقاء مستيقظًا"
+    },
+    "stop_keeping_awake": {
+      "title": "دع الـ Mac ينام"
+    }
+  },
+  "watchers": {
+    "ended": {
+      "title": "انتهى الإبقاء مستيقظًا",
+      "description": "يُعلمك حين ينتهي إبقاء الـMac مستيقظًا من تلقاء نفسه: انتهى وقته، أو أُغلق التطبيق الذي كان ينتظره."
+    }
+  },
+  "pages": {
+    "awake": {
+      "title": "إبقاء مستيقظًا"
+    }
+  },
+  "text": {
+    "1 hour": "ساعة",
+    "2 hours": "ساعتان",
+    "30 min more": "30 دقيقة إضافية",
+    "Ask for more": "اطلب المزيد",
+    "Awake until you stop it": "مستيقظ حتى توقفه",
+    "Awake until {time}": "مستيقظ حتى {time}",
+    "Awake while {app} is open": "مستيقظ ما دام {app} مفتوحًا",
+    "Done: your Mac sleeps as usual again.": "تم: يعود جهاز Mac إلى السكون كالمعتاد.",
+    "How": "الطريقة",
+    "I couldn't read “{text}” as a time, like 6pm or 18:30.": "تعذّرت قراءة «{text}» كوقت، مثل 6pm أو 18:30.",
+    "It isn't kept awake for a set time.": "لا يُبقى مستيقظًا لمدة محددة.",
+    "Its time is up.": "انتهى وقته.",
+    "Keep Awake ended: {why} Your Mac sleeps as usual again.": "انتهى الإبقاء مستيقظًا: {why} يعود جهاز Mac إلى السكون كالمعتاد.",
+    "Keep Awake is on but waiting: {why}": "الإبقاء مستيقظًا مفعّل لكنه ينتظر: {why}",
+    "Keep awake": "إبقاء مستيقظًا",
+    "Keep me active for an hour": "إبقائي نشطًا لمدة ساعة",
+    "Keep me active in chat apps": "إبقائي نشطًا في تطبيقات الدردشة",
+    "Keep the screen on": "إبقاء الشاشة مضاءة",
+    "Last time: {why} ({time})": "آخر مرة: {why} ({time})",
+    "Let go when the battery is under {percent}": "التوقف حين تقل البطارية عن {percent}",
+    "Nothing ended yet.": "لم ينتهِ شيء بعد.",
+    "Off: the Mac stays awake (downloads, builds) and the screen may sleep.": "عند الإيقاف: يبقى الـMac مستيقظًا (التنزيلات، البناء) وقد تنام الشاشة.",
+    "On battery it waits, and holds again when you plug in.": "على البطارية ينتظر، ثم يعود عند توصيل الشاحن.",
+    "Only while plugged in": "فقط عند توصيل الشاحن",
+    "Screen may sleep": "قد تنام الشاشة",
+    "Screen on": "الشاشة مضاءة",
+    "So keeping it awake never empties it.": "حتى لا يستنزفها الإبقاء مستيقظًا أبدًا.",
+    "Stop": "إيقاف",
+    "The battery is below {percent}, so it's letting the Mac rest.": "البطارية أقل من {percent}، لذا يُترك الـMac ليرتاح.",
+    "There's no such setting.": "لا يوجد إعداد كهذا.",
+    "Turned off.": "تم الإيقاف.",
+    "Turned on.": "تم التشغيل.",
+    "Until {time}": "حتى {time}",
+    "Waiting": "في الانتظار",
+    "Waiting to be plugged in.": "في انتظار توصيل الشاحن.",
+    "While Zoom is open": "ما دام Zoom مفتوحًا",
+    "While you're away, Sidefolk moves the pointer by nothing about once a minute, so Slack, Teams and Zoom don't mark you away. You won't see it move.": "أثناء غيابك، يحرّك Sidefolk المؤشر مسافة صفر مرة في الدقيقة تقريبًا، فلا يعرضك Slack وTeams وZoom كغائب. لن تراه يتحرك.",
+    "You stopped it.": "أوقفته أنت.",
+    "Your Mac isn't being kept awake; it sleeps as usual.": "لا يُبقى جهاز Mac مستيقظًا؛ ينام كالمعتاد.",
+    "Your Mac sleeps as usual": "جهاز Mac ينام كالمعتاد",
+    "Your Mac wasn't being kept awake.": "لم يكن جهاز Mac مُبقى مستيقظًا.",
+    "only plugged in": "فقط مع الشاحن",
+    "showing you active": "يُظهرك نشطًا",
+    "showing you active ({count}× so far)": "يُظهرك نشطًا ({count}× حتى الآن)",
+    "{app} isn't open. Open it first, or say how long instead.": "{app} غير مفتوح. افتحه أولًا، أو حدّد المدة بدلًا من ذلك.",
+    "{app} quit.": "أُغلق {app}.",
+    "{time} left": "متبقٍ {time}"
+  }
+}

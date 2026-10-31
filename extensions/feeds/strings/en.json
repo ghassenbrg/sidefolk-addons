@@ -1,0 +1,14 @@
+{
+  "text": {
+    ", ": ", ",
+    "Give the feed's or the site's web address, like https://example.com/blog.": "Give the feed's or the site's web address, like https://example.com/blog.",
+    "I couldn't find an RSS or Atom feed at {address}.": "I couldn't find an RSS or Atom feed at {address}.",
+    "New on {feed}: {posts} and {count} more.": "New on {feed}: {posts} and {count} more.",
+    "New on {feed}: {posts}.": "New on {feed}: {posts}.",
+    "No new posts on {feed}.": "No new posts on {feed}.",
+    "The feed": "The feed",
+    "untitled": "untitled",
+    "{feed} has no posts yet.": "{feed} has no posts yet.",
+    "{feed}, latest {count}:": "{feed}, latest {count}:"
+  }
+}

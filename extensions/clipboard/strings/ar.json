@@ -1,0 +1,227 @@
+{
+  "name": "الحافظة",
+  "tagline": "كل ما تنسخه على بُعد اختصار",
+  "description": "كل ما تنسخه على بُعد اختصار من أي تطبيق: نص بتنسيقه وروابط وصور وملفات وشيفرة، قابلة للبحث والتثبيت. لا يُحفظ ما يُنسخ من مديري كلمات المرور أبدًا، وتُخفى المفاتيح وأرقام البطاقات وتُنسى بعد دقيقتين. لا شيء يغادر جهاز Mac الخاص بك.",
+  "tools": {
+    "clear_history": {
+      "title": "مسح السجل"
+    },
+    "copy_again": {
+      "title": "انسخ مجددًا"
+    },
+    "ignore": {
+      "title": "تجاهل النسخ"
+    },
+    "pause": {
+      "title": "إيقاف السجل مؤقتًا"
+    },
+    "recent_copies": {
+      "title": "النسخ الأخيرة"
+    },
+    "resume": {
+      "title": "استئناف السجل"
+    },
+    "search_copies": {
+      "title": "البحث في النسخ"
+    },
+    "set_option": {
+      "title": "إعداد الحافظة"
+    },
+    "skip_next": {
+      "title": "تخطي النسخة التالية"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "الحافظة"
+    }
+  },
+  "palettes": {
+    "history": {
+      "title": "الحافظة",
+      "placeholder": "ابحث فيما نسخته"
+    }
+  },
+  "text": {
+    ", ": "، ",
+    "A clipboard type is one word, like public.png.": "نوع الحافظة كلمة واحدة، مثل public.png.",
+    "A regular expression: {example} leaves out six-digit codes.": "تعبير نمطي: {example} يستبعد الرموز المكوّنة من ستة أرقام.",
+    "Also left out": "مستبعد أيضًا",
+    "App": "تطبيق",
+    "App name or bundle id": "اسم التطبيق أو معرّف الحزمة",
+    "Apps": "التطبيقات",
+    "Ask about it": "اسأل عنه",
+    "At the bottom": "في الأسفل",
+    "Choosing a copy": "اختيار نسخة",
+    "Clear history": "مسح السجل",
+    "Clear pinned too": "مسح المثبّتة أيضًا",
+    "Cleared, pinned copies too.": "تم المسح، والنسخ المثبّتة أيضًا.",
+    "Cleared.": "تم المسح.",
+    "Cleared. Pinned copies stay.": "تم المسح. تبقى النسخ المثبّتة.",
+    "Cleared. {count} pinned copies stay.": {
+      "zero": "تم المسح. لا نسخ مثبّتة.",
+      "one": "تم المسح. تبقى نسخة مثبّتة واحدة.",
+      "two": "تم المسح. تبقى نسختان مثبّتتان.",
+      "few": "تم المسح. تبقى {count} نسخ مثبّتة.",
+      "many": "تم المسح. تبقى {count} نسخة مثبّتة.",
+      "other": "تم المسح. تبقى {count} نسخة مثبّتة."
+    },
+    "Clipboard type": "نوع الحافظة",
+    "Code": "شيفرة",
+    "Copied": "نُسخ",
+    "Copies": "النسخ",
+    "Copies from {app} are kept again.": "تُحفظ النسخ من {app} مجددًا.",
+    "Copies from {app} aren't kept from now on.": "لن تُحفظ النسخ من {app} من الآن فصاعدًا.",
+    "Copies marked {type} are kept again.": "تُحفظ النسخ الموسومة بـ{type} مجددًا.",
+    "Copies marked {type} aren't kept from now on.": "لن تُحفظ النسخ الموسومة بـ{type} من الآن فصاعدًا.",
+    "Copies matching {pattern} are kept again.": "تُحفظ النسخ المطابقة لـ{pattern} مجددًا.",
+    "Copies matching {pattern} aren't kept from now on.": "لن تُحفظ النسخ المطابقة لـ{pattern} من الآن فصاعدًا.",
+    "Copies, pinned ones aside. The oldest go first.": "النسخ، باستثناء المثبّتة. تُحذف الأقدم أولًا.",
+    "Copy": "نسخ",
+    "Done.": "تم.",
+    "Exact": "مطابقة تامة",
+    "Files": "الملفات",
+    "Files copied in Finder, by their place.": "الملفات المنسوخة في Finder، بحسب مكانها.",
+    "Find a link I copied": "ابحث عن رابط نسختُه",
+    "First copied": "أول نسخ",
+    "Fonts, colours and links that came with copied text.": "الخطوط والألوان والروابط المرافقة للنص المنسوخ.",
+    "For apps that mark what they copy: com.apple.is-remote-clipboard leaves out your iPhone's copies.": "للتطبيقات التي تَسِم ما تنسخه: يستبعد com.apple.is-remote-clipboard نسخ iPhone الخاص بك.",
+    "Forgotten": "يُنسى",
+    "Formatting": "التنسيق",
+    "From": "من",
+    "Fuzzy": "تقريبية",
+    "Hide passwords, keys and card numbers": "إخفاء كلمات السر والمفاتيح وأرقام البطاقات",
+    "History": "السجل",
+    "I couldn't find that copy.": "تعذّر العثور على تلك النسخة.",
+    "Ignore": "تجاهل",
+    "Ignore a clipboard type": "تجاهل نوع حافظة",
+    "Ignore an app": "تجاهل تطبيق",
+    "Ignore text that matches": "تجاهل النص المطابق",
+    "Ignore {app}": "تجاهل {app}",
+    "In the order the palette shows them. Copy puts one back on the clipboard.": "بالترتيب الذي تعرضه اللوحة. يعيد «نسخ» واحدة إلى الحافظة.",
+    "Its name or bundle id, like 1Password or com.apple.keychainaccess.": "اسمه أو معرّف حزمته، مثل 1Password أو com.apple.keychainaccess.",
+    "Keep a history of what I copy": "الاحتفاظ بسجل لما أنسخه",
+    "Keep files": "الاحتفاظ بالملفات",
+    "Keep formatting": "الاحتفاظ بالتنسيق",
+    "Keep it": "الإبقاء عليه",
+    "Keep pictures": "الاحتفاظ بالصور",
+    "Keep up to": "الاحتفاظ بما يصل إلى",
+    "Keep up to {limits} copies.": "احتفظ بما يصل إلى {limits} نسخة.",
+    "Keeping up to {count} copies.": {
+      "zero": "لا يُحتفظ بأي نسخة.",
+      "one": "يُحتفظ بنسخة واحدة كحد أقصى.",
+      "two": "يُحتفظ بنسختين كحد أقصى.",
+      "few": "يُحتفظ بما يصل إلى {count} نسخ.",
+      "many": "يُحتفظ بما يصل إلى {count} نسخة.",
+      "other": "يُحتفظ بما يصل إلى {count} نسخة."
+    },
+    "Keeping your copies": "يحتفظ بنسخك",
+    "Keeping your copies again.": "يُحتفظ بنسخك مجددًا.",
+    "Last copied": "آخر نسخ",
+    "Latest": "الأحدث",
+    "Leave out": "الاستبعاد",
+    "Length": "الطول",
+    "Links": "الروابط",
+    "Most copied": "الأكثر نسخًا",
+    "No copy matches “{query}”.": "لا توجد نسخة تطابق «{query}».",
+    "Not keeping a history": "لا يُحتفظ بسجل",
+    "Nothing copied yet.": "لم يُنسخ شيء بعد.",
+    "On the clipboard again: {copy}.": "عاد إلى الحافظة: {copy}.",
+    "On top": "في الأعلى",
+    "Only copies it": "ينسخها فقط",
+    "Order": "الترتيب",
+    "Passwords from password managers are never kept.": "لا يُحتفظ أبدًا بكلمات السر من مديري كلمات السر.",
+    "Pastes it": "يلصقها",
+    "Pattern": "نمط",
+    "Pause {time}": "إيقاف مؤقت {time}",
+    "Paused until {time}": "متوقف مؤقتًا حتى {time}",
+    "Paused until {time}: nothing you copy is kept until then.": "متوقف مؤقتًا حتى {time}: لن يُحتفظ بأي شيء تنسخه حتى ذلك الحين.",
+    "Picture": "صورة",
+    "Pictures": "الصور",
+    "Pinned": "المثبّتة",
+    "Pinned copies": "النسخ المثبّتة",
+    "Pinned copies go top or bottom.": "تُوضع النسخ المثبّتة في الأعلى أو الأسفل.",
+    "Remove": "إزالة",
+    "Remove it": "إزالته",
+    "Resume now": "الاستئناف الآن",
+    "Return": "Return",
+    "Rich text and web formatting, pasted back unless you ask for plain text.": "النص المنسّق وتنسيق الويب، يُلصقان كما هما ما لم تطلب نصًا عاديًا.",
+    "Save my last copy to notes": "حفظ آخر نسخة في الملاحظات",
+    "Say which app, pattern or clipboard type.": "حدّد أي تطبيق أو نمط أو نوع حافظة.",
+    "Screenshots and copied images, {count} at most.": "لقطات الشاشة والصور المنسوخة، {count} كحد أقصى.",
+    "Search": "البحث",
+    "Search is words, exact, fuzzy or regex.": "البحث هو words أو exact أو fuzzy أو regex.",
+    "Size": "الحجم",
+    "Skip my next copy": "تخطّي نسختي التالية",
+    "Skipping your next copy": "ستُتخطّى نسختك التالية",
+    "Text matching": "النص المطابق",
+    "That copy is gone.": "لم تعد تلك النسخة موجودة.",
+    "That isn't a pattern Clipboard can read.": "هذا ليس نمطًا تستطيع الحافظة قراءته.",
+    "That's too long for an app's name.": "هذا أطول من أن يكون اسم تطبيق.",
+    "The app in front when you copied.": "التطبيق الذي كان في المقدمة حين نسخت.",
+    "The order is recent, first or count.": "الترتيب هو recent أو first أو count.",
+    "There's no such setting.": "لا يوجد إعداد كهذا.",
+    "They show as dots, stay in memory only and are forgotten after two minutes.": "تظهر نقاطًا، وتبقى في الذاكرة فقط، وتُنسى بعد دقيقتين.",
+    "Today {time}": "اليوم {time}",
+    "Turned off.": "تم الإيقاف.",
+    "Turned on.": "تم التشغيل.",
+    "Type": "النوع",
+    "What choosing a copy does. Option-Return does the other; Shift-Return pastes plain text.": "ما يفعله اختيار نسخة. يفعل Option-Return الآخر؛ ويلصق Shift-Return نصًا عاديًا.",
+    "What did I copy today?": "ماذا نسخت اليوم؟",
+    "What it holds": "ما يحتويه",
+    "Where your copies come from": "من أين تأتي نسخك",
+    "Words": "كلمات",
+    "Words: all of them, anywhere. Fuzzy: the letters in order. Pattern: a regular expression.": "كلمات: جميعها، في أي موضع. تقريبية: الحروف بالترتيب. نمط: تعبير نمطي.",
+    "Your next copy won't be kept.": "لن يُحتفظ بنسختك التالية.",
+    "copied {count}×": "نُسخت {count}×",
+    "forgotten in {time}": "تُنسى خلال {time}",
+    "in {time}": "خلال {time}",
+    "just now": "الآن",
+    "kept (⇧↩ pastes without it)": "محفوظ (⇧↩ يلصق دونه)",
+    "kept for good": "محفوظة دائمًا",
+    "looks like a password or key": "يبدو ككلمة سر أو مفتاح",
+    "pinned": "مثبّتة",
+    "without formatting": "دون تنسيق",
+    "yesterday": "أمس",
+    "{count} characters": {
+      "zero": "{count} حرف",
+      "one": "حرف واحد",
+      "two": "حرفان",
+      "few": "{count} أحرف",
+      "many": "{count} حرفًا",
+      "other": "{count} حرف"
+    },
+    "{count} copies": {
+      "zero": "{count} نسخة",
+      "one": "نسخة واحدة",
+      "two": "نسختان",
+      "few": "{count} نسخ",
+      "many": "{count} نسخة",
+      "other": "{count} نسخة"
+    },
+    "{count} days ago": {
+      "zero": "قبل {count} يوم",
+      "one": "قبل يوم واحد",
+      "two": "قبل يومين",
+      "few": "قبل {count} أيام",
+      "many": "قبل {count} يومًا",
+      "other": "قبل {count} يوم"
+    },
+    "{count} lines": {
+      "zero": "{count} سطر",
+      "one": "سطر واحد",
+      "two": "سطران",
+      "few": "{count} أسطر",
+      "many": "{count} سطرًا",
+      "other": "{count} سطر"
+    },
+    "{count} today": "{count} اليوم",
+    "{kept} kept · {today} today · open them from any app with the shortcut below": "{kept} محفوظة · {today} اليوم · افتحها من أي تطبيق بالاختصار أدناه",
+    "{names} and {count} more": "{names} و{count} أخرى",
+    "{status}, so there's nothing new.": "{status}، لذا لا جديد.",
+    "{time} ago": "قبل {time}",
+    "“{pattern}” isn't a regular expression Clipboard can read.": "«{pattern}» ليس تعبيرًا نمطيًا تستطيع الحافظة قراءته.",
+    "↩ copies, ⌥↩ pastes": "↩ ينسخ، ⌥↩ يلصق",
+    "↩ pastes, ⌥↩ only copies": "↩ يلصق، ⌥↩ ينسخ فقط"
+  }
+}

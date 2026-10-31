@@ -1,0 +1,47 @@
+{
+  "name": "Outils PDF",
+  "tagline": "Lire, réunir et diviser des PDF",
+  "description": "Les détails et le texte d’un PDF, plusieurs PDF réunis en un seul, et certaines de leurs pages enregistrées dans un nouveau PDF. Vos originaux restent tels quels.",
+  "tools": {
+    "combine_pdfs": {
+      "title": "Réunir des PDF"
+    },
+    "extract_pages": {
+      "title": "Extraire des pages d’un PDF"
+    },
+    "pdf_info": {
+      "title": "Détails d’un PDF"
+    },
+    "pdf_text": {
+      "title": "Lire le texte d’un PDF"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Combined {count} PDFs ({pages}) into {file}.": "{count} PDF combinés ({pages}) dans {file}.",
+    "Cut at {count} characters: ask for later pages.": "Coupé à {count} caractères : demandez les pages suivantes.",
+    "Name at least two PDFs in that folder, in the order they go.": "Nommez au moins deux PDF de ce dossier, dans l’ordre voulu.",
+    "Saved {count} pages of {file} as {saved}.": {
+      "one": "{count} page de {file} enregistrée sous {saved}.",
+      "other": "{count} pages de {file} enregistrées sous {saved}."
+    },
+    "The PDF has pages 1 to {count}; “{pages}” is outside that.": "Le PDF a les pages 1 à {count} ; « {pages} » est en dehors.",
+    "The combined PDF couldn't be saved.": "Le PDF combiné n’a pas pu être enregistré.",
+    "The new PDF couldn't be saved.": "Le nouveau PDF n’a pas pu être enregistré.",
+    "There's no text on those pages (they may be scanned images).": "Il n’y a pas de texte sur ces pages (ce sont peut-être des images numérisées).",
+    "Write pages like 1-3, 5, 8-.": "Écrivez les pages comme 1-3, 5, 8-.",
+    "by {author}": "par {author}",
+    "encrypted": "chiffré",
+    "it has text": "il contient du texte",
+    "no text in it (scanned pages, perhaps)": "pas de texte (pages numérisées, peut-être)",
+    "title “{title}”": "titre « {title} »",
+    "{count} pages": {
+      "one": "{count} page",
+      "other": "{count} pages"
+    },
+    "{file} is locked with a password.": "{file} est protégé par un mot de passe.",
+    "{file} isn't a PDF I can read.": "{file} n’est pas un PDF lisible.",
+    "{paper}, landscape": "{paper}, paysage",
+    "“{file}” should be just a file name in {folder}.": "« {file} » doit être juste un nom de fichier dans {folder}."
+  }
+}

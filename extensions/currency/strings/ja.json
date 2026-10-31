@@ -1,0 +1,27 @@
+{
+  "name": "通貨",
+  "tagline": "30通貨の金額を今日のレートで",
+  "description": "欧州中央銀行の毎日の参照レートで、ユーロと主要30通貨の間で金額を換算し、レートが設定した値を超えたら知らせます。あなたに関する情報は送信されません。",
+  "tools": {
+    "convert_currency": {
+      "title": "通貨を換算"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "為替レート",
+      "description": "為替レートが一定の線を上回るか下回ったら、一度だけ知らせます。"
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "{day}のECB参照レート。",
+    "ECB, {day}": "ECB、{day}",
+    "Give “above” or “below”: the rate to watch for.": "「above」か「below」で、見張るレートを指定してください。",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "ECBは「{currency}」のレートを公表していません。対象は EUR と {codes} です。",
+    "The ECB's rates file had no date.": "ECBのレートファイルに日付がありませんでした。",
+    "The ECB's rates file had no rates.": "ECBのレートファイルにレートがありませんでした。",
+    "{rate}, above {line}.": "{rate}、{line}を上回りました。",
+    "{rate}, below {line}.": "{rate}、{line}を下回りました。",
+    "“{key}” must be a number.": "「{key}」は数値でなければなりません。"
+  }
+}

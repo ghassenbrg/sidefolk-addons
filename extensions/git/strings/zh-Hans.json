@@ -1,0 +1,54 @@
+{
+  "name": "Git",
+  "tagline": "克隆、更新和检查你的仓库",
+  "description": "把公开仓库克隆到你选择的文件夹，并检查、更新已有的仓库，查看它们的提交历史。",
+  "tools": {
+    "clone": {
+      "title": "克隆仓库"
+    },
+    "log": {
+      "title": "最近的提交"
+    },
+    "pull": {
+      "title": "拉取最新更改"
+    },
+    "status": {
+      "title": "仓库状态"
+    }
+  },
+  "text": {
+    "Cloned {name} into {folder}: branch {branch}, {latest}.": "已将 {name} 克隆到 {folder}：分支 {branch}，{latest}。",
+    "Couldn't reach that address: check it, and the internet connection.": "无法访问该地址：请检查地址和互联网连接。",
+    "Git failed without saying why.": "Git 失败了，但没有说明原因。",
+    "It needs a sign-in: the repository is private, or the address is wrong. Git here can only reach public repositories, because it can't use your saved passwords or keys.": "需要登录：仓库是私有的，或者地址有误。这里的 Git 无法使用你保存的密码或密钥，只能访问公开仓库。",
+    "Latest commits on {branch} in {folder}:": "{folder} 中 {branch} 的最新提交：",
+    "Leave sign-in details out of the address; Git here only clones public repositories.": "请从地址中去掉登录信息；这里的 Git 只克隆公开仓库。",
+    "Nothing changed.": "没有更改。",
+    "Only https addresses can be cloned here, like https://github.com/owner/project.": "这里只能克隆 https 地址，例如 https://github.com/owner/project。",
+    "Pulled {count} new commits into {folder} on {branch}; {latest}.": {
+      "other": "已将 {count} 个新提交拉取到 {folder} 的 {branch}；{latest}。"
+    },
+    "Sidefolk didn't pass the location of git, so nothing can run.": "Sidefolk 没有提供 git 的位置，因此无法运行。",
+    "Some changed files would be overwritten. Nothing changed; commit or stash them first.": "一些已更改的文件会被覆盖。未作任何更改；请先提交或暂存（stash）。",
+    "That folder isn't a Git repository.": "该文件夹不是 Git 仓库。",
+    "The branch and its remote have both moved on, so it can't simply be brought up to date. Nothing changed; merge or rebase it yourself.": "分支和远程都已向前推进，无法直接更新。未作任何更改；请自行合并或变基。",
+    "There's no public repository at that address.": "该地址没有公开仓库。",
+    "This branch doesn't follow a branch on a remote, so there's nothing to pull.": "此分支没有跟踪远程分支，没有可拉取的内容。",
+    "This repository's remote isn't an https address (it may use SSH, which needs your keys). Git here only reaches https remotes.": "此仓库的远程不是 https 地址（可能使用需要密钥的 SSH）。这里的 Git 只访问 https 远程。",
+    "a detached HEAD": "分离的 HEAD",
+    "an unborn branch": "尚无提交的分支",
+    "and {count} more": "以及另外 {count} 个",
+    "even with {upstream} (as of the last fetch)": "与 {upstream} 一致（截至上次 fetch）",
+    "latest commit {hash} “{message}” ({when})": "最新提交 {hash}“{message}”（{when}）",
+    "no commits yet": "尚无提交",
+    "{ahead} ahead and {behind} behind {upstream} (as of the last fetch)": "领先 {upstream} {ahead} 个、落后 {behind} 个（截至上次 fetch）",
+    "{count} changed ({staged} staged)": "{count} 个已更改（{staged} 个已暂存）",
+    "{count} new and untracked": "{count} 个新的未跟踪文件",
+    "{count} with conflicts": "{count} 个有冲突",
+    "{folder} already exists. Choose a new folder name.": "{folder} 已存在。请选择新的文件夹名称。",
+    "{folder} has no commits yet.": "{folder} 还没有提交。",
+    "{folder} on {branch}": "{folder}（{branch}）",
+    "{folder} on {branch} is already up to date.": "{folder}（{branch}）已是最新。",
+    "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent} 还不存在。请先创建它，然后克隆到 {folder}。"
+  }
+}

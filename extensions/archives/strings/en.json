@@ -1,0 +1,18 @@
+{
+  "text": {
+    "It couldn't be unpacked: {error}": "It couldn't be unpacked: {error}",
+    "Made {zip} ({size}) with {what}.": "Made {zip} ({size}) with {what}.",
+    "Name at least one file or folder to zip.": "Name at least one file or folder to zip.",
+    "The zip couldn't be made: {error}": "The zip couldn't be made: {error}",
+    "There's no “{name}” in {folder}.": "There's no “{name}” in {folder}.",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "one": "Unpacked {zip} into {folder} ({count} item at the top).",
+      "other": "Unpacked {zip} into {folder} ({count} items at the top)."
+    },
+    "{count} items": {
+      "one": "{count} item",
+      "other": "{count} items"
+    },
+    "“{name}” should be just a name of something in {folder}.": "“{name}” should be just a name of something in {folder}."
+  }
+}

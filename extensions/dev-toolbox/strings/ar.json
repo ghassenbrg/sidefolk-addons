@@ -1,0 +1,84 @@
+{
+  "name": "أدوات المطوّرين",
+  "tagline": "JSON، base64، JWT، UUID وغيرها",
+  "description": "للمطوّرين: تنسيق JSON، وترميز وفك ترميز base64 وعناوين URL والنظام الست عشري، وفك JWT، وتحويل الطوابع الزمنية، وإنشاء UUID، والتحقق من المجموع الاختباري لملف.",
+  "tools": {
+    "checksum": {
+      "title": "المجموع الاختباري لملف"
+    },
+    "generate": {
+      "title": "إنشاء معرّفات"
+    },
+    "timestamp": {
+      "title": "تحويل طابع زمني"
+    },
+    "transform": {
+      "title": "تحويل النص"
+    }
+  },
+  "text": {
+    ", ": "، ",
+    "A JWT has three parts separated by dots.": "يتكوّن JWT من ثلاثة أجزاء تفصلها نقاط.",
+    "Claims": "المطالبات",
+    "Expires": "تنتهي صلاحيته",
+    "Generate a uuid or a token.": "أنشئ uuid أو token.",
+    "Give Unix time (1730000000 or milliseconds) or an ISO 8601 date (2026-10-28T09:30:00Z).": "أعطِ وقت Unix (1730000000 أو بالميلي ثانية) أو تاريخًا بصيغة ISO 8601 (2026-10-28T09:30:00Z).",
+    "Header": "الترويسة",
+    "Here: {date}": "هنا: {date}",
+    "Issued": "صدر",
+    "Not text: {size} ({hex}).": "ليس نصًا: {size} ({hex}).",
+    "Operations: {names}.": "العمليات: {names}.",
+    "That isn't base64.": "هذا ليس base64.",
+    "That isn't hexadecimal.": "هذا ليس ست عشريًا.",
+    "That isn't valid JSON": "هذا ليس JSON صالحًا",
+    "That isn't valid JSON: a comma before a closing bracket, at character {position}.": "هذا ليس JSON صالحًا: فاصلة قبل قوس إغلاق، عند الحرف {position}.",
+    "That isn't valid URL encoding.": "هذا ليس ترميز URL صالحًا.",
+    "The signature is not checked.": "لا يُتحقّق من التوقيع.",
+    "Unix time {seconds} (milliseconds {milliseconds})": "وقت Unix {seconds} (بالميلي ثانية {milliseconds})",
+    "Valid from": "صالح من",
+    "expired": "منتهي الصلاحية",
+    "still valid": "ما زال صالحًا",
+    "{algorithm} of {file}:": "{algorithm} لـ{file}:",
+    "{count} bytes": {
+      "zero": "{count} بايت",
+      "one": "بايت واحد",
+      "two": "بايتان",
+      "few": "{count} بايتات",
+      "many": "{count} بايتًا",
+      "other": "{count} بايت"
+    },
+    "{count} bytes in UTF-8": {
+      "zero": "{count} بايت بترميز UTF-8",
+      "one": "بايت واحد بترميز UTF-8",
+      "two": "بايتان بترميز UTF-8",
+      "few": "{count} بايتات بترميز UTF-8",
+      "many": "{count} بايتًا بترميز UTF-8",
+      "other": "{count} بايت بترميز UTF-8"
+    },
+    "{count} characters": {
+      "zero": "{count} حرف",
+      "one": "حرف واحد",
+      "two": "حرفان",
+      "few": "{count} أحرف",
+      "many": "{count} حرفًا",
+      "other": "{count} حرف"
+    },
+    "{count} lines": {
+      "zero": "{count} سطر",
+      "one": "سطر واحد",
+      "two": "سطران",
+      "few": "{count} أسطر",
+      "many": "{count} سطرًا",
+      "other": "{count} سطر"
+    },
+    "{count} words": {
+      "zero": "{count} كلمة",
+      "one": "كلمة واحدة",
+      "two": "كلمتان",
+      "few": "{count} كلمات",
+      "many": "{count} كلمة",
+      "other": "{count} كلمة"
+    },
+    "{file} can't be read.": "لا يمكن قراءة {file}."
+  }
+}

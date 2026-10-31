@@ -21,7 +21,7 @@ enum Git {
 
     @discardableResult
     static func git(_ arguments: [String], timeout: TimeInterval = 60, check: Bool = true) throws -> Output {
-        guard !program.isEmpty else { throw Problem("Sidefolk didn't pass the location of git, so nothing can run.") }
+        guard !program.isEmpty else { throw Problem(L("Sidefolk didn't pass the location of git, so nothing can run.")) }
         let result = try run(program, safe + arguments, environment: environment, in: ProcessInfo.processInfo.environment["HOME"], timeout: timeout)
         if check, result.status != 0 { throw Problem(explain(result.err)) }
         return result
@@ -32,33 +32,32 @@ enum Git {
         let text = stderr.trimmingCharacters(in: .whitespacesAndNewlines)
         let lowered = text.lowercased()
         if ["could not read username", "authentication failed", "terminal prompts disabled"].contains(where: lowered.contains) {
-            return "It needs a sign-in: the repository is private, or the address is wrong. Git here can only reach public "
-                + "repositories, because it can't use your saved passwords or keys."
+            return L("It needs a sign-in: the repository is private, or the address is wrong. Git here can only reach public repositories, because it can't use your saved passwords or keys.")
         }
         if lowered.contains("repository not found") || (lowered.contains("not found") && lowered.contains("http")) {
-            return "There's no public repository at that address."
+            return L("There's no public repository at that address.")
         }
-        if lowered.contains("could not resolve host") { return "Couldn't reach that address: check it, and the internet connection." }
+        if lowered.contains("could not resolve host") { return L("Couldn't reach that address: check it, and the internet connection.") }
         if lowered.contains("transport"), lowered.contains("not allowed") {
-            return "This repository's remote isn't an https address (it may use SSH, which needs your keys). Git here only reaches https remotes."
+            return L("This repository's remote isn't an https address (it may use SSH, which needs your keys). Git here only reaches https remotes.")
         }
         if lowered.contains("not possible to fast-forward") || lowered.contains("diverging branches") {
-            return "The branch and its remote have both moved on, so it can't simply be brought up to date. Nothing changed; merge or rebase it yourself."
+            return L("The branch and its remote have both moved on, so it can't simply be brought up to date. Nothing changed; merge or rebase it yourself.")
         }
-        if lowered.contains("would be overwritten") { return "Some changed files would be overwritten. Nothing changed; commit or stash them first." }
-        if lowered.contains("no tracking information") { return "This branch doesn't follow a branch on a remote, so there's nothing to pull." }
-        if lowered.contains("not a git repository") { return "That folder isn't a Git repository." }
+        if lowered.contains("would be overwritten") { return L("Some changed files would be overwritten. Nothing changed; commit or stash them first.") }
+        if lowered.contains("no tracking information") { return L("This branch doesn't follow a branch on a remote, so there's nothing to pull.") }
+        if lowered.contains("not a git repository") { return L("That folder isn't a Git repository.") }
         let last = text.split(separator: "\n").last { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-        return last.map { String($0.trimmingCharacters(in: .whitespaces).prefix(300)) } ?? "Git failed without saying why."
+        return last.map { String($0.trimmingCharacters(in: .whitespaces).prefix(300)) } ?? L("Git failed without saying why.")
     }
 
     static func checkURL(_ url: String) throws -> URLComponents {
         guard let parts = URLComponents(string: url), parts.scheme == "https", parts.host?.isEmpty == false, !url.hasPrefix("-"),
               !url.contains(where: \.isWhitespace) else {
-            throw Problem("Only https addresses can be cloned here, like https://github.com/owner/project.")
+            throw Problem(L("Only https addresses can be cloned here, like https://github.com/owner/project."))
         }
         guard parts.user == nil, parts.password == nil else {
-            throw Problem("Leave sign-in details out of the address; Git here only clones public repositories.")
+            throw Problem(L("Leave sign-in details out of the address; Git here only clones public repositories."))
         }
         return parts
     }
@@ -66,14 +65,14 @@ enum Git {
     static func headLine(_ repository: String) throws -> String {
         let out = try git(["-C", repository, "log", "-1", "--pretty=format:%h\u{1F}%s\u{1F}%ar"], check: false).out
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !out.isEmpty else { return "no commits yet" }
+        guard !out.isEmpty else { return L("no commits yet") }
         let f = out.components(separatedBy: "\u{1F}") + ["", ""]
-        return "latest commit \(f[0]) “\(f[1].prefix(120))” (\(f[2]))"
+        return L("latest commit {hash} “{message}” ({when})", ["hash": f[0], "message": String(f[1].prefix(120)), "when": f[2]])
     }
 
     static func branch(_ repository: String) throws -> String {
         let name = try git(["-C", repository, "rev-parse", "--abbrev-ref", "HEAD"], check: false).out.trimmingCharacters(in: .whitespacesAndNewlines)
-        return name.isEmpty ? "an unborn branch" : name
+        return name.isEmpty ? L("an unborn branch") : name
     }
 
     // MARK: Tools
@@ -83,14 +82,14 @@ enum Git {
         let destination = try Paths.full(raw)
         let parent = (destination as NSString).deletingLastPathComponent
         guard Paths.exists(parent, folder: true) else {
-            throw Problem("\(Paths.show(parent)) doesn't exist yet. Create it first, then clone into \(Paths.show(destination)).")
+            throw Problem(L("{parent} doesn't exist yet. Create it first, then clone into {folder}.", ["parent": Paths.show(parent), "folder": Paths.show(destination)]))
         }
-        guard !Paths.exists(destination) else { throw Problem("\(Paths.show(destination)) already exists. Choose a new folder name.") }
+        guard !Paths.exists(destination) else { throw Problem(L("{folder} already exists. Choose a new folder name.", ["folder": Paths.show(destination)])) }
         try git(["clone", "--quiet", "--", url, destination], timeout: 290)
         var name = parts.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         if name.hasSuffix(".git") { name = String(name.dropLast(4)) }
-        return "Cloned \(name.isEmpty ? parts.host ?? url : name) into \(Paths.show(destination)): branch \(try branch(destination)), "
-            + "\(try headLine(destination))."
+        return L("Cloned {name} into {folder}: branch {branch}, {latest}.", ["name": name.isEmpty ? parts.host ?? url : name, "folder": Paths.show(destination),
+                                                                           "branch": try branch(destination), "latest": try headLine(destination)])
     }
 
     static func status(_ raw: String) throws -> String {
@@ -121,17 +120,17 @@ enum Git {
                 names.append(String(line.dropFirst(2)))
             }
         }
-        var place = "\(Paths.show(repository)) on \(head == "(detached)" ? "a detached HEAD" : head)"
+        var place = L("{folder} on {branch}", ["folder": Paths.show(repository), "branch": head == "(detached)" ? L("a detached HEAD") : head])
         if !upstream.isEmpty {
-            place += ahead != 0 || behind != 0 ? ", \(ahead) ahead and \(behind) behind \(upstream) (as of the last fetch)"
-                : ", even with \(upstream) (as of the last fetch)"
+            place += ahead != 0 || behind != 0 ? ", " + L("{ahead} ahead and {behind} behind {upstream} (as of the last fetch)", ["ahead": ahead, "behind": behind, "upstream": upstream])
+                : ", " + L("even with {upstream} (as of the last fetch)", ["upstream": upstream])
         }
-        guard !names.isEmpty else { return place + ". Nothing changed." }
+        guard !names.isEmpty else { return place + ". " + L("Nothing changed.") }
         var counts: [String] = []
-        if tracked > 0 { counts.append("\(tracked) changed (\(staged) staged)") }
-        if conflicted > 0 { counts.append("\(conflicted) with conflicts") }
-        if untracked > 0 { counts.append("\(untracked) new and untracked") }
-        let shown = names.prefix(15).joined(separator: ", ") + (names.count > 15 ? ", and \(names.count - 15) more" : "")
+        if tracked > 0 { counts.append(L("{count} changed ({staged} staged)", ["count": tracked, "staged": staged])) }
+        if conflicted > 0 { counts.append(L("{count} with conflicts", ["count": conflicted])) }
+        if untracked > 0 { counts.append(L("{count} new and untracked", ["count": untracked])) }
+        let shown = names.prefix(15).joined(separator: ", ") + (names.count > 15 ? ", " + L("and {count} more", ["count": names.count - 15]) : "")
         return "\(place). \(counts.joined(separator: "; ")): \(shown)."
     }
 
@@ -140,9 +139,10 @@ enum Git {
         let before = try git(["-C", repository, "rev-parse", "HEAD"]).out.trimmingCharacters(in: .whitespacesAndNewlines)
         try git(["-C", repository, "pull", "--ff-only", "--no-rebase", "--quiet"], timeout: 290)
         let after = try git(["-C", repository, "rev-parse", "HEAD"]).out.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard before != after else { return "\(Paths.show(repository)) on \(try branch(repository)) is already up to date." }
+        guard before != after else { return L("{folder} on {branch} is already up to date.", ["folder": Paths.show(repository), "branch": try branch(repository)]) }
         let count = try git(["-C", repository, "rev-list", "--count", "\(before)..\(after)"]).out.trimmingCharacters(in: .whitespacesAndNewlines)
-        return "Pulled \(count) new commit\(count == "1" ? "" : "s") into \(Paths.show(repository)) on \(try branch(repository)); \(try headLine(repository))."
+        return L(one: "Pulled {count} new commit into {folder} on {branch}; {latest}.", other: "Pulled {count} new commits into {folder} on {branch}; {latest}.",
+                 count: Int(count) ?? 0, ["folder": Paths.show(repository), "branch": try branch(repository), "latest": try headLine(repository)])
     }
 
     static func log(_ raw: String, count: Int) throws -> String {
@@ -152,7 +152,7 @@ enum Git {
             let f = row.components(separatedBy: "\u{1F}") + ["", "", ""]
             return "\(f[0])  \(f[2])  \(f[1]): \(f[3].prefix(160))"
         }
-        guard !lines.isEmpty else { return "\(Paths.show(repository)) has no commits yet." }
-        return "Latest commits on \(try branch(repository)) in \(Paths.show(repository)):\n" + lines.joined(separator: "\n")
+        guard !lines.isEmpty else { return L("{folder} has no commits yet.", ["folder": Paths.show(repository)]) }
+        return L("Latest commits on {branch} in {folder}:", ["branch": try branch(repository), "folder": Paths.show(repository)]) + "\n" + lines.joined(separator: "\n")
     }
 }

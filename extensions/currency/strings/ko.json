@@ -1,0 +1,27 @@
+{
+  "name": "통화",
+  "tagline": "30개 통화를 오늘 환율로 환산",
+  "description": "유럽중앙은행의 일일 기준 환율로 유로와 주요 30개 통화 사이의 금액을 환산하고, 환율이 정한 선을 넘으면 알려 줘요. 나에 관한 정보는 보내지 않아요.",
+  "tools": {
+    "convert_currency": {
+      "title": "돈 환산"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "환율",
+      "description": "환율이 기준선을 넘거나 밑돌면 한 번 알려 줍니다."
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "{day} ECB 기준 환율.",
+    "ECB, {day}": "ECB, {day}",
+    "Give “above” or “below”: the rate to watch for.": "‘above’ 또는 ‘below’로 지켜볼 환율을 정하세요.",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "ECB는 ‘{currency}’ 환율을 발표하지 않습니다. EUR와 {codes}를 다룹니다.",
+    "The ECB's rates file had no date.": "ECB 환율 파일에 날짜가 없었습니다.",
+    "The ECB's rates file had no rates.": "ECB 환율 파일에 환율이 없었습니다.",
+    "{rate}, above {line}.": "{rate}, {line} 초과.",
+    "{rate}, below {line}.": "{rate}, {line} 미만.",
+    "“{key}” must be a number.": "‘{key}’은(는) 숫자여야 합니다."
+  }
+}

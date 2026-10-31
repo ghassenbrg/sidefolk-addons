@@ -1,0 +1,11 @@
+{
+  "text": {
+    "I didn't find a QR code in {file}.": "I didn't find a QR code in {file}.",
+    "Saved a QR code for “{text}” as {file} ({width} × {height} px).": "Saved a QR code for “{text}” as {file} ({width} × {height} px).",
+    "The QR code couldn't be drawn.": "The QR code couldn't be drawn.",
+    "The picture couldn't be saved.": "The picture couldn't be saved.",
+    "This Mac can't make QR codes.": "This Mac can't make QR codes.",
+    "{file} isn't a picture I can read.": "{file} isn't a picture I can read.",
+    "{folder} can't be written to.": "{folder} can't be written to."
+  }
+}

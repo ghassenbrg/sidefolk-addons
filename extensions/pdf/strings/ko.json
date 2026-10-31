@@ -1,0 +1,45 @@
+{
+  "name": "PDF 도구",
+  "tagline": "PDF 읽기, 합치기, 나누기",
+  "description": "PDF의 정보와 텍스트, 여러 PDF를 하나로 합치기, 일부 페이지를 새 PDF로 저장하기. 원본은 그대로 남아요.",
+  "tools": {
+    "combine_pdfs": {
+      "title": "PDF 합치기"
+    },
+    "extract_pages": {
+      "title": "PDF에서 페이지 꺼내기"
+    },
+    "pdf_info": {
+      "title": "PDF 정보"
+    },
+    "pdf_text": {
+      "title": "PDF 텍스트 읽기"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Combined {count} PDFs ({pages}) into {file}.": "PDF {count}개({pages})를 {file}(으)로 합쳤습니다.",
+    "Cut at {count} characters: ask for later pages.": "{count}자에서 잘랐습니다. 뒤 페이지를 요청하세요.",
+    "Name at least two PDFs in that folder, in the order they go.": "그 폴더의 PDF를 순서대로 두 개 이상 지정하세요.",
+    "Saved {count} pages of {file} as {saved}.": {
+      "other": "{file}의 {count}페이지를 {saved}(으)로 저장했습니다."
+    },
+    "The PDF has pages 1 to {count}; “{pages}” is outside that.": "PDF는 1~{count}페이지입니다. ‘{pages}’은(는) 범위를 벗어납니다.",
+    "The combined PDF couldn't be saved.": "합친 PDF를 저장할 수 없습니다.",
+    "The new PDF couldn't be saved.": "새 PDF를 저장할 수 없습니다.",
+    "There's no text on those pages (they may be scanned images).": "그 페이지에는 텍스트가 없습니다(스캔한 이미지일 수 있음).",
+    "Write pages like 1-3, 5, 8-.": "페이지는 1-3, 5, 8-처럼 쓰세요.",
+    "by {author}": "작성자 {author}",
+    "encrypted": "암호화됨",
+    "it has text": "텍스트 있음",
+    "no text in it (scanned pages, perhaps)": "텍스트 없음(스캔한 페이지일 수 있음)",
+    "title “{title}”": "제목 ‘{title}’",
+    "{count} pages": {
+      "other": "{count}페이지"
+    },
+    "{file} is locked with a password.": "{file}은(는) 암호로 잠겨 있습니다.",
+    "{file} isn't a PDF I can read.": "{file}은(는) 읽을 수 있는 PDF가 아닙니다.",
+    "{paper}, landscape": "{paper}, 가로",
+    "“{file}” should be just a file name in {folder}.": "‘{file}’은(는) {folder} 안의 파일 이름이어야 합니다."
+  }
+}

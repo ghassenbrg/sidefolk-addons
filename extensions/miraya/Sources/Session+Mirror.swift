@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 @preconcurrency import ScreenCaptureKit
 import CoreGraphics
 
@@ -13,7 +14,7 @@ extension Session {
                 _ = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
                 guard !Task.isCancelled, self.generation == generation, self.connection === session else { return }
                 session.sendControl(["op": "start", "transport": RTCSignaling.transport, "audio": self.choices.sound, "volume": self.choices.volume])
-                self.expire(after: 10, in: .starting, "The TV didn't get ready in time. Trying again…")
+                self.expire(after: 10, in: .starting, L("The TV didn't get ready in time. Trying again…"))
             } catch {
                 guard !Task.isCancelled, self.generation == generation, self.connection === session else { return }
                 self.captureFailed(error, receiver: receiver, generation: generation)
@@ -23,9 +24,8 @@ extension Session {
 
     func captureFailed(_ failure: Error, receiver: Receiver, generation: UUID) {
         let message = CaptureEngine.isPermissionDenied(failure)
-            ? "macOS hasn't allowed Sidefolk to record the screen. Turn on Sidefolk in System Settings › Privacy & Security › "
-                + "Screen & System Audio Recording, then share again. (Miraya runs inside Sidefolk, so the permission is Sidefolk's.)"
-            : "Couldn't record the screen: \(failure.localizedDescription)"
+            ? L("macOS hasn't allowed Sidefolk to record the screen. Turn on Sidefolk in System Settings › Privacy & Security › Screen & System Audio Recording, then share again. (Miraya runs inside Sidefolk, so the permission is Sidefolk's.)")
+            : L("Couldn't record the screen: {error}", ["error": Said.shown(failure.localizedDescription)])
         failed(ConnectionFailure(message: message, retryable: false), receiver: receiver, generation: generation)
     }
 
@@ -33,11 +33,11 @@ extension Session {
         deadline?.cancel(); deadline = nil
         guard mode == .mirror, phase == .starting, capture == nil, message["transport"] as? String == RTCSignaling.transport,
               let mediaID = message["session"] as? String, RTCSignaling.validSession(mediaID) else {
-            failed(ConnectionFailure(message: "The TV answered in a way this version doesn't know. Update Miraya on the TV.", retryable: false), receiver: receiver, generation: generation)
+            failed(ConnectionFailure(message: L("The TV answered in a way this version doesn't know. Update Miraya on the TV."), retryable: false), receiver: receiver, generation: generation)
             return
         }
         if let rtc {
-            guard rtc.sessionID == mediaID else { failed(ConnectionFailure(message: "The TV started a different video session.", retryable: false), receiver: receiver, generation: generation); return }
+            guard rtc.sessionID == mediaID else { failed(ConnectionFailure(message: L("The TV started a different video session."), retryable: false), receiver: receiver, generation: generation); return }
             rtc.update(quality: choices.preset, audio: choices.sound, prioritizeDetail: choices.detail)
             startCapture(session: session, receiver: receiver, generation: generation)
         } else {
@@ -46,7 +46,7 @@ extension Session {
     }
 
     private func startRTC(session: TVConnection, receiver: Receiver, generation: UUID, mediaID: String) {
-        expire(after: 12, in: .starting, "WebRTC took too long to start. Try sharing again.", retryable: false)
+        expire(after: 12, in: .starting, L("The video connection took too long to start. Try sharing again."), retryable: false)
         let quality = choices.preset, sound = choices.sound, detail = choices.detail
         lifecycle = Task { [self, weak session] in
             do {
@@ -71,11 +71,11 @@ extension Session {
                 }.value
                 guard !Task.isCancelled, let session, self.generation == generation, self.connection === session else { stream.close(); return }
                 self.rtc = stream
-                self.expire(after: 12, in: .starting, "The TV couldn't open a direct video connection. Check the local network permission, any VPN, and Wi-Fi client isolation.")
+                self.expire(after: 12, in: .starting, L("The TV couldn't open a direct video connection. Check the local network permission, any VPN, and Wi-Fi client isolation."))
                 stream.start()
             } catch {
                 guard !Task.isCancelled, let session, self.generation == generation, self.connection === session else { return }
-                self.failed(ConnectionFailure(message: "Couldn't start WebRTC: \(error.localizedDescription)", retryable: false), receiver: receiver, generation: generation)
+                self.failed(ConnectionFailure(message: L("Couldn't start the video connection: {error}", ["error": Said.shown(error.localizedDescription)]), retryable: false), receiver: receiver, generation: generation)
             }
         }
     }
@@ -101,7 +101,7 @@ extension Session {
                 guard !Task.isCancelled, self.generation == generation, self.connection === session, self.capture === engine else { await engine.stop(); return }
                 self.markCaptureRunning()
                 if self.phase == .starting {
-                    self.expire(after: 12, in: .starting, "The TV connected but hasn't shown a picture. Check the Wi-Fi and try again.")
+                    self.expire(after: 12, in: .starting, L("The TV connected but hasn't shown a picture. Check the Wi-Fi and try again."))
                 }
                 self.onChange?()
             } catch {
@@ -114,7 +114,7 @@ extension Session {
     /// Stops capture; the TV may keep the last picture. Resume starts capture again on the same connection.
     func pause() throws {
         if mode == .media { try mediaCommand("pause"); return }
-        guard phase == .sharing, let session = connection else { throw ConnectionFailure(message: "Nothing is being shared.") }
+        guard phase == .sharing, let session = connection else { throw ConnectionFailure(message: L("Nothing is being shared.")) }
         rtc?.update(quality: choices.preset, audio: choices.sound, paused: true, prioritizeDetail: choices.detail)
         let engine = capture; capture = nil; captureRunning = false
         setPhase(.pausing)
@@ -128,10 +128,10 @@ extension Session {
 
     func resume() throws {
         if mode == .media { try mediaCommand("play"); return }
-        guard phase == .paused, let session = connection else { throw ConnectionFailure(message: "Sharing isn't paused.") }
+        guard phase == .paused, let session = connection else { throw ConnectionFailure(message: L("Sharing isn't paused.")) }
         setPhase(.starting)
         session.sendControl(["op": "resume", "audio": choices.sound, "volume": choices.volume])
-        expire(after: 10, in: .starting, "The TV didn't get ready in time. Trying again…")
+        expire(after: 10, in: .starting, L("The TV didn't get ready in time. Trying again…"))
     }
 
     /// A quality or sound change while sharing: capture stops, the TV reconfigures, capture starts again; WebRTC's
@@ -146,7 +146,7 @@ extension Session {
             await engine?.stop()
             guard !Task.isCancelled, self.generation == generation, self.connection === session else { return }
             session.sendControl(["op": "reconfigure", "audio": self.choices.sound, "volume": self.choices.volume])
-            self.expire(after: 10, in: .starting, "The TV didn't get ready in time. Trying again…")
+            self.expire(after: 10, in: .starting, L("The TV didn't get ready in time. Trying again…"))
         }
     }
 
@@ -172,7 +172,10 @@ enum Screens {
             let mode = CGDisplayCopyDisplayMode(id)
             let pixels = "\(mode?.pixelWidth ?? Int(bounds.width)) × \(mode?.pixelHeight ?? Int(bounds.height))"
             let name: String
-            if CGDisplayIsBuiltin(id) != 0 { name = "Built-in display" } else { external += 1; name = external == 1 ? "External display" : "External display \(external)" }
+            if CGDisplayIsBuiltin(id) != 0 { name = L("Built-in display") } else {
+                external += 1
+                name = external == 1 ? L("External display") : L("External display {number}", ["number": external])
+            }
             return Display(id: id, name: "\(name) · \(pixels)", size: bounds.size)
         }
     }
@@ -191,13 +194,13 @@ enum Screens {
             .filter { $0.windowLayer == 0 && $0.frame.width >= 32 && $0.frame.height >= 32 }
             .map { w in
                 let app = w.owningApplication?.applicationName ?? ""
-                return Window(id: w.windowID, name: name(app: app, title: w.title), app: app.isEmpty ? "App" : app, title: w.title ?? "")
+                return Window(id: w.windowID, name: name(app: app, title: w.title), app: app.isEmpty ? L("App") : app, title: w.title ?? "")
             }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
     static func name(app: String?, title: String?) -> String {
-        let app = app?.isEmpty == false ? app! : "App"
+        let app = app?.isEmpty == false ? app! : L("App")
         guard let title, !title.isEmpty, title != app else { return app }
         return "\(app) · \(title.count > 60 ? String(title.prefix(59)) + "…" : title)"
     }

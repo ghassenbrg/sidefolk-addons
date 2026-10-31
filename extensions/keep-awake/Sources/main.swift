@@ -26,7 +26,7 @@ ext.tool("keep_awake", "Keep the Mac awake", "Keeps the Mac (and by default its 
     // The main switch (Sidefolk D67) sends its new state here; off is the same as stop_keeping_awake.
     if args.bool("on") == false {
         keeper.stop()
-        return "Done: your Mac sleeps as usual again."
+        return L("Done: your Mac sleeps as usual again.")
     }
     let now = Date()
     var s = keeper.defaults
@@ -35,13 +35,13 @@ ext.tool("keep_awake", "Keep the Mac awake", "Keeps the Mac (and by default its 
     if let m = args.int("minutes") { s.until = now.addingTimeInterval(Double(m) * 60) }
     if let h = args.double("hours") { s.until = now.addingTimeInterval(h * 3600) }
     if let text = args.string("until") {
-        guard let t = Rules.time(text, now: now) else { throw Problem("I couldn't read “\(text)” as a time, like 6pm or 18:30.") }
+        guard let t = Rules.time(text, now: now) else { throw Problem(L("I couldn't read “{text}” as a time, like 6pm or 18:30.", ["text": text])) }
         s.until = t
     }
     if let app = args.string("while_app") {
         let open = Keeper.openApps()
         guard let name = open.first(where: { $0.caseInsensitiveCompare(app) == .orderedSame }) else {
-            throw Problem("\(app) isn't open. Open it first, or say how long instead.")
+            throw Problem(L("{app} isn't open. Open it first, or say how long instead.", ["app": app]))
         }
         s.whileApp = name
     }
@@ -51,14 +51,14 @@ ext.tool("keep_awake", "Keep the Mac awake", "Keeps the Mac (and by default its 
     return AwakePage.sentence(keeper)
 }
 ext.tool("stop_keeping_awake", "Let the Mac sleep", "Ends keeping the Mac awake and the person active; it sleeps as usual again.") { _ in
-    guard keeper.session != nil else { return "Your Mac wasn't being kept awake." }
+    guard keeper.session != nil else { return L("Your Mac wasn't being kept awake.") }
     keeper.stop()
-    return "Done: your Mac sleeps as usual again."
+    return L("Done: your Mac sleeps as usual again.")
 }
 ext.tool("awake_status", "Keep Awake status", "Whether the Mac is being kept awake, until when, and how.") { _ in AwakePage.sentence(keeper) }
 ext.tool("extend", "Keep awake longer", "Adds minutes to the time the Mac is kept awake.",
          input: Schema.object(["minutes": Schema.integer("How many more minutes.", minimum: 1, maximum: 720)], required: ["minutes"])) { args in
-    guard keeper.session?.until != nil else { throw Problem("It isn't kept awake for a set time.") }
+    guard keeper.session?.until != nil else { throw Problem(L("It isn't kept awake for a set time.")) }
     keeper.extend(minutes: args.int("minutes") ?? 30)
     return AwakePage.sentence(keeper)
 }
@@ -71,18 +71,18 @@ ext.tool("set_option", "Keep Awake setting", "Turns a choice on or off: screen, 
     case "active": keeper.set { $0.active = on }
     case "plugged_only": keeper.set { $0.pluggedOnly = on }
     case "battery_floor": keeper.set { $0.batteryFloor = on ? 15 : nil }
-    default: throw Problem("There's no such setting.")
+    default: throw Problem(L("There's no such setting."))
     }
-    return on ? "Turned on." : "Turned off."
+    return on ? L("Turned on.") : L("Turned off.")
 }
 
 // Tells once when a session ends by itself (its time, the app quit), so nobody is surprised by a dark screen.
 ext.watcher("ended") { _, state in
-    guard let end = keeper.lastEnd else { return Check(triggered: false, state: [:], summary: "Nothing ended yet.") }
+    guard let end = keeper.lastEnd else { return Check(triggered: false, state: [:], summary: L("Nothing ended yet.")) }
     let stamp = end.at.timeIntervalSince1970
     let new = (state["last"] as? Double).map { stamp > $0 } ?? false
     let byItself = end.why != "You stopped it."
-    return Check(triggered: new && byItself, state: ["last": stamp], summary: "Keep Awake ended: \(end.why) Your Mac sleeps as usual again.")
+    return Check(triggered: new && byItself, state: ["last": stamp], summary: L("Keep Awake ended: {why} Your Mac sleeps as usual again.", ["why": Rules.shown(end.why)]))
 }
 
 await ext.serve()

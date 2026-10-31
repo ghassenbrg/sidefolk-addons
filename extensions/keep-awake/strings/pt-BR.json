@@ -1,0 +1,82 @@
+{
+  "name": "Manter acordado",
+  "tagline": "Seu Mac acordado e você ativo, pelo tempo que quiser",
+  "description": "Mantém seu Mac acordado, e evita que apps de chat marquem você como ausente, pelo tempo que você disser, até um horário, enquanto um app como o Zoom estiver aberto, ou até você parar. Nada se mexe na tela, e ele para na bateria ou quando a bateria fica baixa.",
+  "tools": {
+    "awake_status": {
+      "title": "Status de Manter acordado"
+    },
+    "extend": {
+      "title": "Manter acordado por mais tempo"
+    },
+    "keep_awake": {
+      "title": "Manter o Mac acordado"
+    },
+    "set_option": {
+      "title": "Ajuste de Manter acordado"
+    },
+    "stop_keeping_awake": {
+      "title": "Deixar o Mac dormir"
+    }
+  },
+  "watchers": {
+    "ended": {
+      "title": "Manter acordado terminou",
+      "description": "Avisa quando manter o Mac acordado termina sozinho: o tempo acabou ou o app que ele esperava foi fechado."
+    }
+  },
+  "pages": {
+    "awake": {
+      "title": "Manter acordado"
+    }
+  },
+  "text": {
+    "1 hour": "1 hora",
+    "2 hours": "2 horas",
+    "30 min more": "Mais 30 min",
+    "Ask for more": "Pedir mais",
+    "Awake until you stop it": "Acordado até você parar",
+    "Awake until {time}": "Acordado até {time}",
+    "Awake while {app} is open": "Acordado enquanto {app} estiver aberto",
+    "Done: your Mac sleeps as usual again.": "Pronto: seu Mac volta a dormir como de costume.",
+    "How": "Como",
+    "I couldn't read “{text}” as a time, like 6pm or 18:30.": "Não consegui ler “{text}” como um horário, como 6pm ou 18:30.",
+    "It isn't kept awake for a set time.": "Ele não está sendo mantido acordado por um tempo definido.",
+    "Its time is up.": "O tempo acabou.",
+    "Keep Awake ended: {why} Your Mac sleeps as usual again.": "Manter acordado terminou: {why} Seu Mac volta a dormir como de costume.",
+    "Keep Awake is on but waiting: {why}": "Manter acordado está ativado, mas aguardando: {why}",
+    "Keep awake": "Manter acordado",
+    "Keep me active for an hour": "Me manter ativo por uma hora",
+    "Keep me active in chat apps": "Me manter ativo nos apps de chat",
+    "Keep the screen on": "Manter a tela ligada",
+    "Last time: {why} ({time})": "Da última vez: {why} ({time})",
+    "Let go when the battery is under {percent}": "Liberar quando a bateria estiver abaixo de {percent}",
+    "Nothing ended yet.": "Nada terminou ainda.",
+    "Off: the Mac stays awake (downloads, builds) and the screen may sleep.": "Desligado: o Mac fica acordado (downloads, builds) e a tela pode dormir.",
+    "On battery it waits, and holds again when you plug in.": "Na bateria ele espera e volta a segurar quando você conectar à energia.",
+    "Only while plugged in": "Só quando conectado à energia",
+    "Screen may sleep": "A tela pode dormir",
+    "Screen on": "Tela ligada",
+    "So keeping it awake never empties it.": "Assim mantê-lo acordado nunca esgota a bateria.",
+    "Stop": "Parar",
+    "The battery is below {percent}, so it's letting the Mac rest.": "A bateria está abaixo de {percent}, então o Mac pode descansar.",
+    "There's no such setting.": "Esse ajuste não existe.",
+    "Turned off.": "Desativado.",
+    "Turned on.": "Ativado.",
+    "Until {time}": "Até {time}",
+    "Waiting": "Aguardando",
+    "Waiting to be plugged in.": "Aguardando ser conectado à energia.",
+    "While Zoom is open": "Enquanto o Zoom estiver aberto",
+    "While you're away, Sidefolk moves the pointer by nothing about once a minute, so Slack, Teams and Zoom don't mark you away. You won't see it move.": "Enquanto você está ausente, o Sidefolk move o ponteiro por distância nenhuma cerca de uma vez por minuto, para que Slack, Teams e Zoom não marquem você como ausente. Você não vai vê-lo se mexer.",
+    "You stopped it.": "Você parou.",
+    "Your Mac isn't being kept awake; it sleeps as usual.": "Seu Mac não está sendo mantido acordado; ele dorme como de costume.",
+    "Your Mac sleeps as usual": "Seu Mac dorme como de costume",
+    "Your Mac wasn't being kept awake.": "Seu Mac não estava sendo mantido acordado.",
+    "only plugged in": "só conectado à energia",
+    "showing you active": "mostrando você ativo",
+    "showing you active ({count}× so far)": "mostrando você ativo ({count}× até agora)",
+    "{app} isn't open. Open it first, or say how long instead.": "{app} não está aberto. Abra-o primeiro ou diga por quanto tempo.",
+    "{app} quit.": "{app} foi fechado.",
+    "{time} left": "faltam {time}"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Archive",
+  "tagline": "ZIP-Dateien erstellen und entpacken",
+  "description": "Packt Dateien und Ordner zum Versenden in ZIP-Dateien und öffnet ZIP-Dateien, die du bekommst, mit den Werkzeugen von macOS.",
+  "tools": {
+    "unzip": {
+      "title": "Eine ZIP-Datei öffnen"
+    },
+    "zip": {
+      "title": "Eine ZIP-Datei erstellen"
+    }
+  },
+  "text": {
+    "It couldn't be unpacked: {error}": "Es ließ sich nicht entpacken: {error}",
+    "Made {zip} ({size}) with {what}.": "{zip} erstellt ({size}) mit {what}.",
+    "Name at least one file or folder to zip.": "Nenne mindestens eine Datei oder einen Ordner zum Zippen.",
+    "The zip couldn't be made: {error}": "Das Zip ließ sich nicht erstellen: {error}",
+    "There's no “{name}” in {folder}.": "In {folder} gibt es kein „{name}“.",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "one": "{zip} nach {folder} entpackt ({count} Objekt auf oberster Ebene).",
+      "other": "{zip} nach {folder} entpackt ({count} Objekte auf oberster Ebene)."
+    },
+    "{count} items": {
+      "one": "{count} Objekt",
+      "other": "{count} Objekten"
+    },
+    "“{name}” should be just a name of something in {folder}.": "„{name}“ sollte nur der Name von etwas in {folder} sein."
+  }
+}

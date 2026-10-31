@@ -1,0 +1,55 @@
+{
+  "name": "أدوات PDF",
+  "tagline": "قراءة ملفات PDF ودمجها وتقسيمها",
+  "description": "تفاصيل ملف PDF ونصه، ودمج عدة ملفات PDF في ملف واحد، وحفظ بعض صفحاتها في ملف PDF جديد. تبقى ملفاتك الأصلية كما هي.",
+  "tools": {
+    "combine_pdfs": {
+      "title": "دمج ملفات PDF"
+    },
+    "extract_pages": {
+      "title": "إخراج صفحات من ملف PDF"
+    },
+    "pdf_info": {
+      "title": "تفاصيل PDF"
+    },
+    "pdf_text": {
+      "title": "قراءة نص ملف PDF"
+    }
+  },
+  "text": {
+    ", ": "، ",
+    "Combined {count} PDFs ({pages}) into {file}.": "دُمجت {count} ملفات PDF ({pages}) في {file}.",
+    "Cut at {count} characters: ask for later pages.": "قُطع عند {count} حرف: اطلب الصفحات التالية.",
+    "Name at least two PDFs in that folder, in the order they go.": "سمِّ ملفّي PDF على الأقل في ذلك المجلد، بالترتيب المطلوب.",
+    "Saved {count} pages of {file} as {saved}.": {
+      "zero": "لم تُحفظ أي صفحة من {file} باسم {saved}.",
+      "one": "حُفظت صفحة واحدة من {file} باسم {saved}.",
+      "two": "حُفظت صفحتان من {file} باسم {saved}.",
+      "few": "حُفظت {count} صفحات من {file} باسم {saved}.",
+      "many": "حُفظت {count} صفحة من {file} باسم {saved}.",
+      "other": "حُفظت {count} صفحة من {file} باسم {saved}."
+    },
+    "The PDF has pages 1 to {count}; “{pages}” is outside that.": "صفحات ملف PDF من 1 إلى {count}؛ و«{pages}» خارجها.",
+    "The combined PDF couldn't be saved.": "تعذّر حفظ ملف PDF المدموج.",
+    "The new PDF couldn't be saved.": "تعذّر حفظ ملف PDF الجديد.",
+    "There's no text on those pages (they may be scanned images).": "لا نص في تلك الصفحات (قد تكون صورًا ممسوحة).",
+    "Write pages like 1-3, 5, 8-.": "اكتب الصفحات مثل 1-3, 5, 8-.",
+    "by {author}": "بقلم {author}",
+    "encrypted": "مشفّر",
+    "it has text": "يحتوي على نص",
+    "no text in it (scanned pages, perhaps)": "لا نص فيه (صفحات ممسوحة، ربما)",
+    "title “{title}”": "العنوان «{title}»",
+    "{count} pages": {
+      "zero": "{count} صفحة",
+      "one": "صفحة واحدة",
+      "two": "صفحتان",
+      "few": "{count} صفحات",
+      "many": "{count} صفحة",
+      "other": "{count} صفحة"
+    },
+    "{file} is locked with a password.": "{file} مقفل بكلمة سر.",
+    "{file} isn't a PDF I can read.": "{file} ليس ملف PDF يمكن قراءته.",
+    "{paper}, landscape": "{paper}، أفقي",
+    "“{file}” should be just a file name in {folder}.": "يجب أن يكون «{file}» مجرد اسم ملف في {folder}."
+  }
+}

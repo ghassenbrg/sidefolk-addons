@@ -1,11 +1,12 @@
 import Foundation
+import SidefolkExtensionKit
 
 /// "Play video on TV", as in the Mac app: the TV plays the original file, reading it in pieces over the same pinned TLS
 /// connection (no server on the Mac), or fetches an HTTPS address itself. Nothing is captured or re-encoded.
 extension Session {
     func startMedia(session: TVConnection, receiver: Receiver, generation: UUID) {
         guard supportsDirectMedia else {
-            failed(ConnectionFailure(message: "Update Miraya on the TV to play videos on it.", retryable: false), receiver: receiver, generation: generation); return
+            failed(ConnectionFailure(message: L("Update Miraya on the TV to play videos on it."), retryable: false), receiver: receiver, generation: generation); return
         }
         guard let media else { return }
         files.close(); mediaLoadID = UUID().uuidString.lowercased()
@@ -29,9 +30,9 @@ extension Session {
             message["assets"] = assets
             setPhase(.starting)
             session.sendControl(message)
-            expire(after: 30, in: .starting, "The TV didn't start playing within 30 seconds. Check the video's format and address.", retryable: false)
+            expire(after: 30, in: .starting, L("The TV didn't start playing within {seconds} seconds. Check the video's format and address.", ["seconds": 30]), retryable: false)
         } catch {
-            failed(ConnectionFailure(message: "Couldn't open that video. Choose the file or HTTPS address again.", retryable: false), receiver: receiver, generation: generation)
+            failed(ConnectionFailure(message: L("Couldn't open that video. Choose the file or HTTPS address again."), retryable: false), receiver: receiver, generation: generation)
         }
     }
 
@@ -42,13 +43,13 @@ extension Session {
     }
 
     func mediaCommand(_ action: String, extra: [String: Any] = [:]) throws {
-        guard mode == .media, !mediaLoadID.isEmpty, [.sharing, .paused].contains(phase) else { throw ConnectionFailure(message: "Nothing is playing on the TV.") }
+        guard mode == .media, !mediaLoadID.isEmpty, [.sharing, .paused].contains(phase) else { throw ConnectionFailure(message: L("Nothing is playing on the TV.")) }
         var message = extra; message["op"] = "mediaCommand"; message["loadId"] = mediaLoadID; message["action"] = action
         connection?.sendControl(message)
     }
 
     func seek(by seconds: Double) throws {
-        guard mediaSeekable else { throw ConnectionFailure(message: "This video can't jump ahead or back.") }
+        guard mediaSeekable else { throw ConnectionFailure(message: L("This video can't jump ahead or back.")) }
         let target = max(0, min(mediaDuration, mediaPosition + seconds))
         try mediaCommand("seek", extra: ["positionMs": Int64(target * 1000)])
     }

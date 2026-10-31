@@ -50,9 +50,9 @@ struct SystemVitalsPlusTests {
     @Test func numbersReadAsPeopleExpect() {
         #expect(Words.memory(24 * 1_073_741_824) == "24 GB")
         #expect(Words.memory(15.6 * 1_073_741_824) == "15.6 GB")
-        #expect(Words.bytes(494e9) == "494 GB" && Words.bytes(51e9) == "51.0 GB" && Words.bytes(640e6) == "640 MB")
-        #expect(Words.rate(1.45e6) == "1.4 MB/s" && Words.rate(300) == "under 1 KB/s" && Words.rate(0) == "0 KB/s")
-        #expect(Words.duration(3 * 86_400 + 4 * 3600) == "3 days 4 hours" && Words.duration(3720) == "1 hour 2 minutes")
+        #expect(Words.bytes(494e9) == "494 GB" && Words.bytes(51e9) == "51 GB" && Words.bytes(51.26e9) == "51.3 GB" && Words.bytes(640e6) == "640 MB")
+        #expect(Words.rate(1.45e6) == "1.5 MB/s" && Words.rate(300) == "under 1 kB/s" && Words.rate(0) == "0 bytes/s")
+        #expect(Words.duration(3 * 86_400 + 4 * 3600) == "3 days, 4 hours" && Words.duration(3720) == "1 hour, 2 minutes")
         #expect(Words.cores(Self.snapshot().specs) == "10 cores (4 performance, 6 efficiency)")
         #expect(Probe.appName("/Applications/Google Chrome.app/Contents/Frameworks/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/x") == "Google Chrome")
         #expect(Probe.appName("/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer") == "WindowServer")
@@ -64,7 +64,7 @@ struct SystemVitalsPlusTests {
         #expect(Answers.cpu(s).contains("across 10 cores (4 performance, 6 efficiency)") && Answers.cpu(s).contains("Busiest: Xcode 60%, Safari 15%"))
         #expect(!Answers.cpu(s).contains("idle"), "an app using next to nothing isn't listed")
         #expect(Answers.memory(s).hasPrefix("12.1 GB of 24 GB in use; memory pressure is normal"))
-        #expect(Answers.battery(s).hasPrefix("Battery at 64%, on battery, 3 h 20 min left. Health: 95% of new · Normal."))
+        #expect(Answers.battery(s).hasPrefix("Battery at 64%, on battery, 3 hr, 20 min left. Health: 95% of new · Normal."))
         #expect(Answers.network(s).hasPrefix("This Mac's address on the network is 192.168.1.4 (en0)."))
         #expect(Answers.battery(Self.snapshot()) == "This Mac has no battery; it runs on power from the wall.")
     }

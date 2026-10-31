@@ -1,0 +1,28 @@
+{
+  "name": "订阅源",
+  "tagline": "博客、新闻和播客的新文章",
+  "description": "通过 RSS 或 Atom 订阅源获取博客、新闻网站和播客的最新文章，有新文章时提醒你。",
+  "tools": {
+    "read_feed": {
+      "title": "最新文章"
+    }
+  },
+  "watchers": {
+    "new_post": {
+      "title": "新文章",
+      "description": "博客、新闻网站或播客发布新内容时提醒你。"
+    }
+  },
+  "text": {
+    ", ": "，",
+    "Give the feed's or the site's web address, like https://example.com/blog.": "请提供订阅源或网站的网址，例如 https://example.com/blog。",
+    "I couldn't find an RSS or Atom feed at {address}.": "在 {address} 没有找到 RSS 或 Atom 订阅源。",
+    "New on {feed}: {posts} and {count} more.": "{feed} 有新内容：{posts}，另有 {count} 篇。",
+    "New on {feed}: {posts}.": "{feed} 有新内容：{posts}。",
+    "No new posts on {feed}.": "{feed} 没有新内容。",
+    "The feed": "订阅源",
+    "untitled": "无标题",
+    "{feed} has no posts yet.": "{feed} 还没有内容。",
+    "{feed}, latest {count}:": "{feed}，最新 {count} 篇："
+  }
+}

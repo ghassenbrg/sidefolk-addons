@@ -1,0 +1,43 @@
+{
+  "name": "Images",
+  "tagline": "Détails de photos et copies converties",
+  "description": "Les détails d’une photo, et des copies d’images converties en JPEG, PNG ou HEIC, réduites, ou sans leur position. Vos originaux restent tels quels.",
+  "tools": {
+    "convert_images": {
+      "title": "Convertir des images"
+    },
+    "image_info": {
+      "title": "Détails d’une image"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "one": "{count} copie créée dans {folder} ({how}) : {sizes}.",
+      "other": "{count} copies créées dans {folder} ({how}) : {sizes}."
+    },
+    "Nothing was converted.": "Rien n’a été converti.",
+    "Skipped {count}:": "{count} ignorés :",
+    "That's {count} pictures; do at most 200 at a time.": "Cela fait {count} images ; traitez-en 200 au plus à la fois.",
+    "There are no pictures in {folder}.": "Il n’y a pas d’images dans {folder}.",
+    "at most {size} px": "{size} px au plus",
+    "it couldn't be decoded": "elle n’a pas pu être décodée",
+    "it couldn't be written": "elle n’a pas pu être écrite",
+    "it records where it was taken (location)": "elle enregistre le lieu de prise de vue (position)",
+    "location removed": "position retirée",
+    "no location in it": "aucune position dedans",
+    "not a picture I can read": "pas une image lisible",
+    "taken {when}": "prise le {when}",
+    "that format can't be written": "ce format ne peut pas être écrit",
+    "their own format": "leur propre format",
+    "with {camera}": "avec {camera}",
+    "{count} frames": {
+      "one": "{count} image",
+      "other": "{count} images"
+    },
+    "{file} isn't a picture I can read.": "{file} n’est pas une image lisible.",
+    "{file}: not a file in that folder": "{file} : pas un fichier de ce dossier",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file} : {width} × {height} px ({megapixels} mégapixels)",
+    "{folder} isn't a folder.": "{folder} n’est pas un dossier."
+  }
+}

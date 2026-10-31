@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 import Network
 
 /// A TV running Miraya: found on the network now, saved after pairing, or both.
@@ -39,12 +40,12 @@ final class Discovery: @unchecked Sendable {
                 guard let self else { return }
                 switch state {
                 case .failed(let error):
-                    self.problem = "Looking for TVs stopped: \(error.localizedDescription)"
+                    self.problem = L("Looking for TVs stopped: {error}", ["error": error.localizedDescription])
                     self.browser?.cancel(); self.browser = nil
                     // The network may come back (Wi-Fi rejoined): look again a little later.
                     self.queue.asyncAfter(deadline: .now() + 10) { self.start() }
                 case .waiting(let error):
-                    self.problem = "Can't look for TVs on this network: \(error.localizedDescription). Allow Sidefolk in Privacy & Security › Local Network."
+                    self.problem = L("Can't look for TVs on this network: {error}. Allow Sidefolk in Privacy & Security › Local Network.", ["error": error.localizedDescription])
                 case .ready:
                     self.problem = nil
                 default: break

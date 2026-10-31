@@ -1,0 +1,29 @@
+{
+  "name": "Arquivos compactados",
+  "tagline": "Compactar e descompactar arquivos",
+  "description": "Compacta arquivos e pastas para enviar e abre os arquivos zip que você recebe, com as ferramentas do macOS.",
+  "tools": {
+    "unzip": {
+      "title": "Abrir um arquivo zip"
+    },
+    "zip": {
+      "title": "Criar um arquivo zip"
+    }
+  },
+  "text": {
+    "It couldn't be unpacked: {error}": "Não foi possível descompactar: {error}",
+    "Made {zip} ({size}) with {what}.": "{zip} criado ({size}) com {what}.",
+    "Name at least one file or folder to zip.": "Diga pelo menos um arquivo ou pasta para compactar.",
+    "The zip couldn't be made: {error}": "Não foi possível criar o zip: {error}",
+    "There's no “{name}” in {folder}.": "Não há “{name}” em {folder}.",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "one": "{zip} descompactado em {folder} ({count} item no nível superior).",
+      "other": "{zip} descompactado em {folder} ({count} itens no nível superior)."
+    },
+    "{count} items": {
+      "one": "{count} item",
+      "other": "{count} itens"
+    },
+    "“{name}” should be just a name of something in {folder}.": "“{name}” deve ser só o nome de algo em {folder}."
+  }
+}

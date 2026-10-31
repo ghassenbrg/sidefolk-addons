@@ -1,0 +1,45 @@
+{
+  "name": "PDF 工具",
+  "tagline": "读取、合并和拆分 PDF",
+  "description": "PDF 的信息和文字，把多个 PDF 合并成一个，以及把部分页面另存为新的 PDF。原始文件保持不变。",
+  "tools": {
+    "combine_pdfs": {
+      "title": "合并 PDF"
+    },
+    "extract_pages": {
+      "title": "从 PDF 中取出页面"
+    },
+    "pdf_info": {
+      "title": "PDF 信息"
+    },
+    "pdf_text": {
+      "title": "读取 PDF 的文字"
+    }
+  },
+  "text": {
+    ", ": "，",
+    "Combined {count} PDFs ({pages}) into {file}.": "已将 {count} 个 PDF（{pages}）合并为 {file}。",
+    "Cut at {count} characters: ask for later pages.": "已截断到 {count} 个字符：请求后面的页面。",
+    "Name at least two PDFs in that folder, in the order they go.": "请按顺序列出该文件夹中至少两个 PDF。",
+    "Saved {count} pages of {file} as {saved}.": {
+      "other": "已将 {file} 的 {count} 页存为 {saved}。"
+    },
+    "The PDF has pages 1 to {count}; “{pages}” is outside that.": "该 PDF 共 1 至 {count} 页；“{pages}”超出了范围。",
+    "The combined PDF couldn't be saved.": "无法保存合并后的 PDF。",
+    "The new PDF couldn't be saved.": "无法保存新的 PDF。",
+    "There's no text on those pages (they may be scanned images).": "这些页面上没有文本（可能是扫描图像）。",
+    "Write pages like 1-3, 5, 8-.": "页码请写成 1-3, 5, 8- 这样的形式。",
+    "by {author}": "作者 {author}",
+    "encrypted": "已加密",
+    "it has text": "含文本",
+    "no text in it (scanned pages, perhaps)": "不含文本（可能是扫描页面）",
+    "title “{title}”": "标题“{title}”",
+    "{count} pages": {
+      "other": "{count} 页"
+    },
+    "{file} is locked with a password.": "{file} 已用密码锁定。",
+    "{file} isn't a PDF I can read.": "{file} 不是能读取的 PDF。",
+    "{paper}, landscape": "{paper}，横向",
+    "“{file}” should be just a file name in {folder}.": "“{file}”应只是 {folder} 中的文件名。"
+  }
+}

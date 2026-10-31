@@ -1,0 +1,28 @@
+{
+  "name": "Flux",
+  "tagline": "Nouveaux articles de blogs, médias et podcasts",
+  "description": "Les derniers articles de blogs, de sites d’actualité et de podcasts via leurs flux RSS ou Atom, et une alerte quand un nouveau paraît.",
+  "tools": {
+    "read_feed": {
+      "title": "Derniers articles"
+    }
+  },
+  "watchers": {
+    "new_post": {
+      "title": "Nouvel article",
+      "description": "Vous prévient quand un blog, un site d’actualité ou un podcast publie quelque chose de nouveau."
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Give the feed's or the site's web address, like https://example.com/blog.": "Indiquez l’adresse web du flux ou du site, comme https://example.com/blog.",
+    "I couldn't find an RSS or Atom feed at {address}.": "Aucun flux RSS ou Atom trouvé à {address}.",
+    "New on {feed}: {posts} and {count} more.": "Nouveau sur {feed} : {posts} et {count} de plus.",
+    "New on {feed}: {posts}.": "Nouveau sur {feed} : {posts}.",
+    "No new posts on {feed}.": "Pas de nouveaux articles sur {feed}.",
+    "The feed": "Le flux",
+    "untitled": "sans titre",
+    "{feed} has no posts yet.": "{feed} n’a encore aucun article.",
+    "{feed}, latest {count}:": "{feed}, les {count} derniers :"
+  }
+}

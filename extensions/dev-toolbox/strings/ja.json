@@ -1,0 +1,59 @@
+{
+  "name": "開発者ツール",
+  "tagline": "JSON、base64、JWT、UUIDなど",
+  "description": "開発者向け：JSONの整形、base64・URL・16進数のエンコードとデコード、JWTのデコード、タイムスタンプの変換、UUIDの作成、ファイルのチェックサムの確認。",
+  "tools": {
+    "checksum": {
+      "title": "ファイルのチェックサム"
+    },
+    "generate": {
+      "title": "IDを生成"
+    },
+    "timestamp": {
+      "title": "タイムスタンプを変換"
+    },
+    "transform": {
+      "title": "テキストを変換"
+    }
+  },
+  "text": {
+    ", ": "、",
+    "A JWT has three parts separated by dots.": "JWTはドットで区切られた3つの部分からなります。",
+    "Claims": "クレーム",
+    "Expires": "有効期限",
+    "Generate a uuid or a token.": "uuid か token を生成してください。",
+    "Give Unix time (1730000000 or milliseconds) or an ISO 8601 date (2026-10-28T09:30:00Z).": "Unix時刻（1730000000 またはミリ秒）か ISO 8601 の日付（2026-10-28T09:30:00Z）を指定してください。",
+    "Header": "ヘッダー",
+    "Here: {date}": "ここ：{date}",
+    "Issued": "発行",
+    "Not text: {size} ({hex}).": "テキストではありません：{size}（{hex}）。",
+    "Operations: {names}.": "操作：{names}。",
+    "That isn't base64.": "base64 ではありません。",
+    "That isn't hexadecimal.": "16進数ではありません。",
+    "That isn't valid JSON": "有効な JSON ではありません",
+    "That isn't valid JSON: a comma before a closing bracket, at character {position}.": "有効な JSON ではありません：{position}文字目で閉じ括弧の前にカンマがあります。",
+    "That isn't valid URL encoding.": "有効な URL エンコードではありません。",
+    "The signature is not checked.": "署名は検証していません。",
+    "Unix time {seconds} (milliseconds {milliseconds})": "Unix時刻 {seconds}（ミリ秒 {milliseconds}）",
+    "Valid from": "有効開始",
+    "expired": "期限切れ",
+    "still valid": "有効",
+    "{algorithm} of {file}:": "{file}の{algorithm}：",
+    "{count} bytes": {
+      "other": "{count}バイト"
+    },
+    "{count} bytes in UTF-8": {
+      "other": "UTF-8で{count}バイト"
+    },
+    "{count} characters": {
+      "other": "{count}文字"
+    },
+    "{count} lines": {
+      "other": "{count}行"
+    },
+    "{count} words": {
+      "other": "{count}語"
+    },
+    "{file} can't be read.": "{file}を読み取れません。"
+  }
+}

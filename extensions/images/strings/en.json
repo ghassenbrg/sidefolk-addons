@@ -1,0 +1,32 @@
+{
+  "text": {
+    ", ": ", ",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "one": "Made {count} copy in {folder} ({how}): {sizes}.",
+      "other": "Made {count} copies in {folder} ({how}): {sizes}."
+    },
+    "Nothing was converted.": "Nothing was converted.",
+    "Skipped {count}:": "Skipped {count}:",
+    "That's {count} pictures; do at most 200 at a time.": "That's {count} pictures; do at most 200 at a time.",
+    "There are no pictures in {folder}.": "There are no pictures in {folder}.",
+    "at most {size} px": "at most {size} px",
+    "it couldn't be decoded": "it couldn't be decoded",
+    "it couldn't be written": "it couldn't be written",
+    "it records where it was taken (location)": "it records where it was taken (location)",
+    "location removed": "location removed",
+    "no location in it": "no location in it",
+    "not a picture I can read": "not a picture I can read",
+    "taken {when}": "taken {when}",
+    "that format can't be written": "that format can't be written",
+    "their own format": "their own format",
+    "with {camera}": "with {camera}",
+    "{count} frames": {
+      "one": "{count} frame",
+      "other": "{count} frames"
+    },
+    "{file} isn't a picture I can read.": "{file} isn't a picture I can read.",
+    "{file}: not a file in that folder": "{file}: not a file in that folder",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} px ({megapixels} megapixels)",
+    "{folder} isn't a folder.": "{folder} isn't a folder."
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "name": "Zwischenablage",
+  "tagline": "Alles, was du kopierst, nur ein Kurzbefehl entfernt",
+  "description": "Alles, was du kopierst, per Kurzbefehl aus jeder App: Text mit Formatierung, Links, Bilder, Dateien und Code, durchsuchbar und anheftbar. Kopien aus Passwortmanagern werden nie behalten; Schlüssel und Kartennummern werden verborgen und nach zwei Minuten vergessen. Nichts verlässt deinen Mac.",
+  "tools": {
+    "clear_history": {
+      "title": "Verlauf löschen"
+    },
+    "copy_again": {
+      "title": "Erneut kopieren"
+    },
+    "ignore": {
+      "title": "Kopien ignorieren"
+    },
+    "pause": {
+      "title": "Verlauf pausieren"
+    },
+    "recent_copies": {
+      "title": "Letzte Kopien"
+    },
+    "resume": {
+      "title": "Verlauf fortsetzen"
+    },
+    "search_copies": {
+      "title": "Kopien durchsuchen"
+    },
+    "set_option": {
+      "title": "Einstellung der Zwischenablage"
+    },
+    "skip_next": {
+      "title": "Nächste Kopie überspringen"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "Zwischenablage"
+    }
+  },
+  "palettes": {
+    "history": {
+      "title": "Zwischenablage",
+      "placeholder": "Durchsuche, was du kopiert hast"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "A clipboard type is one word, like public.png.": "Ein Zwischenablage-Typ ist ein Wort, etwa public.png.",
+    "A regular expression: {example} leaves out six-digit codes.": "Ein regulärer Ausdruck: {example} lässt sechsstellige Codes weg.",
+    "Also left out": "Ebenfalls ausgelassen",
+    "App": "App",
+    "App name or bundle id": "App-Name oder Bundle-ID",
+    "Apps": "Apps",
+    "Ask about it": "Nachfragen",
+    "At the bottom": "Unten",
+    "Choosing a copy": "Eine Kopie wählen",
+    "Clear history": "Verlauf löschen",
+    "Clear pinned too": "Auch angeheftete löschen",
+    "Cleared, pinned copies too.": "Gelöscht, angeheftete Kopien auch.",
+    "Cleared.": "Gelöscht.",
+    "Cleared. Pinned copies stay.": "Gelöscht. Angeheftete Kopien bleiben.",
+    "Cleared. {count} pinned copies stay.": {
+      "one": "Gelöscht. {count} angeheftete Kopie bleibt.",
+      "other": "Gelöscht. {count} angeheftete Kopien bleiben."
+    },
+    "Clipboard type": "Zwischenablage-Typ",
+    "Code": "Code",
+    "Copied": "Kopiert",
+    "Copies": "Kopien",
+    "Copies from {app} are kept again.": "Kopien aus {app} werden wieder behalten.",
+    "Copies from {app} aren't kept from now on.": "Kopien aus {app} werden ab jetzt nicht mehr behalten.",
+    "Copies marked {type} are kept again.": "Als {type} markierte Kopien werden wieder behalten.",
+    "Copies marked {type} aren't kept from now on.": "Als {type} markierte Kopien werden ab jetzt nicht mehr behalten.",
+    "Copies matching {pattern} are kept again.": "Kopien, die zu {pattern} passen, werden wieder behalten.",
+    "Copies matching {pattern} aren't kept from now on.": "Kopien, die zu {pattern} passen, werden ab jetzt nicht mehr behalten.",
+    "Copies, pinned ones aside. The oldest go first.": "Kopien, angeheftete nicht mitgezählt. Die ältesten gehen zuerst.",
+    "Copy": "Kopieren",
+    "Done.": "Erledigt.",
+    "Exact": "Genau",
+    "Files": "Dateien",
+    "Files copied in Finder, by their place.": "Im Finder kopierte Dateien, über ihren Ort.",
+    "Find a link I copied": "Einen kopierten Link finden",
+    "First copied": "Zuerst kopiert",
+    "Fonts, colours and links that came with copied text.": "Schriften, Farben und Links, die mit kopiertem Text kamen.",
+    "For apps that mark what they copy: com.apple.is-remote-clipboard leaves out your iPhone's copies.": "Für Apps, die ihre Kopien markieren: com.apple.is-remote-clipboard lässt die Kopien deines iPhone weg.",
+    "Forgotten": "Vergessen",
+    "Formatting": "Formatierung",
+    "From": "Aus",
+    "Fuzzy": "Unscharf",
+    "Hide passwords, keys and card numbers": "Passwörter, Schlüssel und Kartennummern verbergen",
+    "History": "Verlauf",
+    "I couldn't find that copy.": "Diese Kopie habe ich nicht gefunden.",
+    "Ignore": "Ignorieren",
+    "Ignore a clipboard type": "Einen Zwischenablage-Typ ignorieren",
+    "Ignore an app": "Eine App ignorieren",
+    "Ignore text that matches": "Passenden Text ignorieren",
+    "Ignore {app}": "{app} ignorieren",
+    "In the order the palette shows them. Copy puts one back on the clipboard.": "In der Reihenfolge der Palette. Kopieren legt eine wieder in die Zwischenablage.",
+    "Its name or bundle id, like 1Password or com.apple.keychainaccess.": "Ihr Name oder ihre Bundle-ID, etwa 1Password oder com.apple.keychainaccess.",
+    "Keep a history of what I copy": "Verlauf meiner Kopien behalten",
+    "Keep files": "Dateien behalten",
+    "Keep formatting": "Formatierung behalten",
+    "Keep it": "Behalten",
+    "Keep pictures": "Bilder behalten",
+    "Keep up to": "Behalten bis zu",
+    "Keep up to {limits} copies.": "Behalte bis zu {limits} Kopien.",
+    "Keeping up to {count} copies.": {
+      "one": "Behält bis zu {count} Kopie.",
+      "other": "Behält bis zu {count} Kopien."
+    },
+    "Keeping your copies": "Behält deine Kopien",
+    "Keeping your copies again.": "Deine Kopien werden wieder behalten.",
+    "Last copied": "Zuletzt kopiert",
+    "Latest": "Neueste",
+    "Leave out": "Auslassen",
+    "Length": "Länge",
+    "Links": "Links",
+    "Most copied": "Am häufigsten kopiert",
+    "No copy matches “{query}”.": "Keine Kopie passt zu „{query}“.",
+    "Not keeping a history": "Kein Verlauf",
+    "Nothing copied yet.": "Noch nichts kopiert.",
+    "On the clipboard again: {copy}.": "Wieder in der Zwischenablage: {copy}.",
+    "On top": "Oben",
+    "Only copies it": "Kopiert sie nur",
+    "Order": "Reihenfolge",
+    "Passwords from password managers are never kept.": "Passwörter aus Passwortmanagern werden nie behalten.",
+    "Pastes it": "Fügt sie ein",
+    "Pattern": "Muster",
+    "Pause {time}": "{time} pausieren",
+    "Paused until {time}": "Pausiert bis {time}",
+    "Paused until {time}: nothing you copy is kept until then.": "Pausiert bis {time}: Bis dahin wird nichts behalten, was du kopierst.",
+    "Picture": "Bild",
+    "Pictures": "Bilder",
+    "Pinned": "Angeheftet",
+    "Pinned copies": "Angeheftete Kopien",
+    "Pinned copies go top or bottom.": "Angeheftete Kopien stehen oben oder unten.",
+    "Remove": "Entfernen",
+    "Remove it": "Entfernen",
+    "Resume now": "Jetzt fortsetzen",
+    "Return": "Return",
+    "Rich text and web formatting, pasted back unless you ask for plain text.": "Formatierter Text und Webformatierung, beim Einfügen erhalten, außer du willst reinen Text.",
+    "Save my last copy to notes": "Meine letzte Kopie in Notizen sichern",
+    "Say which app, pattern or clipboard type.": "Sag, welche App, welches Muster oder welchen Zwischenablage-Typ.",
+    "Screenshots and copied images, {count} at most.": "Bildschirmfotos und kopierte Bilder, höchstens {count}.",
+    "Search": "Suche",
+    "Search is words, exact, fuzzy or regex.": "Die Suche ist words, exact, fuzzy oder regex.",
+    "Size": "Größe",
+    "Skip my next copy": "Meine nächste Kopie auslassen",
+    "Skipping your next copy": "Deine nächste Kopie wird ausgelassen",
+    "Text matching": "Passender Text",
+    "That copy is gone.": "Diese Kopie gibt es nicht mehr.",
+    "That isn't a pattern Clipboard can read.": "Dieses Muster kann Zwischenablage nicht lesen.",
+    "That's too long for an app's name.": "Das ist zu lang für einen App-Namen.",
+    "The app in front when you copied.": "Die App im Vordergrund, als du kopiert hast.",
+    "The order is recent, first or count.": "Die Reihenfolge ist recent, first oder count.",
+    "There's no such setting.": "Diese Einstellung gibt es nicht.",
+    "They show as dots, stay in memory only and are forgotten after two minutes.": "Sie erscheinen als Punkte, bleiben nur im Arbeitsspeicher und werden nach zwei Minuten vergessen.",
+    "Today {time}": "Heute {time}",
+    "Turned off.": "Ausgeschaltet.",
+    "Turned on.": "Eingeschaltet.",
+    "Type": "Typ",
+    "What choosing a copy does. Option-Return does the other; Shift-Return pastes plain text.": "Was die Wahl einer Kopie tut. Wahl-Return tut das andere; Umschalt-Return fügt reinen Text ein.",
+    "What did I copy today?": "Was habe ich heute kopiert?",
+    "What it holds": "Was er enthält",
+    "Where your copies come from": "Woher deine Kopien kommen",
+    "Words": "Wörter",
+    "Words: all of them, anywhere. Fuzzy: the letters in order. Pattern: a regular expression.": "Wörter: alle, irgendwo. Unscharf: die Buchstaben der Reihe nach. Muster: ein regulärer Ausdruck.",
+    "Your next copy won't be kept.": "Deine nächste Kopie wird nicht behalten.",
+    "copied {count}×": "{count}× kopiert",
+    "forgotten in {time}": "vergessen in {time}",
+    "in {time}": "in {time}",
+    "just now": "gerade eben",
+    "kept (⇧↩ pastes without it)": "behalten (⇧↩ fügt ohne ein)",
+    "kept for good": "dauerhaft behalten",
+    "looks like a password or key": "sieht aus wie ein Passwort oder Schlüssel",
+    "pinned": "angeheftet",
+    "without formatting": "ohne Formatierung",
+    "yesterday": "gestern",
+    "{count} characters": {
+      "one": "{count} Zeichen",
+      "other": "{count} Zeichen"
+    },
+    "{count} copies": {
+      "one": "{count} Kopie",
+      "other": "{count} Kopien"
+    },
+    "{count} days ago": {
+      "one": "vor {count} Tag",
+      "other": "vor {count} Tagen"
+    },
+    "{count} lines": {
+      "one": "{count} Zeile",
+      "other": "{count} Zeilen"
+    },
+    "{count} today": "{count} heute",
+    "{kept} kept · {today} today · open them from any app with the shortcut below": "{kept} behalten · {today} heute · öffne sie in jeder App mit dem Kurzbefehl unten",
+    "{names} and {count} more": "{names} und {count} weitere",
+    "{status}, so there's nothing new.": "{status}, also gibt es nichts Neues.",
+    "{time} ago": "vor {time}",
+    "“{pattern}” isn't a regular expression Clipboard can read.": "„{pattern}“ ist kein regulärer Ausdruck, den Zwischenablage lesen kann.",
+    "↩ copies, ⌥↩ pastes": "↩ kopiert, ⌥↩ fügt ein",
+    "↩ pastes, ⌥↩ only copies": "↩ fügt ein, ⌥↩ kopiert nur"
+  }
+}

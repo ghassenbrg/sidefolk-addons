@@ -1,0 +1,27 @@
+{
+  "name": "货币",
+  "tagline": "30 种货币按今日汇率换算",
+  "description": "按欧洲中央银行每日的参考汇率，在欧元和 30 种主要货币之间换算金额，并在汇率越过设定值时提醒你。不会发送任何关于你的信息。",
+  "tools": {
+    "convert_currency": {
+      "title": "换算货币"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "汇率",
+      "description": "汇率高于或低于某条线时提醒你一次。"
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "欧洲央行 {day} 的参考汇率。",
+    "ECB, {day}": "欧洲央行，{day}",
+    "Give “above” or “below”: the rate to watch for.": "请给出“above”或“below”：要关注的汇率。",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "欧洲央行不公布“{currency}”的汇率。它涵盖 EUR 以及 {codes}。",
+    "The ECB's rates file had no date.": "欧洲央行的汇率文件没有日期。",
+    "The ECB's rates file had no rates.": "欧洲央行的汇率文件没有汇率。",
+    "{rate}, above {line}.": "{rate}，高于 {line}。",
+    "{rate}, below {line}.": "{rate}，低于 {line}。",
+    "“{key}” must be a number.": "“{key}”必须是数字。"
+  }
+}

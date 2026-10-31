@@ -1,0 +1,27 @@
+{
+  "name": "Valute",
+  "tagline": "Denaro in 30 valute ai tassi di oggi",
+  "description": "Converte denaro tra l’euro e 30 valute principali con i tassi di riferimento giornalieri della Banca centrale europea, e ti avvisa quando un tasso supera una soglia. Nulla su di te viene inviato.",
+  "tools": {
+    "convert_currency": {
+      "title": "Converti denaro"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "Tasso di cambio",
+      "description": "Ti avvisa una volta quando un tasso di cambio supera o scende sotto una soglia."
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "Tassi di riferimento della BCE del {day}.",
+    "ECB, {day}": "BCE, {day}",
+    "Give “above” or “below”: the rate to watch for.": "Indica «above» o «below»: il tasso da tenere d’occhio.",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "La BCE non pubblica un tasso per «{currency}». Copre EUR e {codes}.",
+    "The ECB's rates file had no date.": "Il file dei tassi della BCE non aveva una data.",
+    "The ECB's rates file had no rates.": "Il file dei tassi della BCE non aveva tassi.",
+    "{rate}, above {line}.": "{rate}, sopra {line}.",
+    "{rate}, below {line}.": "{rate}, sotto {line}.",
+    "“{key}” must be a number.": "«{key}» deve essere un numero."
+  }
+}

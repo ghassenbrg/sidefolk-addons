@@ -1,0 +1,27 @@
+{
+  "name": "Divisas",
+  "tagline": "Dinero en 30 monedas al cambio de hoy",
+  "description": "Convierte dinero entre el euro y 30 monedas principales con los tipos de referencia diarios del Banco Central Europeo, y te avisa cuando un tipo cruza un límite. No se envía nada sobre ti.",
+  "tools": {
+    "convert_currency": {
+      "title": "Convertir dinero"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "Tipo de cambio",
+      "description": "Te avisa una vez cuando un tipo de cambio sube o baja de un límite."
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "Tipos de referencia del BCE del {day}.",
+    "ECB, {day}": "BCE, {day}",
+    "Give “above” or “below”: the rate to watch for.": "Indica «above» o «below»: el tipo que vigilar.",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "El BCE no publica un tipo para «{currency}». Cubre EUR y {codes}.",
+    "The ECB's rates file had no date.": "El archivo de tipos del BCE no tenía fecha.",
+    "The ECB's rates file had no rates.": "El archivo de tipos del BCE no tenía tipos.",
+    "{rate}, above {line}.": "{rate}, por encima de {line}.",
+    "{rate}, below {line}.": "{rate}, por debajo de {line}.",
+    "“{key}” must be a number.": "«{key}» debe ser un número."
+  }
+}

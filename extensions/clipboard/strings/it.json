@@ -1,0 +1,203 @@
+{
+  "name": "Appunti",
+  "tagline": "Tutto ciò che copi, a portata di scorciatoia",
+  "description": "Tutto ciò che copi, a una scorciatoia da qualsiasi app: testo con la sua formattazione, link, immagini, file e codice, da cercare e fissare. Le copie dai gestori di password non vengono mai conservate; chiavi e numeri di carta vengono nascosti e dimenticati dopo due minuti. Niente lascia il tuo Mac.",
+  "tools": {
+    "clear_history": {
+      "title": "Cancella la cronologia"
+    },
+    "copy_again": {
+      "title": "Copia di nuovo"
+    },
+    "ignore": {
+      "title": "Ignora copie"
+    },
+    "pause": {
+      "title": "Metti in pausa la cronologia"
+    },
+    "recent_copies": {
+      "title": "Copie recenti"
+    },
+    "resume": {
+      "title": "Riprendi la cronologia"
+    },
+    "search_copies": {
+      "title": "Cerca nelle copie"
+    },
+    "set_option": {
+      "title": "Impostazione degli appunti"
+    },
+    "skip_next": {
+      "title": "Salta la prossima copia"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "Appunti"
+    }
+  },
+  "palettes": {
+    "history": {
+      "title": "Appunti",
+      "placeholder": "Cerca tra ciò che hai copiato"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "A clipboard type is one word, like public.png.": "Un tipo di appunti è una sola parola, come public.png.",
+    "A regular expression: {example} leaves out six-digit codes.": "Un’espressione regolare: {example} esclude i codici a sei cifre.",
+    "Also left out": "Esclusi anche",
+    "App": "App",
+    "App name or bundle id": "Nome dell’app o bundle id",
+    "Apps": "App",
+    "Ask about it": "Chiedi",
+    "At the bottom": "In fondo",
+    "Choosing a copy": "Scegliere una copia",
+    "Clear history": "Cancella cronologia",
+    "Clear pinned too": "Cancella anche quelle fissate",
+    "Cleared, pinned copies too.": "Cancellato, anche le copie fissate.",
+    "Cleared.": "Cancellato.",
+    "Cleared. Pinned copies stay.": "Cancellato. Le copie fissate restano.",
+    "Cleared. {count} pinned copies stay.": {
+      "one": "Cancellato. Resta {count} copia fissata.",
+      "other": "Cancellato. Restano {count} copie fissate."
+    },
+    "Clipboard type": "Tipo di appunti",
+    "Code": "Codice",
+    "Copied": "Copiato",
+    "Copies": "Copie",
+    "Copies from {app} are kept again.": "Le copie da {app} vengono di nuovo conservate.",
+    "Copies from {app} aren't kept from now on.": "Da ora le copie da {app} non vengono conservate.",
+    "Copies marked {type} are kept again.": "Le copie contrassegnate {type} vengono di nuovo conservate.",
+    "Copies marked {type} aren't kept from now on.": "Da ora le copie contrassegnate {type} non vengono conservate.",
+    "Copies matching {pattern} are kept again.": "Le copie che corrispondono a {pattern} vengono di nuovo conservate.",
+    "Copies matching {pattern} aren't kept from now on.": "Da ora le copie che corrispondono a {pattern} non vengono conservate.",
+    "Copies, pinned ones aside. The oldest go first.": "Copie, escluse quelle fissate. Le più vecchie vanno via per prime.",
+    "Copy": "Copia",
+    "Done.": "Fatto.",
+    "Exact": "Esatta",
+    "Files": "File",
+    "Files copied in Finder, by their place.": "I file copiati nel Finder, tramite la loro posizione.",
+    "Find a link I copied": "Trova un link copiato",
+    "First copied": "Prima copia",
+    "Fonts, colours and links that came with copied text.": "Font, colori e link arrivati con il testo copiato.",
+    "For apps that mark what they copy: com.apple.is-remote-clipboard leaves out your iPhone's copies.": "Per le app che contrassegnano ciò che copiano: com.apple.is-remote-clipboard esclude le copie del tuo iPhone.",
+    "Forgotten": "Dimenticata",
+    "Formatting": "Formattazione",
+    "From": "Da",
+    "Fuzzy": "Approssimativa",
+    "Hide passwords, keys and card numbers": "Nascondi password, chiavi e numeri di carta",
+    "History": "Cronologia",
+    "I couldn't find that copy.": "Non trovo quella copia.",
+    "Ignore": "Ignora",
+    "Ignore a clipboard type": "Ignora un tipo di appunti",
+    "Ignore an app": "Ignora un’app",
+    "Ignore text that matches": "Ignora il testo che corrisponde",
+    "Ignore {app}": "Ignora {app}",
+    "In the order the palette shows them. Copy puts one back on the clipboard.": "Nell’ordine della palette. Copia ne rimette una negli appunti.",
+    "Its name or bundle id, like 1Password or com.apple.keychainaccess.": "Il suo nome o bundle id, come 1Password o com.apple.keychainaccess.",
+    "Keep a history of what I copy": "Conserva una cronologia di ciò che copio",
+    "Keep files": "Conserva i file",
+    "Keep formatting": "Conserva la formattazione",
+    "Keep it": "Mantienila",
+    "Keep pictures": "Conserva le immagini",
+    "Keep up to": "Conserva fino a",
+    "Keep up to {limits} copies.": "Conserva fino a {limits} copie.",
+    "Keeping up to {count} copies.": {
+      "one": "Conserva fino a {count} copia.",
+      "other": "Conserva fino a {count} copie."
+    },
+    "Keeping your copies": "Conserva le tue copie",
+    "Keeping your copies again.": "Le tue copie vengono di nuovo conservate.",
+    "Last copied": "Ultima copia",
+    "Latest": "Più recenti",
+    "Leave out": "Escludi",
+    "Length": "Lunghezza",
+    "Links": "Link",
+    "Most copied": "Più copiate",
+    "No copy matches “{query}”.": "Nessuna copia corrisponde a «{query}».",
+    "Not keeping a history": "Nessuna cronologia",
+    "Nothing copied yet.": "Ancora niente di copiato.",
+    "On the clipboard again: {copy}.": "Di nuovo negli appunti: {copy}.",
+    "On top": "In cima",
+    "Only copies it": "La copia soltanto",
+    "Order": "Ordine",
+    "Passwords from password managers are never kept.": "Le password dei gestori di password non vengono mai conservate.",
+    "Pastes it": "La incolla",
+    "Pattern": "Schema",
+    "Pause {time}": "Pausa di {time}",
+    "Paused until {time}": "In pausa fino alle {time}",
+    "Paused until {time}: nothing you copy is kept until then.": "In pausa fino alle {time}: fino ad allora non viene conservato nulla di ciò che copi.",
+    "Picture": "Immagine",
+    "Pictures": "Immagini",
+    "Pinned": "Fissate",
+    "Pinned copies": "Copie fissate",
+    "Pinned copies go top or bottom.": "Le copie fissate vanno in cima o in fondo.",
+    "Remove": "Rimuovi",
+    "Remove it": "Rimuovila",
+    "Resume now": "Riprendi ora",
+    "Return": "Invio",
+    "Rich text and web formatting, pasted back unless you ask for plain text.": "Testo formattato e formattazione web, incollati a meno che tu chieda testo semplice.",
+    "Save my last copy to notes": "Salva l’ultima copia nelle note",
+    "Say which app, pattern or clipboard type.": "Indica quale app, schema o tipo di appunti.",
+    "Screenshots and copied images, {count} at most.": "Istantanee dello schermo e immagini copiate, al massimo {count}.",
+    "Search": "Ricerca",
+    "Search is words, exact, fuzzy or regex.": "La ricerca è words, exact, fuzzy o regex.",
+    "Size": "Dimensioni",
+    "Skip my next copy": "Salta la prossima copia",
+    "Skipping your next copy": "La tua prossima copia sarà saltata",
+    "Text matching": "Testo corrispondente",
+    "That copy is gone.": "Quella copia non c’è più.",
+    "That isn't a pattern Clipboard can read.": "Appunti non riesce a leggere questo schema.",
+    "That's too long for an app's name.": "È troppo lungo per il nome di un’app.",
+    "The app in front when you copied.": "L’app in primo piano quando hai copiato.",
+    "The order is recent, first or count.": "L’ordine è recent, first o count.",
+    "There's no such setting.": "Questa impostazione non esiste.",
+    "They show as dots, stay in memory only and are forgotten after two minutes.": "Appaiono come punti, restano solo in memoria e vengono dimenticati dopo due minuti.",
+    "Today {time}": "Oggi {time}",
+    "Turned off.": "Disattivato.",
+    "Turned on.": "Attivato.",
+    "Type": "Tipo",
+    "What choosing a copy does. Option-Return does the other; Shift-Return pastes plain text.": "Cosa fa scegliere una copia. Opzione-Invio fa l’altro; Maiusc-Invio incolla testo semplice.",
+    "What did I copy today?": "Cosa ho copiato oggi?",
+    "What it holds": "Cosa contiene",
+    "Where your copies come from": "Da dove arrivano le tue copie",
+    "Words": "Parole",
+    "Words: all of them, anywhere. Fuzzy: the letters in order. Pattern: a regular expression.": "Parole: tutte, ovunque. Approssimativa: le lettere in ordine. Schema: un’espressione regolare.",
+    "Your next copy won't be kept.": "La tua prossima copia non verrà conservata.",
+    "copied {count}×": "copiata {count}×",
+    "forgotten in {time}": "dimenticata tra {time}",
+    "in {time}": "tra {time}",
+    "just now": "proprio ora",
+    "kept (⇧↩ pastes without it)": "conservata (⇧↩ incolla senza)",
+    "kept for good": "conservate per sempre",
+    "looks like a password or key": "sembra una password o una chiave",
+    "pinned": "fissata",
+    "without formatting": "senza formattazione",
+    "yesterday": "ieri",
+    "{count} characters": {
+      "one": "{count} carattere",
+      "other": "{count} caratteri"
+    },
+    "{count} copies": {
+      "one": "{count} copia",
+      "other": "{count} copie"
+    },
+    "{count} days ago": {
+      "one": "{count} giorno fa",
+      "other": "{count} giorni fa"
+    },
+    "{count} lines": {
+      "one": "{count} riga",
+      "other": "{count} righe"
+    },
+    "{count} today": "{count} oggi",
+    "{kept} kept · {today} today · open them from any app with the shortcut below": "{kept} conservate · {today} oggi · aprile da qualsiasi app con l’abbreviazione qui sotto",
+    "{names} and {count} more": "{names} e altri {count}",
+    "{status}, so there's nothing new.": "{status}, quindi non c’è niente di nuovo.",
+    "{time} ago": "{time} fa",
+    "“{pattern}” isn't a regular expression Clipboard can read.": "«{pattern}» non è un’espressione regolare che Appunti possa leggere.",
+    "↩ copies, ⌥↩ pastes": "↩ copia, ⌥↩ incolla",
+    "↩ pastes, ⌥↩ only copies": "↩ incolla, ⌥↩ copia soltanto"
+  }
+}
