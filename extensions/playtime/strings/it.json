@@ -128,6 +128,7 @@
     "Guess My Animal": "Indovina il mio animale",
     "Guess mine": "Indovina il mio",
     "Guess the word, a letter at a time.": "Indovina la parola, una lettera alla volta.",
+    "Guess this word in six tries.": "Indovina questa parola in sei tentativi.",
     "Guess today's word in six tries.": "Indovina la parola di oggi in sei tentativi.",
     "Guess {n} · par {par}": "Tentativo {n} · media {par}",
     "Hard": "Difficile",
@@ -187,9 +188,12 @@
     "Play": "Gioca",
     "Play Daily Word": "Gioca alla parola del giorno",
     "Play again": "Gioca ancora",
+    "Play another word": "Gioca un'altra parola",
     "Played": "Giocate",
     "Playtime": "Svago",
     "Please write both.": "Scrivi entrambe le cose, per favore.",
+    "Practice word · not in your streak": "Allenamento · fuori dalla serie",
+    "Practice words": "Parole di allenamento",
     "Question {n}": "Domanda {n}",
     "Question {n} of {total}": "Domanda {n} di {total}",
     "Questions": "Domande",
@@ -202,6 +206,7 @@
     "Science": "Scienza",
     "See results": "Vedi il risultato",
     "Show a letter": "Mostra una lettera",
+    "Solved": "Risolte",
     "Solved in {n}": "Risolto in {n}",
     "Solved in {n}!": "Risolto in {n}!",
     "Space": "Spazio",
@@ -214,6 +219,8 @@
     "Streak this round": "Serie della partita",
     "Streak {n}": "Serie di {n}",
     "Sun": "Sole",
+    "Switch: you guess": "Indovini tu",
+    "Switch: {name} guesses": "Indovina {name}",
     "Take 1, 2 or 3 sticks.": "Prendi 1, 2 o 3 bastoncini.",
     "Take 1, 2 or 3. Don't take the last one!": "Prendine 1, 2 o 3. Non prendere l'ultimo!",
     "Teach": "Insegna",
@@ -285,11 +292,16 @@
       "one": "{count} mossa · {level}",
       "other": "{count} mosse · {level}"
     },
+    "{count} practice words": {
+      "one": "{count} parola di allenamento",
+      "other": "{count} parole di allenamento"
+    },
     "{count} sticks left · {level}": {
       "one": "{count} bastoncino rimasto · {level}",
       "other": "{count} bastoncini rimasti · {level}"
     },
     "{name} counts… {n} left.": "{name} conta… ne restano {n}.",
+    "{name} didn't get it either.": "Neanche {name} l'ha trovata.",
     "{name} didn't get it either. Tomorrow!": "Neanche {name} l'ha trovata. A domani!",
     "{name} found it in {count} questions.": {
       "one": "{name} l'ha trovato in {count} domanda.",

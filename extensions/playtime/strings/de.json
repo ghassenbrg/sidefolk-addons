@@ -128,6 +128,7 @@
     "Guess My Animal": "Rate mein Tier",
     "Guess mine": "Rate meine",
     "Guess the word, a letter at a time.": "Rate das Wort, Buchstabe für Buchstabe.",
+    "Guess this word in six tries.": "Rate dieses Wort in sechs Versuchen.",
     "Guess today's word in six tries.": "Rate das Wort von heute in sechs Versuchen.",
     "Guess {n} · par {par}": "Versuch {n} · Par {par}",
     "Hard": "Schwer",
@@ -187,9 +188,12 @@
     "Play": "Spielen",
     "Play Daily Word": "Wort des Tages spielen",
     "Play again": "Noch mal spielen",
+    "Play another word": "Noch ein Wort spielen",
     "Played": "Gespielt",
     "Playtime": "Spielzeit",
     "Please write both.": "Bitte schreib beides.",
+    "Practice word · not in your streak": "Übungswort · nicht in deiner Serie",
+    "Practice words": "Übungswörter",
     "Question {n}": "Frage {n}",
     "Question {n} of {total}": "Frage {n} von {total}",
     "Questions": "Fragen",
@@ -202,6 +206,7 @@
     "Science": "Wissenschaft",
     "See results": "Ergebnis zeigen",
     "Show a letter": "Einen Buchstaben zeigen",
+    "Solved": "Gelöst",
     "Solved in {n}": "In {n} gelöst",
     "Solved in {n}!": "In {n} gelöst!",
     "Space": "Weltall",
@@ -214,6 +219,8 @@
     "Streak this round": "Serie dieser Runde",
     "Streak {n}": "Serie: {n}",
     "Sun": "Sonne",
+    "Switch: you guess": "Du rätst",
+    "Switch: {name} guesses": "{name} rät",
     "Take 1, 2 or 3 sticks.": "Nimm 1, 2 oder 3 Stäbchen.",
     "Take 1, 2 or 3. Don't take the last one!": "Nimm 1, 2 oder 3. Nimm nicht das letzte!",
     "Teach": "Beibringen",
@@ -285,11 +292,16 @@
       "one": "{count} Bewegung · {level}",
       "other": "{count} Bewegungen · {level}"
     },
+    "{count} practice words": {
+      "one": "{count} Übungswort",
+      "other": "{count} Übungswörter"
+    },
     "{count} sticks left · {level}": {
       "one": "Noch {count} Stäbchen · {level}",
       "other": "Noch {count} Stäbchen · {level}"
     },
     "{name} counts… {n} left.": "{name} zählt… noch {n}.",
+    "{name} didn't get it either.": "{name} wusste es auch nicht.",
     "{name} didn't get it either. Tomorrow!": "{name} wusste es auch nicht. Bis morgen!",
     "{name} found it in {count} questions.": {
       "one": "{name} hat sie mit {count} Frage gefunden.",

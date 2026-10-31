@@ -3,12 +3,16 @@ import SidefolkExtensionKit
 
 /// Higher or Lower, both ways round, on 1–100. "Guess mine": the companion's number is drawn at the start and kept
 /// sealed; a thermometer says how warm each guess is; par is seven. "I'll guess yours": the companion halves the range,
-/// thinks a moment between guesses, and notices an answer that contradicts an earlier one.
+/// thinks a moment between guesses, and notices an answer that contradicts an earlier one. The start board offers both
+/// ways each time, the last one played picked (Return plays it again), and either way can be swapped for the other
+/// during a game and on its end card; the way last played is kept in the records.
 enum HigherLowerEngine: GameEngine {
     enum Mode: String, Codable { case mine, yours }
 
     struct State: Codable, Equatable {
         var mode: Mode?
+        /// The way picked on the start board: the last one played until another card is picked.
+        var chosen: Mode?
         var mine: Games.HigherLower.GuessMine?
         var yours: Games.HigherLower.GuessYours?
         /// The companion is thinking before its next "Is it…?".
@@ -17,15 +21,26 @@ enum HigherLowerEngine: GameEngine {
         var outcome: GameOutcome?
     }
 
-    enum Action: Equatable { case mode(Mode), guess(Int), answer(Games.HigherLower.GuessYours.Answer), next, again }
+    enum Action: Equatable { case mode(Mode), start, switchMode, guess(Int), answer(Games.HigherLower.GuessYours.Answer), next, again }
 
-    static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State { State() }
+    static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
+        State(chosen: PlaytimeRecords.load().higherLowerMode.flatMap(Mode.init(rawValue:)) ?? .mine)
+    }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
         switch action {
         case .mode(let mode):
             guard s.mode == nil else { throw Games.Refusal("not_now") }
-            return begin(mode, &s, &random)
+            s.chosen = mode
+            return []
+        case .start:
+            guard s.mode == nil else { throw Games.Refusal("not_now") }
+            return begin(s.chosen ?? .mine, &s, &random)
+        case .switchMode:
+            // The game on the board is left unscored: the other way starts fresh.
+            guard let mode = s.mode, !s.thinking else { throw Games.Refusal("not_now") }
+            s = State()
+            return begin(mode == .mine ? .yours : .mine, &s, &random)
         case .guess(let n):
             guard var game = s.mine, !s.over else { throw Games.Refusal("not_now") }
             let events = try game.guess(n)
@@ -62,6 +77,9 @@ enum HigherLowerEngine: GameEngine {
 
     private static func begin(_ mode: Mode, _ s: inout State, _ random: inout Games.Random) -> [Games.Event] {
         s.mode = mode
+        s.chosen = mode
+        // Picked first on the next start board.
+        PlaytimeRecords.update { $0.higherLowerMode = mode.rawValue }
         switch mode {
         case .mine:
             // Its number is drawn now, before any guess.
@@ -84,6 +102,8 @@ enum HigherLowerScreen: GameScreen {
     static func action(for move: Move, in s: HigherLowerEngine.State) -> HigherLowerEngine.Action? {
         switch move {
         case .choice("mode", let m): HigherLowerEngine.Mode(rawValue: m).map { .mode($0) }
+        case .button("start"): .start
+        case .button("switch"): .switchMode
         case .number(let n): .guess(n)
         case .answer(let i): [.higher, .lower, .yes][safe: i].map { .answer($0) }
         case .next: .next
@@ -101,8 +121,9 @@ enum HigherLowerScreen: GameScreen {
                      .choice(name: "mode", style: .cards, options: [
                          ChoiceOption("mine", L("Guess mine"), detail: L("{name} hides one", ["name": o.companion]), symbol: "questionmark.square.fill"),
                          ChoiceOption("yours", L("I'll guess yours"), detail: L("Think of one"), symbol: "brain.head.profile"),
-                     ])]
-            cue = Cue(move: "ready", line: "hello", look: "panel")
+                     ], selected: (s.chosen ?? .mine).rawValue),
+                     .button(GameButton(L("Start"), move: "start", style: .primary, symbol: "play.fill"))]
+            cue = events.contains(.opened) ? Cue(move: "ready", line: "hello", look: "panel") : nil
         } else if let game = s.mine {
             let n = game.guesses.count
             let last = game.guesses.last
@@ -142,14 +163,22 @@ enum HigherLowerScreen: GameScreen {
             }
         }
         if let note = ScreenKit.refusal(events) { parts.append(note) }
+        if let mode = s.mode, !s.over, !s.thinking { parts.append(.button(switchButton(from: mode, o))) }
         if let outcome = s.outcome {
             let guesses = s.mine?.guesses.count ?? s.yours?.asked ?? 0
             parts.append(ScreenKit.result(outcome, figure: Format.integer(guesses),
                                           line: s.mode == .yours ? L(one: "{name} found it in {count} question.", other: "{name} found it in {count} questions.", count: guesses, ["name": o.companion])
                                               : outcome == .won ? L("Found in {n}, at par or better!", ["n": guesses]) : L("Found in {n}: par is {par}.", ["n": guesses, "par": Games.HigherLower.par]),
-                                          companion: o.companion))
+                                          companion: o.companion,
+                                          actions: [ScreenKit.playAgain] + (s.mode.map { [switchButton(from: $0, o)] } ?? [])))
         }
         return Board(parts, companion: cue, over: s.over, afterMs: after)
+    }
+
+    /// The other way round, named by who guesses next: during a game (plain) and on its end card.
+    static func switchButton(from mode: HigherLowerEngine.Mode, _ o: GameOptions) -> GameButton {
+        GameButton(mode == .mine ? L("Switch: {name} guesses", ["name": o.companion]) : L("Switch: you guess"), move: "switch",
+                   style: .plain, symbol: "arrow.left.arrow.right", key: "s")
     }
 
     static func warmth(_ w: Double) -> String {

@@ -128,6 +128,7 @@
     "Guess My Animal": "Devine mon animal",
     "Guess mine": "Devinez le mien",
     "Guess the word, a letter at a time.": "Devinez le mot, une lettre à la fois.",
+    "Guess this word in six tries.": "Trouvez ce mot en six essais.",
     "Guess today's word in six tries.": "Trouvez le mot du jour en six essais.",
     "Guess {n} · par {par}": "Essai {n} · moyenne {par}",
     "Hard": "Difficile",
@@ -187,9 +188,12 @@
     "Play": "Jouer",
     "Play Daily Word": "Jouer au mot du jour",
     "Play again": "Rejouer",
+    "Play another word": "Jouer un autre mot",
     "Played": "Parties",
     "Playtime": "Récré",
     "Please write both.": "Écrivez les deux, s'il vous plaît.",
+    "Practice word · not in your streak": "Entraînement · hors de votre série",
+    "Practice words": "Mots d'entraînement",
     "Question {n}": "Question {n}",
     "Question {n} of {total}": "Question {n} sur {total}",
     "Questions": "Questions",
@@ -202,6 +206,7 @@
     "Science": "Sciences",
     "See results": "Voir le score",
     "Show a letter": "Montrer une lettre",
+    "Solved": "Trouvés",
     "Solved in {n}": "Trouvé en {n}",
     "Solved in {n}!": "Trouvé en {n} !",
     "Space": "Espace",
@@ -214,6 +219,8 @@
     "Streak this round": "Série de la partie",
     "Streak {n}": "Série de {n}",
     "Sun": "Soleil",
+    "Switch: you guess": "Vous devinez",
+    "Switch: {name} guesses": "{name} devine",
     "Take 1, 2 or 3 sticks.": "Prenez 1, 2 ou 3 bâtons.",
     "Take 1, 2 or 3. Don't take the last one!": "Prenez-en 1, 2 ou 3. Ne prenez pas le dernier !",
     "Teach": "Apprendre",
@@ -285,11 +292,16 @@
       "one": "{count} mouvement · {level}",
       "other": "{count} mouvements · {level}"
     },
+    "{count} practice words": {
+      "one": "{count} mot d'entraînement",
+      "other": "{count} mots d'entraînement"
+    },
     "{count} sticks left · {level}": {
       "one": "{count} bâton restant · {level}",
       "other": "{count} bâtons restants · {level}"
     },
     "{name} counts… {n} left.": "{name} compte… il en reste {n}.",
+    "{name} didn't get it either.": "{name} n'a pas trouvé non plus.",
     "{name} didn't get it either. Tomorrow!": "{name} n'a pas trouvé non plus. À demain !",
     "{name} found it in {count} questions.": {
       "one": "{name} l'a trouvé en {count} question.",

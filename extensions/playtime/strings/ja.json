@@ -125,6 +125,7 @@
     "Guess My Animal": "どうぶつ当て",
     "Guess mine": "わたしの数を当てて",
     "Guess the word, a letter at a time.": "1文字ずつ、ことばを当てよう。",
+    "Guess this word in six tries.": "6回以内にこのことばを当てよう。",
     "Guess today's word in six tries.": "6回以内に今日のことばを当てよう。",
     "Guess {n} · par {par}": "{n}回目 · 目標{par}回",
     "Hard": "むずかしい",
@@ -184,9 +185,12 @@
     "Play": "遊ぶ",
     "Play Daily Word": "今日のことばで遊ぶ",
     "Play again": "もう一度遊ぶ",
+    "Play another word": "別のことばで遊ぶ",
     "Played": "プレイ回数",
     "Playtime": "あそびタイム",
     "Please write both.": "両方とも書いてください。",
+    "Practice word · not in your streak": "練習・連続記録に数えない",
+    "Practice words": "練習した数",
     "Question {n}": "第{n}問",
     "Question {n} of {total}": "{total}問中{n}問目",
     "Questions": "問題数",
@@ -199,6 +203,7 @@
     "Science": "科学",
     "See results": "結果を見る",
     "Show a letter": "1文字見せて",
+    "Solved": "正解",
     "Solved in {n}": "{n}回で正解",
     "Solved in {n}!": "{n}回で正解！",
     "Space": "宇宙",
@@ -211,6 +216,8 @@
     "Streak this round": "今回の連続正解",
     "Streak {n}": "{n}日連続",
     "Sun": "太陽",
+    "Switch: you guess": "あなたが当てる",
+    "Switch: {name} guesses": "{name}が当てる",
     "Take 1, 2 or 3 sticks.": "1〜3本取ってください。",
     "Take 1, 2 or 3. Don't take the last one!": "1〜3本とってね。さいごの1本はとらないで！",
     "Teach": "教える",
@@ -278,10 +285,14 @@
     "{count} moves · {level}": {
       "other": "{count}手 · {level}"
     },
+    "{count} practice words": {
+      "other": "練習{count}語"
+    },
     "{count} sticks left · {level}": {
       "other": "のこり{count}本 · {level}"
     },
     "{name} counts… {n} left.": "{name}が数えてる…のこり{n}本。",
+    "{name} didn't get it either.": "{name}もわからなかった。",
     "{name} didn't get it either. Tomorrow!": "{name}もわからなかった。また明日！",
     "{name} found it in {count} questions.": {
       "other": "{name}は{count}問で当てたよ。"

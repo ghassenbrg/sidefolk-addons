@@ -77,6 +77,7 @@
     "Guess My Animal": "Guess My Animal",
     "Guess mine": "Guess mine",
     "Guess the word, a letter at a time.": "Guess the word, a letter at a time.",
+    "Guess this word in six tries.": "Guess this word in six tries.",
     "Guess today's word in six tries.": "Guess today's word in six tries.",
     "Guess {n} · par {par}": "Guess {n} · par {par}",
     "Hard": "Hard",
@@ -136,9 +137,12 @@
     "Play": "Play",
     "Play Daily Word": "Play Daily Word",
     "Play again": "Play again",
+    "Play another word": "Play another word",
     "Played": "Played",
     "Playtime": "Playtime",
     "Please write both.": "Please write both.",
+    "Practice word · not in your streak": "Practice word · not in your streak",
+    "Practice words": "Practice words",
     "Question {n}": "Question {n}",
     "Question {n} of {total}": "Question {n} of {total}",
     "Questions": "Questions",
@@ -151,6 +155,7 @@
     "Science": "Science",
     "See results": "See results",
     "Show a letter": "Show a letter",
+    "Solved": "Solved",
     "Solved in {n}": "Solved in {n}",
     "Solved in {n}!": "Solved in {n}!",
     "Space": "Space",
@@ -163,6 +168,8 @@
     "Streak this round": "Streak this round",
     "Streak {n}": "Streak {n}",
     "Sun": "Sun",
+    "Switch: you guess": "Switch: you guess",
+    "Switch: {name} guesses": "Switch: {name} guesses",
     "Take 1, 2 or 3 sticks.": "Take 1, 2 or 3 sticks.",
     "Take 1, 2 or 3. Don't take the last one!": "Take 1, 2 or 3. Don't take the last one!",
     "Teach": "Teach",
@@ -234,11 +241,16 @@
       "one": "{count} move · {level}",
       "other": "{count} moves · {level}"
     },
+    "{count} practice words": {
+      "one": "{count} practice word",
+      "other": "{count} practice words"
+    },
     "{count} sticks left · {level}": {
       "one": "{count} stick left · {level}",
       "other": "{count} sticks left · {level}"
     },
     "{name} counts… {n} left.": "{name} counts… {n} left.",
+    "{name} didn't get it either.": "{name} didn't get it either.",
     "{name} didn't get it either. Tomorrow!": "{name} didn't get it either. Tomorrow!",
     "{name} found it in {count} questions.": {
       "one": "{name} found it in {count} question.",

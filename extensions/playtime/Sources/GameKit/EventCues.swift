@@ -121,9 +121,13 @@ enum ScreenKit {
                 selected: selected.rawValue)
     }
 
-    /// The end card: the outcome's words (the person's win, the companion's, a draw), a figure, facts, Play again.
+    /// The end card's usual button.
+    static var playAgain: GameButton { GameButton(L("Play again"), move: "again", style: .primary, symbol: "arrow.clockwise") }
+
+    /// The end card: the outcome's words (the person's win, the companion's, a draw), a figure, facts, and its buttons
+    /// (Play again unless a game gives its own).
     static func result(_ outcome: GameOutcome, figure: String, line: String? = nil, ribbon: String? = nil, facts: [(String, String)] = [],
-                       companion: String) -> BoardPart {
+                       companion: String, actions: [GameButton]? = nil) -> BoardPart {
         let words = line ?? {
             switch outcome {
             case .won: L("You beat {name}!", ["name": companion])
@@ -132,7 +136,7 @@ enum ScreenKit {
             }
         }()
         return .result(figure: figure, line: words, ribbon: ribbon, tone: outcome == .won ? .good : outcome == .lost ? .bad : .neutral,
-                       facts: facts, actions: [GameButton(L("Play again"), move: "again", style: .primary, symbol: "arrow.clockwise")])
+                       facts: facts, actions: actions ?? [playAgain])
     }
 
     /// A move the rules refused, in the person's words; nil when nothing was refused.

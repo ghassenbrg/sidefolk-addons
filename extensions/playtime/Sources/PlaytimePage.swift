@@ -2,8 +2,9 @@ import Foundation
 import SidefolkExtensionKit
 
 /// Playtime's page in Home (D62, D74) and its Today tile: Daily Word's day and streak on top with the button that
-/// opens it (an `ask` part, reaching the game's sentence through Sidefolk), every game with its best, buttons to play
-/// each, and the last ten games. The summary is the Today tile: Daily Word, played or not.
+/// opens it (an `ask` part, reaching the game's sentence through Sidefolk; once the day's word is over it says "Play
+/// another word", which the game's end card then offers), every game with its best, buttons to play each, and the last
+/// ten games. The summary is the Today tile: Daily Word, played or not.
 enum PlaytimePage {
     struct Game {
         let id: String
@@ -35,10 +36,15 @@ enum PlaytimePage {
                         detail: L("Eleven games to play against your companion, no AI, in your language."), symbol: "gamecontroller.fill",
                         facts: [(L("Streak"), Format.integer(r.daily.tile(today: DailyWordEngine.today()).streak)),
                                 (L("Your wins"), Format.integer(won)), (L("Your companion's"), Format.integer(lost))])
-        var sections = [Section(nil, [.hero(hero), .ask(L("Play Daily Word"), "daily word")])]
+        let todayDone = r.daily.lastDay == DailyWordEngine.today()
+        var sections = [Section(nil, [.hero(hero), .ask(todayDone ? L("Play another word") : L("Play Daily Word"), "daily word")])]
         let rows = games.map { g -> Row in
             let t = r.games[g.id]
-            return Row(g.title, detail: t.map { detail(g.id, $0) } ?? L("Not played yet"), symbol: g.symbol)
+            var line = t.map { detail(g.id, $0) } ?? L("Not played yet")
+            if g.id == DailyWordScreen.id, let practice = r.games[DailyWordScreen.practiceId] {
+                line += " · " + L(one: "{count} practice word", other: "{count} practice words", count: practice.played)
+            }
+            return Row(g.title, detail: line, symbol: g.symbol)
         }
         sections.append(Section(L("Your games"), [.list(nil, rows)]))
         sections.append(Section(L("Play"), games.dropFirst().map { .ask($0.title, $0.ask) }))
@@ -50,7 +56,9 @@ enum PlaytimePage {
                 case .lost: L("Your companion won")
                 case .draw: L("A draw")
                 }
-                return Row(titles[p.game]?.title ?? p.game, detail: [outcome, Format.date(p.date)].joined(separator: " · "),
+                // A game's other tallies (`higher_lower_yours`, `daily_word_practice`) go under its own title.
+                let game = titles[p.game] ?? games.first { p.game.hasPrefix($0.id + "_") }
+                return Row(game?.title ?? p.game, detail: [outcome, Format.date(p.date)].joined(separator: " · "),
                            symbol: p.outcome == .won ? "crown.fill" : p.outcome == .lost ? "hand.thumbsup" : "equal.circle")
             }
             sections.append(Section(L("Last games"), [.list(nil, last)]))

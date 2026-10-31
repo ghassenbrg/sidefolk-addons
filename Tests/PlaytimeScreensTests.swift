@@ -198,6 +198,7 @@ import Testing
         var random = Games.Random(seed: 4)
         var s = HigherLowerEngine.start(level: .fair, options: Self.options(), random: &random)
         _ = GameTable.play(HigherLowerScreen.self, .choice(name: "mode", value: "mine"), on: &s, random: &random)
+        _ = GameTable.play(HigherLowerScreen.self, .button("start"), on: &s, random: &random)
         let secret = s.mine
         _ = GameTable.play(HigherLowerScreen.self, .number(50), on: &s, random: &random)
         let board = HigherLowerScreen.board(s, events: [.lower], options: Self.options())
@@ -205,11 +206,66 @@ import Testing
         #expect(secret?.shown == nil, "sealed until found")
         var yours = HigherLowerEngine.start(level: .fair, options: Self.options(), random: &random)
         _ = GameTable.play(HigherLowerScreen.self, .choice(name: "mode", value: "yours"), on: &yours, random: &random)
+        _ = GameTable.play(HigherLowerScreen.self, .button("start"), on: &yours, random: &random)
         #expect(HigherLowerScreen.board(yours, events: [.think(ms: 900)], options: Self.options()).afterMs == 900)
         _ = GameTable.play(HigherLowerScreen.self, .next, on: &yours, random: &random)
         let asking = HigherLowerScreen.board(yours, events: [], options: Self.options())
         #expect((Self.part(asking, "answers")?["items"] as? [[String: Any]])?.map { $0["key"] as? String } == ["h", "l", "y"])
         #expect((Self.part(asking, "prompt")?["text"] as? String) == "Is it… 50?")
+    }
+
+    /// The founder picked "I'll guess yours" once and could never change it: both ways are offered every time, the
+    /// last one picked (Return plays it), and either swaps for the other during a game and on its end card.
+    @Test func higherOrLowerAlwaysLetsYouSwitchWhoGuesses() throws {
+        PlaytimeRecords.update { $0 = PlaytimeRecords() }
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            var random = Games.Random(seed: 5)
+            func buttons(_ b: Board) -> [String] {
+                Self.parts(b).flatMap { p -> [String] in
+                    p["type"] as? String == "button" ? [p["move"] as! String] : (p["actions"] as? [[String: Any]] ?? []).map { $0["move"] as! String }
+                }
+            }
+            var s = HigherLowerEngine.start(level: .fair, options: Self.options(), random: &random)
+            var board = HigherLowerScreen.board(s, events: [.opened], options: Self.options())
+            #expect(Self.part(board, "choice")?["selected"] as? String == "mine" && buttons(board) == ["start"], "a first game: guess mine, Start")
+            #expect(GameTable.play(HigherLowerScreen.self, .choice(name: "mode", value: "yours"), on: &s, random: &random).isEmpty && s.mode == nil,
+                    "a card picks, Start plays")
+            _ = GameTable.play(HigherLowerScreen.self, .button("start"), on: &s, random: &random)
+            #expect(s.yours != nil && PlaytimeRecords.load().higherLowerMode == "yours")
+
+            // Closed and opened again: both ways offered, the last one picked.
+            var again = HigherLowerEngine.start(level: .fair, options: Self.options(), random: &random)
+            board = HigherLowerScreen.board(again, events: [.opened], options: Self.options())
+            #expect((Self.part(board, "choice")?["options"] as? [[String: Any]])?.map { $0["value"] as! String } == ["mine", "yours"])
+            #expect(Self.part(board, "choice")?["selected"] as? String == "yours")
+            _ = GameTable.play(HigherLowerScreen.self, .choice(name: "mode", value: "mine"), on: &again, random: &random)
+            _ = GameTable.play(HigherLowerScreen.self, .button("start"), on: &again, random: &random)
+            #expect(again.mine != nil && PlaytimeRecords.load().higherLowerMode == "mine")
+
+            // During a game: the switch, never while the companion thinks.
+            #expect(!buttons(HigherLowerScreen.board(s, events: [], options: Self.options())).contains("switch"), "thinking")
+            _ = GameTable.play(HigherLowerScreen.self, .next, on: &s, random: &random)
+            board = HigherLowerScreen.board(s, events: [], options: Self.options())
+            #expect(buttons(board) == ["switch"])
+            #expect(Self.parts(board).first { $0["move"] as? String == "switch" }?["label"] as? String == "Switch: you guess")
+            _ = GameTable.play(HigherLowerScreen.self, .button("switch"), on: &s, random: &random)
+            #expect(s.mode == .mine && s.mine != nil && s.yours == nil && PlaytimeRecords.load().higherLowerMode == "mine")
+            #expect(PlaytimeRecords.load().games[HigherLowerScreen.id] == nil, "the game left isn't scored")
+
+            // On the end card: Play again (the same way) first, then the switch.
+            while !s.over {
+                _ = GameTable.play(HigherLowerScreen.self, .number((s.mine!.low + s.mine!.high) / 2), on: &s, random: &random)
+            }
+            board = HigherLowerScreen.board(s, events: [.roundOver(winner: .you)], options: Self.options())
+            #expect(buttons(board) == ["again", "switch"] && board.over)
+            #expect((Self.part(board, "result")?["actions"] as? [[String: Any]])?.last?["label"] as? String == "Switch: Mochi guesses")
+            _ = GameTable.play(HigherLowerScreen.self, .button("switch"), on: &s, random: &random)
+            #expect(s.mode == .yours && !s.over && PlaytimeRecords.load().higherLowerMode == "yours")
+            _ = GameTable.play(HigherLowerScreen.self, .next, on: &s, random: &random)
+            while !s.over { _ = GameTable.play(HigherLowerScreen.self, .answer(2), on: &s, random: &random) }
+            _ = GameTable.play(HigherLowerScreen.self, .button("again"), on: &s, random: &random)
+            #expect(s.mode == .yours, "Play again keeps the way")
+        }
     }
 
     @Test func guessMyAnimalLearnsAndRemembers() throws {
@@ -320,6 +376,86 @@ import Testing
             #expect(GameTable.play(DailyWordScreen.self, .word(wrong), on: &s, random: &random) == [.refused("over")], "once a day")
             let page = PlaytimePage.render()
             #expect(page.summary?.title == "Daily Word: Solved in 2")
+        }
+    }
+
+    /// "Only one word in one day, but I want to play more": after the day's word, practice words as many as wanted,
+    /// at random from the same list, none twice before it runs out, never the day's, and never in its streak or tile.
+    @Test func dailyWordPracticeLeavesTheDayAlone() throws {
+        let date = ISO8601DateFormatter().date(from: "2026-11-02T12:00:00Z")!
+        DailyWordEngine.now = { date }
+        defer { DailyWordEngine.now = { Date() } }
+        PlaytimeRecords.update { $0 = PlaytimeRecords() }
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            var random = Games.Random(seed: 3)
+            var s = DailyWordEngine.start(level: .fair, options: Self.options(), random: &random)
+            let answer = Games.DailyWord.answer(day: s.game.day, language: .en)
+            #expect(GameTable.play(DailyWordScreen.self, .button("practice"), on: &s, random: &random) == [.refused("not_now")], "the day's word first")
+            let wrong = Games.WordBank.daily(.en).first { $0 != answer }!
+            _ = GameTable.play(DailyWordScreen.self, .word(wrong), on: &s, random: &random)
+            _ = GameTable.play(DailyWordScreen.self, .word(answer), on: &s, random: &random)
+            let end = DailyWordScreen.board(s, events: [.reveal], options: Self.options())
+            let actions = Self.part(end, "result")?["actions"] as? [[String: Any]]
+            #expect(actions?.map { $0["move"] as! String } == ["practice"] && actions?.first?["style"] as? String == "primary")
+            #expect(actions?.first?["label"] as? String == "Play another word")
+            let day = PlaytimeRecords.load()
+            let tile = DailyWordScreen.tile()
+            #expect(day.daily.streak == 1 && tile == ["Solved in 2"])
+            #expect(PlaytimePage.render().sections.first.map { "\($0.json)".contains("Play another word") } == true, "Home offers it too")
+
+            var practiced: [String] = []
+            for round in 0..<3 {
+                _ = GameTable.play(DailyWordScreen.self, .button("practice"), on: &s, random: &random)
+                #expect(s.isPractice && s.game.rows.isEmpty && !s.game.over)
+                // The word just drawn is the last in the practice list (the game keeps it sealed).
+                let word = try #require(PlaytimeRecords.load().practiceWords?["en"]?.last)
+                #expect(word != answer && !practiced.contains(word))
+                practiced.append(word)
+                let board = DailyWordScreen.board(s, events: [.turn(.you)], options: Self.options())
+                #expect((Self.part(board, "prompt")?["eyebrow"] as? String) == "Practice word · not in your streak")
+                #expect(Self.part(board, "keys") != nil)
+                if round == 1 {
+                    // Missed: six wrong words.
+                    for w in Games.WordBank.daily(.en).filter({ $0 != word }).prefix(6) {
+                        _ = GameTable.play(DailyWordScreen.self, .word(w), on: &s, random: &random)
+                    }
+                } else {
+                    _ = GameTable.play(DailyWordScreen.self, .word(word), on: &s, random: &random)
+                }
+                #expect(s.game.over)
+                let card = DailyWordScreen.board(s, events: [.reveal], options: Self.options())
+                #expect((Self.part(card, "result")?["actions"] as? [[String: Any]])?.first?["move"] as? String == "practice")
+            }
+            let after = PlaytimeRecords.load()
+            #expect(after.daily == day.daily && after.dailyGame == day.dailyGame && DailyWordScreen.tile() == tile, "the day untouched")
+            #expect(after.games[DailyWordScreen.id] == day.games[DailyWordScreen.id])
+            let practice = try #require(after.games[DailyWordScreen.practiceId])
+            #expect(practice.played == 3 && practice.won == 2)
+            #expect(after.practiceWords?["en"] == practiced)
+            // Opened again: the day's own board, over, with practice one press away.
+            let reopened = DailyWordEngine.start(level: .fair, options: Self.options(), random: &random)
+            #expect(!reopened.isPractice && reopened.game.over && reopened.game.shown == answer)
+        }
+    }
+
+    @Test func practiceWordsDontRepeatUntilTheListRunsOut() {
+        for language in Games.Language.allCases {
+            var rng = Games.Random(seed: 11)
+            let day = 303
+            let today = Games.DailyWord.answer(day: day, language: language)
+            let count = Set(Games.WordBank.daily(language)).count - 1
+            var played: [String] = []
+            for _ in 0..<count {
+                let (word, next) = Games.DailyWord.practiceWord(language: language, day: day, played: played, using: &rng)
+                #expect(word != today && !played.contains(word), "\(language)")
+                played = next
+            }
+            #expect(Set(played).count == count, "\(language): every word but the day's, once")
+            let (word, restarted) = Games.DailyWord.practiceWord(language: language, day: day, played: played, using: &rng)
+            #expect(word != today && restarted == [word], "\(language): then the list again")
+            // A practice word plays like the day's, in its script.
+            let game = Games.DailyWord(language: language, day: day, word: word)
+            #expect(game.length == Games.WordBank.dailyLength(language) && game.shown == nil)
         }
     }
 

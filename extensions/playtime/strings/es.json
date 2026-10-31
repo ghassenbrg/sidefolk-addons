@@ -128,6 +128,7 @@
     "Guess My Animal": "Adivina mi animal",
     "Guess mine": "Adivina el mío",
     "Guess the word, a letter at a time.": "Adivina la palabra, letra a letra.",
+    "Guess this word in six tries.": "Adivina esta palabra en seis intentos.",
     "Guess today's word in six tries.": "Adivina la palabra de hoy en seis intentos.",
     "Guess {n} · par {par}": "Intento {n} · media {par}",
     "Hard": "Difícil",
@@ -187,9 +188,12 @@
     "Play": "Jugar",
     "Play Daily Word": "Jugar a la palabra del día",
     "Play again": "Jugar otra vez",
+    "Play another word": "Jugar otra palabra",
     "Played": "Jugadas",
     "Playtime": "Ratos libres",
     "Please write both.": "Escribe las dos cosas, por favor.",
+    "Practice word · not in your streak": "Práctica · no cuenta en tu racha",
+    "Practice words": "Palabras de práctica",
     "Question {n}": "Pregunta {n}",
     "Question {n} of {total}": "Pregunta {n} de {total}",
     "Questions": "Preguntas",
@@ -202,6 +206,7 @@
     "Science": "Ciencia",
     "See results": "Ver resultado",
     "Show a letter": "Mostrar una letra",
+    "Solved": "Resueltas",
     "Solved in {n}": "Resuelto en {n}",
     "Solved in {n}!": "¡Resuelto en {n}!",
     "Space": "Espacio",
@@ -214,6 +219,8 @@
     "Streak this round": "Racha de la partida",
     "Streak {n}": "Racha de {n}",
     "Sun": "Sol",
+    "Switch: you guess": "Te toca adivinar",
+    "Switch: {name} guesses": "Le toca a {name}",
     "Take 1, 2 or 3 sticks.": "Toma 1, 2 o 3 palitos.",
     "Take 1, 2 or 3. Don't take the last one!": "Toma 1, 2 o 3. ¡No te quedes el último!",
     "Teach": "Enseñar",
@@ -285,11 +292,16 @@
       "one": "{count} movimiento · {level}",
       "other": "{count} movimientos · {level}"
     },
+    "{count} practice words": {
+      "one": "{count} palabra de práctica",
+      "other": "{count} palabras de práctica"
+    },
     "{count} sticks left · {level}": {
       "one": "Queda {count} palito · {level}",
       "other": "Quedan {count} palitos · {level}"
     },
     "{name} counts… {n} left.": "{name} cuenta… quedan {n}.",
+    "{name} didn't get it either.": "{name} tampoco lo sabía.",
     "{name} didn't get it either. Tomorrow!": "{name} tampoco lo sabía. ¡Mañana más!",
     "{name} found it in {count} questions.": {
       "one": "{name} lo encontró en {count} pregunta.",

@@ -140,6 +140,7 @@
     "Guess My Animal": "خمّن حيواني",
     "Guess mine": "خمّن رقمي",
     "Guess the word, a letter at a time.": "خمّن الكلمة حرفًا بحرف.",
+    "Guess this word in six tries.": "خمّن هذه الكلمة في ست محاولات.",
     "Guess today's word in six tries.": "خمّن كلمة اليوم في ست محاولات.",
     "Guess {n} · par {par}": "المحاولة {n} · المعدل {par}",
     "Hard": "صعب",
@@ -199,9 +200,12 @@
     "Play": "العب",
     "Play Daily Word": "العب كلمة اليوم",
     "Play again": "اللعب مجددًا",
+    "Play another word": "العب كلمة أخرى",
     "Played": "لُعبت",
     "Playtime": "وقت اللعب",
     "Please write both.": "اكتب الاثنين من فضلك.",
+    "Practice word · not in your streak": "تدريب · خارج سلسلتك",
+    "Practice words": "كلمات التدريب",
     "Question {n}": "السؤال {n}",
     "Question {n} of {total}": "السؤال {n} من {total}",
     "Questions": "الأسئلة",
@@ -214,6 +218,7 @@
     "Science": "العلوم",
     "See results": "عرض النتيجة",
     "Show a letter": "أظهر حرفًا",
+    "Solved": "المحلولة",
     "Solved in {n}": "حُلّت في {n}",
     "Solved in {n}!": "حُلّت في {n}!",
     "Space": "الفضاء",
@@ -226,6 +231,8 @@
     "Streak this round": "إجابات متتالية في هذه الجولة",
     "Streak {n}": "سلسلة: {n}",
     "Sun": "شمس",
+    "Switch: you guess": "بدّل: أنت تخمّن",
+    "Switch: {name} guesses": "بدّل: دور {name}",
     "Take 1, 2 or 3 sticks.": "خذ عودًا أو اثنين أو ثلاثة.",
     "Take 1, 2 or 3. Don't take the last one!": "خذ واحدًا أو اثنين أو ثلاثة. لا تأخذ الأخير!",
     "Teach": "علّمه",
@@ -313,6 +320,14 @@
       "other": "{count} حركة · {level}",
       "zero": "{count} حركة · {level}"
     },
+    "{count} practice words": {
+      "zero": "لا كلمات تدريب",
+      "one": "كلمة تدريب واحدة",
+      "two": "كلمتا تدريب",
+      "few": "{count} كلمات تدريب",
+      "many": "{count} كلمة تدريب",
+      "other": "{count} كلمة تدريب"
+    },
     "{count} sticks left · {level}": {
       "zero": "لم يبقَ عود · {level}",
       "one": "بقي عود واحد · {level}",
@@ -322,6 +337,7 @@
       "other": "بقي {count} عود · {level}"
     },
     "{name} counts… {n} left.": "{name} يعدّ… بقي {n}.",
+    "{name} didn't get it either.": "لم يعرفها {name} أيضًا.",
     "{name} didn't get it either. Tomorrow!": "لم يعرفها {name} أيضًا. إلى الغد!",
     "{name} found it in {count} questions.": {
       "one": "وجده {name} بسؤال واحد.",

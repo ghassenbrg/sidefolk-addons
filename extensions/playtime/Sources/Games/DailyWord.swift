@@ -13,6 +13,9 @@ extension Games {
     /// the right length in the game's letters is accepted; the adapter can pass `isWord` (a system spell checker, say)
     /// to refuse non-words. Flow: `guess(word)`; `hint()` once a day. Events: `reveal` (flip the row), `hit(n)` with
     /// the greens of a row that didn't solve it, `found(guesses:)`, `roundOver` (you, or the companion when missed).
+    ///
+    /// Practice words are played the same way once the day's is over: any other word of the list, at random, none
+    /// again until the list runs out (`practiceWord`), never the day's and never in the record.
     struct DailyWord: Codable, Equatable, Sendable {
         enum Mark: String, Codable, Sendable { case right, elsewhere, absent }
 
@@ -32,9 +35,14 @@ extension Games {
         private(set) var hintPlace: Int?
 
         init(language: Language, day: Int) {
+            self.init(language: language, day: day, word: Self.answer(day: day, language: language))
+        }
+
+        /// A game on a word of the list chosen elsewhere: a practice word.
+        init(language: Language, day: Int, word: String) {
             self.language = language
             self.day = day
-            answerWord = Self.answer(day: day, language: language)
+            answerWord = word
             answer = WordScript.units(answerWord, language, for: .daily)
         }
 
@@ -116,6 +124,23 @@ extension Games {
             let order = WordBank.dailyOrder(language)
             let n = order.count
             return order[((day % n) + n) % n]
+        }
+
+        /// The next practice word on `day`: one of the list at random, never the day's, and none of `played` (the
+        /// practice words since the list last ran out) until every other word has had its turn.
+        /// - Returns: the word, and `played` with it added (or started again when the list had run out).
+        static func practiceWord(language: Language, day: Int, played: [String], using rng: inout Random) -> (word: String, played: [String]) {
+            let today = answer(day: day, language: language)
+            let words = WordBank.dailyOrder(language).filter { $0 != today }
+            let seen = Set(played)
+            var left = words.filter { !seen.contains($0) }
+            var played = played
+            if left.isEmpty {
+                left = words
+                played = []
+            }
+            let word = rng.pick(left)
+            return (word, played + [word])
         }
 
         /// What Daily Word keeps between days (the adapter saves it): the streak and the last games, for the Today

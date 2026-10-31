@@ -74,11 +74,37 @@ enum SampleBoards {
         try write(DailyWordScreen.id, "rows", before, rows)
         before = rows
         let solved = GameTable.play(DailyWordScreen.self, .word(answer), on: &d, random: &random)
-        try write(DailyWordScreen.id, "end-win", before, DailyWordScreen.board(d, events: solved, options: options))
+        before = DailyWordScreen.board(d, events: solved, options: options)
+        try write(DailyWordScreen.id, "end-win", rows, before)
+        // Practice words after the day's: the first board, two rows, and one missed.
+        var e = GameTable.play(DailyWordScreen.self, .button("practice"), on: &d, random: &random)
+        let practice = DailyWordScreen.board(d, events: e, options: options)
+        try write(DailyWordScreen.id, "practice", before, practice)
+        let word = PlaytimeRecords.load().practiceWords?[d.game.language.key]?.last ?? ""
+        let misses = Games.WordBank.daily(d.game.language).filter { $0 != word }
+        for w in misses.prefix(2) { e = GameTable.play(DailyWordScreen.self, .word(w), on: &d, random: &random) }
+        before = DailyWordScreen.board(d, events: e, options: options)
+        try write(DailyWordScreen.id, "practice-rows", practice, before)
+        for w in misses.dropFirst(2).prefix(4) { e = GameTable.play(DailyWordScreen.self, .word(w), on: &d, random: &random) }
+        try write(DailyWordScreen.id, "practice-end-loss", before, DailyWordScreen.board(d, events: e, options: options))
+
+        // Higher or Lower: opened again after "I'll guess yours" (picked first), its question with the switch, its end card.
+        PlaytimeRecords.update { $0.higherLowerMode = "yours" }
+        var h = HigherLowerEngine.start(level: .fair, options: options, random: &random)
+        try write(HigherLowerScreen.id, "start-remembered", nil, HigherLowerScreen.board(h, events: [.opened], options: options))
+        e = GameTable.play(HigherLowerScreen.self, .button("start"), on: &h, random: &random)
+        e = GameTable.play(HigherLowerScreen.self, .next, on: &h, random: &random)
+        try write(HigherLowerScreen.id, "yours-asking", nil, HigherLowerScreen.board(h, events: e, options: options))
+        before = HigherLowerScreen.board(h, events: e, options: options)
+        while !h.over {
+            e = GameTable.play(HigherLowerScreen.self, h.thinking ? .next : .answer(h.yours!.asked >= 4 ? 2 : 0), on: &h, random: &random)
+            if !h.thinking, !h.over { before = HigherLowerScreen.board(h, events: e, options: options) }
+        }
+        try write(HigherLowerScreen.id, "yours-end", before, HigherLowerScreen.board(h, events: e, options: options))
 
         var b = BalloonWordsEngine.start(level: .fair, options: options, random: &random)
         let wrong = b.game.keys.first { k in !b.game.units.contains { $0.key == k } }!
-        var e = GameTable.play(BalloonWordsScreen.self, .letter(wrong), on: &b, random: &random)
+        e = GameTable.play(BalloonWordsScreen.self, .letter(wrong), on: &b, random: &random)
         for unit in b.game.units where !unit.key.isEmpty && !b.game.over {
             if !b.game.guessed.contains(unit.key) {
                 before = BalloonWordsScreen.board(b, events: e, options: options)

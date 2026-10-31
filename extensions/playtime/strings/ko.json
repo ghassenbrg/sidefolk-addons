@@ -125,6 +125,7 @@
     "Guess My Animal": "동물 맞히기",
     "Guess mine": "내 숫자 맞히기",
     "Guess the word, a letter at a time.": "한 글자씩 단어를 맞혀 봐요.",
+    "Guess this word in six tries.": "여섯 번 안에 이 단어를 맞혀요.",
     "Guess today's word in six tries.": "여섯 번 안에 오늘의 단어를 맞혀요.",
     "Guess {n} · par {par}": "{n}번째 · 기준 {par}번",
     "Hard": "어려움",
@@ -184,9 +185,12 @@
     "Play": "놀기",
     "Play Daily Word": "오늘의 단어 하기",
     "Play again": "다시 하기",
+    "Play another word": "다른 단어 하기",
     "Played": "플레이",
     "Playtime": "놀이 시간",
     "Please write both.": "둘 다 적어 주세요.",
+    "Practice word · not in your streak": "연습 · 연속 기록 제외",
+    "Practice words": "연습 단어",
     "Question {n}": "{n}번째 질문",
     "Question {n} of {total}": "질문 {total}개 중 {n}번째",
     "Questions": "문제 수",
@@ -199,6 +203,7 @@
     "Science": "과학",
     "See results": "결과 보기",
     "Show a letter": "글자 하나 보기",
+    "Solved": "성공",
     "Solved in {n}": "{n}번 만에 성공",
     "Solved in {n}!": "{n}번 만에 성공!",
     "Space": "우주",
@@ -211,6 +216,8 @@
     "Streak this round": "이번 연속 정답",
     "Streak {n}": "{n}일 연속",
     "Sun": "해",
+    "Switch: you guess": "네 차례",
+    "Switch: {name} guesses": "{name} 차례",
     "Take 1, 2 or 3 sticks.": "1~3개를 가져가세요.",
     "Take 1, 2 or 3. Don't take the last one!": "1~3개를 가져가요. 마지막 하나는 가져가지 마요!",
     "Teach": "가르치기",
@@ -278,10 +285,14 @@
     "{count} moves · {level}": {
       "other": "{count}동작 · {level}"
     },
+    "{count} practice words": {
+      "other": "연습 단어 {count}개"
+    },
     "{count} sticks left · {level}": {
       "other": "{count}개 남음 · {level}"
     },
     "{name} counts… {n} left.": "{name}이(가) 세는 중… {n}개 남았어요.",
+    "{name} didn't get it either.": "{name}도 못 맞혔어요.",
     "{name} didn't get it either. Tomorrow!": "{name}도 못 맞혔어요. 내일 또 해요!",
     "{name} found it in {count} questions.": {
       "other": "{name}이(가) {count}번 만에 맞혔어요."

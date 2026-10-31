@@ -3,7 +3,8 @@ import SidefolkExtensionKit
 
 /// What Playtime keeps between games, in its own data folder (never the person's other files): each game's tallies and
 /// best, the last ten games for Home, Daily Word's day and streak, Last Stick's lessons, and what the companion learned
-/// in Guess My Animal (a file of its own, it grows). Trivia keeps its own as well (`TriviaRecords`).
+/// in Guess My Animal (a file of its own, it grows). Trivia keeps its own as well (`TriviaRecords`). Fields added
+/// later are optional, so a file from an older Playtime still reads.
 struct PlaytimeRecords: Codable, Equatable {
     struct Tally: Codable, Equatable {
         var played = 0
@@ -33,6 +34,10 @@ struct PlaytimeRecords: Codable, Equatable {
     /// Last Stick: losses so far, and whether the companion offered its trick.
     var stickLosses = 0
     var stickSecretOffered = false
+    /// Higher or Lower's way last played ("mine" or "yours"), picked first on its start board.
+    var higherLowerMode: String?
+    /// Daily Word's practice words played per language since its list last ran out, so none comes back before.
+    var practiceWords: [String: [String]]?
 
     static var file: String { Paths.data + "/records.json" }
     static var animalsFile: String { Paths.data + "/animals.json" }
