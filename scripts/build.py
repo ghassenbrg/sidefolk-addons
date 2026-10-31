@@ -343,6 +343,11 @@ def extensions(ident, work, previews, unsigned, prior):
         # The gallery's shelf (everyday, files, developer, fun), from addon.json beside the manifest.
         extra = json.loads((folder / "addon.json").read_text()) if (folder / "addon.json").exists() else {}
         assert extra.get("category") in ("everyday", "files", "developer", "fun"), f"{name}: addon.json needs a category"
+        # A Sidefolk snapshot this version needs (Sidefolk D83), for what an older snapshot can't read: listed in
+        # the catalog only, where copies before D83 ignore it, never in the manifest, which they'd refuse.
+        if extra.get("minimum_sidefolk"):
+            assert re.fullmatch(r"\d+\.\d+\.\d+-snapshot\.\d+", extra["minimum_sidefolk"]), f"{name}: minimum_sidefolk"
+            entry["minimum_sidefolk"] = extra["minimum_sidefolk"]
         entry["category"] = extra["category"]
         # The gallery names it in the person's language before it's installed (Sidefolk D76): from its strings/.
         localized = gallery_words(folder)
