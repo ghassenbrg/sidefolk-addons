@@ -295,6 +295,21 @@ def themes(ident, work, previews, prior):
     return entries
 
 
+def bundle_libraries(program, binaries, stage, ident):
+    """Frameworks the program links from the build (Miraya's WebRTC), copied to lib/<Name>.framework/<Name> as one
+    plain file each, since Sidefolk refuses links in an extension; the program finds them by its rpath,
+    @executable_path/../lib. Each is signed with the same identity, which the hardened runtime requires."""
+    linked = run("otool", "-L", str(program), capture_output=True).stdout
+    names = sorted(set(re.findall(r"@rpath/([A-Za-z0-9_]+)\.framework/\1\b", linked)))
+    for lib in names:
+        target = stage / "lib" / f"{lib}.framework" / lib
+        target.parent.mkdir(parents=True)
+        shutil.copyfile((binaries / f"{lib}.framework" / lib).resolve(), target)
+        os.chmod(target, 0o755)
+        sign(target, ident)
+    return names
+
+
 def extensions(ident, work, previews, unsigned, prior):
     flags = ["-c", "release"] + ([] if unsigned else ["--arch", "arm64", "--arch", "x86_64"])
     run("swift", "build", *flags, cwd=ROOT)
@@ -340,7 +355,12 @@ def extensions(ident, work, previews, unsigned, prior):
             shutil.copy(folder / m["icon"], stage)
         program = stage / "bin" / f"ext-{name}"
         shutil.copy(binaries / f"ext-{name}", program)
-        sign(program, ident, runtime=True)
+        if (folder / "licenses").is_dir():
+            shutil.copytree(folder / "licenses", stage / "licenses")
+        libraries = bundle_libraries(program, binaries, stage, ident)
+        # The hardened runtime loads only libraries signed by the same team: an ad-hoc check build has no team, so
+        # its program goes without the runtime when it carries libraries (Sidefolk refuses ad-hoc packs anyway).
+        sign(program, ident, runtime=ident != "-" or not libraries)
         entries.append(pack(name, entry, stage, ident, work))
     return entries
 
