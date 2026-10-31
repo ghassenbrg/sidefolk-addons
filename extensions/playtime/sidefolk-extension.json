@@ -1,7 +1,7 @@
 {
   "id": "dev.sidefolk.playtime",
   "name": "Playtime",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "sidefolk": ">=0.1",
   "description": "A break with your companion: eleven games you play against it beside it on the desktop (Daily Word, trivia, tic-tac-toe, Copy Me and more), with your scores and streaks kept, and chance to pick a number or choose from a list.",
   "tagline": "Eleven games with your companion, and random picks",

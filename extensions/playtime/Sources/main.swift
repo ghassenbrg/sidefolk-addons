@@ -5,7 +5,7 @@ import SidefolkExtensionKit
 // Words, Last Stick and Memory Pairs; and random picks for a break. Coins, dice and rock, paper, scissors are the
 // companion's own (`companion.toss`). No permissions; scores stay in its own folder. Its words come in Sidefolk's ten
 // languages (strings/, the Kit's L), chosen by the `language` Sidefolk passes.
-let ext = Extension(name: "playtime", version: "2.0.0")
+let ext = Extension(name: "playtime", version: "1.0.0")
 
 ext.tool("pick", "Random picks",
          "Truly random: pick a number in a range, or pick from a list of choices (one, or several in order). Use it whenever "
