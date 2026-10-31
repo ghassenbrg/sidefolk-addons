@@ -13,7 +13,7 @@ TAG=gallery
 unzip -p dist/catalog.zip 'catalog.sidefolkaddon/Contents/_CodeSignature/CodeSignature' | wc -c | awk '{ if ($1 < 1000) { print "dist/ was built --unsigned." > "/dev/stderr"; exit 1 } }'
 
 if ! gh release view "$TAG" >/dev/null 2>&1; then
-  gh release create "$TAG" --title "Add-on gallery" --latest \
+  gh release create "$TAG" --title "Add-on gallery" --prerelease \
     --notes "Sidefolk's add-on gallery: companions and extensions Sidefolk downloads on demand. Each file is signed; Sidefolk checks it before using it."
 fi
 have=$(gh release view "$TAG" --json assets -q '.assets[] | "\(.name) \(.digest)"')
