@@ -38,6 +38,8 @@ struct PlaytimeRecords: Codable, Equatable {
     var higherLowerMode: String?
     /// Daily Word's practice words played per language since its list last ran out, so none comes back before.
     var practiceWords: [String: [String]]?
+    /// The logic puzzles' best times, daily streaks and practice tallies, by puzzle id (`PuzzleRecords.swift`).
+    var puzzles: [String: Games.PuzzleRecord]?
 
     static var file: String { Paths.data + "/records.json" }
     static var animalsFile: String { Paths.data + "/animals.json" }
