@@ -88,5 +88,10 @@ that version and keep the one they have.
   (people can hide it from Home's sidebar): an extension that is mostly an on/off switch puts that switch on its page's
   summary (`Summary(..., control: .toggle(...))`) with `"widget": true`, and Sidefolk shows it on Today's tile and
   beside the page in the sidebar, as Keep Awake does (Sidefolk's docs/EXTENSIONS.md › Pages).
+- **What the Kit offers** follows Sidefolk's protocol: tools, watchers, pages (gauges, charts, switches, buttons, and
+  since Sidefolk D68 `choice`, `field` and `list` with pictures), palettes (items with a picture, a swatch and a
+  section; `PalettePreview` for the picked item in full; list actions like `clear`), and notices (`ext.on`, as
+  Clipboard hears which app a copy came from). A picture is a file the program wrote in its own data folder
+  (`Paths.data`), named relative to it: make thumbnails once and small. Change Kit/ in Sidefolk first, then copy it here.
 
 Sidefolk is proprietary (its LICENSE); so are the add-ons here unless an `addon.json` or manifest says otherwise.

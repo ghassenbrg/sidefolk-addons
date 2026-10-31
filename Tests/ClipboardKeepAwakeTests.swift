@@ -66,7 +66,7 @@ struct ClipboardKeepAwakeTests {
         #expect(Words.title(files) == "one.pdf, two.png and 2 more")
         let secret = Entry(id: "3", kind: .text, text: "hunter2hunter2", copied: now, secret: true)
         #expect(!Words.title(secret).contains("hunter") && Words.detail(secret, now: now).contains("forgotten in"))
-        #expect(Words.item(code).actions == ["pin", "delete"])
+        #expect(Words.item(code).actions == ["alternate", "pin", "delete"])
     }
 
     @Test func keepAwakeLetsGoWhenItShould() {
