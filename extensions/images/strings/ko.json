@@ -1,0 +1,41 @@
+{
+  "name": "사진",
+  "tagline": "사진 정보와 변환된 사본",
+  "description": "사진의 정보, 그리고 JPEG·PNG·HEIC로 변환하거나 작게 줄이거나 위치 정보를 뺀 사본. 원본은 그대로 남아요.",
+  "tools": {
+    "convert_images": {
+      "title": "사진 변환"
+    },
+    "image_info": {
+      "title": "사진 정보"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "other": "{folder}에 복사본 {count}개를 만들었습니다({how}): {sizes}."
+    },
+    "Nothing was converted.": "변환된 것이 없습니다.",
+    "Skipped {count}:": "{count}개 건너뜀:",
+    "That's {count} pictures; do at most 200 at a time.": "그림이 {count}개입니다. 한 번에 최대 200개까지 하세요.",
+    "There are no pictures in {folder}.": "{folder}에 그림이 없습니다.",
+    "at most {size} px": "최대 {size}px",
+    "it couldn't be decoded": "디코딩할 수 없음",
+    "it couldn't be written": "저장할 수 없음",
+    "it records where it was taken (location)": "촬영 장소(위치)가 기록되어 있음",
+    "location removed": "위치 제거됨",
+    "no location in it": "위치 정보 없음",
+    "not a picture I can read": "읽을 수 있는 그림이 아님",
+    "taken {when}": "촬영 {when}",
+    "that format can't be written": "그 형식으로는 저장할 수 없음",
+    "their own format": "원래 형식",
+    "with {camera}": "{camera}(으)로",
+    "{count} frames": {
+      "other": "{count}프레임"
+    },
+    "{file} isn't a picture I can read.": "{file}은(는) 읽을 수 있는 그림이 아닙니다.",
+    "{file}: not a file in that folder": "{file}: 그 폴더의 파일이 아님",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height}px({megapixels}메가픽셀)",
+    "{folder} isn't a folder.": "{folder}은(는) 폴더가 아닙니다."
+  }
+}

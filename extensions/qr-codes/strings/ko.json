@@ -1,0 +1,22 @@
+{
+  "name": "QR 코드",
+  "tagline": "QR 코드 만들기와 읽기",
+  "description": "링크나 텍스트로 QR 코드 이미지를 만들고, 사진이나 스크린샷의 QR 코드를 읽어요.",
+  "tools": {
+    "make_qr": {
+      "title": "QR 코드 만들기"
+    },
+    "read_qr": {
+      "title": "QR 코드 읽기"
+    }
+  },
+  "text": {
+    "I didn't find a QR code in {file}.": "{file}에서 QR 코드를 찾지 못했습니다.",
+    "Saved a QR code for “{text}” as {file} ({width} × {height} px).": "‘{text}’의 QR 코드를 {file}(으)로 저장했습니다({width} × {height}px).",
+    "The QR code couldn't be drawn.": "QR 코드를 그릴 수 없습니다.",
+    "The picture couldn't be saved.": "그림을 저장할 수 없습니다.",
+    "This Mac can't make QR codes.": "이 Mac에서는 QR 코드를 만들 수 없습니다.",
+    "{file} isn't a picture I can read.": "{file}은(는) 읽을 수 있는 그림이 아닙니다.",
+    "{folder} can't be written to.": "{folder}에 쓸 수 없습니다."
+  }
+}

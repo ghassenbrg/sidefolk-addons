@@ -1,0 +1,45 @@
+{
+  "name": "PDFツール",
+  "tagline": "PDFの読み取り、結合、分割",
+  "description": "PDFの詳細とテキストの読み取り、複数のPDFの結合、一部のページを新しいPDFとして保存。元のファイルはそのまま残ります。",
+  "tools": {
+    "combine_pdfs": {
+      "title": "PDFを結合"
+    },
+    "extract_pages": {
+      "title": "PDFからページを取り出す"
+    },
+    "pdf_info": {
+      "title": "PDFの詳細"
+    },
+    "pdf_text": {
+      "title": "PDFのテキストを読む"
+    }
+  },
+  "text": {
+    ", ": "、",
+    "Combined {count} PDFs ({pages}) into {file}.": "{count}個のPDF（{pages}）を{file}に結合しました。",
+    "Cut at {count} characters: ask for later pages.": "{count}文字で切りました。続きのページを指定してください。",
+    "Name at least two PDFs in that folder, in the order they go.": "そのフォルダのPDFを並べたい順に2つ以上指定してください。",
+    "Saved {count} pages of {file} as {saved}.": {
+      "other": "{file}の{count}ページを{saved}として保存しました。"
+    },
+    "The PDF has pages 1 to {count}; “{pages}” is outside that.": "PDFのページは1〜{count}です。「{pages}」は範囲外です。",
+    "The combined PDF couldn't be saved.": "結合したPDFを保存できませんでした。",
+    "The new PDF couldn't be saved.": "新しいPDFを保存できませんでした。",
+    "There's no text on those pages (they may be scanned images).": "そのページにテキストはありません（スキャン画像かもしれません）。",
+    "Write pages like 1-3, 5, 8-.": "ページは 1-3, 5, 8- のように書いてください。",
+    "by {author}": "作成者 {author}",
+    "encrypted": "暗号化済み",
+    "it has text": "テキストあり",
+    "no text in it (scanned pages, perhaps)": "テキストなし（スキャンしたページかもしれません）",
+    "title “{title}”": "タイトル「{title}」",
+    "{count} pages": {
+      "other": "{count}ページ"
+    },
+    "{file} is locked with a password.": "{file}はパスワードでロックされています。",
+    "{file} isn't a PDF I can read.": "{file}は読み取れるPDFではありません。",
+    "{paper}, landscape": "{paper}、横向き",
+    "“{file}” should be just a file name in {folder}.": "「{file}」は{folder}内のファイル名だけにしてください。"
+  }
+}

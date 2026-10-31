@@ -1,0 +1,47 @@
+{
+  "name": "PDF-Werkzeuge",
+  "tagline": "PDFs lesen, zusammenfügen und teilen",
+  "description": "Details und Text eines PDFs, mehrere PDFs zu einem zusammengefügt und einzelne Seiten als neues PDF gespeichert. Deine Originale bleiben, wie sie sind.",
+  "tools": {
+    "combine_pdfs": {
+      "title": "PDFs zusammenfügen"
+    },
+    "extract_pages": {
+      "title": "Seiten aus einem PDF herausnehmen"
+    },
+    "pdf_info": {
+      "title": "PDF-Details"
+    },
+    "pdf_text": {
+      "title": "Den Text eines PDFs lesen"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Combined {count} PDFs ({pages}) into {file}.": "{count} PDFs ({pages}) zu {file} zusammengefügt.",
+    "Cut at {count} characters: ask for later pages.": "Bei {count} Zeichen abgeschnitten: frag nach späteren Seiten.",
+    "Name at least two PDFs in that folder, in the order they go.": "Nenne mindestens zwei PDFs in diesem Ordner, in ihrer Reihenfolge.",
+    "Saved {count} pages of {file} as {saved}.": {
+      "one": "{count} Seite von {file} als {saved} gesichert.",
+      "other": "{count} Seiten von {file} als {saved} gesichert."
+    },
+    "The PDF has pages 1 to {count}; “{pages}” is outside that.": "Das PDF hat die Seiten 1 bis {count}; „{pages}“ liegt außerhalb.",
+    "The combined PDF couldn't be saved.": "Das zusammengefügte PDF ließ sich nicht sichern.",
+    "The new PDF couldn't be saved.": "Das neue PDF ließ sich nicht sichern.",
+    "There's no text on those pages (they may be scanned images).": "Auf diesen Seiten ist kein Text (vielleicht gescannte Bilder).",
+    "Write pages like 1-3, 5, 8-.": "Schreib Seiten wie 1-3, 5, 8-.",
+    "by {author}": "von {author}",
+    "encrypted": "verschlüsselt",
+    "it has text": "es enthält Text",
+    "no text in it (scanned pages, perhaps)": "kein Text darin (vielleicht gescannte Seiten)",
+    "title “{title}”": "Titel „{title}“",
+    "{count} pages": {
+      "one": "{count} Seite",
+      "other": "{count} Seiten"
+    },
+    "{file} is locked with a password.": "{file} ist mit einem Passwort geschützt.",
+    "{file} isn't a PDF I can read.": "{file} ist kein PDF, das ich lesen kann.",
+    "{paper}, landscape": "{paper}, Querformat",
+    "“{file}” should be just a file name in {folder}.": "„{file}“ sollte nur ein Dateiname in {folder} sein."
+  }
+}

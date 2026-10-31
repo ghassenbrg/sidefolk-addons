@@ -1,0 +1,64 @@
+{
+  "name": "Boîte à outils dev",
+  "tagline": "JSON, base64, JWT, UUID et plus encore",
+  "description": "Pour les développeurs : formater du JSON, encoder et décoder du base64, des URL et de l’hexadécimal, décoder des JWT, convertir des horodatages, créer des UUID et vérifier la somme de contrôle d’un fichier.",
+  "tools": {
+    "checksum": {
+      "title": "Somme de contrôle d’un fichier"
+    },
+    "generate": {
+      "title": "Générer des identifiants"
+    },
+    "timestamp": {
+      "title": "Convertir un horodatage"
+    },
+    "transform": {
+      "title": "Transformer du texte"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "A JWT has three parts separated by dots.": "Un JWT a trois parties séparées par des points.",
+    "Claims": "Revendications",
+    "Expires": "Expire",
+    "Generate a uuid or a token.": "Générez un uuid ou un token.",
+    "Give Unix time (1730000000 or milliseconds) or an ISO 8601 date (2026-10-28T09:30:00Z).": "Indiquez un temps Unix (1730000000 ou en millisecondes) ou une date ISO 8601 (2026-10-28T09:30:00Z).",
+    "Header": "En-tête",
+    "Here: {date}": "Ici : {date}",
+    "Issued": "Émis",
+    "Not text: {size} ({hex}).": "Pas du texte : {size} ({hex}).",
+    "Operations: {names}.": "Opérations : {names}.",
+    "That isn't base64.": "Ce n’est pas du base64.",
+    "That isn't hexadecimal.": "Ce n’est pas de l’hexadécimal.",
+    "That isn't valid JSON": "Ce n’est pas du JSON valide",
+    "That isn't valid JSON: a comma before a closing bracket, at character {position}.": "Ce n’est pas du JSON valide : une virgule avant un crochet fermant, au caractère {position}.",
+    "That isn't valid URL encoding.": "Ce n’est pas un encodage URL valide.",
+    "The signature is not checked.": "La signature n’est pas vérifiée.",
+    "Unix time {seconds} (milliseconds {milliseconds})": "Temps Unix {seconds} (millisecondes {milliseconds})",
+    "Valid from": "Valide dès",
+    "expired": "expiré",
+    "still valid": "toujours valide",
+    "{algorithm} of {file}:": "{algorithm} de {file} :",
+    "{count} bytes": {
+      "one": "{count} octet",
+      "other": "{count} octets"
+    },
+    "{count} bytes in UTF-8": {
+      "one": "{count} octet en UTF-8",
+      "other": "{count} octets en UTF-8"
+    },
+    "{count} characters": {
+      "one": "{count} caractère",
+      "other": "{count} caractères"
+    },
+    "{count} lines": {
+      "one": "{count} ligne",
+      "other": "{count} lignes"
+    },
+    "{count} words": {
+      "one": "{count} mot",
+      "other": "{count} mots"
+    },
+    "{file} can't be read.": "{file} ne peut pas être lu."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "text": {
+    ", ": ", ",
+    "Combined {count} PDFs ({pages}) into {file}.": "Combined {count} PDFs ({pages}) into {file}.",
+    "Cut at {count} characters: ask for later pages.": "Cut at {count} characters: ask for later pages.",
+    "Name at least two PDFs in that folder, in the order they go.": "Name at least two PDFs in that folder, in the order they go.",
+    "Saved {count} pages of {file} as {saved}.": {
+      "one": "Saved {count} page of {file} as {saved}.",
+      "other": "Saved {count} pages of {file} as {saved}."
+    },
+    "The PDF has pages 1 to {count}; “{pages}” is outside that.": "The PDF has pages 1 to {count}; “{pages}” is outside that.",
+    "The combined PDF couldn't be saved.": "The combined PDF couldn't be saved.",
+    "The new PDF couldn't be saved.": "The new PDF couldn't be saved.",
+    "There's no text on those pages (they may be scanned images).": "There's no text on those pages (they may be scanned images).",
+    "Write pages like 1-3, 5, 8-.": "Write pages like 1-3, 5, 8-.",
+    "by {author}": "by {author}",
+    "encrypted": "encrypted",
+    "it has text": "it has text",
+    "no text in it (scanned pages, perhaps)": "no text in it (scanned pages, perhaps)",
+    "title “{title}”": "title “{title}”",
+    "{count} pages": {
+      "one": "{count} page",
+      "other": "{count} pages"
+    },
+    "{file} is locked with a password.": "{file} is locked with a password.",
+    "{file} isn't a PDF I can read.": "{file} isn't a PDF I can read.",
+    "{paper}, landscape": "{paper}, landscape",
+    "“{file}” should be just a file name in {folder}.": "“{file}” should be just a file name in {folder}."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "الخلاصات",
+  "tagline": "أحدث منشورات المدونات والأخبار والبودكاست",
+  "description": "أحدث منشورات المدونات ومواقع الأخبار والبودكاست من خلاصات RSS أو Atom، وتنبيه حين يظهر منشور جديد.",
+  "tools": {
+    "read_feed": {
+      "title": "أحدث المنشورات"
+    }
+  },
+  "watchers": {
+    "new_post": {
+      "title": "منشور جديد",
+      "description": "يُعلمك حين تنشر مدونة أو موقع أخبار أو بودكاست شيئًا جديدًا."
+    }
+  },
+  "text": {
+    ", ": "، ",
+    "Give the feed's or the site's web address, like https://example.com/blog.": "أعطِ عنوان الخلاصة أو الموقع، مثل https://example.com/blog.",
+    "I couldn't find an RSS or Atom feed at {address}.": "لم أجد خلاصة RSS أو Atom على {address}.",
+    "New on {feed}: {posts} and {count} more.": "جديد على {feed}: {posts} و{count} أخرى.",
+    "New on {feed}: {posts}.": "جديد على {feed}: {posts}.",
+    "No new posts on {feed}.": "لا منشورات جديدة على {feed}.",
+    "The feed": "الخلاصة",
+    "untitled": "بلا عنوان",
+    "{feed} has no posts yet.": "لا منشورات على {feed} بعد.",
+    "{feed}, latest {count}:": "{feed}، أحدث {count}:"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "الصور",
+  "tagline": "تفاصيل الصور ونسخ محوّلة",
+  "description": "تفاصيل صورة، ونسخ من الصور محوّلة إلى JPEG أو PNG أو HEIC، أو مصغّرة، أو بلا موقعها. تبقى ملفاتك الأصلية كما هي.",
+  "tools": {
+    "convert_images": {
+      "title": "تحويل الصور"
+    },
+    "image_info": {
+      "title": "تفاصيل الصورة"
+    }
+  },
+  "text": {
+    ", ": "، ",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "zero": "لم تُنشأ أي نسخة في {folder} ({how}): {sizes}.",
+      "one": "أُنشئت نسخة واحدة في {folder} ({how}): {sizes}.",
+      "two": "أُنشئت نسختان في {folder} ({how}): {sizes}.",
+      "few": "أُنشئت {count} نسخ في {folder} ({how}): {sizes}.",
+      "many": "أُنشئت {count} نسخة في {folder} ({how}): {sizes}.",
+      "other": "أُنشئت {count} نسخة في {folder} ({how}): {sizes}."
+    },
+    "Nothing was converted.": "لم يُحوَّل شيء.",
+    "Skipped {count}:": "تُخطّي {count}:",
+    "That's {count} pictures; do at most 200 at a time.": "هذه {count} صورة؛ عالج 200 على الأكثر في كل مرة.",
+    "There are no pictures in {folder}.": "لا توجد صور في {folder}.",
+    "at most {size} px": "{size} بكسل كحد أقصى",
+    "it couldn't be decoded": "تعذّر فك ترميزها",
+    "it couldn't be written": "تعذّرت كتابتها",
+    "it records where it was taken (location)": "تسجّل مكان التقاطها (الموقع)",
+    "location removed": "أُزيل الموقع",
+    "no location in it": "لا موقع فيها",
+    "not a picture I can read": "ليست صورة يمكن قراءتها",
+    "taken {when}": "التُقطت في {when}",
+    "that format can't be written": "لا يمكن الكتابة بهذه الصيغة",
+    "their own format": "صيغتها الأصلية",
+    "with {camera}": "بـ{camera}",
+    "{count} frames": {
+      "zero": "{count} إطار",
+      "one": "إطار واحد",
+      "two": "إطاران",
+      "few": "{count} إطارات",
+      "many": "{count} إطارًا",
+      "other": "{count} إطار"
+    },
+    "{file} isn't a picture I can read.": "{file} ليست صورة يمكن قراءتها.",
+    "{file}: not a file in that folder": "{file}: ليس ملفًا في ذلك المجلد",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} بكسل ({megapixels} ميغابكسل)",
+    "{folder} isn't a folder.": "{folder} ليس مجلدًا."
+  }
+}

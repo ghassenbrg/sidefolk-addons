@@ -1,0 +1,47 @@
+{
+  "text": {
+    ", ": ", ",
+    "A JWT has three parts separated by dots.": "A JWT has three parts separated by dots.",
+    "Claims": "Claims",
+    "Expires": "Expires",
+    "Generate a uuid or a token.": "Generate a uuid or a token.",
+    "Give Unix time (1730000000 or milliseconds) or an ISO 8601 date (2026-10-28T09:30:00Z).": "Give Unix time (1730000000 or milliseconds) or an ISO 8601 date (2026-10-28T09:30:00Z).",
+    "Header": "Header",
+    "Here: {date}": "Here: {date}",
+    "Issued": "Issued",
+    "Not text: {size} ({hex}).": "Not text: {size} ({hex}).",
+    "Operations: {names}.": "Operations: {names}.",
+    "That isn't base64.": "That isn't base64.",
+    "That isn't hexadecimal.": "That isn't hexadecimal.",
+    "That isn't valid JSON": "That isn't valid JSON",
+    "That isn't valid JSON: a comma before a closing bracket, at character {position}.": "That isn't valid JSON: a comma before a closing bracket, at character {position}.",
+    "That isn't valid URL encoding.": "That isn't valid URL encoding.",
+    "The signature is not checked.": "The signature is not checked.",
+    "Unix time {seconds} (milliseconds {milliseconds})": "Unix time {seconds} (milliseconds {milliseconds})",
+    "Valid from": "Valid from",
+    "expired": "expired",
+    "still valid": "still valid",
+    "{algorithm} of {file}:": "{algorithm} of {file}:",
+    "{count} bytes": {
+      "one": "{count} byte",
+      "other": "{count} bytes"
+    },
+    "{count} bytes in UTF-8": {
+      "one": "{count} byte in UTF-8",
+      "other": "{count} bytes in UTF-8"
+    },
+    "{count} characters": {
+      "one": "{count} character",
+      "other": "{count} characters"
+    },
+    "{count} lines": {
+      "one": "{count} line",
+      "other": "{count} lines"
+    },
+    "{count} words": {
+      "one": "{count} word",
+      "other": "{count} words"
+    },
+    "{file} can't be read.": "{file} can't be read."
+  }
+}

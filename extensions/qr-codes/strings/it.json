@@ -1,0 +1,22 @@
+{
+  "name": "Codici QR",
+  "tagline": "Creare e leggere codici QR",
+  "description": "Crea l’immagine di un codice QR di un link o di un testo, e legge il codice QR in un’immagine o in uno screenshot.",
+  "tools": {
+    "make_qr": {
+      "title": "Crea un codice QR"
+    },
+    "read_qr": {
+      "title": "Leggi un codice QR"
+    }
+  },
+  "text": {
+    "I didn't find a QR code in {file}.": "Non ho trovato un codice QR in {file}.",
+    "Saved a QR code for “{text}” as {file} ({width} × {height} px).": "Salvato un codice QR per «{text}» come {file} ({width} × {height} px).",
+    "The QR code couldn't be drawn.": "Impossibile disegnare il codice QR.",
+    "The picture couldn't be saved.": "Impossibile salvare l’immagine.",
+    "This Mac can't make QR codes.": "Questo Mac non può creare codici QR.",
+    "{file} isn't a picture I can read.": "{file} non è un’immagine che riesco a leggere.",
+    "{folder} can't be written to.": "Impossibile scrivere in {folder}."
+  }
+}

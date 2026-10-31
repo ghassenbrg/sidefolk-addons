@@ -1,0 +1,38 @@
+{
+  "text": {
+    "Cloned {name} into {folder}: branch {branch}, {latest}.": "Cloned {name} into {folder}: branch {branch}, {latest}.",
+    "Couldn't reach that address: check it, and the internet connection.": "Couldn't reach that address: check it, and the internet connection.",
+    "Git failed without saying why.": "Git failed without saying why.",
+    "It needs a sign-in: the repository is private, or the address is wrong. Git here can only reach public repositories, because it can't use your saved passwords or keys.": "It needs a sign-in: the repository is private, or the address is wrong. Git here can only reach public repositories, because it can't use your saved passwords or keys.",
+    "Latest commits on {branch} in {folder}:": "Latest commits on {branch} in {folder}:",
+    "Leave sign-in details out of the address; Git here only clones public repositories.": "Leave sign-in details out of the address; Git here only clones public repositories.",
+    "Nothing changed.": "Nothing changed.",
+    "Only https addresses can be cloned here, like https://github.com/owner/project.": "Only https addresses can be cloned here, like https://github.com/owner/project.",
+    "Pulled {count} new commits into {folder} on {branch}; {latest}.": {
+      "one": "Pulled {count} new commit into {folder} on {branch}; {latest}.",
+      "other": "Pulled {count} new commits into {folder} on {branch}; {latest}."
+    },
+    "Sidefolk didn't pass the location of git, so nothing can run.": "Sidefolk didn't pass the location of git, so nothing can run.",
+    "Some changed files would be overwritten. Nothing changed; commit or stash them first.": "Some changed files would be overwritten. Nothing changed; commit or stash them first.",
+    "That folder isn't a Git repository.": "That folder isn't a Git repository.",
+    "The branch and its remote have both moved on, so it can't simply be brought up to date. Nothing changed; merge or rebase it yourself.": "The branch and its remote have both moved on, so it can't simply be brought up to date. Nothing changed; merge or rebase it yourself.",
+    "There's no public repository at that address.": "There's no public repository at that address.",
+    "This branch doesn't follow a branch on a remote, so there's nothing to pull.": "This branch doesn't follow a branch on a remote, so there's nothing to pull.",
+    "This repository's remote isn't an https address (it may use SSH, which needs your keys). Git here only reaches https remotes.": "This repository's remote isn't an https address (it may use SSH, which needs your keys). Git here only reaches https remotes.",
+    "a detached HEAD": "a detached HEAD",
+    "an unborn branch": "an unborn branch",
+    "and {count} more": "and {count} more",
+    "even with {upstream} (as of the last fetch)": "even with {upstream} (as of the last fetch)",
+    "latest commit {hash} “{message}” ({when})": "latest commit {hash} “{message}” ({when})",
+    "no commits yet": "no commits yet",
+    "{ahead} ahead and {behind} behind {upstream} (as of the last fetch)": "{ahead} ahead and {behind} behind {upstream} (as of the last fetch)",
+    "{count} changed ({staged} staged)": "{count} changed ({staged} staged)",
+    "{count} new and untracked": "{count} new and untracked",
+    "{count} with conflicts": "{count} with conflicts",
+    "{folder} already exists. Choose a new folder name.": "{folder} already exists. Choose a new folder name.",
+    "{folder} has no commits yet.": "{folder} has no commits yet.",
+    "{folder} on {branch}": "{folder} on {branch}",
+    "{folder} on {branch} is already up to date.": "{folder} on {branch} is already up to date.",
+    "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent} doesn't exist yet. Create it first, then clone into {folder}."
+  }
+}

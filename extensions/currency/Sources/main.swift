@@ -11,7 +11,7 @@ ext.tool("convert_currency", "Convert money",
              "from": Schema.string("The currency it is in: a code like USD or a name like yen.", maxLength: 30),
              "to": Schema.array(of: Schema.string("A currency code or name.", maxLength: 30), "The currencies wanted.", maxItems: 10),
          ], required: ["amount", "from", "to"])) { args in
-    guard let amount = args.double("amount") else { throw Problem("“amount” must be a number.") }
+    guard let amount = args.double("amount") else { throw Problem(L("“{key}” must be a number.", ["key": "amount"])) }
     return try await Rates.convert(amount, from: try args.required("from"), to: args.strings("to"))
 }
 

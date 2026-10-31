@@ -6,8 +6,8 @@ import SidefolkExtensionKit
 /// Originals are never changed; every result is a new file beside them.
 enum PDFTools {
     static func open(_ path: String) throws -> PDFDocument {
-        guard let document = PDFDocument(url: URL(fileURLWithPath: path)) else { throw Problem("\(Paths.show(path)) isn't a PDF I can read.") }
-        guard !document.isLocked else { throw Problem("\(Paths.show(path)) is locked with a password.") }
+        guard let document = PDFDocument(url: URL(fileURLWithPath: path)) else { throw Problem(L("{file} isn't a PDF I can read.", ["file": Paths.show(path)])) }
+        guard !document.isLocked else { throw Problem(L("{file} is locked with a password.", ["file": Paths.show(path)])) }
         return document
     }
 
@@ -15,25 +15,24 @@ enum PDFTools {
         let path = try Paths.full(raw)
         let document = try open(path)
         let attributes = document.documentAttributes ?? [:]
-        var parts = ["\((path as NSString).lastPathComponent): \(document.pageCount) page\(document.pageCount == 1 ? "" : "s")"]
+        var parts = [(path as NSString).lastPathComponent + ": " + L(one: "{count} page", other: "{count} pages", count: document.pageCount)]
         if let page = document.page(at: 0) {
             let box = page.bounds(for: .mediaBox)
-            parts.append(String(format: "%.0f × %.0f mm", box.width / 72 * 25.4, box.height / 72 * 25.4) + paper(box.size))
+            parts.append("\(Format.number(box.width / 72 * 25.4, digits: 0)) × \(Format.number(box.height / 72 * 25.4, digits: 0)) mm" + paper(box.size))
         }
-        parts.append(ByteCountFormatter.string(fromByteCount: Int64((try? FileManager.default.attributesOfItem(atPath: path)[.size] as? Int) ?? 0),
-                                               countStyle: .file))
-        if let title = attributes[PDFDocumentAttribute.titleAttribute] as? String, !title.isEmpty { parts.append("title “\(title)”") }
-        if let author = attributes[PDFDocumentAttribute.authorAttribute] as? String, !author.isEmpty { parts.append("by \(author)") }
-        if document.isEncrypted { parts.append("encrypted") }
-        parts.append((document.string ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "no text in it (scanned pages, perhaps)" : "it has text")
-        return parts.joined(separator: ", ") + "."
+        parts.append(Format.bytes(Int64((try? FileManager.default.attributesOfItem(atPath: path)[.size] as? Int) ?? 0)))
+        if let title = attributes[PDFDocumentAttribute.titleAttribute] as? String, !title.isEmpty { parts.append(L("title “{title}”", ["title": title])) }
+        if let author = attributes[PDFDocumentAttribute.authorAttribute] as? String, !author.isEmpty { parts.append(L("by {author}", ["author": author])) }
+        if document.isEncrypted { parts.append(L("encrypted")) }
+        parts.append((document.string ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? L("no text in it (scanned pages, perhaps)") : L("it has text"))
+        return parts.joined(separator: L(", ")) + "."
     }
 
     static func paper(_ size: CGSize) -> String {
         let (w, h) = (min(size.width, size.height), max(size.width, size.height))
         for (name, pw, ph) in [("A4", 595.0, 842.0), ("US Letter", 612.0, 792.0), ("A5", 420.0, 595.0), ("A3", 842.0, 1191.0), ("US Legal", 612.0, 1008.0)]
         where abs(w - pw) < 3 && abs(h - ph) < 3 {
-            return " (\(name)\(size.width > size.height ? ", landscape" : ""))"
+            return " (" + (size.width > size.height ? L("{paper}, landscape", ["paper": name]) : name) + ")"
         }
         return ""
     }
@@ -49,8 +48,8 @@ enum PDFTools {
             text += "--- Page \(n) ---\n" + (page.string ?? "") + "\n"
             if text.count > 20_000 { break }
         }
-        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Problem("There's no text on those pages (they may be scanned images).") }
-        return text.count > 20_000 ? String(text.prefix(20_000)) + "\n[Cut at 20,000 characters: ask for later pages.]" : text
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Problem(L("There's no text on those pages (they may be scanned images).")) }
+        return text.count > 20_000 ? String(text.prefix(20_000)) + "\n[" + L("Cut at {count} characters: ask for later pages.", ["count": 20_000]) + "]" : text
     }
 
     /// "1-3, 5, 8-" → [1, 2, 3, 5, 8, 9, …].
@@ -58,40 +57,40 @@ enum PDFTools {
         var pages: [Int] = []
         for part in text.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespaces) }) where !part.isEmpty {
             let ends = part.split(separator: "-", omittingEmptySubsequences: false).map { $0.trimmingCharacters(in: .whitespaces) }
-            guard ends.count <= 2, let first = Int(ends[0].isEmpty ? "1" : ends[0]) else { throw Problem("Write pages like 1-3, 5, 8-.") }
+            guard ends.count <= 2, let first = Int(ends[0].isEmpty ? "1" : ends[0]) else { throw Problem(L("Write pages like 1-3, 5, 8-.")) }
             let last = ends.count == 2 ? (ends[1].isEmpty ? count : Int(ends[1]) ?? -1) : first
-            guard 1 <= first, first <= last, last <= count else { throw Problem("The PDF has pages 1 to \(count); “\(part)” is outside that.") }
+            guard 1 <= first, first <= last, last <= count else { throw Problem(L("The PDF has pages 1 to {count}; “{pages}” is outside that.", ["count": count, "pages": String(part)])) }
             pages += Array(first...last)
         }
-        guard !pages.isEmpty else { throw Problem("Write pages like 1-3, 5, 8-.") }
+        guard !pages.isEmpty else { throw Problem(L("Write pages like 1-3, 5, 8-.")) }
         return pages
     }
 
     static func combine(folder raw: String, files: [String], name: String?) throws -> String {
         let folder = try Paths.full(raw)
-        guard files.count >= 2 else { throw Problem("Name at least two PDFs in that folder, in the order they go.") }
+        guard files.count >= 2 else { throw Problem(L("Name at least two PDFs in that folder, in the order they go.")) }
         let combined = PDFDocument()
         for file in files {
-            guard !file.contains("/") else { throw Problem("“\(file)” should be just a file name in \(Paths.show(folder)).") }
+            guard !file.contains("/") else { throw Problem(L("“{file}” should be just a file name in {folder}.", ["file": file, "folder": Paths.show(folder)])) }
             let document = try open(folder + "/" + file)
             for i in 0..<document.pageCount { if let page = document.page(at: i) { combined.insert(page, at: combined.pageCount) } }
         }
         let output = Paths.free(folder + "/" + fileName(name ?? "Combined"))
-        guard combined.write(to: URL(fileURLWithPath: output)) else { throw Problem("The combined PDF couldn't be saved.") }
-        return "Combined \(files.count) PDFs (\(combined.pageCount) pages) into \(Paths.show(output))."
+        guard combined.write(to: URL(fileURLWithPath: output)) else { throw Problem(L("The combined PDF couldn't be saved.")) }
+        return L("Combined {count} PDFs ({pages}) into {file}.", ["count": files.count, "pages": L(one: "{count} page", other: "{count} pages", count: combined.pageCount), "file": Paths.show(output)])
     }
 
     static func extract(folder raw: String, file: String, pages: String) throws -> String {
         let folder = try Paths.full(raw)
-        guard !file.contains("/") else { throw Problem("“\(file)” should be just a file name in \(Paths.show(folder)).") }
+        guard !file.contains("/") else { throw Problem(L("“{file}” should be just a file name in {folder}.", ["file": file, "folder": Paths.show(folder)])) }
         let document = try open(folder + "/" + file)
         let numbers = try parsePages(pages, count: document.pageCount)
         let result = PDFDocument()
         for n in numbers { if let page = document.page(at: n - 1) { result.insert(page, at: result.pageCount) } }
         let stem = (file as NSString).deletingPathExtension
         let output = Paths.free(folder + "/" + fileName("\(stem) (pages \(pages.replacingOccurrences(of: " ", with: "")))"))
-        guard result.write(to: URL(fileURLWithPath: output)) else { throw Problem("The new PDF couldn't be saved.") }
-        return "Saved \(numbers.count) page\(numbers.count == 1 ? "" : "s") of \(file) as \(Paths.show(output))."
+        guard result.write(to: URL(fileURLWithPath: output)) else { throw Problem(L("The new PDF couldn't be saved.")) }
+        return L(one: "Saved {count} page of {file} as {saved}.", other: "Saved {count} pages of {file} as {saved}.", count: numbers.count, ["file": file, "saved": Paths.show(output)])
     }
 
     /// A safe file name ending in .pdf.

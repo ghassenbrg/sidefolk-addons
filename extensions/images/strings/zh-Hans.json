@@ -1,0 +1,41 @@
+{
+  "name": "图片",
+  "tagline": "照片信息和转换后的副本",
+  "description": "照片的信息，以及转换为 JPEG、PNG 或 HEIC、缩小尺寸或去掉位置信息的图片副本。原始文件保持不变。",
+  "tools": {
+    "convert_images": {
+      "title": "转换图片"
+    },
+    "image_info": {
+      "title": "图片信息"
+    }
+  },
+  "text": {
+    ", ": "，",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "other": "已在 {folder} 中生成 {count} 个副本（{how}）：{sizes}。"
+    },
+    "Nothing was converted.": "没有转换任何内容。",
+    "Skipped {count}:": "跳过 {count} 个：",
+    "That's {count} pictures; do at most 200 at a time.": "共 {count} 张图片；每次最多处理 200 张。",
+    "There are no pictures in {folder}.": "{folder} 中没有图片。",
+    "at most {size} px": "最大 {size} 像素",
+    "it couldn't be decoded": "无法解码",
+    "it couldn't be written": "无法写入",
+    "it records where it was taken (location)": "记录了拍摄地点（位置）",
+    "location removed": "已移除位置",
+    "no location in it": "不含位置",
+    "not a picture I can read": "不是能读取的图片",
+    "taken {when}": "拍摄于 {when}",
+    "that format can't be written": "无法写入该格式",
+    "their own format": "原格式",
+    "with {camera}": "使用 {camera}",
+    "{count} frames": {
+      "other": "{count} 帧"
+    },
+    "{file} isn't a picture I can read.": "{file} 不是能读取的图片。",
+    "{file}: not a file in that folder": "{file}：不是该文件夹中的文件",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}：{width} × {height} 像素（{megapixels} 百万像素）",
+    "{folder} isn't a folder.": "{folder} 不是文件夹。"
+  }
+}

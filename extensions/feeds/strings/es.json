@@ -1,0 +1,28 @@
+{
+  "name": "Fuentes",
+  "tagline": "Novedades de blogs, noticias y pódcasts",
+  "description": "Las últimas publicaciones de blogs, sitios de noticias y pódcasts a través de sus fuentes RSS o Atom, y un aviso cuando aparece una nueva.",
+  "tools": {
+    "read_feed": {
+      "title": "Últimas publicaciones"
+    }
+  },
+  "watchers": {
+    "new_post": {
+      "title": "Nueva publicación",
+      "description": "Te avisa cuando un blog, un sitio de noticias o un pódcast publica algo nuevo."
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Give the feed's or the site's web address, like https://example.com/blog.": "Indica la dirección web del feed o del sitio, como https://example.com/blog.",
+    "I couldn't find an RSS or Atom feed at {address}.": "No encontré ningún feed RSS o Atom en {address}.",
+    "New on {feed}: {posts} and {count} more.": "Nuevo en {feed}: {posts} y {count} más.",
+    "New on {feed}: {posts}.": "Nuevo en {feed}: {posts}.",
+    "No new posts on {feed}.": "No hay entradas nuevas en {feed}.",
+    "The feed": "El feed",
+    "untitled": "sin título",
+    "{feed} has no posts yet.": "{feed} aún no tiene entradas.",
+    "{feed}, latest {count}:": "{feed}, las {count} más recientes:"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Git",
+  "tagline": "リポジトリのクローン、更新、確認",
+  "description": "公開リポジトリを選んだフォルダにクローンし、手元のリポジトリの状態確認、更新、履歴の閲覧ができます。",
+  "tools": {
+    "clone": {
+      "title": "リポジトリをクローン"
+    },
+    "log": {
+      "title": "最近のコミット"
+    },
+    "pull": {
+      "title": "最新の変更をプル"
+    },
+    "status": {
+      "title": "リポジトリの状態"
+    }
+  },
+  "text": {
+    "Cloned {name} into {folder}: branch {branch}, {latest}.": "{name}を{folder}にクローンしました：ブランチ {branch}、{latest}。",
+    "Couldn't reach that address: check it, and the internet connection.": "そのアドレスに接続できませんでした。アドレスとインターネット接続を確認してください。",
+    "Git failed without saying why.": "Gitが理由を示さずに失敗しました。",
+    "It needs a sign-in: the repository is private, or the address is wrong. Git here can only reach public repositories, because it can't use your saved passwords or keys.": "サインインが必要です。リポジトリが非公開か、アドレスが間違っています。ここでのGitは保存済みのパスワードやキーを使えないため、公開リポジトリにしか接続できません。",
+    "Latest commits on {branch} in {folder}:": "{folder}の{branch}の最新コミット：",
+    "Leave sign-in details out of the address; Git here only clones public repositories.": "アドレスにサインイン情報を含めないでください。ここでのGitは公開リポジトリのみクローンします。",
+    "Nothing changed.": "変更はありません。",
+    "Only https addresses can be cloned here, like https://github.com/owner/project.": "ここでクローンできるのは https://github.com/owner/project のような https アドレスだけです。",
+    "Pulled {count} new commits into {folder} on {branch}; {latest}.": {
+      "other": "{folder}の{branch}に新しいコミットを{count}件取り込みました。{latest}。"
+    },
+    "Sidefolk didn't pass the location of git, so nothing can run.": "Sidefolkからgitの場所が渡されなかったため、何も実行できません。",
+    "Some changed files would be overwritten. Nothing changed; commit or stash them first.": "変更済みのファイルが上書きされてしまいます。何も変更していません。先にコミットするかスタッシュしてください。",
+    "That folder isn't a Git repository.": "そのフォルダはGitリポジトリではありません。",
+    "The branch and its remote have both moved on, so it can't simply be brought up to date. Nothing changed; merge or rebase it yourself.": "ブランチとリモートの両方が進んでいるため、単純には更新できません。何も変更していません。マージかリベースを自分で行ってください。",
+    "There's no public repository at that address.": "そのアドレスに公開リポジトリはありません。",
+    "This branch doesn't follow a branch on a remote, so there's nothing to pull.": "このブランチはリモートのブランチを追跡していないため、取り込むものはありません。",
+    "This repository's remote isn't an https address (it may use SSH, which needs your keys). Git here only reaches https remotes.": "このリポジトリのリモートは https アドレスではありません（キーが必要な SSH かもしれません）。ここでのGitは https のリモートにしか接続しません。",
+    "a detached HEAD": "切り離されたHEAD",
+    "an unborn branch": "未作成のブランチ",
+    "and {count} more": "ほか{count}件",
+    "even with {upstream} (as of the last fetch)": "{upstream}と同じ（最後のフェッチ時点）",
+    "latest commit {hash} “{message}” ({when})": "最新コミット {hash}「{message}」（{when}）",
+    "no commits yet": "まだコミットはありません",
+    "{ahead} ahead and {behind} behind {upstream} (as of the last fetch)": "{upstream}より{ahead}件進み、{behind}件遅れ（最後のフェッチ時点）",
+    "{count} changed ({staged} staged)": "変更 {count}件（ステージ済み {staged}件）",
+    "{count} new and untracked": "新規・未追跡 {count}件",
+    "{count} with conflicts": "競合 {count}件",
+    "{folder} already exists. Choose a new folder name.": "{folder}はすでにあります。新しいフォルダ名を選んでください。",
+    "{folder} has no commits yet.": "{folder}にはまだコミットがありません。",
+    "{folder} on {branch}": "{folder}（{branch}）",
+    "{folder} on {branch} is already up to date.": "{folder}（{branch}）はすでに最新です。",
+    "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent}はまだありません。先に作成してから{folder}にクローンしてください。"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "name": "开发者工具箱",
+  "tagline": "JSON、base64、JWT、UUID 等",
+  "description": "面向开发者：格式化 JSON，编码和解码 base64、URL 和十六进制，解码 JWT，转换时间戳，生成 UUID，以及核对文件的校验和。",
+  "tools": {
+    "checksum": {
+      "title": "文件校验和"
+    },
+    "generate": {
+      "title": "生成 ID"
+    },
+    "timestamp": {
+      "title": "转换时间戳"
+    },
+    "transform": {
+      "title": "转换文字"
+    }
+  },
+  "text": {
+    ", ": "，",
+    "A JWT has three parts separated by dots.": "JWT 由三个以点分隔的部分组成。",
+    "Claims": "声明",
+    "Expires": "过期时间",
+    "Generate a uuid or a token.": "请生成 uuid 或 token。",
+    "Give Unix time (1730000000 or milliseconds) or an ISO 8601 date (2026-10-28T09:30:00Z).": "请提供 Unix 时间（1730000000 或毫秒）或 ISO 8601 日期（2026-10-28T09:30:00Z）。",
+    "Header": "头部",
+    "Here: {date}": "本地：{date}",
+    "Issued": "签发时间",
+    "Not text: {size} ({hex}).": "不是文本：{size}（{hex}）。",
+    "Operations: {names}.": "操作：{names}。",
+    "That isn't base64.": "这不是 base64。",
+    "That isn't hexadecimal.": "这不是十六进制。",
+    "That isn't valid JSON": "这不是有效的 JSON",
+    "That isn't valid JSON: a comma before a closing bracket, at character {position}.": "这不是有效的 JSON：第 {position} 个字符处，右括号前有逗号。",
+    "That isn't valid URL encoding.": "这不是有效的 URL 编码。",
+    "The signature is not checked.": "未验证签名。",
+    "Unix time {seconds} (milliseconds {milliseconds})": "Unix 时间 {seconds}（毫秒 {milliseconds}）",
+    "Valid from": "生效时间",
+    "expired": "已过期",
+    "still valid": "仍有效",
+    "{algorithm} of {file}:": "{file} 的 {algorithm}：",
+    "{count} bytes": {
+      "other": "{count} 字节"
+    },
+    "{count} bytes in UTF-8": {
+      "other": "UTF-8 下 {count} 字节"
+    },
+    "{count} characters": {
+      "other": "{count} 个字符"
+    },
+    "{count} lines": {
+      "other": "{count} 行"
+    },
+    "{count} words": {
+      "other": "{count} 个词"
+    },
+    "{file} can't be read.": "无法读取 {file}。"
+  }
+}

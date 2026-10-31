@@ -1,0 +1,43 @@
+{
+  "name": "Bilder",
+  "tagline": "Fotodetails und umgewandelte Kopien",
+  "description": "Details eines Fotos und Kopien von Bildern als JPEG, PNG oder HEIC, verkleinert oder ohne Ortsangabe. Deine Originale bleiben, wie sie sind.",
+  "tools": {
+    "convert_images": {
+      "title": "Bilder umwandeln"
+    },
+    "image_info": {
+      "title": "Bilddetails"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "one": "{count} Kopie in {folder} erstellt ({how}): {sizes}.",
+      "other": "{count} Kopien in {folder} erstellt ({how}): {sizes}."
+    },
+    "Nothing was converted.": "Nichts wurde umgewandelt.",
+    "Skipped {count}:": "{count} übersprungen:",
+    "That's {count} pictures; do at most 200 at a time.": "Das sind {count} Bilder; mach höchstens 200 auf einmal.",
+    "There are no pictures in {folder}.": "In {folder} gibt es keine Bilder.",
+    "at most {size} px": "höchstens {size} px",
+    "it couldn't be decoded": "es ließ sich nicht dekodieren",
+    "it couldn't be written": "es ließ sich nicht schreiben",
+    "it records where it was taken (location)": "es speichert, wo es aufgenommen wurde (Ort)",
+    "location removed": "Ort entfernt",
+    "no location in it": "kein Ort darin",
+    "not a picture I can read": "kein Bild, das ich lesen kann",
+    "taken {when}": "aufgenommen am {when}",
+    "that format can't be written": "dieses Format lässt sich nicht schreiben",
+    "their own format": "ihr eigenes Format",
+    "with {camera}": "mit {camera}",
+    "{count} frames": {
+      "one": "{count} Einzelbild",
+      "other": "{count} Einzelbilder"
+    },
+    "{file} isn't a picture I can read.": "{file} ist kein Bild, das ich lesen kann.",
+    "{file}: not a file in that folder": "{file}: keine Datei in diesem Ordner",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} px ({megapixels} Megapixel)",
+    "{folder} isn't a folder.": "{folder} ist kein Ordner."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "二维码",
+  "tagline": "生成和读取二维码",
+  "description": "为链接或文字生成二维码图片，并读取图片或截图中的二维码。",
+  "tools": {
+    "make_qr": {
+      "title": "生成二维码"
+    },
+    "read_qr": {
+      "title": "读取二维码"
+    }
+  },
+  "text": {
+    "I didn't find a QR code in {file}.": "在 {file} 中没有找到二维码。",
+    "Saved a QR code for “{text}” as {file} ({width} × {height} px).": "已将“{text}”的二维码存为 {file}（{width} × {height} 像素）。",
+    "The QR code couldn't be drawn.": "无法绘制二维码。",
+    "The picture couldn't be saved.": "无法保存图片。",
+    "This Mac can't make QR codes.": "这台 Mac 无法生成二维码。",
+    "{file} isn't a picture I can read.": "{file} 不是能读取的图片。",
+    "{folder} can't be written to.": "无法写入 {folder}。"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "피드",
+  "tagline": "블로그, 뉴스, 팟캐스트의 새 글",
+  "description": "블로그, 뉴스 사이트, 팟캐스트의 RSS나 Atom 피드에서 최신 글을 보여 주고, 새 글이 올라오면 알려 줘요.",
+  "tools": {
+    "read_feed": {
+      "title": "최신 글"
+    }
+  },
+  "watchers": {
+    "new_post": {
+      "title": "새 글",
+      "description": "블로그, 뉴스 사이트, 팟캐스트에 새 글이 올라오면 알려 줍니다."
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Give the feed's or the site's web address, like https://example.com/blog.": "피드나 사이트의 웹 주소를 입력하세요. 예: https://example.com/blog.",
+    "I couldn't find an RSS or Atom feed at {address}.": "{address}에서 RSS나 Atom 피드를 찾지 못했습니다.",
+    "New on {feed}: {posts} and {count} more.": "{feed} 새 글: {posts} 외 {count}개.",
+    "New on {feed}: {posts}.": "{feed} 새 글: {posts}.",
+    "No new posts on {feed}.": "{feed}에 새 글이 없습니다.",
+    "The feed": "피드",
+    "untitled": "제목 없음",
+    "{feed} has no posts yet.": "{feed}에는 아직 글이 없습니다.",
+    "{feed}, latest {count}:": "{feed} 최근 {count}개:"
+  }
+}

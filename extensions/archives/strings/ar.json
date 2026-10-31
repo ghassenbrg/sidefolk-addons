@@ -1,0 +1,37 @@
+{
+  "name": "الأرشيفات",
+  "tagline": "ضغط الملفات وفك ضغطها",
+  "description": "يضغط الملفات والمجلدات في ملف zip لإرسالها، ويفتح ملفات zip التي تصلك، بأدوات macOS نفسها.",
+  "tools": {
+    "unzip": {
+      "title": "فتح ملف zip"
+    },
+    "zip": {
+      "title": "إنشاء ملف zip"
+    }
+  },
+  "text": {
+    "It couldn't be unpacked: {error}": "تعذّر فك الضغط: {error}",
+    "Made {zip} ({size}) with {what}.": "أُنشئ {zip} ({size}) من {what}.",
+    "Name at least one file or folder to zip.": "سمِّ ملفًا أو مجلدًا واحدًا على الأقل لضغطه.",
+    "The zip couldn't be made: {error}": "تعذّر إنشاء ملف zip: {error}",
+    "There's no “{name}” in {folder}.": "لا يوجد «{name}» في {folder}.",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "zero": "فُكّ ضغط {zip} في {folder} (لا عناصر في المستوى الأعلى).",
+      "one": "فُكّ ضغط {zip} في {folder} (عنصر واحد في المستوى الأعلى).",
+      "two": "فُكّ ضغط {zip} في {folder} (عنصران في المستوى الأعلى).",
+      "few": "فُكّ ضغط {zip} في {folder} ({count} عناصر في المستوى الأعلى).",
+      "many": "فُكّ ضغط {zip} في {folder} ({count} عنصرًا في المستوى الأعلى).",
+      "other": "فُكّ ضغط {zip} في {folder} ({count} عنصر في المستوى الأعلى)."
+    },
+    "{count} items": {
+      "zero": "{count} عنصر",
+      "one": "عنصر واحد",
+      "two": "عنصرين",
+      "few": "{count} عناصر",
+      "many": "{count} عنصرًا",
+      "other": "{count} عنصر"
+    },
+    "“{name}” should be just a name of something in {folder}.": "يجب أن يكون «{name}» مجرد اسم شيء في {folder}."
+  }
+}

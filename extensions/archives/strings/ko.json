@@ -1,0 +1,27 @@
+{
+  "name": "압축 파일",
+  "tagline": "파일 zip 압축과 압축 해제",
+  "description": "macOS 기본 도구로 파일과 폴더를 보내기 좋게 zip으로 압축하고, 받은 zip 파일을 열어요.",
+  "tools": {
+    "unzip": {
+      "title": "zip 파일 열기"
+    },
+    "zip": {
+      "title": "zip 파일 만들기"
+    }
+  },
+  "text": {
+    "It couldn't be unpacked: {error}": "압축을 풀 수 없습니다: {error}",
+    "Made {zip} ({size}) with {what}.": "{what}(으)로 {zip}({size})을(를) 만들었습니다.",
+    "Name at least one file or folder to zip.": "압축할 파일이나 폴더를 하나 이상 지정하세요.",
+    "The zip couldn't be made: {error}": "zip을 만들 수 없습니다: {error}",
+    "There's no “{name}” in {folder}.": "{folder}에 ‘{name}’이(가) 없습니다.",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "other": "{zip}을(를) {folder}에 풀었습니다(최상위 항목 {count}개)."
+    },
+    "{count} items": {
+      "other": "{count}개 항목"
+    },
+    "“{name}” should be just a name of something in {folder}.": "‘{name}’은(는) {folder} 안에 있는 항목의 이름이어야 합니다."
+  }
+}

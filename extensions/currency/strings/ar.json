@@ -1,0 +1,27 @@
+{
+  "name": "العملات",
+  "tagline": "المبالغ بـ30 عملة بأسعار صرف اليوم",
+  "description": "يحوّل المبالغ بين اليورو و30 عملة رئيسية بأسعار الصرف المرجعية اليومية للبنك المركزي الأوروبي، ويخبرك حين يتجاوز سعر حدًّا تختاره. لا يُرسل شيء عنك.",
+  "tools": {
+    "convert_currency": {
+      "title": "تحويل العملات"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "سعر الصرف",
+      "description": "يُعلمك مرة واحدة حين يتجاوز سعر صرف حدًّا أو ينزل عنه."
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "أسعار البنك المركزي الأوروبي المرجعية في {day}.",
+    "ECB, {day}": "البنك المركزي الأوروبي، {day}",
+    "Give “above” or “below”: the rate to watch for.": "حدّد «above» أو «below»: السعر الذي تراقبه.",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "لا ينشر البنك المركزي الأوروبي سعرًا لـ«{currency}». يغطي EUR و{codes}.",
+    "The ECB's rates file had no date.": "لم يتضمن ملف أسعار البنك المركزي الأوروبي تاريخًا.",
+    "The ECB's rates file had no rates.": "لم يتضمن ملف أسعار البنك المركزي الأوروبي أسعارًا.",
+    "{rate}, above {line}.": "{rate}، فوق {line}.",
+    "{rate}, below {line}.": "{rate}، تحت {line}.",
+    "“{key}” must be a number.": "يجب أن يكون «{key}» رقمًا."
+  }
+}

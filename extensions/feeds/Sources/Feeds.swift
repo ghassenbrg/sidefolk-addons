@@ -15,7 +15,7 @@ enum Feeds {
     static func load(_ raw: String) async throws -> (title: String, address: URL, items: [Item]) {
         guard var address = URL(string: raw.trimmingCharacters(in: .whitespaces).hasPrefix("http") ? raw : "https://" + raw),
               ["http", "https"].contains(address.scheme ?? "") else {
-            throw Problem("Give the feed's or the site's web address, like https://example.com/blog.")
+            throw Problem(L("Give the feed's or the site's web address, like https://example.com/blog."))
         }
         var data = try await Web.data(address)
         var parsed = Parser.parse(data)
@@ -24,8 +24,8 @@ enum Feeds {
             data = try await Web.data(feed)
             parsed = Parser.parse(data)
         }
-        guard parsed.isFeed else { throw Problem("I couldn't find an RSS or Atom feed at \(address.absoluteString).") }
-        return (parsed.title.isEmpty ? address.host ?? "The feed" : parsed.title, address, parsed.items)
+        guard parsed.isFeed else { throw Problem(L("I couldn't find an RSS or Atom feed at {address}.", ["address": address.absoluteString])) }
+        return (parsed.title.isEmpty ? address.host ?? L("The feed") : parsed.title, address, parsed.items)
     }
 
     /// `<link rel="alternate" type="application/rss+xml" href="…">` in a web page.
@@ -41,11 +41,11 @@ enum Feeds {
 
     static func latest(_ raw: String, count: Int) async throws -> String {
         let feed = try await load(raw)
-        guard !feed.items.isEmpty else { return "\(feed.title) has no posts yet." }
+        guard !feed.items.isEmpty else { return L("{feed} has no posts yet.", ["feed": feed.title]) }
         let lines = feed.items.prefix(count).map { item in
-            "- \(item.title.isEmpty ? "(untitled)" : item.title)" + (item.date.isEmpty ? "" : " (\(item.date))") + (item.link.isEmpty ? "" : ": \(item.link)")
+            "- \(item.title.isEmpty ? "(" + L("untitled") + ")" : item.title)" + (item.date.isEmpty ? "" : " (\(item.date))") + (item.link.isEmpty ? "" : ": \(item.link)")
         }
-        return "\(feed.title), latest \(lines.count):\n" + lines.joined(separator: "\n")
+        return L("{feed}, latest {count}:", ["feed": feed.title, "count": lines.count]) + "\n" + lines.joined(separator: "\n")
     }
 
     /// Tells about posts it hasn't seen; the first check only remembers what is there.
@@ -54,9 +54,10 @@ enum Feeds {
         let seen = Set(state["seen"] as? [String] ?? [])
         let ids = feed.items.prefix(50).map(\.id)
         let fresh = state["seen"] == nil ? [] : feed.items.prefix(50).filter { !seen.contains($0.id) }
-        let summary = fresh.isEmpty ? "No new posts on \(feed.title)."
-            : "New on \(feed.title): " + fresh.prefix(3).map { $0.title.isEmpty ? "(untitled)" : "“\($0.title)”" }.joined(separator: ", ")
-                + (fresh.count > 3 ? " and \(fresh.count - 3) more." : ".")
+        let titles = fresh.prefix(3).map { $0.title.isEmpty ? "(" + L("untitled") + ")" : "“\($0.title)”" }.joined(separator: L(", "))
+        let summary = fresh.isEmpty ? L("No new posts on {feed}.", ["feed": feed.title])
+            : fresh.count > 3 ? L("New on {feed}: {posts} and {count} more.", ["feed": feed.title, "posts": titles, "count": fresh.count - 3])
+            : L("New on {feed}: {posts}.", ["feed": feed.title, "posts": titles])
         return Check(triggered: !fresh.isEmpty, state: ["seen": Array(ids)], summary: summary)
     }
 }

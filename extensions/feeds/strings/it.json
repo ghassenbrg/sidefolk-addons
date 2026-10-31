@@ -1,0 +1,28 @@
+{
+  "name": "Feed",
+  "tagline": "Nuovi post di blog, notizie e podcast",
+  "description": "Gli ultimi post di blog, siti di notizie e podcast dai loro feed RSS o Atom, e un avviso quando ne esce uno nuovo.",
+  "tools": {
+    "read_feed": {
+      "title": "Ultimi post"
+    }
+  },
+  "watchers": {
+    "new_post": {
+      "title": "Nuovo post",
+      "description": "Ti avvisa quando un blog, un sito di notizie o un podcast pubblica qualcosa di nuovo."
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Give the feed's or the site's web address, like https://example.com/blog.": "Indica l’indirizzo web del feed o del sito, come https://example.com/blog.",
+    "I couldn't find an RSS or Atom feed at {address}.": "Non ho trovato un feed RSS o Atom a {address}.",
+    "New on {feed}: {posts} and {count} more.": "Novità su {feed}: {posts} e altri {count}.",
+    "New on {feed}: {posts}.": "Novità su {feed}: {posts}.",
+    "No new posts on {feed}.": "Nessun nuovo post su {feed}.",
+    "The feed": "Il feed",
+    "untitled": "senza titolo",
+    "{feed} has no posts yet.": "{feed} non ha ancora post.",
+    "{feed}, latest {count}:": "{feed}, gli ultimi {count}:"
+  }
+}

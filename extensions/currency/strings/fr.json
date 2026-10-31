@@ -1,0 +1,27 @@
+{
+  "name": "Devises",
+  "tagline": "Montants en 30 devises au taux du jour",
+  "description": "Convertit de l’argent entre l’euro et 30 grandes devises aux taux de référence quotidiens de la Banque centrale européenne, et vous prévient quand un taux franchit un seuil. Rien sur vous n’est envoyé.",
+  "tools": {
+    "convert_currency": {
+      "title": "Convertir de l’argent"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "Taux de change",
+      "description": "Vous prévient une fois quand un taux de change passe au-dessus ou en dessous d’un seuil."
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "Taux de référence de la BCE du {day}.",
+    "ECB, {day}": "BCE, {day}",
+    "Give “above” or “below”: the rate to watch for.": "Indiquez « above » ou « below » : le taux à surveiller.",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "La BCE ne publie pas de taux pour « {currency} ». Elle couvre EUR et {codes}.",
+    "The ECB's rates file had no date.": "Le fichier des taux de la BCE n’avait pas de date.",
+    "The ECB's rates file had no rates.": "Le fichier des taux de la BCE n’avait aucun taux.",
+    "{rate}, above {line}.": "{rate}, au-dessus de {line}.",
+    "{rate}, below {line}.": "{rate}, en dessous de {line}.",
+    "“{key}” must be a number.": "« {key} » doit être un nombre."
+  }
+}

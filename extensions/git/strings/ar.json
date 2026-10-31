@@ -1,0 +1,59 @@
+{
+  "name": "Git",
+  "tagline": "استنساخ مستودعاتك وتحديثها والتحقق منها",
+  "description": "استنساخ المستودعات العامة إلى مجلد تختاره، والتحقق من المستودعات التي لديك وتحديثها وقراءة سجلّها.",
+  "tools": {
+    "clone": {
+      "title": "استنساخ مستودع"
+    },
+    "log": {
+      "title": "أحدث الـ commits"
+    },
+    "pull": {
+      "title": "جلب أحدث التغييرات"
+    },
+    "status": {
+      "title": "حالة المستودع"
+    }
+  },
+  "text": {
+    "Cloned {name} into {folder}: branch {branch}, {latest}.": "استُنسخ {name} في {folder}: الفرع {branch}، {latest}.",
+    "Couldn't reach that address: check it, and the internet connection.": "تعذّر الوصول إلى ذلك العنوان: تحقّق منه ومن الاتصال بالإنترنت.",
+    "Git failed without saying why.": "فشل Git دون أن يذكر السبب.",
+    "It needs a sign-in: the repository is private, or the address is wrong. Git here can only reach public repositories, because it can't use your saved passwords or keys.": "يحتاج إلى تسجيل دخول: المستودع خاص، أو العنوان خاطئ. لا يصل Git هنا إلا إلى المستودعات العامة، لأنه لا يستطيع استخدام كلمات السر أو المفاتيح المحفوظة.",
+    "Latest commits on {branch} in {folder}:": "أحدث الإيداعات على {branch} في {folder}:",
+    "Leave sign-in details out of the address; Git here only clones public repositories.": "احذف بيانات تسجيل الدخول من العنوان؛ لا يستنسخ Git هنا إلا المستودعات العامة.",
+    "Nothing changed.": "لم يتغير شيء.",
+    "Only https addresses can be cloned here, like https://github.com/owner/project.": "لا يمكن استنساخ إلا عناوين https هنا، مثل https://github.com/owner/project.",
+    "Pulled {count} new commits into {folder} on {branch}; {latest}.": {
+      "zero": "لم يُسحب أي إيداع جديد إلى {folder} على {branch}؛ {latest}.",
+      "one": "سُحب إيداع جديد واحد إلى {folder} على {branch}؛ {latest}.",
+      "two": "سُحب إيداعان جديدان إلى {folder} على {branch}؛ {latest}.",
+      "few": "سُحبت {count} إيداعات جديدة إلى {folder} على {branch}؛ {latest}.",
+      "many": "سُحب {count} إيداعًا جديدًا إلى {folder} على {branch}؛ {latest}.",
+      "other": "سُحب {count} إيداع جديد إلى {folder} على {branch}؛ {latest}."
+    },
+    "Sidefolk didn't pass the location of git, so nothing can run.": "لم يمرّر Sidefolk موضع git، لذا لا يمكن تشغيل شيء.",
+    "Some changed files would be overwritten. Nothing changed; commit or stash them first.": "ستُستبدل بعض الملفات المعدّلة. لم يتغير شيء؛ أودِعها أو خبّئها أولًا.",
+    "That folder isn't a Git repository.": "ذلك المجلد ليس مستودع Git.",
+    "The branch and its remote have both moved on, so it can't simply be brought up to date. Nothing changed; merge or rebase it yourself.": "تقدّم الفرع وفرعه البعيد كلاهما، فلا يمكن تحديثه ببساطة. لم يتغير شيء؛ ادمجه أو أعد تأسيسه بنفسك.",
+    "There's no public repository at that address.": "لا يوجد مستودع عام على ذلك العنوان.",
+    "This branch doesn't follow a branch on a remote, so there's nothing to pull.": "لا يتبع هذا الفرع فرعًا بعيدًا، فلا شيء لسحبه.",
+    "This repository's remote isn't an https address (it may use SSH, which needs your keys). Git here only reaches https remotes.": "الفرع البعيد لهذا المستودع ليس عنوان https (قد يستخدم SSH الذي يحتاج إلى مفاتيحك). لا يصل Git هنا إلا إلى العناوين البعيدة https.",
+    "a detached HEAD": "HEAD منفصل",
+    "an unborn branch": "فرع بلا إيداعات",
+    "and {count} more": "و{count} أخرى",
+    "even with {upstream} (as of the last fetch)": "مطابق لـ{upstream} (حتى آخر جلب)",
+    "latest commit {hash} “{message}” ({when})": "آخر إيداع {hash} «{message}» ({when})",
+    "no commits yet": "لا إيداعات بعد",
+    "{ahead} ahead and {behind} behind {upstream} (as of the last fetch)": "متقدم بـ{ahead} ومتأخر بـ{behind} عن {upstream} (حتى آخر جلب)",
+    "{count} changed ({staged} staged)": "{count} معدّلة ({staged} مُجهّزة)",
+    "{count} new and untracked": "{count} جديدة غير متتبَّعة",
+    "{count} with conflicts": "{count} بها تعارضات",
+    "{folder} already exists. Choose a new folder name.": "{folder} موجود بالفعل. اختر اسم مجلد جديدًا.",
+    "{folder} has no commits yet.": "لا إيداعات في {folder} بعد.",
+    "{folder} on {branch}": "{folder} على {branch}",
+    "{folder} on {branch} is already up to date.": "{folder} على {branch} محدّث بالفعل.",
+    "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent} غير موجود بعد. أنشئه أولًا، ثم استنسخ في {folder}."
+  }
+}

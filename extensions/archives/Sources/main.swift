@@ -12,9 +12,9 @@ func size(_ path: String) -> String {
 
 func plain(_ name: String, in folder: String) throws -> String {
     guard !name.isEmpty, !name.contains("/"), name != ".", name != ".." else {
-        throw Problem("“\(name)” should be just a name of something in \(Paths.show(folder)).")
+        throw Problem(L("“{name}” should be just a name of something in {folder}.", ["name": name, "folder": Paths.show(folder)]))
     }
-    guard Paths.exists(folder + "/" + name) else { throw Problem("There's no “\(name)” in \(Paths.show(folder)).") }
+    guard Paths.exists(folder + "/" + name) else { throw Problem(L("There's no “{name}” in {folder}.", ["name": name, "folder": Paths.show(folder)])) }
     return folder + "/" + name
 }
 
@@ -27,7 +27,7 @@ ext.tool("zip", "Make a zip file",
          ], required: ["folder", "items"])) { args in
     let folder = try Paths.full(try args.required("folder"))
     let items = try args.strings("items").map { try plain($0, in: folder) }
-    guard !items.isEmpty else { throw Problem("Name at least one file or folder to zip.") }
+    guard !items.isEmpty else { throw Problem(L("Name at least one file or folder to zip.")) }
     let stem = (args.string("name") ?? (items.count == 1 ? (items[0] as NSString).lastPathComponent : "Archive")).replacingOccurrences(of: "/", with: "-")
     let zip = Paths.free(folder + "/" + (stem.lowercased().hasSuffix(".zip") ? stem : stem + ".zip"))
     // Names relative to the folder, so the zip holds them as they appear there; links stay links (-y).
@@ -35,9 +35,10 @@ ext.tool("zip", "Make a zip file",
     let result = try run(zipProgram, ["-r", "-q", "-y", "-X", zip, "--"] + names, in: folder, timeout: 280)
     guard result.status == 0 else {
         try? FileManager.default.removeItem(atPath: zip)
-        throw Problem("The zip couldn't be made: \((result.err + result.out).trimmingCharacters(in: .whitespacesAndNewlines).prefix(200))")
+        throw Problem(L("The zip couldn't be made: {error}", ["error": String((result.err + result.out).trimmingCharacters(in: .whitespacesAndNewlines).prefix(200))]))
     }
-    return "Made \(Paths.show(zip)) (\(size(zip))) with \(items.count == 1 ? (items[0] as NSString).lastPathComponent : "\(items.count) items")."
+    return L("Made {zip} ({size}) with {what}.", ["zip": Paths.show(zip), "size": size(zip),
+                                              "what": items.count == 1 ? (items[0] as NSString).lastPathComponent : L(one: "{count} item", other: "{count} items", count: items.count)])
 }
 
 ext.tool("unzip", "Open a zip file", "Unpacks a zip file into a new folder beside it, named after it.",
@@ -51,10 +52,11 @@ ext.tool("unzip", "Open a zip file", "Unpacks a zip file into a new folder besid
     let result = try run(ditto, ["-x", "-k", zip, destination], timeout: 280)
     guard result.status == 0 else {
         try? FileManager.default.removeItem(atPath: destination)
-        throw Problem("It couldn't be unpacked: \(result.err.trimmingCharacters(in: .whitespacesAndNewlines).prefix(200))")
+        throw Problem(L("It couldn't be unpacked: {error}", ["error": String(result.err.trimmingCharacters(in: .whitespacesAndNewlines).prefix(200))]))
     }
     let count = (try? FileManager.default.contentsOfDirectory(atPath: destination).count) ?? 0
-    return "Unpacked \((zip as NSString).lastPathComponent) into \(Paths.show(destination)) (\(count) item\(count == 1 ? "" : "s") at the top)."
+    return L(one: "Unpacked {zip} into {folder} ({count} item at the top).", other: "Unpacked {zip} into {folder} ({count} items at the top).", count: count,
+             ["zip": (zip as NSString).lastPathComponent, "folder": Paths.show(destination)])
 }
 
 await ext.serve()

@@ -15,7 +15,7 @@ enum Images {
         let path = try Paths.full(raw)
         guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil), CGImageSourceGetCount(source) > 0,
               let props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any] else {
-            throw Problem("\(Paths.show(path)) isn't a picture I can read.")
+            throw Problem(L("{file} isn't a picture I can read.", ["file": Paths.show(path)]))
         }
         let width = props[kCGImagePropertyPixelWidth] as? Int ?? 0, height = props[kCGImagePropertyPixelHeight] as? Int ?? 0
         let orientation = props[kCGImagePropertyOrientation] as? Int ?? 1
@@ -23,15 +23,16 @@ enum Images {
         let (w, h) = orientation >= 5 ? (height, width) : (width, height)
         let type = (CGImageSourceGetType(source) as String?).flatMap { UTType($0)?.preferredFilenameExtension?.uppercased() } ?? "image"
         let bytes = (try? FileManager.default.attributesOfItem(atPath: path)[.size] as? Int) ?? 0
-        var parts = ["\((path as NSString).lastPathComponent): \(w) × \(h) px (\(String(format: "%.1f", Double(w * h) / 1e6)) megapixels)",
-                     type, ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)]
+        var parts = [L("{file}: {width} × {height} px ({megapixels} megapixels)", ["file": (path as NSString).lastPathComponent, "width": String(w),
+                                                                                   "height": String(h), "megapixels": Format.number(Double(w * h) / 1e6)]),
+                     type, Format.bytes(Int64(bytes))]
         let exif = props[kCGImagePropertyExifDictionary] as? [CFString: Any] ?? [:]
         let tiff = props[kCGImagePropertyTIFFDictionary] as? [CFString: Any] ?? [:]
-        if let taken = exif[kCGImagePropertyExifDateTimeOriginal] as? String { parts.append("taken \(shown(taken))") }
-        if let model = tiff[kCGImagePropertyTIFFModel] as? String { parts.append("with \(model)") }
-        if CGImageSourceGetCount(source) > 1 { parts.append("\(CGImageSourceGetCount(source)) frames") }
-        parts.append(props[kCGImagePropertyGPSDictionary] != nil ? "it records where it was taken (location)" : "no location in it")
-        return parts.joined(separator: ", ") + "."
+        if let taken = exif[kCGImagePropertyExifDateTimeOriginal] as? String { parts.append(L("taken {when}", ["when": shown(taken)])) }
+        if let model = tiff[kCGImagePropertyTIFFModel] as? String { parts.append(L("with {camera}", ["camera": model])) }
+        if CGImageSourceGetCount(source) > 1 { parts.append(L(one: "{count} frame", other: "{count} frames", count: CGImageSourceGetCount(source))) }
+        parts.append(props[kCGImagePropertyGPSDictionary] != nil ? L("it records where it was taken (location)") : L("no location in it"))
+        return parts.joined(separator: L(", ")) + "."
     }
 
     /// EXIF's "2026:05:12 14:03:22" as "2026-05-12 14:03".
@@ -43,18 +44,18 @@ enum Images {
 
     static func convert(folder raw: String, files: [String], format: String, maxSize: Int?, quality: Int, removeLocation: Bool) throws -> String {
         let folder = try Paths.full(raw)
-        guard Paths.exists(folder, folder: true) else { throw Problem("\(Paths.show(folder)) isn't a folder.") }
+        guard Paths.exists(folder, folder: true) else { throw Problem(L("{folder} isn't a folder.", ["folder": Paths.show(folder)])) }
         let names = files.isEmpty
             ? ((try? FileManager.default.contentsOfDirectory(atPath: folder)) ?? []).filter { readable.contains(($0 as NSString).pathExtension.lowercased()) }.sorted()
             : files
-        guard !names.isEmpty else { throw Problem("There are no pictures in \(Paths.show(folder)).") }
-        guard names.count <= 200 else { throw Problem("That's \(names.count) pictures; do at most 200 at a time.") }
+        guard !names.isEmpty else { throw Problem(L("There are no pictures in {folder}.", ["folder": Paths.show(folder)])) }
+        guard names.count <= 200 else { throw Problem(L("That's {count} pictures; do at most 200 at a time.", ["count": names.count])) }
         let output = folder + "/Converted"
         try FileManager.default.createDirectory(atPath: output, withIntermediateDirectories: true)
         var done = 0, before = 0, after = 0, problems: [String] = []
         for name in names {
             guard !name.contains("/"), let target = formats[format == "same" ? kind(of: name) : format] else {
-                problems.append("\(name): not a file in that folder")
+                problems.append(L("{file}: not a file in that folder", ["file": name]))
                 continue
             }
             let source = folder + "/" + name
@@ -68,14 +69,15 @@ enum Images {
                 problems.append("\(name): \(problem.message)")
             }
         }
-        guard done > 0 else { throw Problem("Nothing was converted. " + problems.prefix(5).joined(separator: "; ")) }
-        let format = formats[format]?.name ?? "their own format"
+        guard done > 0 else { throw Problem(L("Nothing was converted.") + " " + problems.prefix(5).joined(separator: "; ")) }
+        let format = formats[format]?.name ?? L("their own format")
         var what = [format]
-        if let maxSize { what.append("at most \(maxSize) px") }
-        if removeLocation { what.append("location removed") }
-        let sizes = "\(ByteCountFormatter.string(fromByteCount: Int64(before), countStyle: .file)) → \(ByteCountFormatter.string(fromByteCount: Int64(after), countStyle: .file))"
-        return "Made \(done) cop\(done == 1 ? "y" : "ies") in \(Paths.show(output)) (\(what.joined(separator: ", "))): \(sizes)."
-            + (problems.isEmpty ? "" : " Skipped \(problems.count): " + problems.prefix(5).joined(separator: "; ") + ".")
+        if let maxSize { what.append(L("at most {size} px", ["size": maxSize])) }
+        if removeLocation { what.append(L("location removed")) }
+        let sizes = "\(Format.bytes(Int64(before))) → \(Format.bytes(Int64(after)))"
+        return L(one: "Made {count} copy in {folder} ({how}): {sizes}.", other: "Made {count} copies in {folder} ({how}): {sizes}.", count: done,
+                 ["folder": Paths.show(output), "how": what.joined(separator: L(", ")), "sizes": sizes])
+            + (problems.isEmpty ? "" : " " + L("Skipped {count}:", ["count": problems.count]) + " " + problems.prefix(5).joined(separator: "; ") + ".")
     }
 
     static func kind(of name: String) -> String {
@@ -91,7 +93,7 @@ enum Images {
 
     static func write(_ path: String, to destination: String, as type: UTType, maxSize: Int?, quality: Int, removeLocation: Bool) throws {
         guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil), CGImageSourceGetCount(source) > 0 else {
-            throw Problem("not a picture I can read")
+            throw Problem(L("not a picture I can read"))
         }
         var props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any] ?? [:]
         let image: CGImage?
@@ -108,18 +110,18 @@ enum Images {
         } else {
             image = CGImageSourceCreateImageAtIndex(source, 0, nil)
         }
-        guard let image else { throw Problem("it couldn't be decoded") }
+        guard let image else { throw Problem(L("it couldn't be decoded")) }
         if removeLocation { props.removeValue(forKey: kCGImagePropertyGPSDictionary) }
         props.removeValue(forKey: kCGImagePropertyPixelWidth)
         props.removeValue(forKey: kCGImagePropertyPixelHeight)
         props[kCGImageDestinationLossyCompressionQuality] = Double(quality) / 100
         guard let out = CGImageDestinationCreateWithURL(URL(fileURLWithPath: destination) as CFURL, type.identifier as CFString, 1, nil) else {
-            throw Problem("that format can't be written")
+            throw Problem(L("that format can't be written"))
         }
         CGImageDestinationAddImage(out, image, props as CFDictionary)
         guard CGImageDestinationFinalize(out) else {
             try? FileManager.default.removeItem(atPath: destination)
-            throw Problem("it couldn't be written")
+            throw Problem(L("it couldn't be written"))
         }
     }
 }

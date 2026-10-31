@@ -1,0 +1,22 @@
+{
+  "name": "رموز QR",
+  "tagline": "إنشاء رموز QR وقراءتها",
+  "description": "ينشئ صورة رمز QR لرابط أو نص، ويقرأ رمز QR في صورة أو لقطة شاشة.",
+  "tools": {
+    "make_qr": {
+      "title": "إنشاء رمز QR"
+    },
+    "read_qr": {
+      "title": "قراءة رمز QR"
+    }
+  },
+  "text": {
+    "I didn't find a QR code in {file}.": "لم أجد رمز QR في {file}.",
+    "Saved a QR code for “{text}” as {file} ({width} × {height} px).": "حُفظ رمز QR لـ«{text}» باسم {file} ({width} × {height} بكسل).",
+    "The QR code couldn't be drawn.": "تعذّر رسم رمز QR.",
+    "The picture couldn't be saved.": "تعذّر حفظ الصورة.",
+    "This Mac can't make QR codes.": "لا يستطيع هذا الـMac إنشاء رموز QR.",
+    "{file} isn't a picture I can read.": "{file} ليست صورة يمكن قراءتها.",
+    "{folder} can't be written to.": "لا يمكن الكتابة في {folder}."
+  }
+}

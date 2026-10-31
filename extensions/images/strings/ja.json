@@ -1,0 +1,41 @@
+{
+  "name": "画像",
+  "tagline": "写真の詳細と変換したコピー",
+  "description": "写真の詳細と、JPEG・PNG・HEICへの変換、縮小、位置情報を除いた画像のコピー。元のファイルはそのまま残ります。",
+  "tools": {
+    "convert_images": {
+      "title": "画像を変換"
+    },
+    "image_info": {
+      "title": "画像の詳細"
+    }
+  },
+  "text": {
+    ", ": "、",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "other": "{folder}にコピーを{count}件作成しました（{how}）：{sizes}。"
+    },
+    "Nothing was converted.": "何も変換されませんでした。",
+    "Skipped {count}:": "{count}件スキップ：",
+    "That's {count} pictures; do at most 200 at a time.": "{count}枚あります。一度に処理できるのは200枚までです。",
+    "There are no pictures in {folder}.": "{folder}に画像はありません。",
+    "at most {size} px": "最大{size} px",
+    "it couldn't be decoded": "デコードできませんでした",
+    "it couldn't be written": "書き出せませんでした",
+    "it records where it was taken (location)": "撮影場所（位置情報）が記録されています",
+    "location removed": "位置情報を削除",
+    "no location in it": "位置情報なし",
+    "not a picture I can read": "読み取れる画像ではありません",
+    "taken {when}": "撮影日時 {when}",
+    "that format can't be written": "その形式では書き出せません",
+    "their own format": "元の形式",
+    "with {camera}": "{camera}で撮影",
+    "{count} frames": {
+      "other": "{count}フレーム"
+    },
+    "{file} isn't a picture I can read.": "{file}は読み取れる画像ではありません。",
+    "{file}: not a file in that folder": "{file}：そのフォルダのファイルではありません",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}：{width} × {height} px（{megapixels}メガピクセル）",
+    "{folder} isn't a folder.": "{folder}はフォルダではありません。"
+  }
+}

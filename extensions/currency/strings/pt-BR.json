@@ -1,0 +1,27 @@
+{
+  "name": "Moedas",
+  "tagline": "Dinheiro em 30 moedas às taxas de hoje",
+  "description": "Converte dinheiro entre o euro e 30 moedas principais com as taxas de referência diárias do Banco Central Europeu e avisa quando uma taxa passa de um limite. Nada sobre você é enviado.",
+  "tools": {
+    "convert_currency": {
+      "title": "Converter dinheiro"
+    }
+  },
+  "watchers": {
+    "rate_crosses": {
+      "title": "Taxa de câmbio",
+      "description": "Avisa uma vez quando uma taxa de câmbio passa acima ou abaixo de um limite."
+    }
+  },
+  "text": {
+    "ECB reference rates of {day}.": "Taxas de referência do BCE de {day}.",
+    "ECB, {day}": "BCE, {day}",
+    "Give “above” or “below”: the rate to watch for.": "Informe “above” ou “below”: a taxa a vigiar.",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "O BCE não publica taxa para “{currency}”. Ele cobre EUR e {codes}.",
+    "The ECB's rates file had no date.": "O arquivo de taxas do BCE não tinha data.",
+    "The ECB's rates file had no rates.": "O arquivo de taxas do BCE não tinha taxas.",
+    "{rate}, above {line}.": "{rate}, acima de {line}.",
+    "{rate}, below {line}.": "{rate}, abaixo de {line}.",
+    "“{key}” must be a number.": "“{key}” deve ser um número."
+  }
+}

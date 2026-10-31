@@ -1,0 +1,22 @@
+{
+  "name": "QR-Codes",
+  "tagline": "QR-Codes erstellen und lesen",
+  "description": "Erstellt ein QR-Code-Bild eines Links oder Textes und liest den QR-Code in einem Bild oder Bildschirmfoto.",
+  "tools": {
+    "make_qr": {
+      "title": "Einen QR-Code erstellen"
+    },
+    "read_qr": {
+      "title": "Einen QR-Code lesen"
+    }
+  },
+  "text": {
+    "I didn't find a QR code in {file}.": "In {file} habe ich keinen QR-Code gefunden.",
+    "Saved a QR code for “{text}” as {file} ({width} × {height} px).": "QR-Code für „{text}“ als {file} gesichert ({width} × {height} px).",
+    "The QR code couldn't be drawn.": "Der QR-Code ließ sich nicht zeichnen.",
+    "The picture couldn't be saved.": "Das Bild ließ sich nicht sichern.",
+    "This Mac can't make QR codes.": "Dieser Mac kann keine QR-Codes erstellen.",
+    "{file} isn't a picture I can read.": "{file} ist kein Bild, das ich lesen kann.",
+    "{folder} can't be written to.": "In {folder} kann nicht geschrieben werden."
+  }
+}

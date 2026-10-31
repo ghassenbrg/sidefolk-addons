@@ -1,0 +1,55 @@
+{
+  "name": "Git",
+  "tagline": "Cloner, mettre à jour et vérifier vos dépôts",
+  "description": "Cloner des dépôts publics dans un dossier de votre choix, puis vérifier l’état de ceux que vous avez, les mettre à jour et lire leur historique.",
+  "tools": {
+    "clone": {
+      "title": "Cloner un dépôt"
+    },
+    "log": {
+      "title": "Commits récents"
+    },
+    "pull": {
+      "title": "Récupérer les dernières modifications"
+    },
+    "status": {
+      "title": "État du dépôt"
+    }
+  },
+  "text": {
+    "Cloned {name} into {folder}: branch {branch}, {latest}.": "{name} cloné dans {folder} : branche {branch}, {latest}.",
+    "Couldn't reach that address: check it, and the internet connection.": "Impossible de joindre cette adresse : vérifiez-la, ainsi que la connexion à Internet.",
+    "Git failed without saying why.": "Git a échoué sans dire pourquoi.",
+    "It needs a sign-in: the repository is private, or the address is wrong. Git here can only reach public repositories, because it can't use your saved passwords or keys.": "Une connexion est nécessaire : le dépôt est privé, ou l’adresse est erronée. Git ici n’atteint que les dépôts publics, car il ne peut pas utiliser vos mots de passe ou clés enregistrés.",
+    "Latest commits on {branch} in {folder}:": "Derniers commits sur {branch} dans {folder} :",
+    "Leave sign-in details out of the address; Git here only clones public repositories.": "Retirez les identifiants de l’adresse ; Git ici ne clone que des dépôts publics.",
+    "Nothing changed.": "Rien n’a changé.",
+    "Only https addresses can be cloned here, like https://github.com/owner/project.": "Seules les adresses https peuvent être clonées ici, comme https://github.com/owner/project.",
+    "Pulled {count} new commits into {folder} on {branch}; {latest}.": {
+      "one": "{count} nouveau commit récupéré dans {folder} sur {branch} ; {latest}.",
+      "other": "{count} nouveaux commits récupérés dans {folder} sur {branch} ; {latest}."
+    },
+    "Sidefolk didn't pass the location of git, so nothing can run.": "Sidefolk n’a pas transmis l’emplacement de git : rien ne peut s’exécuter.",
+    "Some changed files would be overwritten. Nothing changed; commit or stash them first.": "Des fichiers modifiés seraient écrasés. Rien n’a changé ; faites d’abord un commit ou un stash.",
+    "That folder isn't a Git repository.": "Ce dossier n’est pas un dépôt Git.",
+    "The branch and its remote have both moved on, so it can't simply be brought up to date. Nothing changed; merge or rebase it yourself.": "La branche et sa branche distante ont toutes deux avancé : impossible de la mettre simplement à jour. Rien n’a changé ; fusionnez ou rebasez vous-même.",
+    "There's no public repository at that address.": "Il n’y a pas de dépôt public à cette adresse.",
+    "This branch doesn't follow a branch on a remote, so there's nothing to pull.": "Cette branche ne suit pas de branche distante : rien à récupérer.",
+    "This repository's remote isn't an https address (it may use SSH, which needs your keys). Git here only reaches https remotes.": "La branche distante de ce dépôt n’est pas une adresse https (elle utilise peut-être SSH, qui demande vos clés). Git ici n’atteint que les dépôts distants https.",
+    "a detached HEAD": "un HEAD détaché",
+    "an unborn branch": "une branche vide",
+    "and {count} more": "et {count} de plus",
+    "even with {upstream} (as of the last fetch)": "à jour avec {upstream} (au dernier fetch)",
+    "latest commit {hash} “{message}” ({when})": "dernier commit {hash} « {message} » ({when})",
+    "no commits yet": "aucun commit pour l’instant",
+    "{ahead} ahead and {behind} behind {upstream} (as of the last fetch)": "{ahead} en avance et {behind} en retard sur {upstream} (au dernier fetch)",
+    "{count} changed ({staged} staged)": "{count} modifiés ({staged} indexés)",
+    "{count} new and untracked": "{count} nouveaux non suivis",
+    "{count} with conflicts": "{count} en conflit",
+    "{folder} already exists. Choose a new folder name.": "{folder} existe déjà. Choisissez un nouveau nom de dossier.",
+    "{folder} has no commits yet.": "{folder} n’a encore aucun commit.",
+    "{folder} on {branch}": "{folder} sur {branch}",
+    "{folder} on {branch} is already up to date.": "{folder} sur {branch} est déjà à jour.",
+    "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent} n’existe pas encore. Créez-le d’abord, puis clonez dans {folder}."
+  }
+}

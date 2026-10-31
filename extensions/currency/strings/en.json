@@ -1,0 +1,13 @@
+{
+  "text": {
+    "ECB reference rates of {day}.": "ECB reference rates of {day}.",
+    "ECB, {day}": "ECB, {day}",
+    "Give “above” or “below”: the rate to watch for.": "Give “above” or “below”: the rate to watch for.",
+    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.",
+    "The ECB's rates file had no date.": "The ECB's rates file had no date.",
+    "The ECB's rates file had no rates.": "The ECB's rates file had no rates.",
+    "{rate}, above {line}.": "{rate}, above {line}.",
+    "{rate}, below {line}.": "{rate}, below {line}.",
+    "“{key}” must be a number.": "“{key}” must be a number."
+  }
+}

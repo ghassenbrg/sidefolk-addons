@@ -1,0 +1,43 @@
+{
+  "name": "Immagini",
+  "tagline": "Dettagli delle foto e copie convertite",
+  "description": "I dettagli di una foto, e copie di immagini convertite in JPEG, PNG o HEIC, rimpicciolite o senza la posizione. I tuoi originali restano come sono.",
+  "tools": {
+    "convert_images": {
+      "title": "Converti immagini"
+    },
+    "image_info": {
+      "title": "Dettagli dell’immagine"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Made {count} copies in {folder} ({how}): {sizes}.": {
+      "one": "Creata {count} copia in {folder} ({how}): {sizes}.",
+      "other": "Create {count} copie in {folder} ({how}): {sizes}."
+    },
+    "Nothing was converted.": "Non è stato convertito nulla.",
+    "Skipped {count}:": "{count} saltati:",
+    "That's {count} pictures; do at most 200 at a time.": "Sono {count} immagini; fanne al massimo 200 alla volta.",
+    "There are no pictures in {folder}.": "Non ci sono immagini in {folder}.",
+    "at most {size} px": "al massimo {size} px",
+    "it couldn't be decoded": "non è stato possibile decodificarla",
+    "it couldn't be written": "non è stato possibile scriverla",
+    "it records where it was taken (location)": "registra dove è stata scattata (posizione)",
+    "location removed": "posizione rimossa",
+    "no location in it": "nessuna posizione",
+    "not a picture I can read": "non è un’immagine leggibile",
+    "taken {when}": "scattata il {when}",
+    "that format can't be written": "quel formato non si può scrivere",
+    "their own format": "il loro formato",
+    "with {camera}": "con {camera}",
+    "{count} frames": {
+      "one": "{count} fotogramma",
+      "other": "{count} fotogrammi"
+    },
+    "{file} isn't a picture I can read.": "{file} non è un’immagine che riesco a leggere.",
+    "{file}: not a file in that folder": "{file}: non è un file di quella cartella",
+    "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} px ({megapixels} megapixel)",
+    "{folder} isn't a folder.": "{folder} non è una cartella."
+  }
+}

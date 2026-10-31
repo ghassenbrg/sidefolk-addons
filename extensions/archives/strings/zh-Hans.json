@@ -1,0 +1,27 @@
+{
+  "name": "压缩文件",
+  "tagline": "压缩和解压 zip 文件",
+  "description": "用 macOS 自带的工具把文件和文件夹压缩成 zip 以便发送，并打开你收到的 zip 文件。",
+  "tools": {
+    "unzip": {
+      "title": "打开 zip 文件"
+    },
+    "zip": {
+      "title": "创建 zip 文件"
+    }
+  },
+  "text": {
+    "It couldn't be unpacked: {error}": "无法解压：{error}",
+    "Made {zip} ({size}) with {what}.": "已用{what}生成 {zip}（{size}）。",
+    "Name at least one file or folder to zip.": "请至少指定一个要压缩的文件或文件夹。",
+    "The zip couldn't be made: {error}": "无法生成 zip：{error}",
+    "There's no “{name}” in {folder}.": "{folder} 中没有“{name}”。",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "other": "已将 {zip} 解压到 {folder}（顶层 {count} 项）。"
+    },
+    "{count} items": {
+      "other": "{count} 项"
+    },
+    "“{name}” should be just a name of something in {folder}.": "“{name}”应只是 {folder} 中某项的名称。"
+  }
+}

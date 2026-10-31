@@ -1,0 +1,22 @@
+{
+  "name": "QRコード",
+  "tagline": "QRコードの作成と読み取り",
+  "description": "リンクやテキストのQRコード画像を作成し、画像やスクリーンショットのQRコードを読み取ります。",
+  "tools": {
+    "make_qr": {
+      "title": "QRコードを作成"
+    },
+    "read_qr": {
+      "title": "QRコードを読み取る"
+    }
+  },
+  "text": {
+    "I didn't find a QR code in {file}.": "{file}にQRコードは見つかりませんでした。",
+    "Saved a QR code for “{text}” as {file} ({width} × {height} px).": "「{text}」のQRコードを{file}として保存しました（{width} × {height} px）。",
+    "The QR code couldn't be drawn.": "QRコードを描画できませんでした。",
+    "The picture couldn't be saved.": "画像を保存できませんでした。",
+    "This Mac can't make QR codes.": "このMacではQRコードを作れません。",
+    "{file} isn't a picture I can read.": "{file}は読み取れる画像ではありません。",
+    "{folder} can't be written to.": "{folder}に書き込めません。"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Archivos comprimidos",
+  "tagline": "Comprimir y descomprimir archivos",
+  "description": "Comprime archivos y carpetas para enviarlos, y abre los archivos zip que recibes, con las herramientas de macOS.",
+  "tools": {
+    "unzip": {
+      "title": "Abrir un archivo zip"
+    },
+    "zip": {
+      "title": "Crear un archivo zip"
+    }
+  },
+  "text": {
+    "It couldn't be unpacked: {error}": "No se pudo descomprimir: {error}",
+    "Made {zip} ({size}) with {what}.": "Se creó {zip} ({size}) con {what}.",
+    "Name at least one file or folder to zip.": "Nombra al menos un archivo o carpeta para comprimir.",
+    "The zip couldn't be made: {error}": "No se pudo crear el zip: {error}",
+    "There's no “{name}” in {folder}.": "No hay ningún «{name}» en {folder}.",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "one": "{zip} descomprimido en {folder} ({count} elemento en el nivel superior).",
+      "other": "{zip} descomprimido en {folder} ({count} elementos en el nivel superior)."
+    },
+    "{count} items": {
+      "one": "{count} elemento",
+      "other": "{count} elementos"
+    },
+    "“{name}” should be just a name of something in {folder}.": "«{name}» debe ser solo el nombre de algo en {folder}."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Archives",
+  "tagline": "Compresser et ouvrir des fichiers zip",
+  "description": "Compresse des fichiers et des dossiers pour les envoyer, et ouvre les fichiers zip que vous recevez, avec les outils de macOS.",
+  "tools": {
+    "unzip": {
+      "title": "Ouvrir un fichier zip"
+    },
+    "zip": {
+      "title": "Créer un fichier zip"
+    }
+  },
+  "text": {
+    "It couldn't be unpacked: {error}": "Impossible de le décompresser : {error}",
+    "Made {zip} ({size}) with {what}.": "{zip} créé ({size}) avec {what}.",
+    "Name at least one file or folder to zip.": "Nommez au moins un fichier ou dossier à compresser.",
+    "The zip couldn't be made: {error}": "Le zip n’a pas pu être créé : {error}",
+    "There's no “{name}” in {folder}.": "Il n’y a pas de « {name} » dans {folder}.",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "one": "{zip} décompressé dans {folder} ({count} élément au premier niveau).",
+      "other": "{zip} décompressé dans {folder} ({count} éléments au premier niveau)."
+    },
+    "{count} items": {
+      "one": "{count} élément",
+      "other": "{count} éléments"
+    },
+    "“{name}” should be just a name of something in {folder}.": "« {name} » doit être juste le nom d’un élément de {folder}."
+  }
+}

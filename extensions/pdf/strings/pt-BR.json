@@ -1,0 +1,47 @@
+{
+  "name": "Ferramentas de PDF",
+  "tagline": "Ler, juntar e dividir PDFs",
+  "description": "Os detalhes e o texto de um PDF, vários PDFs juntos em um só, e algumas páginas salvas como um novo PDF. Seus originais ficam como estão.",
+  "tools": {
+    "combine_pdfs": {
+      "title": "Juntar PDFs"
+    },
+    "extract_pages": {
+      "title": "Tirar páginas de um PDF"
+    },
+    "pdf_info": {
+      "title": "Detalhes do PDF"
+    },
+    "pdf_text": {
+      "title": "Ler o texto de um PDF"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "Combined {count} PDFs ({pages}) into {file}.": "{count} PDFs ({pages}) combinados em {file}.",
+    "Cut at {count} characters: ask for later pages.": "Cortado em {count} caracteres: peça as páginas seguintes.",
+    "Name at least two PDFs in that folder, in the order they go.": "Diga pelo menos dois PDFs dessa pasta, na ordem certa.",
+    "Saved {count} pages of {file} as {saved}.": {
+      "one": "{count} página de {file} salva como {saved}.",
+      "other": "{count} páginas de {file} salvas como {saved}."
+    },
+    "The PDF has pages 1 to {count}; “{pages}” is outside that.": "O PDF tem as páginas 1 a {count}; “{pages}” está fora disso.",
+    "The combined PDF couldn't be saved.": "Não foi possível salvar o PDF combinado.",
+    "The new PDF couldn't be saved.": "Não foi possível salvar o novo PDF.",
+    "There's no text on those pages (they may be scanned images).": "Não há texto nessas páginas (podem ser imagens digitalizadas).",
+    "Write pages like 1-3, 5, 8-.": "Escreva as páginas como 1-3, 5, 8-.",
+    "by {author}": "de {author}",
+    "encrypted": "criptografado",
+    "it has text": "tem texto",
+    "no text in it (scanned pages, perhaps)": "sem texto (páginas digitalizadas, talvez)",
+    "title “{title}”": "título “{title}”",
+    "{count} pages": {
+      "one": "{count} página",
+      "other": "{count} páginas"
+    },
+    "{file} is locked with a password.": "{file} está protegido por senha.",
+    "{file} isn't a PDF I can read.": "{file} não é um PDF que eu consiga ler.",
+    "{paper}, landscape": "{paper}, paisagem",
+    "“{file}” should be just a file name in {folder}.": "“{file}” deve ser só um nome de arquivo em {folder}."
+  }
+}

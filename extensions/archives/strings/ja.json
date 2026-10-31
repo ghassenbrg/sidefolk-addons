@@ -1,0 +1,27 @@
+{
+  "name": "アーカイブ",
+  "tagline": "ファイルのzip圧縮と展開",
+  "description": "macOSの標準ツールで、送るためにファイルやフォルダをzipに圧縮し、受け取ったzipファイルを開きます。",
+  "tools": {
+    "unzip": {
+      "title": "zipファイルを開く"
+    },
+    "zip": {
+      "title": "zipファイルを作成"
+    }
+  },
+  "text": {
+    "It couldn't be unpacked: {error}": "展開できませんでした：{error}",
+    "Made {zip} ({size}) with {what}.": "{what}から{zip}（{size}）を作成しました。",
+    "Name at least one file or folder to zip.": "圧縮するファイルかフォルダを1つ以上指定してください。",
+    "The zip couldn't be made: {error}": "zipを作成できませんでした：{error}",
+    "There's no “{name}” in {folder}.": "{folder}に「{name}」はありません。",
+    "Unpacked {zip} into {folder} ({count} items at the top).": {
+      "other": "{zip}を{folder}に展開しました（最上位に{count}項目）。"
+    },
+    "{count} items": {
+      "other": "{count}項目"
+    },
+    "“{name}” should be just a name of something in {folder}.": "「{name}」は{folder}内の項目名だけにしてください。"
+  }
+}
