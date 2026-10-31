@@ -70,7 +70,7 @@ enum Tools {
     static func share(_ args: Arguments) async throws -> String {
         let tv = try tv(args.string("tv"))
         if let q = args.string("quality").flatMap(CaptureQuality.init(rawValue:)) { session.choices.quality = q.rawValue }
-        if let sound = args.bool("sound") { session.choices.sound = sound }
+        if let sound = args.bool("sound") { session.choices.setAudio(sound ? .both : .mac) }
         let target = try await target(args)
         try run { try session.share(target, to: tv) }
         return await outcome(of: .sharing(target.label))

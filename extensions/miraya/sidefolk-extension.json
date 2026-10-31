@@ -1,7 +1,7 @@
 {
   "id": "dev.sidefolk.miraya",
   "name": "Miraya",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "sidefolk": ">=0.1",
   "description": "Shows your Mac's screen, one window or part of it, with its sound, on an Android TV running the Miraya app, over an encrypted direct connection on your network, or plays a video file or link on the TV. The first time, you compare a six-digit code on both screens. No account, no cloud.",
   "tagline": "Your Mac's screen and videos on your Android TV",
@@ -17,6 +17,7 @@
     "network_purpose": "to find TVs on your local network and stream to them",
     "udp": true,
     "screen": true,
+    "output_mute": true,
     "media": true
   },
   "pages": {

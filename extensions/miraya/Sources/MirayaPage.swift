@@ -61,6 +61,8 @@ enum MirayaPage {
         /// nil: not listed yet (macOS hasn't let Sidefolk record, or nobody picked Window).
         var windows: [Screens.Window]?
         var canRecord = false
+        var audioConfirmed = false
+        var audioPending = false
         /// Pictures by what they show (`display:1`), in the data folder.
         var shots: [String: String] = [:]
 
@@ -78,7 +80,8 @@ enum MirayaPage {
                    note: s.note, discoveryProblem: s.discovery.problem, target: s.target, startedAt: s.startedAt, fps: s.tvFPS, rttMs: s.rttMs,
                    picture: s.picture, bitrate: s.bitrate, drops: s.tvDrops, mediaTitle: s.media?.title ?? "", mediaState: s.mediaState,
                    position: s.mediaPosition, duration: s.mediaDuration, seekable: s.mediaSeekable, choices: s.choices,
-                   displays: Screens.displays(), windows: windows, canRecord: canRecord, shots: shots)
+                   displays: Screens.displays(), windows: windows, canRecord: canRecord,
+                   audioConfirmed: s.audioRouting.confirmed, audioPending: s.audioRouting.pending, shots: shots)
     }
 
     static func make(_ n: Now) -> Page {
@@ -88,10 +91,11 @@ enum MirayaPage {
             // One thing at a time: the code to compare, or what the TV is doing.
             return Page(summary: summary(n), sections: [top])
         case .sharing, .pausing, .paused:
-            if n.mode == .media { return Page(summary: summary(n), sections: [top, Section(nil, [.transport(transport(n))]), tvs(n)]) }
-            return Page(summary: summary(n), sections: [top, tvs(n), picture(n, live: true), more(n), connection(n)])
+            if n.mode == .media { return Page(summary: summary(n), sections: [top, Section(nil, [.transport(transport(n))])]) }
+            return Page(summary: summary(n), sections: [top, picture(n, live: true), more(n), connection(n)])
         case .idle:
-            return Page(summary: summary(n), sections: [top, tvs(n), what(n), picture(n, live: false), more(n), play(n)])
+            if n.tv == nil { return Page(summary: summary(n), sections: [top, tvs(n)]) }
+            return Page(summary: summary(n), sections: [top, tvs(n), what(n), picture(n, live: false), more(n), play(n), address()])
         }
     }
 
@@ -180,18 +184,18 @@ enum MirayaPage {
             }
             let source = source(n)
             let what = source?.label ?? L("a window")
-            var detail = "\(qualityName(n.choices.preset)), \(n.choices.preset.label) · " + (n.choices.sound ? L("sound on the TV too") : L("sound stays on this Mac"))
+            var detail = "\(qualityName(n.choices.preset)), \(n.choices.preset.label) · " + soundLine(n)
             var eyebrow = L("Ready"), tone = Tone.good
             if !chosen.online { eyebrow = L("{tv} isn't on now", ["tv": tv]); tone = .warn; detail = L("Open Miraya on the TV, then share.") + " " + detail }
             else if !chosen.paired { eyebrow = L("New TV"); tone = .info; detail += ". " + L("The first time, you compare a six-digit code with the TV.") }
             var start = start(n) ?? Action(L("Start sharing"), tool: "share_screen", style: .primary, symbol: "play.fill",
                                            detail: L("Choose a window to share first."), disabled: true)
+            if !chosen.online { start.disabled = true; start.detail = L("Open Miraya on the TV first.") }
             if let problem = n.problem {
                 eyebrow = L("Couldn't share"); tone = .bad; detail = problem
                 start.label = L("Try again")
             }
-            return Hero(L("Share {what} to {tv}", ["what": what, "tv": tv]), eyebrow: eyebrow, detail: detail, tone: tone, symbol: "tv",
-                        image: source.flatMap { n.shots[$0.key] }, actions: [start])
+            return Hero(L("Share {what} to {tv}", ["what": what, "tv": tv]), eyebrow: eyebrow, detail: detail, tone: tone, symbol: "tv", actions: [start])
         case .pairing:
             return Hero(L("Compare with {tv}", ["tv": tv]), eyebrow: L("Verify the TV"),
                         detail: L("Make sure these six digits match the ones on the TV. If they don't, cancel: something else may be answering for your TV."),
@@ -218,26 +222,19 @@ enum MirayaPage {
             }
             var facts: [(String, String)] = []
             if n.fps > 0 { facts.append((L("On the TV"), "\(Format.integer(Int(n.fps.rounded()))) fps")) }
-            if n.rttMs > 0 { facts.append((L("Delay"), "\(Format.integer(Int(n.rttMs.rounded()))) ms")) }
+            if n.rttMs > 0 { facts.append((L("Network round trip"), "\(Format.integer(Int(n.rttMs.rounded()))) ms")) }
             if !n.picture.isEmpty { facts.append((L("Picture"), n.picture)) }
-            facts.append((L("Sound"), n.choices.sound ? L("On the TV") : L("This Mac only")))
+            let sound = n.audioPending || (n.choices.audio == .tv && !n.audioConfirmed) ? L("Routing…") : n.choices.audio.label
+            facts.append((L("Sound"), sound))
             let since = n.startedAt.map { " " + L("Since {time}.", ["time": Format.time($0)]) } ?? ""
             return Hero(paused ? L("Sharing to {tv} is paused", ["tv": tv]) : L("Sharing {what} to {tv}", ["what": sharedName(n), "tv": tv]),
                         eyebrow: paused ? L("Paused") : L("Sharing · live"),
                         detail: paused ? L("The TV may keep showing the last picture. Nothing new reaches it until you resume.")
-                            : L("Change the picture or sound below while you watch.") + since,
+                            : (n.note ?? L("Change the picture or sound below while you watch.")) + since,
                         tone: paused ? .warn : .good, symbol: paused ? "pause.circle" : "rectangle.on.rectangle",
-                        image: n.target.flatMap(targetKey).flatMap { n.shots[$0] }, facts: paused ? [] : facts,
+                        facts: paused ? [] : facts,
                         actions: paused ? [Action(L("Resume"), tool: "resume", style: .primary, symbol: "play.fill"), stop(L("Stop sharing"))]
                             : [Action(L("Pause"), tool: "pause", symbol: "pause.fill"), stop(L("Stop sharing"))])
-        }
-    }
-
-    static func targetKey(_ t: Session.Target) -> String? {
-        switch t.kind {
-        case .display: return "display:\(t.displayID)"
-        case .window: return t.windowID.map { "window:\($0)" }
-        case .area: return nil
         }
     }
 
@@ -291,10 +288,18 @@ enum MirayaPage {
         if let problem = n.discoveryProblem, n.tv != nil { blocks.append(.note(problem, tone: .warn)) }
         if !n.busy {
             if !n.tvs.isEmpty { blocks.append(.action(Action(L("Look again"), tool: "find_tvs", style: .plain, symbol: "arrow.clockwise"))) }
-            blocks.append(.field(L("Not in the list?"), detail: L("Type the address Miraya shows on the TV."), placeholder: "192.168.1.20",
-                                 button: L("Pair"), tool: "pair_tv", key: "tv"))
+            if n.tv == nil { blocks.append(addressField) }
         }
-        return Section(L("TVs"), blocks, place: .side)
+        return Section(L("TVs"), blocks, place: n.tv == nil ? .main : .side)
+    }
+
+    static var addressField: Block {
+        .field(L("TV address"), detail: L("Type the address Miraya shows on the TV."), placeholder: "192.168.1.20",
+               button: L("Pair"), tool: "pair_tv", key: "tv")
+    }
+
+    static func address() -> Section {
+        Section(L("Connect by address"), [addressField], place: .bottom, collapsed: true)
     }
 
     // MARK: What to share
@@ -322,6 +327,11 @@ enum MirayaPage {
         case "area":
             let main = n.displays.first { $0.id == CGMainDisplayID() } ?? n.displays.first
             let display = n.displays.first { $0.id == n.choices.display } ?? main
+            if n.displays.count > 1 {
+                let displays = n.displays.map { Option("\($0.id)", displayName($0), detail: $0.name.components(separatedBy: " · ").dropFirst().first) }
+                blocks.append(.picker(L("Screen"), style: .rows, displays, selected: display.map { "\($0.id)" } ?? "",
+                                      tool: "set_option", input: ["option": "display"]))
+            }
             let options = areas.map { a in
                 Option(a.name, a.label, detail: display.map(displayName), image: n.shots["area:\(a.name)"], symbol: "rectangle.dashed")
             }
@@ -356,9 +366,16 @@ enum MirayaPage {
             .picker(L("Quality"), detail: live ? L("Changes while you share: the TV shows the new picture in a moment.") : L("The most the TV gets; the TV's own size can lower it."),
                     style: .cards, presets.map { Option($0.0.rawValue, $0.1, detail: $0.0.label) }, selected: n.choices.quality,
                     tool: "set_option", input: ["option": "quality"]),
-            .toggle(L("Play the Mac's sound on the TV"), detail: L("Only what this Mac plays, never the microphone. It keeps playing here too."),
-                    on: n.choices.sound, tool: "set_option", input: ["option": "sound"]),
-        ])
+            .picker(L("Play system audio on"), detail: L("System audio only; the microphone is never shared. TV only temporarily mutes this Mac's entire output, including other apps."),
+                    style: .cards, Choices.AudioDestination.allCases.map { Option($0.rawValue, $0.label) },
+                    selected: n.choices.audio.rawValue, tool: "set_option", input: ["option": "audio_destination"]),
+        ], place: .bottom, collapsed: true,
+           detail: "\(qualityName(n.choices.preset)) · \(n.choices.preset.label) · " + soundLine(n))
+    }
+
+    /// The sound choice in a line: changing, or where it plays.
+    static func soundLine(_ n: Now) -> String {
+        n.audioPending ? L("Updating sound…") : L("Sound: {destination}", ["destination": n.choices.audio.label])
     }
 
     static func more(_ n: Now) -> Section {
@@ -367,7 +384,7 @@ enum MirayaPage {
                     on: n.choices.detail, tool: "set_option", input: ["option": "detail"]),
             .toggle(L("No bigger than the TV's own size"), detail: L("Saves the network when the TV's app shows less than 1080p."),
                     on: n.choices.followTV, tool: "set_option", input: ["option": "follow_tv"]),
-        ], collapsed: true)
+        ], place: .bottom, collapsed: true)
     }
 
     static func connection(_ n: Now) -> Section {
@@ -376,7 +393,7 @@ enum MirayaPage {
         if n.rttMs > 0 { facts.append((L("Network round trip"), "\(Format.integer(Int(n.rttMs.rounded()))) ms")) }
         facts.append((L("Frames dropped on the TV"), Format.integer(n.drops)))
         facts.append((L("Connection"), L("Direct and encrypted, on your network")))
-        return Section(L("Connection details"), [.facts(nil, facts)], collapsed: true)
+        return Section(L("Connection details"), [.facts(nil, facts)], place: .bottom, collapsed: true)
     }
 
     // MARK: Words

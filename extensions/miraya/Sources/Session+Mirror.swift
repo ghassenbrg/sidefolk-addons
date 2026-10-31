@@ -137,6 +137,7 @@ extension Session {
     /// A quality or sound change while sharing: capture stops, the TV reconfigures, capture starts again; WebRTC's
     /// connection stays (the Mac app's settingsChanged).
     func applyChoices() {
+        synchronizeOutputMute()
         guard phase == .sharing, mode == .mirror, let session = connection else { return }
         rtc?.update(quality: choices.preset, audio: choices.sound, paused: true, prioritizeDetail: choices.detail)
         let engine = capture; capture = nil; captureRunning = false
