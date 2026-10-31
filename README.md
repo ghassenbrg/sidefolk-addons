@@ -27,7 +27,8 @@ its sandbox. Sidefolk's DECISIONS D55 and SECURITY T33 have the whole of it.
 ```
 companions/<name>/    addon.json, characters/<name>.js, assets/<name>.glb, portraits/<name>.png, avatars/<name>.png
 themes/<name>/        addon.json, theme.json, art/*.png (Sidefolk checks it again and re-encodes the pictures)
-extensions/<name>/    sidefolk-extension.json, icon.pdf, addon.json (its shelf: everyday, files, developer or fun),
+extensions/<name>/    sidefolk-extension.json, icon.pdf, addon.json (its shelf: everyday, files, developer or fun;
+                       `minimum_sidefolk`: a Sidefolk snapshot it needs, e.g. "0.1.0-snapshot.593", Sidefolk D83),
                       strings/<language>.json (its words in Sidefolk's ten languages, Sidefolk D76),
                       Sources/ (a Swift program on Kit/); optionally licenses/ (packed as is) and frameworks
                       the program links (packed as lib/<Name>.framework/<Name>, signed like the program)
