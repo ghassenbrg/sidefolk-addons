@@ -101,6 +101,12 @@ enum SampleBoards {
             if !h.thinking, !h.over { before = HigherLowerScreen.board(h, events: e, options: options) }
         }
         try write(HigherLowerScreen.id, "yours-end", before, HigherLowerScreen.board(h, events: e, options: options))
+        // Guessing its number: the thermometer after two guesses.
+        PlaytimeRecords.update { $0.higherLowerMode = "mine" }
+        h = HigherLowerEngine.start(level: .fair, options: options, random: &random)
+        _ = GameTable.play(HigherLowerScreen.self, .button("start"), on: &h, random: &random)
+        for n in [50, 30] where !h.over { e = GameTable.play(HigherLowerScreen.self, .number(n), on: &h, random: &random) }
+        try write(HigherLowerScreen.id, "meter", nil, HigherLowerScreen.board(h, events: e, options: options))
 
         var b = BalloonWordsEngine.start(level: .fair, options: options, random: &random)
         let wrong = b.game.keys.first { k in !b.game.units.contains { $0.key == k } }!
