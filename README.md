@@ -85,5 +85,10 @@ that version and keep the one they have.
 - **An extension** is a folder like those in `extensions/`, with a manifest Sidefolk validates
   ([Sidefolk's docs/EXTENSIONS.md](https://github.com/ghassenbrg/sidefolk/blob/main/docs/EXTENSIONS.md)). Add it
   to `Package.swift` and open a pull request; ids under `dev.sidefolk.` are Sidefolk's own.
+- **What the Kit offers** follows Sidefolk's protocol: tools, watchers, pages (gauges, charts, switches, buttons, and
+  since Sidefolk D68 `choice`, `field` and `list` with pictures), palettes (items with a picture, a swatch and a
+  section; `PalettePreview` for the picked item in full; list actions like `clear`), and notices (`ext.on`, as
+  Clipboard hears which app a copy came from). A picture is a file the program wrote in its own data folder
+  (`Paths.data`), named relative to it: make thumbnails once and small. Change Kit/ in Sidefolk first, then copy it here.
 
 Sidefolk is proprietary (its LICENSE); so are the add-ons here unless an `addon.json` or manifest says otherwise.
