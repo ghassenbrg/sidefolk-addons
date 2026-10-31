@@ -67,7 +67,8 @@ Every add-on is in snapshots until it's released, as Sidefolk is. Its manifest (
 while it's a snapshot. A theme's packed `theme.json` carries that version too. To release it, write
 `"released": "1.0.0"` in its `addon.json`; the next build publishes plain `1.0.0`, which Sidefolk ranks above all
 its snapshots. From then on 1.0.0 is fixed: for the next change, raise the version (`1.1.0`), and its snapshots
-begin again.
+begin again. 1.0.0 stays in the gallery beside them, listed first, so people who take releases only
+(Settings › Updates) keep it until 1.1.0 is released.
 
 Once released, raise a companion's or theme's version for every change people should get. An extension is offered as **Update** when the
 catalog's version is newer than the installed one (it can act for the person, so it waits for them). A companion

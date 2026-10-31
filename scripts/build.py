@@ -143,7 +143,34 @@ def published(ident, work):
     run("codesign", "--verify", "--deep", "--strict",
         f'-R=anchor apple generic and certificate leaf[subject.OU] = "{team(ident)}" and identifier "{CATALOG_ID}"', str(bundle))
     data = json.loads((bundle / "Contents" / "Resources" / "catalog.json").read_text())
-    return {a["id"]: a for a in data["addons"]}
+    by_id = {}
+    for a in data["addons"]:
+        by_id.setdefault(a["id"], []).append(a)
+    return by_id
+
+
+def latest(entries):
+    """An add-on's newest published release and newest snapshot (either may be None): a release stays listed beside
+    the snapshots of the version after it (Sidefolk's D65), so people on Releases keep it."""
+    def key(e):
+        return tuple(int(n) for n in re.findall(r"\d+", e["version"]))
+    releases = [e for e in entries or [] if "-" not in e["version"]]
+    snapshots = [e for e in entries or [] if "-" in e["version"]]
+    return max(releases, key=key, default=None), max(snapshots, key=key, default=None)
+
+
+def kept_release(name, release, base, work):
+    """The published release of an add-on now in snapshots of `base`, kept byte for byte and listed first, so a copy
+    of Sidefolk that reads one entry per id (before D65) keeps getting the release."""
+    if not release:
+        return []
+    if tuple(map(int, release["version"].split("."))) >= tuple(map(int, base.split("."))):
+        sys.exit(f"{name}: {release['version']} is released. Raise its version for the next one's snapshots.")
+    zip_path = DIST / release["file"]
+    urllib.request.urlretrieve(f"{RELEASE}/{release['file']}", zip_path)
+    assert zip_path.stat().st_size == release["bytes"] and sha256(zip_path) == release["sha256"], f"{name}: the published pack isn't what the catalog says"
+    print(f"kept    {release['file']} (released, beside the next version's snapshots)")
+    return [dict(release)]
 
 
 def reuse(name, entry, stage, old, work, folder=None):
@@ -215,10 +242,13 @@ def companions(ident, work, previews, prior):
         shutil.copy(folder / "avatars" / f"{name}.png", previews / f"{name}.png")
         entry["preview"] = f"previews/{name}.png"
         entry["source"] = source_digest(files_in(folder), folder)
-        old = prior.get(entry["id"])
+        release, old = latest(prior.get(entry["id"]))
         # A snapshot until addon.json says `"released": "<that version>"`; the companion records the catalog's version.
         if entry.pop("released", None) != entry["version"]:
+            entries += kept_release(name, release, entry["version"], work)
             entry["version"] = snapshot_version(entry["version"], old, entry["source"])
+        else:
+            old = release
         if old and old["version"] == entry["version"]:
             entries.append(reuse(name, entry, stage, old, work))
             continue
@@ -249,9 +279,12 @@ def themes(ident, work, previews, prior):
             shutil.copy(preview, previews / f"theme-{name}.png")
             entry["preview"] = f"previews/theme-{name}.png"
         entry["source"] = source_digest(files_in(folder), folder)
-        old = prior.get(entry["id"])
+        release, old = latest(prior.get(entry["id"]))
         if entry.pop("released", None) != entry["version"]:
+            entries += kept_release(f"theme-{name}", release, entry["version"], work)
             entry["version"] = snapshot_version(entry["version"], old, entry["source"])
+        else:
+            old = release
         if old and old["version"] == entry["version"]:
             entries.append(reuse(f"theme-{name}", entry, stage, old, work))
             continue
@@ -289,11 +322,14 @@ def extensions(ident, work, previews, unsigned, prior):
             entry["preview"] = f"previews/{name}{Path(m['icon']).suffix}"
         # The program is built from the extension's folder and Kit/.
         entry["source"] = source_digest(files_in(folder) + files_in(ROOT / "Kit"), ROOT)
-        old = prior.get(entry["id"])
+        release, old = latest(prior.get(entry["id"]))
         # A version is a snapshot until addon.json says `"released": "<that version>"`; only a released one is held
         # to "files changed, raise the version".
         if extra.get("released") != m["version"]:
+            entries += kept_release(name, release, m["version"], work)
             entry["version"] = snapshot_version(m["version"], old, entry["source"], folder)
+        else:
+            old = release
         if old and old["version"] == entry["version"]:
             entries.append(reuse(name, entry, stage, old, work, folder))
             continue
