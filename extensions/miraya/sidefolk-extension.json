@@ -1,0 +1,318 @@
+{
+  "id": "dev.sidefolk.miraya",
+  "name": "Miraya",
+  "version": "1.0.0",
+  "sidefolk": ">=0.1",
+  "description": "Shows your Mac's screen, one window or part of it, with its sound, on an Android TV running the Miraya app, over an encrypted direct connection on your network, or plays a video file or link on the TV. The first time, you compare a six-digit code on both screens. No account, no cloud.",
+  "tagline": "Your Mac's screen and videos on your Android TV",
+  "folk": "byte",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": {
+    "command": "bin/ext-miraya"
+  },
+  "background": true,
+  "permissions": {
+    "network": true,
+    "network_purpose": "to find TVs on your local network and stream to them",
+    "udp": true,
+    "screen": true,
+    "media": true
+  },
+  "pages": {
+    "miraya": {
+      "title": "Miraya",
+      "symbol": "tv",
+      "refresh": 2,
+      "widget": true
+    }
+  },
+  "tools": {
+    "find_tvs": {
+      "title": "TVs around",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "which tvs are around",
+            "which tvs are on",
+            "find my tv",
+            "find tvs"
+          ]
+        }
+      ]
+    },
+    "share_screen": {
+      "title": "Share screen to TV",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "mirror my screen",
+            "share my screen",
+            "mirror my mac",
+            "cast my screen",
+            "show my screen on the tv"
+          ]
+        },
+        {
+          "say": [
+            "mirror my screen to the {tv:text}",
+            "mirror my screen on the {tv:text}",
+            "share my screen to the {tv:text}",
+            "share my screen on the {tv:text}"
+          ],
+          "input": {
+            "tv": "{tv}"
+          }
+        },
+        {
+          "say": [
+            "share my {window:text} window",
+            "mirror my {window:text} window"
+          ],
+          "input": {
+            "window": "{window}"
+          }
+        }
+      ]
+    },
+    "play_on_tv": {
+      "title": "Play on TV",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "paths": {
+        "file": "read",
+        "subtitles": "read"
+      },
+      "timeout": 45,
+      "commands": [
+        {
+          "say": [
+            "play {file:text} on the tv",
+            "play {file:text} on my tv"
+          ],
+          "input": {
+            "file": "{file}"
+          }
+        }
+      ]
+    },
+    "stop": {
+      "title": "Stop sharing",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "stop sharing",
+            "stop sharing my screen",
+            "stop mirroring",
+            "stop casting",
+            "stop the tv"
+          ]
+        }
+      ]
+    },
+    "pause": {
+      "title": "Pause sharing",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "pause sharing",
+            "pause mirroring",
+            "pause the tv"
+          ]
+        }
+      ]
+    },
+    "resume": {
+      "title": "Resume sharing",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "resume sharing",
+            "resume mirroring",
+            "resume the tv"
+          ]
+        }
+      ]
+    },
+    "seek": {
+      "title": "Skip in the video",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "skip ahead on the tv"
+          ],
+          "input": {
+            "seconds": 30
+          }
+        },
+        {
+          "say": [
+            "go back on the tv"
+          ],
+          "input": {
+            "seconds": -30
+          }
+        }
+      ]
+    },
+    "tv_volume": {
+      "title": "TV volume",
+      "risk": "low",
+      "category": "system",
+      "mutates": true
+    },
+    "pair_tv": {
+      "title": "Pair with a TV",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "pair with the {tv:text}",
+            "pair my mac with the {tv:text}",
+            "connect to the tv at {tv:word}"
+          ],
+          "input": {
+            "tv": "{tv}"
+          }
+        }
+      ]
+    },
+    "confirm_pairing": {
+      "title": "Codes match · Pair",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "ai": false,
+      "commands": [
+        {
+          "say": [
+            "the codes match",
+            "the tv code matches"
+          ]
+        }
+      ]
+    },
+    "forget_tv": {
+      "title": "Forget a TV",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "ai": false,
+      "commands": [
+        {
+          "say": [
+            "forget the tv called {tv:text}"
+          ],
+          "input": {
+            "tv": "{tv}"
+          }
+        }
+      ]
+    },
+    "choose_tv": {
+      "title": "Choose a TV",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "say": [
+            "share to the tv called {tv:text}"
+          ],
+          "input": {
+            "tv": "{tv}"
+          }
+        }
+      ]
+    },
+    "list_windows": {
+      "title": "Windows to share",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "ai": false,
+      "commands": [
+        {
+          "say": [
+            "which windows can i share"
+          ]
+        }
+      ]
+    },
+    "set_option": {
+      "title": "Miraya setting",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "ai": false,
+      "commands": [
+        {
+          "say": [
+            "send the mac's sound to the tv",
+            "send the sound to the tv"
+          ],
+          "input": {
+            "option": "sound",
+            "on": true
+          }
+        },
+        {
+          "say": [
+            "keep the sound on the mac",
+            "dont send the sound to the tv"
+          ],
+          "input": {
+            "option": "sound",
+            "on": false
+          }
+        }
+      ]
+    },
+    "tv_status": {
+      "title": "What's on the TV",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "say": [
+            "what's on the tv",
+            "whats on the tv",
+            "am i sharing my screen"
+          ]
+        }
+      ]
+    }
+  },
+  "watchers": {
+    "tv_on": {
+      "title": "A paired TV is on",
+      "description": "Tells you when Miraya opens on a TV you paired, so you can share to it."
+    },
+    "ended": {
+      "title": "Sharing to the TV ended",
+      "description": "Tells you when sharing or a video on the TV ends without you stopping it: the TV's Back button, the network, the TV turned off."
+    }
+  }
+}

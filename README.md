@@ -7,7 +7,7 @@ use. Sidefolk shows them in **Settings › Companion** (the dashed cards) and **
 | | What | |
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish) | 3D, 2–3.4 MB each |
-| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and for Sidefolk 0.2 and later System Vitals+, Clipboard and Keep Awake | about 170 KB each |
+| **Extensions** | Git, Currency, Playtime, Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and for Sidefolk 0.2 and later System Vitals+, Clipboard and Keep Awake | about 170 KB each; Miraya 13 MB (WebRTC) |
 | **Themes** | Daylight, Night Studio, Paper Garden: colours, type, a layout of Sidefolk's own pieces, a few pictures | 0.5–1.8 MB each |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
@@ -28,7 +28,8 @@ its sandbox. Sidefolk's DECISIONS D55 and SECURITY T33 have the whole of it.
 companions/<name>/    addon.json, characters/<name>.js, assets/<name>.glb, portraits/<name>.png, avatars/<name>.png
 themes/<name>/        addon.json, theme.json, art/*.png (Sidefolk checks it again and re-encodes the pictures)
 extensions/<name>/    sidefolk-extension.json, icon.pdf, addon.json (its shelf: everyday, files, developer or fun),
-                      Sources/ (a Swift program on Kit/)
+                      Sources/ (a Swift program on Kit/); optionally licenses/ (packed as is) and frameworks
+                      the program links (packed as lib/<Name>.framework/<Name>, signed like the program)
 Kit/                  a copy of Sidefolk's extensions/Kit (scripts/check.sh warns when they differ)
 Tests/                the extensions' own logic, with canned data
 scripts/              build.py (pack and sign), publish.sh (upload), check.sh (Sidefolk's validator)
@@ -47,6 +48,11 @@ SIDEFOLK_APP=../sidefolk scripts/check.sh    # Sidefolk's own manifest check on 
 
 To try a build in Sidefolk before publishing it, run a debug copy of Sidefolk with `SIDEFOLK_ADDONS` set to this
 repository's `dist/` (signed with `scripts/build.py`): it reads the gallery from there instead of GitHub.
+
+Miraya (`extensions/miraya`) is the sending side of [Miraya](https://github.com/ghassenbrg/miraya)'s Mac app, MIT,
+in Sidefolk's sandbox: it depends on the same pinned WebRTC (stasel/WebRTC 150.0.0), copies the Mac app's sources it
+reuses with their notice (`licenses/`), and its icon is the Mac app's own (`swift scripts/miraya-icon.swift <miraya>`).
+It needs Sidefolk's `screen`, `udp` and `network_purpose` (Sidefolk D69).
 
 ## Publishing
 
