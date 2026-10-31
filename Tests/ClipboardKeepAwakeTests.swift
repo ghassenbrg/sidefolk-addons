@@ -110,6 +110,6 @@ struct ClipboardKeepAwakeTests {
         let early = try #require(Rules.time("8:30", now: morning, calendar: calendar))
         #expect(early.timeIntervalSince(morning) == 23.5 * 3600, "a time already past today is tomorrow's")
         #expect(Rules.time("25:00", now: morning) == nil && Rules.time("lunch", now: morning) == nil && Rules.time("13pm", now: morning) == nil)
-        #expect(Rules.left(morning.addingTimeInterval(5400), now: morning) == "1 h 30 min")
+        #expect(Rules.left(morning.addingTimeInterval(5400), now: morning) == "1 hr, 30 min")
     }
 }

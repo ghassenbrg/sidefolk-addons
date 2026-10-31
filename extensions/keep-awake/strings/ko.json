@@ -1,0 +1,82 @@
+{
+  "name": "깨어 있기",
+  "tagline": "원하는 만큼 Mac은 깨어 있고 당신은 활동 중으로",
+  "description": "원하는 만큼, 정한 시각까지, Zoom 같은 앱이 열려 있는 동안, 또는 멈출 때까지 Mac을 깨어 있게 하고 채팅 앱에서 자리 비움이 되지 않게 해요. 화면에서는 아무것도 움직이지 않고, 배터리 사용 중이거나 배터리가 부족하면 스스로 멈춰요.",
+  "tools": {
+    "awake_status": {
+      "title": "깨어 있기 상태"
+    },
+    "extend": {
+      "title": "더 오래 깨어 있기"
+    },
+    "keep_awake": {
+      "title": "Mac 깨어 있게 하기"
+    },
+    "set_option": {
+      "title": "깨어 있기 설정"
+    },
+    "stop_keeping_awake": {
+      "title": "Mac 잠자게 두기"
+    }
+  },
+  "watchers": {
+    "ended": {
+      "title": "깨어 있기 종료",
+      "description": "깨어 있기가 저절로 끝나면 알려 줍니다. 시간이 다 되었거나 기다리던 앱이 종료된 경우입니다."
+    }
+  },
+  "pages": {
+    "awake": {
+      "title": "깨어 있기"
+    }
+  },
+  "text": {
+    "1 hour": "1시간",
+    "2 hours": "2시간",
+    "30 min more": "30분 더",
+    "Ask for more": "다른 요청",
+    "Awake until you stop it": "중단할 때까지 깨어 있음",
+    "Awake until {time}": "{time}까지 깨어 있음",
+    "Awake while {app} is open": "{app}이(가) 열려 있는 동안 깨어 있음",
+    "Done: your Mac sleeps as usual again.": "완료: Mac이 다시 평소처럼 잠자기에 들어갑니다.",
+    "How": "방식",
+    "I couldn't read “{text}” as a time, like 6pm or 18:30.": "‘{text}’을(를) 시간으로 읽을 수 없습니다. 6pm이나 18:30처럼 입력하세요.",
+    "It isn't kept awake for a set time.": "정해진 시간 동안 깨어 있는 상태가 아닙니다.",
+    "Its time is up.": "시간이 다 되었습니다.",
+    "Keep Awake ended: {why} Your Mac sleeps as usual again.": "깨어 있기가 끝났습니다: {why} Mac이 다시 평소처럼 잠자기에 들어갑니다.",
+    "Keep Awake is on but waiting: {why}": "깨어 있기가 켜져 있지만 대기 중입니다: {why}",
+    "Keep awake": "깨어 있기",
+    "Keep me active for an hour": "1시간 동안 활성 상태 유지",
+    "Keep me active in chat apps": "채팅 앱에서 활성 상태 유지",
+    "Keep the screen on": "화면 켜 두기",
+    "Last time: {why} ({time})": "지난번: {why} ({time})",
+    "Let go when the battery is under {percent}": "배터리가 {percent} 미만이면 해제",
+    "Nothing ended yet.": "아직 끝난 것이 없습니다.",
+    "Off: the Mac stays awake (downloads, builds) and the screen may sleep.": "끄면: Mac은 깨어 있고(다운로드, 빌드) 화면은 잠들 수 있습니다.",
+    "On battery it waits, and holds again when you plug in.": "배터리 사용 중에는 기다렸다가 전원을 연결하면 다시 유지합니다.",
+    "Only while plugged in": "전원 연결 중에만",
+    "Screen may sleep": "화면은 잠들 수 있음",
+    "Screen on": "화면 켜짐",
+    "So keeping it awake never empties it.": "깨어 있기 때문에 배터리가 바닥나는 일이 없습니다.",
+    "Stop": "중단",
+    "The battery is below {percent}, so it's letting the Mac rest.": "배터리가 {percent} 미만이라 Mac을 쉬게 합니다.",
+    "There's no such setting.": "그런 설정은 없습니다.",
+    "Turned off.": "껐습니다.",
+    "Turned on.": "켰습니다.",
+    "Until {time}": "{time}까지",
+    "Waiting": "대기 중",
+    "Waiting to be plugged in.": "전원 연결을 기다리는 중입니다.",
+    "While Zoom is open": "Zoom이 열려 있는 동안",
+    "While you're away, Sidefolk moves the pointer by nothing about once a minute, so Slack, Teams and Zoom don't mark you away. You won't see it move.": "자리를 비운 동안 Sidefolk가 약 1분마다 포인터를 거리 0만큼 움직여 Slack, Teams, Zoom이 자리 비움으로 표시하지 않게 합니다. 움직임은 보이지 않습니다.",
+    "You stopped it.": "직접 중단했습니다.",
+    "Your Mac isn't being kept awake; it sleeps as usual.": "Mac을 깨어 있게 하고 있지 않습니다. 평소처럼 잠자기에 들어갑니다.",
+    "Your Mac sleeps as usual": "Mac이 평소처럼 잠듦",
+    "Your Mac wasn't being kept awake.": "Mac을 깨어 있게 하고 있지 않았습니다.",
+    "only plugged in": "전원 연결 시에만",
+    "showing you active": "활성 상태로 표시 중",
+    "showing you active ({count}× so far)": "활성 상태로 표시 중(지금까지 {count}회)",
+    "{app} isn't open. Open it first, or say how long instead.": "{app}이(가) 열려 있지 않습니다. 먼저 열거나 대신 시간을 말해 주세요.",
+    "{app} quit.": "{app}이(가) 종료되었습니다.",
+    "{time} left": "{time} 남음"
+  }
+}

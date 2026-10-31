@@ -41,69 +41,71 @@ struct Concern: Equatable {
     var rank: Int { tone == .bad ? 0 : tone == .warn ? 1 : 2 }
 }
 
-/// Plain words for every number: what the page, the tools and the watchers say.
+/// Plain words for every number: what the page, the tools and the watchers say, in the person's language.
 enum Words {
     static func concerns(_ s: Snapshot) -> [Concern] {
         var out: [Concern] = []
         if let m = s.memory, m.pressure >= 2 {
-            let top = s.byMemory.first.map { " Quit apps you aren't using, starting with \($0.name) (\(memory($0.memory)))." } ?? ""
+            let top = s.byMemory.first.map { " " + L("Quit apps you aren't using, starting with {app} ({memory}).", ["app": $0.name, "memory": memory($0.memory)]) } ?? ""
             out.append(m.pressure >= 4
-                ? Concern(tone: .bad, title: "Memory is very tight", advice: "macOS is short of memory, so apps slow down or pause.\(top)")
-                : Concern(tone: .warn, title: "Memory is getting tight", advice: "macOS is squeezing memory to make room.\(top)"))
+                ? Concern(tone: .bad, title: L("Memory is very tight"), advice: L("macOS is short of memory, so apps slow down or pause.") + top)
+                : Concern(tone: .warn, title: L("Memory is getting tight"), advice: L("macOS is squeezing memory to make room.") + top))
         }
         switch s.thermal {
         case .critical:
-            out.append(Concern(tone: .bad, title: "Your Mac is very hot", advice: "It is slowing itself down to cool off. Give it air and quit heavy apps."))
+            out.append(Concern(tone: .bad, title: L("Your Mac is very hot"), advice: L("It is slowing itself down to cool off. Give it air and quit heavy apps.")))
         case .serious:
-            out.append(Concern(tone: .warn, title: "Your Mac is hot", advice: "It may slow down to cool off. Check what's working hardest below."))
+            out.append(Concern(tone: .warn, title: L("Your Mac is hot"), advice: L("It may slow down to cool off. Check what's working hardest below.")))
         default: break
         }
         if s.cpu.load >= 0.9 {
-            let top = s.byCPU.first.map { ", mostly \($0.name)" } ?? ""
-            out.append(Concern(tone: .warn, title: "Your Mac is working very hard",
-                               advice: "The processor is \(percent(s.cpu.load)) busy\(top). It eases once that work finishes, or quit the app."))
+            let advice = s.byCPU.first.map {
+                L("The processor is {percent} busy, mostly {app}. It eases once that work finishes, or quit the app.", ["percent": percent(s.cpu.load), "app": $0.name])
+            } ?? L("The processor is {percent} busy. It eases once that work finishes, or quit the app.", ["percent": percent(s.cpu.load)])
+            out.append(Concern(tone: .warn, title: L("Your Mac is working very hard"), advice: advice))
         }
         if let d = s.startup {
             let share = d.total > 0 ? d.free / d.total : 1
             if d.free < 5e9 || share < 0.05 {
-                out.append(Concern(tone: .bad, title: "Your disk is almost full",
-                                   advice: "Only \(bytes(d.free)) left. Empty the Trash and remove big files you don't need; System Settings › General › Storage shows what takes the space."))
+                out.append(Concern(tone: .bad, title: L("Your disk is almost full"),
+                                   advice: L("Only {size} left. Empty the Trash and remove big files you don't need; System Settings › General › Storage shows what takes the space.", ["size": bytes(d.free)])))
             } else if d.free < 15e9 || share < 0.1 {
-                out.append(Concern(tone: .warn, title: "Disk space is getting low",
-                                   advice: "\(bytes(d.free)) left. Empty the Trash, and look in Downloads for things you no longer need."))
+                out.append(Concern(tone: .warn, title: L("Disk space is getting low"),
+                                   advice: L("{size} left. Empty the Trash, and look in Downloads for things you no longer need.", ["size": bytes(d.free)])))
             }
         }
         if let b = s.battery {
+            let left = ["percent": charge(b.percent)]
             if !b.pluggedIn, b.percent <= 10 {
-                out.append(Concern(tone: .bad, title: "The battery is almost empty", advice: "\(b.percent)% left. Plug in now."))
+                out.append(Concern(tone: .bad, title: L("The battery is almost empty"), advice: L("{percent} left. Plug in now.", left)))
             } else if !b.pluggedIn, b.percent <= 20 {
-                out.append(Concern(tone: .warn, title: "The battery is low", advice: "\(b.percent)% left. Plug in soon."))
+                out.append(Concern(tone: .warn, title: L("The battery is low"), advice: L("{percent} left. Plug in soon.", left)))
             }
             if b.failure {
-                out.append(Concern(tone: .warn, title: "The battery needs service", advice: "The battery reports a fault. Apple can check and replace it."))
+                out.append(Concern(tone: .warn, title: L("The battery needs service"), advice: L("The battery reports a fault. Apple can check and replace it.")))
             } else if let h = b.health, h < 0.8 {
-                out.append(Concern(tone: .warn, title: "The battery has worn",
-                                   advice: "It holds \(percent(h)) of its charge when new, so it runs out sooner. Apple can replace it."))
+                out.append(Concern(tone: .warn, title: L("The battery has worn"),
+                                   advice: L("It holds {percent} of its charge when new, so it runs out sooner. Apple can replace it.", ["percent": percent(h)])))
             }
         }
         if let up = s.uptime, up > 14 * 86_400 {
-            out.append(Concern(tone: .info, title: "On for \(duration(up))", advice: "A restart clears out memory and finishes installing updates."))
+            out.append(Concern(tone: .info, title: L("On for {time}", ["time": duration(up)]), advice: L("A restart clears out memory and finishes installing updates.")))
         }
         return out.sorted { $0.rank < $1.rank }
     }
 
     static func summary(_ s: Snapshot) -> Summary {
         let worst = concerns(s).first { $0.tone != .info }
-        return Summary(worst?.title ?? "Your Mac is doing fine", detail: glance(s), tone: worst?.tone ?? .good,
+        return Summary(worst?.title ?? L("Your Mac is doing fine"), detail: glance(s), tone: worst?.tone ?? .good,
                        symbol: worst == nil ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
     }
 
     /// "CPU 12% · Memory 61% · 214 GB free · Battery 84%"
     static func glance(_ s: Snapshot) -> String {
-        var parts = ["CPU \(percent(s.cpu.load))"]
-        if let m = s.memory { parts.append("Memory \(percent(m.used / m.total))") }
-        if let d = s.startup { parts.append("\(bytes(d.free)) free") }
-        if let b = s.battery { parts.append("Battery \(b.percent)%") }
+        var parts = [L("CPU {percent}", ["percent": percent(s.cpu.load)])]
+        if let m = s.memory { parts.append(L("Memory {percent}", ["percent": percent(m.used / m.total)])) }
+        if let d = s.startup { parts.append(L("{size} free", ["size": bytes(d.free)])) }
+        if let b = s.battery { parts.append(L("Battery {percent}", ["percent": charge(b.percent)])) }
         return parts.joined(separator: " · ")
     }
 
@@ -123,68 +125,68 @@ enum Words {
 
     static func thermalWord(_ t: ProcessInfo.ThermalState) -> (String, Tone) {
         switch t {
-        case .nominal: ("Cool", .good)
-        case .fair: ("Warm", .good)
-        case .serious: ("Hot", .warn)
-        case .critical: ("Very hot", .bad)
-        @unknown default: ("Unknown", .neutral)
+        case .nominal: (L("Cool"), .good)
+        case .fair: (L("Warm"), .good)
+        case .serious: (L("Hot"), .warn)
+        case .critical: (L("Very hot"), .bad)
+        @unknown default: (L("Unknown"), .neutral)
         }
     }
 
     static func pressureWord(_ p: Int) -> String {
-        p >= 4 ? "critical: apps are being slowed" : p >= 2 ? "high: macOS is squeezing memory" : "normal: no strain"
+        p >= 4 ? L("critical: apps are being slowed") : p >= 2 ? L("high: macOS is squeezing memory") : L("normal: no strain")
     }
 
     static func batteryState(_ b: Probe.Battery) -> String {
-        if b.full || (b.pluggedIn && !b.charging && b.percent >= 95) { return "Charged" }
-        if b.charging { return b.minutesLeft.map { "Charging, full in \(minutes($0))" } ?? "Charging" }
-        if b.pluggedIn { return "Plugged in, not charging" }
-        return b.minutesLeft.map { "On battery, \(minutes($0)) left" } ?? "On battery"
+        if b.full || (b.pluggedIn && !b.charging && b.percent >= 95) { return L("Charged") }
+        if b.charging { return b.minutesLeft.map { L("Charging, full in {time}", ["time": minutes($0)]) } ?? L("Charging") }
+        if b.pluggedIn { return L("Plugged in, not charging") }
+        return b.minutesLeft.map { L("On battery, {time} left", ["time": minutes($0)]) } ?? L("On battery")
     }
 
     static func healthWord(_ b: Probe.Battery) -> String? {
-        if b.failure { return "Needs service" }
+        if b.failure { return L("Needs service") }
         guard let h = b.health else { return nil }
-        return "\(percent(h)) of new · \(h >= 0.8 ? "Normal" : "Worn")"
+        return L("{percent} of new", ["percent": percent(h)]) + " · " + (h >= 0.8 ? L("Normal") : L("Worn"))
     }
 
     static func cores(_ s: Probe.Specs) -> String {
-        guard let p = s.performanceCores, let e = s.efficiencyCores, p > 0, e > 0 else { return "\(s.cores) cores" }
-        return "\(s.cores) cores (\(p) performance, \(e) efficiency)"
+        let all = L(one: "{count} core", other: "{count} cores", count: s.cores)
+        guard let p = s.performanceCores, let e = s.efficiencyCores, p > 0, e > 0 else { return all }
+        return L("{cores} ({performance} performance, {efficiency} efficiency)", ["cores": all, "performance": p, "efficiency": e])
     }
 
     // MARK: Numbers
 
-    static func percent(_ fraction: Double) -> String { "\(Int((min(max(fraction, 0), 9.99) * 100).rounded()))%" }
+    static func percent(_ fraction: Double) -> String { Format.percent(min(max(fraction, 0), 9.99)) }
 
-    /// 1.2 GB, 340 MB, 12 KB: decimal, as Finder counts.
-    static func bytes(_ n: Double) -> String {
-        if n >= 1e12 { return String(format: "%.1f TB", n / 1e12) }
-        if n >= 1e9 { return String(format: n >= 1e11 ? "%.0f GB" : "%.1f GB", n / 1e9) }
-        if n >= 1e6 { return String(format: "%.0f MB", n / 1e6) }
-        return String(format: "%.0f KB", max(0, n) / 1e3)
-    }
+    /// The battery's charge, a whole percent.
+    static func charge(_ percent: Int) -> String { Format.percent(points: Double(percent)) }
+
+    /// 1.2 GB, 340 MB, 12 KB: decimal, as Finder counts, in the person's language ("1,2 Go"). Rounded first to a
+    /// tenth under 100 of a unit, a whole one above, so a size never shows more digits than it means.
+    static func bytes(_ n: Double) -> String { Format.bytes(Int64(rounded(max(0, n), unit: 1000))) }
 
     /// Memory as macOS and Apple count it, in binary units: a 24 GB Mac shows 24 GB, not 25.8.
-    static func memory(_ n: Double) -> String {
-        let gib = n / 1_073_741_824
-        if gib >= 1 { return String(format: gib >= 100 ? "%.0f GB" : "%.1f GB", gib).replacingOccurrences(of: ".0 GB", with: " GB") }
-        return String(format: "%.0f MB", max(0, n) / 1_048_576)
+    static func memory(_ n: Double) -> String { Format.bytes(Int64(rounded(max(0, n), unit: 1024)), style: .memory) }
+
+    /// `n` rounded in its own unit (KB, MB, GB, TB of `unit`): one decimal below 100 of it, none above.
+    static func rounded(_ n: Double, unit: Double) -> Double {
+        var scale = 1.0
+        while n >= scale * unit, scale < pow(unit, 4) { scale *= unit }
+        let value = n / scale
+        return (value >= 100 ? value.rounded() : (value * 10).rounded() / 10) * scale
     }
 
     static func rate(_ bytesPerSecond: Double) -> String {
-        if bytesPerSecond >= 1e6 { return String(format: "%.1f MB/s", bytesPerSecond / 1e6) }
-        if bytesPerSecond >= 1e3 { return String(format: "%.0f KB/s", bytesPerSecond / 1e3) }
-        return bytesPerSecond > 0 ? "under 1 KB/s" : "0 KB/s"
+        guard bytesPerSecond > 0 else { return L("{size}/s", ["size": Format.bytes(0)]) }
+        guard bytesPerSecond >= 1e3 else { return L("under {rate}", ["rate": L("{size}/s", ["size": Format.bytes(1000)])]) }
+        return L("{size}/s", ["size": bytes(bytesPerSecond)])
     }
 
-    static func minutes(_ m: Int) -> String { m >= 60 ? "\(m / 60) h \(m % 60) min" : "\(m) min" }
+    static func minutes(_ m: Int) -> String { Format.duration(Double(m) * 60, units: [.hours, .minutes]) }
 
     static func duration(_ seconds: TimeInterval) -> String {
-        let minutes = Int(seconds) / 60
-        let (days, hours, rest) = (minutes / 1440, minutes % 1440 / 60, minutes % 60)
-        func unit(_ n: Int, _ word: String) -> String { "\(n) \(word)\(n == 1 ? "" : "s")" }
-        if days > 0 { return unit(days, "day") + (hours > 0 ? " " + unit(hours, "hour") : "") }
-        return hours > 0 ? unit(hours, "hour") + " " + unit(rest, "minute") : unit(rest, "minute")
+        Format.duration(seconds, units: seconds >= 86_400 ? [.days, .hours] : [.hours, .minutes], width: .wide)
     }
 }

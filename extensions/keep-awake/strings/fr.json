@@ -1,0 +1,82 @@
+{
+  "name": "Rester éveillé",
+  "tagline": "Votre Mac éveillé et vous actif, le temps qu’il faut",
+  "description": "Garde votre Mac éveillé, et empêche les apps de discussion de vous marquer absent, aussi longtemps que vous le dites, jusqu’à une heure, tant qu’une app comme Zoom est ouverte, ou jusqu’à ce que vous l’arrêtiez. Rien ne bouge à l’écran, et il lâche prise sur batterie ou quand la batterie faiblit.",
+  "tools": {
+    "awake_status": {
+      "title": "État de Rester éveillé"
+    },
+    "extend": {
+      "title": "Rester éveillé plus longtemps"
+    },
+    "keep_awake": {
+      "title": "Garder le Mac éveillé"
+    },
+    "set_option": {
+      "title": "Réglage de Rester éveillé"
+    },
+    "stop_keeping_awake": {
+      "title": "Laisser le Mac se mettre en veille"
+    }
+  },
+  "watchers": {
+    "ended": {
+      "title": "Fin du maintien éveillé",
+      "description": "Vous prévient quand le maintien éveillé s’arrête de lui-même : son temps est écoulé, ou l’app qu’il attendait a été quittée."
+    }
+  },
+  "pages": {
+    "awake": {
+      "title": "Rester éveillé"
+    }
+  },
+  "text": {
+    "1 hour": "1 heure",
+    "2 hours": "2 heures",
+    "30 min more": "30 min de plus",
+    "Ask for more": "Demander autre chose",
+    "Awake until you stop it": "Éveillé jusqu’à ce que vous arrêtiez",
+    "Awake until {time}": "Éveillé jusqu’à {time}",
+    "Awake while {app} is open": "Éveillé tant que {app} est ouverte",
+    "Done: your Mac sleeps as usual again.": "C’est fait : votre Mac se met de nouveau en veille comme d’habitude.",
+    "How": "Comment",
+    "I couldn't read “{text}” as a time, like 6pm or 18:30.": "Impossible de lire « {text} » comme une heure, par exemple 6pm ou 18:30.",
+    "It isn't kept awake for a set time.": "Il n’est pas maintenu éveillé pour une durée fixée.",
+    "Its time is up.": "Son temps est écoulé.",
+    "Keep Awake ended: {why} Your Mac sleeps as usual again.": "Fin du maintien éveillé : {why} Votre Mac se met de nouveau en veille comme d’habitude.",
+    "Keep Awake is on but waiting: {why}": "Rester éveillé est activé mais attend : {why}",
+    "Keep awake": "Rester éveillé",
+    "Keep me active for an hour": "Me garder actif une heure",
+    "Keep me active in chat apps": "Me garder actif dans les apps de discussion",
+    "Keep the screen on": "Garder l’écran allumé",
+    "Last time: {why} ({time})": "La dernière fois : {why} ({time})",
+    "Let go when the battery is under {percent}": "Arrêter quand la batterie passe sous {percent}",
+    "Nothing ended yet.": "Rien ne s’est encore terminé.",
+    "Off: the Mac stays awake (downloads, builds) and the screen may sleep.": "Désactivé : le Mac reste éveillé (téléchargements, compilations) et l’écran peut se mettre en veille.",
+    "On battery it waits, and holds again when you plug in.": "Sur batterie, il attend, puis reprend quand vous branchez le Mac.",
+    "Only while plugged in": "Seulement sur secteur",
+    "Screen may sleep": "L’écran peut se mettre en veille",
+    "Screen on": "Écran allumé",
+    "So keeping it awake never empties it.": "Pour que le maintien éveillé ne la vide jamais.",
+    "Stop": "Arrêter",
+    "The battery is below {percent}, so it's letting the Mac rest.": "La batterie est sous {percent} : le Mac peut se reposer.",
+    "There's no such setting.": "Ce réglage n’existe pas.",
+    "Turned off.": "Désactivé.",
+    "Turned on.": "Activé.",
+    "Until {time}": "Jusqu’à {time}",
+    "Waiting": "En attente",
+    "Waiting to be plugged in.": "En attente du branchement sur secteur.",
+    "While Zoom is open": "Tant que Zoom est ouvert",
+    "While you're away, Sidefolk moves the pointer by nothing about once a minute, so Slack, Teams and Zoom don't mark you away. You won't see it move.": "Pendant votre absence, Sidefolk déplace le pointeur d’une distance nulle environ une fois par minute, pour que Slack, Teams et Zoom ne vous marquent pas absent. Vous ne le verrez pas bouger.",
+    "You stopped it.": "Vous l’avez arrêté.",
+    "Your Mac isn't being kept awake; it sleeps as usual.": "Votre Mac n’est pas maintenu éveillé ; il se met en veille comme d’habitude.",
+    "Your Mac sleeps as usual": "Votre Mac se met en veille comme d’habitude",
+    "Your Mac wasn't being kept awake.": "Votre Mac n’était pas maintenu éveillé.",
+    "only plugged in": "seulement sur secteur",
+    "showing you active": "vous montre actif",
+    "showing you active ({count}× so far)": "vous montre actif ({count}× jusqu’ici)",
+    "{app} isn't open. Open it first, or say how long instead.": "{app} n’est pas ouverte. Ouvrez-la d’abord, ou indiquez plutôt une durée.",
+    "{app} quit.": "{app} a été quittée.",
+    "{time} left": "encore {time}"
+  }
+}

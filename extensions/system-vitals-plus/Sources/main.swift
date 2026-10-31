@@ -29,10 +29,11 @@ ext.tool("specs", "This Mac's specs", "The chip, cores, graphics, memory, macOS 
 ext.watcher("cpu_busy") { settings, state in
     let s = await Snapshot.take()
     let busy = s.cpu.load * 100 >= Double(settings.int("above_percent") ?? 90)
-    let top = s.byCPU.first.map { ", mostly \($0.name)" } ?? ""
-    return Check(triggered: busy && state["busy"] as? Bool != true, state: ["busy": busy],
-                 summary: busy ? "Your Mac is working hard: the processor is \(Words.percent(s.cpu.load)) busy\(top)."
-                     : "The processor is \(Words.percent(s.cpu.load)) busy.")
+    let load = ["percent": Words.percent(s.cpu.load)]
+    let summary = !busy ? L("The processor is {percent} busy.", load)
+        : s.byCPU.first.map { L("Your Mac is working hard: the processor is {percent} busy, mostly {app}.", load.merging(["app": $0.name]) { a, _ in a }) }
+        ?? L("Your Mac is working hard: the processor is {percent} busy.", load)
+    return Check(triggered: busy && state["busy"] as? Bool != true, state: ["busy": busy], summary: summary)
 }
 ext.watcher("app_hog") { settings, state in
     let s = await Snapshot.take()
@@ -41,40 +42,42 @@ ext.watcher("app_hog") { settings, state in
     let hogs = s.apps.filter { s.share($0) >= cpuLine || $0.memory >= memoryLine }.sorted { s.share($0) > s.share($1) }
     let before = Set(state["hogs"] as? [String] ?? [])
     let new = hogs.first { !before.contains($0.name) }
-    let summary = new.map { "\($0.name) is using \(Words.percent(s.share($0))) of the processor and \(Words.memory($0.memory)) of memory." }
-        ?? "No app is using an unusual share of the Mac."
+    let summary = new.map {
+        L("{app} is using {percent} of the processor and {memory} of memory.", ["app": $0.name, "percent": Words.percent(s.share($0)), "memory": Words.memory($0.memory)])
+    } ?? L("No app is using an unusual share of the Mac.")
     return Check(triggered: new != nil, state: ["hogs": hogs.map(\.name)], summary: summary)
 }
 ext.watcher("memory_pressure") { _, state in
-    guard let m = Probe.memory() else { throw Problem("The Mac didn't report its memory.") }
+    guard let m = Probe.memory() else { throw Problem(L("The Mac didn't report its memory.")) }
     let tight = m.pressure >= 2
-    let top = (await Probe.apps()).max { $0.memory < $1.memory }.map { " \($0.name) holds the most (\(Words.memory($0.memory)))." } ?? ""
+    let top = (await Probe.apps()).max { $0.memory < $1.memory }.map { " " + L("{app} holds the most ({memory}).", ["app": $0.name, "memory": Words.memory($0.memory)]) } ?? ""
     return Check(triggered: tight && state["tight"] as? Bool != true, state: ["tight": tight],
-                 summary: tight ? "Memory is getting tight, so apps may slow down.\(top)" : "Memory pressure is normal.")
+                 summary: tight ? L("Memory is getting tight, so apps may slow down.") + top : L("Memory pressure is normal."))
 }
 ext.watcher("hot") { _, state in
     let t = Probe.thermal()
     let hot = t == .serious || t == .critical
     return Check(triggered: hot && state["hot"] as? Bool != true, state: ["hot": hot],
-                 summary: hot ? "Your Mac is \(Words.thermalWord(t).0.lowercased()) and may slow down to cool off." : "Your Mac's temperature is normal.")
+                 summary: hot ? (t == .critical ? L("Your Mac is very hot and may slow down to cool off.") : L("Your Mac is hot and may slow down to cool off."))
+                     : L("Your Mac's temperature is normal."))
 }
 ext.watcher("disk_low") { settings, state in
-    guard let d = Probe.volumes().first else { throw Problem("The startup disk didn't report its space.") }
+    guard let d = Probe.volumes().first else { throw Problem(L("The startup disk didn't report its space.")) }
     let low = d.free / 1e9 < (settings.double("below_gb") ?? 15)
     return Check(triggered: low && state["low"] as? Bool != true, state: ["low": low],
-                 summary: "\(Words.bytes(d.free)) free on \(d.name).")
+                 summary: L("{size} free on {disk}.", ["size": Words.bytes(d.free), "disk": d.name]))
 }
 ext.watcher("battery_low") { settings, state in
-    guard let b = Probe.battery() else { throw Problem("This Mac has no battery.") }
+    guard let b = Probe.battery() else { throw Problem(L("This Mac has no battery.")) }
     let low = !b.pluggedIn && b.percent < (settings.int("below_percent") ?? 20)
     return Check(triggered: low && state["low"] as? Bool != true, state: ["low": low],
-                 summary: "Battery at \(b.percent)%, \(Words.batteryState(b).lowercased()).")
+                 summary: L("Battery at {percent}, {state}.", ["percent": Words.charge(b.percent), "state": Words.batteryState(b).lowercased(with: Language.locale)]))
 }
 ext.watcher("battery_health") { settings, state in
-    guard let b = Probe.battery() else { throw Problem("This Mac has no battery.") }
+    guard let b = Probe.battery() else { throw Problem(L("This Mac has no battery.")) }
     let worn = b.failure || (b.health ?? 1) * 100 < Double(settings.int("below_percent") ?? 80)
     return Check(triggered: worn && state["worn"] as? Bool != true, state: ["worn": worn],
-                 summary: "Battery health: \(Words.healthWord(b) ?? "unknown").")
+                 summary: L("Battery health: {health}.", ["health": Words.healthWord(b) ?? L("unknown")]))
 }
 
 await ext.serve()

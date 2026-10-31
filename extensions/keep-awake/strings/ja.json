@@ -1,0 +1,82 @@
+{
+  "name": "スリープさせない",
+  "tagline": "Macを起こしたまま、あなたを操作中のままに、好きなだけ",
+  "description": "Macをスリープさせず、チャットアプリで退席中にならないようにします。時間を決めて、指定の時刻まで、Zoomなどのアプリが開いている間、または止めるまで。画面上で何も動かず、バッテリー駆動時や残量が少ないときは自動で解除します。",
+  "tools": {
+    "awake_status": {
+      "title": "スリープ防止の状態"
+    },
+    "extend": {
+      "title": "スリープ防止を延長"
+    },
+    "keep_awake": {
+      "title": "Macをスリープさせない"
+    },
+    "set_option": {
+      "title": "スリープ防止の設定"
+    },
+    "stop_keeping_awake": {
+      "title": "Macをスリープさせる"
+    }
+  },
+  "watchers": {
+    "ended": {
+      "title": "スリープ防止が終了",
+      "description": "スリープ防止がひとりでに終わったときに知らせます。時間が来たとき、または待っていたアプリが終了したときです。"
+    }
+  },
+  "pages": {
+    "awake": {
+      "title": "スリープさせない"
+    }
+  },
+  "text": {
+    "1 hour": "1時間",
+    "2 hours": "2時間",
+    "30 min more": "30分延長",
+    "Ask for more": "ほかの頼み方",
+    "Awake until you stop it": "停止するまでスリープしません",
+    "Awake until {time}": "{time}までスリープしません",
+    "Awake while {app} is open": "{app}が開いている間スリープしません",
+    "Done: your Mac sleeps as usual again.": "完了：Macは通常どおりスリープするようになりました。",
+    "How": "動作",
+    "I couldn't read “{text}” as a time, like 6pm or 18:30.": "「{text}」を時刻として読み取れませんでした。6pm や 18:30 のように指定してください。",
+    "It isn't kept awake for a set time.": "時間を決めてスリープを防いでいるわけではありません。",
+    "Its time is up.": "時間になりました。",
+    "Keep Awake ended: {why} Your Mac sleeps as usual again.": "スリープ防止が終了しました：{why}Macは通常どおりスリープします。",
+    "Keep Awake is on but waiting: {why}": "スリープ防止はオンですが待機中です：{why}",
+    "Keep awake": "スリープさせない",
+    "Keep me active for an hour": "1時間アクティブのままにする",
+    "Keep me active in chat apps": "チャットアプリでアクティブのままにする",
+    "Keep the screen on": "画面をつけたままにする",
+    "Last time: {why} ({time})": "前回：{why}（{time}）",
+    "Let go when the battery is under {percent}": "バッテリーが{percent}未満になったら解除",
+    "Nothing ended yet.": "まだ何も終了していません。",
+    "Off: the Mac stays awake (downloads, builds) and the screen may sleep.": "オフ：Macは起きたまま（ダウンロード、ビルド）で、画面はスリープできます。",
+    "On battery it waits, and holds again when you plug in.": "バッテリー駆動中は待機し、電源につなぐと再開します。",
+    "Only while plugged in": "電源接続中のみ",
+    "Screen may sleep": "画面はスリープ可",
+    "Screen on": "画面オン",
+    "So keeping it awake never empties it.": "スリープ防止でバッテリーを使い切らないようにします。",
+    "Stop": "停止",
+    "The battery is below {percent}, so it's letting the Mac rest.": "バッテリーが{percent}未満のため、Macを休ませています。",
+    "There's no such setting.": "そのような設定はありません。",
+    "Turned off.": "オフにしました。",
+    "Turned on.": "オンにしました。",
+    "Until {time}": "{time}まで",
+    "Waiting": "待機中",
+    "Waiting to be plugged in.": "電源への接続を待っています。",
+    "While Zoom is open": "Zoomが開いている間",
+    "While you're away, Sidefolk moves the pointer by nothing about once a minute, so Slack, Teams and Zoom don't mark you away. You won't see it move.": "離席中、Sidefolk は約1分ごとにポインタを移動量ゼロで動かし、Slack、Teams、Zoom で退席中と表示されないようにします。動きは見えません。",
+    "You stopped it.": "停止しました。",
+    "Your Mac isn't being kept awake; it sleeps as usual.": "スリープ防止はしていません。Macは通常どおりスリープします。",
+    "Your Mac sleeps as usual": "Macは通常どおりスリープ",
+    "Your Mac wasn't being kept awake.": "スリープ防止はしていませんでした。",
+    "only plugged in": "電源接続中のみ",
+    "showing you active": "アクティブ表示中",
+    "showing you active ({count}× so far)": "アクティブ表示中（これまで{count}回）",
+    "{app} isn't open. Open it first, or say how long instead.": "{app}は開いていません。先に開くか、代わりに時間を指定してください。",
+    "{app} quit.": "{app}が終了しました。",
+    "{time} left": "残り{time}"
+  }
+}

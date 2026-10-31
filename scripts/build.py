@@ -310,6 +310,17 @@ def bundle_libraries(program, binaries, stage, ident):
     return names
 
 
+def gallery_words(folder):
+    """{language: {name, tagline, description}} from an extension's strings/<language>.json, for the catalog."""
+    out = {}
+    for path in sorted((folder / "strings").glob("*.json")):
+        words = json.loads(path.read_text())
+        picked = {k: words[k] for k in ("name", "tagline", "description") if words.get(k)}
+        if picked and path.stem != "en":
+            out[path.stem] = picked
+    return out
+
+
 def extensions(ident, work, previews, unsigned, prior):
     flags = ["-c", "release"] + ([] if unsigned else ["--arch", "arm64", "--arch", "x86_64"])
     run("swift", "build", *flags, cwd=ROOT)
@@ -333,6 +344,10 @@ def extensions(ident, work, previews, unsigned, prior):
         extra = json.loads((folder / "addon.json").read_text()) if (folder / "addon.json").exists() else {}
         assert extra.get("category") in ("everyday", "files", "developer", "fun"), f"{name}: addon.json needs a category"
         entry["category"] = extra["category"]
+        # The gallery names it in the person's language before it's installed (Sidefolk D76): from its strings/.
+        localized = gallery_words(folder)
+        if localized:
+            entry["localized"] = localized
         if m.get("icon"):
             entry["preview"] = f"previews/{name}{Path(m['icon']).suffix}"
         # The program is built from the extension's folder and Kit/.
@@ -357,6 +372,9 @@ def extensions(ident, work, previews, unsigned, prior):
         shutil.copy(binaries / f"ext-{name}", program)
         if (folder / "licenses").is_dir():
             shutil.copytree(folder / "licenses", stage / "licenses")
+        # Its words in Sidefolk's other languages (D76); a copy of Sidefolk from before them ignores the folder.
+        if (folder / "strings").is_dir():
+            shutil.copytree(folder / "strings", stage / "strings", ignore=shutil.ignore_patterns(".DS_Store"))
         libraries = bundle_libraries(program, binaries, stage, ident)
         # The hardened runtime loads only libraries signed by the same team: an ad-hoc check build has no team, so
         # its program goes without the runtime when it carries libraries (Sidefolk refuses ad-hoc packs anyway).

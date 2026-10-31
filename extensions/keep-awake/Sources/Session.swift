@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 
 /// What the person asked for: how long, what to keep, and when to let go by itself.
 struct Session: Codable, Equatable {
@@ -59,8 +60,25 @@ enum Rules {
         return today > now ? today : calendar.date(byAdding: .day, value: 1, to: today)
     }
 
+    /// "1 h 30 min", "25 min" in the person's language: whole minutes, at least one.
     static func left(_ until: Date, now: Date) -> String {
-        let minutes = Int(ceil(until.timeIntervalSince(now) / 60))
-        return minutes >= 60 ? "\(minutes / 60) h\(minutes % 60 > 0 ? " \(minutes % 60) min" : "")" : "\(max(1, minutes)) min"
+        let minutes = max(1, Int(ceil(until.timeIntervalSince(now) / 60)))
+        return Format.duration(Double(minutes) * 60, units: [.hours, .minutes])
+    }
+
+    /// A reason it ended or waits, in the person's language. Reasons are kept in English: one is saved with the last
+    /// session and "You stopped it." is told apart from the others.
+    static func shown(_ why: String) -> String {
+        switch why {
+        case "You stopped it.": return L("You stopped it.")
+        case "Its time is up.": return L("Its time is up.")
+        case "Waiting to be plugged in.": return L("Waiting to be plugged in.")
+        default:
+            if let m = why.wholeMatch(of: /The battery is below (\d+)%, so it's letting the Mac rest\./), let floor = Double(m.1) {
+                return L("The battery is below {percent}, so it's letting the Mac rest.", ["percent": Format.percent(points: floor)])
+            }
+            if why.hasSuffix(" quit.") { return L("{app} quit.", ["app": String(why.dropLast(6))]) }
+            return why
+        }
     }
 }

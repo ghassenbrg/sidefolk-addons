@@ -1,6 +1,7 @@
 import Darwin
 import Foundation
 import IOKit
+import SidefolkExtensionKit
 
 /// Everything Your Mac reads, straight from macOS: Mach host statistics, sysctl, the I/O Registry and each
 /// process's own counters. No program runs and nothing leaves the Mac, so the sandbox needs nothing beyond its
@@ -174,7 +175,7 @@ enum Probe {
             var name = length > 0 ? appName(String(decoding: path.prefix(Int(length)).map { UInt8(bitPattern: $0) }, as: UTF8.self)) : ""
             if name.isEmpty {
                 var short = [CChar](repeating: 0, count: 256)
-                name = proc_name(pid, &short, 256) > 0 ? String(decoding: short.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self) : "Process \(pid)"
+                name = proc_name(pid, &short, 256) > 0 ? String(decoding: short.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self) : L("Process {pid}", ["pid": String(pid)])
             }
             let ns = Double(usage.ri_user_time + usage.ri_system_time) * timebase
             out[pid] = (name, ns, Double(usage.ri_phys_footprint))
@@ -361,7 +362,7 @@ enum Probe {
         var gpuCores: Int?
         forEach("IOAccelerator") { gpuCores = gpuCores ?? ($0["gpu-core-count"] as? NSNumber)?.intValue }
         let patch = version.patchVersion > 0 ? ".\(version.patchVersion)" : ""
-        return Specs(chip: sysctlString("machdep.cpu.brand_string") ?? "Unknown processor", model: sysctlString("hw.model"),
+        return Specs(chip: sysctlString("machdep.cpu.brand_string") ?? L("Unknown processor"), model: sysctlString("hw.model"),
                      performanceCores: (sysctl("hw.perflevel0.physicalcpu") as Int32?).map(Int.init),
                      efficiencyCores: (sysctl("hw.perflevel1.physicalcpu") as Int32?).map(Int.init),
                      cores: (sysctl("hw.physicalcpu") as Int32?).map(Int.init) ?? ProcessInfo.processInfo.processorCount, gpuCores: gpuCores,
