@@ -1,9 +1,9 @@
 {
   "id": "dev.sidefolk.playtime",
   "name": "Playtime",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "sidefolk": ">=0.1",
-  "description": "A break with your companion: a trivia quiz that keeps your score, and chance to pick a number or choose from a list.",
+  "description": "A break with your companion: a trivia quiz you play against it beside it on the desktop, with your scores and streaks kept, and chance to pick a number or choose from a list.",
   "tagline": "Trivia and random picks for a break",
   "folk": "play",
   "author": "Sidefolk",
@@ -12,6 +12,22 @@
     "command": "bin/ext-playtime"
   },
   "permissions": {},
+  "games": {
+    "trivia": {
+      "title": "Trivia",
+      "symbol": "questionmark.bubble.fill",
+      "say": [
+        "let's play trivia", "play trivia", "trivia", "trivia time", "quiz me", "let's do a quiz", "start a quiz", "let's play a quiz"
+      ]
+    }
+  },
+  "pages": {
+    "playtime": {
+      "title": "Playtime",
+      "symbol": "gamecontroller.fill",
+      "refresh": 30
+    }
+  },
   "tools": {
     "pick": {
       "title": "Random picks",
