@@ -31,19 +31,6 @@ struct PlaytimeContentTests {
         }
     }
 
-    @Test func phrasesAreCompleteAndCoverTheGames() {
-        #expect(G.Phrases.malformed.isEmpty, "\(G.Phrases.malformed)")
-        var keys = G.Level.allCases.map { "level.\($0.rawValue)" } + ["category.mix"]
-        keys += G.QuizBank.categories.map { "category.\($0)" } + G.WordBank.categories.map { "words.\($0)" }
-        keys += G.CopyMe.Pad.allCases.map { "pad.\($0.rawValue)" } + G.MemoryPairs.symbols.map { "symbol.\($0)" }
-        keys += ["daily.title", "daily.notPlayed", "daily.solved", "daily.missed", "daily.streak", "animal.guess", "numbers.ask"]
-        for key in keys {
-            #expect(G.Phrases.table[key]?.missing.isEmpty == true, "\(key)")
-        }
-        #expect(G.Phrases.text("animal.guess", .ja, ["name": "ネコ"]) == "答えは… ネコ！")
-        #expect(G.Phrases.text("no.such.key", .fr) == "no.such.key")
-    }
-
     @Test func wordListsSuitEachLanguage() {
         let problems = G.WordBank.problems()
         #expect(problems.isEmpty, "\(problems.prefix(30).joined(separator: "\n"))")

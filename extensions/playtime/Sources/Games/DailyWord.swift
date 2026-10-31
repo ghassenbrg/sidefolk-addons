@@ -155,20 +155,11 @@ extension Games {
             }
         }
 
-        /// The Today tile's value: "Daily Word: not played yet", "Solved in 4", "Streak 12" (`Phrases` daily.*).
+        /// The Today tile's value: not played yet, solved in 4, missed, and a streak (DailyWordScreen words it).
         struct Tile: Codable, Equatable, Sendable {
             enum State: Codable, Equatable, Sendable { case notPlayed, solved(guesses: Int), missed }
             let state: State
             let streak: Int
-
-            func lines(_ language: Language) -> [String] {
-                let first: String = switch state {
-                case .notPlayed: Phrases.text("daily.notPlayed", language)
-                case .solved(let n): Phrases.text("daily.solved", language, ["n": "\(n)"])
-                case .missed: Phrases.text("daily.missed", language)
-                }
-                return [first] + (streak > 1 ? [Phrases.text("daily.streak", language, ["n": "\(streak)"])] : [])
-            }
         }
     }
 }

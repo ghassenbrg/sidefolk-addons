@@ -1,9 +1,10 @@
 import SidefolkExtensionKit
 
-// Playtime, an extension that ships with Sidefolk: games played against the companion in Sidefolk's Play panel (D75),
-// trivia first, and random picks for a break. Coins, dice and rock, paper, scissors are the companion's own
-// (`companion.toss`), played on the desktop. No permissions; scores stay in its own folder. Its words come in
-// Sidefolk's ten languages (Words/), chosen by the `language` Sidefolk passes.
+// Playtime, an extension that ships with Sidefolk: eleven games played against the companion in Sidefolk's Play panel
+// (D75): Daily Word, trivia, tic-tac-toe, Copy Me, Quick Paws, Which Cup?, Higher or Lower, Guess My Animal, Balloon
+// Words, Last Stick and Memory Pairs; and random picks for a break. Coins, dice and rock, paper, scissors are the
+// companion's own (`companion.toss`). No permissions; scores stay in its own folder. Its words come in Sidefolk's ten
+// languages (strings/, the Kit's L), chosen by the `language` Sidefolk passes.
 let ext = Extension(name: "playtime", version: "2.0.0")
 
 ext.tool("pick", "Random picks",
@@ -33,7 +34,17 @@ ext.tool("trivia", "Trivia quiz",
 }
 
 GameTable.register(TriviaScreen.self, on: ext)
+GameTable.register(TicTacToeScreen.self, on: ext)
+GameTable.register(CopyMeScreen.self, on: ext)
+GameTable.register(QuickPawsScreen.self, on: ext)
+GameTable.register(WhichCupScreen.self, on: ext)
+GameTable.register(HigherLowerScreen.self, on: ext)
+GameTable.register(GuessAnimalScreen.self, on: ext)
+GameTable.register(BalloonWordsScreen.self, on: ext)
+GameTable.register(LastStickScreen.self, on: ext)
+GameTable.register(MemoryPairsScreen.self, on: ext)
+GameTable.register(DailyWordScreen.self, on: ext)
 
-ext.page("playtime") { args in PlaytimePage.render(language: args.string("language")) }
+ext.page("playtime") { _ in PlaytimePage.render() }
 
 await ext.serve()

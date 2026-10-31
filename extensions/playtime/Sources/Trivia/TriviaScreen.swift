@@ -1,9 +1,9 @@
 import Foundation
 import SidefolkExtensionKit
 
-/// Trivia's boards in the Play panel (D75): the set-up, each question with the companion's sealed pick, the answer
-/// with both picks shown and a fact, and the end card. Every word comes from Playtime's tables in the person's
-/// language; the companion's own lines are Sidefolk's, named by key.
+/// Trivia's boards in the Play panel (D75): the set-up, each question with the companion's sealed pick, the answer with
+/// both picks shown, and the end card. Every word is the person's language (`L`, strings/); the questions come from that
+/// language's pack; the companion's own lines are Sidefolk's, named by key.
 enum TriviaScreen: GameScreen {
     typealias Engine = TriviaEngine
     static let id = "trivia"
@@ -24,36 +24,48 @@ enum TriviaScreen: GameScreen {
                           "history": "building.columns.fill", "nature": "leaf.fill", "food": "fork.knife", "arts": "paintpalette.fill",
                           "tech": "cpu", "sports": "figure.run", "mediterranean": "sun.max.fill"]
 
-    static func board(_ s: TriviaEngine.State, events: [GameEvent], words w: Localized, options: GameOptions) -> Board {
+    static func board(_ s: TriviaEngine.State, events: [Games.Event], options: GameOptions) -> Board {
         switch s.phase {
-        case .setup: setup(s, events: events, w, options)
-        case .question, .answered: question(s, events: events, w, options)
-        case .done: done(s, events: events, w, options)
+        case .setup: setup(s, events: events, options)
+        case .question, .answered: question(s, events: events, options)
+        case .done: done(s, events: events, options)
         }
     }
 
-    static func topic(_ id: String, _ w: Localized) -> String {
-        let word = w["topic.\(id)"]
-        return word == "topic.\(id)" ? id.capitalized : word
+    static func topic(_ id: String) -> String {
+        switch id {
+        case "mix": L("Mix")
+        case "science": L("Science")
+        case "space": L("Space")
+        case "geography": L("Geography")
+        case "history": L("History")
+        case "nature": L("Nature")
+        case "food": L("Food")
+        case "arts": L("Arts")
+        case "tech": L("Tech")
+        case "sports": L("Sports")
+        case "mediterranean": L("Tunisia & the Mediterranean")
+        default: id.capitalized
+        }
     }
 
-    private static func setup(_ s: TriviaEngine.State, events: [GameEvent], _ w: Localized, _ o: GameOptions) -> Board {
-        let topics = (["mix"] + TriviaLibrary.categories(language: s.language)).map { ChoiceOption($0, topic($0, w), symbol: symbols[$0] ?? "questionmark") }
+    private static func setup(_ s: TriviaEngine.State, events: [Games.Event], _ o: GameOptions) -> Board {
+        let topics = (["mix"] + TriviaLibrary.categories(language: s.language)).map { ChoiceOption($0, topic($0), symbol: symbols[$0] ?? "questionmark") }
         return Board([
-            .prompt(w["setup.title"], eyebrow: w("setup.eyebrow", o.companion)),
+            .prompt(L("Pick a topic"), eyebrow: L("A quiz with {name}", ["name": o.companion])),
             .choice(name: "topic", options: topics, selected: s.topic),
-            .choice(name: "length", label: w["setup.length"], style: .segmented,
-                    options: [ChoiceOption("5", w.number(5)), ChoiceOption("10", w.number(10)), ChoiceOption("0", w["length.endless"])],
+            .choice(name: "length", label: L("Questions"), style: .segmented,
+                    options: [ChoiceOption("5", Format.integer(5)), ChoiceOption("10", Format.integer(10)), ChoiceOption("0", L("Endless"))],
                     selected: String(s.length)),
-            .choice(name: "pace", label: w["setup.pace"], style: .segmented,
-                    options: [ChoiceOption("relaxed", w["pace.relaxed"]), ChoiceOption("quick", w("pace.quick", w.number(Int(TriviaEngine.quickSeconds))))],
+            .choice(name: "pace", label: L("Pace"), style: .segmented,
+                    options: [ChoiceOption("relaxed", L("Relaxed")), ChoiceOption("quick", L("Quick, {n} s", ["n": Int(TriviaEngine.quickSeconds)]))],
                     selected: s.quick ? "quick" : "relaxed"),
-            .button(GameButton(w["start"], move: "start", style: .primary, symbol: "play.fill")),
-        ], companion: events.contains(.other("opened")) ? Cue(move: "ready", line: "hello", look: "panel") : nil)
+            .button(GameButton(L("Start"), move: "start", style: .primary, symbol: "play.fill")),
+        ], companion: events.contains(.opened) ? Cue(move: "ready", line: "hello", look: "panel") : nil)
     }
 
-    private static func question(_ s: TriviaEngine.State, events: [GameEvent], _ w: Localized, _ o: GameOptions) -> Board {
-        guard let q = TriviaEngine.question(s) else { return done(s, events: events, w, o) }
+    private static func question(_ s: TriviaEngine.State, events: [Games.Event], _ o: GameOptions) -> Board {
+        guard let q = TriviaEngine.question(s) else { return done(s, events: events, o) }
         let answered = s.phase == .answered
         let right = TriviaEngine.rightTile(s)
         let tiles = s.order.enumerated().map { i, choice -> Tile in
@@ -65,62 +77,48 @@ enum TriviaScreen: GameScreen {
             }
             return Tile(q.choices[choice], state: state, companion: answered && i == s.companionPick)
         }
-        let progress = s.length > 0 ? w("progress", w.number(s.index + 1), w.number(s.length)) : w("progress.endless", w.number(s.index + 1))
+        let progress = s.length > 0 ? L("{n} of {total}", ["n": s.index + 1, "total": s.length]) : L("Question {n}", ["n": s.index + 1])
         var parts: [BoardPart] = [
             .score(you: s.you, companion: s.companion, streak: s.streak, companionPicked: !answered),
-            .prompt(q.text, eyebrow: progress, chip: topic(q.category, w)),
+            .prompt(q.text, eyebrow: progress, chip: topic(q.category)),
         ]
         if s.quick, !answered { parts.append(.timer(id: "q\(s.index)-\(q.id)", seconds: TriviaEngine.quickSeconds)) }
         parts.append(.answers(tiles, locked: answered))
         if answered {
-            parts.append(.note(q.fact, title: w["fact"]))
+            if !q.fact.isEmpty { parts.append(.note(q.fact, title: L("Did you know?"))) }
             let last = s.length > 0 && s.index + 1 >= s.round.count
-            parts.append(.button(GameButton(last ? w["results"] : w["next"], move: "next", style: .primary, symbol: last ? "flag.checkered" : "arrow.right")))
+            parts.append(.button(GameButton(last ? L("See results") : L("Next"), move: "next", style: .primary, symbol: last ? "flag.checkered" : "arrow.right")))
         } else if !s.lifelineUsed {
-            parts.append(.button(GameButton(w("hint", o.companion), move: "hint", style: .plain, symbol: "lightbulb", key: "h")))
+            parts.append(.button(GameButton(L("Ask {name}", ["name": o.companion]), move: "hint", style: .plain, symbol: "lightbulb", key: "h")))
         }
-        if s.length == 0 { parts.append(.button(GameButton(w["finish"], move: "finish", style: .plain, symbol: "flag.checkered"))) }
+        if s.length == 0 { parts.append(.button(GameButton(L("Finish"), move: "finish", style: .plain, symbol: "flag.checkered"))) }
         return Board(parts, companion: cue(events))
     }
 
-    private static func done(_ s: TriviaEngine.State, events: [GameEvent], _ w: Localized, _ o: GameOptions) -> Board {
+    private static func done(_ s: TriviaEngine.State, events: [Games.Event], _ o: GameOptions) -> Board {
         let records = TriviaRecords.load()
         let outcome = TriviaEngine.outcome(of: s) ?? .draw
-        let line = switch outcome {
-        case .won: w("won", o.companion)
-        case .lost: w("lost", o.companion)
-        case .draw: w["draw"]
-        }
         let asked = s.results.count
-        let figure = s.length > 0 ? w("score", w.number(s.you), w.number(s.length)) : w.number(s.you)
+        let figure = s.length > 0 ? "\(Format.integer(s.you)) / \(Format.integer(s.length))" : Format.integer(s.you)
         return Board([
             .score(you: s.you, companion: s.companion, streak: s.streak),
-            .result(figure: asked == 0 ? "–" : figure, line: line, ribbon: s.record ? w["record"] : nil, tone: outcome == .won ? .good : .neutral,
-                    facts: [(o.companion, w.number(s.companion)), (w["fact.streak"], w.number(max(s.bestStreak, 0))),
-                            (w["fact.best"], w.number(records.bestStreak)), (w["fact.topic"], topic(s.topic, w))],
-                    actions: [GameButton(w["again"], move: "again", style: .primary, symbol: "arrow.clockwise"),
-                              GameButton(w["topics"], move: "topics")]),
+            .result(figure: asked == 0 ? "–" : figure,
+                    line: outcome == .won ? L("You beat {name}!", ["name": o.companion]) : outcome == .lost ? L("{name} wins this one.", ["name": o.companion]) : L("A draw!"),
+                    ribbon: s.record ? L("New best!") : nil, tone: outcome == .won ? .good : outcome == .lost ? .bad : .neutral,
+                    facts: [(o.companion, Format.integer(s.companion)), (L("Streak this round"), Format.integer(max(s.bestStreak, 0))),
+                            (L("Best streak ever"), Format.integer(records.bestStreak)), (L("Topic"), topic(s.topic))],
+                    actions: [GameButton(L("Play again"), move: "again", style: .primary, symbol: "arrow.clockwise"),
+                              GameButton(L("Another topic"), move: "topics")]),
         ], companion: cue(events), over: true)
     }
 
-    /// The companion's reaction to what just happened, from Sidefolk's fixed lists.
-    static func cue(_ events: [GameEvent]) -> Cue? {
-        if events.contains(.other("question")) { return Cue(move: "think", sound: "tick", look: "panel") }
-        for event in events {
-            switch event {
-            case .ended(.won): return Cue(move: "bow", effect: "confetti", line: "you_win", sound: "fanfare", look: "you")
-            case .ended(.lost): return Cue(move: "celebrate", line: "i_win", sound: "trombone")
-            case .ended(.draw): return Cue(move: "shrug", line: "draw", sound: "boop")
-            case .streak(let n): return Cue(move: "cheer", effect: n >= 10 ? "confetti" : "sparkles", line: "streak", sound: "ding")
-            case .hint(let trusty):
-                return trusty ? Cue(move: "tease", line: "hint_intro", sound: "whoosh", look: "panel")
-                    : Cue(move: "sweat", effect: "sweat", line: "hint_intro", sound: "whoosh", look: "panel")
-            default: continue
-            }
-        }
-        let you = events.contains(.personRight), it = events.contains(.companionRight)
-        guard events.contains(.personRight) || events.contains(.personWrong) else { return nil }
-        switch (you, it) {
+    /// The companion's reaction to an answer (both picks shown): sulk when only the person was right, a nod when both
+    /// were, a tease when only it was, a shrug when neither; anything else through the games' one table.
+    static func cue(_ events: [Games.Event]) -> Cue? {
+        if events.contains(.sealed) { return Cue(move: "think", effect: "question", sound: "tick", look: "panel") }
+        let weighty = events.contains { if case .matchOver = $0 { true } else if case .streak = $0 { true } else if case .lifeline = $0 { true } else { false } }
+        guard events.contains(.reveal), !weighty else { return EventCues.cue(events.filter { $0 != .opened }) }
+        switch (events.contains(.point(.you)), events.contains(.point(.companion))) {
         case (true, false): return Cue(move: "sulk", sound: "ding", look: "you")
         case (true, true): return Cue(move: "nod", sound: "ding", look: "panel")
         case (false, true): return Cue(move: "tease", line: "tease", sound: "boop", look: "you")

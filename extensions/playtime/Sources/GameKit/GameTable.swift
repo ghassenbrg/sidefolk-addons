@@ -15,26 +15,41 @@ enum GameTable {
     @MainActor
     static func register<S: GameScreen>(_ screen: S.Type, on ext: Extension) {
         ext.game(S.id, start: { request in
-            var random = SystemRandomNumberGenerator()
+            // Real chance from the Mac's generator for every game; tests seed their own.
+            var random = Games.Random.fresh()
             let options = GameOptions(request.options, language: request.language)
             let state = S.Engine.start(level: GameLevel(rawValue: request.level ?? "") ?? .fair, options: options, random: &random)
             let session = UUID().uuidString
-            save(Saved(state: state, options: options, language: request.language), session)
-            return GameReply(session: session, board: S.board(state, events: [.other("opened")], words: Words.for(request.language), options: options))
+            save(Saved(state: state, options: options, language: options.language), session)
+            // The words are in the request's language, which the Kit keeps for it (D76).
+            return GameReply(session: session, board: S.board(state, events: [.opened] + S.Engine.opening(state), options: options))
         }, move: { request in
             guard var saved: Saved<S.Engine.State> = load(request.session) else {
-                return Board([.note(Words.for(request.language)["session.gone"], tone: .warn)], over: true)
+                return Board([.note(L("This game has ended. Open it again to play."), tone: .warn)], over: true)
             }
-            var random = SystemRandomNumberGenerator()
-            var events: [GameEvent] = []
-            if let move = request.move, let action = S.action(for: move, in: saved.state) {
-                events = S.Engine.play(action, on: &saved.state, random: &random) ?? []
-                save(saved, request.session)
-            }
-            return S.board(saved.state, events: events, words: Words.for(saved.language), options: saved.options)
+            var random = Games.Random.fresh()
+            let events = play(S.self, request.move, on: &saved.state, random: &random)
+            save(saved, request.session)
+            return S.board(saved.state, events: events, options: saved.options)
         }, end: { request in
             try? FileManager.default.removeItem(atPath: path(request.session))
         })
+    }
+
+    /// One move on a state: the engine's events, or the reason it refused the move (the state unchanged).
+    static func play<S: GameScreen>(_ screen: S.Type, _ move: Move?, on state: inout S.Engine.State,
+                                    random: inout Games.Random) -> [Games.Event] {
+        guard let move, let action = S.action(for: move, in: state) else { return [] }
+        var next = state
+        do {
+            let events = try S.Engine.play(action, on: &next, random: &random)
+            state = next
+            return events
+        } catch let refusal as Games.Refusal {
+            return [.refused(refusal.reason)]
+        } catch {
+            return []
+        }
     }
 
     static func path(_ session: String) -> String {

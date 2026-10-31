@@ -362,8 +362,6 @@ struct PlaytimeGamesTests {
             record.finish(next)
             #expect(record.streak == 0 && record.tile(today: day + 1).state == .missed)
         }
-        let tile = G.DailyWord.Tile(state: .solved(guesses: 4), streak: 12)
-        #expect(tile.lines(.en) == ["Solved in 4", "Streak 12"] && tile.lines(.fr) == ["Trouvé en 4", "Série de 12"])
         var ko = G.DailyWord(language: .ko, day: 0)
         let koAnswer = G.DailyWord.answer(day: 0, language: .ko)
         #expect(try ko.guess(koAnswer).contains(.found(guesses: 1)))
@@ -409,58 +407,5 @@ struct PlaytimeGamesTests {
         }
         #expect(forgot && memory.lessons["en"]!.count == G.GuessAnimal.Memory.capacity)
         #expect(memory.lessons["en"]!.first?.animal == "beast 1")
-    }
-
-    // MARK: Trivia
-
-    @Test func quizPlaysARoundAgainstTheCompanion() throws {
-        var rng = G.Random(seed: 12)
-        var quiz = G.Quiz(language: .fr, category: nil, length: 10, companion: "mochi", using: &rng)
-        #expect(quiz.opening.count == 2 && quiz.opening.last == .sealed)
-        #expect(quiz.current?.number == 1 && quiz.current?.options.count == 4)
-        let lifeline = try quiz.askCompanion()
-        #expect(lifeline.faded.count == 2 && !lifeline.faded.contains(quiz.asked.last!.companionPick) || lifeline.sure)
-        #expect(throws: G.Refusal("hint_used")) { _ = try quiz.askCompanion() }
-        var ids: Set<String> = []
-        var events: [G.Event] = []
-        while !quiz.over {
-            ids.insert(quiz.current!.id)
-            let right = quiz.asked.last!.right
-            events = try quiz.answer(quiz.asked.last!.faded.contains(right) ? quiz.asked.last!.companionPick : right)
-            if !quiz.over { _ = try quiz.next(using: &rng) }
-        }
-        #expect(ids.count == 10 && events.contains { if case .matchOver = $0 { true } else { false } })
-        let summary = quiz.summary
-        #expect(summary.results.count == 10 && summary.score.you >= 9 && summary.newBest)
-        var record = G.Quiz.Record()
-        record.finish(quiz)
-        #expect(record.best["10"] == summary.score.you && record.recent.count == 10)
-        var next = G.Quiz(language: .en, category: nil, length: 10, companion: "mochi", record: record, using: &rng)
-        #expect(!ids.contains(next.current!.id), "recent questions wait")
-        _ = try next.answer(nil)
-        #expect(next.streak == 0)
-    }
-
-    @Test func quizCompanionHasStrengthsAndWeakSpots() throws {
-        var rng = G.Random(seed: 5)
-        var right = 0, total = 0
-        for _ in 0..<20 {
-            var quiz = G.Quiz(language: .en, category: nil, length: 10, companion: "ember", using: &rng)
-            while !quiz.over {
-                total += 1
-                if quiz.asked.last!.companionRight { right += 1 }
-                _ = try quiz.answer(0)
-                if !quiz.over { _ = try quiz.next(using: &rng) }
-            }
-        }
-        let share = Double(right) / Double(total)
-        #expect(share > 0.5 && share < 0.9, "\(share)")
-        let quiz = G.Quiz(language: .en, category: "space", length: nil, companion: "ember", using: &rng)
-        let strengths = G.QuizBank.categories.map { quiz.strength($0) }
-        #expect(strengths.allSatisfy { (0.55...0.85).contains($0) } && Set(strengths).count > 3)
-        var endless = G.Quiz(language: .ja, category: "space", length: nil, companion: "ember", using: &rng)
-        var n = 0
-        while !endless.over { n += 1; _ = try endless.answer(1); if !endless.over { _ = try endless.next(using: &rng) } }
-        #expect(n == G.QuizBank.all.filter { $0.category == "space" }.count)
     }
 }

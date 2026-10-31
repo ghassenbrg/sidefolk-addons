@@ -91,6 +91,10 @@ enum Games {
         case offerSecret
         /// Trivia's "Ask Mochi": whether the companion is sure of its whisper (unsure means a sweat drop).
         case lifeline(sure: Bool)
+        /// The adapter's own (GameKit): the game just opened, for the companion's hello; a move the engine refused,
+        /// its `Refusal` reason, shown as a note in the person's words.
+        case opened
+        case refused(String)
     }
 }
 
