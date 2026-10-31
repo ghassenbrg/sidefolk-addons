@@ -3,7 +3,7 @@
 // coral shutter button, stub arms and feet. Blinking shuts a brown lens cap. Sheet:
 // companions-3d/references/iris-sheet.webp. Rig: blender/rig_iris.py.
 import { bodyMaterial } from '../engine/materials.js';
-import { add, raise, face } from '../engine/moves.js';
+import { add, raise, face, POSTURES } from '../engine/moves.js';
 import { win, smooth } from '../engine/motion.js';
 
 // Lens centre on the front (model x, y), the radius of the glass and the ring's outer edge.
@@ -107,6 +107,20 @@ export default {
   chains: [],
   pick: { head: { r: 0.62, at: [0, 0.2, 0.1] }, body: { r: 0.5, at: [0, -0.3, 0], bone: 'spine' } },
   fidgets: ['lookAround', 'tilt', 'smile', 'stretch', 'hop', 'blinkDouble', 'giggle'],
+
+  // A camera has no neck to lift or bow and no side to lie on (rolled over, the lens warped and the
+  // feet stuck out): it rests settled on its base. Lying down it sits tipped to one side, at ease
+  // (tipped back, the lens caught the bright sky in one big glare); asleep it nods forward with the
+  // lens cap shut.
+  postures: {
+    lie: (t, P) => { POSTURES.sit(t, P); P.root.rx -= 3; P.root.rz += 10; add(P, 'thighL', 6 * Math.sin(t * 1.2)); },
+    sleep: (t, P) => {
+      POSTURES.sit(t, P);
+      const br = Math.sin(t * Math.PI * 2 * 0.2);
+      P.root.rx += 9 + br * 1.5; P.root.rz -= 5; P.squash *= 1 + br * 0.01;
+      for (const s of ['L', 'R']) raise(P, s, -8);
+    },
+  },
 
   // The arms hang from the sides; a little out, and the feet turned out a touch.
   stand(t, P) {

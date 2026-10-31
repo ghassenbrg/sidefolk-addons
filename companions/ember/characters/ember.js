@@ -1,10 +1,19 @@
 // Ember: a chibi red fox on its hind legs: orange fur, cream muzzle and chest, dark brown paws,
 // ear tips and brows, big amber eyes and a big fluffy tail. Rig: blender/rig_ember.py.
 import { bodyMaterial } from '../engine/materials.js';
-import { add, raise, lean, face, doze } from '../engine/moves.js';
+import { add, raise, lean, face, doze, POSTURES } from '../engine/moves.js';
 import { win, smooth } from '../engine/motion.js';
 
 const ear = (s, side) => ({ bones: [`ear${s}1`, `ear${s}2`], side, twitch: true, k: [190, 135], d: [11, 7.5], limit: [40, 35] });
+
+// Sitting: the shared sit swung the thighs and hips so far that the fur under the tail went down
+// through the floor; Ember sits a little higher, thighs less forward, hips tipped up and the tail
+// lifted, and the arms modelled in a T come down to the sides.
+const settle = (P) => {
+  P.root.py += 0.06;
+  for (const s of ['L', 'R']) { add(P, 'thigh' + s, 45); add(P, 'foot' + s, -22); raise(P, s, -25); }
+  add(P, 'hips', 10); add(P, 'spine', -5); add(P, 'chest', -3); add(P, 'tail1', 35);
+};
 
 export default {
   id: 'ember',
@@ -78,8 +87,12 @@ export default {
   pick: { head: { r: 0.5, at: [0, 0.27, 0.1] }, body: { r: 0.3, at: [0, -0.48, 0] }, tips: ['earL2', 'earR2'] },
   fidgets: ['lookAround', 'earTwitch', 'earTwitch', 'tilt', 'sniff', 'smile', 'stretch', 'hop', 'blinkDouble', 'giggle'],
 
-  // Lying on its tummy, the big tail would stand up behind its head: it nods off sitting instead.
-  postures: { sleep: doze },
+  // Lying on its tummy, the big tail would stand up behind its head while asleep: it nods off sitting
+  // instead. (Lying down awake is the shared lie, on its tummy, tail laid down.)
+  postures: {
+    sit: (t, P) => { POSTURES.sit(t, P); settle(P); },
+    sleep: (t, P) => { doze(t, P); settle(P); },
+  },
 
   // The model stands in a T: arms come down to the sides, paws a little forward.
   stand(t, P) {
