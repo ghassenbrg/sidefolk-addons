@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import ext_clipboard
 @testable import ext_keep_awake
+@testable import SidefolkExtensionKit
 
 /// Clipboard and Keep Awake with made-up copies, clocks and batteries: nothing here reads the clipboard or holds the
 /// Mac awake. Their sandbox runs are in Sidefolk's ExtensionServiceTests.
@@ -80,6 +81,21 @@ struct ClipboardKeepAwakeTests {
         #expect(Rules.hold(s, now: now, plugged: true, battery: 90, appOpen: false) == .ended("Zoom quit."))
         // A desktop Mac has no battery: nothing to wait for.
         #expect(Rules.hold(Session(started: now), now: now, plugged: nil, battery: nil, appOpen: nil) == .holding)
+    }
+
+    /// The main switch rides on the summary (Sidefolk D67), so it shows on the Today tile and the sidebar; the time left
+    /// leads the detail. Read without starting anything: no power assertion is taken here.
+    @Test func keepAwakesMainSwitchAndTimeLeft() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("ka-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let page = AwakePage.make(Keeper(folder: folder)).json
+        let summary = try #require(page["summary"] as? [String: Any])
+        let control = try #require(summary["control"] as? [String: Any])
+        #expect(control["type"] as? String == "switch" && control["tool"] as? String == "keep_awake" && control["on"] as? Bool == false)
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let s = Session(started: now, until: now.addingTimeInterval(25 * 60))
+        #expect(AwakePage.detail(s, nudges: 0, now: now).hasPrefix("25 min left · "))
     }
 
     @Test func keepAwakeNudgesOnlyWhenIdleAndReadsTimes() throws {

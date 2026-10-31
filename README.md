@@ -84,6 +84,9 @@ that version and keep the one they have.
   character format: today's character files are code, which only Sidefolk's own signature may carry.
 - **An extension** is a folder like those in `extensions/`, with a manifest Sidefolk validates
   ([Sidefolk's docs/EXTENSIONS.md](https://github.com/ghassenbrg/sidefolk/blob/main/docs/EXTENSIONS.md)). Add it
-  to `Package.swift` and open a pull request; ids under `dev.sidefolk.` are Sidefolk's own.
+  to `Package.swift` and open a pull request; ids under `dev.sidefolk.` are Sidefolk's own. A page is optional
+  (people can hide it from Home's sidebar): an extension that is mostly an on/off switch puts that switch on its page's
+  summary (`Summary(..., control: .toggle(...))`) with `"widget": true`, and Sidefolk shows it on Today's tile and
+  beside the page in the sidebar, as Keep Awake does (Sidefolk's docs/EXTENSIONS.md › Pages).
 
 Sidefolk is proprietary (its LICENSE); so are the add-ons here unless an `addon.json` or manifest says otherwise.
