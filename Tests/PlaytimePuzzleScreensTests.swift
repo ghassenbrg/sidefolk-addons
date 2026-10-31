@@ -6,7 +6,8 @@ import Testing
 /// The four puzzles as Sidefolk sees them (D79, the puzzles), in the serialized screens suite since they share
 /// Playtime's records: today's board first and kept as far as played, the board's puzzle part and buttons, a whole
 /// solve through the screen by taking every hint, the end card after it with Play another and the level, practice
-/// boards after the day's, and the records, Home rows and Today tile.
+/// boards after the day's, and the records, Home rows and Today tile. Words are compared with `L` in the test's own
+/// language, so a suite running beside it in another language can't trip it.
 extension PlaytimeScreensTests {
     /// The clicks, drags and numbers that play a puzzle's own move through its screen.
     static func clicks(_ move: Games.Seesaw.Move, on grid: Games.Seesaw.Grid, size n: Int) -> [Move] {
@@ -78,7 +79,7 @@ extension PlaytimeScreensTests {
             _ = GameTable.play(PuzzleScreen<SeesawKind>.self, .cell(row: open / 6, column: open % 6), on: &s, random: &random)
             let given = s.game.puzzle.givens.firstIndex { $0 != nil }!
             let refused = GameTable.play(PuzzleScreen<SeesawKind>.self, .cell(row: given / 6, column: given % 6), on: &s, random: &random)
-            #expect(Self.part(PuzzleScreen<SeesawKind>.board(s, events: refused, options: o), "note")?["text"] as? String == "That one is part of the puzzle.")
+            #expect(Self.part(PuzzleScreen<SeesawKind>.board(s, events: refused, options: o), "note")?["text"] as? String == L("That one is part of the puzzle."))
             let reopened = PuzzleEngine<SeesawKind>.start(level: .fair, options: o, random: &random)
             #expect(reopened.game.grid == s.game.grid && reopened.game.day == s.game.day, "reopening carries on")
 
@@ -100,7 +101,7 @@ extension PlaytimeScreensTests {
             let next = PuzzleEngine<SeesawKind>.start(level: .easy, options: o, random: &random)
             #expect(next.game.day == nil && next.game.level == .hard, "today's is done: practice at the last level")
             let eyebrow = Self.part(PuzzleScreen<SeesawKind>.board(next, events: [], options: o), "prompt")?["eyebrow"] as? String
-            #expect(eyebrow == "Practice · Hard")
+            #expect(eyebrow == L("Practice") + " · " + ScreenKit.level(.hard))
         }
     }
 
@@ -147,8 +148,8 @@ extension PlaytimeScreensTests {
             let page = PlaytimePage.render().json
             let rows = ((page["sections"] as! [[String: Any]]).flatMap { ($0["blocks"] as? [[String: Any]]) ?? [] }
                 .compactMap { $0["items"] as? [[String: Any]] }).flatMap { $0 }
-            let garden = rows.first { $0["title"] as? String == "Gartenparzellen" }?["detail"] as? String
-            #expect(garden?.hasPrefix("Heute: gelöst in") == true, "\(garden ?? "")")
+            let garden = rows.first { $0["title"] as? String == L("Garden Plots") }?["detail"] as? String
+            #expect(garden?.hasPrefix(L("Today: solved in {time}", ["time": ""])) == true, "\(garden ?? "")")
             PlaytimeRecords.update { $0.puzzles?[SudokuKind.id]?.streak = 4; $0.puzzles?[SudokuKind.id]?.lastSolvedDay = DailyWordEngine.today() }
             let tile = (PlaytimePage.render().json["summary"] as? [String: Any])?["detail"] as? String
             #expect(tile?.contains("Sudoku 4") == true, "\(tile ?? "")")
