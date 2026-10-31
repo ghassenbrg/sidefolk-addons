@@ -30,6 +30,7 @@ final class Session {
     let folder: URL
     let trust: TrustStore
     let discovery = Discovery()
+    let audioRouting = AudioRouting()
     var choices: Choices { didSet { if choices != oldValue { choices.save(folder) } } }
 
     private(set) var phase = Phase.idle
@@ -83,6 +84,8 @@ final class Session {
         trust = TrustStore(folder: folder)
         choices = Choices.load(folder)
         saved = trust.all()
+        audioRouting.onChange = { [weak self] in self?.onChange?() }
+        audioRouting.onFailure = { [weak self] message in self?.audioRoutingFailed(message) }
         discovery.onChange = { [weak self] receivers in Task { @MainActor in self?.found = receivers; self?.onChange?() } }
     }
 
@@ -160,6 +163,7 @@ final class Session {
         connection?.close(gracefully: true); connection = nil
         let engine = capture; capture = nil; Task { await engine?.stop() }
         phase = .idle; pairingCode = ""; startedAt = nil; note = nil
+        synchronizeOutputMute()
         if wasBusy, let why { lastEnd = (Date(), why) }
         onChange?()
     }
@@ -331,6 +335,7 @@ final class Session {
             releaseLentFiles()
             if wasSharing { lastEnd = (Date(), failure.message) }
         }
+        synchronizeOutputMute()
         onChange?()
     }
 
@@ -382,11 +387,24 @@ final class Session {
     private func confirmFirstPicture() {
         guard phase == .starting, captureRunning, receiverFrames > firstPictureBaseline else { return }
         deadline?.cancel(); deadline = nil
-        phase = .sharing; note = nil
+        phase = .sharing
+        if problem == nil { note = nil }
         if startedAt == nil { startedAt = Date() }
     }
 
-    func setPhase(_ phase: Phase) { self.phase = phase; onChange?() }
+    func setPhase(_ phase: Phase) { self.phase = phase; synchronizeOutputMute(); onChange?() }
+
+    func synchronizeOutputMute() {
+        let active = mode == .mirror && [.starting, .sharing, .pausing, .paused].contains(phase)
+        audioRouting.set(active && choices.audio == .tv)
+    }
+
+    private func audioRoutingFailed(_ message: String) {
+        if choices.audio == .tv { choices.setAudio(.both); applyChoices() }
+        problem = message
+        if busy { note = message }
+        onChange?()
+    }
 
     private func mediaUpdate(_ message: [String: Any]) {
         guard [.starting, .sharing, .paused].contains(phase), let state = message["state"] as? String,

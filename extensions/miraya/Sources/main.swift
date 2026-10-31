@@ -10,6 +10,17 @@ import SidefolkExtensionKit
 let ext = Extension(name: "miraya")
 let data = URL(fileURLWithPath: Paths.data, isDirectory: true)
 let session = Session(folder: data)
+session.audioRouting.send = { request, enabled, sequence in
+    ext.send("sidefolk/output_mute", ["request": request, "enabled": enabled, "sequence": sequence])
+}
+ext.on("sidefolk/output_mute.result") { args in
+    guard let request = args.string("request"), let ok = args.bool("ok") else { return }
+    session.audioRouting.result(request: request, ok: ok, message: args.string("message"))
+}
+ext.on("sidefolk/output_mute.failed") { args in
+    guard let sequence = args.int("sequence") else { return }
+    session.audioRouting.failed(args.string("message") ?? "Sidefolk couldn't change the Mac's sound output.", sequence: sequence)
+}
 var windows: [Screens.Window]?
 // Pictures of the displays and windows for the page's tiles; a round of them also says which windows are open.
 let shots = Shots(folder: data)
@@ -130,7 +141,7 @@ ext.tool("list_windows", "Windows to share", "Lists the open windows on Miraya's
 
 ext.tool("set_option", "Miraya setting", "Changes a sharing choice: quality (a preset), sound, detail or follow_tv; or what the page "
     + "shares: kind (display, window or area), and which display, window or area.",
-         input: Schema.object(["option": Schema.string("Which.", oneOf: ["quality", "sound", "detail", "follow_tv", "kind", "display", "window", "area"]),
+         input: Schema.object(["option": Schema.string("Which.", oneOf: ["quality", "sound", "audio_destination", "detail", "follow_tv", "kind", "display", "window", "area"]),
                                "value": Schema.string("The preset for quality; display, window or area for kind; an id from the page, or an area's name.",
                                                       maxLength: 40),
                                "on": Schema.boolean("On or off, for the others.")], required: ["option"])) { args in
@@ -152,7 +163,12 @@ ext.tool("set_option", "Miraya setting", "Changes a sharing choice: quality (a p
         guard let area = args.string("value"), MirayaPage.areas.contains(where: { $0.name == area }) else { throw Problem("Which part of the screen?") }
         session.choices.area = area
         return "Done."
-    case "sound": session.choices.sound = args.bool("on") ?? !session.choices.sound
+    case "sound": session.choices.setAudio((args.bool("on") ?? !session.choices.sound) ? .both : .mac)
+    case "audio_destination":
+        guard let value = args.string("value"), let destination = Choices.AudioDestination(rawValue: value) else {
+            throw Problem("Choose Mac only, TV only, or Mac and TV.")
+        }
+        session.choices.setAudio(destination)
     case "detail": session.choices.detail = args.bool("on") ?? !session.choices.detail
     case "follow_tv": session.choices.followTV = args.bool("on") ?? !session.choices.followTV
     default: throw Problem("There's no such setting.")

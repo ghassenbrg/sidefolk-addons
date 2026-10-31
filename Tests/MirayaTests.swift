@@ -191,6 +191,78 @@ struct MirayaTests {
         buttons(page).filter { $0["style"] as? String == "primary" }.compactMap { $0["label"] as? String }
     }
 
+    @Test func audioDestinationsMigrateAndStaleRepliesCannotRemute() throws {
+        let legacy = Data(#"{"quality":"balanced","sound":false,"detail":true,"followTV":true,"volume":1}"#.utf8)
+        var choices = try JSONDecoder().decode(Choices.self, from: legacy)
+        #expect(choices.audio == .mac)
+        choices.setAudio(.tv)
+        #expect(choices.sound && choices.audio == .tv)
+        choices.setAudio(.both)
+        #expect(choices.sound && choices.audio == .both)
+
+        let routing = AudioRouting()
+        var requests: [(String, Bool, Int)] = []
+        routing.send = { requests.append(($0, $1, $2)) }
+        routing.set(true)
+        #expect(routing.pending && !routing.confirmed)
+        routing.set(false)
+        #expect(requests.map(\.1) == [true, false] && requests.map(\.2) == [1, 2])
+        routing.result(request: requests[0].0, ok: true, message: nil)
+        #expect(!routing.confirmed && routing.pending, "an old enable can't override a newer disable")
+        routing.result(request: requests[1].0, ok: true, message: nil)
+        #expect(!routing.pending && !routing.confirmed)
+        routing.set(true)
+        routing.failed("old device failure", sequence: 1)
+        #expect(routing.desired && routing.pending, "a failure from an earlier lease can't cancel the new one")
+    }
+
+    @Test func audioRoutingFailureReturnsToBoth() throws {
+        let session = Session(folder: try Self.folder())
+        var requests: [(String, Bool, Int)] = []
+        session.audioRouting.send = { requests.append(($0, $1, $2)) }
+        session.choices.setAudio(.tv)
+        session.setPhase(.starting)
+        #expect(requests.count == 1 && requests[0].1)
+        session.audioRouting.result(request: requests[0].0, ok: false, message: "Unsupported output")
+        #expect(session.choices.audio == .both && !session.audioRouting.confirmed)
+        #expect(requests.count == 2 && !requests[1].1)
+        #expect(session.problem == "Unsupported output")
+    }
+
+    @Test func exportUISamples() throws {
+        guard let output = ProcessInfo.processInfo.environment["MIRAYA_FIXTURES"] else { return }
+        let display2 = Screens.Display(id: 2, name: "External display · 2560 × 1440", size: CGSize(width: 2560, height: 1440))
+        let win = [Screens.Window(id: 42, name: "Safari · Apple", app: "Safari", title: "Apple"), Screens.Window(id: 43, name: "Keynote · Presentation", app: "Keynote", title: "Presentation"), Screens.Window(id: 44, name: "Player · Film", app: "Player", title: "Film")]
+        let target = Session.Target(kind: .display, displayID: 1, label: "Built-in display")
+        func sample(_ change: (inout MirayaPage.Now) -> Void = { _ in }) -> MirayaPage.Now {
+            Self.ready { n in
+                n.displays.append(display2)
+                n.shots = ["display:1": "shots/display-1.png", "display:2": "shots/display-2.png", "window:42": "shots/window-42.png", "window:43": "shots/window-43.png", "window:44": "shots/window-44.png"]
+                n.shots.merge(["area:left": "shots/area-left.png", "area:right": "shots/area-right.png", "area:center": "shots/area-center.png"]) { _, new in new }
+                change(&n)
+            }
+        }
+        let all: [String: MirayaPage.Now] = [
+            "notv": MirayaPage.Now(displays: [Self.display]),
+            "ready": sample(), "window": sample { $0.choices.kind = "window"; $0.windows = win },
+            "area": sample { $0.choices.kind = "area"; $0.choices.area = "center" },
+            "norecord": sample { $0.canRecord = false; $0.shots = [:] },
+            "pairing": sample { $0.phase = .pairing; $0.tv = Self.bedroom; $0.pairingCode = "482731" },
+            "authorizing": sample { $0.phase = .authorizing; $0.tv = Self.bedroom },
+            "sharing": sample { $0.phase = .sharing; $0.target = target; $0.fps = 30; $0.rttMs = 18; $0.picture = "1920 × 1080" },
+            "paused": sample { $0.phase = .paused; $0.target = target },
+            "playing": sample { $0.phase = .sharing; $0.mode = .media; $0.mediaTitle = "Film.mp4"; $0.mediaState = "playing"; $0.position = 754; $0.duration = 6310; $0.seekable = true },
+            "problem": sample { $0.problem = "The TV didn't answer. Check the network and try again." },
+        ]
+        var text = "#if DEBUG\nimport Foundation\n\n/// Fixtures from MirayaPage.make, for the extension page snapshots.\nenum SampleMirayaPages {\n    static let json: [String: String] = [\n"
+        for name in all.keys.sorted() {
+            let json = try JSONSerialization.data(withJSONObject: MirayaPage.make(all[name]!).json, options: [.sortedKeys, .withoutEscapingSlashes])
+            text += "        \"\(name)\": #\"\"\"\n        \(String(decoding: json, as: UTF8.self))\n        \"\"\"#,\n"
+        }
+        text += "    ]\n}\n#endif\n"
+        try text.write(toFile: output, atomically: true, encoding: .utf8)
+    }
+
     @Test func withoutATVThePageSaysHowToFindOne() throws {
         let page = Self.page(MirayaPage.make(MirayaPage.Now(displays: [Self.display])))
         let hero = try #require(Self.hero(page))
@@ -198,7 +270,7 @@ struct MirayaTests {
         #expect(Self.primaries(page) == ["Look again"])
         #expect((page["summary"] as? [String: Any])?["control"] == nil, "nothing to start from the tile")
         let tvs = try #require(Self.sections(page).first { $0["title"] as? String == "TVs" })
-        #expect(tvs["place"] as? String == "side")
+        #expect(tvs["place"] == nil, "the address has the full width when there is no TV")
         #expect(Self.blocks(page).contains { $0["type"] as? String == "field" && $0["tool"] as? String == "pair_tv" && $0["key"] as? String == "tv" })
     }
 
@@ -206,7 +278,7 @@ struct MirayaTests {
         let page = Self.page(MirayaPage.make(Self.ready()))
         let hero = try #require(Self.hero(page))
         #expect(hero["title"] as? String == "Share your screen to Living Room" && hero["eyebrow"] as? String == "Ready")
-        #expect(hero["image"] as? String == "shots/1/display-1.jpg")
+        #expect(hero["image"] == nil, "the source picture belongs in the picker, not duplicated in the summary")
         let start = try #require((hero["actions"] as? [[String: Any]])?.first)
         #expect(start["tool"] as? String == "share_screen" && (start["input"] as? [String: Any])?["display"] as? Int == 1)
         #expect(Self.primaries(page) == ["Start sharing"], "one primary on the page")
@@ -224,7 +296,7 @@ struct MirayaTests {
         let quality = try #require(Self.blocks(page).first { $0["style"] as? String == "cards" })
         #expect((quality["options"] as? [[String: Any]])?.count == 5 && quality["selected"] as? String == "balanced")
         let folded = Self.sections(page).filter { $0["collapsed"] as? Bool == true }.compactMap { $0["title"] as? String }
-        #expect(folded == ["More picture settings", "Play a video on the TV"])
+        #expect(folded == ["Picture & sound", "More picture settings", "Play a video on the TV", "Connect by address"])
     }
 
     @Test func aNewTVSaysACodeComesAndAWindowNeedsChoosing() throws {
@@ -244,6 +316,23 @@ struct MirayaTests {
         #expect((go["input"] as? [String: Any])?["window_id"] as? Int == 42 && go["disabled"] == nil)
     }
 
+    @Test func areaCanUseEitherDisplay() throws {
+        let external = Screens.Display(id: 2, name: "External display · 2560 × 1440", size: CGSize(width: 2560, height: 1440))
+        let page = Self.page(MirayaPage.make(Self.ready {
+            $0.displays.append(external)
+            $0.choices.kind = "area"
+            $0.choices.display = 2
+            $0.choices.area = "left"
+        }))
+        let picker = try #require(Self.blocks(page).first {
+            $0["label"] as? String == "Screen" && $0["style"] as? String == "rows"
+        })
+        #expect(picker["selected"] as? String == "2")
+        let start = try #require((Self.hero(page)?["actions"] as? [[String: Any]])?.first)
+        let input = try #require(start["input"] as? [String: Any])
+        #expect(input["display"] as? Int == 2 && input["area"] as? String == "left")
+    }
+
     @Test func pairingIsTheCodeAndItsTwoButtonsAlone() throws {
         let page = Self.page(MirayaPage.make(Self.ready { $0.phase = .pairing; $0.mode = .pair; $0.tv = Self.bedroom; $0.pairingCode = "447474" }))
         #expect(Self.sections(page).count == 1)
@@ -258,12 +347,11 @@ struct MirayaTests {
         let page = Self.page(MirayaPage.make(Self.ready { $0.phase = .sharing; $0.target = target; $0.fps = 29.6; $0.rttMs = 18; $0.picture = "1920 × 1080" }))
         let hero = try #require(Self.hero(page))
         #expect(hero["title"] as? String == "Sharing your screen to Living Room" && hero["eyebrow"] as? String == "Sharing · live")
-        #expect((hero["facts"] as? [[String: Any]])?.compactMap { $0["value"] as? String } == ["30 fps", "18 ms", "1920 × 1080", "On the TV"])
+        #expect((hero["facts"] as? [[String: Any]])?.compactMap { $0["value"] as? String } == ["30 fps", "18 ms", "1920 × 1080", "Mac and TV"])
         #expect((hero["actions"] as? [[String: Any]])?.compactMap { $0["style"] as? String } == ["secondary", "destructive"])
         #expect(Self.primaries(page).isEmpty, "Stop sharing leads: Sidefolk fills it")
         #expect(!Self.blocks(page).contains { $0["tool"] as? String == "share_screen" }, "nothing else to share while sharing")
-        let tvs = try #require(Self.blocks(page).first { $0["tool"] as? String == "choose_tv" })
-        #expect(tvs["disabled"] as? Bool == true)
+        #expect(!Self.blocks(page).contains { $0["tool"] as? String == "choose_tv" }, "the TV in use is named in the hero")
         #expect(((page["summary"] as? [String: Any])?["control"] as? [String: Any])?["tool"] as? String == "stop")
 
         let paused = Self.page(MirayaPage.make(Self.ready { $0.phase = .paused; $0.target = target }))
