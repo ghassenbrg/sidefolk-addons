@@ -1,0 +1,203 @@
+{
+  "name": "Portapapeles",
+  "tagline": "Todo lo que copias, a un atajo",
+  "description": "Todo lo que copias, a un atajo desde cualquier app: texto con su formato, enlaces, imágenes, archivos y código, con búsqueda y para fijar. Lo copiado desde gestores de contraseñas nunca se guarda; las claves y números de tarjeta se ocultan y se olvidan en dos minutos. Nada sale de tu Mac.",
+  "tools": {
+    "clear_history": {
+      "title": "Borrar el historial"
+    },
+    "copy_again": {
+      "title": "Copiar de nuevo"
+    },
+    "ignore": {
+      "title": "Ignorar copias"
+    },
+    "pause": {
+      "title": "Pausar el historial"
+    },
+    "recent_copies": {
+      "title": "Copias recientes"
+    },
+    "resume": {
+      "title": "Reanudar el historial"
+    },
+    "search_copies": {
+      "title": "Buscar en las copias"
+    },
+    "set_option": {
+      "title": "Ajuste del portapapeles"
+    },
+    "skip_next": {
+      "title": "Omitir la próxima copia"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "Portapapeles"
+    }
+  },
+  "palettes": {
+    "history": {
+      "title": "Portapapeles",
+      "placeholder": "Busca en lo que copiaste"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "A clipboard type is one word, like public.png.": "Un tipo de portapapeles es una sola palabra, como public.png.",
+    "A regular expression: {example} leaves out six-digit codes.": "Una expresión regular: {example} deja fuera los códigos de seis dígitos.",
+    "Also left out": "También excluidos",
+    "App": "App",
+    "App name or bundle id": "Nombre o ID de la app",
+    "Apps": "Apps",
+    "Ask about it": "Preguntar",
+    "At the bottom": "Abajo",
+    "Choosing a copy": "Al elegir una copia",
+    "Clear history": "Borrar historial",
+    "Clear pinned too": "Borrar también las fijadas",
+    "Cleared, pinned copies too.": "Borrado, también las copias fijadas.",
+    "Cleared.": "Borrado.",
+    "Cleared. Pinned copies stay.": "Borrado. Las copias fijadas se quedan.",
+    "Cleared. {count} pinned copies stay.": {
+      "one": "Borrado. Se queda {count} copia fijada.",
+      "other": "Borrado. Se quedan {count} copias fijadas."
+    },
+    "Clipboard type": "Tipo de portapapeles",
+    "Code": "Código",
+    "Copied": "Copiado",
+    "Copies": "Copias",
+    "Copies from {app} are kept again.": "Las copias de {app} vuelven a guardarse.",
+    "Copies from {app} aren't kept from now on.": "Las copias de {app} ya no se guardan.",
+    "Copies marked {type} are kept again.": "Las copias marcadas como {type} vuelven a guardarse.",
+    "Copies marked {type} aren't kept from now on.": "Las copias marcadas como {type} ya no se guardan.",
+    "Copies matching {pattern} are kept again.": "Las copias que coinciden con {pattern} vuelven a guardarse.",
+    "Copies matching {pattern} aren't kept from now on.": "Las copias que coinciden con {pattern} ya no se guardan.",
+    "Copies, pinned ones aside. The oldest go first.": "Copias, sin contar las fijadas. Las más antiguas se van primero.",
+    "Copy": "Copiar",
+    "Done.": "Hecho.",
+    "Exact": "Exacta",
+    "Files": "Archivos",
+    "Files copied in Finder, by their place.": "Archivos copiados en el Finder, por su ubicación.",
+    "Find a link I copied": "Buscar un enlace que copié",
+    "First copied": "Primera copia",
+    "Fonts, colours and links that came with copied text.": "Fuentes, colores y enlaces que venían con el texto copiado.",
+    "For apps that mark what they copy: com.apple.is-remote-clipboard leaves out your iPhone's copies.": "Para apps que marcan lo que copian: com.apple.is-remote-clipboard deja fuera las copias de tu iPhone.",
+    "Forgotten": "Se olvida",
+    "Formatting": "Formato",
+    "From": "Desde",
+    "Fuzzy": "Aproximada",
+    "Hide passwords, keys and card numbers": "Ocultar contraseñas, claves y números de tarjeta",
+    "History": "Historial",
+    "I couldn't find that copy.": "No encontré esa copia.",
+    "Ignore": "Ignorar",
+    "Ignore a clipboard type": "Ignorar un tipo de portapapeles",
+    "Ignore an app": "Ignorar una app",
+    "Ignore text that matches": "Ignorar el texto que coincida",
+    "Ignore {app}": "Ignorar {app}",
+    "In the order the palette shows them. Copy puts one back on the clipboard.": "En el orden de la paleta. Copiar devuelve una al portapapeles.",
+    "Its name or bundle id, like 1Password or com.apple.keychainaccess.": "Su nombre o ID, como 1Password o com.apple.keychainaccess.",
+    "Keep a history of what I copy": "Guardar un historial de lo que copio",
+    "Keep files": "Guardar archivos",
+    "Keep formatting": "Guardar formato",
+    "Keep it": "Mantenerlo",
+    "Keep pictures": "Guardar imágenes",
+    "Keep up to": "Guardar hasta",
+    "Keep up to {limits} copies.": "Guarda hasta {limits} copias.",
+    "Keeping up to {count} copies.": {
+      "one": "Guardando hasta {count} copia.",
+      "other": "Guardando hasta {count} copias."
+    },
+    "Keeping your copies": "Guardando tus copias",
+    "Keeping your copies again.": "Vuelvo a guardar tus copias.",
+    "Last copied": "Última copia",
+    "Latest": "Recientes",
+    "Leave out": "Excluir",
+    "Length": "Longitud",
+    "Links": "Enlaces",
+    "Most copied": "Más copiadas",
+    "No copy matches “{query}”.": "Ninguna copia coincide con «{query}».",
+    "Not keeping a history": "Sin historial",
+    "Nothing copied yet.": "Aún no has copiado nada.",
+    "On the clipboard again: {copy}.": "De nuevo en el portapapeles: {copy}.",
+    "On top": "Arriba",
+    "Only copies it": "Solo lo copia",
+    "Order": "Orden",
+    "Passwords from password managers are never kept.": "Las contraseñas de los gestores de contraseñas nunca se guardan.",
+    "Pastes it": "La pega",
+    "Pattern": "Patrón",
+    "Pause {time}": "Pausar {time}",
+    "Paused until {time}": "En pausa hasta las {time}",
+    "Paused until {time}: nothing you copy is kept until then.": "En pausa hasta las {time}: nada de lo que copies se guarda hasta entonces.",
+    "Picture": "Imagen",
+    "Pictures": "Imágenes",
+    "Pinned": "Fijadas",
+    "Pinned copies": "Copias fijadas",
+    "Pinned copies go top or bottom.": "Las copias fijadas van arriba o abajo.",
+    "Remove": "Quitar",
+    "Remove it": "Quitarlo",
+    "Resume now": "Reanudar ahora",
+    "Return": "Retorno",
+    "Rich text and web formatting, pasted back unless you ask for plain text.": "Texto enriquecido y formato web, que se pegan salvo que pidas texto sin formato.",
+    "Save my last copy to notes": "Guardar mi última copia en notas",
+    "Say which app, pattern or clipboard type.": "Di qué app, patrón o tipo de portapapeles.",
+    "Screenshots and copied images, {count} at most.": "Capturas de pantalla e imágenes copiadas, {count} como máximo.",
+    "Search": "Búsqueda",
+    "Search is words, exact, fuzzy or regex.": "La búsqueda es words, exact, fuzzy o regex.",
+    "Size": "Tamaño",
+    "Skip my next copy": "Saltar mi próxima copia",
+    "Skipping your next copy": "Se saltará tu próxima copia",
+    "Text matching": "Texto que coincide",
+    "That copy is gone.": "Esa copia ya no está.",
+    "That isn't a pattern Clipboard can read.": "Ese patrón no lo puede leer Portapapeles.",
+    "That's too long for an app's name.": "Es demasiado largo para el nombre de una app.",
+    "The app in front when you copied.": "La app que estaba delante cuando copiaste.",
+    "The order is recent, first or count.": "El orden es recent, first o count.",
+    "There's no such setting.": "Ese ajuste no existe.",
+    "They show as dots, stay in memory only and are forgotten after two minutes.": "Se muestran como puntos, solo quedan en memoria y se olvidan a los dos minutos.",
+    "Today {time}": "Hoy {time}",
+    "Turned off.": "Desactivado.",
+    "Turned on.": "Activado.",
+    "Type": "Tipo",
+    "What choosing a copy does. Option-Return does the other; Shift-Return pastes plain text.": "Lo que hace elegir una copia. Opción-Retorno hace lo otro; Mayúsculas-Retorno pega texto sin formato.",
+    "What did I copy today?": "¿Qué copié hoy?",
+    "What it holds": "Lo que contiene",
+    "Where your copies come from": "De dónde vienen tus copias",
+    "Words": "Palabras",
+    "Words: all of them, anywhere. Fuzzy: the letters in order. Pattern: a regular expression.": "Palabras: todas, en cualquier lugar. Aproximada: las letras en orden. Patrón: una expresión regular.",
+    "Your next copy won't be kept.": "Tu próxima copia no se guardará.",
+    "copied {count}×": "copiada {count}×",
+    "forgotten in {time}": "se olvida en {time}",
+    "in {time}": "en {time}",
+    "just now": "ahora mismo",
+    "kept (⇧↩ pastes without it)": "se mantiene (⇧↩ pega sin él)",
+    "kept for good": "guardadas para siempre",
+    "looks like a password or key": "parece una contraseña o clave",
+    "pinned": "fijada",
+    "without formatting": "sin formato",
+    "yesterday": "ayer",
+    "{count} characters": {
+      "one": "{count} carácter",
+      "other": "{count} caracteres"
+    },
+    "{count} copies": {
+      "one": "{count} copia",
+      "other": "{count} copias"
+    },
+    "{count} days ago": {
+      "one": "hace {count} día",
+      "other": "hace {count} días"
+    },
+    "{count} lines": {
+      "one": "{count} línea",
+      "other": "{count} líneas"
+    },
+    "{count} today": "{count} hoy",
+    "{kept} kept · {today} today · open them from any app with the shortcut below": "{kept} guardadas · {today} hoy · ábrelas desde cualquier app con el atajo de abajo",
+    "{names} and {count} more": "{names} y {count} más",
+    "{status}, so there's nothing new.": "{status}, así que no hay nada nuevo.",
+    "{time} ago": "hace {time}",
+    "“{pattern}” isn't a regular expression Clipboard can read.": "«{pattern}» no es una expresión regular que Portapapeles pueda leer.",
+    "↩ copies, ⌥↩ pastes": "↩ copia, ⌥↩ pega",
+    "↩ pastes, ⌥↩ only copies": "↩ pega, ⌥↩ solo copia"
+  }
+}

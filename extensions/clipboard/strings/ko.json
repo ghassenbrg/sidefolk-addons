@@ -1,0 +1,197 @@
+{
+  "name": "클립보드",
+  "tagline": "복사한 모든 것을 단축키 하나로",
+  "description": "복사한 모든 것을 어느 앱에서든 단축키 하나로: 서식이 있는 텍스트, 링크, 사진, 파일, 코드를 검색하고 고정할 수 있어요. 암호 관리자에서 복사한 것은 저장하지 않고, 키와 카드 번호는 가려 두었다가 2분 뒤 지워요. 아무것도 Mac 밖으로 나가지 않아요.",
+  "tools": {
+    "clear_history": {
+      "title": "기록 지우기"
+    },
+    "copy_again": {
+      "title": "다시 복사"
+    },
+    "ignore": {
+      "title": "복사 무시"
+    },
+    "pause": {
+      "title": "기록 일시 중지"
+    },
+    "recent_copies": {
+      "title": "최근 복사"
+    },
+    "resume": {
+      "title": "기록 다시 시작"
+    },
+    "search_copies": {
+      "title": "복사 검색"
+    },
+    "set_option": {
+      "title": "클립보드 설정"
+    },
+    "skip_next": {
+      "title": "다음 복사 건너뛰기"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "클립보드"
+    }
+  },
+  "palettes": {
+    "history": {
+      "title": "클립보드",
+      "placeholder": "복사한 내용 검색"
+    }
+  },
+  "text": {
+    ", ": ", ",
+    "A clipboard type is one word, like public.png.": "클립보드 유형은 public.png처럼 한 단어입니다.",
+    "A regular expression: {example} leaves out six-digit codes.": "정규 표현식입니다. {example}은(는) 여섯 자리 코드를 제외합니다.",
+    "Also left out": "그 밖에 제외한 항목",
+    "App": "앱",
+    "App name or bundle id": "앱 이름 또는 번들 ID",
+    "Apps": "앱",
+    "Ask about it": "물어보기",
+    "At the bottom": "아래에",
+    "Choosing a copy": "복사본 선택",
+    "Clear history": "기록 지우기",
+    "Clear pinned too": "고정된 것도 지우기",
+    "Cleared, pinned copies too.": "고정된 복사본까지 지웠습니다.",
+    "Cleared.": "지웠습니다.",
+    "Cleared. Pinned copies stay.": "지웠습니다. 고정된 복사본은 남습니다.",
+    "Cleared. {count} pinned copies stay.": {
+      "other": "지웠습니다. 고정된 복사본 {count}개는 남습니다."
+    },
+    "Clipboard type": "클립보드 유형",
+    "Code": "코드",
+    "Copied": "복사 시각",
+    "Copies": "복사본",
+    "Copies from {app} are kept again.": "{app}의 복사본을 다시 보관합니다.",
+    "Copies from {app} aren't kept from now on.": "이제부터 {app}의 복사본은 보관하지 않습니다.",
+    "Copies marked {type} are kept again.": "{type}(으)로 표시된 복사본을 다시 보관합니다.",
+    "Copies marked {type} aren't kept from now on.": "이제부터 {type}(으)로 표시된 복사본은 보관하지 않습니다.",
+    "Copies matching {pattern} are kept again.": "{pattern}과(와) 일치하는 복사본을 다시 보관합니다.",
+    "Copies matching {pattern} aren't kept from now on.": "이제부터 {pattern}과(와) 일치하는 복사본은 보관하지 않습니다.",
+    "Copies, pinned ones aside. The oldest go first.": "고정된 것을 제외한 복사본 수. 오래된 것부터 지워집니다.",
+    "Copy": "복사",
+    "Done.": "완료했습니다.",
+    "Exact": "정확히",
+    "Files": "파일",
+    "Files copied in Finder, by their place.": "Finder에서 복사한 파일(위치로 보관).",
+    "Find a link I copied": "복사한 링크 찾기",
+    "First copied": "처음 복사",
+    "Fonts, colours and links that came with copied text.": "복사한 텍스트에 딸려 온 글꼴, 색상, 링크.",
+    "For apps that mark what they copy: com.apple.is-remote-clipboard leaves out your iPhone's copies.": "복사한 내용에 표시를 하는 앱용: com.apple.is-remote-clipboard는 iPhone의 복사본을 제외합니다.",
+    "Forgotten": "삭제",
+    "Formatting": "서식",
+    "From": "출처",
+    "Fuzzy": "유사",
+    "Hide passwords, keys and card numbers": "암호, 키, 카드 번호 숨기기",
+    "History": "기록",
+    "I couldn't find that copy.": "그 복사본을 찾을 수 없습니다.",
+    "Ignore": "무시",
+    "Ignore a clipboard type": "클립보드 유형 무시",
+    "Ignore an app": "앱 무시",
+    "Ignore text that matches": "일치하는 텍스트 무시",
+    "Ignore {app}": "{app} 무시",
+    "In the order the palette shows them. Copy puts one back on the clipboard.": "팔레트와 같은 순서입니다. 복사를 누르면 클립보드에 다시 넣습니다.",
+    "Its name or bundle id, like 1Password or com.apple.keychainaccess.": "1Password나 com.apple.keychainaccess 같은 이름 또는 번들 ID.",
+    "Keep a history of what I copy": "복사한 내용의 기록 보관",
+    "Keep files": "파일 보관",
+    "Keep formatting": "서식 보관",
+    "Keep it": "유지",
+    "Keep pictures": "사진 보관",
+    "Keep up to": "최대 보관 수",
+    "Keep up to {limits} copies.": "보관 수는 {limits} 중에서 고를 수 있습니다.",
+    "Keeping up to {count} copies.": {
+      "other": "최대 {count}개까지 보관합니다."
+    },
+    "Keeping your copies": "복사본 보관 중",
+    "Keeping your copies again.": "복사본 보관을 다시 시작합니다.",
+    "Last copied": "마지막 복사순",
+    "Latest": "최근",
+    "Leave out": "제외",
+    "Length": "길이",
+    "Links": "링크",
+    "Most copied": "많이 복사한 순",
+    "No copy matches “{query}”.": "‘{query}’과(와) 일치하는 복사본이 없습니다.",
+    "Not keeping a history": "기록을 보관하지 않음",
+    "Nothing copied yet.": "아직 복사한 것이 없습니다.",
+    "On the clipboard again: {copy}.": "다시 클립보드에 넣었습니다: {copy}.",
+    "On top": "위에",
+    "Only copies it": "복사만",
+    "Order": "순서",
+    "Passwords from password managers are never kept.": "암호 관리자의 암호는 절대 보관하지 않습니다.",
+    "Pastes it": "붙여넣기",
+    "Pattern": "패턴",
+    "Pause {time}": "{time} 일시 정지",
+    "Paused until {time}": "{time}까지 일시 정지",
+    "Paused until {time}: nothing you copy is kept until then.": "{time}까지 일시 정지했습니다. 그때까지 복사한 것은 보관하지 않습니다.",
+    "Picture": "사진",
+    "Pictures": "사진",
+    "Pinned": "고정됨",
+    "Pinned copies": "고정된 복사본",
+    "Pinned copies go top or bottom.": "고정된 복사본은 위(top)나 아래(bottom)에 둡니다.",
+    "Remove": "제거",
+    "Remove it": "제거",
+    "Resume now": "지금 다시 시작",
+    "Return": "Return",
+    "Rich text and web formatting, pasted back unless you ask for plain text.": "서식 있는 텍스트와 웹 서식. 일반 텍스트를 요청하지 않으면 그대로 붙여 넣습니다.",
+    "Save my last copy to notes": "마지막 복사본을 메모에 저장",
+    "Say which app, pattern or clipboard type.": "어떤 앱, 패턴, 클립보드 유형인지 알려 주세요.",
+    "Screenshots and copied images, {count} at most.": "스크린샷과 복사한 이미지, 최대 {count}개.",
+    "Search": "검색",
+    "Search is words, exact, fuzzy or regex.": "검색 방식은 words, exact, fuzzy, regex 중 하나입니다.",
+    "Size": "크기",
+    "Skip my next copy": "다음 복사 건너뛰기",
+    "Skipping your next copy": "다음 복사는 건너뜁니다",
+    "Text matching": "일치하는 텍스트",
+    "That copy is gone.": "그 복사본은 더 이상 없습니다.",
+    "That isn't a pattern Clipboard can read.": "클립보드가 읽을 수 있는 패턴이 아닙니다.",
+    "That's too long for an app's name.": "앱 이름으로는 너무 깁니다.",
+    "The app in front when you copied.": "복사할 때 앞에 있던 앱.",
+    "The order is recent, first or count.": "순서는 recent, first, count 중 하나입니다.",
+    "There's no such setting.": "그런 설정은 없습니다.",
+    "They show as dots, stay in memory only and are forgotten after two minutes.": "점으로 표시되고 메모리에만 머물며 2분 뒤 지워집니다.",
+    "Today {time}": "오늘 {time}",
+    "Turned off.": "껐습니다.",
+    "Turned on.": "켰습니다.",
+    "Type": "유형",
+    "What choosing a copy does. Option-Return does the other; Shift-Return pastes plain text.": "복사본을 선택했을 때의 동작입니다. Option-Return은 반대 동작, Shift-Return은 일반 텍스트로 붙여 넣습니다.",
+    "What did I copy today?": "오늘 무엇을 복사했나요?",
+    "What it holds": "보관 중인 항목",
+    "Where your copies come from": "복사본의 출처",
+    "Words": "단어",
+    "Words: all of them, anywhere. Fuzzy: the letters in order. Pattern: a regular expression.": "단어: 모든 단어가 어디든 포함. 유사: 글자가 순서대로. 패턴: 정규 표현식.",
+    "Your next copy won't be kept.": "다음 복사본은 보관하지 않습니다.",
+    "copied {count}×": "{count}회 복사",
+    "forgotten in {time}": "{time} 후 삭제",
+    "in {time}": "{time} 후",
+    "just now": "방금",
+    "kept (⇧↩ pastes without it)": "유지(⇧↩는 서식 없이 붙여넣기)",
+    "kept for good": "계속 보관",
+    "looks like a password or key": "암호나 키로 보임",
+    "pinned": "고정됨",
+    "without formatting": "서식 없이",
+    "yesterday": "어제",
+    "{count} characters": {
+      "other": "{count}자"
+    },
+    "{count} copies": {
+      "other": "{count}개"
+    },
+    "{count} days ago": {
+      "other": "{count}일 전"
+    },
+    "{count} lines": {
+      "other": "{count}줄"
+    },
+    "{count} today": "오늘 {count}개",
+    "{kept} kept · {today} today · open them from any app with the shortcut below": "{kept}개 보관 · 오늘 {today}개 · 아래 단축키로 어느 앱에서나 열 수 있습니다",
+    "{names} and {count} more": "{names} 외 {count}개",
+    "{status}, so there's nothing new.": "{status} 상태라 새 항목이 없습니다.",
+    "{time} ago": "{time} 전",
+    "“{pattern}” isn't a regular expression Clipboard can read.": "‘{pattern}’은(는) 클립보드가 읽을 수 있는 정규 표현식이 아닙니다.",
+    "↩ copies, ⌥↩ pastes": "↩ 복사, ⌥↩ 붙여넣기",
+    "↩ pastes, ⌥↩ only copies": "↩ 붙여넣기, ⌥↩ 복사만"
+  }
+}

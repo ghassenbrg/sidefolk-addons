@@ -1,0 +1,197 @@
+{
+  "name": "剪贴板",
+  "tagline": "复制过的一切，一个快捷键就能找到",
+  "description": "复制过的一切，在任何应用中一个快捷键就能找到：带格式的文本、链接、图片、文件和代码，可搜索、可固定。密码管理器复制的内容从不保留；密钥和卡号会被隐藏，两分钟后忘记。所有数据都不会离开你的 Mac。",
+  "tools": {
+    "clear_history": {
+      "title": "清除历史"
+    },
+    "copy_again": {
+      "title": "再次复制"
+    },
+    "ignore": {
+      "title": "忽略拷贝"
+    },
+    "pause": {
+      "title": "暂停历史"
+    },
+    "recent_copies": {
+      "title": "最近复制"
+    },
+    "resume": {
+      "title": "恢复历史"
+    },
+    "search_copies": {
+      "title": "搜索复制内容"
+    },
+    "set_option": {
+      "title": "剪贴板设置"
+    },
+    "skip_next": {
+      "title": "跳过下一次拷贝"
+    }
+  },
+  "pages": {
+    "clipboard": {
+      "title": "剪贴板"
+    }
+  },
+  "palettes": {
+    "history": {
+      "title": "剪贴板",
+      "placeholder": "搜索你复制过的内容"
+    }
+  },
+  "text": {
+    ", ": "、",
+    "A clipboard type is one word, like public.png.": "剪贴板类型是一个词，例如 public.png。",
+    "A regular expression: {example} leaves out six-digit codes.": "正则表达式：{example} 会排除六位数代码。",
+    "Also left out": "另外排除的",
+    "App": "应用",
+    "App name or bundle id": "应用名称或 bundle id",
+    "Apps": "应用",
+    "Ask about it": "问问看",
+    "At the bottom": "底部",
+    "Choosing a copy": "选择复制项",
+    "Clear history": "清除历史记录",
+    "Clear pinned too": "也清除已固定的",
+    "Cleared, pinned copies too.": "已清除，包括已固定的复制项。",
+    "Cleared.": "已清除。",
+    "Cleared. Pinned copies stay.": "已清除。已固定的复制项会保留。",
+    "Cleared. {count} pinned copies stay.": {
+      "other": "已清除。{count} 个已固定的复制项会保留。"
+    },
+    "Clipboard type": "剪贴板类型",
+    "Code": "代码",
+    "Copied": "复制时间",
+    "Copies": "复制项",
+    "Copies from {app} are kept again.": "将再次保留来自 {app} 的复制项。",
+    "Copies from {app} aren't kept from now on.": "从现在起不再保留来自 {app} 的复制项。",
+    "Copies marked {type} are kept again.": "将再次保留标记为 {type} 的复制项。",
+    "Copies marked {type} aren't kept from now on.": "从现在起不再保留标记为 {type} 的复制项。",
+    "Copies matching {pattern} are kept again.": "将再次保留匹配 {pattern} 的复制项。",
+    "Copies matching {pattern} aren't kept from now on.": "从现在起不再保留匹配 {pattern} 的复制项。",
+    "Copies, pinned ones aside. The oldest go first.": "不含已固定的复制项。最早的先删除。",
+    "Copy": "复制",
+    "Done.": "完成。",
+    "Exact": "精确",
+    "Files": "文件",
+    "Files copied in Finder, by their place.": "在访达中复制的文件，按其位置保存。",
+    "Find a link I copied": "查找我复制的链接",
+    "First copied": "首次复制",
+    "Fonts, colours and links that came with copied text.": "随复制文本一起带来的字体、颜色和链接。",
+    "For apps that mark what they copy: com.apple.is-remote-clipboard leaves out your iPhone's copies.": "适用于会标记复制内容的应用：com.apple.is-remote-clipboard 会排除来自 iPhone 的复制项。",
+    "Forgotten": "遗忘",
+    "Formatting": "格式",
+    "From": "来源",
+    "Fuzzy": "模糊",
+    "Hide passwords, keys and card numbers": "隐藏密码、密钥和卡号",
+    "History": "历史记录",
+    "I couldn't find that copy.": "找不到那个复制项。",
+    "Ignore": "忽略",
+    "Ignore a clipboard type": "忽略某个剪贴板类型",
+    "Ignore an app": "忽略某个应用",
+    "Ignore text that matches": "忽略匹配的文本",
+    "Ignore {app}": "忽略 {app}",
+    "In the order the palette shows them. Copy puts one back on the clipboard.": "按面板中的顺序排列。点“复制”可放回剪贴板。",
+    "Its name or bundle id, like 1Password or com.apple.keychainaccess.": "名称或 bundle id，例如 1Password 或 com.apple.keychainaccess。",
+    "Keep a history of what I copy": "保留我复制内容的历史记录",
+    "Keep files": "保留文件",
+    "Keep formatting": "保留格式",
+    "Keep it": "保留",
+    "Keep pictures": "保留图片",
+    "Keep up to": "最多保留",
+    "Keep up to {limits} copies.": "可保留的数量为 {limits}。",
+    "Keeping up to {count} copies.": {
+      "other": "最多保留 {count} 个复制项。"
+    },
+    "Keeping your copies": "正在保留你的复制项",
+    "Keeping your copies again.": "已重新开始保留你的复制项。",
+    "Last copied": "最近复制",
+    "Latest": "最新",
+    "Leave out": "排除",
+    "Length": "长度",
+    "Links": "链接",
+    "Most copied": "复制最多",
+    "No copy matches “{query}”.": "没有与“{query}”匹配的复制项。",
+    "Not keeping a history": "未保留历史记录",
+    "Nothing copied yet.": "还没有复制任何内容。",
+    "On the clipboard again: {copy}.": "已放回剪贴板：{copy}。",
+    "On top": "顶部",
+    "Only copies it": "仅复制",
+    "Order": "顺序",
+    "Passwords from password managers are never kept.": "绝不保留密码管理器中的密码。",
+    "Pastes it": "粘贴",
+    "Pattern": "模式",
+    "Pause {time}": "暂停 {time}",
+    "Paused until {time}": "暂停至 {time}",
+    "Paused until {time}: nothing you copy is kept until then.": "已暂停至 {time}：在此之前复制的内容都不会保留。",
+    "Picture": "图片",
+    "Pictures": "图片",
+    "Pinned": "已固定",
+    "Pinned copies": "已固定的复制项",
+    "Pinned copies go top or bottom.": "已固定的复制项放在顶部或底部。",
+    "Remove": "移除",
+    "Remove it": "移除",
+    "Resume now": "立即恢复",
+    "Return": "Return",
+    "Rich text and web formatting, pasted back unless you ask for plain text.": "富文本和网页格式，粘贴时保留，除非你要求纯文本。",
+    "Save my last copy to notes": "把最后复制的内容存到笔记",
+    "Say which app, pattern or clipboard type.": "请说明是哪个应用、模式或剪贴板类型。",
+    "Screenshots and copied images, {count} at most.": "截屏和复制的图片，最多 {count} 张。",
+    "Search": "搜索",
+    "Search is words, exact, fuzzy or regex.": "搜索方式为 words、exact、fuzzy 或 regex。",
+    "Size": "大小",
+    "Skip my next copy": "跳过下一次复制",
+    "Skipping your next copy": "将跳过你的下一次复制",
+    "Text matching": "匹配的文本",
+    "That copy is gone.": "那个复制项已不在了。",
+    "That isn't a pattern Clipboard can read.": "剪贴板无法读取这个模式。",
+    "That's too long for an app's name.": "作为应用名称太长了。",
+    "The app in front when you copied.": "复制时位于最前面的应用。",
+    "The order is recent, first or count.": "顺序为 recent、first 或 count。",
+    "There's no such setting.": "没有这个设置。",
+    "They show as dots, stay in memory only and are forgotten after two minutes.": "它们显示为圆点，只保存在内存中，两分钟后忘记。",
+    "Today {time}": "今天 {time}",
+    "Turned off.": "已关闭。",
+    "Turned on.": "已开启。",
+    "Type": "类型",
+    "What choosing a copy does. Option-Return does the other; Shift-Return pastes plain text.": "选择复制项时的操作。Option-Return 执行另一种；Shift-Return 粘贴纯文本。",
+    "What did I copy today?": "我今天复制了什么？",
+    "What it holds": "保存的内容",
+    "Where your copies come from": "复制项的来源",
+    "Words": "词语",
+    "Words: all of them, anywhere. Fuzzy: the letters in order. Pattern: a regular expression.": "词语：包含全部词语，位置不限。模糊：字母按顺序出现。模式：正则表达式。",
+    "Your next copy won't be kept.": "你的下一次复制不会被保留。",
+    "copied {count}×": "复制 {count} 次",
+    "forgotten in {time}": "{time}后遗忘",
+    "in {time}": "{time}后",
+    "just now": "刚刚",
+    "kept (⇧↩ pastes without it)": "保留（⇧↩ 不带格式粘贴）",
+    "kept for good": "永久保留",
+    "looks like a password or key": "看起来像密码或密钥",
+    "pinned": "已固定",
+    "without formatting": "不带格式",
+    "yesterday": "昨天",
+    "{count} characters": {
+      "other": "{count} 个字符"
+    },
+    "{count} copies": {
+      "other": "{count} 项"
+    },
+    "{count} days ago": {
+      "other": "{count} 天前"
+    },
+    "{count} lines": {
+      "other": "{count} 行"
+    },
+    "{count} today": "今天 {count} 项",
+    "{kept} kept · {today} today · open them from any app with the shortcut below": "已保留 {kept} 项 · 今天 {today} 项 · 在任何应用中用下方快捷键打开",
+    "{names} and {count} more": "{names} 等另外 {count} 个",
+    "{status}, so there's nothing new.": "{status}，所以没有新内容。",
+    "{time} ago": "{time}前",
+    "“{pattern}” isn't a regular expression Clipboard can read.": "“{pattern}”不是剪贴板能读取的正则表达式。",
+    "↩ copies, ⌥↩ pastes": "↩ 复制，⌥↩ 粘贴",
+    "↩ pastes, ⌥↩ only copies": "↩ 粘贴，⌥↩ 仅复制"
+  }
+}
