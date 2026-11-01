@@ -11,7 +11,7 @@ extension LastStickScreen {
         let text: String = if let winner = g.winner {
             L("{loser} took the last stick. {name} wins!", ["loser": d.name(winner.other), "name": d.name(winner)])
         } else {
-            TwoPlayers.turn(d, g.turn) + ": " + L("Take 1, 2 or 3. Don't take the last one!")
+            L("{name}'s turn: take 1, 2 or 3.", ["name": d.name(g.turn)])
         }
         var parts: [BoardPart] = [
             TwoPlayers.score(d, s.wins.you, s.wins.companion),

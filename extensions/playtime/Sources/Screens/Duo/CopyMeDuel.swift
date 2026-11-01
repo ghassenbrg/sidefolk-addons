@@ -98,7 +98,7 @@ struct CopyMeDuel: Codable, Equatable {
                     move: CopyMeScreen.looks[p]!.move, art: CopyMeScreen.looks[p]!.art)
             }
             let replay = g.phase == .watching
-            parts.append(.prompt(replay ? L("Watch {name}, then copy.", ["name": o.companion]) : TwoPlayers.turn(d, duel.turn) + ": " + L("copy it."),
+            parts.append(.prompt(replay ? L("Watch {name}, then copy.", ["name": o.companion]) : L("{name}'s turn: copy it.", ["name": d.name(duel.turn)]),
                                  eyebrow: L(one: "{count} move", other: "{count} moves", count: g.length)))
             parts.append(.play(.pads(pads, play: replay ? g.sequence.map { m in g.pads.firstIndex(of: m)! } : [], stepMs: g.stepMs,
                                      locked: g.phase == .over)))

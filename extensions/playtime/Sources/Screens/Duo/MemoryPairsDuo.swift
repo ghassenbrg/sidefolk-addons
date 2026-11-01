@@ -19,7 +19,7 @@ extension MemoryPairsScreen {
         }
         let text: String = if g.over { L("All pairs found.") }
             else if g.waitingToCover { L("Not a pair.") + " " + L("{name} is next.", ["name": d.name(g.turn.other)]) }
-            else { TwoPlayers.turn(d, g.turn) + ": " + L("turn two cards.") }
+            else { L("{name}'s turn: turn two cards.", ["name": d.name(g.turn)]) }
         var parts: [BoardPart] = [
             TwoPlayers.score(d, g.score.you, g.score.companion),
             .prompt(text, eyebrow: L("2 players")),
