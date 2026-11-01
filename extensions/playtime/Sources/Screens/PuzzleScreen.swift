@@ -189,20 +189,6 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
             : L(one: "Today's {levels} board is still waiting.", other: "Today's {levels} boards are still waiting.", count: open.count,
                 ["levels": Format.list(open)])
     }
-
-    /// The Home row's words: today's boards (each level solved with its time, how many are left), the streak, the best
-    /// times.
-    static func detail() -> String {
-        let r = PlaytimeRecords.puzzle(K.id)
-        let tile = r.tile(today: DailyWordEngine.today())
-        let solved = tile.solved.map { ScreenKit.level($0.level) + " " + PuzzleParts.clock($0.seconds) }
-        var parts = [solved.isEmpty ? L(one: "Today: {count} board to play", other: "Today: {count} boards to play", count: GameLevel.allCases.count) : L("Today: {solved}", ["solved": solved.joined(separator: ", ")])]
-        if !solved.isEmpty, tile.left > 0 { parts.append(L(one: "{count} more to play", other: "{count} more to play", count: tile.left)) }
-        if tile.streak > 1 { parts.append(L("Streak {n}", ["n": tile.streak])) }
-        let bests = GameLevel.allCases.compactMap { l in r.best[l.rawValue].map { ScreenKit.level(l) + " " + PuzzleParts.clock($0) } }
-        if !bests.isEmpty { parts.append(L("Best: {times}", ["times": bests.joined(separator: ", ")])) }
-        return parts.joined(separator: " · ")
-    }
 }
 
 /// Labels every puzzle's grid shares.

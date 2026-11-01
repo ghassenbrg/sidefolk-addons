@@ -422,7 +422,7 @@ import Testing
             let day = PlaytimeRecords.load()
             let tile = DailyWordScreen.tile()
             #expect(day.daily.streak == 1 && tile.map(\.seen) == ["Solved in 2"])
-            #expect(PlaytimePage.render().sections.first.map { "\($0.json)".contains("Play another word") } == true, "Home offers it too")
+            #expect(PlaytimePage.render().games?.records[DailyWordScreen.id]?.today?.done == true, "the Game Center shows the day's word done")
 
             var practiced: [String] = []
             for round in 0..<3 {

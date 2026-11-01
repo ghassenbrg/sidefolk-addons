@@ -81,7 +81,6 @@
     "A bed kept to one line rules out the rest of that line, leaving this.": "ひとつの列に収まった花壇は、その列のほかを除外します。残るのはここです。",
     "A blossom in the other places leads to a dead end a few moves on.": "ほかの場所に花を置くと、数手先で行き詰まります。",
     "A blossom in the other places would leave a row, column or bed no room, leaving this.": "ほかの場所に花を置くと、行・列・花壇のどこかに置き場がなくなります。残るのはここです。",
-    "A draw": "引き分け",
     "A draw!": "引き分け！",
     "A hint": "ヒント",
     "A new best for {level}!": "{level}の新記録！",
@@ -116,7 +115,6 @@
     "Best of 10: {n}": "10問のベスト：{n}",
     "Best streak": "最高の連続正解",
     "Best streak ever": "最高の連続正解",
-    "Best streak {n}": "最高連続 {n}",
     "Best: {count} guesses": {
       "other": "ベスト：{count}回"
     },
@@ -203,7 +201,6 @@
     "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "宝石から目をはなさないで…どのカップ？ わたしが隠してると思ったら、わたしをクリック。",
     "Key": "かぎ",
     "Last Stick": "さいごの1本",
-    "Last games": "最近のゲーム",
     "Leaf": "葉っぱ",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "4の倍数より1多く残そう：17、13、9、5、そして1。",
     "Level": "レベル",
@@ -241,13 +238,10 @@
     "Pick a number from 1 to 100.": "1から100までの数にしてください。",
     "Pick a topic": "テーマを選んでください",
     "Pick a way to play": "遊び方をえらんでね",
-    "Play": "遊ぶ",
-    "Play Daily Word": "今日のことばで遊ぶ",
     "Play again": "もう一度遊ぶ",
     "Play another": "もうひとつ遊ぶ",
     "Play another word": "別のことばで遊ぶ",
     "Played": "プレイ回数",
-    "Playtime": "あそびタイム",
     "Please write both.": "両方とも書いてください。",
     "Practice": "練習",
     "Practice word · not in your streak": "練習・連続記録に数えない",
@@ -295,7 +289,6 @@
     "Teach": "教える",
     "Tech": "テクノロジー",
     "Tell": "教える",
-    "Ten games against your companion and five puzzles, no AI, in your language.": "相棒と対戦する10のゲームと5つのパズル。AIなし、あなたの言語で。",
     "Thank you! I'll remember {animal}.": "ありがとう！{animal}をおぼえたよ。",
     "That = or × isn't kept.": "その = か × が守られていません。",
     "That number is twice in a box.": "その数字がブロックに2つあります。",
@@ -359,7 +352,6 @@
     "Watch {name}, then copy.": "{name}を見て、まねしてね。",
     "Wave": "手をふる",
     "Which Cup?": "どのカップ？",
-    "Won {n}": "{n}勝",
     "Yes": "はい",
     "Yes! It was {n}.": "正解！{n}でした。",
     "Yes, that's it!": "うん、それ！",
@@ -373,23 +365,15 @@
     "You were quicker!": "あなたのほうが速かった！",
     "You win this game!": "このゲームはあなたの勝ち！",
     "You win! What was it?": "あなたの勝ち！何でしたか？",
-    "You won": "勝ち",
     "You {you} · {name} {companion}": "あなた {you} · {name} {companion}",
     "Your animal": "あなたの動物",
     "Your best": "あなたのベスト",
-    "Your companion won": "コンパニオンの勝ち",
-    "Your companion's": "相棒",
-    "Your games": "あなたのゲーム",
     "Your question": "あなたの質問",
     "Your turn: copy it.": "あなたの番：まねしてね。",
     "Your turn: turn two cards.": "あなたの番：2枚めくってね。",
     "Your turn: you're X.": "あなたの番：あなたは✕。",
-    "Your wins": "あなたの勝ち",
     "{count} balloons left.": {
       "other": "風船はあと{count}個。"
-    },
-    "{count} games": {
-      "other": "{count}回"
     },
     "{count} more to play": {
       "other": "あと{count}つ"

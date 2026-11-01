@@ -137,8 +137,10 @@ extension PlaytimeScreensTests {
             #expect(next.game.day == nil && next.game.level == .easy, "today's Easy board is done: practice at Easy")
             let eyebrow = Self.part(PuzzleScreen<SeesawKind>.board(next, events: [], options: o), "prompt")?["eyebrow"] as? String
             #expect(eyebrow == L("Practice") + " · " + ScreenKit.level(.easy))
-            // Home: today's two boards with their times, one left.
-            let row = PuzzleScreen<SeesawKind>.detail()
+            // The Game Center: today's two boards with their times, one left.
+            let center = PlaytimePage.puzzle(SeesawKind.id, today: DailyWordEngine.today())
+            let row = center.today?.text ?? ""
+            #expect(center.today?.done == true && center.played == 2 && center.won == 2)
             #expect(row.seen.hasPrefix(L("Today: {solved}", ["solved": ScreenKit.level(.easy) + " "]).seen) && row.seen.contains(", " + ScreenKit.level(.fair) + " "), "\(row)")
             #expect(row.contains(L(one: "{count} more to play", other: "{count} more to play", count: 1)), "\(row)")
         }
@@ -201,14 +203,12 @@ extension PlaytimeScreensTests {
             Self.solve(BlossomsKind.self, &blossoms) { move, s in Self.clicks(move, on: s.game.grid, size: size) }
             #expect(blossoms.game.solved)
 
-            // Home and the Today tile: each puzzle's day, and streaks once they run past one day.
-            let page = PlaytimePage.render().json
-            let rows = ((page["sections"] as! [[String: Any]]).flatMap { ($0["blocks"] as? [[String: Any]]) ?? [] }
-                .compactMap { $0["items"] as? [[String: Any]] }).flatMap { $0 }
-            let garden = rows.first { $0["title"] as? String == L("Garden Plots") }?["detail"] as? String
+            // The Game Center and the Today tile: each puzzle's day, and streaks once they run past one day.
+            let records = PlaytimePage.render().games?.records ?? [:]
+            let garden = records[GardenPlotsKind.id]?.today?.text
             #expect(garden?.seen.hasPrefix(L("Today: {solved}", ["solved": ScreenKit.level(.fair) + " "]).seen) == true, "\(garden ?? "")")
             #expect(garden?.contains(L(one: "{count} more to play", other: "{count} more to play", count: 2)) == true, "\(garden ?? "")")
-            let seesaw = rows.first { $0["title"] as? String == L("Seesaw") }?["detail"] as? String
+            let seesaw = records[SeesawKind.id]?.today?.text
             #expect(seesaw?.hasPrefix(L(one: "Today: {count} board to play", other: "Today: {count} boards to play", count: 3)) == true, "\(seesaw ?? "")")
             PlaytimeRecords.update { $0.puzzles?[SudokuKind.id]?.streak = 4; $0.puzzles?[SudokuKind.id]?.lastSolvedDay = DailyWordEngine.today() }
             let tile = (PlaytimePage.render().json["summary"] as? [String: Any])?["detail"] as? String
