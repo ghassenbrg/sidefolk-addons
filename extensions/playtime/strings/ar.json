@@ -252,7 +252,6 @@
     "Oops, that one was wrong!": "عفوًا، كان هذا خطأ!",
     "Other wave": "تلويح باليد الأخرى",
     "Outdoors": "في الخارج",
-    "Pace": "الإيقاع",
     "Pick a number from 1 to 100.": "اختر رقمًا من 1 إلى 100.",
     "Pick a topic": "اختر موضوعًا",
     "Pick a way to play": "اختر طريقة اللعب",
@@ -556,6 +555,14 @@
     "{name}: {n} ms": "{name}: {n} م.ث",
     "Any topic": "أي موضوع",
     "{name} writes the questions": "يكتب {name} الأسئلة",
-    "Leave it empty and {name} picks one.": "اتركه فارغًا ويختار {name} واحدًا."
+    "Leave it empty and {name} picks one.": "اتركه فارغًا ويختار {name} واحدًا.",
+    "{count} questions": {
+      "zero": "{count} سؤال",
+      "one": "سؤال واحد",
+      "two": "سؤالان",
+      "few": "{count} أسئلة",
+      "many": "{count} سؤالًا",
+      "other": "{count} سؤال"
+    }
   }
 }

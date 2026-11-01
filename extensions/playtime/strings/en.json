@@ -181,7 +181,6 @@
     "Other wave": "Other wave",
     "Other…": "Other…",
     "Outdoors": "Outdoors",
-    "Pace": "Pace",
     "Pass the Mac to {name}.": "Pass the Mac to {name}.",
     "Pick a number from 1 to 100.": "Pick a number from 1 to 100.",
     "Pick a number from {low} to {high}.": "Pick a number from {low} to {high}.",
@@ -361,6 +360,10 @@
     "{count} practice words": {
       "one": "{count} practice word",
       "other": "{count} practice words"
+    },
+    "{count} questions": {
+      "one": "{count} question",
+      "other": "{count} questions"
     },
     "{count} sticks left": {
       "one": "{count} stick left",

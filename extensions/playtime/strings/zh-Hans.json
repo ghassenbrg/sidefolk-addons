@@ -232,7 +232,6 @@
     "Oops, that one was wrong!": "哎呀，按错了！",
     "Other wave": "换只手挥",
     "Outdoors": "户外",
-    "Pace": "节奏",
     "Pick a number from 1 to 100.": "请选1到100之间的数。",
     "Pick a topic": "选一个主题",
     "Pick a way to play": "选一种玩法",
@@ -481,6 +480,9 @@
     "{name}: {n} ms": "{name}：{n}毫秒",
     "Any topic": "任意主题",
     "{name} writes the questions": "由{name}出题",
-    "Leave it empty and {name} picks one.": "留空则由{name}来选。"
+    "Leave it empty and {name} picks one.": "留空则由{name}来选。",
+    "{count} questions": {
+      "other": "{count}道题"
+    }
   }
 }

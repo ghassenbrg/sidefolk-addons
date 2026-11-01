@@ -232,7 +232,6 @@
     "Oops, that one was wrong!": "앗, 틀렸어요!",
     "Other wave": "반대 손 흔들기",
     "Outdoors": "야외",
-    "Pace": "속도",
     "Pick a number from 1 to 100.": "1부터 100까지 숫자를 골라 주세요.",
     "Pick a topic": "주제를 골라요",
     "Pick a way to play": "놀이 방법을 골라요",
@@ -481,6 +480,9 @@
     "{name}: {n} ms": "{name}: {n}ms",
     "Any topic": "아무 주제",
     "{name} writes the questions": "{name}이(가) 문제를 만들어요",
-    "Leave it empty and {name} picks one.": "비워 두면 {name}이(가) 골라요."
+    "Leave it empty and {name} picks one.": "비워 두면 {name}이(가) 골라요.",
+    "{count} questions": {
+      "other": "{count}문제"
+    }
   }
 }

@@ -232,7 +232,6 @@
     "Oops, that one was wrong!": "おっと、ちがったね！",
     "Other wave": "反対の手でふる",
     "Outdoors": "そと",
-    "Pace": "ペース",
     "Pick a number from 1 to 100.": "1から100までの数にしてください。",
     "Pick a topic": "テーマを選んでください",
     "Pick a way to play": "遊び方をえらんでね",
@@ -481,6 +480,9 @@
     "{name}: {n} ms": "{name}：{n}ミリ秒",
     "Any topic": "好きなテーマ",
     "{name} writes the questions": "{name}が問題を作ります",
-    "Leave it empty and {name} picks one.": "空欄なら{name}が選びます。"
+    "Leave it empty and {name} picks one.": "空欄なら{name}が選びます。",
+    "{count} questions": {
+      "other": "{count}問"
+    }
   }
 }

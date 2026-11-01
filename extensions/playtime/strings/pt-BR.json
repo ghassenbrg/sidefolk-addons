@@ -236,7 +236,6 @@
     "Oops, that one was wrong!": "Opa, esse estava errado!",
     "Other wave": "Aceno com a outra mão",
     "Outdoors": "Ao ar livre",
-    "Pace": "Ritmo",
     "Pick a number from 1 to 100.": "Escolha um número de 1 a 100.",
     "Pick a topic": "Escolha um tema",
     "Pick a way to play": "Escolha como jogar",
@@ -496,6 +495,10 @@
     "{name}: {n} ms": "{name}: {n} ms",
     "Any topic": "Qualquer tema",
     "{name} writes the questions": "{name} escreve as perguntas",
-    "Leave it empty and {name} picks one.": "Deixe em branco e {name} escolhe um."
+    "Leave it empty and {name} picks one.": "Deixe em branco e {name} escolhe um.",
+    "{count} questions": {
+      "one": "{count} pergunta",
+      "other": "{count} perguntas"
+    }
   }
 }

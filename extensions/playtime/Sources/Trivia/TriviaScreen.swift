@@ -72,10 +72,13 @@ enum TriviaScreen: GameScreen {
         }
         if let reason = s.notice { parts.append(.note(TriviaAI.words(reason, provider: s.aiMaker ?? o.companion), tone: .info)) }
         return Board(parts + [
-            .choice(name: "length", label: L("Questions"), style: .segmented,
-                    options: [ChoiceOption("5", Format.integer(5)), ChoiceOption("10", Format.integer(10)), ChoiceOption("0", L("Endless"))],
+            // The choices name themselves ("10 questions", "Relaxed"), so they need no labels and the board stays
+            // within the panel with the topics, Start and the two-player choice.
+            .choice(name: "length", style: .segmented,
+                    options: [ChoiceOption("5", L(one: "{count} question", other: "{count} questions", count: 5)),
+                              ChoiceOption("10", L(one: "{count} question", other: "{count} questions", count: 10)), ChoiceOption("0", L("Endless"))],
                     selected: String(s.length)),
-            .choice(name: "pace", label: L("Pace"), style: .segmented,
+            .choice(name: "pace", style: .segmented,
                     options: [ChoiceOption("relaxed", L("Relaxed")), ChoiceOption("quick", L("Quick, {n} s", ["n": Int(TriviaEngine.quickSeconds)]))],
                     selected: s.quick ? "quick" : "relaxed"),
             .button(GameButton(L("Start"), move: "start", style: .primary, symbol: "play.fill")),
