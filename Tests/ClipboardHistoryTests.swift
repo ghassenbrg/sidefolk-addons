@@ -277,7 +277,7 @@ struct ClipboardHistoryTests {
         #expect(types.isSuperset(of: ["switch", "button", "list", "choice", "field", "stat"]))
         let rows = blocks.first { $0["type"] as? String == "list" }?["items"] as? [[String: Any]] ?? []
         #expect(rows.contains { $0["image"] as? String == "thumbs/p.png" } && rows.contains { $0["color"] as? String == "#2ED4D9" })
-        #expect(blocks.contains { $0["type"] as? String == "switch" && ($0["label"] as? String) == "Ignore Safari" })
+        #expect(blocks.contains { $0["type"] as? String == "switch" && ($0["label"] as? String)?.seen == "Ignore Safari" })
         let data = try JSONSerialization.data(withJSONObject: json)
         #expect(data.count < 128 * 1024, "within Sidefolk's page limit")
     }

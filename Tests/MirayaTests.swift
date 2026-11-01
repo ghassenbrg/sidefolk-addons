@@ -277,7 +277,7 @@ struct MirayaTests {
     @Test func readyHasOneThingToDoAndThePicturesToChooseFrom() throws {
         let page = Self.page(MirayaPage.make(Self.ready()))
         let hero = try #require(Self.hero(page))
-        #expect(hero["title"] as? String == "Share your screen to Living Room" && hero["eyebrow"] as? String == "Ready")
+        #expect((hero["title"] as? String)?.seen == "Share your screen to Living Room" && hero["eyebrow"] as? String == "Ready")
         #expect(hero["image"] == nil, "the source picture belongs in the picker, not duplicated in the summary")
         let start = try #require((hero["actions"] as? [[String: Any]])?.first)
         #expect(start["tool"] as? String == "share_screen" && (start["input"] as? [String: Any])?["display"] as? Int == 1)
@@ -337,7 +337,7 @@ struct MirayaTests {
         let page = Self.page(MirayaPage.make(Self.ready { $0.phase = .pairing; $0.mode = .pair; $0.tv = Self.bedroom; $0.pairingCode = "447474" }))
         #expect(Self.sections(page).count == 1)
         let hero = try #require(Self.hero(page))
-        #expect(hero["code"] as? String == "447 474" && hero["title"] as? String == "Compare with Bedroom")
+        #expect((hero["code"] as? String)?.seen == "447 474" && (hero["title"] as? String)?.seen == "Compare with Bedroom")
         #expect((hero["actions"] as? [[String: Any]])?.compactMap { $0["tool"] as? String } == ["confirm_pairing", "stop"])
         #expect(Self.primaries(page) == ["Codes match · Pair"])
     }
@@ -346,7 +346,7 @@ struct MirayaTests {
         let target = Session.Target(kind: .display, displayID: 1, label: "Built-in display")
         let page = Self.page(MirayaPage.make(Self.ready { $0.phase = .sharing; $0.target = target; $0.fps = 29.6; $0.rttMs = 18; $0.picture = "1920 × 1080" }))
         let hero = try #require(Self.hero(page))
-        #expect(hero["title"] as? String == "Sharing your screen to Living Room" && hero["eyebrow"] as? String == "Sharing · live")
+        #expect((hero["title"] as? String)?.seen == "Sharing your screen to Living Room" && hero["eyebrow"] as? String == "Sharing · live")
         #expect((hero["facts"] as? [[String: Any]])?.compactMap { $0["value"] as? String } == ["30 fps", "18 ms", "1920 × 1080", "Mac and TV"])
         #expect((hero["actions"] as? [[String: Any]])?.compactMap { $0["style"] as? String } == ["secondary", "destructive"])
         #expect(Self.primaries(page).isEmpty, "Stop sharing leads: Sidefolk fills it")

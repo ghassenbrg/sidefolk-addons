@@ -115,9 +115,6 @@ enum ScreenKit {
         }
     }
 
-    /// "Fair and Hard", in the person's language.
-    static func list(_ items: [String]) -> String { items.formatted(.list(type: .and).locale(Language.locale)) }
-
     /// The levels as segments, picked one marked.
     static func levels(_ selected: GameLevel) -> BoardPart {
         .choice(name: "level", label: L("Level"), style: .segmented, options: GameLevel.allCases.map { ChoiceOption($0.rawValue, level($0)) },

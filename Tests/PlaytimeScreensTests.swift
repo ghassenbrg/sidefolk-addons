@@ -171,7 +171,7 @@ import Testing
         let pressed = GameTable.play(QuickPawsScreen.self, .press(milliseconds: 100), on: &s, random: &random)
         #expect(s.game.lastCompanionMs == companion && pressed.contains(.point(.you)))
         let after = QuickPawsScreen.board(s, events: pressed, options: Self.options())
-        #expect(after.afterMs == 1800 && (Self.part(after, "reflex")?["shows"] as? String)?.contains("100 ms") == true)
+        #expect(after.afterMs == 1800 && (Self.part(after, "reflex")?["shows"] as? String)?.seen.contains("100 ms") == true)
     }
 
     @Test func whichCupsGemIsWhereTheSwapsLeaveIt() throws {
@@ -232,7 +232,7 @@ import Testing
         _ = GameTable.play(HigherLowerScreen.self, .next, on: &yours, random: &random)
         let asking = HigherLowerScreen.board(yours, events: [], options: Self.options())
         #expect((Self.part(asking, "answers")?["items"] as? [[String: Any]])?.map { $0["key"] as? String } == ["h", "l", "y"])
-        #expect((Self.part(asking, "prompt")?["text"] as? String) == "Is it… 50?")
+        #expect((Self.part(asking, "prompt")?["text"] as? String)?.seen == "Is it… 50?")
     }
 
     /// The founder picked "I'll guess yours" once and could never change it: both ways are offered every time, the
@@ -279,7 +279,7 @@ import Testing
             }
             board = HigherLowerScreen.board(s, events: [.roundOver(winner: .you)], options: Self.options())
             #expect(buttons(board) == ["again", "switch"] && board.over)
-            #expect((Self.part(board, "result")?["actions"] as? [[String: Any]])?.last?["label"] as? String == "Switch: Mochi guesses")
+            #expect(((Self.part(board, "result")?["actions"] as? [[String: Any]])?.last?["label"] as? String)?.seen == "Switch: Mochi guesses")
             _ = GameTable.play(HigherLowerScreen.self, .button("switch"), on: &s, random: &random)
             #expect(s.mode == .yours && !s.over && PlaytimeRecords.load().higherLowerMode == "yours")
             _ = GameTable.play(HigherLowerScreen.self, .next, on: &s, random: &random)
@@ -391,12 +391,12 @@ import Testing
             // Reopened, the day's rows are there.
             #expect(DailyWordEngine.start(level: .fair, options: Self.options(), random: &random).game.rows.count == 1)
             _ = GameTable.play(DailyWordScreen.self, .word(answer), on: &s, random: &random)
-            #expect(s.game.solved && DailyWordScreen.tile() == ["Solved in 2"])
+            #expect(s.game.solved && DailyWordScreen.tile().map(\.seen) == ["Solved in 2"])
             let r = PlaytimeRecords.load().daily
             #expect(r.streak == 1 && r.played == 1)
             #expect(GameTable.play(DailyWordScreen.self, .word(wrong), on: &s, random: &random) == [.refused("over")], "once a day")
             let page = PlaytimePage.render()
-            #expect(page.summary?.title == "Daily Word: Solved in 2")
+            #expect(page.summary?.title.seen == "Daily Word: Solved in 2")
         }
     }
 
@@ -421,7 +421,7 @@ import Testing
             #expect(actions?.first?["label"] as? String == "Play another word")
             let day = PlaytimeRecords.load()
             let tile = DailyWordScreen.tile()
-            #expect(day.daily.streak == 1 && tile == ["Solved in 2"])
+            #expect(day.daily.streak == 1 && tile.map(\.seen) == ["Solved in 2"])
             #expect(PlaytimePage.render().sections.first.map { "\($0.json)".contains("Play another word") } == true, "Home offers it too")
 
             var practiced: [String] = []

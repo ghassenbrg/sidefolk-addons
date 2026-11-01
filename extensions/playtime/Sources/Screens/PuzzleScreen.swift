@@ -187,7 +187,7 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
         let open = GameLevel.allCases.filter { !record.solved($0, day: day) }.map(ScreenKit.level)
         return open.isEmpty ? L("All three of today's boards are solved. Come back tomorrow for new ones.")
             : L(one: "Today's {levels} board is still waiting.", other: "Today's {levels} boards are still waiting.", count: open.count,
-                ["levels": ScreenKit.list(open)])
+                ["levels": Format.list(open)])
     }
 
     /// The Home row's words: today's boards (each level solved with its time, how many are left), the streak, the best

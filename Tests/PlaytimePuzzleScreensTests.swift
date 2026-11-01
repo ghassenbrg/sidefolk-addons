@@ -108,7 +108,7 @@ extension PlaytimeScreensTests {
             let end = try #require(boards.last)
             #expect(end.over && Self.part(end, "result")?["tone"] as? String == "good" && Self.part(end, "choice")?["name"] as? String == "level")
             let waiting = L(one: "Today's {levels} board is still waiting.", other: "Today's {levels} boards are still waiting.", count: 2,
-                            ["levels": ScreenKit.list([ScreenKit.level(.easy), ScreenKit.level(.hard)])])
+                            ["levels": Format.list([ScreenKit.level(.easy), ScreenKit.level(.hard)])])
             #expect(Self.part(end, "result")?["line"] as? String == waiting)
             #expect(end.companion?.move == "celebrate" && (Self.puzzle(end)?["clock"] as? [String: Any])?["running"] as? Bool == false)
             let record = PlaytimeRecords.puzzle(SeesawKind.id)
@@ -129,7 +129,7 @@ extension PlaytimeScreensTests {
             let easyEnd = Self.solve(SeesawKind.self, &s) { move, s in Self.clicks(move, on: s.game.grid, size: s.game.puzzle.size) }.last!
             #expect(Self.part(easyEnd, "result")?["line"] as? String
                     == L(one: "Today's {levels} board is still waiting.", other: "Today's {levels} boards are still waiting.", count: 1,
-                         ["levels": ScreenKit.list([ScreenKit.level(.hard)])]))
+                         ["levels": Format.list([ScreenKit.level(.hard)])]))
             #expect(PlaytimeRecords.puzzle(SeesawKind.id).streak == 1 && PlaytimeRecords.puzzle(SeesawKind.id).dailies == 2, "one day, one streak")
             _ = GameTable.play(PuzzleScreen<SeesawKind>.self, .button("another"), on: &s, random: &random)
             #expect(s.game.day == nil && s.game.level == .easy)
@@ -139,7 +139,7 @@ extension PlaytimeScreensTests {
             #expect(eyebrow == L("Practice") + " · " + ScreenKit.level(.easy))
             // Home: today's two boards with their times, one left.
             let row = PuzzleScreen<SeesawKind>.detail()
-            #expect(row.hasPrefix(L("Today: {solved}", ["solved": ScreenKit.level(.easy) + " "])) && row.contains(", " + ScreenKit.level(.fair) + " "), "\(row)")
+            #expect(row.seen.hasPrefix(L("Today: {solved}", ["solved": ScreenKit.level(.easy) + " "]).seen) && row.seen.contains(", " + ScreenKit.level(.fair) + " "), "\(row)")
             #expect(row.contains(L(one: "{count} more to play", other: "{count} more to play", count: 1)), "\(row)")
         }
     }
@@ -206,7 +206,7 @@ extension PlaytimeScreensTests {
             let rows = ((page["sections"] as! [[String: Any]]).flatMap { ($0["blocks"] as? [[String: Any]]) ?? [] }
                 .compactMap { $0["items"] as? [[String: Any]] }).flatMap { $0 }
             let garden = rows.first { $0["title"] as? String == L("Garden Plots") }?["detail"] as? String
-            #expect(garden?.hasPrefix(L("Today: {solved}", ["solved": ScreenKit.level(.fair) + " "])) == true, "\(garden ?? "")")
+            #expect(garden?.seen.hasPrefix(L("Today: {solved}", ["solved": ScreenKit.level(.fair) + " "]).seen) == true, "\(garden ?? "")")
             #expect(garden?.contains(L(one: "{count} more to play", other: "{count} more to play", count: 2)) == true, "\(garden ?? "")")
             let seesaw = rows.first { $0["title"] as? String == L("Seesaw") }?["detail"] as? String
             #expect(seesaw?.hasPrefix(L(one: "Today: {count} board to play", other: "Today: {count} boards to play", count: 3)) == true, "\(seesaw ?? "")")
