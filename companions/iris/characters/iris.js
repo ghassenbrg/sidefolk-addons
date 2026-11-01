@@ -3,11 +3,32 @@
 // coral shutter button, stub arms and feet. Blinking shuts a brown lens cap. Sheet:
 // companions-3d/references/iris-sheet.webp. Rig: blender/rig_iris.py.
 import { bodyMaterial } from '../engine/materials.js';
-import { add, raise, face, POSTURES } from '../engine/moves.js';
+import { add, raise, face, POSTURES, ACTIONS } from '../engine/moves.js';
 import { win, smooth } from '../engine/motion.js';
 
 // Lens centre on the front (model x, y), the radius of the glass and the ring's outer edge.
 const LENS = [0.0, 0.106], GLASS = 0.315, RING = 0.47;
+
+// A shared move with its arms kept close: her body already fills most of the window's width, so arms lifted out
+// to the side (`raise`) reached its edges. Only what the move adds is narrowed, a `k` of it, and the arm swings a
+// little more to the front instead; the rest of the move (and her stand pose) is as it was.
+const narrow = (name, k) => {
+  const move = ACTIONS[name];
+  const keep = (P) => ['armL', 'armR'].map((n) => [...(P.b[n] || [0, 0, 0])]);
+  const fit = (P, before) => ['armL', 'armR'].forEach((n, i) => {
+    const b = P.b[n];
+    if (!b) return;
+    const out = b[2] - before[i][2];
+    b[2] = before[i][2] + out * k;
+    // Forward is -y on the left arm and +y on the right (moves.js `fwd`).
+    b[1] += (n === 'armL' ? -1 : 1) * Math.abs(out) * (1 - k) * 0.35;
+  });
+  return {
+    ...move,
+    fn(t, P, fx) { const before = keep(P); move.fn(t, P, fx); fit(P, before); },
+    ...(move.still && { still(t, P, fx) { const before = keep(P); move.still(t, P, fx); fit(P, before); } }),
+  };
+};
 
 export default {
   id: 'iris',
@@ -88,8 +109,13 @@ export default {
     Object.defineProperty(c.eyes[0].uniforms.uLid.value, 'z', { get: () => 0, set: () => {} });
   },
 
-  // Its own moment: the lens zooms in and out like a camera focusing, a little click of the head.
+  // Its own moment: the lens zooms in and out like a camera focusing, a little click of the head. And the game
+  // reactions whose arms went out to the window's edges, with them kept closer (`narrow`).
   actions: {
+    tease: narrow('tease', 0.45),
+    ready: narrow('ready', 0.35),
+    waveQuick: narrow('waveQuick', 0.55),
+    spinQuick: narrow('spinQuick', 0.35),
     focus: {
       dur: 2.6,
       fn(t, P, fx) {
