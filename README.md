@@ -9,7 +9,7 @@ lead there too.
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish), Iris (a camera scout), Nori (a tuxedo cat), Purl (a ragdoll), Rune (a stone golem) | 3D, a few MB each; their 2D forms are built into Sidefolk (D59) |
 | **Extensions** | Git, Currency, Playtime (eleven games and four puzzles in Sidefolk's Play panel), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
-| **Themes** | Daylight, Night Studio, Paper Garden: colours, type, density, a few pictures (a theme dresses Sidefolk, it doesn't arrange it: D84) | 0.5–1.8 MB each |
+| **Themes** | None at the moment: Sidefolk's four themes (Harbor, Paper Garden, Night Studio, Marshmallow) are built into the app (Sidefolk D92). Daylight, Night Studio and Paper Garden left the gallery; copies people have stay theirs | |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
 Built into the app are Mochi, Spark, the folks, and World Clock, Calculator, System Vitals and Weather.
@@ -27,7 +27,7 @@ its sandbox. Sidefolk's DECISIONS D55 and SECURITY T33 have the whole of it.
 
 ```
 companions/<name>/    addon.json, characters/<name>.js, assets/<name>.glb, portraits/<name>.png, avatars/<name>.png
-themes/<name>/        addon.json, theme.json, art/*.png (Sidefolk checks it again and re-encodes the pictures)
+themes/<name>/        addon.json, theme.json, art/*.png (Sidefolk checks it again and re-encodes the pictures; none now, D92)
 extensions/<name>/    sidefolk-extension.json, icon.pdf, addon.json (its shelf: everyday, files, developer or fun;
                       `minimum_sidefolk`: a Sidefolk snapshot it needs, e.g. "0.1.0-snapshot.593", Sidefolk D83),
                       strings/<language>.json (its words in Sidefolk's ten languages, Sidefolk D76),
@@ -89,7 +89,9 @@ that version and keep the one they have.
 ## Adding one
 
 - **A theme** is a folder in `themes/` (`addon.json`, `theme.json`, `art/*.png`, nothing else); Sidefolk's
-  `sidefolk-theme` skill makes one from a concept or reference images and checks it.
+  `sidefolk-theme` skill makes one from a concept or reference images and checks it. Sidefolk D92 keeps four themes
+  built in, each with its own atmosphere: a new gallery theme must be as distinct from them, and `scripts/check.sh`
+  holds it to Sidefolk's strict `sidefolk theme check`.
 - **A companion** needs its character in Sidefolk too (a `CompanionChoice` and a stand-in rig), so new ones start
   in Sidefolk's `sidefolk-3d-character` skill, which ends here. Community 3D companions wait for a data-only
   character format: today's character files are code, which only Sidefolk's own signature may carry.

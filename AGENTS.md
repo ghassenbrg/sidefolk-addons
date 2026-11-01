@@ -28,4 +28,5 @@ docs/SECURITY.md T33 before changing how packs are made.
 New add-ons start in Sidefolk's own skills (`../sidefolk/.claude/skills/`, mirrored in `.agents/skills/` for Codex),
 which end here: `sidefolk-extension` (an extension), `sidefolk-3d-character` (a companion) and `sidefolk-theme` (a
 theme: from a concept or reference images to `themes/<name>/` with `addon.json`, `theme.json` and `art/*.png`,
-checked with `sidefolk theme check` and reviewed in Sidefolk's snapshots with `--theme`).
+checked with `sidefolk theme check` and reviewed in Sidefolk's snapshots with `--theme`). The gallery has no themes now:
+Sidefolk's four are built in (Sidefolk D92), and a new one must have an atmosphere none of them has.
