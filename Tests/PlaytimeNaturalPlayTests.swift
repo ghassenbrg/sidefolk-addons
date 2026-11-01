@@ -166,6 +166,8 @@ struct PlaytimeNaturalPlayTests {
         var small = G.HigherLower.GuessMine(range: 1...100, secret: 50)
         _ = try? small.guess(60)
         #expect(abs(small.warmth - (1 - 10.0 / 99)) < 1e-9, "1 to 100 feels as it always did")
+        #expect([0.3, 0.55, 0.85, 0.97].map(HigherLowerScreen.warmth) == ["Freezing", "Cool", "Warm", "Burning hot!"],
+                "the word follows the tube's colour: half full is never Freezing")
         #expect(throws: G.Refusal("out_of_range")) { var g = G.HigherLower.GuessMine(range: 50...500, secret: 70); _ = try g.guess(20) }
         #expect(HigherLowerEngine.typedTop("1 000") == 1000 && HigherLowerEngine.typedTop("١٠٠٠") == 1000 && HigherLowerEngine.typedTop("１０００") == 1000)
         #expect(HigherLowerEngine.typedTop("lots") == nil && HigherLowerEngine.typedTop("1") == nil && HigherLowerEngine.typedTop("9999999") == nil)

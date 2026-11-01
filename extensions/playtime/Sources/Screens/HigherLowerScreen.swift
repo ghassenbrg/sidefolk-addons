@@ -274,8 +274,10 @@ enum HigherLowerScreen: GameScreen {
                    style: .plain, symbol: "arrow.left.arrow.right", key: "s")
     }
 
+    /// The thermometer's word, in the bands its tube is drawn in (Sidefolk's `MeterView`: blue under half, then
+    /// yellow, orange from 0.8), so a tube half full never says "Freezing".
     static func warmth(_ w: Double) -> String {
-        w > 0.95 ? L("Burning hot!") : w > 0.85 ? L("Warm") : w > 0.6 ? L("Cool") : L("Freezing")
+        w >= 0.95 ? L("Burning hot!") : w >= 0.8 ? L("Warm") : w >= 0.5 ? L("Cool") : L("Freezing")
     }
 }
 

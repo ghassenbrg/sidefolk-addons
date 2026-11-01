@@ -67,7 +67,8 @@ enum QuickPawsEngine: GameEngine {
         case .next:
             guard !s.game.over, s.round == nil else { throw Games.Refusal("not_now") }
             s.round = try s.game.start(using: &random)
-            s.number += 1
+            // Counted from the points: a round nobody took in time (two players) is played again under its number.
+            s.number = s.game.score.you + s.game.score.companion + 1
             return [.turn(.you)]
         case .again, .level:
             let level: GameLevel = if case .level(let l) = action { l } else { s.game.level }

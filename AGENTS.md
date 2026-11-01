@@ -14,7 +14,8 @@ docs/SECURITY.md T33 before changing how packs are made.
   version for the next change. A published pack is never replaced (`build.py` keeps it and stops when a released
   version's files changed); `--rebuild` only for a new signing certificate.
 - A version that needs a newer Sidefolk names it in `addon.json`'s `minimum_sidefolk` (a snapshot, e.g.
-  `0.1.0-snapshot.661`, Sidefolk D83): Playtime needs 661 for its puzzles, Miraya 593 for `output_mute`.
+  `0.1.0-snapshot.661`, Sidefolk D83): Playtime needs the snapshot that ships its Game Center, two players and AI
+  trivia (Sidefolk D93, D95, D96), Miraya 593 for `output_mute`.
 - A companion's folder holds exactly its four files and addon.json; `scripts/build.py` refuses anything else.
 - `Kit/` is a copy of Sidefolk's `extensions/Kit`: change it there first, then copy it here.
 - An extension's words live in its `strings/<language>.json`, ten languages (Sidefolk D76): change the English, then

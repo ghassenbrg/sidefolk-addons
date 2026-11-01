@@ -64,10 +64,17 @@ enum TriviaAI {
         switch reason {
         case "limit": L("That's enough new questions for today. Here are mine.")
         case "busy": L("Questions are already being made. Try again in a moment.")
-        case "unusable": L("{name} wrote questions I couldn't use. Here are mine.", ["name": provider])
+        case "unusable": sentence(L("{name} wrote questions I couldn't use. Here are mine.", ["name": provider]))
         case "off", "denied": L("Making questions with AI is off. Here are mine.")
-        case "slow": L("{name} is taking too long. Here are mine.", ["name": provider])
-        default: L("{name} couldn't make questions just now. Here are mine.", ["name": provider])
+        case "slow": sentence(L("{name} is taking too long. Here are mine.", ["name": provider]))
+        default: sentence(L("{name} couldn't make questions just now. Here are mine.", ["name": provider]))
         }
+    }
+
+    /// A line that may begin with the AI's name: Sidefolk names a custom one "your AI" (lower case, for the middle of a
+    /// sentence), so the line's first letter is raised, past the direction marks `L` puts around a name.
+    static func sentence(_ line: String) -> String {
+        guard let i = line.firstIndex(where: \.isLetter) else { return line }
+        return line[..<i] + line[i].uppercased() + line[line.index(after: i)...]
     }
 }

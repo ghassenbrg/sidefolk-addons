@@ -151,6 +151,8 @@ import Testing
         _ = GameTable.play(QuickPawsScreen.self, .next, on: &s, random: &random)
         _ = GameTable.play(QuickPawsScreen.self, .timeout, on: &s, random: &random)
         #expect(s.game.score == Games.Score(you: 1, companion: 1), "nobody in time: nobody scores")
+        _ = GameTable.play(QuickPawsScreen.self, .next, on: &s, random: &random)
+        #expect(s.number == 3, "the round nobody took is played again under its own number")
     }
 
     // MARK: Trivia made by the person's AI (D95)
@@ -169,6 +171,13 @@ import Testing
              "fact": "Volcano \(i) is real.", "difficulty": 2]
         }
         return Arguments(["request": id, "ok": true, "topic": "volcanoes", "made_by": "Claude Code", "questions": questions])
+    }
+
+    @Test func aCustomAINamedInLowerCaseStillStartsASentence() {
+        #expect(TriviaAI.sentence("your AI writes the questions") == "Your AI writes the questions")
+        #expect(TriviaAI.words("slow", provider: "your AI").contains("Your AI"), "past the name's direction marks")
+        #expect(TriviaAI.words("unusable", provider: "Claude Code").contains("Claude Code"))
+        #expect(TriviaAI.sentence("") == "")
     }
 
     @Test func aTopicOfYourOwnGetsFreshQuestions() throws {
@@ -211,6 +220,9 @@ import Testing
         TriviaAI.receive(Arguments(["request": s.asking!.id, "ok": false, "reason": "limit"]))
         _ = GameTable.play(TriviaScreen.self, .next, on: &s, random: &random)
         #expect(s.phase == .setup && s.notice == "limit")
+        let back = TriviaScreen.board(s, events: [], options: Self.ai())
+        #expect((PlaytimeScreensTests.part(back, "prompt")?["text"] as? String)?.hasPrefix("That's enough new questions") == true
+                && PlaytimeScreensTests.part(back, "note") == nil, "why is the companion's line, so the board keeps within the panel")
         _ = GameTable.play(TriviaScreen.self, .button("start"), on: &s, random: &random)
         #expect(s.phase == .question && s.made.isEmpty && TriviaEngine.question(s) != nil)
         // Malformed: three choices each.

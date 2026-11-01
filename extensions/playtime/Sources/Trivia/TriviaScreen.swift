@@ -59,18 +59,21 @@ enum TriviaScreen: GameScreen {
         // With the person's AI allowed (D95), an "Any topic" card: picked, the bank's topics make room for a field where
         // the person names one; left empty, Start lets the AI pick (the board stays within the panel's height).
         var parts: [BoardPart]
+        let notice = s.notice.map { TriviaAI.words($0, provider: s.aiMaker ?? o.companion) }
         if let maker = s.aiMaker, s.topic == TriviaEngine.surprise {
-            parts = [.prompt(L("Any topic"), eyebrow: L("{name} writes the questions", ["name": maker])),
+            parts = [.prompt(L("Any topic"), eyebrow: TriviaAI.sentence(L("{name} writes the questions", ["name": maker]))),
                      .play(.entry(name: "topic", label: L("Leave it empty and {name} picks one.", ["name": maker]),
                                   placeholder: L("Volcanoes, jazz, Japan…"), button: L("Make questions"), max: 60)),
                      .button(GameButton(L("Back to topics"), move: "topics", style: .plain, symbol: "chevron.backward"))]
+            if let notice { parts.append(.note(notice, tone: .info)) }
         } else {
             let ids = ["mix"] + TriviaLibrary.categories(language: s.language) + (s.aiMaker != nil ? [TriviaEngine.surprise] : [])
             let topics = ids.map { ChoiceOption($0, topic($0), symbol: symbols[$0] ?? "questionmark") }
-            parts = [.prompt(L("Pick a topic"), eyebrow: s.duo.on ? L("2 players") : L("A quiz with {name}", ["name": o.companion])),
+            // Why no questions came is the companion's own line ("…Here are mine."), said in place of "Pick a topic":
+            // a note under the topics would push the two-player choice past the panel's height.
+            parts = [.prompt(notice ?? L("Pick a topic"), eyebrow: s.duo.on ? L("2 players") : L("A quiz with {name}", ["name": o.companion])),
                      .choice(name: "topic", options: topics, selected: s.topic)]
         }
-        if let reason = s.notice { parts.append(.note(TriviaAI.words(reason, provider: s.aiMaker ?? o.companion), tone: .info)) }
         return Board(parts + [
             // The choices name themselves ("10 questions", "Relaxed"), so they need no labels and the board stays
             // within the panel with the topics, Start and the two-player choice.
@@ -91,8 +94,8 @@ enum TriviaScreen: GameScreen {
         let maker = s.aiMaker ?? o.companion
         let about = s.asking?.topic ?? ""
         return Board([
-            .prompt(about.isEmpty ? L("{name} is picking a topic and writing questions…", ["name": maker])
-                        : L("{name} is writing questions about {topic}…", ["name": maker, "topic": about]),
+            .prompt(TriviaAI.sentence(about.isEmpty ? L("{name} is picking a topic and writing questions…", ["name": maker])
+                        : L("{name} is writing questions about {topic}…", ["name": maker, "topic": about])),
                     eyebrow: L("Fresh questions")),
             .note(L("Made by {name}. They aren't checked, so a fact may be wrong.", ["name": maker]), tone: .info),
             .button(GameButton(L("Back to topics"), move: "topics", style: .plain, symbol: "chevron.backward")),
