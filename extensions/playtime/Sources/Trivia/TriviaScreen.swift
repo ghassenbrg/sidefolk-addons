@@ -50,23 +50,25 @@ enum TriviaScreen: GameScreen {
         case "tech": L("Tech")
         case "sports": L("Sports")
         case "mediterranean": L("Tunisia & the Mediterranean")
-        case TriviaEngine.surprise: L("Surprise me")
+        case TriviaEngine.surprise: L("Any topic")
         default: id.hasPrefix("ai:") ? String(id.dropFirst(3)).capitalized : id.capitalized
         }
     }
 
     private static func setup(_ s: TriviaEngine.State, events: [Games.Event], _ o: GameOptions) -> Board {
-        // With the person's AI allowed (D95): a card that leaves the topic to it, and a field for any topic at all.
-        let ai = s.aiMaker != nil
-        let ids = ["mix"] + TriviaLibrary.categories(language: s.language) + (ai ? [TriviaEngine.surprise] : [])
-        let topics = ids.map { ChoiceOption($0, topic($0), symbol: symbols[$0] ?? "questionmark") }
-        var parts: [BoardPart] = [
-            .prompt(L("Pick a topic"), eyebrow: s.duo.on ? L("2 players") : L("A quiz with {name}", ["name": o.companion])),
-            .choice(name: "topic", options: topics, selected: s.topic),
-        ]
-        if let maker = s.aiMaker {
-            parts.append(.play(.entry(name: "topic", label: L("Or any topic: {name} writes the questions", ["name": maker]),
-                                      placeholder: L("Volcanoes, jazz, Japan…"), button: L("Make questions"), max: 60)))
+        // With the person's AI allowed (D95), an "Any topic" card: picked, the bank's topics make room for a field where
+        // the person names one; left empty, Start lets the AI pick (the board stays within the panel's height).
+        var parts: [BoardPart]
+        if let maker = s.aiMaker, s.topic == TriviaEngine.surprise {
+            parts = [.prompt(L("Any topic"), eyebrow: L("{name} writes the questions", ["name": maker])),
+                     .play(.entry(name: "topic", label: L("Leave it empty and {name} picks one.", ["name": maker]),
+                                  placeholder: L("Volcanoes, jazz, Japan…"), button: L("Make questions"), max: 60)),
+                     .button(GameButton(L("Back to topics"), move: "topics", style: .plain, symbol: "chevron.backward"))]
+        } else {
+            let ids = ["mix"] + TriviaLibrary.categories(language: s.language) + (s.aiMaker != nil ? [TriviaEngine.surprise] : [])
+            let topics = ids.map { ChoiceOption($0, topic($0), symbol: symbols[$0] ?? "questionmark") }
+            parts = [.prompt(L("Pick a topic"), eyebrow: s.duo.on ? L("2 players") : L("A quiz with {name}", ["name": o.companion])),
+                     .choice(name: "topic", options: topics, selected: s.topic)]
         }
         if let reason = s.notice { parts.append(.note(TriviaAI.words(reason, provider: s.aiMaker ?? o.companion), tone: .info)) }
         return Board(parts + [
@@ -139,7 +141,7 @@ enum TriviaScreen: GameScreen {
             return Board([
                 TwoPlayers.score(s.duo, s.you, s.companion),
                 .result(figure: "\(Format.integer(s.you)) – \(Format.integer(s.companion))",
-                        line: winner.map { L("{name} wins!", ["name": s.duo.name($0)]) } ?? L("A draw!"), tone: .neutral, facts: facts,
+                        line: winner.map { L("{name} wins!", ["name": s.duo.name($0)]) } ?? L("A draw!"), tone: winner == nil ? .neutral : .info, facts: facts,
                         actions: [GameButton(L("Play again"), move: "again", style: .primary, symbol: "arrow.clockwise"),
                                   GameButton(L("Another topic"), move: "topics")]),
             ], companion: TwoPlayers.cue(events), over: true)

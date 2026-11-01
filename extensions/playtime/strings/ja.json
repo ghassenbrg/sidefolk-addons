@@ -438,7 +438,6 @@
     "Nobody pressed.": "だれも押さなかった。",
     "Numbers": "数",
     "Numbers from {low} to {high}": "{low}から{high}までの数",
-    "Or any topic: {name} writes the questions": "または好きなテーマで：{name}が問題を作ります",
     "Other…": "その他…",
     "Pass the Mac to {name}.": "Macを{name}にわたしてね。",
     "Pick a number from {low} to {high}.": "{low}から{high}までの数を選んでね。",
@@ -452,7 +451,6 @@
     "Round {n} of 2": "第{n}ラウンド（全2回）",
     "Round {n} of {total}": "第{n}ラウンド（全{total}回）",
     "Set": "決定",
-    "Surprise me": "おまかせ",
     "That's enough new questions for today. Here are mine.": "今日の新しい問題はここまで。わたしの問題で遊ぼう。",
     "Type a number from 2 to {max}.": "2から{max}までの数を入力してね。",
     "Up to": "最大",
@@ -496,6 +494,9 @@
     "{name}, look away!": "{name}は見ないでね！",
     "{name}, type a secret number.": "{name}、ひみつの数を入力してね。",
     "{name}, type a word for {other}.": "{name}、{other}のための言葉を入力してね。",
-    "{name}: {n} ms": "{name}：{n}ミリ秒"
+    "{name}: {n} ms": "{name}：{n}ミリ秒",
+    "Any topic": "好きなテーマ",
+    "{name} writes the questions": "{name}が問題を作ります",
+    "Leave it empty and {name} picks one.": "空欄なら{name}が選びます。"
   }
 }

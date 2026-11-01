@@ -438,7 +438,6 @@
     "Nobody pressed.": "아무도 누르지 않았어요.",
     "Numbers": "숫자",
     "Numbers from {low} to {high}": "{low}부터 {high}까지의 숫자",
-    "Or any topic: {name} writes the questions": "아니면 아무 주제나: {name}이(가) 문제를 만들어요",
     "Other…": "기타…",
     "Pass the Mac to {name}.": "Mac을 {name}에게 넘겨 주세요.",
     "Pick a number from {low} to {high}.": "{low}부터 {high} 사이의 숫자를 고르세요.",
@@ -452,7 +451,6 @@
     "Round {n} of 2": "{n}라운드 (총 2라운드)",
     "Round {n} of {total}": "{n}라운드 (총 {total}라운드)",
     "Set": "설정",
-    "Surprise me": "알아서 골라 줘",
     "That's enough new questions for today. Here are mine.": "오늘은 새 문제를 충분히 만들었어요. 제 문제로 해요.",
     "Type a number from 2 to {max}.": "2부터 {max} 사이의 숫자를 입력하세요.",
     "Up to": "최대",
@@ -496,6 +494,9 @@
     "{name}, look away!": "{name}, 보지 마세요!",
     "{name}, type a secret number.": "{name}, 비밀 숫자를 입력하세요.",
     "{name}, type a word for {other}.": "{name}, {other}에게 낼 단어를 입력하세요.",
-    "{name}: {n} ms": "{name}: {n}ms"
+    "{name}: {n} ms": "{name}: {n}ms",
+    "Any topic": "아무 주제",
+    "{name} writes the questions": "{name}이(가) 문제를 만들어요",
+    "Leave it empty and {name} picks one.": "비워 두면 {name}이(가) 골라요."
   }
 }

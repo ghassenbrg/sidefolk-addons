@@ -78,7 +78,7 @@ import Testing
             let score = PlaytimeScreensTests.part(end, "score")
             #expect(score?["players"] as? [String] == ["Ana", "Sam"], "\(id) names both")
             let result = PlaytimeScreensTests.part(end, "result")
-            #expect(result?["tone"] as? String == "neutral", "\(id): a colour for who, not for a loss")
+            #expect(["neutral", "info"].contains(result?["tone"] as? String), "\(id): a colour for who, not for a loss")
             for b in boards {
                 let line = (b.json["companion"] as? [String: Any])?["line"] as? String
                 #expect(line != "i_win" && line != "you_win", "\(id): the companion never takes a side")
@@ -177,8 +177,11 @@ import Testing
         var random = Games.Random(seed: 6)
         var s = TriviaEngine.start(level: .hard, options: Self.ai(), random: &random)
         let setup = TriviaScreen.board(s, events: [.opened], options: Self.ai())
-        #expect(PlaytimeScreensTests.part(setup, "entry")?["name"] as? String == "topic")
         #expect((PlaytimeScreensTests.part(setup, "choice")?["options"] as? [[String: Any]])?.contains { $0["value"] as? String == "surprise" } == true)
+        _ = GameTable.play(TriviaScreen.self, .choice(name: "topic", value: "surprise"), on: &s, random: &random)
+        let any = TriviaScreen.board(s, events: [], options: Self.ai())
+        #expect(PlaytimeScreensTests.part(any, "entry")?["name"] as? String == "topic" && PlaytimeScreensTests.part(any, "choice")?["name"] as? String != "topic",
+                "the field takes the topics' place")
         _ = GameTable.play(TriviaScreen.self, .text(name: "topic", value: "volcanoes"), on: &s, random: &random)
         let request = try #require(sent.calls.last)
         #expect(request.0 == "sidefolk/trivia.request" && request.1["topic"] as? String == "volcanoes" && request.1["level"] as? String == "hard")

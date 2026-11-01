@@ -508,7 +508,6 @@
     "Nobody pressed.": "لم يضغط أحد.",
     "Numbers": "الأرقام",
     "Numbers from {low} to {high}": "أرقام من {low} إلى {high}",
-    "Or any topic: {name} writes the questions": "أو أي موضوع: يكتب {name} الأسئلة",
     "Other…": "غير ذلك…",
     "Pass the Mac to {name}.": "أعطِ الماك إلى {name}.",
     "Pick a number from {low} to {high}.": "اختر رقمًا من {low} إلى {high}.",
@@ -522,7 +521,6 @@
     "Round {n} of 2": "الجولة {n} من 2",
     "Round {n} of {total}": "الجولة {n} من {total}",
     "Set": "تعيين",
-    "Surprise me": "فاجئني",
     "That's enough new questions for today. Here are mine.": "يكفي هذا من الأسئلة الجديدة اليوم. إليك أسئلتي.",
     "Type a number from 2 to {max}.": "اكتب رقمًا من 2 إلى {max}.",
     "Up to": "حتى",
@@ -576,6 +574,9 @@
     "{name}, look away!": "{name}، لا تنظر!",
     "{name}, type a secret number.": "{name}، اكتب رقمًا سريًا.",
     "{name}, type a word for {other}.": "{name}، اكتب كلمة لـ{other}.",
-    "{name}: {n} ms": "{name}: {n} م.ث"
+    "{name}: {n} ms": "{name}: {n} م.ث",
+    "Any topic": "أي موضوع",
+    "{name} writes the questions": "يكتب {name} الأسئلة",
+    "Leave it empty and {name} picks one.": "اتركه فارغًا ويختار {name} واحدًا."
   }
 }

@@ -68,9 +68,52 @@ enum SampleBoards {
                 try save(MemoryPairsScreen.self)
                 try save(DailyWordScreen.self)
                 try scripted(language: language, dir: dir, titles: titles)
+                try twoPlayers(language: language, dir: dir, titles: titles)
                 try puzzles(language: language, dir: dir, titles: titles)
             }
         }
+    }
+
+    /// Two people on one Mac (D96): the names, a turn, the cover before a secret, and the end; and trivia made by the
+    /// AI (D95): the waiting board and a question answered with the AI's fact.
+    static func twoPlayers(language: String, dir: String, titles: [String: PlaytimePage.Game]) throws {
+        func write(_ id: String, _ name: String, _ before: Board?, _ board: Board) throws {
+            var out: [String: Any] = ["game": id, "title": titles[id]?.title ?? id, "symbol": titles[id]?.symbol ?? "gamecontroller", "board": board.json]
+            if let before { out["previous"] = before.json }
+            FileManager.default.createFile(atPath: dir + "/\(id)-\(name).json", contents: try JSONSerialization.data(withJSONObject: dressed(out, id), options: [.sortedKeys]))
+        }
+        func save<S: GameScreen>(_ s: S.Type, seed: UInt64) throws {
+            PlaytimeRecords.update { $0 = PlaytimeRecords() }
+            let boards = try PlaytimeTwoPlayersTests.duel(S.self, seed: seed)
+            func has(_ b: Board, move: String) -> Bool { PlaytimeScreensTests.parts(b).contains { $0["move"] as? String == move } }
+            try write(S.id, "duo-names", nil, boards[0])
+            if let i = boards.indices.first(where: { $0 > 1 && !has(boards[$0], move: "players_ready") && !has(boards[$0], move: "ready") && !boards[$0].over }) {
+                try write(S.id, "duo-turn", boards[i - 1], boards[i])
+            }
+            if let i = boards.indices.first(where: { $0 > 0 && has(boards[$0], move: "ready") }) { try write(S.id, "duo-cover", boards[i - 1], boards[i]) }
+            try write(S.id, "duo-end", boards.dropLast().last, boards.last!)
+        }
+        for (i, screen) in [TicTacToeScreen.self as any GameScreen.Type, LastStickScreen.self, MemoryPairsScreen.self, CopyMeScreen.self,
+                            TriviaScreen.self, QuickPawsScreen.self, WhichCupScreen.self, HigherLowerScreen.self, BalloonWordsScreen.self].enumerated() {
+            try save(screen, seed: UInt64(i + 1))
+        }
+
+        TriviaAI.send = { _, _ in }
+        var options = PlaytimeScreensTests.options(language)
+        options.aiTrivia = "Claude Code"
+        var random = Games.Random(seed: 12)
+        var t = TriviaEngine.start(level: .fair, options: options, random: &random)
+        try write(TriviaScreen.id, "ai-setup", nil, TriviaScreen.board(t, events: [.opened], options: options))
+        _ = GameTable.play(TriviaScreen.self, .choice(name: "topic", value: "surprise"), on: &t, random: &random)
+        try write(TriviaScreen.id, "ai-any", nil, TriviaScreen.board(t, events: [], options: options))
+        _ = GameTable.play(TriviaScreen.self, .text(name: "topic", value: "volcanoes"), on: &t, random: &random)
+        let waiting = TriviaScreen.board(t, events: [.think(ms: 1500)], options: options)
+        try write(TriviaScreen.id, "ai-making", nil, waiting)
+        TriviaAI.receive(PlaytimeTwoPlayersTests.pack(t.asking!.id))
+        var e = GameTable.play(TriviaScreen.self, .next, on: &t, random: &random)
+        let asked = TriviaScreen.board(t, events: e, options: options)
+        e = GameTable.play(TriviaScreen.self, .answer(TriviaEngine.rightTile(t)!), on: &t, random: &random)
+        try write(TriviaScreen.id, "ai-answered", asked, TriviaScreen.board(t, events: e, options: options))
     }
 
     /// Moments a bot clicking at random rarely reaches: Daily Word solved, Balloon Words won, Which Cup? on Sneaky,

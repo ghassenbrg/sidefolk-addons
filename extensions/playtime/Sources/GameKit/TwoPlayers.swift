@@ -115,9 +115,10 @@ enum TwoPlayers {
          .button(GameButton(L("I'm {name}: ready", ["name": d.name(side)]), move: "ready", style: .primary, symbol: "eye.slash"))]
     }
 
-    /// The end card: the winner named, a neutral colour (it says who, never how it went for "you"), Play again.
+    /// The end card: the winner named in neutral ink with a trophy (`info`: it says who, never how it went for "you"), or a
+    /// draw; Play again.
     static func result(_ d: Duo, winner: Games.Side?, figure: String, facts: [(String, String)] = []) -> BoardPart {
-        .result(figure: figure, line: winner.map { L("{name} wins!", ["name": d.name($0)]) } ?? L("A draw!"), tone: .neutral, facts: facts,
+        .result(figure: figure, line: winner.map { L("{name} wins!", ["name": d.name($0)]) } ?? L("A draw!"), tone: winner == nil ? .neutral : .info, facts: facts,
                 actions: [ScreenKit.playAgain])
     }
 

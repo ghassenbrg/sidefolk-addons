@@ -438,7 +438,6 @@
     "Nobody pressed.": "没有人按。",
     "Numbers": "数字",
     "Numbers from {low} to {high}": "{low}到{high}之间的数",
-    "Or any topic: {name} writes the questions": "或者任意主题：由{name}出题",
     "Other…": "其他…",
     "Pass the Mac to {name}.": "把Mac交给{name}。",
     "Pick a number from {low} to {high}.": "请选一个{low}到{high}之间的数。",
@@ -452,7 +451,6 @@
     "Round {n} of 2": "第{n}轮（共2轮）",
     "Round {n} of {total}": "第{n}轮（共{total}轮）",
     "Set": "确定",
-    "Surprise me": "给我惊喜",
     "That's enough new questions for today. Here are mine.": "今天的新题已经够多了。来玩我的题吧。",
     "Type a number from 2 to {max}.": "请输入2到{max}之间的数。",
     "Up to": "最大",
@@ -496,6 +494,9 @@
     "{name}, look away!": "{name}，别看！",
     "{name}, type a secret number.": "{name}，输入一个秘密数字。",
     "{name}, type a word for {other}.": "{name}，为{other}输入一个词。",
-    "{name}: {n} ms": "{name}：{n}毫秒"
+    "{name}: {n} ms": "{name}：{n}毫秒",
+    "Any topic": "任意主题",
+    "{name} writes the questions": "由{name}出题",
+    "Leave it empty and {name} picks one.": "留空则由{name}来选。"
   }
 }

@@ -146,7 +146,8 @@ extension Games {
                 let lo = low + Int((Double(width) * (0.5 - spread)).rounded(.up))
                 let hi = max(lo, low + Int((Double(width) * (0.5 + spread)).rounded(.down)))
                 let raw = min(max(low + Int((Double(width) * (0.5 + (rng.unit() * 2 - 1) * spread)).rounded()), lo), hi)
-                guard rng.chance(0.6) else { return raw }
+                // People say round numbers, the more so the bigger the numbers get.
+                guard rng.chance(width > 1000 ? 0.85 : 0.6) else { return raw }
                 // Round steps for this width: 5, 2 and 1 times a power of ten about a fortieth of it.
                 let unit = Int(pow(10, floor(log10(max(Double(width) / 40, 1)))))
                 let fits = [unit * 5, unit * 2, unit].map { step in (raw + step / 2) / step * step }.filter { (lo...hi).contains($0) }

@@ -452,7 +452,6 @@
     "Nobody pressed.": "Niemand hat gedrückt.",
     "Numbers": "Zahlen",
     "Numbers from {low} to {high}": "Zahlen von {low} bis {high}",
-    "Or any topic: {name} writes the questions": "Oder ein beliebiges Thema: {name} schreibt die Fragen",
     "Other…": "Andere…",
     "Pass the Mac to {name}.": "Gib den Mac an {name}.",
     "Pick a number from {low} to {high}.": "Wähle eine Zahl von {low} bis {high}.",
@@ -466,7 +465,6 @@
     "Round {n} of 2": "Runde {n} von 2",
     "Round {n} of {total}": "Runde {n} von {total}",
     "Set": "Übernehmen",
-    "Surprise me": "Überrasch mich",
     "That's enough new questions for today. Here are mine.": "Genug neue Fragen für heute. Hier sind meine.",
     "Type a number from 2 to {max}.": "Gib eine Zahl von 2 bis {max} ein.",
     "Up to": "Bis",
@@ -512,6 +510,9 @@
     "{name}, look away!": "{name}, schau weg!",
     "{name}, type a secret number.": "{name}, gib eine geheime Zahl ein.",
     "{name}, type a word for {other}.": "{name}, gib ein Wort für {other} ein.",
-    "{name}: {n} ms": "{name}: {n} ms"
+    "{name}: {n} ms": "{name}: {n} ms",
+    "Any topic": "Beliebiges Thema",
+    "{name} writes the questions": "{name} schreibt die Fragen",
+    "Leave it empty and {name} picks one.": "Leer lassen, dann wählt {name} eins."
   }
 }

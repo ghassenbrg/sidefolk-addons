@@ -4,7 +4,7 @@ import Foundation
 /// companion picks too, sealed until you answer, and is right as often as it knows the question: well on easy ones and
 /// in its favourite topics, less in its weak ones, more on Hard. Once a round it can be asked for help, and in a weak
 /// topic its help can be wrong. The 400-question bank always works; with the person's AI allowed (D95), any topic they
-/// name, or one the AI picks ("Surprise me"), gets fresh questions in their language (`TriviaAI`). Two people can play
+/// name, or one the AI picks ("Any topic" left empty), gets fresh questions in their language (`TriviaAI`). Two people can play
 /// it too, a question each in turn (D96).
 enum TriviaEngine: GameEngine {
     struct State: Codable, Equatable {
@@ -138,6 +138,9 @@ enum TriviaEngine: GameEngine {
         case (.setup, .start) where state.topic == surprise:
             make("", &state)
             return [.think(ms: checkMs)]
+        case (.setup, .topics):
+            state.topic = "mix"
+            return []
         case (.making, .next):
             return arrived(&state, random: &random)
         case (.making, .topics):
