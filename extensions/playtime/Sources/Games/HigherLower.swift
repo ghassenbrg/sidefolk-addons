@@ -132,26 +132,33 @@ extension Games {
 
         /// How the companion picks its next guess between `low` and `high`.
         enum Guesser {
-            /// Near the middle with a level's looseness (Hard within 9 % of the half, Fair 18 %, Easy 28 %), snapped
-            /// now and then to a round number that still fits (on 1 to a million, "Is it 450,000?"), and on Easy now and
-            /// then a timid step on from the last answer instead. Always within the range.
+            /// Near the middle with a level's looseness (Hard within 9 % of the half, Fair 18 %, Easy 28 %), and on Easy now
+            /// and then a timid step on from the last answer instead. On every level the guess is said as a person says
+            /// it: always a round number while the numbers are big (above a thousand apart: "Is it 450,000?", never
+            /// 349,909), often one on smaller ranges ("Is it 45?"). Always within the range.
             static func pick(low: Int, high: Int, level: Level, after: GuessYours.Answer?, using rng: inout Random) -> Int {
                 let width = high - low
                 guard width > 1 else { return width == 1 && rng.chance(0.5) ? high : low }
                 if level == .easy, width > 8, let after, rng.chance(0.15) {
                     let step = max(1, width / rng.between(6, 10))
-                    return after == .higher ? low + step : high - step
+                    let timid = after == .higher ? low + step : high - step
+                    return round(timid, width: width, within: low + 1...max(low + 1, high - 1), using: &rng)
                 }
                 let spread: Double = switch level { case .easy: 0.28; case .fair: 0.18; case .hard: 0.09 }
                 let lo = low + Int((Double(width) * (0.5 - spread)).rounded(.up))
                 let hi = max(lo, low + Int((Double(width) * (0.5 + spread)).rounded(.down)))
                 let raw = min(max(low + Int((Double(width) * (0.5 + (rng.unit() * 2 - 1) * spread)).rounded()), lo), hi)
-                // People say round numbers, the more so the bigger the numbers get.
-                guard rng.chance(width > 1000 ? 0.85 : 0.6) else { return raw }
-                // Round steps for this width: 5, 2 and 1 times a power of ten about a fortieth of it.
+                guard width > 1000 || rng.chance(0.6) else { return raw }
+                return round(raw, width: width, within: lo...hi, using: &rng)
+            }
+
+            /// `n` as a round number that stays `within`: a multiple of 5, 2 or 1 times a power of ten about a fortieth of
+            /// the width, the roundest that fits more often; `n` itself when none does.
+            static func round(_ n: Int, width: Int, within window: ClosedRange<Int>, using rng: inout Random) -> Int {
                 let unit = Int(pow(10, floor(log10(max(Double(width) / 40, 1)))))
-                let fits = [unit * 5, unit * 2, unit].map { step in (raw + step / 2) / step * step }.filter { (lo...hi).contains($0) }
-                return fits.isEmpty ? raw : rng.pick(fits)
+                let fits = [unit * 10, unit * 5, unit * 2, unit].map { step in (n + step / 2) / step * step }.filter(window.contains)
+                guard !fits.isEmpty else { return n }
+                return rng.chance(0.5) ? fits[0] : rng.pick(fits)
             }
         }
     }

@@ -143,6 +143,18 @@ struct PlaytimeNaturalPlayTests {
             _ = try game.answer(game.guess == secret ? .yes : secret > game.guess ? .higher : .lower, using: &rng)
         }
         #expect(game.asked <= 26 && round >= 3, "\(game.asked) questions, \(round) round")
+        // Every level says big numbers round: while the numbers left are over a thousand apart, each guess ends in zeros.
+        for level in G.Level.allCases {
+            for seed in 0..<40 {
+                var r = G.Random(seed: UInt64(seed))
+                var g = G.HigherLower.GuessYours(range: 1...1_000_000, level: level, using: &r)
+                let secret = r.between(1, 1_000_000)
+                while !g.found {
+                    if g.high - g.low > 1000 { #expect(g.guess % 10 == 0, "\(level) said \(g.guess) on \(g.low)…\(g.high)") }
+                    _ = try g.answer(g.guess == secret ? .yes : secret > g.guess ? .higher : .lower, using: &r)
+                }
+            }
+        }
     }
 
     @Test func eachRangeHasItsParAndWarmth() {

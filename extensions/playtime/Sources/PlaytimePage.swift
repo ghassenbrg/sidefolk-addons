@@ -86,7 +86,15 @@ enum PlaytimePage {
             let outcome: GameRecords.Outcome = switch p.outcome { case .won: .won; case .lost: .lost; case .draw: .draw }
             return GameRecords.Recent(game: p.game, at: p.date, outcome: outcome)
         }
-        return GameRecords(records: out, recent: recent)
+        // Two people's head-to-heads (D96), the latest first, and the games two can play.
+        let duels = (r.duels ?? [:]).flatMap { game, pairs in pairs.map { (game, $0.key, $0.value) } }
+            .sorted { ($0.2.last ?? .distantPast) > ($1.2.last ?? .distantPast) }.prefix(10)
+            .map { game, pair, d -> GameRecords.Duel in
+                let names = pair.components(separatedBy: " · ")
+                return GameRecords.Duel(game: game, names: names, wins: names.map { d.wins[$0] ?? 0 }, draws: d.draws)
+            }
+            .filter { $0.names.count == 2 }
+        return GameRecords(records: out, recent: recent, twoPlayers: TwoPlayers.games.sorted(), duels: Array(duels))
     }
 
     /// A puzzle: boards solved, today's boards (each level solved with its time, how many are left), the daily streak
