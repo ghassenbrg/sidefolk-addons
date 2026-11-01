@@ -37,18 +37,17 @@ protocol PuzzleRules: Codable, Equatable, Sendable {
 }
 
 extension PuzzleRules {
-    /// The day's board for everyone: the same date gives the same board on every Mac (the seed is the puzzle and the
-    /// day, `DailyWord.day`), at the daily level.
-    static func daily(day: Int) -> Self {
-        var rng = Games.Random(seed: Games.stableHash("\(id).daily.\(day)"))
-        return generate(level: Games.dailyPuzzleLevel, using: &rng)
+    /// The day's board at a level, for everyone: the same date gives the same board on every Mac (the seed is the
+    /// puzzle, the level and the day, `DailyWord.day`). Fair keeps the seed it had when it was the only daily board, so
+    /// that board didn't change when Easy and Hard got theirs.
+    static func daily(day: Int, level: Games.Level) -> Self {
+        let seed = level == .fair ? "\(id).daily.\(day)" : "\(id).daily.\(level.rawValue).\(day)"
+        var rng = Games.Random(seed: Games.stableHash(seed))
+        return generate(level: level, using: &rng)
     }
 }
 
 extension Games {
-    /// One daily board per puzzle, at the middle level: hard enough to think, short enough for a coffee.
-    static let dailyPuzzleLevel = Level.fair
-
     /// Where a rule breaks: the rule and the cells involved (cells are `row * width + column`).
     struct PuzzleConflict<Rule: Codable & Equatable & Sendable>: Codable, Equatable, Sendable {
         let rule: Rule
@@ -87,7 +86,8 @@ extension Games {
     ///
     /// Flow: `play(move, at:)` (events: `mistake` when the move breaks a rule that held before, `roundOver(you)` when
     /// it solves the board); `undo(at:)`; `hint(at:)` (`hint`; the adapter shows the reason and lights the cells, and
-    /// may play the move); `clear(at:)` back to the givens; `pause`/`resume` as the panel hides and shows.
+    /// plays the move with `play` when the person asks it to: the hint is already counted); `clear(at:)` back to the
+    /// givens; `pause`/`resume` as the panel hides and shows.
     struct PuzzleGame<Rules: PuzzleRules>: Codable, Equatable, Sendable {
         /// How many moves undo remembers: enough for any solve, small enough to save after every move.
         static var undoDepth: Int { 300 }

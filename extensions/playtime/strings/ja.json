@@ -88,7 +88,9 @@
     "A new best: {count} moves!": {
       "other": "新記録：{count}手！"
     },
-    "A new word every day": "毎日あたらしいことば",
+    "A new word and {count} puzzle boards every day": {
+      "other": "毎日あたらしいことばと{count}つのパズル"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "ブロック内で一列に収まった数字は、ほかで除外されます。残るのはこれです。",
     "A plot can hold only one number.": "ひとつの区画に入る数字はひとつだけです。",
     "A plot has as many squares as its number.": "区画のマスの数は、その数字と同じです。",
@@ -97,6 +99,7 @@
     "A square here can only belong to this number.": "ここのマスは、この数字にしか属せません。",
     "A yes-or-no question that tells {new} from {old}?": "{new}と{old}を見分ける「はい・いいえ」の質問は？",
     "All pairs found.": "ぜんぶのペアが見つかりました。",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "今日のパズルを3つとも解きました。明日また新しいパズルがあります。",
     "Anchor": "いかり",
     "And for {new}, the answer is…": "{new}の場合、答えは…",
     "Animals": "動物",
@@ -143,6 +146,7 @@
     "Daily Word · {date}": "今日のことば · {date}",
     "Daily Word: {state}": "今日のことば：{state}",
     "Did you know?": "豆知識",
+    "Do it": "やってみせて",
     "Does it…?": "それは…？",
     "Drop": "しずく",
     "Easy": "かんたん",
@@ -196,6 +200,7 @@
     "It was in {name}'s paw all along!": "ずっと{name}の手の中にあったよ！",
     "It was {animal}!": "{animal}だった！",
     "Keep your eye on the gem… which cup?": "宝石から目をはなさないで…どのカップ？",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "宝石から目をはなさないで…どのカップ？ わたしが隠してると思ったら、わたしをクリック。",
     "Key": "かぎ",
     "Last Stick": "さいごの1本",
     "Last games": "最近のゲーム",
@@ -223,6 +228,7 @@
     "Not sure": "わからない",
     "Not that one.": "そこじゃなかった。",
     "Not your turn yet.": "まだあなたの番ではありません。",
+    "Nothing in my paw! It's under a cup.": "手には何もないよ！ カップの下にあるよ。",
     "Nothing to undo.": "取り消すものはありません。",
     "Numbers from 1 to 100": "1から100の数",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "どの行・列・花壇にも花をひとつ。花どうしは、ななめでも隣り合いません。",
@@ -246,6 +252,7 @@
     "Practice": "練習",
     "Practice word · not in your streak": "練習・連続記録に数えない",
     "Practice words": "練習した数",
+    "Puzzles today: {n} of {total}": "今日のパズル：{total}のうち{n}",
     "Question {n}": "第{n}問",
     "Question {n} of {total}": "{total}問中{n}問目",
     "Questions": "問題数",
@@ -324,10 +331,14 @@
     "Tic-tac-toe": "まるばつ",
     "Time": "タイム",
     "Today's puzzle": "今日のパズル",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "今日のパズルは解けました。明日また新しいパズルがあります。",
     "Today's word was {word}.": "今日の答えは「{word}」でした。",
-    "Today: not played yet": "今日：まだ遊んでいません",
-    "Today: solved in {time}": "今日：{time}で解けました",
+    "Today's {levels} boards are still waiting.": {
+      "other": "今日まだ残っているのは{levels}です。"
+    },
+    "Today: {count} boards to play": {
+      "other": "今日：あと{count}つ"
+    },
+    "Today: {solved}": "今日：{solved}",
     "Too many of one in that line.": "その列に片方が多すぎます。",
     "Too slow!": "おそすぎ！",
     "Too soon!": "早すぎ！",
@@ -379,6 +390,9 @@
     },
     "{count} games": {
       "other": "{count}回"
+    },
+    "{count} more to play": {
+      "other": "あと{count}つ"
     },
     "{count} moves · {level}": {
       "other": "{count}手 · {level}"

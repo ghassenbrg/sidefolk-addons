@@ -2,8 +2,9 @@ import Foundation
 import SidefolkExtensionKit
 
 /// Which Cup?: the companion hides its gem, Sidefolk shows the shuffle the engine drew, and the person picks; five
-/// rounds, quicker each time. On Sneaky (off unless the person turns it on) it may palm the gem, and "Check its paw"
-/// catches it. Where the gem ends is fixed when the round is drawn, before any pick.
+/// rounds, quicker each time. On Sneaky (off unless the person turns it on) it may palm the gem, and clicking the
+/// companion in the scene (or C) checks its paw and catches it. Where the gem ends is fixed when the round is drawn,
+/// before any pick.
 enum WhichCupEngine: GameEngine {
     struct State: Codable, Equatable {
         var game: Games.WhichCup
@@ -79,6 +80,8 @@ enum WhichCupScreen: GameScreen {
         let prompt: String = if s.caught { L("Caught! The gem was in {name}'s paw.", ["name": o.companion]) }
             else if s.lifted, s.gemAt == nil { L("It was in {name}'s paw all along!", ["name": o.companion]) }
             else if s.lifted { s.gemAt == s.picked ? L("Found it!") : L("Not that one.") }
+            else if g.accused { L("Nothing in my paw! It's under a cup.") }
+            else if g.sneaky { L("Keep your eye on the gem… which cup? Think I'm hiding it? Click me.") }
             else { L("Keep your eye on the gem… which cup?") }
         var parts: [BoardPart] = [
             ScreenKit.score(g.score),
@@ -87,8 +90,9 @@ enum WhichCupScreen: GameScreen {
                         picked: s.picked, revealed: s.lifted, gem: s.gemAt, locked: s.lifted)),
         ]
         if g.sneaky, !s.lifted {
+            // The companion in the scene is the button (C presses it too); once a round, then it can't be clicked.
             parts.append(.button(GameButton(L("Check {name}'s paw", ["name": o.companion]), move: "accuse", style: .plain, symbol: "hand.raised",
-                                            key: "c")))
+                                            key: "c", disabled: g.accused, companion: true)))
         }
         if let outcome = WhichCupEngine.outcome(of: s) {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion))

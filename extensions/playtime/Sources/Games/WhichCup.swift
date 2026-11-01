@@ -32,7 +32,8 @@ extension Games {
         private(set) var gem: Int?
         /// Whether the gem is in the companion's paw this round: never shown before the round ends.
         private var palmed = false
-        private var accused = false
+        /// The companion's paw was checked this round (once a round).
+        private(set) var accused = false
 
         init(level: Level, sneaky: Bool = false) {
             self.level = level

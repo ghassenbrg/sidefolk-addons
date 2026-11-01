@@ -89,7 +89,10 @@
       "one": "Novo recorde: {count} movimento!",
       "other": "Novo recorde: {count} movimentos!"
     },
-    "A new word every day": "Uma palavra nova por dia",
+    "A new word and {count} puzzle boards every day": {
+      "one": "Uma palavra nova e {count} quebra-cabeça por dia",
+      "other": "Uma palavra nova e {count} quebra-cabeças por dia"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "Um número preso a uma linha de um bloco é descartado no resto: sobra este.",
     "A plot can hold only one number.": "Um lote só pode ter um número.",
     "A plot has as many squares as its number.": "Um lote tem tantas casas quanto o seu número.",
@@ -98,6 +101,7 @@
     "A square here can only belong to this number.": "Uma casa aqui só pode ser deste número.",
     "A yes-or-no question that tells {new} from {old}?": "Uma pergunta de sim ou não que diferencie {new} de {old}?",
     "All pairs found.": "Todos os pares encontrados.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "Os três quebra-cabeças de hoje estão resolvidos. Volte amanhã para novos.",
     "Anchor": "Âncora",
     "And for {new}, the answer is…": "E para {new}, a resposta é…",
     "Animals": "Animais",
@@ -146,6 +150,7 @@
     "Daily Word · {date}": "Palavra do dia · {date}",
     "Daily Word: {state}": "Palavra do dia: {state}",
     "Did you know?": "Você sabia?",
+    "Do it": "Faz pra mim",
     "Does it…?": "Ele…?",
     "Drop": "Gota",
     "Easy": "Fácil",
@@ -199,6 +204,7 @@
     "It was in {name}'s paw all along!": "Estava na pata de {name} o tempo todo!",
     "It was {animal}!": "Era {animal}!",
     "Keep your eye on the gem… which cup?": "Fique de olho na pedra… qual copo?",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "Fique de olho na pedra… qual copo? Acha que estou escondendo? Clique em mim.",
     "Key": "Chave",
     "Last Stick": "O último palito",
     "Last games": "Últimas partidas",
@@ -226,6 +232,7 @@
     "Not sure": "Não sei",
     "Not that one.": "Não esse.",
     "Not your turn yet.": "Ainda não é sua vez.",
+    "Nothing in my paw! It's under a cup.": "Nada na minha pata! Está debaixo de um copo.",
     "Nothing to undo.": "Nada para desfazer.",
     "Numbers from 1 to 100": "Números de 1 a 100",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "Uma flor em cada linha, coluna e canteiro. As flores nunca se tocam, nem na diagonal.",
@@ -249,6 +256,7 @@
     "Practice": "Treino",
     "Practice word · not in your streak": "Treino · fora da sua sequência",
     "Practice words": "Palavras de treino",
+    "Puzzles today: {n} of {total}": "Quebra-cabeças de hoje: {n} de {total}",
     "Question {n}": "Pergunta {n}",
     "Question {n} of {total}": "Pergunta {n} de {total}",
     "Questions": "Perguntas",
@@ -327,10 +335,16 @@
     "Tic-tac-toe": "Jogo da velha",
     "Time": "Tempo",
     "Today's puzzle": "Quebra-cabeça do dia",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "O quebra-cabeça de hoje está resolvido. Volte amanhã para um novo.",
     "Today's word was {word}.": "A palavra de hoje era {word}.",
-    "Today: not played yet": "Hoje: ainda não jogado",
-    "Today: solved in {time}": "Hoje: resolvido em {time}",
+    "Today's {levels} boards are still waiting.": {
+      "one": "Ainda falta hoje: {levels}.",
+      "other": "Ainda faltam hoje: {levels}."
+    },
+    "Today: {count} boards to play": {
+      "one": "Hoje: {count} quebra-cabeça para jogar",
+      "other": "Hoje: {count} quebra-cabeças para jogar"
+    },
+    "Today: {solved}": "Hoje: {solved}",
     "Too many of one in that line.": "Muitos de um nessa linha.",
     "Too slow!": "Devagar demais!",
     "Too soon!": "Cedo demais!",
@@ -385,6 +399,10 @@
     "{count} games": {
       "one": "{count} partida",
       "other": "{count} partidas"
+    },
+    "{count} more to play": {
+      "one": "falta {count}",
+      "other": "faltam {count}"
     },
     "{count} moves · {level}": {
       "one": "{count} movimento · {level}",

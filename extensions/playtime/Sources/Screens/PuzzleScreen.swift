@@ -18,10 +18,11 @@ protocol PuzzleKind {
     static func part(_ game: Games.PuzzleGame<Rules>, hint: Games.PuzzleHint<Rules.Move, Rules.Reason>?, fresh: Int?, now: Double) -> BoardPart
 }
 
-/// The four logic puzzles played alone (D79, the puzzles): today's board first, the same for everyone on a date and
-/// kept as far as played; once it's solved, "Play another" deals practice boards at the level picked. The clock runs
-/// while the board is open; a hint is the next forced move with its reason; Undo and Start over; a best time per level
-/// (without hints), the daily streak and the practice tally in Playtime's records.
+/// The four logic puzzles played alone (D79, the puzzles): a daily board for each level, the same for everyone on a
+/// date and kept as far as played; a puzzle opens on today's board at the level asked for (or last picked), and once
+/// that one is solved deals practice boards at it. The clock runs while the board is open; a hint is the next forced
+/// move with its reason, and "Do it" (or H again) plays it; Undo and Start over; a best time per level (without
+/// hints), one daily streak and the practice tally in Playtime's records.
 enum PuzzleEngine<K: PuzzleKind>: GameEngine {
     struct State: Codable {
         var game: Games.PuzzleGame<K.Rules>
@@ -33,22 +34,27 @@ enum PuzzleEngine<K: PuzzleKind>: GameEngine {
         var newBest = false
     }
 
-    enum Action { case move(K.Rules.Move), hint, undo, clear, another(GameLevel?) }
+    enum Action { case move(K.Rules.Move), hint, doHint, undo, clear, another(GameLevel?) }
 
     /// Now, on the clock Daily Word reads (tests set another).
     static var seconds: Double { DailyWordEngine.now().timeIntervalSince1970 }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
+        let picked = options.asked ?? PlaytimeRecords.puzzle(K.id).lastLevel.flatMap(GameLevel.init(rawValue:)) ?? level
+        return State(game: deal(picked, random: &random, at: seconds))
+    }
+
+    /// Today's board at `level` while it isn't solved (as far as it was played), else a practice board at that level.
+    static func deal(_ level: GameLevel, random: inout Games.Random, at t: Double) -> Games.PuzzleGame<K.Rules> {
         let day = DailyWordEngine.today()
-        if PlaytimeRecords.puzzle(K.id).lastSolvedDay != day {
-            if var kept = PlaytimeRecords.puzzleDay(K.id, as: Games.PuzzleGame<K.Rules>.self), kept.day == day {
-                kept.resume(at: seconds)
-                return State(game: kept)
-            }
-            return State(game: Games.PuzzleGame(K.Rules.daily(day: day), day: day, at: seconds))
+        guard !PlaytimeRecords.puzzle(K.id).solved(level, day: day) else {
+            return Games.PuzzleGame(K.Rules.generate(level: level, using: &random), at: t)
         }
-        let practice = PlaytimeRecords.puzzle(K.id).lastLevel.flatMap(GameLevel.init(rawValue:)) ?? level
-        return State(game: Games.PuzzleGame(K.Rules.generate(level: practice, using: &random), at: seconds))
+        if var kept = PlaytimeRecords.puzzleDay(K.id, level: level, as: Games.PuzzleGame<K.Rules>.self), kept.day == day, kept.level == level {
+            kept.resume(at: t)
+            return kept
+        }
+        return Games.PuzzleGame(K.Rules.daily(day: day, level: level), day: day, at: t)
     }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
@@ -64,6 +70,12 @@ enum PuzzleEngine<K: PuzzleKind>: GameEngine {
             s.hint = hint
             s.fresh = nil
             events = e
+        case .doHint:
+            // The hint shown, played: it was counted when it was asked for.
+            guard let hint = s.hint else { throw Games.Refusal("not_now") }
+            events = try s.game.play(hint.move, at: t)
+            s.hint = nil
+            s.fresh = K.cell(of: hint.move)
         case .undo:
             events = try s.game.undo(at: t)
             (s.hint, s.fresh) = (nil, nil)
@@ -73,12 +85,9 @@ enum PuzzleEngine<K: PuzzleKind>: GameEngine {
         case .another(let picked):
             guard s.game.solved || picked != nil else { throw Games.Refusal("not_now") }
             let level = picked ?? s.game.level
-            PlaytimeRecords.update { r in
-                var record = r.puzzles?[K.id] ?? Games.PuzzleRecord()
-                record.lastLevel = level.rawValue
-                r.puzzles = (r.puzzles ?? [:]).merging([K.id: record]) { $1 }
-            }
-            s = State(game: Games.PuzzleGame(K.Rules.generate(level: level, using: &random), at: t))
+            PlaytimeRecords.pickPuzzleLevel(K.id, level)
+            // "Play another" is a practice board; a level picked is that level's board of the day while it is open.
+            s = State(game: picked == nil ? Games.PuzzleGame(K.Rules.generate(level: level, using: &random), at: t) : deal(level, random: &random, at: t))
             return [.turn(.you)]
         }
         if s.game.solved, !s.recorded {
@@ -88,13 +97,15 @@ enum PuzzleEngine<K: PuzzleKind>: GameEngine {
             PlaytimeRecords.finish(K.id, .won, you: time, companion: 0)
             if s.newBest { events.append(.newBest(time)) }
         }
-        // Today's board is kept as far as played, its clock stopped at this move, so reopening it carries on.
-        if s.game.day != nil {
-            var kept = s.game
-            kept.pause(at: t)
-            PlaytimeRecords.update { r in r.puzzleDays = (r.puzzleDays ?? [:]).merging([K.id: PlaytimeRecords.encode(kept)]) { $1 } }
-        }
+        if s.game.day != nil { keep(s.game, at: t) }
         return events
+    }
+
+    /// Today's board is kept as far as played, its clock stopped at this move, so reopening it carries on.
+    static func keep(_ game: Games.PuzzleGame<K.Rules>, at t: Double) {
+        var kept = game
+        kept.pause(at: t)
+        PlaytimeRecords.keepPuzzleDay(K.id, level: game.level, kept)
     }
 
     static func outcome(of s: State) -> GameOutcome? { s.game.solved ? .won : nil }
@@ -107,6 +118,7 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
     static func action(for move: Move, in s: Engine.State) -> Engine.Action? {
         switch move {
         case .button("hint"): .hint
+        case .button("do_hint"): .doHint
         case .button("undo"): .undo
         case .button("clear"): .clear
         case .button("another"): .another(nil)
@@ -131,14 +143,15 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
             var facts = [(L("Time"), PuzzleParts.clock(time)), (L("Hints"), Format.integer(g.hints))]
             if let best = record.best[g.level.rawValue] { facts.append((L("Best"), PuzzleParts.clock(best))) }
             if g.day != nil { facts.append((L("Streak"), Format.integer(record.streak))) }
-            let line = s.newBest ? L("A new best for {level}!", ["level": ScreenKit.level(g.level)])
-                : g.day != nil ? L("Today's puzzle is solved. Come back tomorrow for a new one.") : L("Solved!")
+            let line = s.newBest ? L("A new best for {level}!", ["level": ScreenKit.level(g.level)]) : g.day.map { dayLine(record, day: $0) } ?? L("Solved!")
             parts.append(ScreenKit.result(.won, figure: PuzzleParts.clock(time), line: line, ribbon: s.newBest ? L("New best") : nil, facts: facts,
                                           companion: o.companion,
                                           actions: [GameButton(L("Play another"), move: "another", style: .primary, symbol: "arrow.clockwise")]))
             parts.append(ScreenKit.levels(g.level))
         } else {
-            parts.append(.button(GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h")))
+            // A hint shown: the same place (and H again) plays it.
+            parts.append(s.hint == nil ? .button(GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h"))
+                : .button(GameButton(L("Do it"), move: "do_hint", style: .plain, symbol: "wand.and.stars", key: "h")))
             parts.append(.button(GameButton(L("Undo"), move: "undo", style: .plain, symbol: "arrow.uturn.backward", key: "u", disabled: !g.canUndo)))
             parts.append(.button(GameButton(L("Start over"), move: "clear", style: .plain, symbol: "arrow.counterclockwise",
                                             disabled: g.grid == g.puzzle.start)))
@@ -169,12 +182,22 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
         return nil
     }
 
-    /// The Home row's words and the Today tile's: today's board, the streak, the best times.
+    /// The end card's line after a daily board: the levels whose board of the day is still open, or come back tomorrow.
+    static func dayLine(_ record: Games.PuzzleRecord, day: Int) -> String {
+        let open = GameLevel.allCases.filter { !record.solved($0, day: day) }.map(ScreenKit.level)
+        return open.isEmpty ? L("All three of today's boards are solved. Come back tomorrow for new ones.")
+            : L(one: "Today's {levels} board is still waiting.", other: "Today's {levels} boards are still waiting.", count: open.count,
+                ["levels": ScreenKit.list(open)])
+    }
+
+    /// The Home row's words: today's boards (each level solved with its time, how many are left), the streak, the best
+    /// times.
     static func detail() -> String {
         let r = PlaytimeRecords.puzzle(K.id)
-        let today = DailyWordEngine.today()
-        let tile = r.tile(today: today)
-        var parts = [tile.solved ? L("Today: solved in {time}", ["time": PuzzleParts.clock(tile.seconds ?? 0)]) : L("Today: not played yet")]
+        let tile = r.tile(today: DailyWordEngine.today())
+        let solved = tile.solved.map { ScreenKit.level($0.level) + " " + PuzzleParts.clock($0.seconds) }
+        var parts = [solved.isEmpty ? L(one: "Today: {count} board to play", other: "Today: {count} boards to play", count: GameLevel.allCases.count) : L("Today: {solved}", ["solved": solved.joined(separator: ", ")])]
+        if !solved.isEmpty, tile.left > 0 { parts.append(L(one: "{count} more to play", other: "{count} more to play", count: tile.left)) }
         if tile.streak > 1 { parts.append(L("Streak {n}", ["n": tile.streak])) }
         let bests = GameLevel.allCases.compactMap { l in r.best[l.rawValue].map { ScreenKit.level(l) + " " + PuzzleParts.clock($0) } }
         if !bests.isEmpty { parts.append(L("Best: {times}", ["times": bests.joined(separator: ", ")])) }

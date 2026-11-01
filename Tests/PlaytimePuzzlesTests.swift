@@ -298,14 +298,25 @@ struct PlaytimePuzzlesTests {
             return G.stableHash(String(decoding: try encoder.encode(board), as: UTF8.self))
         }
         let day = G.DailyWord.day(year: 2026, month: 10, day: 31)
-        let prints = [try fingerprint(G.GardenPlots.daily(day: day)), try fingerprint(G.Seesaw.daily(day: day)),
-                      try fingerprint(G.Sudoku.daily(day: day)), try fingerprint(G.Blossoms.daily(day: day))]
-        #expect(prints == Self.dailyPrints, "\(prints)")
-        #expect(G.Seesaw.daily(day: day) == G.Seesaw.daily(day: day) && G.Seesaw.daily(day: day) != G.Seesaw.daily(day: day + 1))
-        #expect(G.Blossoms.daily(day: day).level == G.dailyPuzzleLevel && G.Sudoku.daily(day: day).size == 6)
+        func prints(_ level: G.Level) throws -> [UInt64] {
+            [try fingerprint(G.GardenPlots.daily(day: day, level: level)), try fingerprint(G.Seesaw.daily(day: day, level: level)),
+             try fingerprint(G.Sudoku.daily(day: day, level: level)), try fingerprint(G.Blossoms.daily(day: day, level: level))]
+        }
+        // Fair's boards are the ones every Mac had when Fair was the only daily board.
+        let (fair, easy, hard) = (try prints(.fair), try prints(.easy), try prints(.hard))
+        #expect(fair == Self.dailyPrints, "\(fair)")
+        #expect(easy == Self.easyPrints, "\(easy)")
+        #expect(hard == Self.hardPrints, "\(hard)")
+        #expect(G.Seesaw.daily(day: day, level: .easy) != G.Seesaw.daily(day: day + 1, level: .easy))
+        for level in G.Level.allCases {
+            #expect(G.Blossoms.daily(day: day, level: level).level == level)
+        }
+        #expect(G.Sudoku.daily(day: day, level: .fair).size == 6 && G.Sudoku.daily(day: day, level: .hard).size == 9)
     }
 
     static let dailyPrints: [UInt64] = [12050018935995651886, 11698688161655048454, 5225241921642056051, 15984180569653739426]
+    static let easyPrints: [UInt64] = [12385528809662317778, 2282117429718119570, 15368203611496630347, 15522009183301338574]
+    static let hardPrints: [UInt64] = [18043583022245139531, 10355169371086943102, 6036484252021277877, 18307837935798848967]
 
     // MARK: Records
 
@@ -315,17 +326,24 @@ struct PlaytimePuzzlesTests {
         #expect(r.best["fair"] == 90 && r.streak == 1 && r.dailies == 1)
         #expect(r.finish(level: .fair, day: 10, seconds: 30, hints: 0) == false && r.dailies == 1, "a day counts once")
         #expect(r.finish(level: .fair, day: 11, seconds: 60, hints: 0) && r.streak == 2 && r.best["fair"] == 60)
-        #expect(r.tile(today: 11) == G.PuzzleRecord.Tile(solved: true, seconds: 60, streak: 2))
-        #expect(r.tile(today: 12) == G.PuzzleRecord.Tile(solved: false, seconds: nil, streak: 2))
+        // Each level has its own board of the day; the streak counts days, whichever boards were solved.
+        #expect(r.finish(level: .easy, day: 11, seconds: 40, hints: 0) == false && r.streak == 2 && r.dailies == 3)
+        #expect(r.finish(level: .easy, day: 11, seconds: 20, hints: 0) == false && r.dailies == 3, "a level's board counts once a day")
+        #expect(r.tile(today: 11) == G.PuzzleRecord.Tile(solved: [.init(level: .easy, seconds: 40), .init(level: .fair, seconds: 60)], streak: 2))
+        #expect(r.tile(today: 11).left == 1 && r.solved(.easy, day: 11) && !r.solved(.hard, day: 11))
+        #expect(r.tile(today: 12) == G.PuzzleRecord.Tile(solved: [], streak: 2))
         #expect(r.tile(today: 13).streak == 0, "a missed day ends the streak")
-        #expect(r.finish(level: .fair, day: 13, seconds: 20, hints: 1) == false && r.streak == 1 && r.bestStreak == 2)
-        #expect(r.best["fair"] == 60, "a time with hints is no best")
+        #expect(r.finish(level: .hard, day: 13, seconds: 20, hints: 1) == false && r.streak == 1 && r.bestStreak == 2)
+        #expect(r.best["hard"] == nil, "a time with hints is no best")
         r.finish(level: .hard, day: nil, seconds: 300, hints: 0)
         r.finish(level: .hard, day: nil, seconds: 400, hints: 0)
-        #expect(r.practice["hard"] == 2 && r.best["hard"] == 300 && r.dailies == 3)
-        // A record from an older Playtime, or with a field this one doesn't know, still loads.
-        let old = try JSONDecoder().decode(G.PuzzleRecord.self, from: Data(#"{"streak": 3, "best": {"easy": 50}, "later": true}"#.utf8))
+        #expect(r.practice["hard"] == 2 && r.best["hard"] == 300 && r.dailies == 4)
+        // A record from an older Playtime, or with a field this one doesn't know, still loads; its one daily board
+        // was Fair's.
+        let old = try JSONDecoder().decode(G.PuzzleRecord.self, from: Data(#"{"streak": 3, "best": {"easy": 50}, "later": true, "lastSolvedDay": 9, "lastSeconds": 77}"#.utf8))
         #expect(old.streak == 3 && old.best == ["easy": 50] && old.practice.isEmpty)
+        #expect(old.days == ["fair": 9] && old.daySeconds == ["fair": 77] && old.tile(today: 9).solved == [.init(level: .fair, seconds: 77)])
+        #expect(try JSONDecoder().decode(G.PuzzleRecord.self, from: JSONEncoder().encode(old)) == old)
         let records = try JSONDecoder().decode(PlaytimeRecords.self, from: JSONEncoder().encode(PlaytimeRecords()))
         #expect(records.puzzles == nil)
         var withPuzzles = records

@@ -189,9 +189,30 @@ import Testing
             }
             #expect(gems.count == 1, "the person's pick never moves the gem")
         }
+        // Sneaky: the companion in the scene is the "Check its paw" button (C too), once a round.
         var random = Games.Random(seed: 2)
-        let s = WhichCupEngine.start(level: .fair, options: Self.options(sneaky: true), random: &random)
-        #expect(Self.parts(WhichCupScreen.board(s, events: [.opened], options: Self.options(sneaky: true))).contains { $0["move"] as? String == "accuse" })
+        let sneaky = Self.options(sneaky: true)
+        var s = WhichCupEngine.start(level: .fair, options: sneaky, random: &random)
+        let board = WhichCupScreen.board(s, events: [.opened], options: sneaky)
+        let check = try #require(Self.parts(board).first { $0["move"] as? String == "accuse" })
+        #expect(check["companion"] as? Bool == true && check["key"] as? String == "c" && check["disabled"] == nil)
+        #expect(Self.part(board, "prompt")?["text"] as? String == L("Keep your eye on the gem… which cup? Think I'm hiding it? Click me."))
+        var seen: Set<String> = []
+        for _ in 0..<20 where !s.game.over {
+            let events = GameTable.play(WhichCupScreen.self, .button("accuse"), on: &s, random: &random)
+            let after = WhichCupScreen.board(s, events: events, options: sneaky)
+            if events.contains(.innocent) {
+                #expect((Self.parts(after).first { $0["move"] as? String == "accuse" })?["disabled"] as? Bool == true, "once a round")
+                #expect(Self.part(after, "prompt")?["text"] as? String == L("Nothing in my paw! It's under a cup."))
+                seen.insert("innocent")
+                _ = GameTable.play(WhichCupScreen.self, .cell(row: 0, column: 0), on: &s, random: &random)
+            } else {
+                #expect(events.contains(.caught) && s.caught && !Self.parts(after).contains { $0["move"] as? String == "accuse" })
+                seen.insert("caught")
+            }
+            if !s.game.over { _ = GameTable.play(WhichCupScreen.self, .next, on: &s, random: &random) }
+        }
+        #expect(seen == ["innocent", "caught"], "this seed has both: \(seen)")
     }
 
     @Test func higherOrLowerBothWays() throws {

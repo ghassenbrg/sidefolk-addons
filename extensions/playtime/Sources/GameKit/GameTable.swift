@@ -17,7 +17,8 @@ enum GameTable {
         ext.game(S.id, start: { request in
             // Real chance from the Mac's generator for every game; tests seed their own.
             var random = Games.Random.fresh()
-            let options = GameOptions(request.options, language: request.language)
+            var options = GameOptions(request.options, language: request.language)
+            options.asked = request.level.flatMap(GameLevel.init(rawValue:))
             let state = S.Engine.start(level: GameLevel(rawValue: request.level ?? "") ?? .fair, options: options, random: &random)
             let session = UUID().uuidString
             save(Saved(state: state, options: options, language: options.language), session)

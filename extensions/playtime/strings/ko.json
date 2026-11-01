@@ -88,7 +88,9 @@
     "A new best: {count} moves!": {
       "other": "새 기록: {count}동작!"
     },
-    "A new word every day": "매일 새로운 단어",
+    "A new word and {count} puzzle boards every day": {
+      "other": "매일 새로운 단어와 퍼즐 {count}개"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "상자 안에서 한 줄에 묶인 숫자는 다른 곳에서 빠집니다. 남는 건 이거예요.",
     "A plot can hold only one number.": "구획에는 숫자가 하나만 들어갑니다.",
     "A plot has as many squares as its number.": "구획의 칸 수는 그 숫자와 같습니다.",
@@ -97,6 +99,7 @@
     "A square here can only belong to this number.": "여기 칸은 이 숫자에만 속할 수 있어요.",
     "A yes-or-no question that tells {new} from {old}?": "{new}와(과) {old}을(를) 구별하는 예/아니요 질문은?",
     "All pairs found.": "모든 짝을 찾았어요.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "오늘의 퍼즐 세 개를 모두 풀었어요. 내일 새 퍼즐로 만나요.",
     "Anchor": "닻",
     "And for {new}, the answer is…": "{new}의 경우 답은…",
     "Animals": "동물",
@@ -143,6 +146,7 @@
     "Daily Word · {date}": "오늘의 단어 · {date}",
     "Daily Word: {state}": "오늘의 단어: {state}",
     "Did you know?": "알고 있었나요?",
+    "Do it": "보여 줘",
     "Does it…?": "그것은…?",
     "Drop": "물방울",
     "Easy": "쉬움",
@@ -196,6 +200,7 @@
     "It was in {name}'s paw all along!": "계속 {name}의 손에 있었어요!",
     "It was {animal}!": "{animal}였어요!",
     "Keep your eye on the gem… which cup?": "보석에서 눈을 떼지 마요… 어느 컵일까요?",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "보석에서 눈을 떼지 마요… 어느 컵일까요? 내가 숨긴 것 같으면 나를 클릭해요.",
     "Key": "열쇠",
     "Last Stick": "마지막 막대",
     "Last games": "최근 게임",
@@ -223,6 +228,7 @@
     "Not sure": "잘 모르겠어요",
     "Not that one.": "그 컵이 아니에요.",
     "Not your turn yet.": "아직 차례가 아니에요.",
+    "Nothing in my paw! It's under a cup.": "내 손엔 아무것도 없어요! 컵 아래에 있어요.",
     "Nothing to undo.": "되돌릴 것이 없어요.",
     "Numbers from 1 to 100": "1부터 100까지",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "모든 행, 열, 화단에 꽃 하나. 꽃끼리는 대각선으로도 붙지 않아요.",
@@ -246,6 +252,7 @@
     "Practice": "연습",
     "Practice word · not in your streak": "연습 · 연속 기록 제외",
     "Practice words": "연습 단어",
+    "Puzzles today: {n} of {total}": "오늘의 퍼즐: {total}개 중 {n}개",
     "Question {n}": "{n}번째 질문",
     "Question {n} of {total}": "질문 {total}개 중 {n}번째",
     "Questions": "문제 수",
@@ -324,10 +331,14 @@
     "Tic-tac-toe": "틱택토",
     "Time": "시간",
     "Today's puzzle": "오늘의 퍼즐",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "오늘의 퍼즐을 풀었어요. 내일 새 퍼즐로 만나요.",
     "Today's word was {word}.": "오늘의 단어는 {word}였어요.",
-    "Today: not played yet": "오늘: 아직 안 함",
-    "Today: solved in {time}": "오늘: {time}에 풀었어요",
+    "Today's {levels} boards are still waiting.": {
+      "other": "오늘 남은 퍼즐: {levels}"
+    },
+    "Today: {count} boards to play": {
+      "other": "오늘: 퍼즐 {count}개"
+    },
+    "Today: {solved}": "오늘: {solved}",
     "Too many of one in that line.": "그 줄에 한쪽이 너무 많아요.",
     "Too slow!": "너무 느려요!",
     "Too soon!": "너무 빨라요!",
@@ -379,6 +390,9 @@
     },
     "{count} games": {
       "other": "{count}판"
+    },
+    "{count} more to play": {
+      "other": "{count}개 남음"
     },
     "{count} moves · {level}": {
       "other": "{count}동작 · {level}"

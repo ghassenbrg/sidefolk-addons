@@ -89,7 +89,10 @@
       "one": "Nouveau record : {count} mouvement !",
       "other": "Nouveau record : {count} mouvements !"
     },
-    "A new word every day": "Un nouveau mot chaque jour",
+    "A new word and {count} puzzle boards every day": {
+      "one": "Un nouveau mot et {count} casse-tête chaque jour",
+      "other": "Un nouveau mot et {count} casse-têtes chaque jour"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "Un chiffre tenu dans une seule ligne d'un bloc est exclu ailleurs : il reste celui-ci.",
     "A plot can hold only one number.": "Une parcelle ne contient qu'un seul nombre.",
     "A plot has as many squares as its number.": "Une parcelle a autant de cases que son nombre.",
@@ -98,6 +101,7 @@
     "A square here can only belong to this number.": "Une case ici ne peut appartenir qu'à ce nombre.",
     "A yes-or-no question that tells {new} from {old}?": "Une question oui ou non qui distingue {new} de {old} ?",
     "All pairs found.": "Toutes les paires sont trouvées.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "Les trois casse-têtes du jour sont résolus. Revenez demain pour de nouveaux.",
     "Anchor": "Ancre",
     "And for {new}, the answer is…": "Et pour {new}, la réponse est…",
     "Animals": "Animaux",
@@ -146,6 +150,7 @@
     "Daily Word · {date}": "Le mot du jour · {date}",
     "Daily Word: {state}": "Le mot du jour : {state}",
     "Did you know?": "Le saviez-vous ?",
+    "Do it": "Montre-moi",
     "Does it…?": "Est-ce qu'il…?",
     "Drop": "Goutte",
     "Easy": "Facile",
@@ -199,6 +204,7 @@
     "It was in {name}'s paw all along!": "Elle était dans la patte de {name} depuis le début !",
     "It was {animal}!": "C'était {animal} !",
     "Keep your eye on the gem… which cup?": "Suivez la gemme… quel gobelet ?",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "Suivez la gemme… quel gobelet ? Vous croyez que je la cache ? Cliquez sur moi.",
     "Key": "Clé",
     "Last Stick": "Le dernier bâton",
     "Last games": "Dernières parties",
@@ -226,6 +232,7 @@
     "Not sure": "Je ne sais pas",
     "Not that one.": "Pas celui-là.",
     "Not your turn yet.": "Ce n'est pas encore votre tour.",
+    "Nothing in my paw! It's under a cup.": "Rien dans ma patte ! Elle est sous un gobelet.",
     "Nothing to undo.": "Rien à annuler.",
     "Numbers from 1 to 100": "Nombres de 1 à 100",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "Une fleur par ligne, par colonne et par massif. Les fleurs ne se touchent jamais, même en diagonale.",
@@ -249,6 +256,7 @@
     "Practice": "Entraînement",
     "Practice word · not in your streak": "Entraînement · hors de votre série",
     "Practice words": "Mots d'entraînement",
+    "Puzzles today: {n} of {total}": "Casse-têtes du jour : {n} sur {total}",
     "Question {n}": "Question {n}",
     "Question {n} of {total}": "Question {n} sur {total}",
     "Questions": "Questions",
@@ -327,10 +335,16 @@
     "Tic-tac-toe": "Morpion",
     "Time": "Temps",
     "Today's puzzle": "Casse-tête du jour",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "Le casse-tête du jour est résolu. Revenez demain pour un nouveau.",
     "Today's word was {word}.": "Le mot du jour était {word}.",
-    "Today: not played yet": "Aujourd'hui : pas encore joué",
-    "Today: solved in {time}": "Aujourd'hui : résolu en {time}",
+    "Today's {levels} boards are still waiting.": {
+      "one": "Encore à faire aujourd'hui : {levels}.",
+      "other": "Encore à faire aujourd'hui : {levels}."
+    },
+    "Today: {count} boards to play": {
+      "one": "Aujourd'hui : {count} casse-tête à faire",
+      "other": "Aujourd'hui : {count} casse-têtes à faire"
+    },
+    "Today: {solved}": "Aujourd'hui : {solved}",
     "Too many of one in that line.": "Trop de l'un dans cette ligne.",
     "Too slow!": "Trop lent !",
     "Too soon!": "Trop tôt !",
@@ -385,6 +399,10 @@
     "{count} games": {
       "one": "{count} partie",
       "other": "{count} parties"
+    },
+    "{count} more to play": {
+      "one": "encore {count} à faire",
+      "other": "encore {count} à faire"
     },
     "{count} moves · {level}": {
       "one": "{count} mouvement · {level}",

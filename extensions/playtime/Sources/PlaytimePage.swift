@@ -73,14 +73,16 @@ enum PlaytimePage {
             }
             sections.append(Section(L("Last games"), [.list(nil, last)]))
         }
-        // The Today tile: Daily Word, then the streaks still alive, the word's and each puzzle's.
+        // The Today tile: Daily Word, then the word's streak, how many of the puzzles' boards of the day are solved (one
+        // per puzzle and level), and each puzzle's streak still alive.
         let today = DailyWordEngine.today()
-        let streaks = (tile.count > 1 ? [tile[1]] : []) + puzzles.compactMap { p in
-            let streak = PlaytimeRecords.puzzle(p.id).tile(today: today).streak
-            return streak > 1 ? p.title + " " + Format.integer(streak) : nil
-        }
+        let days = puzzles.map { PlaytimeRecords.puzzle($0.id).tile(today: today) }
+        let boards = puzzles.count * GameLevel.allCases.count, solved = days.reduce(0) { $0 + $1.solved.count }
+        var line = tile.count > 1 ? [tile[1]] : []
+        if solved > 0 { line.append(L("Puzzles today: {n} of {total}", ["n": solved, "total": boards])) }
+        line += zip(puzzles, days).compactMap { p, day in day.streak > 1 ? p.title + " " + Format.integer(day.streak) : nil }
         return Page(summary: Summary(L("Daily Word: {state}", ["state": tile[0]]),
-                                     detail: streaks.isEmpty ? L("A new word every day") : streaks.joined(separator: " · "),
+                                     detail: line.isEmpty ? L(one: "A new word and {count} puzzle board every day", other: "A new word and {count} puzzle boards every day", count: boards) : line.joined(separator: " · "),
                                      symbol: "textformat.abc"),
                     sections: sections)
     }

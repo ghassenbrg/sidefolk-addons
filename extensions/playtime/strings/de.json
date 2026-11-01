@@ -89,7 +89,10 @@
       "one": "Neuer Bestwert: {count} Bewegung!",
       "other": "Neuer Bestwert: {count} Bewegungen!"
     },
-    "A new word every day": "Jeden Tag ein neues Wort",
+    "A new word and {count} puzzle boards every day": {
+      "one": "Jeden Tag ein neues Wort und {count} Rätsel",
+      "other": "Jeden Tag ein neues Wort und {count} Rätsel"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "Eine Zahl, die in einem Block auf einer Linie liegt, fällt anderswo weg: Es bleibt diese.",
     "A plot can hold only one number.": "Eine Parzelle hat nur eine Zahl.",
     "A plot has as many squares as its number.": "Eine Parzelle hat so viele Felder wie ihre Zahl.",
@@ -98,6 +101,7 @@
     "A square here can only belong to this number.": "Ein Feld hier kann nur zu dieser Zahl gehören.",
     "A yes-or-no question that tells {new} from {old}?": "Eine Ja-Nein-Frage, die {new} von {old} unterscheidet?",
     "All pairs found.": "Alle Paare gefunden.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "Alle drei Rätsel des Tages sind gelöst. Morgen gibt es neue.",
     "Anchor": "Anker",
     "And for {new}, the answer is…": "Und bei {new} lautet die Antwort…",
     "Animals": "Tiere",
@@ -146,6 +150,7 @@
     "Daily Word · {date}": "Wort des Tages · {date}",
     "Daily Word: {state}": "Wort des Tages: {state}",
     "Did you know?": "Schon gewusst?",
+    "Do it": "Mach du",
     "Does it…?": "Hat es…?",
     "Drop": "Tropfen",
     "Easy": "Leicht",
@@ -199,6 +204,7 @@
     "It was in {name}'s paw all along!": "Er war die ganze Zeit in {name}s Pfote!",
     "It was {animal}!": "Es war {animal}!",
     "Keep your eye on the gem… which cup?": "Behalte den Edelstein im Blick… welcher Becher?",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "Behalte den Edelstein im Blick… welcher Becher? Glaubst du, ich verstecke ihn? Klick mich an.",
     "Key": "Schlüssel",
     "Last Stick": "Das letzte Stäbchen",
     "Last games": "Letzte Spiele",
@@ -226,6 +232,7 @@
     "Not sure": "Weiß nicht",
     "Not that one.": "Der nicht.",
     "Not your turn yet.": "Du bist noch nicht dran.",
+    "Nothing in my paw! It's under a cup.": "Nichts in meiner Pfote! Er liegt unter einem Becher.",
     "Nothing to undo.": "Nichts rückgängig zu machen.",
     "Numbers from 1 to 100": "Zahlen von 1 bis 100",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "Eine Blüte in jeder Zeile, Spalte und jedem Beet. Blüten berühren sich nie, auch nicht über Eck.",
@@ -249,6 +256,7 @@
     "Practice": "Übung",
     "Practice word · not in your streak": "Übungswort · nicht in deiner Serie",
     "Practice words": "Übungswörter",
+    "Puzzles today: {n} of {total}": "Rätsel heute: {n} von {total}",
     "Question {n}": "Frage {n}",
     "Question {n} of {total}": "Frage {n} von {total}",
     "Questions": "Fragen",
@@ -327,10 +335,16 @@
     "Tic-tac-toe": "Tic-Tac-Toe",
     "Time": "Zeit",
     "Today's puzzle": "Rätsel des Tages",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "Das Rätsel des Tages ist gelöst. Morgen gibt es ein neues.",
     "Today's word was {word}.": "Das Wort von heute war {word}.",
-    "Today: not played yet": "Heute: noch nicht gespielt",
-    "Today: solved in {time}": "Heute: gelöst in {time}",
+    "Today's {levels} boards are still waiting.": {
+      "one": "Heute noch offen: {levels}.",
+      "other": "Heute noch offen: {levels}."
+    },
+    "Today: {count} boards to play": {
+      "one": "Heute: {count} Rätsel offen",
+      "other": "Heute: {count} Rätsel offen"
+    },
+    "Today: {solved}": "Heute: {solved}",
     "Too many of one in that line.": "Zu viele von einem in dieser Linie.",
     "Too slow!": "Zu langsam!",
     "Too soon!": "Zu früh!",
@@ -385,6 +399,10 @@
     "{count} games": {
       "one": "{count} Spiel",
       "other": "{count} Spiele"
+    },
+    "{count} more to play": {
+      "one": "noch {count} offen",
+      "other": "noch {count} offen"
     },
     "{count} moves · {level}": {
       "one": "{count} Bewegung · {level}",
