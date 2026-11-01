@@ -33,15 +33,15 @@ struct SystemVitalsPlusTests {
         #expect(Words.concerns(s).isEmpty)
         let summary = Words.summary(s)
         #expect(summary.title == "Your Mac is doing fine" && summary.tone == .good)
-        #expect(summary.detail == "CPU 20% · Memory 50% · 200 GB free · Battery 80%")
+        #expect(summary.detail.seen == "CPU 20% · Memory 50% · 200 GB free · Battery 80%")
     }
 
     @Test func problemsComeWorstFirstWithWhatToDo() {
         let s = Self.snapshot(load: 0.95, pressure: 4, free: 3e9, battery: Self.battery(15, health: 0.7), thermal: .serious, days: 20)
         let concerns = Words.concerns(s)
-        #expect(concerns.map(\.title) == ["Memory is very tight", "Your disk is almost full", "Your Mac is hot", "Your Mac is working very hard",
+        #expect(concerns.map(\.title.seen) == ["Memory is very tight", "Your disk is almost full", "Your Mac is hot", "Your Mac is working very hard",
                                           "The battery is low", "The battery has worn", "On for 20 days"])
-        #expect(concerns[0].advice.contains("starting with Xcode (3.7 GB)"))
+        #expect(concerns[0].advice.seen.contains("starting with Xcode (3.7 GB)"))
         #expect(Words.summary(s).title == "Memory is very tight" && Words.summary(s).tone == .bad)
         // Plugged in, a low battery is no problem.
         #expect(!Words.concerns(Self.snapshot(battery: Self.battery(5, plugged: true))).contains { $0.title.contains("battery") })
@@ -51,9 +51,9 @@ struct SystemVitalsPlusTests {
         #expect(Words.memory(24 * 1_073_741_824) == "24 GB")
         #expect(Words.memory(15.6 * 1_073_741_824) == "15.6 GB")
         #expect(Words.bytes(494e9) == "494 GB" && Words.bytes(51e9) == "51 GB" && Words.bytes(51.26e9) == "51.3 GB" && Words.bytes(640e6) == "640 MB")
-        #expect(Words.rate(1.45e6) == "1.5 MB/s" && Words.rate(300) == "under 1 kB/s" && Words.rate(0) == "0 bytes/s")
+        #expect(Words.rate(1.45e6).seen == "1.5 MB/s" && Words.rate(300).seen == "under 1 kB/s" && Words.rate(0).seen == "0 bytes/s")
         #expect(Words.duration(3 * 86_400 + 4 * 3600) == "3 days, 4 hours" && Words.duration(3720) == "1 hour, 2 minutes")
-        #expect(Words.cores(Self.snapshot().specs) == "10 cores (4 performance, 6 efficiency)")
+        #expect(Words.cores(Self.snapshot().specs).seen == "10 cores (4 performance, 6 efficiency)")
         #expect(Probe.appName("/Applications/Google Chrome.app/Contents/Frameworks/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/x") == "Google Chrome")
         #expect(Probe.appName("/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer") == "WindowServer")
         #expect(Probe.appName("/Applications/Old.app/Contents/MacOS/Old (deleted)") == "Old")
@@ -61,11 +61,11 @@ struct SystemVitalsPlusTests {
 
     @Test func theAnswersCarryTheNumbers() {
         let s = Self.snapshot(battery: Self.battery(64))
-        #expect(Answers.cpu(s).contains("across 10 cores (4 performance, 6 efficiency)") && Answers.cpu(s).contains("Busiest: Xcode 60%, Safari 15%"))
+        #expect(Answers.cpu(s).seen.contains("across 10 cores (4 performance, 6 efficiency)") && Answers.cpu(s).seen.contains("Busiest: Xcode 60%, Safari 15%"))
         #expect(!Answers.cpu(s).contains("idle"), "an app using next to nothing isn't listed")
-        #expect(Answers.memory(s).hasPrefix("12.1 GB of 24 GB in use; memory pressure is normal"))
-        #expect(Answers.battery(s).hasPrefix("Battery at 64%, on battery, 3 hr, 20 min left. Health: 95% of new · Normal."))
-        #expect(Answers.network(s).hasPrefix("This Mac's address on the network is 192.168.1.4 (en0)."))
+        #expect(Answers.memory(s).seen.hasPrefix("12.1 GB of 24 GB in use; memory pressure is normal"))
+        #expect(Answers.battery(s).seen.hasPrefix("Battery at 64%, on battery, 3 hr, 20 min left. Health: 95% of new · Normal."))
+        #expect(Answers.network(s).seen.hasPrefix("This Mac's address on the network is 192.168.1.4 (en0)."))
         #expect(Answers.battery(Self.snapshot()) == "This Mac has no battery; it runs on power from the wall.")
     }
 

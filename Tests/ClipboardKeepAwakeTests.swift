@@ -61,9 +61,9 @@ struct ClipboardKeepAwakeTests {
     @Test func copiesReadWell() {
         let now = Date(timeIntervalSince1970: 1_800_000_000)
         let code = Entry(id: "1", kind: .code, text: "func a() {\n}\n", source: "Xcode", copied: now.addingTimeInterval(-300))
-        #expect(Words.title(code) == "func a() {" && Words.detail(code, now: now) == "Xcode · 5 min ago · 2 lines")
+        #expect(Words.title(code) == "func a() {" && Words.detail(code, now: now).seen == "Xcode · 5 min ago · 2 lines")
         let files = Entry(id: "2", kind: .file, files: ["/a/one.pdf", "/a/two.png", "/a/three.txt", "/a/four.md"], copied: now)
-        #expect(Words.title(files) == "one.pdf, two.png and 2 more")
+        #expect(Words.title(files).seen == "one.pdf, two.png and 2 more")
         let secret = Entry(id: "3", kind: .text, text: "hunter2hunter2", copied: now, secret: true)
         #expect(!Words.title(secret).contains("hunter") && Words.detail(secret, now: now).contains("forgotten in"))
         #expect(Words.item(code).actions == ["alternate", "pin", "delete"])
@@ -95,7 +95,7 @@ struct ClipboardKeepAwakeTests {
         #expect(control["type"] as? String == "switch" && control["tool"] as? String == "keep_awake" && control["on"] as? Bool == false)
         let now = Date(timeIntervalSince1970: 1_800_000_000)
         let s = Session(started: now, until: now.addingTimeInterval(25 * 60))
-        #expect(AwakePage.detail(s, nudges: 0, now: now).hasPrefix("25 min left · "))
+        #expect(AwakePage.detail(s, nudges: 0, now: now).seen.hasPrefix("25 min left · "))
     }
 
     @Test func keepAwakeNudgesOnlyWhenIdleAndReadsTimes() throws {

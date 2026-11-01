@@ -52,6 +52,9 @@ struct GameOptions: Codable, Equatable {
     var companion = "Mochi"
     /// The person's language, for content that comes per language (questions, words, animals).
     var language = "en"
+    /// The level the person asked for, nil when Sidefolk sent none (a game opened from the menu): a puzzle then opens
+    /// at the level last picked.
+    var asked: GameLevel?
 
     init() {}
 

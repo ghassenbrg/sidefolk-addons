@@ -54,7 +54,7 @@ struct ExtensionLogicTests {
         let jwt = try Toolbox.transform("jwt_decode", "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMiLCJleHAiOjE3MDAwMDAwMDB9.sig")
         #expect(jwt.contains("\"sub\" : \"123\"") && jwt.contains("Expires: 2023-11-14T22:13:20Z (expired)"), "\(jwt)")
         #expect(try Toolbox.timestamp("1700000000000").contains("UTC: 2023-11-14T22:13:20Z"), "milliseconds are recognised")
-        #expect(try Toolbox.transform("count", "one two\nthree") == "13 characters, 3 words, 2 lines, 13 bytes in UTF-8.")
+        #expect(try Toolbox.transform("count", "one two\nthree").seen == "13 characters, 3 words, 2 lines, 13 bytes in UTF-8.")
     }
     @Test func playtimeQuestionsAndPicks() throws {
         #expect(Trivia.bank.count >= 50)

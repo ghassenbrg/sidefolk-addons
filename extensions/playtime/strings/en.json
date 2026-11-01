@@ -11,7 +11,10 @@
       "one": "A new best: {count} move!",
       "other": "A new best: {count} moves!"
     },
-    "A new word every day": "A new word every day",
+    "A new word and {count} puzzle boards every day": {
+      "one": "A new word and {count} puzzle board every day",
+      "other": "A new word and {count} puzzle boards every day"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "A number kept to one line of a box rules it out elsewhere, leaving this.",
     "A plot can hold only one number.": "A plot can hold only one number.",
     "A plot has as many squares as its number.": "A plot has as many squares as its number.",
@@ -20,6 +23,7 @@
     "A square here can only belong to this number.": "A square here can only belong to this number.",
     "A yes-or-no question that tells {new} from {old}?": "A yes-or-no question that tells {new} from {old}?",
     "All pairs found.": "All pairs found.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "All three of today's boards are solved. Come back tomorrow for new ones.",
     "Anchor": "Anchor",
     "And for {new}, the answer is…": "And for {new}, the answer is…",
     "Animals": "Animals",
@@ -68,6 +72,7 @@
     "Daily Word · {date}": "Daily Word · {date}",
     "Daily Word: {state}": "Daily Word: {state}",
     "Did you know?": "Did you know?",
+    "Do it": "Do it",
     "Does it…?": "Does it…?",
     "Drop": "Drop",
     "Easy": "Easy",
@@ -121,6 +126,7 @@
     "It was in {name}'s paw all along!": "It was in {name}'s paw all along!",
     "It was {animal}!": "It was {animal}!",
     "Keep your eye on the gem… which cup?": "Keep your eye on the gem… which cup?",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.",
     "Key": "Key",
     "Last Stick": "Last Stick",
     "Last games": "Last games",
@@ -148,6 +154,7 @@
     "Not sure": "Not sure",
     "Not that one.": "Not that one.",
     "Not your turn yet.": "Not your turn yet.",
+    "Nothing in my paw! It's under a cup.": "Nothing in my paw! It's under a cup.",
     "Nothing to undo.": "Nothing to undo.",
     "Numbers from 1 to 100": "Numbers from 1 to 100",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.",
@@ -171,6 +178,7 @@
     "Practice": "Practice",
     "Practice word · not in your streak": "Practice word · not in your streak",
     "Practice words": "Practice words",
+    "Puzzles today: {n} of {total}": "Puzzles today: {n} of {total}",
     "Question {n}": "Question {n}",
     "Question {n} of {total}": "Question {n} of {total}",
     "Questions": "Questions",
@@ -249,10 +257,16 @@
     "Tic-tac-toe": "Tic-tac-toe",
     "Time": "Time",
     "Today's puzzle": "Today's puzzle",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "Today's puzzle is solved. Come back tomorrow for a new one.",
     "Today's word was {word}.": "Today's word was {word}.",
-    "Today: not played yet": "Today: not played yet",
-    "Today: solved in {time}": "Today: solved in {time}",
+    "Today's {levels} boards are still waiting.": {
+      "one": "Today's {levels} board is still waiting.",
+      "other": "Today's {levels} boards are still waiting."
+    },
+    "Today: {count} boards to play": {
+      "one": "Today: {count} board to play",
+      "other": "Today: {count} boards to play"
+    },
+    "Today: {solved}": "Today: {solved}",
     "Too many of one in that line.": "Too many of one in that line.",
     "Too slow!": "Too slow!",
     "Too soon!": "Too soon!",
@@ -307,6 +321,10 @@
     "{count} games": {
       "one": "{count} game",
       "other": "{count} games"
+    },
+    "{count} more to play": {
+      "one": "{count} more to play",
+      "other": "{count} more to play"
     },
     "{count} moves · {level}": {
       "one": "{count} move · {level}",

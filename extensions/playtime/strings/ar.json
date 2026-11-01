@@ -93,7 +93,14 @@
       "other": "رقم قياسي جديد: {count} حركة!",
       "zero": "رقم قياسي جديد: {count} حركة!"
     },
-    "A new word every day": "كلمة جديدة كل يوم",
+    "A new word and {count} puzzle boards every day": {
+      "zero": "كلمة جديدة كل يوم",
+      "one": "كلمة جديدة ولغز واحد كل يوم",
+      "two": "كلمة جديدة ولغزان كل يوم",
+      "few": "كلمة جديدة و{count} ألغاز كل يوم",
+      "many": "كلمة جديدة و{count} لغزًا كل يوم",
+      "other": "كلمة جديدة و{count} لغز كل يوم"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "رقمٌ محصور في خط واحد من مربعه يُستبعد من غيره، فيبقى هذا.",
     "A plot can hold only one number.": "لا تحمل القطعة إلا رقمًا واحدًا.",
     "A plot has as many squares as its number.": "عدد مربعات القطعة يساوي رقمها.",
@@ -102,6 +109,7 @@
     "A square here can only belong to this number.": "هذا المربع لا يمكن أن يتبع إلا هذا الرقم.",
     "A yes-or-no question that tells {new} from {old}?": "سؤال بنعم أو لا يميّز {new} عن {old}؟",
     "All pairs found.": "وُجدت كل الأزواج.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "حللت ألغاز اليوم الثلاثة. عُد غدًا لألغاز جديدة.",
     "Anchor": "مرساة",
     "And for {new}, the answer is…": "وبالنسبة إلى {new}، الجواب…",
     "Animals": "حيوانات",
@@ -158,6 +166,7 @@
     "Daily Word · {date}": "كلمة اليوم · {date}",
     "Daily Word: {state}": "كلمة اليوم: {state}",
     "Did you know?": "هل تعلم؟",
+    "Do it": "نفّذها عني",
     "Does it…?": "هل هو…؟",
     "Drop": "قطرة",
     "Easy": "سهل",
@@ -211,6 +220,7 @@
     "It was in {name}'s paw all along!": "كانت في يد {name} طوال الوقت!",
     "It was {animal}!": "كان {animal}!",
     "Keep your eye on the gem… which cup?": "راقب الجوهرة… أيّ كوب؟",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "راقب الجوهرة… أيّ كوب؟ تظن أنني أخفيها؟ انقر عليّ.",
     "Key": "مفتاح",
     "Last Stick": "العود الأخير",
     "Last games": "آخر الألعاب",
@@ -238,6 +248,7 @@
     "Not sure": "لست متأكدًا",
     "Not that one.": "ليس هذا.",
     "Not your turn yet.": "ليس دورك بعد.",
+    "Nothing in my paw! It's under a cup.": "لا شيء في يدي! إنها تحت أحد الأكواب.",
     "Nothing to undo.": "لا شيء للتراجع عنه.",
     "Numbers from 1 to 100": "أرقام من 1 إلى 100",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "زهرة واحدة في كل صف وعمود وحوض. الأزهار لا تتلامس أبدًا، ولا حتى قطريًا.",
@@ -261,6 +272,7 @@
     "Practice": "تدريب",
     "Practice word · not in your streak": "تدريب · خارج سلسلتك",
     "Practice words": "كلمات التدريب",
+    "Puzzles today: {n} of {total}": "ألغاز اليوم: {n} من {total}",
     "Question {n}": "السؤال {n}",
     "Question {n} of {total}": "السؤال {n} من {total}",
     "Questions": "الأسئلة",
@@ -339,10 +351,24 @@
     "Tic-tac-toe": "إكس-أو",
     "Time": "الوقت",
     "Today's puzzle": "لغز اليوم",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "حللت لغز اليوم. عُد غدًا للغز جديد.",
     "Today's word was {word}.": "كانت كلمة اليوم {word}.",
-    "Today: not played yet": "اليوم: لم يُلعب بعد",
-    "Today: solved in {time}": "اليوم: حُلّ في {time}",
+    "Today's {levels} boards are still waiting.": {
+      "zero": "ما زال ينتظرك اليوم: {levels}.",
+      "one": "ما زال ينتظرك اليوم: {levels}.",
+      "two": "ما زال ينتظرك اليوم: {levels}.",
+      "few": "ما زال ينتظرك اليوم: {levels}.",
+      "many": "ما زال ينتظرك اليوم: {levels}.",
+      "other": "ما زال ينتظرك اليوم: {levels}."
+    },
+    "Today: {count} boards to play": {
+      "zero": "اليوم: لا ألغاز",
+      "one": "اليوم: لغز واحد للحل",
+      "two": "اليوم: لغزان للحل",
+      "few": "اليوم: {count} ألغاز للحل",
+      "many": "اليوم: {count} لغزًا للحل",
+      "other": "اليوم: {count} لغز للحل"
+    },
+    "Today: {solved}": "اليوم: {solved}",
     "Too many of one in that line.": "الكثير من أحدهما في ذلك الخط.",
     "Too slow!": "بطيء جدًا!",
     "Too soon!": "مبكر جدًا!",
@@ -409,6 +435,14 @@
       "few": "{count} جولات",
       "many": "{count} جولة",
       "other": "{count} جولة"
+    },
+    "{count} more to play": {
+      "zero": "لم يبقَ شيء",
+      "one": "بقي لغز واحد",
+      "two": "بقي لغزان",
+      "few": "بقيت {count} ألغاز",
+      "many": "بقي {count} لغزًا",
+      "other": "بقي {count} لغز"
     },
     "{count} moves · {level}": {
       "one": "حركة واحدة · {level}",

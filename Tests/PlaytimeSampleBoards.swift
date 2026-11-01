@@ -73,8 +73,8 @@ enum SampleBoards {
         }
     }
 
-    /// Moments a bot clicking at random rarely reaches: Daily Word solved, Balloon Words won, the companion's animal
-    /// guess and being taught a new one.
+    /// Moments a bot clicking at random rarely reaches: Daily Word solved, Balloon Words won, Which Cup? on Sneaky,
+    /// the companion's animal guess and being taught a new one.
     static func scripted(language: String, dir: String, titles: [String: PlaytimePage.Game]) throws {
         let options = PlaytimeScreensTests.options(language)
         var random = Games.Random(seed: 3)
@@ -137,6 +137,12 @@ enum SampleBoards {
             }
         }
         try write(BalloonWordsScreen.id, "end-win", before, BalloonWordsScreen.board(b, events: e, options: options))
+
+        // Which Cup? on Sneaky: the companion in the scene is the paw to check.
+        var sneaky = options
+        sneaky.sneaky = true
+        let cups = WhichCupEngine.start(level: .fair, options: sneaky, random: &random)
+        try write(WhichCupScreen.id, "sneaky", nil, WhichCupScreen.board(cups, events: [.opened], options: sneaky))
 
         var a = GuessAnimalEngine.start(level: .fair, options: options, random: &random)
         while a.game.phase == .asking { e = GameTable.play(GuessAnimalScreen.self, .answer(0), on: &a, random: &random) }

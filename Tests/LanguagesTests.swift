@@ -18,16 +18,32 @@ struct LanguagesTests {
         String(decoding: (try? JSONSerialization.data(withJSONObject: page.json)) ?? Data(), as: UTF8.self)
     }
 
+    /// Each value `L` fills in is isolated (FSI … PDI), so an Arabic sentence that begins with a name in Latin letters
+    /// still reads right to left, and a name inside one keeps its own order (Sidefolk D76 amended).
+    @Test func filledInValuesKeepTheirOwnDirection() throws {
+        try Language.with("ar", strings: PlaytimeGameTests.strings) {
+            let counting = L("{name} counts… {n} left.", ["name": "Mochi", "n": 1])
+            #expect(counting.hasPrefix("\u{2068}Mochi\u{2069} ") && counting.contains("\u{2068}" + Format.integer(1) + "\u{2069}"), "\(counting)")
+            #expect(counting.seen == "Mochi يعدّ… بقي \(Format.integer(1)).")
+        }
+        try Language.with("ar", strings: Self.strings("clipboard")) {
+            let ignored = L("Copies from {app} aren't kept from now on.", ["app": "Safari"])
+            #expect(ignored == "لن تُحفظ النسخ من \u{2068}Safari\u{2069} من الآن فصاعدًا.")
+        }
+        // Invisible in a sentence of the value's own direction, and the same in every language.
+        #expect(L("{count} today", ["count": 3]).seen == "3 today" && L("{count} today", ["count": 3]) == "\u{2068}3\u{2069} today")
+    }
+
     @Test func yourMacInGermanJapaneseAndArabic() {
         let s = SystemVitalsPlusTests.snapshot(load: 0.95, battery: SystemVitalsPlusTests.battery(15))
         Language.with("de", strings: Self.strings("system-vitals-plus")) {
             #expect(Words.summary(s).title == "Dein Mac arbeitet sehr hart")
-            #expect(Words.glance(s).hasPrefix("CPU 95\u{00A0}%"), "\(Words.glance(s))")
+            #expect(Words.glance(s).seen.hasPrefix("CPU 95\u{00A0}%"), "\(Words.glance(s))")
             #expect(Self.texts(MacPage.make(s)).contains("Gerade jetzt"))
             #expect(Answers.memory(s).contains("Speicherdruck"), "\(Answers.memory(s))")
         }
         Language.with("ja", strings: Self.strings("system-vitals-plus")) {
-            #expect(Words.cores(s.specs) == "10コア（高性能 4、高効率 6）")
+            #expect(Words.cores(s.specs).seen == "10コア（高性能 4、高効率 6）")
             #expect(Self.texts(MacPage.make(s)).contains("現在"))
         }
         Language.with("ar", strings: Self.strings("system-vitals-plus")) {

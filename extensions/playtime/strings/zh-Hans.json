@@ -88,7 +88,9 @@
     "A new best: {count} moves!": {
       "other": "新纪录：{count}个动作！"
     },
-    "A new word every day": "每天一个新成语",
+    "A new word and {count} puzzle boards every day": {
+      "other": "每天一个新成语和{count}道谜题"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "某个数字在宫内只落在一条线上，就在别处被排除：剩下这个。",
     "A plot can hold only one number.": "一块地只能有一个数字。",
     "A plot has as many squares as its number.": "一块地的格数等于它的数字。",
@@ -97,6 +99,7 @@
     "A square here can only belong to this number.": "这里的格子只能属于这个数字。",
     "A yes-or-no question that tells {new} from {old}?": "用一个是非题区分{new}和{old}？",
     "All pairs found.": "所有配对都找到了。",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "今天的三道谜题都解开了。明天再来玩新的吧。",
     "Anchor": "锚",
     "And for {new}, the answer is…": "对{new}来说，答案是…",
     "Animals": "动物",
@@ -143,6 +146,7 @@
     "Daily Word · {date}": "每日成语 · {date}",
     "Daily Word: {state}": "每日成语：{state}",
     "Did you know?": "你知道吗？",
+    "Do it": "帮我走",
     "Does it…?": "它会…吗？",
     "Drop": "水滴",
     "Easy": "简单",
@@ -196,6 +200,7 @@
     "It was in {name}'s paw all along!": "宝石一直在{name}的爪子里！",
     "It was {animal}!": "是{animal}！",
     "Keep your eye on the gem… which cup?": "盯住宝石……在哪个杯子里？",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "盯住宝石……在哪个杯子里？觉得我藏起来了？点我看看。",
     "Key": "钥匙",
     "Last Stick": "最后一根",
     "Last games": "最近几局",
@@ -223,6 +228,7 @@
     "Not sure": "不确定",
     "Not that one.": "不是这个。",
     "Not your turn yet.": "还没轮到你。",
+    "Nothing in my paw! It's under a cup.": "我爪子里什么都没有！它在杯子下面。",
     "Nothing to undo.": "没有可撤销的。",
     "Numbers from 1 to 100": "1到100的数",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "每行、每列、每个花坛各一朵花。花与花不能相邻，斜着也不行。",
@@ -246,6 +252,7 @@
     "Practice": "练习",
     "Practice word · not in your streak": "练习 · 不计入连续纪录",
     "Practice words": "练习成语",
+    "Puzzles today: {n} of {total}": "今日谜题：{n}/{total}",
     "Question {n}": "第{n}题",
     "Question {n} of {total}": "第{n}题，共{total}题",
     "Questions": "题数",
@@ -324,10 +331,14 @@
     "Tic-tac-toe": "井字棋",
     "Time": "用时",
     "Today's puzzle": "今日谜题",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "今日谜题已解开。明天再来玩新的吧。",
     "Today's word was {word}.": "今天的成语是{word}。",
-    "Today: not played yet": "今天：还没玩",
-    "Today: solved in {time}": "今天：用时 {time} 解开",
+    "Today's {levels} boards are still waiting.": {
+      "other": "今天还剩：{levels}。"
+    },
+    "Today: {count} boards to play": {
+      "other": "今天：{count}道待解"
+    },
+    "Today: {solved}": "今天：{solved}",
     "Too many of one in that line.": "那条线里一种太多了。",
     "Too slow!": "太慢了！",
     "Too soon!": "太早了！",
@@ -379,6 +390,9 @@
     },
     "{count} games": {
       "other": "{count}局"
+    },
+    "{count} more to play": {
+      "other": "还剩{count}道"
     },
     "{count} moves · {level}": {
       "other": "{count}个动作 · {level}"

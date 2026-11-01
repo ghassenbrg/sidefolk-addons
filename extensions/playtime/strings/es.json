@@ -89,7 +89,10 @@
       "one": "¡Nuevo récord: {count} movimiento!",
       "other": "¡Nuevo récord: {count} movimientos!"
     },
-    "A new word every day": "Una palabra nueva cada día",
+    "A new word and {count} puzzle boards every day": {
+      "one": "Una palabra nueva y {count} rompecabezas cada día",
+      "other": "Una palabra nueva y {count} rompecabezas cada día"
+    },
     "A number kept to one line of a box rules it out elsewhere, leaving this.": "Un número limitado a una línea de un bloque se descarta en el resto: queda este.",
     "A plot can hold only one number.": "Una parcela solo puede tener un número.",
     "A plot has as many squares as its number.": "Una parcela tiene tantas casillas como su número.",
@@ -98,6 +101,7 @@
     "A square here can only belong to this number.": "Una casilla aquí solo puede ser de este número.",
     "A yes-or-no question that tells {new} from {old}?": "¿Una pregunta de sí o no que distinga {new} de {old}?",
     "All pairs found.": "Todas las parejas encontradas.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "Los tres rompecabezas de hoy están resueltos. Vuelve mañana por otros nuevos.",
     "Anchor": "Ancla",
     "And for {new}, the answer is…": "Y para {new}, la respuesta es…",
     "Animals": "Animales",
@@ -146,6 +150,7 @@
     "Daily Word · {date}": "La palabra del día · {date}",
     "Daily Word: {state}": "La palabra del día: {state}",
     "Did you know?": "¿Sabías que…?",
+    "Do it": "Hazlo tú",
     "Does it…?": "¿Tiene…?",
     "Drop": "Gota",
     "Easy": "Fácil",
@@ -199,6 +204,7 @@
     "It was in {name}'s paw all along!": "¡Estaba en la pata de {name} todo el tiempo!",
     "It was {animal}!": "¡Era {animal}!",
     "Keep your eye on the gem… which cup?": "No pierdas de vista la gema… ¿qué vaso?",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "No pierdas de vista la gema… ¿qué vaso? ¿Crees que la escondo? Haz clic en mí.",
     "Key": "Llave",
     "Last Stick": "El último palito",
     "Last games": "Últimas partidas",
@@ -226,6 +232,7 @@
     "Not sure": "No estoy seguro",
     "Not that one.": "Ese no.",
     "Not your turn yet.": "Aún no es tu turno.",
+    "Nothing in my paw! It's under a cup.": "¡Nada en mi pata! Está bajo un vaso.",
     "Nothing to undo.": "Nada que deshacer.",
     "Numbers from 1 to 100": "Números del 1 al 100",
     "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "Una flor en cada fila, columna y macizo. Las flores nunca se tocan, ni siquiera en diagonal.",
@@ -249,6 +256,7 @@
     "Practice": "Práctica",
     "Practice word · not in your streak": "Práctica · no cuenta en tu racha",
     "Practice words": "Palabras de práctica",
+    "Puzzles today: {n} of {total}": "Rompecabezas de hoy: {n} de {total}",
     "Question {n}": "Pregunta {n}",
     "Question {n} of {total}": "Pregunta {n} de {total}",
     "Questions": "Preguntas",
@@ -327,10 +335,16 @@
     "Tic-tac-toe": "Tres en raya",
     "Time": "Tiempo",
     "Today's puzzle": "Rompecabezas del día",
-    "Today's puzzle is solved. Come back tomorrow for a new one.": "El rompecabezas de hoy está resuelto. Vuelve mañana por uno nuevo.",
     "Today's word was {word}.": "La palabra de hoy era {word}.",
-    "Today: not played yet": "Hoy: aún sin jugar",
-    "Today: solved in {time}": "Hoy: resuelto en {time}",
+    "Today's {levels} boards are still waiting.": {
+      "one": "Aún te espera hoy: {levels}.",
+      "other": "Aún te esperan hoy: {levels}."
+    },
+    "Today: {count} boards to play": {
+      "one": "Hoy: {count} rompecabezas por jugar",
+      "other": "Hoy: {count} rompecabezas por jugar"
+    },
+    "Today: {solved}": "Hoy: {solved}",
     "Too many of one in that line.": "Demasiados de uno en esa línea.",
     "Too slow!": "¡Demasiado lento!",
     "Too soon!": "¡Demasiado pronto!",
@@ -385,6 +399,10 @@
     "{count} games": {
       "one": "{count} partida",
       "other": "{count} partidas"
+    },
+    "{count} more to play": {
+      "one": "falta {count}",
+      "other": "faltan {count}"
     },
     "{count} moves · {level}": {
       "one": "{count} movimiento · {level}",

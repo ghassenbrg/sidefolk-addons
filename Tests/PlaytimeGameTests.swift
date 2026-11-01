@@ -141,14 +141,14 @@ import Testing
             let setup = TriviaScreen.board(s, events: [.opened], options: options).json
             let parts = setup["parts"] as! [[String: Any]]
             #expect(parts.map { $0["type"] as! String } == ["prompt", "choice", "choice", "choice", "button"])
-            #expect(parts[0]["eyebrow"] as? String == "Ein Quiz mit Nori" && parts[4]["label"] as? String == "Starten")
+            #expect((parts[0]["eyebrow"] as? String)?.seen == "Ein Quiz mit Nori" && parts[4]["label"] as? String == "Starten")
             #expect((setup["companion"] as? [String: Any])?["line"] as? String == "hello")
 
             _ = try TriviaEngine.play(.start, on: &s, random: &random)
             let question = TriviaScreen.board(s, events: [.sealed], options: options).json
             let qparts = question["parts"] as! [[String: Any]]
             #expect(qparts.first?["companion_picked"] as? Bool == true, "its pick is sealed")
-            #expect(qparts.contains { $0["move"] as? String == "hint" && $0["label"] as? String == "Nori fragen" && $0["key"] as? String == "h" })
+            #expect(qparts.contains { $0["move"] as? String == "hint" && ($0["label"] as? String)?.seen == "Nori fragen" && $0["key"] as? String == "h" })
             let prompt = try #require(qparts.first { $0["type"] as? String == "prompt" })
             #expect(TriviaLibrary.questions(language: "de").contains { $0.text == prompt["text"] as? String }, "the question in German")
 
@@ -169,12 +169,12 @@ import Testing
         Language.with("fr", strings: Self.strings) {
             PlaytimeRecords.update { $0 = PlaytimeRecords() }
             let empty = PlaytimePage.render()
-            #expect(empty.summary?.title == "Le mot du jour : Pas encore joué")
+            #expect(empty.summary?.title.seen == "Le mot du jour : Pas encore joué")
             PlaytimeRecords.finish(QuickPawsScreen.id, .won, you: 3, companion: 1, best: 243, lower: true)
             PlaytimeRecords.finish(QuickPawsScreen.id, .lost, you: 1, companion: 3, best: 300, lower: true)
             let page = PlaytimePage.render()
             let json = String(decoding: try! JSONSerialization.data(withJSONObject: page.json), as: UTF8.self)
-            #expect(json.contains("Record : 243 ms") && json.contains("Pattes rapides"), "\(json.prefix(400))")
+            #expect(json.seen.contains("Record : 243 ms") && json.contains("Pattes rapides"), "\(json.prefix(400))")
             #expect(page.sections.count == 4, "the hero, the games, the buttons to play, the last games")
         }
     }
