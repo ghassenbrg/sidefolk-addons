@@ -81,7 +81,6 @@
     "A bed kept to one line rules out the rest of that line, leaving this.": "一个花坛只在一条线上，就排除了这条线的其余位置：剩下这里。",
     "A blossom in the other places leads to a dead end a few moves on.": "在其他位置放花，几步之后会走进死路。",
     "A blossom in the other places would leave a row, column or bed no room, leaving this.": "在其他位置放花，会让某行、某列或某个花坛没有位置：剩下这里。",
-    "A draw": "平局",
     "A draw!": "平局！",
     "A hint": "提示一下",
     "A new best for {level}!": "{level}新纪录！",
@@ -116,7 +115,6 @@
     "Best of 10: {n}": "10题最佳：{n}",
     "Best streak": "最高连对",
     "Best streak ever": "最高连对",
-    "Best streak {n}": "最长连胜 {n}",
     "Best: {count} guesses": {
       "other": "最佳：{count}次"
     },
@@ -202,7 +200,6 @@
     "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "盯住宝石……在哪个杯子里？觉得我藏起来了？点我看看。",
     "Key": "钥匙",
     "Last Stick": "最后一根",
-    "Last games": "最近几局",
     "Leaf": "叶子",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "留下比4的倍数多1的数：17、13、9、5，最后是1。",
     "Level": "难度",
@@ -239,13 +236,10 @@
     "Pick a number from 1 to 100.": "请选1到100之间的数。",
     "Pick a topic": "选一个主题",
     "Pick a way to play": "选一种玩法",
-    "Play": "开玩",
-    "Play Daily Word": "玩每日成语",
     "Play again": "再玩一次",
     "Play another": "再玩一个",
     "Play another word": "再猜一个成语",
     "Played": "已玩",
-    "Playtime": "游戏时间",
     "Please write both.": "请两项都填写。",
     "Practice": "练习",
     "Practice word · not in your streak": "练习 · 不计入连续纪录",
@@ -293,7 +287,6 @@
     "Teach": "教它",
     "Tech": "科技",
     "Tell": "告诉它",
-    "Ten games against your companion and five puzzles, no AI, in your language.": "十个和伙伴对战的游戏，加五个谜题，不用 AI，用你的语言。",
     "Thank you! I'll remember {animal}.": "谢谢！我会记住{animal}。",
     "That = or × isn't kept.": "这个 = 或 × 没有满足。",
     "That number is twice in a box.": "这个数字在一个宫里出现了两次。",
@@ -357,7 +350,6 @@
     "Watch {name}, then copy.": "看{name}做，然后跟着做。",
     "Wave": "挥手",
     "Which Cup?": "哪个杯子？",
-    "Won {n}": "赢了{n}次",
     "Yes": "是",
     "Yes! It was {n}.": "对了！是{n}。",
     "Yes, that's it!": "对，就是它！",
@@ -371,23 +363,15 @@
     "You were quicker!": "你更快！",
     "You win this game!": "这局你赢了！",
     "You win! What was it?": "你赢了！是什么动物？",
-    "You won": "你赢了",
     "You {you} · {name} {companion}": "你 {you} · {name} {companion}",
     "Your animal": "你的动物",
     "Your best": "你的最佳",
-    "Your companion won": "伙伴赢了",
-    "Your companion's": "你的伙伴",
-    "Your games": "你的游戏",
     "Your question": "你的问题",
     "Your turn: copy it.": "轮到你：跟着做。",
     "Your turn: turn two cards.": "轮到你：翻两张牌。",
     "Your turn: you're X.": "轮到你：你是 X。",
-    "Your wins": "你的胜场",
     "{count} balloons left.": {
       "other": "还剩{count}个气球。"
-    },
-    "{count} games": {
-      "other": "{count}局"
     },
     "{count} more to play": {
       "other": "还剩{count}道"

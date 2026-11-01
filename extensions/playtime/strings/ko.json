@@ -81,7 +81,6 @@
     "A bed kept to one line rules out the rest of that line, leaving this.": "한 줄 안에 들어간 화단이 그 줄의 나머지를 지웁니다. 남는 곳은 여기예요.",
     "A blossom in the other places leads to a dead end a few moves on.": "다른 자리에 꽃을 두면 몇 수 뒤에 막힙니다.",
     "A blossom in the other places would leave a row, column or bed no room, leaving this.": "다른 자리에 꽃을 두면 어느 행, 열, 화단에 자리가 없어집니다. 남는 곳은 여기예요.",
-    "A draw": "무승부",
     "A draw!": "무승부!",
     "A hint": "힌트",
     "A new best for {level}!": "{level} 새 기록!",
@@ -116,7 +115,6 @@
     "Best of 10: {n}": "10문제 최고: {n}",
     "Best streak": "최고 연속 정답",
     "Best streak ever": "최고 연속 정답",
-    "Best streak {n}": "최고 연속 {n}",
     "Best: {count} guesses": {
       "other": "최고: {count}번"
     },
@@ -202,7 +200,6 @@
     "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "보석에서 눈을 떼지 마요… 어느 컵일까요? 내가 숨긴 것 같으면 나를 클릭해요.",
     "Key": "열쇠",
     "Last Stick": "마지막 막대",
-    "Last games": "최근 게임",
     "Leaf": "나뭇잎",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "4의 배수보다 하나 더 남기세요: 17, 13, 9, 5, 그리고 1.",
     "Level": "난이도",
@@ -239,13 +236,10 @@
     "Pick a number from 1 to 100.": "1부터 100까지 숫자를 골라 주세요.",
     "Pick a topic": "주제를 골라요",
     "Pick a way to play": "놀이 방법을 골라요",
-    "Play": "놀기",
-    "Play Daily Word": "오늘의 단어 하기",
     "Play again": "다시 하기",
     "Play another": "하나 더 하기",
     "Play another word": "다른 단어 하기",
     "Played": "플레이",
-    "Playtime": "놀이 시간",
     "Please write both.": "둘 다 적어 주세요.",
     "Practice": "연습",
     "Practice word · not in your streak": "연습 · 연속 기록 제외",
@@ -293,7 +287,6 @@
     "Teach": "가르치기",
     "Tech": "기술",
     "Tell": "알려 주기",
-    "Ten games against your companion and five puzzles, no AI, in your language.": "동반자와 겨루는 게임 10개와 퍼즐 5개, AI 없이, 내 언어로.",
     "Thank you! I'll remember {animal}.": "고마워요! {animal}을(를) 기억할게요.",
     "That = or × isn't kept.": "그 = 또는 ×가 지켜지지 않았어요.",
     "That number is twice in a box.": "그 숫자가 상자에 두 번 있어요.",
@@ -357,7 +350,6 @@
     "Watch {name}, then copy.": "{name}을(를) 보고 따라 해요.",
     "Wave": "손 흔들기",
     "Which Cup?": "어느 컵?",
-    "Won {n}": "{n}승",
     "Yes": "네",
     "Yes! It was {n}.": "맞아요! {n}이었어요.",
     "Yes, that's it!": "네, 맞아요!",
@@ -371,23 +363,15 @@
     "You were quicker!": "당신이 더 빨랐어요!",
     "You win this game!": "이번 게임은 당신의 승리!",
     "You win! What was it?": "이겼어요! 뭐였어요?",
-    "You won": "승리",
     "You {you} · {name} {companion}": "나 {you} · {name} {companion}",
     "Your animal": "당신의 동물",
     "Your best": "내 최고 기록",
-    "Your companion won": "컴패니언 승리",
-    "Your companion's": "동반자",
-    "Your games": "내 게임",
     "Your question": "당신의 질문",
     "Your turn: copy it.": "당신 차례: 따라 해요.",
     "Your turn: turn two cards.": "당신 차례: 카드 두 장을 뒤집어요.",
     "Your turn: you're X.": "당신 차례: 당신은 X.",
-    "Your wins": "내 승리",
     "{count} balloons left.": {
       "other": "풍선이 {count}개 남았어요."
-    },
-    "{count} games": {
-      "other": "{count}판"
     },
     "{count} more to play": {
       "other": "{count}개 남음"
