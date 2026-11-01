@@ -88,6 +88,8 @@ that version and keep the one they have.
 
 ## Adding one
 
+- **A theme** is a folder in `themes/` (`addon.json`, `theme.json`, `art/*.png`, nothing else); Sidefolk's
+  `sidefolk-theme` skill makes one from a concept or reference images and checks it.
 - **A companion** needs its character in Sidefolk too (a `CompanionChoice` and a stand-in rig), so new ones start
   in Sidefolk's `sidefolk-3d-character` skill, which ends here. Community 3D companions wait for a data-only
   character format: today's character files are code, which only Sidefolk's own signature may carry.

@@ -22,3 +22,10 @@ docs/SECURITY.md T33 before changing how packs are made.
   also in Sidefolk's `BuiltInExtensionWords` (for packs from before `strings/`): keep those word for word with the manifest.
 - After a change: `swift test`, `python3 scripts/build.py --unsigned`, `scripts/check.sh`, and in Sidefolk
   `make test` (its sandbox tests run these extensions from `../sidefolk-addons`).
+
+## Skills
+
+New add-ons start in Sidefolk's own skills (`../sidefolk/.claude/skills/`, mirrored in `.agents/skills/` for Codex),
+which end here: `sidefolk-extension` (an extension), `sidefolk-3d-character` (a companion) and `sidefolk-theme` (a
+theme: from a concept or reference images to `themes/<name>/` with `addon.json`, `theme.json` and `art/*.png`,
+checked with `sidefolk theme check` and reviewed in Sidefolk's snapshots with `--theme`).
