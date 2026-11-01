@@ -21,7 +21,7 @@ docs/SECURITY.md T33 before changing how packs are made.
 - An extension's words live in its `strings/<language>.json`, ten languages (Sidefolk D76): change the English, then
   every language (`../sidefolk/scripts/extension-strings.py sync|check`). Its name, tagline, description and titles are
   also in Sidefolk's `BuiltInExtensionWords` (for packs from before `strings/`): keep those word for word with the manifest.
-- After a change: `swift test`, `python3 scripts/build.py --unsigned`, `scripts/check.sh`, and in Sidefolk
+- After a change: `swift test --no-parallel`, `python3 scripts/build.py --unsigned`, `scripts/check.sh`, and in Sidefolk
   `make test` (its sandbox tests run these extensions from `../sidefolk-addons`).
 
 ## Skills

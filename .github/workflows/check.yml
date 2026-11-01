@@ -39,7 +39,9 @@ jobs:
         run: scripts/ci/select-xcode.sh
 
       - name: Build and test
-        run: swift test
+        # One at a time: Playtime's records are one store, so a test that remembers a mode or a range must not run
+        # beside one that reads them (Sidefolk's D18 for the same reason).
+        run: swift test --no-parallel
 
       - name: Pack every add-on (unsigned)
         run: python3 scripts/build.py --unsigned

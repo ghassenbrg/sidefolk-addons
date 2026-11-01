@@ -99,6 +99,8 @@ import Testing
     @Test func everyGamePlaysToItsEnd() throws {
         try Language.with("en", strings: PlaytimeGameTests.strings) {
             for seed in [1, 2, 3] as [UInt64] {
+                // From clean records: a remembered mode or range (Higher or Lower) is another game's leftover.
+                PlaytimeRecords.update { $0 = PlaytimeRecords() }
                 try Self.play(TriviaScreen.self, seed: seed)
                 try Self.play(TicTacToeScreen.self, seed: seed)
                 try Self.play(CopyMeScreen.self, seed: seed)
