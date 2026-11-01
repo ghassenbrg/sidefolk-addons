@@ -140,7 +140,7 @@ import Testing
             var s = TriviaEngine.start(level: .fair, options: options, random: &random)
             let setup = TriviaScreen.board(s, events: [.opened], options: options).json
             let parts = setup["parts"] as! [[String: Any]]
-            #expect(parts.map { $0["type"] as! String } == ["prompt", "choice", "choice", "choice", "button"])
+            #expect(parts.map { $0["type"] as! String } == ["prompt", "choice", "choice", "choice", "button", "choice"])
             #expect((parts[0]["eyebrow"] as? String)?.seen == "Ein Quiz mit Nori" && parts[4]["label"] as? String == "Starten")
             #expect((setup["companion"] as? [String: Any])?["line"] as? String == "hello")
 

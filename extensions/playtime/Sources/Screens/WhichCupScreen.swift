@@ -14,43 +14,74 @@ enum WhichCupEngine: GameEngine {
         var gemAt: Int?
         var lifted = false
         var caught = false
+        /// The companion, or two people taking rounds in turn (D96): cups each found, and whether whoever's round it is
+        /// has said they're ready (the shuffle waits for them).
+        var duo: TwoPlayers.Duo
+        var found = [0, 0]
+        var ready = false
     }
 
-    enum Action: Equatable { case pick(Int), accuse, next, again, level(GameLevel) }
+    enum Action: Equatable { case pick(Int), accuse, next, again, level(GameLevel), ready, duo(TwoPlayers.Setup) }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
-        var game = Games.WhichCup(level: level, sneaky: options.sneaky)
-        let shuffle = try? game.start(using: &random)
-        return State(game: game, shuffle: shuffle)
+        fresh(level: level, sneaky: options.sneaky, duo: TwoPlayers.start(options), random: &random)
     }
+
+    /// Sneaky is the companion's trick only: two people get honest cups and ten rounds, five each.
+    static func fresh(level: GameLevel, sneaky: Bool, duo: TwoPlayers.Duo, random: inout Games.Random) -> State {
+        var game = Games.WhichCup(level: level, sneaky: sneaky && !duo.on, length: duo.on ? 2 * Games.WhichCup.rounds : Games.WhichCup.rounds)
+        let shuffle = try? game.start(using: &random)
+        return State(game: game, shuffle: shuffle, duo: duo)
+    }
+
+    /// Whose round it is when two people play: the first player's first.
+    static func player(_ s: State) -> Games.Side { (s.game.played - (s.lifted ? 1 : 0)).isMultiple(of: 2) ? .you : .companion }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
         var events: [Games.Event]
         switch action {
+        case .duo(let setup):
+            guard s.game.played == 0, !s.lifted else { throw Games.Refusal("not_now") }
+            let begin = TwoPlayers.apply(setup, to: &s.duo)
+            s = fresh(level: s.game.level, sneaky: s.game.sneaky, duo: s.duo, random: &random)
+            return begin ? [.turn(.you)] : []
+        case .ready:
+            guard s.duo.playing, !s.ready, !s.lifted else { throw Games.Refusal("not_now") }
+            s.ready = true
+            return [.turn(player(s))]
         case .pick(let cup):
+            guard !s.duo.on || s.ready else { throw Games.Refusal("not_now") }
+            let side = player(s)
             let (gem, e) = try s.game.pick(cup)
             (s.picked, s.gemAt, s.lifted, s.caught) = (cup, gem, true, false)
             events = e
+            if s.duo.on {
+                let hit = gem == cup
+                if hit { s.found[side == .you ? 0 : 1] += 1 }
+                events = [.reveal] + (hit ? [.point(side)] : [.miss(left: 0)]) + (s.game.over ? [.matchOver(winner: duoWinner(s))] : [])
+            }
         case .accuse:
             events = try s.game.accuse()
             if events.contains(.caught) { (s.picked, s.gemAt, s.lifted, s.caught) = (nil, nil, true, true) }
         case .next:
             guard s.lifted, !s.game.over else { throw Games.Refusal("not_now") }
             s.shuffle = try s.game.start(using: &random)
-            (s.picked, s.gemAt, s.lifted, s.caught) = (nil, nil, false, false)
+            (s.picked, s.gemAt, s.lifted, s.caught, s.ready) = (nil, nil, false, false, false)
             return [.turn(.you)]
         case .again, .level:
             let level: GameLevel = if case .level(let l) = action { l } else { s.game.level }
-            var options = GameOptions()
-            options.sneaky = s.game.sneaky
-            s = start(level: level, options: options, random: &random)
+            s = fresh(level: level, sneaky: s.game.sneaky, duo: s.duo, random: &random)
             return [.turn(.you)]
         }
-        if s.game.over, let outcome = outcome(of: s) {
+        if s.game.over, s.duo.on {
+            TwoPlayers.record(WhichCupScreen.id, s.duo, winner: duoWinner(s))
+        } else if s.game.over, let outcome = outcome(of: s) {
             PlaytimeRecords.finish(WhichCupScreen.id, outcome, you: s.game.score.you, companion: s.game.score.companion, best: s.game.score.you)
         }
         return events
     }
+
+    static func duoWinner(_ s: State) -> Games.Side? { s.found[0] == s.found[1] ? nil : s.found[0] > s.found[1] ? .you : .companion }
 
     static func outcome(of s: State) -> GameOutcome? {
         guard s.game.over else { return nil }
@@ -63,7 +94,9 @@ enum WhichCupScreen: GameScreen {
     static let id = "which_cup"
 
     static func action(for move: Move, in s: WhichCupEngine.State) -> WhichCupEngine.Action? {
-        switch move {
+        if let setup = TwoPlayers.setup(move) { return .duo(setup) }
+        return switch move {
+        case .button("ready"): .ready
         case .cell(0, let c): .pick(c)
         case .button("accuse"): .accuse
         case .next, .button("next"): .next
@@ -74,6 +107,7 @@ enum WhichCupScreen: GameScreen {
     }
 
     static func board(_ s: WhichCupEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
+        if s.duo.on { return duoBoard(s, events: events, options: o) }
         let g = s.game
         let shuffle = s.shuffle
         let round = min(g.played + (s.lifted ? 0 : 1), Games.WhichCup.rounds)
@@ -94,6 +128,7 @@ enum WhichCupScreen: GameScreen {
             parts.append(.button(GameButton(L("Check {name}'s paw", ["name": o.companion]), move: "accuse", style: .plain, symbol: "hand.raised",
                                             key: "c", disabled: g.accused, companion: true)))
         }
+        if g.played == 0, !s.lifted { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = WhichCupEngine.outcome(of: s) {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion))
             parts.append(ScreenKit.levels(g.level))

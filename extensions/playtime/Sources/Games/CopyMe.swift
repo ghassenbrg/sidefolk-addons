@@ -34,7 +34,13 @@ extension Games {
             self.level = level
             self.best = best
             let pads = level == .hard ? Pad.allCases : Array(Pad.allCases.prefix(4))
-            plan = (0..<Self.longest).map { _ in rng.pick(pads) }
+            // A dancer repeats a move, but not a third time in a row: that reads as a stuck machine, not a dance.
+            var plan: [Pad] = []
+            while plan.count < Self.longest {
+                let stuck = plan.count >= 2 && plan[plan.count - 1] == plan[plan.count - 2] ? plan.last : nil
+                plan.append(rng.pick(pads.filter { $0 != stuck }))
+            }
+            self.plan = plan
             length = level == .hard ? 3 : 1
         }
 

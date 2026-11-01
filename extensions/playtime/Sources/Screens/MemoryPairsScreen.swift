@@ -10,39 +10,49 @@ enum MemoryPairsEngine: GameEngine {
         /// The card just turned, flipped in.
         var fresh: Int?
         var recalled = false
+        /// The companion, or two people taking turns (D96).
+        var duo: TwoPlayers.Duo
     }
 
-    enum Action: Equatable { case flip(Int), next, again, level(GameLevel) }
+    enum Action: Equatable { case flip(Int), next, again, level(GameLevel), duo(TwoPlayers.Setup) }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
-        State(game: Games.MemoryPairs(level: level, first: .you, using: &random))
+        State(game: Games.MemoryPairs(level: level, first: .you, using: &random), duo: TwoPlayers.start(options))
     }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
         var events: [Games.Event]
         switch action {
+        case .duo(let setup):
+            guard s.game.flips == 0 || s.duo.on else { throw Games.Refusal("not_now") }
+            let begin = TwoPlayers.apply(setup, to: &s.duo)
+            s = State(game: Games.MemoryPairs(level: s.game.level, first: .you, using: &random), duo: s.duo)
+            return begin ? [.turn(.you)] : []
         case .flip(let i):
-            events = try s.game.flip(i, by: .you)
+            guard !s.duo.on || s.duo.playing else { throw Games.Refusal("not_now") }
+            events = try s.game.flip(i, by: s.duo.on ? s.game.turn : .you)
             (s.fresh, s.recalled) = (i, false)
         case .next:
             if s.game.waitingToCover {
                 events = try s.game.cover()
                 s.fresh = nil
             } else {
-                guard s.game.turn == .companion, !s.game.over else { throw Games.Refusal("not_now") }
+                guard !s.duo.on, s.game.turn == .companion, !s.game.over else { throw Games.Refusal("not_now") }
                 let (cell, recalled) = s.game.companionFlip(using: &random)
                 events = try s.game.flip(cell, by: .companion)
                 (s.fresh, s.recalled) = (cell, recalled)
                 if recalled { events.append(.recalls) }
                 // Its second card comes after another moment's thought.
-                if events.isEmpty || events == [.recalls] { events.append(.think(ms: 800)) }
+                if events.isEmpty || events == [.recalls] { events.append(.think(ms: s.game.thinkMs - 150)) }
             }
         case .again, .level:
             let level: GameLevel = if case .level(let l) = action { l } else { s.game.level }
-            s = start(level: level, options: GameOptions(), random: &random)
+            s = State(game: Games.MemoryPairs(level: level, first: .you, using: &random), duo: s.duo)
             return [.turn(.you)]
         }
-        if s.game.over, let outcome = outcome(of: s) {
+        if s.game.over, s.duo.on {
+            TwoPlayers.record(MemoryPairsScreen.id, s.duo, winner: s.game.score.leader)
+        } else if s.game.over, let outcome = outcome(of: s) {
             PlaytimeRecords.finish(MemoryPairsScreen.id, outcome, you: s.game.score.you, companion: s.game.score.companion, best: s.game.score.you)
         }
         return events
@@ -81,7 +91,8 @@ enum MemoryPairsScreen: GameScreen {
     }
 
     static func action(for move: Move, in s: MemoryPairsEngine.State) -> MemoryPairsEngine.Action? {
-        switch move {
+        if let setup = TwoPlayers.setup(move) { return .duo(setup) }
+        return switch move {
         case .cell(let r, let c): .flip(r * 4 + c)
         case .next: .next
         case .button("again"): .again
@@ -91,6 +102,7 @@ enum MemoryPairsScreen: GameScreen {
     }
 
     static func board(_ s: MemoryPairsEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
+        if s.duo.on { return duoBoard(s, events: events, options: o) }
         let g = s.game
         let cells = g.cards.indices.map { i -> Cell in
             let up = g.owner[i] != nil || g.faceUp.contains(i)
@@ -110,6 +122,7 @@ enum MemoryPairsScreen: GameScreen {
             .prompt(text, eyebrow: ScreenKit.level(g.level)),
             .board(rows: 4, columns: 4, cells: cells, locked: g.over || g.turn != .you || g.waitingToCover),
         ]
+        if g.flips == 0 { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = MemoryPairsEngine.outcome(of: s) {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion))
             parts.append(ScreenKit.levels(g.level))

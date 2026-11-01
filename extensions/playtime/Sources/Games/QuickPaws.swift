@@ -38,7 +38,7 @@ extension Games {
 
         var over: Bool { score.you >= Self.target || score.companion >= Self.target }
 
-        /// The companion's usual reaction by level, before its jitter of up to ±60 ms.
+        /// The companion's average reaction by level (`companionReaction` draws each one around it).
         var companionTypicalMs: Int {
             switch level { case .easy: 450; case .fair: 320; case .hard: 240 }
         }
@@ -46,10 +46,23 @@ extension Games {
         mutating func start(using rng: inout Random) throws -> Round {
             guard !over else { throw Refusal("over") }
             guard round == nil else { throw Refusal("not_now") }
-            let jitter = rng.between(-30, 30) + rng.between(-30, 30)
-            let next = Round(waitMs: rng.between(1500, 5000), windowMs: Self.window, companionMs: companionTypicalMs + jitter)
+            let next = Round(waitMs: rng.between(1500, 5000), windowMs: Self.window, companionMs: companionReaction(using: &rng))
             round = next
             return next
+        }
+
+        /// When its paw comes down, as a person's reflexes go: a bell around its usual time, a tail of slower presses
+        /// (reaction times lean late, never early), and now and then a moment it wasn't looking. Never under 150 ms,
+        /// the quickest a person can see and press.
+        func companionReaction(using rng: inout Random) -> Int {
+            let (tail, lapse, lapseMs): (Double, Double, ClosedRange<Int>) = switch level {
+            case .easy: (60, 0.08, 250...500)
+            case .fair: (40, 0.05, 150...300)
+            case .hard: (25, 0.02, 80...160)
+            }
+            var ms = rng.normal(Double(companionTypicalMs) - tail, 28) - tail * log(max(rng.unit(), 1e-9))
+            if rng.chance(lapse) { ms += Double(rng.between(lapseMs.lowerBound, lapseMs.upperBound)) }
+            return max(150, min(Self.window - 100, Int(ms.rounded())))
         }
 
         mutating func press(ms: Int) throws -> [Event] {
@@ -74,6 +87,22 @@ extension Games {
         mutating func timeout() throws -> [Event] {
             guard round != nil else { throw Refusal("not_now") }
             return finish(.companion, you: nil, extra: [.tooSlow])
+        }
+
+        /// Two people on one button (D96): the first key decides. A press after the signal takes the round for its
+        /// side; one before it (`ms` nil) gives the round to the other side.
+        mutating func keyed(_ side: Side, ms: Int?) throws -> [Event] {
+            guard round != nil else { throw Refusal("not_now") }
+            guard let ms else { return finish(side.other, you: nil, extra: [.tooSoon]) }
+            guard ms >= 0 else { throw Refusal("bad_time") }
+            return finish(side, you: ms, extra: [])
+        }
+
+        /// Two people and nobody pressed in time: the round is played again, no point to anyone.
+        mutating func unplayed() throws -> [Event] {
+            guard round != nil else { throw Refusal("not_now") }
+            round = nil
+            return [.tooSlow]
         }
 
         private mutating func finish(_ winner: Side, you: Int?, extra: [Event]) -> [Event] {

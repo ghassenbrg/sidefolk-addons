@@ -12,13 +12,21 @@ enum LastStickEngine: GameEngine {
         var takenBy: Games.Side?
         var lesson = false
         var wins = Games.Score()
+        /// The companion, or two people taking turns (D96).
+        var duo: TwoPlayers.Duo
     }
 
-    enum Action: Equatable { case take(Int), next, lesson, again, level(GameLevel) }
+    enum Action: Equatable { case take(Int), next, lesson, again, level(GameLevel), duo(TwoPlayers.Setup) }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
+        fresh(level: level, duo: TwoPlayers.start(options))
+    }
+
+    /// A first game: against the companion its lessons carry on; between two people there is no trick to offer.
+    static func fresh(level: GameLevel, duo: TwoPlayers.Duo) -> State {
         let r = PlaytimeRecords.load()
-        return State(game: Games.LastStick(level: level, first: .you, losses: r.stickLosses, secretOffered: r.stickSecretOffered), first: .you)
+        return State(game: Games.LastStick(level: level, first: .you, losses: duo.on ? 0 : r.stickLosses, secretOffered: duo.on || r.stickSecretOffered),
+                     first: .you, duo: duo)
     }
 
     static func opening(_ s: State) -> [Games.Event] { [.turn(.you)] }
@@ -26,11 +34,19 @@ enum LastStickEngine: GameEngine {
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
         var events: [Games.Event]
         switch action {
+        case .duo(let setup):
+            guard s.wins == Games.Score(), s.game.left == Games.LastStick.sticks || s.duo.on else { throw Games.Refusal("not_now") }
+            let begin = TwoPlayers.apply(setup, to: &s.duo)
+            s = fresh(level: s.game.level, duo: s.duo)
+            return begin ? [.turn(.you)] : []
         case .take(let n):
-            events = try s.game.take(n, by: .you)
-            (s.taken, s.takenBy) = (n, .you)
+            guard !s.duo.on || s.duo.playing else { throw Games.Refusal("not_now") }
+            // Two people: whoever's turn it is takes.
+            let side = s.duo.on ? s.game.turn : .you
+            events = try s.game.take(n, by: side)
+            (s.taken, s.takenBy) = (n, side)
         case .next:
-            guard s.game.turn == .companion, !s.game.over else { throw Games.Refusal("not_now") }
+            guard !s.duo.on, s.game.turn == .companion, !s.game.over else { throw Games.Refusal("not_now") }
             let n = s.game.companionTake(using: &random)
             events = try s.game.take(n, by: .companion)
             (s.taken, s.takenBy) = (n, .companion)
@@ -42,10 +58,13 @@ enum LastStickEngine: GameEngine {
             let level: GameLevel = if case .level(let l) = action { l } else { s.game.level }
             let first = s.first.other
             s = State(game: Games.LastStick(level: level, first: first, losses: s.game.losses, secretOffered: s.game.secretOffered), first: first,
-                      lesson: s.lesson, wins: s.wins)
-            return first == .companion ? [.turn(.companion), .think(ms: 900)] : [.turn(.you)]
+                      lesson: s.lesson, wins: s.wins, duo: s.duo)
+            return first == .companion && !s.duo.on ? [.turn(.companion), .think(ms: 900)] : [.turn(first)]
         }
-        if let winner = s.game.winner {
+        if let winner = s.game.winner, s.duo.on {
+            s.wins[winner] += 1
+            TwoPlayers.record(LastStickScreen.id, s.duo, winner: winner)
+        } else if let winner = s.game.winner {
             s.wins[winner] += 1
             PlaytimeRecords.update { $0.stickLosses = s.game.losses; $0.stickSecretOffered = s.game.secretOffered }
             PlaytimeRecords.finish(LastStickScreen.id, winner == .you ? .won : .lost, you: s.wins.you, companion: s.wins.companion)
@@ -61,7 +80,8 @@ enum LastStickScreen: GameScreen {
     static let id = "last_stick"
 
     static func action(for move: Move, in s: LastStickEngine.State) -> LastStickEngine.Action? {
-        switch move {
+        if let setup = TwoPlayers.setup(move) { return .duo(setup) }
+        return switch move {
         case .number(let n): .take(n)
         case .next: .next
         case .button("lesson"): .lesson
@@ -72,6 +92,7 @@ enum LastStickScreen: GameScreen {
     }
 
     static func board(_ s: LastStickEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
+        if s.duo.on { return duoBoard(s, events: events, options: o) }
         let g = s.game
         let thinking = events.compactMap { if case .think(let ms) = $0 { ms } else { nil } }.first
         let lesson = s.lesson && !g.over ? g.lesson : nil
@@ -89,6 +110,7 @@ enum LastStickScreen: GameScreen {
                           hint: lesson?.takeNow ?? [], taken: s.taken, takenBy: s.takenBy == .companion ? "companion" : s.takenBy == .you ? "you" : nil,
                           locked: g.over || g.turn != .you)),
         ]
+        if s.wins == Games.Score(), g.left == Games.LastStick.sticks { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if lesson != nil {
             parts.append(.note(L("Leave one more than a multiple of four: 17, 13, 9, 5, then 1.") + " " + L("Every round, make four together."),
                                title: L("{name}'s secret", ["name": o.companion])))

@@ -25,6 +25,8 @@ extension Games {
 
         let level: Level
         let sneaky: Bool
+        /// Rounds in the match: five, or ten when two people take turns (D96).
+        let length: Int
         private(set) var score = Score()
         private(set) var played = 0
         private(set) var current: Shuffle?
@@ -35,18 +37,20 @@ extension Games {
         /// The companion's paw was checked this round (once a round).
         private(set) var accused = false
 
-        init(level: Level, sneaky: Bool = false) {
+        init(level: Level, sneaky: Bool = false, length: Int = WhichCup.rounds) {
             self.level = level
             self.sneaky = sneaky
+            self.length = length
         }
 
         var cups: Int { switch level { case .easy: 3; case .fair: 4; case .hard: 5 } }
-        var over: Bool { played >= Self.rounds }
+        var over: Bool { played >= length }
 
         mutating func start(using rng: inout Random) throws -> Shuffle {
             guard !over else { throw Refusal("over") }
             guard current == nil else { throw Refusal("not_now") }
-            let r = played
+            // Two people take turns, so each pair of rounds is as quick as one.
+            let r = length > Self.rounds ? played / 2 : played
             let count: Int, ms: Int
             switch level {
             case .easy: (count, ms) = (4 + r, 600 - 30 * r)
@@ -56,11 +60,16 @@ extension Games {
             let hide = rng.below(cups)
             var at = hide
             var swaps: [[Int]] = []
-            for _ in 0..<count {
-                let a = rng.below(cups)
+            // A shell player moves the gem's cup more often than chance would (more on Hard), and rarely swaps the same
+            // two cups twice running, which would only undo the move.
+            let follow: Double = switch level { case .easy: 0.45; case .fair: 0.55; case .hard: 0.65 }
+            while swaps.count < count {
+                let a = rng.chance(follow) ? at : rng.below(cups)
                 var b = rng.below(cups - 1)
                 if b >= a { b += 1 }
-                swaps.append([min(a, b), max(a, b)])
+                let pair = [min(a, b), max(a, b)]
+                if pair == swaps.last, !rng.chance(0.1) { continue }
+                swaps.append(pair)
                 if at == a { at = b } else if at == b { at = a }
             }
             gem = at

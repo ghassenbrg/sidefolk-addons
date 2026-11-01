@@ -11,34 +11,45 @@ enum TicTacToeEngine: GameEngine {
         var fresh: [Int] = []
         /// Which game of the series this is.
         var number = 1
+        /// The companion, or two people taking turns: the first is X, the second O (D96).
+        var duo: TwoPlayers.Duo
     }
 
-    enum Action: Equatable { case cell(Int), next, hint, again, level(GameLevel) }
+    enum Action: Equatable { case cell(Int), next, hint, again, level(GameLevel), duo(TwoPlayers.Setup) }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
-        State(game: Games.TicTacToe(level: level, first: .you))
+        State(game: Games.TicTacToe(level: level, first: .you), duo: TwoPlayers.start(options))
     }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
         var events: [Games.Event]
         switch action {
+        case .duo(let setup):
+            // Before anything is played only.
+            guard s.game.cells.allSatisfy({ $0 == nil }), s.number == 1, s.game.series == Games.Score() else { throw Games.Refusal("not_now") }
+            let begin = TwoPlayers.apply(setup, to: &s.duo)
+            s = State(game: Games.TicTacToe(level: s.game.level, first: .you), duo: s.duo)
+            return begin ? [.turn(.you)] : []
         case .cell(let i):
-            events = try s.game.play(i, by: .you)
+            guard s.duo.playing || !s.duo.on else { throw Games.Refusal("not_now") }
+            // Two people: whoever's turn it is plays the cell.
+            events = try s.game.play(i, by: s.duo.on ? s.game.turn : .you)
             s.fresh = [i]
             s.hint = nil
         case .next:
-            guard s.game.turn == .companion, !s.game.gameOver else { throw Games.Refusal("not_now") }
+            guard !s.duo.on, s.game.turn == .companion, !s.game.gameOver else { throw Games.Refusal("not_now") }
             // Its move is chosen now, from the board as it stands: the person's next move isn't known to it.
             let i = s.game.companionMove(using: &random)
             events = try s.game.play(i, by: .companion)
             s.fresh = [i]
         case .hint:
+            guard !s.duo.on else { throw Games.Refusal("not_now") }
             let (cell, e) = try s.game.hint()
             s.hint = cell
             events = e
         case .again:
             if s.game.seriesOver {
-                s = State(game: Games.TicTacToe(level: s.game.level, first: .you))
+                s = State(game: Games.TicTacToe(level: s.game.level, first: .you), duo: s.duo)
                 return [.turn(.you)]
             }
             events = try s.game.nextGame()
@@ -46,11 +57,15 @@ enum TicTacToeEngine: GameEngine {
             s.fresh = []
             s.hint = nil
         case .level(let level):
-            s = State(game: Games.TicTacToe(level: level, first: .you))
+            s = State(game: Games.TicTacToe(level: level, first: .you), duo: s.duo)
             return [.turn(.you)]
         }
-        if events.contains(where: { if case .matchOver = $0 { true } else { false } }), let outcome = outcome(of: s) {
-            PlaytimeRecords.finish(TicTacToeScreen.id, outcome, you: s.game.series.you, companion: s.game.series.companion)
+        if events.contains(where: { if case .matchOver = $0 { true } else { false } }) {
+            if s.duo.on {
+                TwoPlayers.record(TicTacToeScreen.id, s.duo, winner: s.game.series.leader)
+            } else if let outcome = outcome(of: s) {
+                PlaytimeRecords.finish(TicTacToeScreen.id, outcome, you: s.game.series.you, companion: s.game.series.companion)
+            }
         }
         return events
     }
@@ -66,7 +81,8 @@ enum TicTacToeScreen: GameScreen {
     static let id = "tictactoe"
 
     static func action(for move: Move, in s: TicTacToeEngine.State) -> TicTacToeEngine.Action? {
-        switch move {
+        if let setup = TwoPlayers.setup(move) { return .duo(setup) }
+        return switch move {
         case .cell(let r, let c): .cell(r * 3 + c)
         case .next: .next
         case .button("hint"): .hint
@@ -77,6 +93,7 @@ enum TicTacToeScreen: GameScreen {
     }
 
     static func board(_ s: TicTacToeEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
+        if s.duo.on { return duoBoard(s, events: events, options: o) }
         let g = s.game
         let line = Set(g.winningLine ?? [])
         let winner = g.winningLine.flatMap { g.cells[$0[0]] }
@@ -102,6 +119,7 @@ enum TicTacToeScreen: GameScreen {
             .board(rows: 3, columns: 3, cells: cells, locked: g.gameOver || g.turn != .you, numpad: true),
         ]
         if let note = ScreenKit.refusal(events) { parts.append(note) }
+        if s.number == 1, g.cells.allSatisfy({ $0 == nil }) { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = TicTacToeEngine.outcome(of: s) {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.series.you)) – \(Format.integer(g.series.companion))",
                                           companion: o.companion))

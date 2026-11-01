@@ -55,6 +55,18 @@ struct GameOptions: Codable, Equatable {
     /// The level the person asked for, nil when Sidefolk sent none (a game opened from the menu): a puzzle then opens
     /// at the level last picked.
     var asked: GameLevel?
+    /// Two people play each other on this Mac (`players` 2, D96), under the names Sidefolk last saw (`names`).
+    var twoPlayers = false
+    var names: [String]?
+    /// What the person said about the game (Sidefolk's slots): a number game's range and who guesses, a quiz's topic and
+    /// length.
+    var min: Int?
+    var max: Int?
+    var mode: String?
+    var topic: String?
+    var count: Int?
+    /// The AI that can make trivia questions (D95), by name: set only while the person's setting and their AI allow it.
+    var aiTrivia: String?
 
     init() {}
 
@@ -63,6 +75,15 @@ struct GameOptions: Codable, Equatable {
         tone = args.string("tone") ?? "cheeky"
         companion = args.string("companion") ?? "Mochi"
         self.language = Localized.normalized(language)
+        twoPlayers = args.int("players") == 2
+        let given = (args.values["names"] as? [Any] ?? []).compactMap { $0 as? String }
+        names = given.count == 2 ? given : nil
+        min = args.int("min")
+        max = args.int("max")
+        mode = args.string("mode")
+        topic = args.string("topic")
+        count = args.int("count")
+        aiTrivia = args.string("ai_trivia")
     }
 
     var gamesLanguage: Games.Language { Games.Language(code: language) }

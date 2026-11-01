@@ -36,12 +36,26 @@ struct PlaytimeRecords: Codable, Equatable {
     var stickSecretOffered = false
     /// Higher or Lower's way last played ("mine" or "yours"), picked first on its start board.
     var higherLowerMode: String?
+    /// Higher or Lower's top last played (100 until another is picked, D96).
+    var higherLowerTop: Int?
     /// Daily Word's practice words played per language since its list last ran out, so none comes back before.
     var practiceWords: [String: [String]]?
     /// The logic puzzles' best times, daily streaks and practice tallies, by puzzle id (`PuzzleRecords.swift`).
     var puzzles: [String: Games.PuzzleRecord]?
     /// Each puzzle's board of the day as far as played (a `PuzzleGame` as JSON), so reopening it carries on.
     var puzzleDays: [String: Data]?
+
+    /// Two people's head-to-head (D96), by game and pair of names ("Ana · Sam", in either order): never mixed with
+    /// the tallies against the companion.
+    var duels: [String: [String: Duel]]?
+    /// The names two people last played under, when Sidefolk passed none.
+    var players: [String]?
+
+    struct Duel: Codable, Equatable {
+        var wins: [String: Int] = [:]
+        var draws = 0
+        var last: Date?
+    }
 
     static var file: String { Paths.data + "/records.json" }
     static var animalsFile: String { Paths.data + "/animals.json" }

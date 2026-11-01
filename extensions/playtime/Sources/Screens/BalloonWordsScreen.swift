@@ -7,17 +7,25 @@ enum BalloonWordsEngine: GameEngine {
     struct State: Codable, Equatable {
         var game: Games.BalloonWords
         var record = false
+        /// The companion, or two people setting each other words (`BalloonWordsDuel`, D96).
+        var duo: TwoPlayers.Duo
+        var duel: BalloonWordsDuel?
     }
 
-    enum Action: Equatable { case letter(String), hint, again, level(GameLevel) }
+    enum Action: Equatable { case letter(String), hint, again, level(GameLevel), word(String), ready, next, duo(TwoPlayers.Setup) }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
-        State(game: Games.BalloonWords(language: options.gamesLanguage, level: level, using: &random))
+        let duo = TwoPlayers.start(options)
+        return State(game: Games.BalloonWords(language: options.gamesLanguage, level: level, using: &random), duo: duo,
+                     duel: duo.on ? BalloonWordsDuel() : nil)
     }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
+        if s.duo.on || action == .duo(.opponent(two: true)) { return try BalloonWordsDuel.play(action, on: &s, random: &random) }
         let events: [Games.Event]
         switch action {
+        case .word, .ready, .next, .duo:
+            throw Games.Refusal("not_now")
         case .letter(let l): events = try s.game.guess(l)
         case .hint: events = try s.game.hint().events
         case .again, .level:
@@ -27,6 +35,7 @@ enum BalloonWordsEngine: GameEngine {
             // A different word from the last one.
             var next = start(level: level, options: options, random: &random)
             for _ in 0..<4 where next.game.entry == s.game.entry { next = start(level: level, options: options, random: &random) }
+            next.duo = s.duo
             s = next
             return [.turn(.you)]
         }
@@ -54,8 +63,12 @@ enum BalloonWordsScreen: GameScreen {
     static let id = "balloon_words"
 
     static func action(for move: Move, in s: BalloonWordsEngine.State) -> BalloonWordsEngine.Action? {
-        switch move {
+        if let setup = TwoPlayers.setup(move) { return .duo(setup) }
+        return switch move {
         case .letter(let l): .letter(l)
+        case .text("word", let w): .word(w)
+        case .button("ready"): .ready
+        case .button("next_round"): .next
         case .button("hint"): .hint
         case .button("again"): .again
         case .choice("level", let l): GameLevel(rawValue: l).map { .level($0) }
@@ -73,17 +86,31 @@ enum BalloonWordsScreen: GameScreen {
         case "transport": L("Getting around")
         case "sports": L("Games and sports")
         case "music": L("Music")
+        case "": L("A word from a friend")
         default: id
         }
     }
 
-    static func board(_ s: BalloonWordsEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
-        let g = s.game
-        let slots = g.slots
-        let tiles = zip(g.units, slots).map { unit, shown in
+    /// The word's places: each letter once guessed (or at the end), hidden before.
+    static func tiles(_ g: Games.BalloonWords) -> [LetterTile] {
+        zip(g.units, g.slots).map { unit, shown in
             LetterTile(unit.key.isEmpty ? unit.shown : shown ?? "", mark: unit.key.isEmpty || shown != nil ? (g.over && !g.guessed.contains(unit.key) && !unit.key.isEmpty ? "absent" : "none") : "hidden",
                        group: unit.group)
         }
+    }
+
+    /// The language's keyboard, each key marked hit or miss once guessed.
+    static func keyboard(_ g: Games.BalloonWords) -> BoardPart? {
+        Keyboards.part(g.language, for: .balloon, mode: "letter", locked: g.over, mark: { k in
+            guard g.guessed.contains(k) else { return "none" }
+            return g.units.contains { $0.key == k } ? "hit" : "miss"
+        })
+    }
+
+    static func board(_ s: BalloonWordsEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
+        if s.duo.on { return BalloonWordsDuel.board(s, events: events, options: o) }
+        let g = s.game
+        let tiles = tiles(g)
         let text: String = if g.won { L("You saved the balloons!") }
             else if g.lost { L("The word was {word}.", ["word": g.entry.word]) }
             else { L("Guess the word, a letter at a time.") }
@@ -92,10 +119,7 @@ enum BalloonWordsScreen: GameScreen {
             .prompt(text, eyebrow: g.over && g.language == .zh ? g.entry.word : nil, chip: category(g.entry.category)),
             .play(.letters(rows: [tiles], length: tiles.count, style: "slots", script: Keyboards.script(g.language))),
         ]
-        if let keys = Keyboards.part(g.language, for: .balloon, mode: "letter", locked: g.over, mark: { k in
-            guard g.guessed.contains(k) else { return "none" }
-            return g.units.contains { $0.key == k } ? "hit" : "miss"
-        }) { parts.append(keys) }
+        if let keys = keyboard(g) { parts.append(keys) }
         if let note = ScreenKit.refusal(events) { parts.append(note) }
         if let outcome = BalloonWordsEngine.outcome(of: s) {
             parts.append(ScreenKit.result(outcome, figure: g.entry.word, line: outcome == .won ? L(one: "{count} balloon left.", other: "{count} balloons left.", count: g.left) : nil,
@@ -104,6 +128,7 @@ enum BalloonWordsScreen: GameScreen {
         } else if !g.hintUsed {
             parts.append(.button(GameButton(L("Show a letter"), move: "hint", style: .plain, symbol: "lightbulb")))
         }
+        if g.guessed.isEmpty { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         var cue = EventCues.cue(events)
         // The companion holds what's left of its balloons; it lets them go when you win.
         let held = g.won ? "none" : "balloons(\(max(g.left, 1)))"

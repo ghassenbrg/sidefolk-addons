@@ -34,6 +34,10 @@ ext.tool("trivia", "Trivia quiz",
     try Trivia.play(answer: args.string("answer"), category: args.string("category"))
 }
 
+// Trivia packs made by the person's AI come through Sidefolk (D95): the request goes out, the pack comes back as data.
+TriviaAI.send = { method, params in ext.send(method, params) }
+ext.on("sidefolk/trivia.pack") { args in TriviaAI.receive(args) }
+
 GameTable.register(TriviaScreen.self, on: ext)
 GameTable.register(TicTacToeScreen.self, on: ext)
 GameTable.register(CopyMeScreen.self, on: ext)

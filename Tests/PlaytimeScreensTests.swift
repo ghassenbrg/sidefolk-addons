@@ -232,7 +232,7 @@ import Testing
         _ = GameTable.play(HigherLowerScreen.self, .next, on: &yours, random: &random)
         let asking = HigherLowerScreen.board(yours, events: [], options: Self.options())
         #expect((Self.part(asking, "answers")?["items"] as? [[String: Any]])?.map { $0["key"] as? String } == ["h", "l", "y"])
-        #expect((Self.part(asking, "prompt")?["text"] as? String)?.seen == "Is it… 50?")
+        #expect((Self.part(asking, "prompt")?["text"] as? String)?.seen == "Is it… \(yours.yours!.guess)?" && (25...75).contains(yours.yours!.guess))
     }
 
     /// The founder picked "I'll guess yours" once and could never change it: both ways are offered every time, the

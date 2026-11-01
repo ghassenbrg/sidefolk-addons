@@ -128,7 +128,29 @@ extension Games {
         mutating func between(_ lo: Int, _ hi: Int) -> Int { lo + below(hi - lo + 1) }
 
         /// True with probability p.
-        mutating func chance(_ p: Double) -> Bool { Double(next() >> 11) / Double(1 << 53) < p }
+        mutating func chance(_ p: Double) -> Bool { unit() < p }
+
+        /// 0 ..< 1, evenly.
+        mutating func unit() -> Double { Double(next() >> 11) / Double(1 << 53) }
+
+        /// A bell curve's draw (Box–Muller): mostly near `mean`, two in three within one `spread`.
+        mutating func normal(_ mean: Double, _ spread: Double) -> Double {
+            let u = max(unit(), 1e-12), v = unit()
+            return mean + spread * (-2 * log(u)).squareRoot() * cos(2 * .pi * v)
+        }
+
+        /// One index of `weights`, each as likely as its weight.
+        mutating func weighted(_ weights: [Double]) -> Int {
+            var left = unit() * weights.reduce(0, +)
+            for (i, w) in weights.enumerated() {
+                left -= w
+                if left < 0 { return i }
+            }
+            return weights.count - 1
+        }
+
+        /// One of `items`, each as likely as its weight.
+        mutating func pickWeighted<T>(_ items: [T], weight: (T) -> Double) -> T { items[weighted(items.map(weight))] }
 
         mutating func pick<T>(_ items: [T]) -> T { items[below(items.count)] }
 
@@ -146,6 +168,13 @@ extension Games {
         var h: UInt64 = 0xCBF2_9CE4_8422_2325
         for byte in text.utf8 { h = (h ^ UInt64(byte)) &* 0x0100_0000_01B3 }
         return h
+    }
+
+    /// How long the companion thinks before a move: `base` ms give or take up to `spread`, drawn from the position
+    /// (`seed`, its board), so no two moves take one fixed time and a replay of the same position looks the same.
+    static func pause(_ base: Int, spread: Int, seed: UInt64) -> Int {
+        var r = Random(seed: seed)
+        return max(150, base + r.between(-spread, spread))
     }
 }
 

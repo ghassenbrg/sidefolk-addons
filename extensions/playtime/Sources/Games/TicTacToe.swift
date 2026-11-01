@@ -63,23 +63,33 @@ extension Games {
             return events
         }
 
-        /// The companion's cell by level: Easy is mostly random, Fair wins when it can and blocks when it must, Hard is
-        /// perfect (minimax), choosing at random between equally good cells so its games differ.
+        /// The companion's cell, played like a person of the level's strength: Easy, a beginner, mostly sees its own win and half the
+        /// blocks, and otherwise plays where people like to (the centre, the corners) with no plan. Fair never misses a
+        /// win, plays a good move most of the time, and now and then overlooks a threat (one move in eight). Hard
+        /// never loses: perfect play (minimax), choosing between equally good cells the way a person would, so its
+        /// openings and games differ.
         func companionMove(using rng: inout Random) -> Int {
             let open = legalMoves
             let win = threats(for: .companion), block = threats(for: .you)
             switch level {
             case .easy:
-                if let w = win.first, rng.chance(0.5) { return w }
-                if let b = block.first, rng.chance(0.3) { return b }
-                return rng.pick(open)
+                if !win.isEmpty, rng.chance(0.75) { return rng.pick(win) }
+                if !block.isEmpty, rng.chance(0.5) { return rng.pick(block) }
+                return Self.natural(open, using: &rng)
             case .fair:
                 if !win.isEmpty { return rng.pick(win) }
+                // A lapse: it overlooks your threat, or plays without a plan.
+                if rng.chance(0.125) { return Self.natural(open, using: &rng) }
                 if !block.isEmpty { return rng.pick(block) }
-                return rng.pick(open)
+                return rng.chance(0.75) ? Self.natural(Self.bestMoves(cells, for: .companion), using: &rng) : Self.natural(open, using: &rng)
             case .hard:
-                return rng.pick(Self.bestMoves(cells, for: .companion))
+                return Self.natural(Self.bestMoves(cells, for: .companion), using: &rng)
             }
+        }
+
+        /// One of `cells` as a person picks: the centre most often, then a corner, an edge least.
+        static func natural(_ cells: [Int], using rng: inout Random) -> Int {
+            rng.pickWeighted(cells) { $0 == 4 ? 3 : [0, 2, 6, 8].contains($0) ? 2 : 1 }
         }
 
         /// The best cell for you, shown by the companion pointing at it: once a game.
@@ -125,10 +135,13 @@ extension Games {
             }.reduce(into: []) { if !$0.contains($1) { $0.append($1) } }
         }
 
-        /// 0.6–1.4 s: longer when you have a threat it must deal with. Fixed by the board, so a replay looks the same.
+        /// About 0.4–1.7 s, as a person takes: a quick first move, longer in the middle of a game and when you have a
+        /// threat it must deal with, and never one fixed time. Drawn from the board, so a replay looks the same.
         private func thinkTime() -> Int {
             let filled = cells.compactMap { $0 }.count
-            return 600 + filled * 60 + (threats(for: .you).isEmpty ? 0 : 400)
+            let position = cells.reduce(UInt64(series.you * 4 + series.companion)) { $0 &* 3 &+ ($1 == nil ? 0 : $1 == .you ? 1 : 2) }
+            let base = filled <= 1 ? 600 : 750 + min(filled, 5) * 50
+            return Games.pause(base + (threats(for: .you).isEmpty ? 0 : 350), spread: 250, seed: position)
         }
 
         /// Every cell with the best minimax value for `side`.

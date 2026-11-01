@@ -72,15 +72,17 @@ struct PlaytimeGamesTests {
     }
 
     @Test func fairTicTacToeWinsAndBlocks() throws {
-        var rng = G.Random(seed: 3)
         var game = G.TicTacToe(level: .fair)
         _ = try game.play(0, by: .you)
         _ = try game.play(4, by: .companion)
         _ = try game.play(1, by: .you)
-        #expect(game.companionMove(using: &rng) == 2, "blocks the top row")
+        // It blocks the top row nearly always: a lapse now and then, as a fair player has.
+        let blocks = (0..<400).filter { seed in var r = G.Random(seed: UInt64(seed)); return game.companionMove(using: &r) == 2 }.count
+        #expect((330...395).contains(blocks), "\(blocks) of 400")
         _ = try game.play(2, by: .companion)
         _ = try game.play(8, by: .you)
-        #expect(game.companionMove(using: &rng) == 6, "takes its own win")
+        let wins = (0..<200).filter { seed in var r = G.Random(seed: UInt64(seed)); return game.companionMove(using: &r) == 6 }.count
+        #expect(wins == 200, "never misses its own win")
         var hinted = G.TicTacToe(level: .easy)
         _ = try hinted.play(0, by: .you)
         _ = try hinted.play(4, by: .companion)
@@ -193,19 +195,22 @@ struct PlaytimeGamesTests {
             #expect(mine.low == low && mine.high == high)
         }
         #expect(mine.guesses.count <= 7 && events.contains(.roundOver(winner: .you)) && mine.shown != nil && mine.warmth == 1)
-        for secret in G.HigherLower.range {
-            var yours = G.HigherLower.GuessYours()
+        for secret in 1...100 {
+            var rng = G.Random(seed: UInt64(secret))
+            var yours = G.HigherLower.GuessYours(level: .hard, using: &rng)
             while !yours.found {
                 let answer: G.HigherLower.GuessYours.Answer = yours.guess == secret ? .yes : (secret > yours.guess ? .higher : .lower)
-                _ = try yours.answer(answer)
+                _ = try yours.answer(answer, using: &rng)
             }
-            #expect(yours.asked <= 7, "\(secret)")
+            #expect(yours.asked <= 9, "\(secret)")
         }
-        var fibbed = G.HigherLower.GuessYours()
-        _ = try fibbed.answer(.lower)      // below 50
-        _ = try fibbed.answer(.higher)     // above 25
-        while fibbed.high > fibbed.low { _ = try fibbed.answer(.higher) }
-        #expect(try fibbed.answer(.higher) == [.contradiction] && fibbed.contradicts == 50)
+        var fibbing = G.Random(seed: 5)
+        var fibbed = G.HigherLower.GuessYours(using: &fibbing)
+        let first = fibbed.guess
+        _ = try fibbed.answer(.lower, using: &fibbing)      // below the first guess
+        var refused: [G.Event] = []
+        for _ in 0..<20 where refused != [.contradiction] { refused = try fibbed.answer(.higher, using: &fibbing) }
+        #expect(refused == [.contradiction] && fibbed.contradicts == first)
     }
 
     // MARK: Last Stick
@@ -274,7 +279,8 @@ struct PlaytimeGamesTests {
         _ = try game.flip(c, by: .you)
         #expect(try game.flip(d, by: .you) == [.noPair(.you)])
         #expect(throws: G.Refusal("not_now")) { _ = try game.flip(c, by: .you) }
-        #expect(try game.cover() == [.turn(.companion), .think(ms: 900)])
+        let covered = try game.cover()
+        #expect(covered.first == .turn(.companion) && covered.contains { if case .think(let ms) = $0 { (500...1300).contains(ms) } else { false } })
     }
 
     // MARK: Words

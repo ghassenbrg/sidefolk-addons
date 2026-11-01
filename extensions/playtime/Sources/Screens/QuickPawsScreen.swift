@@ -12,19 +12,49 @@ enum QuickPawsEngine: GameEngine {
         var number = 1
         var early = false
         var record = false
+        /// The companion, or two people on one button, each on a key (D96).
+        var duo: TwoPlayers.Duo
+        /// Two people: who took the last round, and how (their time, or the other pressed too soon).
+        var lastWinner: Games.Side?
     }
 
-    enum Action: Equatable { case press(Int), early, timeout, next, again, level(GameLevel) }
+    enum Action: Equatable { case press(Int), early, timeout, next, again, level(GameLevel), key(Games.Side, ms: Int?), duo(TwoPlayers.Setup) }
+
+    /// The two players' keys, far apart on any keyboard: the first player's on the left.
+    static let keys = ["a", "l"]
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
-        var game = Games.QuickPaws(level: level, best: PlaytimeRecords.load().games[QuickPawsScreen.id]?.best)
-        let round = try? game.start(using: &random)
-        return State(game: game, round: round)
+        fresh(level: level, duo: TwoPlayers.start(options), random: &random)
+    }
+
+    static func fresh(level: GameLevel, duo: TwoPlayers.Duo, random: inout Games.Random) -> State {
+        var game = Games.QuickPaws(level: level, best: duo.on ? nil : PlaytimeRecords.load().games[QuickPawsScreen.id]?.best)
+        // Two people's first round waits for their names.
+        let round = duo.on && !duo.playing ? nil : try? game.start(using: &random)
+        return State(game: game, round: round, duo: duo)
     }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
         var events: [Games.Event]
         switch action {
+        case .duo(let setup):
+            guard s.number == 1, s.game.score == Games.Score() || s.duo.on else { throw Games.Refusal("not_now") }
+            _ = TwoPlayers.apply(setup, to: &s.duo)
+            s = fresh(level: s.game.level, duo: s.duo, random: &random)
+            return [.turn(.you)]
+        case .key(let side, let ms):
+            guard s.duo.playing else { throw Games.Refusal("not_now") }
+            events = try s.game.keyed(side, ms: ms)
+            s.early = ms == nil
+            s.lastWinner = ms == nil ? side.other : side
+        case .timeout where s.duo.on:
+            guard s.duo.playing else { throw Games.Refusal("not_now") }
+            events = try s.game.unplayed()
+            s.lastWinner = nil
+            s.early = false
+        case .press where s.duo.on, .early where s.duo.on:
+            // Two people press their own keys; a click can't say whose it was.
+            throw Games.Refusal("not_now")
         case .press(let ms):
             events = try s.game.press(ms: ms)
             s.early = false
@@ -41,12 +71,14 @@ enum QuickPawsEngine: GameEngine {
             return [.turn(.you)]
         case .again, .level:
             let level: GameLevel = if case .level(let l) = action { l } else { s.game.level }
-            s = start(level: level, options: GameOptions(), random: &random)
+            s = fresh(level: level, duo: s.duo, random: &random)
             return [.turn(.you)]
         }
         s.round = nil
         if events.contains(where: { if case .newBest = $0 { true } else { false } }) { s.record = true }
-        if s.game.over, let outcome = outcome(of: s) {
+        if s.game.over, s.duo.on {
+            TwoPlayers.record(QuickPawsScreen.id, s.duo, winner: s.game.score.leader)
+        } else if s.game.over, let outcome = outcome(of: s) {
             PlaytimeRecords.finish(QuickPawsScreen.id, outcome, you: s.game.score.you, companion: s.game.score.companion, best: s.game.best,
                                    lower: true)
         }
@@ -64,7 +96,10 @@ enum QuickPawsScreen: GameScreen {
     static let id = "quick_paws"
 
     static func action(for move: Move, in s: QuickPawsEngine.State) -> QuickPawsEngine.Action? {
-        switch move {
+        if let setup = TwoPlayers.setup(move) { return .duo(setup) }
+        return switch move {
+        case .pressKey(let ms, let key): QuickPawsEngine.keys.firstIndex(of: key).map { .key($0 == 0 ? .you : .companion, ms: ms) }
+        case .earlyKey(let key): QuickPawsEngine.keys.firstIndex(of: key).map { .key($0 == 0 ? .you : .companion, ms: nil) }
         case .press(let ms): .press(ms)
         case .early: .early
         case .timeout: .timeout
@@ -76,6 +111,7 @@ enum QuickPawsScreen: GameScreen {
     }
 
     static func board(_ s: QuickPawsEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
+        if s.duo.on { return duoBoard(s, events: events, options: o) }
         let g = s.game
         let ms = { (n: Int) in L("{n} ms", ["n": n]) }
         let shows: String? = s.round != nil ? nil
@@ -91,6 +127,7 @@ enum QuickPawsScreen: GameScreen {
                           early: L("Too soon!"), shows: shows)),
         ]
         if let best = g.best { parts.append(.facts([(L("Your best"), ms(best))])) }
+        if s.number == 1, g.score == Games.Score() { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = QuickPawsEngine.outcome(of: s) {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))",
                                           ribbon: s.record ? L("New best!") : nil, companion: o.companion))

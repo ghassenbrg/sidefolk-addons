@@ -3,7 +3,7 @@ import Foundation
 extension Games {
     /// Last Stick (misère Nim): 21 sticks in a row, each turn takes 1, 2 or 3 from the right, and whoever takes the
     /// last one loses. The trick: leave your opponent one more than a multiple of four (17, 13, 9, 5, 1).
-    /// Easy takes at random, Fair plays the trick 60% of the time, Hard always when it can. Who starts alternates
+    /// Easy rarely plays the trick, Fair mostly, Hard always when it can (`companionTake`). Who starts alternates
     /// (pass `first`): from 21 the side that moves first is the one in trouble, so on Hard you win only the games the
     /// companion starts, and only if you know the trick, which it teaches after your third loss (`.offerSecret`,
     /// then `lesson`).
@@ -61,7 +61,7 @@ extension Games {
             left -= n
             guard left == 0 else {
                 turn = side.other
-                return turn == .companion ? [.turn(.companion), .think(ms: 700 + 60 * min(left, 12))] : [.turn(.you)]
+                return turn == .companion ? [.turn(.companion), .think(ms: Games.pause(650 + 55 * min(left, 12), spread: 250, seed: UInt64(left * 13 + losses)))] : [.turn(.you)]
             }
             winner = side.other
             var events: [Event] = [.roundOver(winner: side.other)]
@@ -75,14 +75,22 @@ extension Games {
             return events
         }
 
+        /// Its take, as a person of the level plays: everyone sees the end coming (with four or fewer left, even Easy
+        /// usually leaves you the last stick) and nobody takes the last stick while another take is left. Easy rarely
+        /// plays the trick before that, Fair most of the time and nearly always near the end, Hard always: it wins
+        /// every position it can win. With no winning take it stalls, mostly taking one, which leaves you the most
+        /// room to slip.
         func companionTake(using rng: inout Random) -> Int {
-            let random = rng.between(1, min(3, left))
-            guard let best = Self.winningTake(left) else { return random }
-            switch level {
-            case .easy: return random
-            case .fair: return rng.chance(0.6) ? best : random
-            case .hard: return best
+            let takes = legalTakes.filter { $0 < left || left == 1 }
+            guard let best = Self.winningTake(left) else {
+                return level == .hard && rng.chance(0.6) ? 1 : rng.pick(takes)
             }
+            let sees: Double = switch level {
+            case .easy: left <= 4 ? 0.7 : 0.15
+            case .fair: left <= 8 ? 0.9 : 0.6
+            case .hard: 1
+            }
+            return rng.chance(sees) ? best : rng.pick(takes)
         }
     }
 }

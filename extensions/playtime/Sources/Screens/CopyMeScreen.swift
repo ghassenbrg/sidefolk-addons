@@ -9,16 +9,25 @@ enum CopyMeEngine: GameEngine {
         /// The pad just pressed, and whether it was right, for the board.
         var pressed: Int?
         var record = false
+        /// The companion, or two people copying the same dance in turn (`CopyMeDuo`, D96).
+        var duo: TwoPlayers.Duo
+        var duel: CopyMeDuel?
     }
 
-    enum Action: Equatable { case pad(Int), again, level(GameLevel) }
+    enum Action: Equatable { case pad(Int), again, level(GameLevel), ready, duo(TwoPlayers.Setup) }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
-        State(game: Games.CopyMe(level: level, best: PlaytimeRecords.load().games[CopyMeScreen.id]?.best ?? 0, using: &random))
+        var s = State(game: Games.CopyMe(level: level, best: PlaytimeRecords.load().games[CopyMeScreen.id]?.best ?? 0, using: &random),
+                      duo: TwoPlayers.start(options))
+        if s.duo.on { s.duel = CopyMeDuel(level: level, using: &random) }
+        return s
     }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
+        if s.duo.on || action == .duo(.opponent(two: true)) { return try CopyMeDuel.play(action, on: &s, random: &random) }
         switch action {
+        case .ready, .duo:
+            throw Games.Refusal("not_now")
         case .pad(let i):
             let pads = s.game.pads
             guard pads.indices.contains(i) else { throw Games.Refusal("not_now") }
@@ -33,7 +42,8 @@ enum CopyMeEngine: GameEngine {
             return events
         case .again, .level:
             let level: GameLevel = if case .level(let l) = action { l } else { s.game.level }
-            s = start(level: level, options: GameOptions(), random: &random)
+            s = State(game: Games.CopyMe(level: level, best: PlaytimeRecords.load().games[CopyMeScreen.id]?.best ?? 0, using: &random),
+                      duo: s.duo)
             return [.turn(.companion)]
         }
     }
@@ -46,8 +56,10 @@ enum CopyMeScreen: GameScreen {
     static let id = "copy_me"
 
     static func action(for move: Move, in s: CopyMeEngine.State) -> CopyMeEngine.Action? {
-        switch move {
+        if let setup = TwoPlayers.setup(move) { return .duo(setup) }
+        return switch move {
         case .pad(let i): .pad(i)
+        case .button("ready"): .ready
         case .button("again"): .again
         case .choice("level", let l): GameLevel(rawValue: l).map { .level($0) }
         default: nil
@@ -73,6 +85,7 @@ enum CopyMeScreen: GameScreen {
     }
 
     static func board(_ s: CopyMeEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
+        if s.duo.on { return CopyMeDuel.board(s, events: events, options: o) }
         let g = s.game
         let pads = g.pads.map { p in Pad(name(p), shape: looks[p]!.shape, color: looks[p]!.color, move: looks[p]!.move, art: looks[p]!.art) }
         // A new sequence plays when the round starts or grows; mid-copy, the pads just take presses.
@@ -84,6 +97,7 @@ enum CopyMeScreen: GameScreen {
                     eyebrow: L(one: "{count} move · {level}", other: "{count} moves · {level}", count: g.length, ["level": ScreenKit.level(g.level)])),
             .play(.pads(pads, play: replay ? g.sequence.map { s in g.pads.firstIndex(of: s)! } : [], stepMs: g.stepMs, locked: g.phase == .over)),
         ]
+        if g.copied == 0, g.phase != .over { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if g.phase == .over {
             parts.append(ScreenKit.result(s.record ? .won : .draw, figure: Format.integer(g.copied),
                                           line: s.record ? L(one: "A new best: {count} move!", other: "A new best: {count} moves!", count: g.copied) : L(one: "You copied {count} move.", other: "You copied {count} moves.", count: g.copied),
