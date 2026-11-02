@@ -9,6 +9,7 @@ enum OverviewPage {
            let status = NoorPage.unavailable(ctx) {
             return [status]
         }
+        if let saved = NoorPage.savedTimes(ctx) { return [saved] }
         var out: [Section] = []
         if let note = NoorPage.offlineNote(ctx) { out.append(Section(nil, [note], wide: true)) }
         out.append(Section(nil, [ctx.narrow ? narrow(ctx) : wide(ctx)], wide: true))
