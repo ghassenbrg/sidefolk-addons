@@ -214,7 +214,11 @@ struct PlaytimeWordStageTests {
                 ctx.buildUp = true
                 try PlaytimeStageTests.check(BoardDrawing(build, ctx).scene(), "\(S.id) \(language) build-up")
             }
-            try PlaytimeStageTests.check(BoardDrawing(board, StageContext(entry: entry(S.id), previous: previous)).scene(), "\(S.id) \(language)")
+            let scene = BoardDrawing(board, StageContext(entry: entry(S.id), previous: previous)).scene()
+            try PlaytimeStageTests.check(scene, "\(S.id) \(language)")
+            // A margin under the 64 KB, for what the channel adds.
+            let bytes = try JSONSerialization.data(withJSONObject: scene.json).count
+            #expect(bytes < 58_000, "\(S.id) \(language): \(bytes) bytes")
             previous = board
         }
     }
