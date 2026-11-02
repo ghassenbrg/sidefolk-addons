@@ -95,4 +95,4 @@ glow.resize((128, 128), Image.LANCZOS).save(f"{out}/glow.png", optimize=True)
 icon = load("icon").resize((512, 512), Image.LANCZOS)
 m = Image.new("L", (2048, 2048)); ImageDraw.Draw(m).rounded_rectangle((0, 0, 2047, 2047), radius=460, fill=255)
 icon.putalpha(m.resize((512, 512), Image.LANCZOS))
-icon.quantize(colors=200, method=Image.FASTOCTREE, dither=Image.NONE).save(f"{out}/../../icon.png", optimize=True)
+icon.quantize(colors=200, method=Image.FASTOCTREE, dither=Image.NONE).save(f"{out}/../../icon.png", optimize=True)  # sips -s format pdf turns this into icon.pdf, at 360 px, under a manifest icon limit
