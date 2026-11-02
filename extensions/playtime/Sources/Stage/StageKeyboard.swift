@@ -75,12 +75,12 @@ extension BoardDrawing {
         let (fill, ink) = keyColors(mark)
         let plain = mark == "none"
         let used = mode == "letter" && !plain
-        let id = "key.\(key)"
-        let label = Node.words(script == "latin" ? key.uppercased() : key, size: 14, weight: "semibold", color: ink, align: "center", minScale: 0.6, w: w, h: h).id(id + ".text")
-        return Node.box(id, x: x, y: y, w: w, h: h) {
-            Node.rect(fill: plain ? .line : lip(mark), corner: 6).id(id + ".lip").at(0, 2).size(w, h - 2)
-            Node.rect(fill: fill, stroke: plain ? Color.line : nil, lineWidth: 1, corner: 6).id(id + ".face").size(w, h - 2)
-            Node.rect(corner: 6).gradient([Paint.clear("#FFFFFF", 0.18), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(w, h - 2)
+        let look = styled("ktext", .words("", size: 14, weight: "semibold", align: "center", minScale: 0.6, w: 0, h: 0))
+        let label = Node(look.json.merging(["text": script == "latin" ? key.uppercased() : key, "color": ink.json]) { $1 }).size(w, h)
+        return Node.box("key.\(key)", x: x, y: y, w: w, h: h) {
+            styled("klip" + mark, .rect(fill: plain ? .line : lip(mark), corner: 6).at(0, 2)).size(w, h - 2)
+            styled("kface" + mark, .rect(fill: fill, stroke: plain ? Color.line : nil, lineWidth: 1, corner: 6)).size(w, h - 2)
+            styled("kgloss", Node.rect(corner: 6).gradient([Paint.clear("#FFFFFF", 0.18), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5))).size(w, h - 2)
             mark == "miss" || mark == "absent" ? label.textLook(strike: true) : label
         }.area("key", value: key, label: key, disabled: locked || used, hover: nil, press: AreaLook(scale: 0.95), sound: mode == "letter" ? "sounds/tap.wav" : nil)
     }

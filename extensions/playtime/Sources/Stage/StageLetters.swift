@@ -74,15 +74,15 @@ extension BoardDrawing {
         let typed = draft && !tile.text.isEmpty
         var inner: [Node] = []
         if let colors, !slot {
-            inner.append(Node.rect(fill: colors.lip, corner: 8).id(id + ".lip").at(0, 3).size(side, side - 3).shadow(colors.glow, radius: 3, dx: 0, dy: 3))
-            inner.append(Node.rect(fill: colors.face, stroke: Paint.clear("#FFFFFF", 0.12), lineWidth: 1, corner: 8).id(id + ".face").size(side, side - 3))
-            inner.append(Node.rect(corner: 8).gradient([Paint.clear("#FFFFFF", 0.22), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(side, side - 3))
-            inner.append(Node.capsule(fill: Paint.clear("#FFFFFF", 0.14)).at(9.6, 3).size(side - 19.2, 4))
+            inner.append(styled("tlip" + tile.mark, Node.rect(fill: colors.lip, corner: 8).at(0, 3).size(side, side - 3).shadow(colors.glow, radius: 3, dx: 0, dy: 3)))
+            inner.append(styled("tface" + tile.mark, .rect(fill: colors.face, stroke: Paint.clear("#FFFFFF", 0.12), lineWidth: 1, corner: 8).size(side, side - 3)))
+            inner.append(styled("tgloss", Node.rect(corner: 8).gradient([Paint.clear("#FFFFFF", 0.22), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(side, side - 3)))
+            inner.append(styled("tshine", Node.capsule(fill: Paint.clear("#FFFFFF", 0.14)).at(9.6, 3).size(side - 19.2, 4)))
         } else if slot {
-            if let colors { inner.append(Node.rect(fill: colors.face, corner: 4).id(id + ".face").size(side, side)) }
+            if let colors { inner.append(Node.rect(fill: colors.face, corner: 4).size(side, side)) }
             inner.append(Node.rect(fill: Color.ink.tuned(alpha: 0.6)).at(0, side - 2.5).size(side, 2.5))
         } else {
-            inner.append(Node.rect(fill: .surfaceSunken, stroke: typed ? .inkMuted : .line, lineWidth: typed ? 2 : 1, corner: 8).id(id + ".face").size(side, side))
+            inner.append(styled(typed ? "ttyped" : "tblank", .rect(fill: .surfaceSunken, stroke: typed ? .inkMuted : .line, lineWidth: typed ? 2 : 1, corner: 8).size(side, side)))
         }
         if let delayMs {
             inner.append(Node.rect(fill: .surfaceSunken, corner: 8).id(id + ".shut").size(side, side).opacity(0))
@@ -90,11 +90,13 @@ extension BoardDrawing {
             anims.append(Self.opening(id, "sy", from: 0.02, to: 1, delayMs: delayMs))
         }
         if tile.mark != "hidden", !tile.text.isEmpty {
-            inner.append(Node.words(tile.text, size: side * 0.52, weight: "bold", color: ink, align: "center", minScale: 0.6, w: side, h: side).id(id + ".text"))
+            let look = styled("tword", .words("", size: side * 0.52, weight: "bold", align: "center", minScale: 0.6, w: side, h: side))
+            inner.append(Node(look.json.merging(["text": tile.text, "color": ink.json]) { $1 }))
         }
         if let symbol = right ? "●" : tile.mark == "elsewhere" ? "◐" : nil {
             let size = max(7, side * 0.2), w = size * 1.4, h = size * 1.3
-            inner.append(Node.text(symbol, size: size, color: ink, align: "trailing", valign: "top").at(side - 3 - w, 3).size(w, h))
+            let look = styled("tmark", .text("", size: size, align: "trailing", valign: "top").at(side - 3 - w, 3).size(w, h))
+            inner.append(Node(look.json.merging(["text": symbol, "color": ink.json]) { $1 }))
         }
         var words = tile.text.isEmpty ? L("blank") : tile.text
         switch tile.mark {

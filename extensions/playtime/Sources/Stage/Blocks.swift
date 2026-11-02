@@ -12,6 +12,19 @@ struct PartBlock {
 }
 
 extension Node {
+    /// Places to a hundredth of a point, all the way down: a third of a row's width is seventeen digits otherwise.
+    var rounded: Node {
+        func tidy(_ node: [String: Any]) -> [String: Any] {
+            var out = node
+            for key in ["x", "y", "w", "h"] {
+                if let v = node[key] as? Double { out[key] = (v * 100).rounded() / 100 }
+            }
+            if let children = node["children"] as? [[String: Any]] { out["children"] = children.map(tidy) }
+            return out
+        }
+        return Node(tidy(json))
+    }
+
     /// A sized, placed group: everything on a board is one of these, so its boxes never depend on what it holds.
     static func box(_ id: String? = nil, x: Double = 0, y: Double = 0, w: Double, h: Double, @SceneBuilder _ children: () -> [Node]) -> Node {
         var node = Node(["type": "group", "children": children().map(\.json)]).at(x, y).size(w, h)
