@@ -459,6 +459,7 @@
     "“{name}” is running by itself again.": "«{name}» يعمل من تلقاء نفسه مجددًا.",
     "“{name}” needs a value.": "«{name}» يحتاج إلى قيمة.",
     "“{tool}” has no value called “{name}”.": "ليس في «{tool}» قيمة اسمها «{name}».",
-    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» غير متاح الآن. قد تكون إضافته متوقفة أو اختفت، أو لا يسمح Sidefolk للإضافات باستخدامه."
+    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» غير متاح الآن. قد تكون إضافته متوقفة أو اختفت، أو لا يسمح Sidefolk للإضافات باستخدامه.",
+    "Changed something in Sideflow": "غيّر شيئًا في Sideflow"
   }
 }

@@ -439,6 +439,7 @@
     "“{name}” is running by itself again.": "「{name}」はまた自動で動いています。",
     "“{name}” needs a value.": "「{name}」には値が必要です。",
     "“{tool}” has no value called “{name}”.": "「{tool}」に「{name}」という値はありません。",
-    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "「{tool}」はいま使えません。その拡張機能がオフか削除されているか、Sidefolkが拡張機能に使わせていません。"
+    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "「{tool}」はいま使えません。その拡張機能がオフか削除されているか、Sidefolkが拡張機能に使わせていません。",
+    "Changed something in Sideflow": "Sideflow で変更しました"
   }
 }

@@ -162,7 +162,7 @@ import SidefolkExtensionKit
             // A sentence opens the page; a click that makes or removes a flow moves it; the rest are already there.
             guard args.string("op") != nil else { return ToolReply(L("Sideflow is open in Home.")).opening(page: "flows") }
             switch try await Actions_UI.handle(args, app) {
-            case .stay: return ToolReply("")
+            case .stay: return ToolReply("").row(L("Changed something in Sideflow"))
             case .flow(let id): return ToolReply("").opening(page: "flows", state: Nav.open(flow: id), push: true)
             case .home: return ToolReply("").opening(page: "flows", state: ["flow": NSNull(), "run": NSNull()])
             }

@@ -443,6 +443,7 @@
     "“{name}” is running by itself again.": "«{name}» vuelve a ejecutarse sola.",
     "“{name}” needs a value.": "«{name}» necesita un valor.",
     "“{tool}” has no value called “{name}”.": "«{tool}» no tiene ningún valor llamado «{name}».",
-    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» no está disponible ahora. Puede que su extensión esté desactivada o ya no exista, o que Sidefolk no deje a las extensiones usarla."
+    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» no está disponible ahora. Puede que su extensión esté desactivada o ya no exista, o que Sidefolk no deje a las extensiones usarla.",
+    "Changed something in Sideflow": "Cambió algo en Sideflow"
   }
 }
