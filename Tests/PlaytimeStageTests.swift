@@ -77,6 +77,10 @@ struct PlaytimeStageTests {
         try playAll(MemoryPairsScreen.self)
         try playAll(DailyWordScreen.self)
         try playAll(RockPaperScissorsScreen.self)
+        try playAll(PuzzleScreen<GardenPlotsKind>.self)
+        try playAll(PuzzleScreen<SeesawKind>.self)
+        try playAll(PuzzleScreen<SudokuKind>.self)
+        try playAll(PuzzleScreen<BlossomsKind>.self)
     }
 
     /// Timed trivia: the clock's name is a token Sidefolk takes, though a question's id has a dot in it; without one, no time ever ran out.
@@ -141,7 +145,11 @@ struct PlaytimeStageTests {
     }
 
     @Test func aLongLanguageAndOneThatReadsTheOtherWayFit() throws {
-        for language in ["de", "ar", "ja"] { try playAll(HigherLowerScreen.self, seeds: [1], language: language) }
+        for language in ["de", "ar", "ja"] {
+            try playAll(HigherLowerScreen.self, seeds: [1], language: language)
+            try playAll(PuzzleScreen<SudokuKind>.self, seeds: [1], language: language)
+            try playAll(PuzzleScreen<GardenPlotsKind>.self, seeds: [1], language: language)
+        }
     }
 
     @Test func theTablePropsFitInALongLanguageAndOneThatReadsTheOtherWay() throws {
