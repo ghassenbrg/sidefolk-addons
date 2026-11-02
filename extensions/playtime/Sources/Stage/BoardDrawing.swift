@@ -97,10 +97,12 @@ final class BoardDrawing {
         let boardHeight = parts.reduce(-8.0) { $0 + $1.height + 8 } + 4
         let room = min(Self.boardRoom, boardHeight)
         var offset = 2.0
-        let stacked = parts.map { block -> Node in
+        var stacked = parts.map { block -> Node in
             defer { offset += block.height + 8 }
             return block.node.at(Self.pad, offset)
         }
+        // What stands over what follows (the companion's feet on its table) comes last, so it reads the same wherever the scene is drawn.
+        stacked = stacked.filter { $0.json["z"] == nil } + stacked.filter { $0.json["z"] != nil }
         if boardHeight > Self.boardRoom {
             content.append(Node.scroll(contentHeight: boardHeight) { stacked }.id("board").at(0, y).size(Self.width, room))
         } else {

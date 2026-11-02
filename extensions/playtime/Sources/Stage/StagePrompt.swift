@@ -59,11 +59,11 @@ extension BoardDrawing {
     /// The companion, whole, standing on the bottom edge of its box, with a soft shadow under it. Still art only, never a live
     /// render: a new board makes it hop once, 300 ms, with cheap transforms; nothing loops, so an idle game draws nothing.
     private func companionFigure(w: Double, h: Double, y: Double) -> Node {
-        let shadowH = max(8, h * 0.1)
+        // Under the figure rather than its box: a figure is drawn at about three quarters as wide as it is tall.
+        let shadowH = max(8, h * 0.1), shadowW = min(w, h) * 0.68
         let figure = Node.companion(pose: pose).figure(bottom: true).id("companion.figure").size(w, h).anchor(0.5, 1)
         var group = Node.box("companion", y: y, w: w, h: h) {
-            Node.ellipse(fill: Paint.clear("#000000", 0.16)).id("companion.shadow").at(w * 0.05, h - shadowH / 2 + max(4, h * 0.05) - shadowH / 2).size(w * 0.9, shadowH)
-                .shadow(Paint.clear("#000000", 0.14), radius: 3, dx: 0, dy: 0)
+            Node.image("art/game-figure-shadow.webp", fit: "fill").id("companion.shadow").at((w - shadowW) / 2, h - shadowH + max(4, h * 0.05)).size(shadowW, shadowH)
             figure
             if let button = board.companionButton {
                 // A small badge with the button's symbol on its shoulder says it can be clicked.

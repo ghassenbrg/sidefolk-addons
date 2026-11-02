@@ -29,7 +29,7 @@ extension BoardDrawing {
         if let afterMs, armed {
             let moment = Double(afterMs)
             // The signal at its moment: essential (its fade is the game, with its sound), its small pop only for those who keep motion.
-            anims.append(Anim.sequence([.wait(ms: moment), .sound("sounds/boop.wav"), .to("reflex.go", ["opacity": 1], ms: 120, ease: "out")]).essential().named("reflex_signal"))
+            anims.append(Anim.sequence([.wait(ms: moment), .sound("sounds/boop.wav"), .together([.to("reflex.go", ["opacity": 1], ms: 120, ease: "out"), .to("reflex.plate.armed", ["opacity": 0], ms: 120, ease: "out")])]).essential().named("reflex_signal"))
             anims.append(.sequence([.wait(ms: moment), .to("reflex.zone.armed", ["scale": 1.06], ms: 180, ease: "spring")]))
             timers.append(("reflex", moment + Double(windowMs)))
             if let seats {
@@ -58,7 +58,7 @@ extension BoardDrawing {
     /// What it says now, on a dark plate: steady with its keys, too soon with its mark, or the times once played.
     private func reflexPlate(_ words: String, early: Bool, small: Bool, caps: [String]) -> PartBlock {
         let size = small ? 16.0 : 20
-        let capWidths = caps.map { Swift.max(16, TextFit.width($0, size: 10, weight: "bold") + 4) }
+        let capWidths = caps.map(Self.keyCapWidth)
         let extras = (early ? size * 1.25 + 6 : 0) + capWidths.reduce(0) { $0 + $1 + 6 }
         let room = Self.inner - 32 - extras
         let textW = Swift.min(TextFit.width(words, size: size, weight: "heavy"), room)

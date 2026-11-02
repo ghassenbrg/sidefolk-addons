@@ -71,9 +71,11 @@ extension BoardDrawing {
         return node
     }
 
+    static func keyCapWidth(_ text: String) -> Double { max(16, TextFit.width(text, size: 10, weight: "bold")) + 4 }
+
     /// A key's letter in a small outlined cap.
     func keyCap(_ text: String, light: Bool = false) -> Node {
-        let w = max(16, TextFit.width(text, size: 10, weight: "bold") + 4)
+        let w = Self.keyCapWidth(text)
         return Node.box(w: w, h: 16) {
             Node.rect(stroke: light ? Paint.clear("#FFFFFF", 0.6) : .line, lineWidth: 1, corner: 4).size(w, 16)
             Node.words(text, size: 10, weight: "bold", color: light ? Paint.clear("#FFFFFF", 0.9) : .inkMuted, align: "center", w: w, h: 16)

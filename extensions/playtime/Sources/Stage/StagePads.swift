@@ -14,15 +14,6 @@ extension BoardDrawing {
         }
     }
 
-    /// `.brightness(-0.16)`, the bevel's lip.
-    private static func darker(_ hex: String) -> String {
-        let channels = stride(from: 1, to: 7, by: 2).map { i -> Int in
-            let start = hex.index(hex.startIndex, offsetBy: i)
-            return Int(hex[start..<hex.index(start, offsetBy: 2)], radix: 16) ?? 0
-        }
-        return "#" + channels.map { String(format: "%02X", max($0 - 41, 0)) }.joined()
-    }
-
     private static func picture(_ art: String?) -> String? {
         art.map { "art/game-pad-\($0.replacingOccurrences(of: "_", with: "-")).webp" }
     }
@@ -40,11 +31,11 @@ extension BoardDrawing {
         func tile(_ i: Int, _ pad: Pad) -> Node {
             let id = "pad.\(i)", hue = Self.hues(pad.color)
             let fill = Color.adaptive(light: hue.light, dark: hue.dark)
-            let lip = Color.adaptive(light: Self.darker(hue.light), dark: Self.darker(hue.dark))
             return Node.box(id + ".tile", x: 6, y: 6, w: tileW, h: tileH) {
                 Node.rect(fill: fill, corner: corner).id(id + ".halo").size(tileW, tileH).shadow(.adaptive(light: hue.light + "2E", dark: hue.dark + "2E"), radius: 3, dx: 0, dy: 3)
                 Node.rect(fill: fill, corner: corner).id(id + ".glow").size(tileW, tileH).shadow(.adaptive(light: hue.light + "B3", dark: hue.dark + "B3"), radius: 14, dx: 0, dy: 0).opacity(0)
-                Node.rect(fill: lip, corner: corner).id(id + ".lip").at(0, depth).size(tileW, tileH)
+                // Its thickness, in its own colour; the face's light edge marks where it starts.
+                Node.rect(fill: fill, corner: corner).id(id + ".lip").at(0, depth).size(tileW, tileH)
                 Node.box(id + ".face", w: tileW, h: tileH) {
                     Node.rect(fill: fill, corner: corner).size(tileW, tileH)
                     Node.rect(corner: corner).gradient([Paint.clear("#FFFFFF", 0.22), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(tileW, tileH)
@@ -56,7 +47,7 @@ extension BoardDrawing {
                 if let art = Self.picture(pad.art) {
                     Node.art(art, x: (tileW - artSide) / 2, y: artY, w: artSide, h: artSide).id(id + ".art").shadow(Paint.clear("#000000", 0.18), radius: 1, dx: 0, dy: 1)
                 }
-                keyCap("\(i + 1)", light: true).at(tileW - 21, 5)
+                keyCap("\(i + 1)", light: true).at(tileW - 5 - Self.keyCapWidth("\(i + 1)"), 5)
             }
         }
 
