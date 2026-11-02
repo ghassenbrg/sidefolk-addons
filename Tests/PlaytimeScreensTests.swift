@@ -111,6 +111,7 @@ import Testing
                 try Self.play(BalloonWordsScreen.self, seed: seed)
                 try Self.play(LastStickScreen.self, seed: seed)
                 try Self.play(MemoryPairsScreen.self, seed: seed)
+                try Self.play(RockPaperScissorsScreen.self, seed: seed)
                 PlaytimeRecords.update { $0.dailyGame = nil; $0.daily = Games.DailyWord.Record() }
                 try Self.play(DailyWordScreen.self, seed: seed)
             }

@@ -69,6 +69,7 @@ import Testing
             (WhichCupScreen.id, { try Self.duel(WhichCupScreen.self, seed: 7) }),
             (HigherLowerScreen.id, { try Self.duel(HigherLowerScreen.self, seed: 8) }),
             (BalloonWordsScreen.id, { try Self.duel(BalloonWordsScreen.self, seed: 9) }),
+            (RockPaperScissorsScreen.id, { try Self.duel(RockPaperScissorsScreen.self, seed: 10) }),
         ]
         #expect(Set(games.map(\.0)) == TwoPlayers.games)
         for (id, play) in games {

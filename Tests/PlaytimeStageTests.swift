@@ -83,14 +83,13 @@ struct PlaytimeStageTests {
             try Self.check(scene, "timed trivia")
             let timers = scene.json["timers"] as? [[String: Any]] ?? []
             #expect(timers.count == 1 && timers[0]["ms"] as? Double == 15000)
-            guard case .play(.timeout) = StageMoves.action(.timer(timers[0]["id"] as! String), board: board, local: &local) else {
+            var parts = LocalParts()
+            guard case .play(.timeout) = StageMoves.action(.timer(timers[0]["id"] as! String), board: board, local: &parts) else {
                 Issue.record("time running out is the game's timeout")
                 return
             }
         }
     }
-
-    private var local: LocalParts { get { LocalParts() } nonmutating set {} }
 
     /// A digit on a taken cell still reaches the game, which says it's taken; a free one presses its cell.
     @Test func aNumpadDigitOnATakenCell() throws {

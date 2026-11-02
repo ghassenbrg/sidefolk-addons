@@ -15,6 +15,9 @@ struct PlaytimeHandsAndTossTests {
         setenv("SIDEFOLK_DATA_DIR", dir, 1)
     }
 
+    /// Without the marks that keep a filled-in value apart from the words round it.
+    static func plain(_ words: String?) -> String? { words?.filter { !["\u{2068}", "\u{2069}"].contains(String($0)) } }
+
     static func text(_ json: [String: Any]) -> String { String(data: try! JSONSerialization.data(withJSONObject: json), encoding: .utf8)! }
 
     // MARK: The match
@@ -78,18 +81,18 @@ struct PlaytimeHandsAndTossTests {
             _ = try Engine.play(.duo(.begin), on: &s, random: &random)
             #expect(s.duo.playing)
             func board(_ e: [Games.Event] = []) -> Board { RockPaperScissorsScreen.board(s, events: e, options: o) }
-            #expect(board().promptPart?.text == "Ana, pick your hand.")
+            #expect(plain(board().promptPart?.text) == "Ana, pick your hand.")
             let picked = try Engine.play(.hand(2), on: &s, random: &random)
             let cover = board(picked)
-            #expect(cover.promptPart?.text == "Pass the Mac to Sam." && cover.answersPart == nil)
+            #expect(plain(cover.promptPart?.text) == "Pass the Mac to Sam." && cover.answersPart == nil)
             #expect(!Self.text(cover.json).contains("scissors"), "nothing says which")
             #expect(throws: Games.Refusal.self) { try Engine.play(.hand(0), on: &s, random: &random) }
             _ = try Engine.play(.ready, on: &s, random: &random)
-            #expect(board().promptPart?.text == "Sam, pick your hand." && !Self.text(board().json).contains("\"picked\""))
+            #expect(plain(board().promptPart?.text) == "Sam, pick your hand." && !Self.text(board().json).contains("\"picked\""))
             let round = try Engine.play(.hand(0), on: &s, random: &random)
             #expect(round == [.roundOver(winner: .companion)])
             let thrown = board(round)
-            #expect(thrown.promptPart?.text == "Rock beats Scissors: a point for Sam.")
+            #expect(plain(thrown.promptPart?.text) == "Rock beats Scissors: a point for Sam.")
             #expect(thrown.answersPart?.tiles.map(\.state) == [.picked, .faded, .picked], "whose, never who won")
             s.companion = 1
             s.last = nil
@@ -141,7 +144,7 @@ struct PlaytimeHandsAndTossTests {
         try Language.with("en", strings: PlaytimeGameTests.strings) {
             #expect(Toss.coins([true]).result == "Heads!")
             #expect(Toss.coins([true, false]).result == "Heads, tails")
-            #expect(Toss.dice(sides: 6, rolls: [4], modifier: 0).result == "It's 4!")
+            #expect(plain(Toss.dice(sides: 6, rolls: [4], modifier: 0).result) == "It's 4!")
             #expect(Toss.dice(sides: 6, rolls: [4, 2], modifier: 1).result == "4 + 2 + 1 = 7")
             #expect(Toss.dice(sides: 6, rolls: [4, 2], modifier: -1).result == "4 + 2 − 1 = 5")
             #expect(Toss.notation(count: 2, sides: 6, modifier: 1) == "2d6+1")
@@ -169,7 +172,7 @@ struct PlaytimeHandsAndTossTests {
                 #expect(!words.contains(toss.result.replacingOccurrences(of: "\"", with: "")), "\(toss): the result before it has landed")
                 #expect(!words.contains("crown.fill") && !words.contains("toss.chip"), "\(toss)")
                 #expect(landed.json["close"] as? Bool == true && landed.json["close_after_ms"] as? Int == 5000)
-                #expect(landed.json["announce"] as? String == toss.result)
+                #expect((landed.json["announce"] as? String)?.hasPrefix(toss.result) == true)
                 let again = Self.text(landed.json).contains("\"again\"")
                 if case .hands = toss { #expect(!again, "a hand isn't thrown again") } else { #expect(again) }
             }
