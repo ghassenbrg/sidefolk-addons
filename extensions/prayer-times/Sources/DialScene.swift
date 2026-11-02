@@ -138,7 +138,7 @@ enum DialScene {
             let at = clockPoint(cx, cy, labelRadius, a)
             placed.append((a, at.x, at.y))
             let boxW = textSize * 6.2, boxH = textSize * 2.7
-            let ink = isNext ? Noor.accent : (node.state == .past ? Noor.faint : Noor.text)
+            let ink = isNext ? Noor.accent : Noor.text
             out.append(Node.group {
                 Node.say(Words.prayer(id), 0, 0, boxW, boxH * 0.5, size: textSize * 1.05, weight: isNext ? "semibold" : "medium", color: ink, align: "center")
                 Node.say(Words.time(node.at, zone: zone), 0, boxH * 0.5, boxW, boxH * 0.5, size: textSize, color: isNext ? Noor.accent : Noor.muted, align: "center", tabular: true)

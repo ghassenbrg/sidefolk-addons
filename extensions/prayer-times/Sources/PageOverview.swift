@@ -95,7 +95,7 @@ enum OverviewPage {
                 Node.group { DialScene.middle(cx: cx, cy: cy, radius: radius * 0.835, focus: focus) }.size(w, h)
             }
             .size(w, h).leftToRight().label(DialScene.spoken(s, focus: focus))
-            Node.pill("dial", label: L("View today's prayer times"), x: w / 2 - r.u(150), y: r.u(462), w: r.u(300), h: r.u(46), symbol: "chevron.forward", size: r.f(16.5))
+            Node.pill("dial", label: L("View today's prayer times"), x: w / 2 - r.u(150), y: h - r.u(68), w: r.u(300), h: r.u(46), symbol: "chevron.forward", size: r.f(16.5))
         }
         .size(w, h)
     }
@@ -151,7 +151,7 @@ enum OverviewPage {
         return Node.group {
             Node.panel(w, h, corner: r.u(18))
             // The lattice comes in from the right, under where the place is named.
-            Node.group { Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(h * 0.86, h * 0.86).at(w - h * 0.86, r.u(52)) }.size(w, h).corner(r.u(18)).clip().opacity(0.9)
+            Node.group { Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(h * 0.62, h * 0.62).at(w - h * 0.62, h * 0.40) }.size(w, h).corner(r.u(18)).clip().opacity(0.9)
             Node.say(L("Qibla"), r.u(20), r.u(14), w * 0.4, r.u(38), size: r.f(28, min: 17), weight: "semibold")
             Node.group {
                 Node.symbol("mappin.and.ellipse", color: Noor.text).size(r.f(20, min: 14), r.f(20, min: 14)).at(0, (r.u(30) - r.f(20, min: 14)) / 2)
