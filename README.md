@@ -64,7 +64,7 @@ It needs Sidefolk's `screen`, `udp` and `network_purpose` (Sidefolk D69).
 ## Publishing
 
 ```sh
-python3 scripts/build.py        # signs with the keychain's Developer ID Application (or $SIDEFOLK_SIGN_IDENTITY)
+python3 scripts/build.py --sidefolk-build N   # signs with the keychain's Developer ID Application (or $SIDEFOLK_SIGN_IDENTITY); N is the Sidefolk snapshot these are for
 scripts/publish.sh              # uploads the new packs, then the catalog, to the "gallery" release
 ```
 
