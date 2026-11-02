@@ -20,6 +20,8 @@ extension BoardDrawing {
             }
         }
         let open = !locked && !revealed
+        // Lifting is a cut, as the verdict's board always was: named apart, so the cups don't ease up.
+        let cupId = { (place: Int) in revealed ? "cup.up.\(place)" : "cup.\(place)" }
         func cupX(_ at: Double) -> Double { slot * (at + 0.5) - min(slot - 8, 72) / 2 }
         func shadowX(_ at: Double) -> Double { slot * (at + 0.5) - min(slot - 14, 58) / 2 }
         var nodes: [Node] = []
@@ -31,7 +33,7 @@ extension BoardDrawing {
         for cup in 0..<count {
             // Each cup's shadow on the table under it: smaller and lighter as it rises.
             let up = revealed || (shuffling && cup == hide)
-            nodes.append(Node.ellipse(fill: Paint.clear("#000000", 0.16)).id("cup.\(ends[cup]).shadow").at(shadowX(Double(cup)), Self.floor + 1 - 4.5).size(min(slot - 14, 58), 9)
+            nodes.append(Node.ellipse(fill: Paint.clear("#000000", 0.16)).id(cupId(ends[cup]) + ".shadow").at(shadowX(Double(cup)), Self.floor + 1 - 4.5).size(min(slot - 14, 58), 9)
                 .scale(x: up ? 0.7 : 1, y: 1).opacity(up ? 0.4 : 1))
         }
         if let at = revealed ? gem : shuffling ? hide : nil {
@@ -43,7 +45,7 @@ extension BoardDrawing {
             for cup in 0..<count {
                 let place = ends[cup], w = min(slot - 8, 72)
                 let up = revealed || (shuffling && cup == hide)
-                let node = Node.box("cup.\(place)", x: cupX(Double(cup)), y: Self.restY - (up ? Self.lift : 0), w: w, h: Self.cupHeight) {
+                let node = Node.box(cupId(place), x: cupX(Double(cup)), y: Self.restY - (up ? Self.lift : 0), w: w, h: Self.cupHeight) {
                     Node.image("art/game-cup.png").at(0, 4).size(w, Self.cupHeight - 4).shadow(Paint.clear("#000000", 0.12), radius: 2, dx: 0, dy: 2)
                 }.anchor(0.5, 1).scale(picked == place ? 1.06 : 1)
                 if open {
