@@ -18,6 +18,9 @@ struct PlaytimeStageTests {
         for key in scene.keys {
             #expect((key["id"] as? String)?.range(of: token, options: .regularExpression) != nil, "\(context): \(key)")
         }
+        for timer in scene.json["timers"] as? [[String: Any]] ?? [] {
+            #expect((timer["id"] as? String)?.range(of: token, options: .regularExpression) != nil, "\(context): \(timer)")
+        }
         func visit(_ node: [String: Any]) {
             if let area = node["area"] as? [String: Any] {
                 #expect((area["id"] as? String)?.range(of: token, options: .regularExpression) != nil, "\(context): \(area)")
@@ -65,6 +68,69 @@ struct PlaytimeStageTests {
         try playAll(LastStickScreen.self)
         try playAll(MemoryPairsScreen.self)
         try playAll(DailyWordScreen.self)
+        try playAll(RockPaperScissorsScreen.self)
+    }
+
+    /// Timed trivia: the clock's name is a token Sidefolk takes, though a question's id has a dot in it; without one, no time ever ran out.
+    @Test func timedTriviasClockIsAToken() throws {
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            var random = Games.Random(seed: 1)
+            var state = TriviaScreen.Engine.start(level: .fair, options: PlaytimeScreensTests.options(), random: &random)
+            _ = GameTable.play(TriviaScreen.self, .choice(name: "pace", value: "quick"), on: &state, random: &random)
+            let events = GameTable.play(TriviaScreen.self, .button("start"), on: &state, random: &random)
+            let board = TriviaScreen.board(state, events: events, options: PlaytimeScreensTests.options())
+            let scene = BoardDrawing(board, StageContext(entry: Self.entry(TriviaScreen.id))).scene()
+            try Self.check(scene, "timed trivia")
+            let timers = scene.json["timers"] as? [[String: Any]] ?? []
+            #expect(timers.count == 1 && timers[0]["ms"] as? Double == 15000)
+            guard case .play(.timeout) = StageMoves.action(.timer(timers[0]["id"] as! String), board: board, local: &local) else {
+                Issue.record("time running out is the game's timeout")
+                return
+            }
+        }
+    }
+
+    private var local: LocalParts { get { LocalParts() } nonmutating set {} }
+
+    /// A digit on a taken cell still reaches the game, which says it's taken; a free one presses its cell.
+    @Test func aNumpadDigitOnATakenCell() throws {
+        var random = Games.Random(seed: 1)
+        var state = TicTacToeScreen.Engine.start(level: .fair, options: PlaytimeScreensTests.options(), random: &random)
+        let first = TicTacToeScreen.board(state, events: [], options: PlaytimeScreensTests.options())
+        let empty = BoardDrawing(first, StageContext(entry: Self.entry(TicTacToeScreen.id))).scene()
+        #expect((empty.keys.first { $0["id"] as? String == "numpad_5" })?["area"] as? String == "cell")
+        _ = GameTable.play(TicTacToeScreen.self, .cell(row: 1, column: 1), on: &state, random: &random)
+        var board = TicTacToeScreen.board(state, events: [], options: PlaytimeScreensTests.options())
+        for _ in 0..<4 where board.gridPart?.locked == true {
+            _ = GameTable.play(TicTacToeScreen.self, .next, on: &state, random: &random)
+            board = TicTacToeScreen.board(state, events: [], options: PlaytimeScreensTests.options())
+        }
+        let taken = BoardDrawing(board, StageContext(entry: Self.entry(TicTacToeScreen.id))).scene()
+        let key = try #require(taken.keys.first { $0["id"] as? String == "numpad_5" })
+        #expect(key["area"] == nil, "no press of a taken cell's area")
+        var parts = LocalParts()
+        guard case .play(.cell(row: 1, column: 1)) = StageMoves.action(.key(id: "numpad_5", character: nil, ms: nil), board: board, local: &parts) else {
+            Issue.record("it goes to the game")
+            return
+        }
+    }
+
+    /// A card turned over is another kind of node, so it has another id, or Sidefolk's layer would stay what it was and draw nothing.
+    @Test func aMarkHasAnIdOfItsKind() throws {
+        func ids(_ cell: Cell) -> String {
+            let board = Board([.board(rows: 1, columns: 1, cells: [cell])])
+            let scene = BoardDrawing(board, StageContext(entry: Self.entry(MemoryPairsScreen.id))).scene()
+            return String(data: try! JSONSerialization.data(withJSONObject: scene.json), encoding: .utf8)!
+        }
+        #expect(ids(Cell("card_back")).contains("cell.0.0.mark.card_back"))
+        #expect(ids(Cell("symbol", value: "moon.fill")).contains("cell.0.0.mark.symbol"))
+    }
+
+    /// What doesn't start at its resting place says its first value twice, so it starts there on a Sidefolk that skips a key at t 0, and on one that doesn't.
+    @Test func aPathStartsAtItsFirstKey() throws {
+        let anim = Anim.from("a", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 100).json
+        let keys = try #require(anim["keys"] as? [[String: Double]])
+        #expect(keys.count == 3 && keys[0]["opacity"] == 0 && keys[1]["opacity"] == 0 && keys[1]["t"]! > 0)
     }
 
     @Test func aLongLanguageAndOneThatReadsTheOtherWayFit() throws {

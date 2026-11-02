@@ -35,7 +35,7 @@ extension Node {
 
     /// An SF Symbol in a box the size of its point size, centred at (cx, cy) of its parent.
     static func glyph(_ name: String, size: Double, color: Color = .ink, weight: String = "semibold", x: Double, y: Double) -> Node {
-        Node.symbol(name, color: color).symbolLook(weight: weight, mono: true).at(x, y).size(size * 1.25, size * 1.25)
+        Node.symbol(name, color: color).symbolLook(weight: weight).at(x, y).size(size * 1.25, size * 1.25)
     }
 
     /// A raised tile: its lip, its face. The face is the part that sinks when pressed, so the lip stays out of its area.
@@ -49,6 +49,15 @@ extension Node {
             Node.companion().figure(face: true).size(side, side).corner(side / 2).clip()
             if ring > 0 { Node.ellipse(stroke: Paint.white, lineWidth: ring).at(ring / 2, ring / 2).size(side - ring, side - ring) }
         }
+    }
+}
+
+extension Anim {
+    /// Keys that really start at their first value. A Sidefolk from before snapshot B starts a run from a node's resting value and skips a key at t 0, so anything that doesn't
+    /// start where it rests (a mark stamped in, a hand hidden until it opens) says its first value again at once, and starts there on any Sidefolk.
+    static func from(_ target: String, _ frames: [[String: Double]], ms: Double, ease: String = "linear") -> Anim {
+        guard let first = frames.first, first["t"] == 0 else { return .keys(target, frames, ms: ms, ease: ease) }
+        return .keys(target, [first, first.merging(["t": 0.0001]) { _, new in new }] + frames.dropFirst(), ms: ms, ease: ease)
     }
 }
 

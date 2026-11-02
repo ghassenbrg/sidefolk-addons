@@ -63,7 +63,7 @@ enum PlayMenu {
         func stat(_ i: Int, _ value: Int, _ label: String, _ symbol: String, _ color: Color, _ soft: Color) -> Node {
             .box("menu.stat.\(i)", x: 4 + Double(i) * (w + 1), y: 8, w: w, h: 34) {
                 Node.ellipse(fill: soft).at(8, 1).size(32, 32)
-                Node.symbol(symbol, color: color).symbolLook(weight: "bold", mono: true).at(14, 7).size(20, 20)
+                Node.symbol(symbol, color: color).symbolLook(weight: "bold").at(14, 7).size(20, 20)
                 Node.words(Format.integer(value), size: 20, weight: "black", x: 48, y: -2, w: w - 52, h: 24).textLook(tabular: true)
                 Node.words(label, size: 11, weight: "bold", color: .inkMuted, x: 48, y: 20, w: w - 52, h: 14)
             }
@@ -111,7 +111,7 @@ enum PlayMenu {
             Node.rect(fill: Paint.card(0.95), corner: 12).size(width, 34)
             Node.rect(fill: Paint.clear(hex, 0.16), stroke: Paint.clear(hex, 0.35), lineWidth: 1, corner: 12).size(width, 34)
             if solo {
-                Node.symbol("puzzlepiece.fill", color: .hex(hex)).symbolLook(weight: "bold", mono: true).at(10, 7).size(20, 20)
+                Node.symbol("puzzlepiece.fill", color: .hex(hex)).symbolLook(weight: "bold").at(10, 7).size(20, 20)
             } else {
                 Node.faceDisc(x: 8, y: 5, side: 24, ring: 1.5)
             }
@@ -137,7 +137,7 @@ enum PlayMenu {
             artTile(game, id: id + ".tile", side: 54, corner: 13).at(7, (h - 54) / 2)
             Node.words(game.title, size: 14, weight: "heavy", valign: "top", lines: 2, minScale: 0.85, x: 7 + 54 + 9, y: 7, w: room, h: title)
             if resume {
-                Node.symbol("play.fill", color: .link).symbolLook(weight: "heavy", mono: true).at(70, 9 + title).size(11, 11)
+                Node.symbol("play.fill", color: .link).symbolLook(weight: "heavy").at(70, 9 + title).size(11, 11)
                 Node.words(L("Resume"), size: 11, weight: "heavy", color: .link, x: 84, y: 7 + title, w: room - 14, h: 15)
             } else {
                 Node.words(game.tagline, size: 11, weight: "semibold", color: .inkMuted, valign: "top", lines: 3, minScale: 0.9, x: 7 + 54 + 9, y: 9 + title, w: room, h: max(h - 16 - title, 14))

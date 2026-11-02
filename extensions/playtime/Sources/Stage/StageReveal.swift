@@ -14,7 +14,7 @@ extension BoardDrawing {
     func revealCard(_ reveal: Reveal) -> PartBlock {
         let width = Self.inner, height = 118.0
         // It comes in with the board easing round it, as the panel's did.
-        if ctx.buildUp { anims.append(.keys("reveal", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 300)) }
+        if ctx.buildUp { anims.append(.from("reveal", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 300)) }
         return PartBlock(.box("reveal", w: width, h: height) {
             Node.gameCard(corner: 18, alpha: 0.92, w: width, h: height).id("reveal.card")
             if case .hands(let you, let companion) = reveal {
@@ -48,8 +48,8 @@ extension BoardDrawing {
                     return ["t": p, "x": mid + sign * gap(p) - box / 2, "y": y - (p < beat.opens ? abs(sin(pump * 3 * .pi)) * 14 : 0)]
                 }
                 anims.append(.keys(id, flying, ms: beat.ms))
-                anims.append(.keys(id + ".sealed", [["t": 0, "opacity": 1], ["t": beat.opens - 0.001, "opacity": 1], ["t": beat.opens, "opacity": 0], ["t": 1, "opacity": 0]], ms: beat.ms))
-                anims.append(.keys(id + ".throw", [["t": 0, "opacity": 0], ["t": beat.opens - 0.001, "opacity": 0], ["t": beat.opens, "opacity": 1], ["t": 1, "opacity": 1]], ms: beat.ms))
+                anims.append(.from(id + ".sealed", [["t": 0, "opacity": 1], ["t": beat.opens - 0.001, "opacity": 1], ["t": beat.opens, "opacity": 0], ["t": 1, "opacity": 0]], ms: beat.ms))
+                anims.append(.from(id + ".throw", [["t": 0, "opacity": 0], ["t": beat.opens - 0.001, "opacity": 0], ["t": beat.opens, "opacity": 1], ["t": 1, "opacity": 1]], ms: beat.ms))
                 if won {
                     anims.append(.keys(id + ".throw", [["t": 0, "scale": 1], ["t": beat.acts, "scale": 1], ["t": 1, "scale": 1.18]], ms: beat.ms))
                 }
@@ -66,7 +66,7 @@ extension BoardDrawing {
                     // A hand not shown yet: a closed token with a "?", neither rock, paper nor scissors.
                     Node.box(id + ".sealed", x: 3, y: 3, w: 52, h: 52) {
                         Node.rect(fill: .surfaceSunken, stroke: .line, lineWidth: 1, corner: 14).size(52, 52).shadow(Paint.clear("#000000", 0.12), radius: 2, dx: 0, dy: 1)
-                        Node.symbol("questionmark", color: .inkMuted).symbolLook(weight: "heavy", mono: true).at(13, 13).size(26, 26)
+                        Node.symbol("questionmark", color: .inkMuted).symbolLook(weight: "heavy").at(13, 13).size(26, 26)
                     }.opacity(0)
                 }
             }
@@ -77,7 +77,7 @@ extension BoardDrawing {
             let w = text + 16 + (crown == nil ? 0 : 15), h = 18.0
             return .box(x: mid + sign * home - w / 2, y: 106 - h / 2, w: w, h: h) {
                 Node.capsule(fill: Color.surface.tuned(alpha: 0.9)).size(w, h)
-                if let crown { Node.symbol("crown.fill", color: crown).symbolLook(mono: true).at(8, 3).size(12, 12) }
+                if let crown { Node.symbol("crown.fill", color: crown).symbolLook().at(8, 3).size(12, 12) }
                 Node.words(words, size: 11.5, weight: "semibold", color: crown == nil ? .inkMuted : .ink, align: "center", design: "default", x: crown == nil ? 8 : 23, w: text, h: h)
             }
         }
@@ -91,17 +91,17 @@ extension BoardDrawing {
                 var keys: [[String: Double]] = [["t": 0, "opacity": i == 0 ? 1 : 0]]
                 if i > 0 { keys += [["t": from - 0.001, "opacity": 0], ["t": from, "opacity": 1]] }
                 keys += [["t": to - 0.001, "opacity": 1], ["t": to, "opacity": 0], ["t": 1, "opacity": 0]]
-                anims.append(.keys(id, keys, ms: beat.ms))
+                anims.append(.from(id, keys, ms: beat.ms))
                 words.append(Node.words(word, size: 16, weight: "heavy", color: .inkMuted, align: "center", x: 0, y: 2, w: width, h: 20).id(id).opacity(0))
             }
             let shoot = "\(prefix).shoot"
             let done = beat.acts + (1 - beat.acts) * 0.9
-            anims.append(.keys(shoot, [["t": 0, "opacity": 0], ["t": beat.opens - 0.001, "opacity": 0], ["t": beat.opens, "opacity": 1], ["t": beat.acts, "opacity": 1], ["t": done, "opacity": 0.1], ["t": done + 0.001, "opacity": 0], ["t": 1, "opacity": 0]], ms: beat.ms))
+            anims.append(.from(shoot, [["t": 0, "opacity": 0], ["t": beat.opens - 0.001, "opacity": 0], ["t": beat.opens, "opacity": 1], ["t": beat.acts, "opacity": 1], ["t": done, "opacity": 0.1], ["t": done + 0.001, "opacity": 0], ["t": 1, "opacity": 0]], ms: beat.ms))
             words.append(Node.words(L("Shoot!"), size: 16, weight: "heavy", color: .ink, align: "center", x: 0, y: 2, w: width, h: 20).id(shoot).opacity(0))
             // The clash itself: a burst, or an equals sign for a draw.
             let mark = "\(prefix).burst", side = verdict == .draw ? 22.0 : 30.0, fade = beat.acts + (1 - beat.acts) * 0.7
-            anims.append(.keys(mark, [["t": 0, "opacity": 0, "scale": 0.6], ["t": beat.acts, "opacity": 0, "scale": 0.6], ["t": beat.acts + 0.001, "opacity": 1, "scale": 0.6], ["t": fade, "opacity": 0, "scale": 1.3], ["t": 1, "opacity": 0, "scale": 1.3]], ms: beat.ms))
-            burst.append(Node.symbol(verdict == .draw ? "equal" : "burst.fill", color: Color.inkMuted.tuned(alpha: 0.8)).symbolLook(weight: "bold", mono: true).id(mark).at(mid - side / 2, 52 - side / 2).size(side, side).opacity(0))
+            anims.append(.from(mark, [["t": 0, "opacity": 0, "scale": 0.6], ["t": beat.acts, "opacity": 0, "scale": 0.6], ["t": beat.acts + 0.001, "opacity": 1, "scale": 0.6], ["t": fade, "opacity": 0, "scale": 1.3], ["t": 1, "opacity": 0, "scale": 1.3]], ms: beat.ms))
+            burst.append(Node.symbol(verdict == .draw ? "equal" : "burst.fill", color: Color.inkMuted.tuned(alpha: 0.8)).symbolLook(weight: "bold").id(mark).at(mid - side / 2, 52 - side / 2).size(side, side).opacity(0))
         }
         return words + [
             side("you", hand: you, sign: -1, won: verdict == .win, lost: verdict == .loss, mirrored: false),
@@ -135,7 +135,7 @@ extension BoardDrawing {
 
     private func defeat(_ hand: String, id: String, beat: RevealBeat) {
         func run(_ target: String, _ start: [String: Double], _ end: [String: Double]) {
-            anims.append(.keys(target, [start.merging(["t": 0]) { a, _ in a }, start.merging(["t": beat.acts]) { a, _ in a }, end.merging(["t": 1]) { a, _ in a }], ms: beat.ms))
+            anims.append(.from(target, [start.merging(["t": 0]) { a, _ in a }, start.merging(["t": beat.acts]) { a, _ in a }, end.merging(["t": 1]) { a, _ in a }], ms: beat.ms))
         }
         switch hand {
         case "paper":

@@ -77,7 +77,7 @@ enum TossSurface {
 
     // MARK: Flying
 
-    private static func flying(_ toss: Toss) -> Scene {
+    static func flying(_ toss: Toss) -> Scene {
         let time = Timing(toss)
         let waiting = switch toss {
         case .coins: L("Heads or tails…")
@@ -106,7 +106,7 @@ enum TossSurface {
 
     // MARK: Landed
 
-    private static func landed(_ toss: Toss) -> Scene {
+    static func landed(_ toss: Toss) -> Scene {
         let (move, effect, line) = reaction(toss)
         let whisper = line.map { TossParts.whisper($0) }
         let objects = TossParts.objects(toss, time: Timing(toss), playing: false)
@@ -127,7 +127,7 @@ enum TossSurface {
         let height = y - 6 + pad
         var scene = Scene(width: width, height: height) { nodes }
             .announcing([toss.result, line].compactMap { $0 }.joined(separator: " "))
-            .animating([.keys("toss.chip", [["t": 0, "scale": 0.85, "opacity": 0], ["t": 1, "scale": 1, "opacity": 1]], ms: 220, ease: "spring")])
+            .animating([.from("toss.chip", [["t": 0, "scale": 0.85, "opacity": 0], ["t": 1, "scale": 1, "opacity": 1]], ms: 220, ease: "spring")])
             .closing(afterMs: 5000)
         if move != nil || effect != nil { scene = scene.react(Reaction(move: move, effect: effect)) }
         return scene
@@ -236,7 +236,7 @@ enum TossParts {
         let trayY = height - trayH
         var anims: [Anim] = []
         var nodes: [Node] = [TossArt.tray(w: trayW, h: trayH).at(65, trayY)]
-        if playing { anims.append(.keys("toss.tray", [["t": 0, "opacity": 0], ["t": 0.3, "opacity": 0], ["t": 1, "opacity": 1]], ms: time.launch)) }
+        if playing { anims.append(.from("toss.tray", [["t": 0, "opacity": 0], ["t": 0.3, "opacity": 0], ["t": 1, "opacity": 1]], ms: time.launch)) }
         // Bottom-up, as the rows are stacked over the tray's lower edge.
         let total = Double(rows.count) * size + Double(rows.count - 1) * 8
         let firstY = height - 13 - total
@@ -264,7 +264,7 @@ enum TossParts {
         }
         // A natural 20 glints gold.
         if !playing, sides == 20, rolls.count == 1, rolls[0] == 20 {
-            nodes.append(Node.symbol("sparkle", color: Paint.sun).symbolLook(weight: "bold", mono: true).at((width + size) / 2 - 7, firstY - 7).size(16, 16))
+            nodes.append(Node.symbol("sparkle", color: Paint.sun).symbolLook(weight: "bold").at((width + size) / 2 - 7, firstY - 7).size(16, 16))
         }
         return Part(node: .box("toss.dice", w: width, h: height) { nodes }.leftToRight().label(L("{n} dice", ["n": rolls.count])), width: width, height: height, anims: anims)
     }
@@ -293,10 +293,10 @@ enum TossParts {
                     let t = Double(frame) / Double(count), end = min(Double(frame + 1) / Double(count), 1)
                     return [["t": t, "opacity": 1], ["t": end - 0.0001, "opacity": 1], ["t": end, "opacity": 0]]
                 }
-                anims.append(.keys(number, [["t": 0, "opacity": 0]] + on + [["t": 1, "opacity": 0]], ms: time.flight, ease: "linear").delay(ms: time.launch))
+                anims.append(.from(number, [["t": 0, "opacity": 0]] + on + [["t": 1, "opacity": 0]], ms: time.flight, ease: "linear").delay(ms: time.launch))
                 numbers.append(TossArt.dieNumber(tumbling(n), sides: sides, side: size).id(number).opacity(0))
             }
-            anims.append(.keys("\(id).final", [["t": 0, "opacity": 0], ["t": 0.999, "opacity": 0], ["t": 1, "opacity": 1]], ms: time.launch + time.flight, ease: "linear"))
+            anims.append(.from("\(id).final", [["t": 0, "opacity": 0], ["t": 0.999, "opacity": 0], ["t": 1, "opacity": 1]], ms: time.launch + time.flight, ease: "linear"))
         }
         return .box(id, w: size, h: size) {
             TossArt.padded("art/poly-\(TossArt.polyhedron(sides)).png", side: size, exported: 44)
@@ -340,7 +340,7 @@ enum TossParts {
         return Part(node: .box("toss.chip", w: w, h: h) {
             Node.rect(fill: .surface, stroke: verdict.map { $0.color.tuned(alpha: 0.7) } ?? .line, lineWidth: verdict == nil ? 1 : 2, corner: 14).size(w, h)
             if let verdict {
-                Node.symbol(verdict.symbol, color: verdict.color).symbolLook(weight: "bold", mono: true).at(16, (h - 20) / 2).size(20, 20)
+                Node.symbol(verdict.symbol, color: .surface).symbolLook(weight: "bold", secondary: verdict.color).at(16, (h - 20) / 2).size(20, 20)
             }
             Node.words(words, size: size, weight: weight, align: "center", x: x, w: wordsW, h: h).leftToRight()
             if let beside {
@@ -356,7 +356,7 @@ enum TossParts {
         let w = textW + 14 + 6 + 24, h = 26.0
         return Part(node: .box("toss.again", w: w, h: h) {
             Node.capsule(fill: .accent).size(w, h)
-            Node.symbol("arrow.clockwise", color: .onAccent).symbolLook(weight: "semibold", mono: true).at(12, 6).size(14, 14)
+            Node.symbol("arrow.clockwise", color: .onAccent).symbolLook(weight: "semibold").at(12, 6).size(14, 14)
             Node.words(words, size: 11.5, weight: "semibold", color: .onAccent, design: "default", x: 32, w: textW, h: h)
         }.area("again", label: words, hover: AreaLook(scale: 1.03), press: AreaLook(scale: 0.97), sound: "sounds/tap.wav"), width: w, height: h)
     }

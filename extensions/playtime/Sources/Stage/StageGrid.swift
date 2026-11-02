@@ -65,7 +65,7 @@ extension BoardDrawing {
         if ctx.local.cursor == index, !locked {
             inner.append(Node.rect(stroke: .accent, lineWidth: 2.5, corner: 12).id(id + ".cursor").size(side, side))
         }
-        arrival(cell, r: r, c: c, target: id + ".mark", index: index)
+        arrival(cell, r: r, c: c, target: Self.markId(id, cell), index: index)
         var node = Node.box(id, w: side, h: side) { inner }
             .area("cell", value: "\(r),\(c)", label: cell.label ?? "\(r + 1), \(c + 1)", disabled: !open, hover: nil, press: AreaLook(scale: 0.97), sound: "sounds/tap.wav")
         if cell.state == "disabled" { node = node.opacity(0.4) }
@@ -81,9 +81,12 @@ extension BoardDrawing {
         }
     }
 
+    /// By what it shows: a card turned over is another kind of node, and a layer doesn't change kind under one id.
+    private static func markId(_ id: String, _ cell: Cell) -> String { id + ".mark." + cell.mark }
+
     private func mark(_ cell: Cell, id: String, side: Double) -> Node {
         let color: Color = cell.companion ? .accent : .ink
-        let target = id + ".mark"
+        let target = Self.markId(id, cell)
         switch cell.mark {
         // Chunky marks lit from above, with a small drop shadow: pieces on a board rather than strokes.
         case "x":
@@ -105,7 +108,7 @@ extension BoardDrawing {
                 }
             }
             let s = side * 0.4 * 1.3
-            return Node.symbol(cell.value ?? "questionmark", color: color).symbolLook(mono: true).id(target).at((side - s) / 2, (side - s) / 2).size(s, s)
+            return Node.symbol(cell.value ?? "questionmark", color: color).symbolLook().id(target).at((side - s) / 2, (side - s) / 2).size(s, s)
         case "card_back":
             let s = side * 0.98
             return Node.image("art/game-card-back.webp").id(target).at((side - s) / 2, (side - s) / 2).size(s, s).shadow(Paint.clear("#000000", 0.18), radius: 2, dx: 0, dy: 2)
@@ -157,7 +160,7 @@ extension BoardDrawing {
         case "flip": frames = [["t": 0, "sx": 0.02, "opacity": 0.2], ["t": 1, "sx": 1, "opacity": 1]]
         default: frames = [["t": 0, "opacity": 0.2], ["t": 1, "opacity": 1]]
         }
-        anims.append(.keys(target, frames, ms: 320, ease: "spring"))
+        anims.append(.from(target, frames, ms: 320, ease: "spring"))
     }
 
     /// A card's face for the SF Symbol a board names: the object itself, in colour.
