@@ -59,6 +59,8 @@ actor Provider {
     static let maximumAttempts = 3
     /// Seconds before the second attempt, doubling. A 429 starts higher: the server asked for less, not for a retry.
     static let backoff: TimeInterval = 1
+    /// How long no connection stands for what is asked next, outside a round the model begins itself.
+    static let unreachableFor: TimeInterval = 20
     static let rateLimitBackoff: TimeInterval = 4
     static let rateLimitCooldown: TimeInterval = 60
     /// How long a cached answer nobody has refreshed stays on disk.
@@ -70,6 +72,7 @@ actor Provider {
     private let store: NoorStore
     private let sleep: @Sendable (TimeInterval) async throws -> Void
     private var coolingUntil: Date?
+    private var unreachableUntil: Date?
 
     init(fetching: any Fetching, store: NoorStore,
          sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { try await Task.sleep(for: .seconds($0)) }) {
@@ -88,9 +91,12 @@ actor Provider {
         if let coolingUntil, now < coolingUntil {
             return fallback(cached, .rateLimited(retryAfter: coolingUntil.timeIntervalSince(now)))
         }
+        // No connection answers for everything asked in the same breath: each asking again would only add its own wait.
+        if let unreachableUntil, now < unreachableUntil { return fallback(cached, .offline) }
         switch await attempt(request, now: now) {
         case .success(let value):
             coolingUntil = nil
+            unreachableUntil = nil
             // A full disk costs the cache, not this answer.
             try? store.cache(value, key: request.cacheKey, fetchedAt: now)
             store.pruneCache(olderThan: now.addingTimeInterval(-Self.cacheLifetime))
@@ -98,11 +104,19 @@ actor Provider {
         case .failure(.rateLimited):
             coolingUntil = now.addingTimeInterval(Self.rateLimitCooldown)
             return fallback(cached, .rateLimited(retryAfter: Self.rateLimitCooldown))
-        case .failure(.transport): return fallback(cached, .offline)
+        case .failure(.transport):
+            unreachableUntil = now.addingTimeInterval(Self.unreachableFor)
+            return fallback(cached, .offline)
         case .failure(.malformed): return fallback(cached, .malformed)
         case .failure(.noCoverage): return fallback(cached, .noCoverage)
         }
     }
+
+    /// A new round of asking tries the network again.
+    func beginAsking() { unreachableUntil = nil }
+
+    /// Did the last asking find no connection? A saved answer hides that from its `Outcome`, and the person should still be told.
+    var foundNoConnection: Bool { unreachableUntil != nil }
 
     private func fallback<Value>(_ cached: CacheEntry<Value>?, _ reason: UnavailableReason) -> Outcome<Value> {
         cached.map { .cached($0.value, fetchedAt: $0.fetchedAt) } ?? .unavailable(reason)

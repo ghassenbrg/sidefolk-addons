@@ -445,6 +445,7 @@
     "Next would be {what} on {date} at {time} ({zone}). It's far off? It comes when its day is within 35 days.": "次は{date}の{time} ({zone}) の{what}になります。まだ先ですか？ その日が35日以内になったら届きます。",
     "Next: {what} on {date} at {time} ({zone}). This is a preview: nothing is scheduled by looking.": "次: {date}の{time} ({zone}) の{what}。これはプレビューです。見るだけでは何も予約されません。",
     "No bearing for this place yet": "この場所の方角はまだありません",
+    "No connection, and no times saved for today yet. Try again once you're online.": "接続がなく、今日の時刻もまだ保存されていません。オンラインになったらもう一度お試しください。",
     "No connection. What is shown was saved earlier.": "接続できません。表示しているのは以前に保存したものです。",
     "No listed occasion for this date.": "この日付に一覧の行事はありません。",
     "No occasion matches “{query}”.": "「{query}」に一致する行事はありません。",

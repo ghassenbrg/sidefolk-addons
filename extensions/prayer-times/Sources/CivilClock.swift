@@ -70,6 +70,11 @@ enum CivilClock {
     }
 
     /// The first instant of a civil date. Where midnight is skipped (Havana in March) it is the moment of the jump.
+    /// Hours since this date's midnight, for what is drawn by the time of day.
+    static func hours(of date: Date, in zone: TimeZone) -> Double {
+        date.timeIntervalSince(startOfDay(CivilDate(date, in: zone), in: zone)) / 3600
+    }
+
     static func startOfDay(_ date: CivilDate, in zone: TimeZone) -> Date {
         resolve(date, LocalTime(hour: 0, minute: 0)!, in: zone).settled
     }

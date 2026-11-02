@@ -27,7 +27,7 @@ enum SetupPage {
             Node.arch(archW, h - 20, lift: 90).at((w - archW) / 2, 20)
             Node.inlay(w, h)
             let x = (w - archW) / 2
-            Node.image("art/rosette-light.png", dark: "art/rosette-dark.png").size(84, 84).at(w / 2 - 42, 56).leftToRight()
+            Node.image("art/rosette-l.png", dark: "art/rosette-d.png").size(84, 84).at(w / 2 - 42, 56).leftToRight()
             Node.say(L("Your day, with Noor"), x + 30, 144, archW - 60, 44, size: 30, weight: "bold", align: "center")
             Node.say(L("Noor brings together prayer times, a calendar, Qibla and the Names, for your own place."), x + 40, 188, archW - 80, 50, size: 15, color: Noor.muted, align: "center", lines: 2)
             for (i, item) in items.enumerated() {

@@ -257,6 +257,7 @@ final class NoorModel {
         var fetched: Date?
         let prefs = prefs
         let mine = generation
+        await provider.beginAsking()
         defer {
             if planWaiting, planIsReady { replan() }
         }
@@ -301,6 +302,7 @@ final class NoorModel {
            let list = note(await provider.load(AlAdhan.occasions(hijriYear: year, method: prefs.calendarMethod), now: now, refresh: refresh), into: &failed, at: &fetched) {
             occasions[year] = Occasion.dedupe(list)
         }
+        if failed == nil, await provider.foundNoConnection { failed = .offline }
         problem = failed
         fetchedAt = fetched ?? (failed == nil ? now : fetchedAt)
         load = failed == nil ? .settled : (failed == .offline ? .offline : .failed)

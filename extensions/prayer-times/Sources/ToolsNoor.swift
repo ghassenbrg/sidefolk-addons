@@ -131,7 +131,7 @@ enum NoorTools {
             guard let found = model.names.first(where: { "\($0.number)" == text || flat($0.transliteration) == flat(text) || $0.arabic == text }) else {
                 return ToolReply(L("I couldn't find “{name}” among the Names.", ["name": text])).opening(page: "noor", state: ["tab": "names", "q": text, "sheet": NSNull(), "filter": NSNull(), "shelf": NSNull()])
             }
-            return ToolReply("\(found.transliteration): \(found.meaning) (\(L("English meaning"))).").opening(page: "noor", state: ["tab": "names", "name": found.number, "sheet": NSNull(), "q": NSNull(), "filter": NSNull(), "shelf": NSNull()])
+            return ToolReply("\(found.transliteration): \(found.meaning) (\(L("English meaning"))).").opening(page: "noor", state: ["tab": "names", "name": found.number, "sheet": "name", "q": NSNull(), "filter": NSNull(), "shelf": NSNull()], push: true)
         })
     }
 

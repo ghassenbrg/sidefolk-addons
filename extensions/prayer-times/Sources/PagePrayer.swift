@@ -213,7 +213,7 @@ enum PrayerPage {
         return Node.group {
             Node.patternPanel(w, h)
             Node.rect(fill: Noor.quiet, corner: 14).size(w - 16, h - 16).at(8, 8)
-            Node.image("art/skyline-light.png", dark: "art/skyline-dark.png", fit: "cover").size(w - 16, h - 16).at(8, 8).corner(14).clip().opacity(0.85)
+            Node.image("art/tonight-l.jpg", dark: "art/tonight-d.jpg", fit: "cover").size(w - 16, h - 16).at(8, 8).corner(14).clip().opacity(0.85)
             Node.inlay(w, h)
             Node.say(L("Tonight"), 24, 14, 160, 24, size: 16, weight: "semibold")
             for (i, item) in shown.enumerated() {

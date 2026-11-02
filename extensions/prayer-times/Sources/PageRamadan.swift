@@ -66,7 +66,7 @@ enum RamadanPage {
         return Node.group {
             Node.patternPanel(w, h)
             Node.rect(fill: .adaptive(light: "#EFE8F7", dark: "#191D3E"), corner: 14).size(w - 16, h - 16).at(8, 8)
-            Node.image("art/skyline-light.png", dark: "art/skyline-dark.png", fit: "cover").size(w - 16, h - 16).at(8, 8).corner(14).clip()
+            Node.image("art/tonight-l.jpg", dark: "art/tonight-d.jpg", fit: "cover").size(w - 16, h - 16).at(8, 8).corner(14).clip()
             Node.inlay(w, h)
             Node.say(L("Selected day · {number} Ramadan", ["number": "\(day.number)"]), 28, 18, w - 56, 28, size: 18, weight: "semibold")
             Node.say(L("Daily times, {date}", ["date": Words.date(day.date, weekday: true, year: true)]), 28, 44, w - 56, 22, size: 13, color: Noor.muted)

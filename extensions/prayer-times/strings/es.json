@@ -439,6 +439,7 @@
     "Next would be {what} on {date} at {time} ({zone}). It's far off? It comes when its day is within 35 days.": "El siguiente sería {what} el {date} a las {time} ({zone}). ¿Queda lejos? Llega cuando su día esté a menos de 35 días.",
     "Next: {what} on {date} at {time} ({zone}). This is a preview: nothing is scheduled by looking.": "Siguiente: {what} el {date} a las {time} ({zone}). Es una vista previa: mirar no programa nada.",
     "No bearing for this place yet": "Aún no hay dirección para este lugar",
+    "No connection, and no times saved for today yet. Try again once you're online.": "Sin conexión y sin horarios guardados para hoy. Inténtalo de nuevo cuando tengas conexión.",
     "No connection. What is shown was saved earlier.": "Sin conexión. Lo que se muestra se guardó antes.",
     "No listed occasion for this date.": "No hay ocasión listada para esta fecha.",
     "No occasion matches “{query}”.": "Ninguna ocasión coincide con «{query}».",

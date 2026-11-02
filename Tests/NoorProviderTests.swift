@@ -173,4 +173,24 @@ struct NoorProviderTests {
         guard case .fresh = await load(provider, at: now.addingTimeInterval(-3600)) else { Issue.record("Expected a new fetch"); return }
         #expect(await fetch.asked.count == 2)
     }
+
+    @Test func noConnectionIsFoundOnceInARound() async throws {
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let log = SleepLog()
+        let (provider, fetch) = provider([], log: log)
+        #expect(await load(provider) == .unavailable(.offline))
+        let tries = await fetch.asked.count
+        let waits = await log.delays.count
+        let found = await provider.foundNoConnection
+        #expect(tries > 1 && waits > 0 && found)
+        #expect(await load(provider, at: now.addingTimeInterval(1)) == .unavailable(.offline))
+        let triesAfter = await fetch.asked.count
+        let waitsAfter = await log.delays.count
+        #expect(triesAfter == tries && waitsAfter == waits, "the next thing asked doesn't wait all over again")
+        await provider.beginAsking()
+        let forgotten = await provider.foundNoConnection
+        #expect(!forgotten)
+        _ = await load(provider, at: now.addingTimeInterval(2))
+        #expect(await fetch.asked.count > tries, "a new round tries again")
+    }
 }

@@ -151,7 +151,7 @@ enum NamesPage {
             Node.say(name.arabic, inset + 16, 104, w - (inset + 16) * 2, 124, size: min(w * 0.14, 76), weight: "medium", align: "center", lines: 1).leftToRight()
             Node.say(name.transliteration, inset + 16, 232, w - (inset + 16) * 2, 46, size: 32, weight: "semibold", color: Noor.warm, align: "center")
             Node.say(name.meaning, inset + 24, 278, w - (inset + 24) * 2, 54, size: 19, color: Noor.text, align: "center", lines: 2)
-            Node.image("art/rosette-light.png", dark: "art/rosette-dark.png").size(20, 20).at(w / 2 - 10, 340).leftToRight()
+            Node.image("art/rosette-l.png", dark: "art/rosette-d.png").size(20, 20).at(w / 2 - 10, 340).leftToRight()
             Node.rect(fill: Noor.inlay).size(70, 1).at(w / 2 - 90, 350)
             Node.rect(fill: Noor.inlay).size(70, 1).at(w / 2 + 20, 350)
             Node.say(L("Source: AlAdhan"), inset + 24, 372, w - (inset + 24) * 2, 22, size: 13, color: Noor.muted, align: "center")

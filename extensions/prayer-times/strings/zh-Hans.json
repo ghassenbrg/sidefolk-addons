@@ -442,6 +442,7 @@
     "Next would be {what} on {date} at {time} ({zone}). It's far off? It comes when its day is within 35 days.": "下一个将是 {date} {time} ({zone}) 的{what}。还很远吗？进入 35 天内就会送达。",
     "Next: {what} on {date} at {time} ({zone}). This is a preview: nothing is scheduled by looking.": "下一个：{date} {time} ({zone}) 的{what}。这只是预览：查看不会安排任何内容。",
     "No bearing for this place yet": "这个地点还没有方位",
+    "No connection, and no times saved for today yet. Try again once you're online.": "没有网络连接，也还没有保存今天的时间。联网后请重试。",
     "No connection. What is shown was saved earlier.": "没有网络连接。显示的是之前保存的内容。",
     "No listed occasion for this date.": "这个日期没有列出的节日。",
     "No occasion matches “{query}”.": "没有与“{query}”匹配的节日。",

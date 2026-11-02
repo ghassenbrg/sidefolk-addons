@@ -1,7 +1,7 @@
 import Foundation
 import SidefolkExtensionKit
 
-/// Overview: the dial, today's two dates, the bearing, the night's times, a Name and the way to Ramadan, each opening its own place.
+/// Overview, the boards' one composition: the dial in its arch, today's two dates and the bearing beside it, the night's times along the skyline, a Name and the way to Ramadan. Each opens its own place.
 @MainActor
 enum OverviewPage {
     static func sections(_ ctx: Context) -> [Section] {
@@ -24,41 +24,41 @@ enum OverviewPage {
         "reminders": .go(Go(set: ["sheet": "prefs", "section": "reminders"], push: true)),
     ]
 
+    /// Places in the board's own numbers (P01 and R01), from the top left of the page below the tabs.
     private static func wide(_ ctx: Context) -> Block {
-        let w = ctx.width
-        let gap = 16.0
-        let leftW = (w - gap) * 0.54, rightW = w - gap - leftW
-        let dialH = 500.0, todayH = 234.0
-        let nightY = dialH + gap, nightH = 112.0
-        let rowY = nightY + nightH + gap, rowH = 116.0
+        let r = ctx.ruler, w = ctx.width
+        let margin = r.u(28), full = w - margin * 2
+        let leftW = full * 0.505, gap = r.u(22), rightX = margin + leftW + gap, rightW = w - margin - rightX
+        let frameH = r.u(530), todayH = r.u(292), qiblaH = r.u(272)
+        let nightY = r.u(517), nightH = r.u(134)
+        let rowY = nightY + nightH + r.u(10), rowH = r.u(130)
         let name = ctx.snapshot.name
-        let scene = Scene(width: w, height: rowY + rowH) {
-            dialPanel(ctx, w: leftW, h: dialH)
-            today(ctx, w: rightW, h: todayH).at(leftW + gap, 0)
-            qibla(ctx, w: rightW, h: dialH - todayH - gap).at(leftW + gap, todayH + gap)
-            night(ctx, w: w, h: nightH).at(0, nightY)
-            nameCard(ctx, name, w: (w - gap) * 0.70, h: rowH).at(0, rowY)
-            ramadanCard(ctx, w: (w - gap) * 0.30, h: rowH).at((w - gap) * 0.70 + gap, rowY)
+        let scene = Scene(width: w, height: rowY + rowH + r.u(14)) {
+            dialPanel(ctx, w: leftW, h: frameH, r: r).at(margin, 0)
+            today(ctx, w: rightW, h: todayH, r: r).at(rightX, r.u(4))
+            night(ctx, w: full + r.u(10), h: nightH, r: r).at(margin - r.u(10), nightY)
+            qibla(ctx, w: rightW, h: qiblaH, r: r).at(rightX, r.u(312))
+            nameCard(ctx, name, w: full * 0.665, h: rowH, r: r).at(margin - r.u(10), rowY)
+            ramadanCard(ctx, w: full * 0.325, h: rowH, r: r).at(margin + full * 0.675, rowY)
         }
         return .scene(PageSceneBlock(scene, actions: nameActions(name, ctx), acts: acts))
     }
 
     private static func narrow(_ ctx: Context) -> Block {
-        let w = ctx.width
-        let gap = 14.0
-        let dialH = min(w * 1.1, 470)
+        let w = ctx.width, r = Ruler(width: 760)
+        let margin = 16.0, inner = w - margin * 2, gap = 12.0
         let name = ctx.snapshot.name
-        let heights = [dialH, 214, 214, 112, 128, 104]
+        let heights = [inner * 0.84 + 30, 196, 196, 120, 132, 104]
         var y = 0.0
         var at: [Double] = []
         for h in heights { at.append(y); y += h + gap }
-        let scene = Scene(width: w, height: y - gap) {
-            dialPanel(ctx, w: w, h: dialH)
-            today(ctx, w: w, h: heights[1]).at(0, at[1])
-            qibla(ctx, w: w, h: heights[2]).at(0, at[2])
-            night(ctx, w: w, h: heights[3]).at(0, at[3])
-            nameCard(ctx, name, w: w, h: heights[4]).at(0, at[4])
-            ramadanCard(ctx, w: w, h: heights[5]).at(0, at[5])
+        let scene = Scene(width: w, height: y) {
+            dialPanel(ctx, w: inner, h: heights[0], r: r).at(margin, at[0])
+            today(ctx, w: inner, h: heights[1], r: r).at(margin, at[1])
+            qibla(ctx, w: inner, h: heights[2], r: r).at(margin, at[2])
+            night(ctx, w: inner, h: heights[3], r: r).at(margin, at[3])
+            nameCard(ctx, name, w: inner, h: heights[4], r: r).at(margin, at[4])
+            ramadanCard(ctx, w: inner, h: heights[5], r: r).at(margin, at[5])
         }
         return .scene(PageSceneBlock(scene, actions: nameActions(name, ctx), acts: acts))
     }
@@ -68,165 +68,181 @@ enum OverviewPage {
         return ["save": ("save_name", ["number": name.number, "saved": !ctx.model.bookmarks.contains(name.number)])]
     }
 
-    static func dialPanel(_ ctx: Context, w: Double, h: Double) -> Node {
+    /// The old card's name, until its last page is redrawn.
+    static func card(_ w: Double, _ h: Double) -> Node { Node.panel(w, h) }
+
+    static func focusAt(_ s: NoorSnapshot) -> Date? {
+        switch s.next {
+        case .prayerStart(_, let at, _), .iqamah(_, let at, _): at
+        default: nil
+        }
+    }
+
+    /// The dial in its arch, its middle the same moment Today and Ask say.
+    static func dialPanel(_ ctx: Context, w: Double, h: Double, r: Ruler) -> Node {
         let s = ctx.snapshot
         let focus = DialScene.focus(s)
-        let archInset = 26.0
-        let archW = w - archInset * 2
-        let focusAt: Date? = {
-            switch s.next {
-            case .prayerStart(_, let at, _), .iqamah(_, let at, _): at
-            default: nil
-            }
-        }()
-        // Room above for the highest label under the arch's head, and below for the button.
-        let radius = min(archW / 2 - 66, (h - 190) / 2)
-        let cx = w / 2, cy = radius + 122
+        let radius = min(w * 0.31, (h - r.u(120)) * 0.5)
+        let cx = w / 2, cy = r.u(70) + radius + r.u(16)
         return Node.group {
-            Node.patternPanel(w, h)
-            Node.arch(archW, h - 22, lift: 56).at(archInset, 22)
-            Node.inlay(w, h)
+            Node.frame(.dial, w, h)
+            // The arch's window opens round the dial, so its names stand on quiet ground.
+            Node.image("art/glow.png", tint: .adaptive(light: "#FBF9FD", dark: "#0C0F2C")).size(radius * 3.5, radius * 3.5).at(cx - radius * 1.75, cy - radius * 1.75)
             Node.group {
                 if let day = s.today {
-                    Node.ellipse(fill: Noor.surface).size((radius - radius * 0.13) * 2, (radius - radius * 0.13) * 2).at(cx - radius * 0.87, cy - radius * 0.87)
-                    Node.group { DialScene.nodes(cx: cx, cy: cy, radius: radius, labelRadius: radius + 44, snapshot: s, day: day, focusAt: focusAt, big: true) }.size(w, h)
+                    Node.group { DialScene.nodes(cx: cx, cy: cy, radius: radius, labelRadius: radius + r.f(15) * 2.5, snapshot: s, day: day, focusAt: focusAt(s), big: true, label: r.f(15.5)) }.size(w, h)
                 }
-                Node.group { DialScene.middle(cx: cx, cy: cy, radius: radius * 0.87, focus: focus) }.size(w, h)
+                Node.group { DialScene.middle(cx: cx, cy: cy, radius: radius * 0.835, focus: focus) }.size(w, h)
             }
             .size(w, h).leftToRight().label(DialScene.spoken(s, focus: focus))
-            Node.pill("dial", label: L("View today's prayer times"), x: w / 2 - 130, y: h - 52, w: 260)
+            Node.pill("dial", label: L("View today's prayer times"), x: w / 2 - r.u(150), y: r.u(462), w: r.u(300), h: r.u(46), symbol: "chevron.forward", size: r.f(16.5))
         }
         .size(w, h)
     }
 
-    static func today(_ ctx: Context, w: Double, h: Double) -> Node {
+    static func today(_ ctx: Context, w: Double, h: Double, r: Ruler) -> Node {
         let s = ctx.snapshot
-        let paired = s.calendar
         let method = Words.calendarMethodName(s.calendarMethod)
+        let inX = r.u(18), inY = r.u(68), inW = w - inX * 2, inH = r.u(136)
+        let chipW = min(w * 0.42, r.u(192))
         return Node.group {
-            card(w, h)
-            Node.say(L("Today"), 20, 14, w * 0.4, 28, size: 21, weight: "bold")
+            Node.panel(w, h, corner: r.u(18))
+            Node.say(L("Today"), r.u(20), r.u(14), w * 0.4, r.u(38), size: r.f(28, min: 17), weight: "semibold")
             Node.group {
-                Node.rect(fill: Noor.well, corner: 8).size(min(w * 0.46, 200), 26)
-                Node.say(L("{method} calendar", ["method": method]), 8, 0, min(w * 0.46, 200) - 16, 26, size: 12, color: Noor.muted, align: "center")
+                Node.rect(fill: Noor.well, stroke: Noor.hairline, lineWidth: 1, corner: r.u(9)).size(chipW, r.u(34))
+                Node.say(L("{method} calendar", ["method": method]), 6, 0, chipW - 12, r.u(34), size: r.f(14.5), color: Noor.muted, align: "center")
             }
-            .size(min(w * 0.46, 200), 26).at(w - min(w * 0.46, 200) - 16, 15)
+            .size(chipW, r.u(34)).at(w - chipW - r.u(20), r.u(18))
             Node.group {
-                Node.rect(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1, corner: 14).size(w - 32, h - 118)
-                if let hijri = paired?.hijri, let date = s.localDate {
-                    Node.say("\(hijri.day)", 18, 0, 90, h - 118, size: 56, weight: "bold", align: "center", tabular: true)
-                    Node.say("\(Words.hijriMonth(hijri)) \(hijri.year)", 112, (h - 118) / 2 - 30, w - 160, 32, size: 21, weight: "semibold", color: Noor.accent)
-                    Node.say(Words.date(date), 112, (h - 118) / 2 + 4, w - 160, 24, size: 14, color: Noor.muted)
+                Node.rect(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1, corner: r.u(16)).size(inW, inH)
+                Node.flourish(inW, inH, side: inH * 1.3, corner: r.u(16))
+                if let hijri = s.calendar?.hijri, let date = s.localDate {
+                    Node.say("\(hijri.day)", r.u(14), 0, r.u(124), inH, size: r.f(84, min: 44), weight: "bold", align: "center", tabular: true)
+                    Node.say("\(Words.hijriMonth(hijri)) \(hijri.year)", r.u(152), inH * 0.20, inW - r.u(210), r.u(46), size: r.f(33, min: 18), weight: "medium", color: Noor.accent)
+                    Node.say(Words.date(date), r.u(152), inH * 0.56, inW - r.u(210), r.u(32), size: r.f(21, min: 12.5), color: Noor.muted)
                 } else {
-                    Node.say(s.localDate.map { Words.date($0) } ?? "", 18, 0, w - 68, h - 118, size: 16, color: Noor.muted)
+                    Node.say(s.localDate.map { Words.date($0) } ?? "", r.u(20), 0, inW - r.u(80), inH, size: r.f(20), color: Noor.muted)
                 }
             }
-            .size(w - 32, h - 118).at(16, 50)
-            Node.symbol("calendar", color: Noor.text).size(20, 20).at(20, h - 50)
-            Node.say(nextOccasion(ctx) ?? L("Paired dates follow the calendar method"), 50, h - 58, w - 210, 40, size: 12.5, color: Noor.muted, lines: 2)
-            Node.pill("calendar", label: L("Open calendar"), x: w - 152, y: h - 56, w: 136, h: 36, symbol: "chevron.forward")
+            .size(inW, inH).at(inX, inY)
+            Node.symbol("calendar", color: Noor.text).size(r.f(28, min: 18), r.f(28, min: 18)).at(r.u(26), h - r.u(62))
+            if let coming = nextOccasion(ctx) {
+                Node.say(coming.0, r.u(76), h - r.u(76), w - r.u(290), r.u(28), size: r.f(16.5))
+                Node.say(coming.1, r.u(76), h - r.u(48), w - r.u(290), r.u(28), size: r.f(14), color: Noor.muted)
+            } else {
+                Node.say(L("Paired dates follow the calendar method"), r.u(76), h - r.u(76), w - r.u(290), r.u(56), size: r.f(15.5), color: Noor.muted, lines: 2)
+            }
+            Node.pill("calendar", label: L("Open calendar"), x: w - r.u(202), y: h - r.u(70), w: r.u(182), h: r.u(46), symbol: "chevron.forward", size: r.f(16))
         }
         .size(w, h)
     }
 
     /// The next listed occasion, with its method: calculated, and local observance may differ.
-    private static func nextOccasion(_ ctx: Context) -> String? {
+    private static func nextOccasion(_ ctx: Context) -> (String, String)? {
         guard let today = ctx.snapshot.localDate, ctx.model.prefs.showOccasions else { return nil }
         let coming = ctx.model.occasions.values.flatMap { $0 }.filter { $0.gregorian >= today && $0.method == ctx.model.prefs.calendarMethod }.min { $0.gregorian < $1.gregorian }
-        return coming.map { L("{occasion}, {date}. Listed by {method}; local observance may differ.", ["occasion": $0.title, "date": Words.date($0.gregorian, weekday: false, year: false), "method": Words.calendarMethodName($0.method)]) }
+        return coming.map { ("\(Words.date($0.gregorian, weekday: false, year: false)) · \($0.title)", L("Listed by {method}; local observance may differ.", ["method": Words.calendarMethodName($0.method)])) }
     }
 
-    static func qibla(_ ctx: Context, w: Double, h: Double) -> Node {
+    static func qibla(_ ctx: Context, w: Double, h: Double, r: Ruler) -> Node {
         let s = ctx.snapshot
-        let side = min(h - 56, w * 0.46)
-        let textX = side + 44
+        let side = min(h - r.u(20), w * 0.40)
+        let textX = side + r.u(70)
         return Node.group {
-            card(w, h)
-            Node.say(L("Qibla"), 20, 12, w * 0.4, 28, size: 21, weight: "bold")
-            Node.say(L("From {place}", ["place": s.place?.label ?? ""]), w * 0.4, 14, w * 0.6 - 18, 24, size: 12.5, color: Noor.muted, align: "trailing")
-            if let bearing = s.qibla {
-                CompassScene.small(bearing.degrees, side: side).at(20, 44)
-                Node.say(L("Qibla · {degrees}°", ["degrees": "\(bearing.rounded)"]), textX, h * 0.28, w - textX - 14, 34, size: 23, weight: "semibold", color: Noor.accent)
-                Node.say(L("Clockwise from true north"), textX, h * 0.28 + 34, w - textX - 14, 22, size: 13, color: Noor.muted)
-                Node.pill("qibla", label: L("Open direction"), x: textX, y: h * 0.28 + 66, w: min(160, w - textX - 14), symbol: "chevron.forward")
-            } else {
-                Node.say(ctx.model.load == .loading ? L("Finding the bearing…") : L("No saved bearing for this place."), 20, h * 0.4, w - 40, 24, size: 14, color: Noor.muted, align: "center")
-            }
-        }
-        .size(w, h)
-    }
-
-    static func night(_ ctx: Context, w: Double, h: Double) -> Node {
-        let s = ctx.snapshot
-        let solar = s.today?.solar ?? [:]
-        let items: [(SolarEvent, String)] = [(.sunset, "sun.horizon.fill"), (.midnight, "moon.fill"), (.lastThird, "moon.stars.fill")]
-        let shown = items.filter { solar[$0.0] != nil }
-        let span = min(w * 0.56, 560)
-        return Node.group {
-            Node.rect(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1, corner: 16).size(w, h)
-            Node.image("art/skyline-light.png", dark: "art/skyline-dark.png", fit: "cover").size(w, h).corner(16).clip().opacity(0.9)
-            Node.say(L("Tonight"), 20, 8, 160, 24, size: 16, weight: "semibold")
+            Node.panel(w, h, corner: r.u(18))
+            // The lattice comes in from the right, under where the place is named.
+            Node.group { Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(h * 0.86, h * 0.86).at(w - h * 0.86, r.u(52)) }.size(w, h).corner(r.u(18)).clip().opacity(0.9)
+            Node.say(L("Qibla"), r.u(20), r.u(14), w * 0.4, r.u(38), size: r.f(28, min: 17), weight: "semibold")
             Node.group {
-                Node.symbol("bell", color: Noor.muted).size(14, 14).at(0, 7)
-                Node.say(L("Set a reminder"), 20, 0, 130, 28, size: 12.5, color: Noor.muted)
+                Node.symbol("mappin.and.ellipse", color: Noor.text).size(r.f(20, min: 14), r.f(20, min: 14)).at(0, (r.u(30) - r.f(20, min: 14)) / 2)
+                Node.say(L("From {place}", ["place": s.place?.label ?? ""]), r.u(30), 0, w * 0.32, r.u(30), size: r.f(16.5, min: 12))
             }
-            .size(150, 28).at(w - 170, 6)
-            .area("reminders", label: L("Set a reminder"))
-            for (i, item) in shown.enumerated() {
-                let x = 36 + span * (shown.count > 1 ? Double(i) / Double(shown.count - 1) : 0) * 0.9
-                Node.symbol(item.1, color: .hex(i == 0 ? "#F1B44C" : "#B8A9F0")).size(22, 22).at(x + 34, 34)
-                Node.say(Words.solar(item.0), x, 56, 90, 20, size: 12.5, color: Noor.muted, align: "center")
-                Node.say(ctx.t(solar[item.0]!), x, 74, 90, 26, size: 16, weight: "semibold", align: "center", tabular: true)
+            .size(w * 0.38, r.u(30)).at(w * 0.70, r.u(18))
+            if let bearing = s.qibla {
+                CompassScene.small(bearing.degrees, side: side).at(r.u(36), (h - side) / 2 + r.u(4))
+                Node.say(L("Qibla · {degrees}°", ["degrees": "\(bearing.rounded)"]), textX, h * 0.30, w - textX - r.u(14), r.u(46), size: r.f(33, min: 18), weight: "medium", color: Noor.warm)
+                Node.say(L("Clockwise from true north"), textX, h * 0.30 + r.u(44), w - textX - r.u(14), r.u(28), size: r.f(18, min: 12), color: Noor.muted)
+                Node.pill("qibla", label: L("Open direction"), x: textX, y: h * 0.30 + r.u(90), w: min(r.u(196), w - textX - r.u(14)), h: r.u(46), symbol: "chevron.forward", size: r.f(16))
+            } else {
+                Node.say(ctx.model.load == .loading ? L("Finding the bearing…") : L("No saved bearing for this place."), r.u(20), h * 0.4, w - r.u(40), r.u(30), size: r.f(16), color: Noor.muted, align: "center")
             }
         }
         .size(w, h)
     }
 
-    static func nameCard(_ ctx: Context, _ name: NameEntry?, w: Double, h: Double) -> Node {
-        Node.group {
-            Node.patternPanel(44, h, corner: 16)
-            Node.rect(fill: Noor.surface, stroke: Noor.hairline, lineWidth: 1, corner: 16).size(w - 26, h).at(26, 0)
-            Node.say(L("A name to explore"), 48, 10, w * 0.5, 20, size: 13, color: Noor.muted)
+    /// Tonight along the skyline: sunset, midnight and the last third, on one dotted arc.
+    static func night(_ ctx: Context, w: Double, h: Double, r: Ruler) -> Node {
+        let solar = ctx.snapshot.today?.solar ?? [:]
+        let items: [SolarEvent] = [.sunset, .midnight, .lastThird].filter { solar[$0] != nil }
+        let first = r.u(140), step = min(r.u(203), (w - r.u(180)) / 3)
+        let arcY = r.u(62), lift = r.u(24)
+        let last = first + step * Double(max(0, items.count - 1))
+        let arc = "M \(n(first - r.u(58))) \(n(arcY + lift * 0.9)) C \(n(first + step * 0.4)) \(n(arcY - lift)) \(n(last - step * 0.4)) \(n(arcY - lift)) \(n(last + r.u(20))) \(n(arcY + lift * 0.3))"
+        return Node.group {
+            Node.panel(w, h, corner: r.u(16))
+            // The painted night, its horizon low in the strip, and its sky quieter so the words stand on it.
+            Node.group {
+                Node.image("art/tonight-l.jpg", dark: "art/tonight-d.jpg", fit: "fill").size(w, w * 0.267).at(0, h * 0.74 - w * 0.267 * 0.4)
+                Node.rect().gradient([.adaptive(light: "#F7F3FBEE", dark: "#0C0F2CF0"), .adaptive(light: "#F7F3FB00", dark: "#0C0F2C20")]).size(w, h)
+            }
+            .size(w, h).corner(r.u(16)).clip()
+            Node.rect(stroke: Noor.hairline, lineWidth: 1, corner: r.u(16)).size(w, h)
+            Node.say(L("Tonight"), r.u(22), r.u(10), r.u(200), r.u(32), size: r.f(20, min: 14), weight: "semibold")
+            Node.group {
+                Node.symbol("bell", color: Noor.text).size(r.f(18, min: 13), r.f(18, min: 13)).at(0, (r.u(30) - r.f(18, min: 13)) / 2)
+                Node.say(L("Set a reminder"), r.u(30), 0, r.u(128), r.u(30), size: r.f(14.5))
+                Node.symbol("chevron.forward", color: Noor.text).size(r.u(8), r.u(13)).at(r.u(150), r.u(9))
+            }
+            .size(r.u(165), r.u(30)).at(r.u(490), r.u(10))
+            .area("reminders", label: L("Set a reminder"))
+            Node.path(arc, stroke: .adaptive(light: "#7A5AB8", dark: "#D6C6F2"), lineWidth: 1.2, dash: [1.5, 5]).size(w, h).at(0, 0)
+            for (i, event) in items.enumerated() {
+                let x = first + step * Double(i), glyph = r.f(30, min: 18)
+                let sun = event == .sunset
+                let y = arcY - lift * (i == 1 ? 0.55 : 0.05)
+                Node.glow(sun ? .hex("#F6B45C") : .hex("#8C7AE6"), cx: x, cy: y, r: glyph * 0.9)
+                Node.symbol(sun ? "sun.max.fill" : "moon.fill", color: sun ? .hex("#F6B45C") : .adaptive(light: "#FFFFFF", dark: "#D6C6F2")).size(glyph * 0.8, glyph * 0.8).at(x - glyph * 0.4, y - glyph * 0.4)
+                Node.say(Words.solar(event), x - r.u(84), r.u(80), r.u(168), r.u(24), size: r.f(14.5), color: sun ? Noor.warm : Noor.text, align: "center")
+                Node.say(ctx.t(solar[event]!), x - r.u(84), r.u(100), r.u(168), r.u(26), size: r.f(17, min: 12.5), weight: "medium", color: sun ? Noor.warm : Noor.text, align: "center", tabular: true)
+            }
+        }
+        .size(w, h)
+    }
+
+    static func nameCard(_ ctx: Context, _ name: NameEntry?, w: Double, h: Double, r: Ruler) -> Node {
+        let tab = r.u(52)
+        return Node.group {
+            Node.lattice(tab + r.u(40), h, corner: r.u(16))
+            Node.rect(fill: Noor.surface, stroke: Noor.inlay, lineWidth: 1, corner: r.u(30)).size(w - tab, h).at(tab, 0)
+            Node.rect(stroke: Noor.hairline, lineWidth: 1, corner: r.u(16)).size(w, h)
+            Node.say(L("A name to explore"), tab + r.u(28), r.u(12), w * 0.5, r.u(24), size: r.f(16), color: Noor.muted)
             if let name {
                 let saved = ctx.model.bookmarks.contains(name.number)
-                let narrow = w < 720
-                Node.say(name.transliteration, 48, 34, narrow ? w * 0.42 : w * 0.28, 44, size: narrow ? 21 : 27, weight: "semibold")
-                Node.say(name.arabic, narrow ? w * 0.44 : w * 0.30 + 40, 26, w * 0.28, 58, size: narrow ? 28 : 34, align: "center").leftToRight()
-                if !narrow {
-                    Node.say(name.meaning, w * 0.62, 34, w * 0.22, 26, size: 14, lines: 2)
-                    Node.say(L("English meaning"), w * 0.62, 62, w * 0.22, 20, size: 11.5, color: Noor.faint)
-                } else {
-                    Node.say(name.meaning, 48, 84, w * 0.5, 22, size: 13, color: Noor.muted)
-                }
-                Node.say(L("Name {number} of 99", ["number": Format.integer(name.number)]), w - 118, 18, 106, 20, size: 11.5, color: Noor.muted, align: "center")
-                Node.pill("save", label: saved ? L("Saved") : L("Save"), spoken: saved ? L("Remove {name} from saved names", ["name": name.transliteration]) : L("Save {name}", ["name": name.transliteration]), x: w - 112, y: 44, w: 96, h: 34, symbol: saved ? "bookmark.fill" : "bookmark")
-                Node.rect(fill: .hex("#00000000"), corner: 12).size(narrow ? w - 130 : w * 0.82, h - 8).at(30, 4).z(-1).area("names", label: L("Open {name} in Names", ["name": name.transliteration]), hover: .init(scale: 1.0))
+                let textW = w * 0.27
+                Node.say(name.transliteration, tab + r.u(28), r.u(44), textW, r.u(58), size: r.f(33, min: 19), weight: "medium")
+                Node.say(name.arabic, tab + r.u(28) + textW, r.u(34), w * 0.19, r.u(76), size: r.f(40, min: 24), weight: "medium", color: Noor.warm, align: "center").leftToRight()
+                Node.say(name.meaning, tab + r.u(28) + textW + w * 0.20, r.u(52), w - tab - r.u(28) - textW - w * 0.20 - r.u(150), r.u(26), size: r.f(18, min: 12.5))
+                Node.say(L("English meaning"), tab + r.u(28) + textW + w * 0.20, r.u(78), w - tab - r.u(28) - textW - w * 0.20 - r.u(150), r.u(24), size: r.f(14.5), color: Noor.muted)
+                Node.say(L("Name {number} of 99", ["number": Format.integer(name.number)]), w - r.u(136), r.u(32), r.u(120), r.u(22), size: r.f(14), color: Noor.muted, align: "center")
+                Node.pill("save", label: saved ? L("Saved") : L("Save"), spoken: saved ? L("Remove {name} from saved names", ["name": name.transliteration]) : L("Save {name}", ["name": name.transliteration]), x: w - r.u(134), y: r.u(62), w: r.u(116), h: r.u(44), symbol: saved ? "bookmark.fill" : "bookmark", size: r.f(15.5))
+                Node.rect(fill: .hex("#00000000"), corner: 12).size(w - r.u(160), h - 8).at(tab, 4).z(-1).area("names", label: L("Open {name} in Names", ["name": name.transliteration]), hover: .init(scale: 1.0))
             } else {
-                Node.say(ctx.model.load == .loading ? L("Loading the Names…") : L("The Names aren't here yet. They need one connection."), 48, 40, w - 80, 40, size: 14, color: Noor.muted, lines: 2)
+                Node.say(ctx.model.load == .loading ? L("Loading the Names…") : L("The Names aren't here yet. They need one connection."), tab + r.u(28), r.u(46), w - tab - r.u(60), r.u(60), size: r.f(16), color: Noor.muted, lines: 2)
             }
         }
         .size(w, h)
     }
 
-    static func ramadanCard(_ ctx: Context, w: Double, h: Double) -> Node {
-        Node.group {
-            Node.rect(fill: Noor.surface, stroke: Noor.hairline, lineWidth: 1, corner: 16).size(w, h)
-            Node.group {
-                Node.rect(fill: .hex("#2A2358"), corner: 12).size(92, h - 16)
-                Node.image("art/skyline-dark.png", fit: "cover").size(92, h - 16).corner(12).clip().opacity(0.9)
-                Node.symbol("moon.fill", color: .hex("#F4D48E")).size(24, 24).at(34, 16)
-            }
-            .size(92, h - 16).at(8, 8)
-            Node.say(L("Plan Ramadan"), 112, h / 2 - 28, w - 142, 26, size: 16, weight: "semibold")
-            Node.say(L("Suhoor, Fajr and iftar times"), 112, h / 2, w - 142, 34, size: 12, color: Noor.muted, lines: 2)
-            Node.symbol("chevron.forward", color: Noor.muted).size(12, 12).at(w - 24, h / 2 - 6)
+    static func ramadanCard(_ ctx: Context, w: Double, h: Double, r: Ruler) -> Node {
+        let art = min(h, r.u(130))
+        return Node.group {
+            Node.panel(w, h, corner: r.u(16))
+            Node.image("art/ramadan-arch-l.jpg", dark: "art/ramadan-arch-d.jpg", fit: "cover").size(art, h).corner(r.u(16)).clip()
+            Node.say(L("Plan Ramadan"), art + r.u(18), h / 2 - r.u(36), w - art - r.u(50), r.u(36), size: r.f(25, min: 15), weight: "medium")
+            Node.say(L("Suhoor, Fajr and iftar times"), art + r.u(18), h / 2 + r.u(2), w - art - r.u(50), r.u(44), size: r.f(15.5), color: Noor.muted, lines: 2)
+            Node.symbol("chevron.forward", color: Noor.text).size(r.u(10), r.u(16)).at(w - r.u(26), h / 2 - r.u(8))
         }
         .size(w, h)
         .area("ramadan", label: L("Plan Ramadan"), hover: .init(scale: 1.01))
-    }
-
-    /// A card's ground: the theme-free surface every module stands on.
-    static func card(_ w: Double, _ h: Double) -> Node {
-        Node.rect(fill: Noor.surface, stroke: Noor.hairline, lineWidth: 1, corner: 16).size(w, h)
     }
 }

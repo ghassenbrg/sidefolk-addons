@@ -442,6 +442,7 @@
     "Next would be {what} on {date} at {time} ({zone}). It's far off? It comes when its day is within 35 days.": "다음은 {date} {time} ({zone})의 {what}이에요. 아직 멀었나요? 그날이 35일 이내가 되면 와요.",
     "Next: {what} on {date} at {time} ({zone}). This is a preview: nothing is scheduled by looking.": "다음: {date} {time} ({zone})의 {what}. 미리보기예요. 보는 것만으로는 아무것도 예약되지 않아요.",
     "No bearing for this place yet": "이 장소의 방향이 아직 없어요",
+    "No connection, and no times saved for today yet. Try again once you're online.": "연결이 없고 오늘 저장된 시간도 없습니다. 온라인 상태가 되면 다시 시도하세요.",
     "No connection. What is shown was saved earlier.": "연결되지 않았어요. 표시된 내용은 이전에 저장한 거예요.",
     "No listed occasion for this date.": "이 날짜에는 목록의 기념일이 없어요.",
     "No occasion matches “{query}”.": "“{query}”와(과) 맞는 기념일이 없어요.",

@@ -453,6 +453,7 @@
     "Next would be {what} on {date} at {time} ({zone}). It's far off? It comes when its day is within 35 days.": "التالي سيكون {what} يوم {date} عند {time} ({zone}). هل هو بعيد؟ يصل حين يصبح يومه خلال 35 يومًا.",
     "Next: {what} on {date} at {time} ({zone}). This is a preview: nothing is scheduled by looking.": "التالي: {what} يوم {date} عند {time} ({zone}). هذه معاينة: الاطلاع لا يجدول شيئًا.",
     "No bearing for this place yet": "لا يوجد اتجاه لهذا المكان بعد",
+    "No connection, and no times saved for today yet. Try again once you're online.": "لا يوجد اتصال، ولا توجد أوقات محفوظة لليوم بعد. حاول مرة أخرى عند الاتصال بالإنترنت.",
     "No connection. What is shown was saved earlier.": "لا يوجد اتصال. ما يظهر حُفظ سابقًا.",
     "No listed occasion for this date.": "لا توجد مناسبة مدرجة لهذا التاريخ.",
     "No occasion matches “{query}”.": "لا توجد مناسبة تطابق «{query}».",

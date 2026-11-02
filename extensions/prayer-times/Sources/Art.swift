@@ -6,55 +6,76 @@ import SidefolkExtensionKit
 enum Noor {
     static let ink = "#15182F", lapis = "#293C86", amethyst = "#7354B8", plum = "#31203F", pearl = "#F5F0ED", lilac = "#EEE8F5", rose = "#BD7AA8", gold = "#C9AB72"
 
-    // What the scenes write and fill with, for both appearances.
+    // What the scenes write and fill with, for both appearances: the boards' own values.
     static let text = Color.adaptive(light: "#15182F", dark: "#F5F0ED")
     static let muted = Color.adaptive(light: "#4A4668", dark: "#B9B5D6")
     static let faint = Color.adaptive(light: "#6A6688", dark: "#8F8BB0")
     /// Words that stand out: the event in focus, the Hijri month.
-    static let accent = Color.adaptive(light: "#6A3CA8", dark: "#E79AE0")
+    static let accent = Color.adaptive(light: "#6A2FB0", dark: "#E79AE0")
     static let warm = Color.adaptive(light: "#8A5A16", dark: "#EFCF8E")
     static let inlay = Color.adaptive(light: "#C9AB72", dark: "#D9A36E")
-    static let hairline = Color.adaptive(light: "#D9D1EA", dark: "#343A70")
-    static let surface = Color.adaptive(light: "#FFFFFF", dark: "#191D3E")
-    static let quiet = Color.adaptive(light: "#FBF9FD", dark: "#14183A")
-    static let well = Color.adaptive(light: "#EEE8F5", dark: "#20254F")
+    static let hairline = Color.adaptive(light: "#DAD5EA", dark: "#2B3070")
+    static let surface = Color.adaptive(light: "#FFFFFF", dark: "#11153A")
+    static let quiet = Color.adaptive(light: "#FBF9FD", dark: "#14183F")
+    static let well = Color.adaptive(light: "#EEE8F5", dark: "#1B2050")
     static let chosen = Color.hex("#7354B8")
     static let onChosen = Color.hex("#FFFFFF")
+    /// A secondary button's outline.
+    static let edge = Color.adaptive(light: "#4A3F8F", dark: "#6468BA")
+    /// A selected tab or row.
+    static let picked = Color.adaptive(light: "#6B4BB4", dark: "#46348C")
+    static let pickedEdge = Color.adaptive(light: "#6B4BB4", dark: "#8C76D8")
 
-    /// The page's own ground and cards (host D108).
-    static var dress: PageDress { PageDress(ground: PagePair(light: "#F5F0ED", dark: "#10132C"), card: PagePair(light: "#FFFFFF", dark: "#191D3E"), line: PagePair(light: "#D9D1EA", dark: "#343A70"), accent: PagePair(light: "#6243AD", dark: "#7354B8")) }
+    /// The page's own ground, its one picture out to the window's edges, and its cards (host D108).
+    static var dress: PageDress { PageDress(ground: PagePair(light: "#F3EFF8", dark: "#0E1130"), card: PagePair(light: "#FFFFFF", dark: "#11153A"), line: PagePair(light: "#DAD5EA", dark: "#2B3070"), accent: PagePair(light: "#7354B8", dark: "#7354B8"), picture: .pack("art/ground-l.jpg", dark: "art/ground-d.jpg")) }
     static var tabTint: PagePair { PagePair(light: "#7354B8", dark: "#7354B8") }
 }
 
+/// The boards are drawn on a 1290-wide page. Every place and size on a page comes from them through this, so a composition keeps its proportions at any column; type only stops shrinking where it would stop being read.
+struct Ruler {
+    let s: Double
+    init(width: Double) { s = max(0.56, min(width / 1290, 1.03)) }
+    func u(_ x: Double) -> Double { x * s }
+    func f(_ size: Double, min least: Double = 11) -> Double { max(size * s, least) }
+}
+
 extension Node {
-    /// `w × h` of the repeat with its corners rounded: the pattern frames what matters, and is never behind a word.
-    static func patternPanel(_ w: Double, _ h: Double, corner: Double = 18, id: String? = nil) -> Node {
+    enum Frame: String { case dial = "frame-dial", square = "frame-square", portrait = "frame-portrait" }
+
+    /// One of the painted arch panels: lattice around, a quiet window inside, which what matters stands in. Decoration, so VoiceOver passes it by.
+    static func frame(_ kind: Frame, _ w: Double, _ h: Double, corner: Double = 16) -> Node {
+        Node.image("art/\(kind.rawValue)-l.jpg", dark: "art/\(kind.rawValue)-d.jpg", fit: "cover").size(w, h).corner(corner).clip()
+    }
+
+    /// The lattice with nothing on it, cut to `w × h`.
+    static func lattice(_ w: Double, _ h: Double, corner: Double = 16) -> Node {
+        Node.image("art/lattice-l.jpg", dark: "art/lattice-d.jpg", fit: "cover").size(w, h).corner(corner).clip()
+    }
+
+    /// A panel that stands on the page: its fill, its line, its corners.
+    static func panel(_ w: Double, _ h: Double, corner: Double = 16, fill: Color = Noor.surface, line: Color = Noor.hairline) -> Node {
+        Node.rect(fill: fill, stroke: line, lineWidth: 1, corner: corner).size(w, h)
+    }
+
+    /// The lattice flourish in a card's top right corner, `side` across, cut by the card's own corner. A group the card's size holds it.
+    static func flourish(_ w: Double, _ h: Double, side: Double, corner: Double = 16) -> Node {
         Node.group {
-            Node.image("art/pattern-light.jpg", dark: "art/pattern-dark.jpg", fit: "cover").size(max(w, 900), max(h, 700)).at(0, 0)
+            Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0)
         }
         .size(w, h).corner(corner).clip()
     }
 
-    /// A gold hairline around a box.
-    static func inlay(_ w: Double, _ h: Double, corner: Double = 18, width: Double = 1.5) -> Node {
-        Node.rect(stroke: Noor.inlay, lineWidth: width, corner: corner).size(w, h)
+    /// The soft light behind a mark.
+    static func glow(_ color: Color, cx: Double, cy: Double, r: Double, opacity: Double = 0.9) -> Node {
+        Node.image("art/glow.png", tint: color).size(r * 2, r * 2).at(cx - r, cy - r).opacity(opacity)
     }
 
-    /// A pointed arch filling `w × h`: its head an ogee like the page's own frame, its feet on the box's foot. `lift` is how tall its head is.
+    /// A pointed arch filling `w × h`: its head an ogee like the painted frames, its feet on the box's foot. `lift` is how tall its head is.
     static func archPath(_ w: Double, _ h: Double, lift: Double) -> String {
         let s = w * 0.5
         let shoulder = lift * 0.46
         return "M 0 \(n(h)) L 0 \(n(lift)) C 0 \(n(lift * 0.54)) \(n(w * 0.20)) \(n(lift * 0.42)) \(n(w * 0.34)) \(n(shoulder)) C \(n(w * 0.42)) \(n(lift * 0.32)) \(n(w * 0.47)) \(n(lift * 0.12)) \(n(s)) 0 "
             + "C \(n(w * 0.53)) \(n(lift * 0.12)) \(n(w * 0.58)) \(n(lift * 0.32)) \(n(w * 0.66)) \(n(shoulder)) C \(n(w * 0.80)) \(n(lift * 0.42)) \(n(w)) \(n(lift * 0.54)) \(n(w)) \(n(lift)) L \(n(w)) \(n(h)) Z"
-    }
-
-    /// The arch window: its quiet inside and, along its edge, the inlay. Sits on a pattern panel.
-    static func arch(_ w: Double, _ h: Double, lift: Double, fill: Color = Noor.quiet) -> Node {
-        Node.group {
-            Node.path(archPath(w, h, lift: lift), fill: fill).size(w, h).at(0, 0)
-            Node.path(archPath(w, h, lift: lift), stroke: Noor.inlay, lineWidth: 2).size(w, h).at(0, 0)
-        }
-        .size(w, h)
     }
 
     /// A word on one line in a box: the same call everywhere, so type stays Noor's. Text that doesn't fit shrinks a little, then ends in dots.
@@ -65,28 +86,42 @@ extension Node {
         return node
     }
 
-    /// A capsule button in a scene, its area named `id`. `filled` is the page's one main action.
-    static func pill(_ id: String, label: String, spoken: String? = nil, x: Double, y: Double, w: Double, h: Double = 36, symbol: String? = nil, filled: Bool = false, value: String? = nil, disabled: Bool = false) -> Node {
+    /// A capsule button in a scene, its area named `id`. `filled` is the page's one main action; the other is an outline on its panel.
+    static func pill(_ id: String, label: String, spoken: String? = nil, x: Double, y: Double, w: Double, h: Double = 36, symbol: String? = nil, filled: Bool = false, value: String? = nil, disabled: Bool = false, size: Double = 13.5) -> Node {
         let ink = filled ? Noor.onChosen : Noor.text
+        let glyph = size * 1.15
         return Node.group {
             if filled {
-                Node.capsule(fill: Noor.chosen).size(w, h).at(0, 0)
+                Node.capsule(stroke: .hex("#A58DE6"), lineWidth: 1).gradient([.hex("#7D5CCC"), .hex("#5B3FA6")]).size(w, h).at(0, 0)
             } else {
-                Node.capsule(fill: Noor.quiet, stroke: Noor.inlay, lineWidth: 1.2).size(w, h).at(0, 0)
+                Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(w, h).at(0, 0)
             }
             if symbol == "chevron.forward" {
                 // Where it leads comes after the words, and turns with them in Arabic.
-                Node.say(label, 14, 0, w - 42, h, size: 13.5, weight: "medium", color: ink, align: "center")
-                Node.symbol("chevron.forward", color: ink).size(10, 14).at(w - 24, (h - 14) / 2)
+                Node.say(label, h * 0.4, 0, w - h * 1.2, h, size: size, weight: "medium", color: ink, align: "center")
+                Node.symbol("chevron.forward", color: ink).size(glyph * 0.62, glyph).at(w - h * 0.66, (h - glyph) / 2)
             } else if let symbol {
-                Node.symbol(symbol, color: ink).size(16, 16).at(14, (h - 16) / 2)
-                Node.say(label, 36, 0, w - 48, h, size: 13.5, weight: "medium", color: ink, align: "leading")
+                Node.symbol(symbol, color: ink).size(glyph, glyph).at(h * 0.42, (h - glyph) / 2)
+                Node.say(label, h * 0.42 + glyph + 8, 0, w - h * 0.84 - glyph - 8, h, size: size, weight: "medium", color: ink, align: "leading")
             } else {
-                Node.say(label, 12, 0, w - 24, h, size: 13.5, weight: "medium", color: ink, align: "center")
+                Node.say(label, 12, 0, w - 24, h, size: size, weight: "medium", color: ink, align: "center")
             }
         }
         .size(w, h).at(x, y).opacity(disabled ? 0.45 : 1)
         .area(id, value: value, label: spoken ?? label, disabled: disabled)
+    }
+}
+
+extension Node {
+    // The old panel's names, until its last page is redrawn on the painted frames.
+    static func patternPanel(_ w: Double, _ h: Double, corner: Double = 16, id: String? = nil) -> Node { lattice(w, h, corner: corner) }
+    static func inlay(_ w: Double, _ h: Double, corner: Double = 16, width: Double = 1.5) -> Node { Node.rect(stroke: Noor.inlay, lineWidth: width, corner: corner).size(w, h) }
+    static func arch(_ w: Double, _ h: Double, lift: Double, fill: Color = Noor.quiet) -> Node {
+        Node.group {
+            Node.path(archPath(w, h, lift: lift), fill: fill).size(w, h).at(0, 0)
+            Node.path(archPath(w, h, lift: lift), stroke: Noor.inlay, lineWidth: 2).size(w, h).at(0, 0)
+        }
+        .size(w, h)
     }
 }
 

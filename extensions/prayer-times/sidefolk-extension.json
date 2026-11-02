@@ -7,7 +7,7 @@
   "description": "An Islamic companion: prayer times calculated for your place or from your mosque's own timetable, the Hijri calendar, the Qibla bearing, the 99 Names and a Ramadan planner. Reminders start off.",
   "folk": "nova",
   "author": "Sidefolk",
-  "icon": "icon.pdf",
+  "icon": "icon.png",
   "run": {
     "command": "bin/ext-prayer-times"
   },

@@ -17,7 +17,7 @@ enum NoorPage {
         model.freshen(extra: wanted(state, model: model))
         await model.settle()
         let snapshot = model.snapshot()
-        let width = min(args.pageWidth ?? 980, 1080)
+        let width = min(args.pageWidth ?? 880, 1320)
         let ctx = Context(state: state, snapshot: snapshot, model: model, width: width)
 
         var sections: [Section] = []
@@ -64,17 +64,15 @@ enum NoorPage {
             case .names: sections = NamesPage.sections(ctx)
             }
         }
-        let tabs = NoorTab.allCases.map { PageTab($0.rawValue, Words.tab($0), symbol: $0.symbol, go: Go(set: ["tab": $0.rawValue, "sheet": NSNull()])) }
-        let body = Block.goTabs(selected: ctx.tab.rawValue, tabs, tint: Noor.tabTint, sections: sections)
-        return page(summary, [head(ctx, subtitle: Words.provenance(snapshot)), Section(nil, [body], wide: true)], back: back)
+        return page(summary, [head(ctx, subtitle: Words.provenance(snapshot))] + sections, back: back)
     }
 
     private static func page(_ summary: Summary, _ sections: [Section], back: String?) -> Page {
-        Page(summary: summary, sections: sections, back: back, bare: true, dress: Noor.dress, maxWidth: 1080)
+        Page(summary: summary, sections: sections, back: back, bleed: true, dress: Noor.dress, maxWidth: 1320)
     }
 
     private static func head(_ ctx: Context, subtitle: String) -> Section {
-        Section(nil, [HeadScene.block(width: ctx.width, snapshot: ctx.snapshot, subtitle: subtitle, reminders: ctx.snapshot.reminderStatus)], wide: true)
+        Section(nil, [HeadScene.block(ctx, subtitle: subtitle, reminders: ctx.snapshot.reminderStatus, tabs: ctx.model.isSetUp)], wide: true)
     }
 
     /// What this view needs that the provider wasn't already asked for.
@@ -171,7 +169,7 @@ enum NoorPage {
             return status(ctx, symbol: "calendar", title: L("This timetable hasn't started"), detail: L("It begins on {date}. Until then there are no times from it.", ["date": start]),
                           buttons: [("sources", L("Choose another timetable"), true, .go(Go(set: ["sheet": "prefs", "section": "sources"], push: true)))])
         case .error:
-            return status(ctx, symbol: "wifi.exclamationmark", title: L("Couldn't get this timetable"), detail: Words.problem(ctx.model.problem).isEmpty ? L("The provider didn't answer.") : Words.problem(ctx.model.problem),
+            return status(ctx, symbol: "wifi.exclamationmark", title: L("Couldn't get this timetable"), detail: ctx.model.problem == .offline ? L("No connection, and no times saved for today yet. Try again once you're online.") : Words.problem(ctx.model.problem).isEmpty ? L("The provider didn't answer.") : Words.problem(ctx.model.problem),
                           buttons: [("retry", L("Try again"), true, .tool("refresh"))])
         }
     }
@@ -195,7 +193,8 @@ struct Context {
 
     var tab: NoorTab { NoorTab(rawValue: state.string("tab") ?? "") ?? .overview }
     /// One column, as the C04 board has it. Everything still reads; it only stacks.
-    var narrow: Bool { width < 760 }
+    var narrow: Bool { width < 680 }
+    var ruler: Ruler { Ruler(width: width) }
     var zone: TimeZone { snapshot.source?.zone ?? snapshot.place?.zone ?? .current }
     func t(_ date: Date) -> String { Words.time(date, zone: zone) }
 }
