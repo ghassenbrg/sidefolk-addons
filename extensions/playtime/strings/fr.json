@@ -563,73 +563,118 @@
   },
   "commands": {
     "daily_word": {
+      "say": [
+        "mot du jour"
+      ],
       "names": [
         "le mot du jour"
       ]
     },
     "trivia": {
+      "say": [
+        "jouons au quiz"
+      ],
       "names": []
     },
     "tictactoe": {
+      "say": [
+        "jouons au morpion"
+      ],
       "names": [
         "morpion"
       ]
     },
     "copy_me": {
+      "say": [
+        "jouons à imite-moi"
+      ],
       "names": [
         "imite-moi"
       ]
     },
     "quick_paws": {
+      "say": [
+        "jouons à pattes rapides"
+      ],
       "names": [
         "pattes rapides"
       ]
     },
     "which_cup": {
+      "say": [
+        "jouons au bonneteau"
+      ],
       "names": [
         "quel gobelet ?",
         "jouons au bonneteau"
       ]
     },
     "higher_lower": {
+      "say": [
+        "jouons à plus ou moins"
+      ],
       "names": [
         "plus ou moins"
       ]
     },
     "guess_animal": {
+      "say": [
+        "jouons à devine mon animal"
+      ],
       "names": [
         "devine mon animal"
       ]
     },
     "balloon_words": {
+      "say": [
+        "jouons aux mots en ballons"
+      ],
       "names": [
         "mots en ballons"
       ]
     },
     "last_stick": {
+      "say": [
+        "jouons au dernier bâton"
+      ],
       "names": [
         "le dernier bâton"
       ]
     },
     "memory_pairs": {
+      "say": [
+        "jouons au memory"
+      ],
       "names": [
         "paires mémoire"
       ]
     },
     "plots": {
+      "say": [
+        "jouons aux parcelles du jardin"
+      ],
       "names": [
         "parcelles du jardin"
       ]
     },
     "seesaw": {
+      "say": [
+        "jouons à la bascule"
+      ],
       "names": [
         "bascule"
       ]
     },
     "sudoku": {
+      "say": [
+        "jouons au sudoku"
+      ],
       "names": []
     },
     "blossoms": {
+      "say": [
+        "jouons aux fleurettes"
+      ],
       "names": [
         "fleurettes"
       ]

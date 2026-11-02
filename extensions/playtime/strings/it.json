@@ -563,73 +563,118 @@
   },
   "commands": {
     "daily_word": {
+      "say": [
+        "parola del giorno"
+      ],
       "names": [
         "la parola del giorno"
       ]
     },
     "trivia": {
+      "say": [
+        "giochiamo a un quiz"
+      ],
       "names": []
     },
     "tictactoe": {
+      "say": [
+        "giochiamo a tris"
+      ],
       "names": [
         "tris"
       ]
     },
     "copy_me": {
+      "say": [
+        "giochiamo a copiami"
+      ],
       "names": [
         "copiami"
       ]
     },
     "quick_paws": {
+      "say": [
+        "giochiamo a zampe veloci"
+      ],
       "names": [
         "zampe veloci"
       ]
     },
     "which_cup": {
+      "say": [
+        "giochiamo a quale bicchiere"
+      ],
       "names": [
         "quale bicchiere?"
       ]
     },
     "higher_lower": {
+      "say": [
+        "giochiamo a più alto o più basso"
+      ],
       "names": [
         "più alto o più basso"
       ]
     },
     "guess_animal": {
+      "say": [
+        "giochiamo a indovina il mio animale"
+      ],
       "names": [
         "indovina il mio animale"
       ]
     },
     "balloon_words": {
+      "say": [
+        "giochiamo a parole palloncino"
+      ],
       "names": [
         "parole palloncino"
       ]
     },
     "last_stick": {
+      "say": [
+        "giochiamo all'ultimo bastoncino"
+      ],
       "names": [
         "l'ultimo bastoncino"
       ]
     },
     "memory_pairs": {
+      "say": [
+        "giochiamo a memory"
+      ],
       "names": [
         "coppie della memoria"
       ]
     },
     "plots": {
+      "say": [
+        "giochiamo ai lotti dell'orto"
+      ],
       "names": [
         "lotti dell'orto",
         "giochiamo ai lotti dell'orto"
       ]
     },
     "seesaw": {
+      "say": [
+        "giochiamo all'altalena"
+      ],
       "names": [
         "altalena"
       ]
     },
     "sudoku": {
+      "say": [
+        "giochiamo a sudoku"
+      ],
       "names": []
     },
     "blossoms": {
+      "say": [
+        "giochiamo ai fiori"
+      ],
       "names": [
         "fiori",
         "giochiamo ai fiori"

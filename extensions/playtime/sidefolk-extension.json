@@ -95,6 +95,11 @@
       "commands": [
         {
           "name": "daily_word",
+          "say": [
+            "daily word",
+            "let's play daily word",
+            "word of the day"
+          ],
           "names": [
             "daily word"
           ],
@@ -106,6 +111,13 @@
         },
         {
           "name": "trivia",
+          "say": [
+            "let's play trivia",
+            "play trivia",
+            "trivia",
+            "quiz me",
+            "let's do a quiz"
+          ],
           "names": [
             "let's play trivia",
             "quiz me"
@@ -123,6 +135,12 @@
         },
         {
           "name": "tictactoe",
+          "say": [
+            "let's play tic-tac-toe",
+            "let's play tic tac toe",
+            "tic tac toe",
+            "noughts and crosses"
+          ],
           "names": [
             "let's play tic-tac-toe",
             "noughts and crosses"
@@ -138,6 +156,10 @@
         },
         {
           "name": "copy_me",
+          "say": [
+            "let's play copy me",
+            "copy me"
+          ],
           "names": [
             "let's play copy me"
           ],
@@ -152,6 +174,11 @@
         },
         {
           "name": "quick_paws",
+          "say": [
+            "let's play quick paws",
+            "quick paws",
+            "reflex game"
+          ],
           "names": [
             "let's play quick paws",
             "reflex game"
@@ -167,6 +194,11 @@
         },
         {
           "name": "which_cup",
+          "say": [
+            "let's play which cup",
+            "which cup",
+            "shell game"
+          ],
           "names": [
             "let's play which cup",
             "shell game"
@@ -182,6 +214,10 @@
         },
         {
           "name": "higher_lower",
+          "say": [
+            "let's play higher or lower",
+            "higher or lower"
+          ],
           "names": [
             "let's play higher or lower"
           ],
@@ -196,6 +232,11 @@
         },
         {
           "name": "guess_animal",
+          "say": [
+            "let's play guess my animal",
+            "guess my animal",
+            "animal game"
+          ],
           "names": [
             "let's play guess my animal",
             "animal game"
@@ -208,6 +249,11 @@
         },
         {
           "name": "balloon_words",
+          "say": [
+            "let's play balloon words",
+            "balloon words",
+            "hangman"
+          ],
           "names": [
             "let's play balloon words",
             "hangman"
@@ -223,6 +269,11 @@
         },
         {
           "name": "last_stick",
+          "say": [
+            "let's play last stick",
+            "last stick",
+            "nim"
+          ],
           "names": [
             "let's play last stick",
             "nim"
@@ -238,6 +289,11 @@
         },
         {
           "name": "memory_pairs",
+          "say": [
+            "let's play memory pairs",
+            "memory pairs",
+            "memory game"
+          ],
           "names": [
             "let's play memory pairs",
             "memory game"
@@ -253,6 +309,10 @@
         },
         {
           "name": "plots",
+          "say": [
+            "garden plots",
+            "let's play garden plots"
+          ],
           "names": [
             "garden plots"
           ],
@@ -266,6 +326,10 @@
         },
         {
           "name": "seesaw",
+          "say": [
+            "seesaw",
+            "let's play seesaw"
+          ],
           "names": [
             "seesaw"
           ],
@@ -279,6 +343,11 @@
         },
         {
           "name": "sudoku",
+          "say": [
+            "sudoku",
+            "let's play sudoku",
+            "play sudoku"
+          ],
           "names": [
             "sudoku"
           ],
@@ -292,6 +361,10 @@
         },
         {
           "name": "blossoms",
+          "say": [
+            "blossoms",
+            "let's play blossoms"
+          ],
           "names": [
             "blossoms"
           ],

@@ -547,77 +547,122 @@
   },
   "commands": {
     "daily_word": {
+      "say": [
+        "每日成语"
+      ],
       "names": [
         "每日成语"
       ]
     },
     "trivia": {
+      "say": [
+        "来玩问答"
+      ],
       "names": [
         "答题",
         "来玩问答"
       ]
     },
     "tictactoe": {
+      "say": [
+        "来玩井字棋"
+      ],
       "names": [
         "井字棋"
       ]
     },
     "copy_me": {
+      "say": [
+        "来玩跟我学"
+      ],
       "names": [
         "跟我学"
       ]
     },
     "quick_paws": {
+      "say": [
+        "来玩快爪比赛"
+      ],
       "names": [
         "快爪比赛"
       ]
     },
     "which_cup": {
+      "say": [
+        "来玩猜杯子"
+      ],
       "names": [
         "哪个杯子？",
         "来玩猜杯子"
       ]
     },
     "higher_lower": {
+      "say": [
+        "来玩猜大小"
+      ],
       "names": [
         "猜大小"
       ]
     },
     "guess_animal": {
+      "say": [
+        "来玩猜动物"
+      ],
       "names": [
         "猜猜我的动物",
         "来玩猜动物"
       ]
     },
     "balloon_words": {
+      "say": [
+        "来玩气球猜词"
+      ],
       "names": [
         "气球猜词"
       ]
     },
     "last_stick": {
+      "say": [
+        "来玩最后一根"
+      ],
       "names": [
         "最后一根"
       ]
     },
     "memory_pairs": {
+      "say": [
+        "来玩记忆配对"
+      ],
       "names": [
         "记忆配对"
       ]
     },
     "plots": {
+      "say": [
+        "来玩菜园分地"
+      ],
       "names": [
         "菜园分地"
       ]
     },
     "seesaw": {
+      "say": [
+        "来玩跷跷板"
+      ],
       "names": [
         "跷跷板"
       ]
     },
     "sudoku": {
+      "say": [
+        "来玩数独"
+      ],
       "names": []
     },
     "blossoms": {
+      "say": [
+        "来玩花开"
+      ],
       "names": [
         "花开"
       ]

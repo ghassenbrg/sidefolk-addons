@@ -563,73 +563,118 @@
   },
   "commands": {
     "daily_word": {
+      "say": [
+        "wort des tages"
+      ],
       "names": [
         "wort des tages"
       ]
     },
     "trivia": {
+      "say": [
+        "lass uns ein quiz spielen"
+      ],
       "names": []
     },
     "tictactoe": {
+      "say": [
+        "lass uns tic-tac-toe spielen"
+      ],
       "names": []
     },
     "copy_me": {
+      "say": [
+        "lass uns nachmachen spielen"
+      ],
       "names": [
         "mach's nach",
         "lass uns nachmachen spielen"
       ]
     },
     "quick_paws": {
+      "say": [
+        "lass uns flinke pfoten spielen"
+      ],
       "names": [
         "flinke pfoten"
       ]
     },
     "which_cup": {
+      "say": [
+        "lass uns das hütchenspiel spielen"
+      ],
       "names": [
         "welcher becher?",
         "lass uns das hütchenspiel spielen"
       ]
     },
     "higher_lower": {
+      "say": [
+        "lass uns höher oder tiefer spielen"
+      ],
       "names": [
         "höher oder tiefer"
       ]
     },
     "guess_animal": {
+      "say": [
+        "lass uns rate mein tier spielen"
+      ],
       "names": [
         "rate mein tier"
       ]
     },
     "balloon_words": {
+      "say": [
+        "lass uns ballonwörter spielen"
+      ],
       "names": [
         "ballonwörter"
       ]
     },
     "last_stick": {
+      "say": [
+        "lass uns das letzte stäbchen spielen"
+      ],
       "names": [
         "das letzte stäbchen"
       ]
     },
     "memory_pairs": {
+      "say": [
+        "lass uns memo spielen"
+      ],
       "names": [
         "memo-paare",
         "lass uns memo spielen"
       ]
     },
     "plots": {
+      "say": [
+        "lass uns gartenparzellen spielen"
+      ],
       "names": [
         "gartenparzellen"
       ]
     },
     "seesaw": {
+      "say": [
+        "lass uns wippe spielen"
+      ],
       "names": [
         "wippe"
       ]
     },
     "sudoku": {
+      "say": [
+        "lass uns sudoku spielen"
+      ],
       "names": []
     },
     "blossoms": {
+      "say": [
+        "lass uns blüten spielen"
+      ],
       "names": [
         "blüten"
       ]

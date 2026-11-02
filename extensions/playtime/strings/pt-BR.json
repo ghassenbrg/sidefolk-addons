@@ -563,68 +563,113 @@
   },
   "commands": {
     "daily_word": {
+      "say": [
+        "palavra do dia"
+      ],
       "names": [
         "palavra do dia"
       ]
     },
     "trivia": {
+      "say": [
+        "vamos jogar trivia"
+      ],
       "names": []
     },
     "tictactoe": {
+      "say": [
+        "vamos jogar jogo da velha"
+      ],
       "names": [
         "jogo da velha"
       ]
     },
     "copy_me": {
+      "say": [
+        "vamos jogar me imite"
+      ],
       "names": [
         "me imite"
       ]
     },
     "quick_paws": {
+      "say": [
+        "vamos jogar patas rápidas"
+      ],
       "names": []
     },
     "which_cup": {
+      "say": [
+        "vamos jogar qual copo"
+      ],
       "names": [
         "qual copo?"
       ]
     },
     "higher_lower": {
+      "say": [
+        "vamos jogar maior ou menor"
+      ],
       "names": [
         "maior ou menor"
       ]
     },
     "guess_animal": {
+      "say": [
+        "vamos jogar adivinhe meu bicho"
+      ],
       "names": [
         "adivinhe meu bicho"
       ]
     },
     "balloon_words": {
+      "say": [
+        "vamos jogar palavras de balão"
+      ],
       "names": [
         "palavras de balão"
       ]
     },
     "last_stick": {
+      "say": [
+        "vamos jogar o último palito"
+      ],
       "names": []
     },
     "memory_pairs": {
+      "say": [
+        "vamos jogar jogo da memória"
+      ],
       "names": [
         "pares da memória"
       ]
     },
     "plots": {
+      "say": [
+        "vamos jogar canteiros da horta"
+      ],
       "names": [
         "canteiros da horta"
       ]
     },
     "seesaw": {
+      "say": [
+        "vamos jogar gangorra"
+      ],
       "names": [
         "gangorra"
       ]
     },
     "sudoku": {
+      "say": [
+        "vamos jogar sudoku"
+      ],
       "names": []
     },
     "blossoms": {
+      "say": [
+        "vamos jogar flores"
+      ],
       "names": []
     },
     "number_mine": {
