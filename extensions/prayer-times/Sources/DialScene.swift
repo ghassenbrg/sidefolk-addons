@@ -105,7 +105,8 @@ enum DialScene {
             out.append(Node.ellipse(fill: .hex("#FFFFFF")).size(size, size).at(p.x - size / 2, p.y - size / 2).label(L("Now")))
         }
         for node in face.nodes {
-            if let arc = node.iqamahArc {
+            // The stretch from a start to its iqamah, only for the one being waited for: the ring isn't a list of every congregation.
+            if let arc = node.iqamahArc, case .prayer(let id) = node.event, day.iqamah[id] == focusAt {
                 out.append(Node.path(ringPath(cx, cy, inner: radius - band - 3, outer: radius + 3, from: arc.startAngle, to: arc.startAngle + arc.sweep), fill: .hex("#F1D27AD0")).size(box.0, box.1).at(0, 0))
             }
         }

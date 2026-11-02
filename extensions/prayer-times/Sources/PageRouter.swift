@@ -83,6 +83,11 @@ enum NoorPage {
         if sheet == "ramadan" || sheet == "prefs" {
             if let year = RamadanPage.year(state, model: model) { out += ["r:\(year)"] }
         }
+        // More times, opened, names a whole day's times: only then is that day asked for.
+        if sheet == "ramadan", state.bool("r_more") == true, let year = RamadanPage.year(state, model: model), let month = model.ramadan[year] {
+            let picked = state.int("ramadan_day").flatMap { n in month.days.first { $0.number == n } } ?? month.days[0]
+            out.append("d:\(picked.date.iso)")
+        }
         if tab == "prayer", let day = state.string("day"), CivilDate(iso: day) != nil { out.append("d:\(day)") }
         return out
     }
