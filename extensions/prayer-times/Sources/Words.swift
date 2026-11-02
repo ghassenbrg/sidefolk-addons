@@ -110,6 +110,12 @@ enum Words {
     }
 
     /// Where the times come from, in a line: `Tokyo · Calculated · Muslim World League`.
+    /// Where a time comes from, short enough for a tile.
+    @MainActor static func tileSource(_ snapshot: NoorSnapshot) -> String {
+        if let source = snapshot.source, source.kind == .manual { return "\(source.name) · \(L("Manual"))" }
+        return [snapshot.place?.label, sourceKind(snapshot.source)].compactMap { $0 }.joined(separator: " · ")
+    }
+
     @MainActor static func provenance(_ snapshot: NoorSnapshot) -> String {
         var parts: [String] = []
         if let source = snapshot.source, source.kind == .manual {

@@ -12,7 +12,7 @@ enum NoorPage {
         // Nobody is looking: Today's tile needs its summary and no more.
         guard !args.pageIsBackground else {
             model.freshen()
-            return Page(summary: summary, sections: [])
+            return Page(summary: summary, sections: [], tile: TileScene.scene(model.snapshot()))
         }
         model.freshen(extra: wanted(state, model: model))
         await model.settle()
@@ -64,11 +64,11 @@ enum NoorPage {
             case .names: sections = NamesPage.sections(ctx)
             }
         }
-        return page(summary, [head(ctx, subtitle: Words.provenance(snapshot))] + sections, back: back)
+        return page(summary, [head(ctx, subtitle: Words.provenance(snapshot))] + sections, back: back, tile: TileScene.scene(snapshot))
     }
 
-    private static func page(_ summary: Summary, _ sections: [Section], back: String?) -> Page {
-        Page(summary: summary, sections: sections, back: back, bleed: true, dress: Noor.dress, maxWidth: 1320)
+    private static func page(_ summary: Summary, _ sections: [Section], back: String?, tile: Scene? = nil) -> Page {
+        Page(summary: summary, sections: sections, back: back, bleed: true, dress: Noor.dress, tile: tile, maxWidth: 1320)
     }
 
     private static func head(_ ctx: Context, subtitle: String) -> Section {
