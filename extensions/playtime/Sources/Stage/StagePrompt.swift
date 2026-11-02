@@ -9,6 +9,7 @@ extension BoardDrawing {
 
     /// The pose for the board's cue: a mood from the fixed list read as one of the states every companion is drawn in.
     var pose: String {
+        if playing { return "thinking" }
         if board.over, let result = board.resultPart {
             switch Verdict(tone: result.tone) {
             case .loss: return "celebrating"
@@ -58,11 +59,11 @@ extension BoardDrawing {
     /// The companion, whole, standing on the bottom edge of its box, with a soft shadow under it. Still art only, never a live
     /// render: a new board makes it hop once, 300 ms, with cheap transforms; nothing loops, so an idle game draws nothing.
     private func companionFigure(w: Double, h: Double, y: Double) -> Node {
-        let shadowH = max(8, h * 0.1)
+        // Under the figure rather than its box: a figure is drawn at about three quarters as wide as it is tall.
+        let shadowH = max(8, h * 0.1), shadowW = min(w, h) * 0.68
         let figure = Node.companion(pose: pose).figure(bottom: true).id("companion.figure").size(w, h).anchor(0.5, 1)
         var group = Node.box("companion", y: y, w: w, h: h) {
-            Node.ellipse(fill: Paint.clear("#000000", 0.16)).id("companion.shadow").at(w * 0.05, h - shadowH / 2 + max(4, h * 0.05) - shadowH / 2).size(w * 0.9, shadowH)
-                .shadow(Paint.clear("#000000", 0.14), radius: 3, dx: 0, dy: 0)
+            Node.image("art/game-figure-shadow.webp", fit: "fill").id("companion.shadow").at((w - shadowW) / 2, h - shadowH + max(4, h * 0.05)).size(shadowW, shadowH)
             figure
             if let button = board.companionButton {
                 // A small badge with the button's symbol on its shoulder says it can be clicked.
@@ -76,6 +77,7 @@ extension BoardDrawing {
         }
         if let button = board.companionButton {
             group = group.area("button", value: button.move, label: button.label, hover: AreaLook(scale: 1.02), press: AreaLook(scale: 0.95), always: true, sound: "sounds/tap.wav")
+            if let key = button.key { keys.append(StageKey(key: key, id: "companion_key", area: "button", value: button.move, always: true)) }
         }
         return group
     }

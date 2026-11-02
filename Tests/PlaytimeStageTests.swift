@@ -21,6 +21,14 @@ struct PlaytimeStageTests {
         for timer in scene.json["timers"] as? [[String: Any]] ?? [] {
             #expect((timer["id"] as? String)?.range(of: token, options: .regularExpression) != nil, "\(context): \(timer)")
         }
+        // What it names is in the pack: a picture or a sound that isn't draws or plays nothing, and nothing says so.
+        let assets = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("extensions/playtime/assets")
+        let names = try NSRegularExpression(pattern: #"(art|sounds)\\?/[A-Za-z0-9_.-]+\.[a-z0-9]+"#)
+        let text = String(decoding: data, as: UTF8.self)
+        for match in names.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+            let path = (text as NSString).substring(with: match.range).replacingOccurrences(of: "\\/", with: "/")
+            #expect(FileManager.default.fileExists(atPath: assets.appendingPathComponent(path).path), "\(context): \(path)")
+        }
         func visit(_ node: [String: Any]) {
             if let area = node["area"] as? [String: Any] {
                 #expect((area["id"] as? String)?.range(of: token, options: .regularExpression) != nil, "\(context): \(area)")
@@ -134,6 +142,205 @@ struct PlaytimeStageTests {
 
     @Test func aLongLanguageAndOneThatReadsTheOtherWayFit() throws {
         for language in ["de", "ar", "ja"] { try playAll(HigherLowerScreen.self, seeds: [1], language: language) }
+    }
+
+    @Test func theTablePropsFitInALongLanguageAndOneThatReadsTheOtherWay() throws {
+        for language in ["de", "ar", "ja"] {
+            try playAll(WhichCupScreen.self, seeds: [1], language: language)
+            try playAll(CopyMeScreen.self, seeds: [1], language: language)
+            try playAll(QuickPawsScreen.self, seeds: [1], language: language)
+            try playAll(LastStickScreen.self, seeds: [1], language: language)
+        }
+    }
+
+    private static func json(_ scene: Scene) -> String {
+        String(decoding: try! JSONSerialization.data(withJSONObject: scene.json, options: [.sortedKeys, .withoutEscapingSlashes]), as: UTF8.self)
+    }
+
+    private static func node(_ id: String, in scene: Scene) -> [String: Any]? {
+        func visit(_ list: [[String: Any]]) -> [String: Any]? {
+            for n in list {
+                if n["id"] as? String == id { return n }
+                if let found = visit(n["children"] as? [[String: Any]] ?? []) { return found }
+            }
+            return nil
+        }
+        return visit(scene.json["nodes"] as? [[String: Any]] ?? [])
+    }
+
+    private static func run(_ id: String, in scene: Scene) -> [String: Any]? {
+        (scene.json["animations"] as? [[String: Any]] ?? []).first { $0["id"] as? String == id }
+    }
+
+    private static let cups = Board([.prompt("Which cup?", eyebrow: "Round 1"), .play(.cups(count: 3, hide: 0, swaps: [[0, 1], [1, 2]], swapMs: 400))])
+
+    /// What a scene shows for a board the way the table draws it: settled, as a new board is.
+    private func drawn(_ board: Board, _ id: String, local: inout LocalParts, previous: Board? = nil, fresh: Bool = true) -> Scene {
+        StageMoves.settle(board, local: &local)
+        return BoardDrawing(board, StageContext(entry: Self.entry(id), previous: previous, fresh: fresh, local: local)).scene()
+    }
+
+    @Test func aShuffleIsOneRunThatHoldsMovesThenTheBoardRests() throws {
+        var local = LocalParts()
+        let playing = drawn(Self.cups, WhichCupScreen.id, local: &local)
+        let run = try #require(Self.run("cups_shuffle", in: playing))
+        #expect(run["essential"] as? Bool == true && run["blocks_input"] as? Bool == true, "the swaps are the game, under Reduce Motion too")
+        #expect(Self.json(playing).contains("Shuffling") && Self.json(playing).contains("thinking"), "it says what it is doing")
+        #expect(playing.json["after_ms"] as? Int ?? 0 >= 2200 - 100, "the gem's 1400 ms and two swaps")
+        // Named by where it ends, starting where it starts: cup 0 goes 0 → 1 → 2, so it is the node at place 2, at the first slot, lifted over the gem.
+        let cup = try #require(Self.node("cup.2", in: playing))
+        #expect(cup["x"] as? Double == (BoardDrawing.inner / 3 - 72) / 2 && cup["y"] as? Double == 4)
+        #expect(Self.node("cups.gem", in: playing) != nil)
+        // The companion's paw checked mid-shuffle: the same run carries on, with the time it has left.
+        let same = Board([.prompt("Nothing in my paw!", eyebrow: "Round 1"), .play(.cups(count: 3, hide: 0, swaps: [[0, 1], [1, 2]], swapMs: 400))])
+        let startedAt = local.playback?.startedAt
+        let carried = drawn(same, WhichCupScreen.id, local: &local, previous: Self.cups)
+        #expect(local.playback?.startedAt == startedAt && Self.json(carried).contains("cups_shuffle") && Self.json(carried).contains("Shuffling"))
+        // Its time up, the same board at rest: the game's words, each cup at its place, no gem, a move of its own.
+        local.playback?.startedAt -= 10
+        guard case .redraw? = BoardDrawing.cupsMove(.next, board: same, local: &local) else {
+            Issue.record("the scene's time up only redraws")
+            return
+        }
+        let rest = BoardDrawing(same, StageContext(entry: Self.entry(WhichCupScreen.id), previous: same, fresh: false, local: local)).scene()
+        #expect(Self.run("cups_shuffle", in: rest) == nil && Self.node("cups.gem", in: rest) == nil && rest.json["after_ms"] == nil)
+        #expect(!Self.json(rest).contains("Shuffling") && Self.json(rest).contains("Nothing in my paw!"))
+        for place in 0..<3 {
+            let x = try #require(Self.node("cup.\(place)", in: rest)?["x"] as? Double)
+            #expect(x == BoardDrawing.inner / 3 * (Double(place) + 0.5) - 36)
+        }
+        #expect(Self.node("cups", in: rest)?["ltr"] as? Bool == true, "the table reads the same in every language")
+    }
+
+    @Test func thePropsTakeTheirKeysAndAreasAsTheBoardsMoves() throws {
+        var local = LocalParts()
+        local.playback = Playback(what: "done", ms: 0, startedAt: 0, done: true)
+        let cups = Board([.play(.cups(count: 3))])
+        let rest = BoardDrawing(cups, StageContext(entry: Self.entry(WhichCupScreen.id), local: local)).scene()
+        #expect(rest.keys.contains { $0["key"] as? String == "3" && $0["value"] as? String == "0,2" && $0["area"] as? String == "cell" })
+        func cup(_ move: SurfaceMove) -> StageAction { StageMoves.action(move, board: cups, local: &local) }
+        guard case .redraw = cup(.key(id: "arrow_right", character: nil, ms: nil)), local.cursor == 0, case .redraw = cup(.key(id: "arrow_right", character: nil, ms: nil)), local.cursor == 1,
+              case .play(.cell(row: 0, column: 1)) = cup(.key(id: "cursor_return", character: nil, ms: nil)), case .play(.cell(row: 0, column: 2)) = cup(.click(area: "cell", value: "0,2", ms: nil)) else {
+            Issue.record("arrows and Return and a click pick a cup")
+            return
+        }
+        Language.with("ar", strings: PlaytimeGameTests.strings) {
+            local.cursor = 1
+            _ = StageMoves.action(.key(id: "arrow_right", character: nil, ms: nil), board: cups, local: &local)
+            #expect(local.cursor == 2, "the cups lie the same way in Arabic, so the arrows move as they point")
+        }
+
+        local = LocalParts()
+        let pads = Board([.play(.pads([Pad("Wave", shape: "circle", color: "blue", move: "accent:wave", art: "wave"), Pad("Bow", shape: "square", color: "red", move: "accent:bow", art: "bow")]))])
+        guard case .play(.pad(1)) = StageMoves.action(.click(area: "pad", value: "1", ms: nil), board: pads, local: &local), local.lit == 1 else {
+            Issue.record("a pad is its move, and lights")
+            return
+        }
+        let lit = BoardDrawing(pads, StageContext(entry: Self.entry(CopyMeScreen.id), local: local)).scene()
+        #expect(Self.json(lit).contains("pad.1.glow") && !Self.json(lit).contains("pads_play") && lit.keys.contains { $0["key"] as? String == "2" && $0["value"] as? String == "1" })
+        #expect(Self.json(lit).contains("sounds/note-1.wav"), "its note on the press itself")
+        _ = StageMoves.action(.next, board: pads, local: &local)
+        #expect(local.lit == nil, "once")
+
+        local = LocalParts()
+        let sticks = Board([.play(.sticks(total: 21, left: 14, take: 3, taken: 3))])
+        let row = BoardDrawing(sticks, StageContext(entry: Self.entry(LastStickScreen.id), local: local)).scene()
+        guard case .play(.number(2)) = StageMoves.action(.click(area: "stick", value: "2", ms: nil), board: sticks, local: &local),
+              case .play(.number(3)) = StageMoves.action(.click(area: "take", value: "3", ms: nil), board: sticks, local: &local) else {
+            Issue.record("a stick or a button takes that many")
+            return
+        }
+        // Only the last three can be taken, and hovering one lifts it and those after it.
+        let area = try #require(Self.node("stick.11", in: row)?["area"] as? [String: Any])
+        #expect(area["value"] as? String == "3" && (area["highlight"] as? [[String: Any]])?.count == 3)
+        #expect(Self.node("stick.10", in: row)?["area"] == nil && Self.node("stick.14", in: row)?["area"] == nil)
+        #expect(Self.node("sticks", in: row)?["ltr"] as? Bool == true)
+        let locked = BoardDrawing(Board([.play(.sticks(total: 21, left: 14, locked: true))]), StageContext(entry: Self.entry(LastStickScreen.id))).scene()
+        #expect(!Self.json(locked).contains("\"take\"") && locked.keys.allSatisfy { ($0["area"] as? String) != "take" })
+    }
+
+    @Test func theSignalIsOneMomentOfTheSceneAndAPressIsTimedFromIt() throws {
+        func reflex(_ after: Int?, shows: String? = nil, keys: [String]? = nil) -> Board {
+            Board([.play(.reflex(afterMs: after, windowMs: 1500, wait: "Steady…", go: "Boop!", early: "Too soon!", shows: shows, keys: keys))])
+        }
+        var local = LocalParts()
+        let armed = BoardDrawing(reflex(2300), StageContext(entry: Self.entry(QuickPawsScreen.id))).scene()
+        let signal = try #require(Self.run("reflex_signal", in: armed))
+        #expect(signal["essential"] as? Bool == true, "the signal comes under Reduce Motion too")
+        #expect((armed.timers.first?["ms"] as? Double) == 3800, "its wait and its window")
+        #expect(armed.keys.contains { $0["key"] as? String == "space" && $0["timed_from_ms"] as? Double == 2300 })
+        #expect((Self.node("reflex", in: armed)?["area"] as? [String: Any])?["timed_from_ms"] as? Double == 2300)
+        let board = reflex(2300)
+        guard case .play(.press(milliseconds: 312)) = StageMoves.action(.click(area: "boop", value: nil, ms: 312), board: board, local: &local), !local.early,
+              case .play(.early) = StageMoves.action(.click(area: "boop", value: nil, ms: -40), board: board, local: &local), local.early else {
+            Issue.record("after the moment a time, before it too soon")
+            return
+        }
+        // Too soon is said at once, with its mark, and only until the verdict's moment.
+        let withheld = reflex(nil)
+        let soon = BoardDrawing(withheld, StageContext(entry: Self.entry(QuickPawsScreen.id), previous: board, local: local)).scene()
+        #expect(Self.json(soon).contains("Too soon!") && Self.json(soon).contains(Verdict.loss.symbol) && !Self.json(soon).contains("reflex_signal"))
+        _ = StageMoves.action(.next, board: withheld, local: &local)
+        #expect(!local.early)
+        var build = StageContext(entry: Self.entry(QuickPawsScreen.id), previous: board)
+        build.buildUp = true
+        let pressed = BoardDrawing(withheld, build).scene()
+        #expect(Self.json(pressed).contains("reflex.went") && Self.json(pressed).contains("…"), "a press ends the signal: it goes as it came, and the verdict waits")
+        // Two people: a key each by where it sits, no click.
+        let two = BoardDrawing(reflex(1800, keys: ["a", "l"]), StageContext(entry: Self.entry(QuickPawsScreen.id))).scene()
+        #expect(Self.node("reflex", in: two)?["area"] == nil)
+        #expect(two.keys.contains { $0["id"] as? String == "seat_a" && $0["seat"] as? Bool == true && $0["timed_from_ms"] as? Double == 1800 })
+        guard case .play(.pressKey(milliseconds: 200, key: "l")) = StageMoves.action(.key(id: "seat_l", character: nil, ms: 200), board: board, local: &local),
+              case .play(.earlyKey("a")) = StageMoves.action(.key(id: "seat_a", character: nil, ms: -1), board: board, local: &local) else {
+            Issue.record("whose key, and when")
+            return
+        }
+    }
+
+    @Test func aDanceIsOneRunOfLightsAndNotesAndComesBackWithItsGame() throws {
+        let pads = (0..<4).map { Pad("P\($0)", shape: "circle", color: "blue", move: "accent:wave", art: "wave") }
+        let board = Board([.play(.pads(pads, play: [2, 0, 2], stepMs: 500))])
+        #expect(board.plays?.ms == 600 + 3 * 500)
+        var local = LocalParts()
+        let scene = drawn(board, CopyMeScreen.id, local: &local)
+        let run = try #require(Self.run("pads_play", in: scene))
+        #expect(run["essential"] as? Bool == true && run["blocks_input"] as? Bool == true)
+        let text = Self.json(scene)
+        for sound in ["sounds/note-2.wav", "sounds/note-0.wav", "accent:wave", "Watch"] { #expect(text.contains(sound), "\(sound)") }
+        // Ended, at rest; a game come back to dances again, so it can still be copied.
+        local.playback?.startedAt -= 10
+        _ = StageMoves.action(.next, board: board, local: &local)
+        #expect(local.playback?.done == true)
+        let rest = BoardDrawing(board, StageContext(entry: Self.entry(CopyMeScreen.id), previous: board, fresh: false, local: local)).scene()
+        #expect(Self.run("pads_play", in: rest) == nil && !Self.json(rest).contains("Watch"))
+        Playback.cameBack(board, local: &local)
+        #expect(local.playback?.done == false)
+        // A shuffle that ended doesn't.
+        var cupsLocal = LocalParts()
+        StageMoves.settle(Self.cups, local: &cupsLocal)
+        cupsLocal.playback?.done = true
+        Playback.cameBack(Self.cups, local: &cupsLocal)
+        #expect(cupsLocal.playback?.done == true)
+        // A long dance outlasts one `after`: it asks again, and the run carries on.
+        let long = Board([.play(.pads(pads, play: Array(repeating: 1, count: 30), stepMs: 500))])
+        var longLocal = LocalParts()
+        #expect(drawn(long, CopyMeScreen.id, local: &longLocal).json["after_ms"] as? Int == 10_000)
+        longLocal.playback?.startedAt -= 10
+        guard case .redraw = StageMoves.action(.next, board: long, local: &longLocal), longLocal.playback?.done == false else {
+            Issue.record("more to play")
+            return
+        }
+    }
+
+    @Test func thePropsTakeTheLongestRoundsSidefolkWouldDraw() throws {
+        // A reply has 64 KB. Fourteen swaps is the most any level draws (Hard's last round); a dance can reach 64 moves.
+        var local = LocalParts()
+        let swaps = (0..<14).map { [$0 % 5, ($0 + 1) % 5] }
+        let scene = drawn(Board([.play(.cups(count: 5, hide: 1, swaps: swaps, swapMs: 200))]), WhichCupScreen.id, local: &local)
+        try Self.check(scene, "cups")
+        var pads = LocalParts()
+        let dance = drawn(Board([.play(.pads((0..<5).map { Pad("P\($0)", shape: "circle", color: "blue", move: "accent:wave", art: "wave") }, play: (0..<64).map { $0 % 5 }, stepMs: 280))]), CopyMeScreen.id, local: &pads)
+        try Self.check(dance, "pads")
     }
 
     @Test func aMoveOnASceneIsTheBoardsMove() {

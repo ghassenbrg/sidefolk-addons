@@ -149,6 +149,7 @@ enum PlayTable {
             if let (build, ms) = Suspense.buildUp(from: board, to: result.board, picked: picked) {
                 session.held = result.events
                 session.pick = picked
+                session.local.playback = nil
                 var ctx = context(entry, session: session, previous: board, fresh: true)
                 ctx.buildUp = true
                 ctx.pendingAnswer = picked
@@ -178,7 +179,7 @@ enum PlayTable {
     private static func draw(_ board: Board, entry: GameEntry, session: Session, previous: Board?, fresh: Bool, id: String) -> Scene {
         shown[id] = board
         var scene = BoardDrawing(board, context(entry, session: session, previous: previous, fresh: fresh)).scene()
-        if !board.typesWithDelete { scene = scene.key("delete", id: "back_delete") }
+        if !board.typesWithDelete { scene = scene.key("delete", id: "back_delete", always: true) }
         return scene
     }
 
@@ -196,6 +197,7 @@ enum PlayTable {
         session.held = nil
         session.pick = nil
         let board = shown[id] ?? driver.board(data, held, session.options) ?? Board([])
+        Playback.cameBack(board, local: &session.local)
         return draw(board, entry: entry, session: session, previous: nil, fresh: fresh, id: id)
     }
 

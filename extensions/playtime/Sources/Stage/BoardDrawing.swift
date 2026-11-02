@@ -17,6 +17,12 @@ struct LocalParts: Codable, Equatable {
     /// Rows and guesses on the last board, so a new one (a word or number accepted) clears the draft.
     var rowsSeen = 0
     var guessesSeen: Int?
+    /// What is playing by itself (Stage/Playback.swift).
+    var playback: Playback?
+    /// The pad just pressed, lit once by the next scene.
+    var lit: Int?
+    /// The reflex was pressed before its signal: "Too soon!" at once, until the verdict's moment.
+    var early = false
 }
 
 /// What a board needs from the game round it.
@@ -58,6 +64,8 @@ final class BoardDrawing {
     var anims: [Anim] = []
     var keys: [StageKey] = []
     var timers: [(id: String, ms: Double)] = []
+    /// A part asks for the next scene by itself (`untilPlayed`).
+    var partAfterMs: Int?
     var look: Look { ctx.entry.look }
 
     init(_ board: Board, _ ctx: StageContext) {
@@ -89,10 +97,12 @@ final class BoardDrawing {
         let boardHeight = parts.reduce(-8.0) { $0 + $1.height + 8 } + 4
         let room = min(Self.boardRoom, boardHeight)
         var offset = 2.0
-        let stacked = parts.map { block -> Node in
+        var stacked = parts.map { block -> Node in
             defer { offset += block.height + 8 }
             return block.node.at(Self.pad, offset)
         }
+        // What stands over what follows (the companion's feet on its table) comes last, so it reads the same wherever the scene is drawn.
+        stacked = stacked.filter { $0.json["z"] == nil } + stacked.filter { $0.json["z"] != nil }
         if boardHeight > Self.boardRoom {
             content.append(Node.scroll(contentHeight: boardHeight) { stacked }.id("board").at(0, y).size(Self.width, room))
         } else {
@@ -116,7 +126,7 @@ final class BoardDrawing {
         if ctx.fresh { scene = cued(scene) }
         for (id, ms) in timers { scene = scene.timer(id, ms: ms) }
         for k in keys { scene = scene.key(k.key, id: k.id, area: k.area, value: k.value, seat: k.seat, timedFromMs: k.timedFromMs, always: k.always) }
-        if let after = board.afterMs ?? ctx.afterMs { scene = scene.after(ms: after) }
+        if let after = partAfterMs ?? board.afterMs ?? ctx.afterMs { scene = scene.after(ms: after) }
         if ctx.fresh, let words = spoken { scene = scene.announcing(words) }
         if board.over, let result = board.resultPart {
             let two = board.scorePart?.players != nil

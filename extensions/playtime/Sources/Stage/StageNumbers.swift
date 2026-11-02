@@ -144,7 +144,7 @@ extension BoardDrawing {
             for i in 0..<total {
                 let kept = i < left
                 if balloon {
-                    Node.image("art/game-balloon.webp", tint: kept ? hue[i % 5] : .inkFaint).id("life.\(i)").at(Double(i) * (side + gap), 0).size(side, side)
+                    Node.image("art/game-balloon.png", tint: kept ? hue[i % 5] : .inkFaint).id("life.\(i)").at(Double(i) * (side + gap), 0).size(side, side)
                         .anchor(0.5, 1).scale(kept ? 1 : 0.6).rotate(kept ? Double(i % 3 - 1) * 5 : 0).opacity(kept ? 1 : 0.3)
                 } else {
                     Node.symbol(kept ? "heart.fill" : "heart", color: kept ? hue[i % 5] : Color.inkFaint.tuned(alpha: 0.5)).symbolLook(weight: "regular")

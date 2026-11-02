@@ -1,750 +1,209 @@
 {
-  "name": "Svago",
-  "tagline": "Giochi e rompicapi con il tuo compagno, e scelte a caso",
-  "description": "Una pausa con il tuo compagno: undici giochi contro di lui, accanto a lui sulla scrivania (un quiz, tris, Copiami e altri) e cinque rompicapi per te (la parola del giorno, il sudoku e altri), con punteggi, tempi migliori e serie salvati, e il caso per scegliere un numero o qualcosa da una lista.",
-  "tools": {
-    "pick": {
-      "title": "Scelte a caso",
-      "summary": "Lascia fare al caso"
-    },
-    "trivia": {
-      "title": "Quiz",
-      "summary": "Gioca una partita a quiz"
-    },
-    "open": {
-      "title": "Apri un gioco",
-      "summary": "Apri un gioco"
-    },
-    "put_away": {
-      "title": "Metti via il gioco",
-      "summary": "Metti via il gioco"
-    },
-    "game_settings": {
-      "title": "Cambia le impostazioni dei giochi",
-      "summary": "Cambia le impostazioni dei giochi"
-    },
-    "toss": {
-      "title": "Lancia una moneta, tira i dadi o gioca a sasso, carta, forbici",
-      "summary": "Lancia una moneta, tira i dadi o gioca a sasso, carta, forbici"
-    }
+  "ai_purpose": "per scrivere domande di quiz su un argomento che scegli tu",
+  "carry": {
+    "endings": [],
+    "inside": [],
+    "lead": [
+      "giochiamo",
+      "giocare",
+      "gioca",
+      "giorno"
+    ],
+    "words": [
+      "giochiamo",
+      "giocare",
+      "gioca",
+      "uno",
+      "il",
+      "lo",
+      "gli",
+      "partita",
+      "gioco",
+      "voglio",
+      "con",
+      "te",
+      "contro",
+      "livello",
+      "modalità",
+      "difficoltà",
+      "giorno",
+      "oggi",
+      "nuova",
+      "nuovo",
+      "di",
+      "del",
+      "della",
+      "a"
+    ]
   },
-  "pages": {
-    "playtime": {
-      "title": "Svago"
-    }
-  },
-  "text": {
-    "A bed kept to one line rules out the rest of that line, leaving this.": "Un'aiuola chiusa in una sola linea esclude il resto di quella linea: resta questa.",
-    "A blossom in the other places leads to a dead end a few moves on.": "Un fiore negli altri posti porta a un vicolo cieco qualche mossa dopo.",
-    "A blossom in the other places would leave a row, column or bed no room, leaving this.": "Un fiore negli altri posti lascerebbe una riga, una colonna o un'aiuola senza spazio: resta questa.",
-    "A draw!": "Pareggio!",
-    "A hint": "Un aiuto",
-    "A new best for {level}!": "Nuovo record in {level}!",
-    "A new best: {count} moves!": {
-      "one": "Nuovo record: {count} mossa!",
-      "other": "Nuovo record: {count} mosse!"
+  "choices": {
+    "call": {
+      "heads": [
+        "testa"
+      ],
+      "tails": [
+        "croce"
+      ]
     },
-    "A new word and {count} puzzle boards every day": {
-      "one": "Una parola nuova e {count} rompicapo ogni giorno",
-      "other": "Una parola nuova e {count} rompicapi ogni giorno"
+    "coins_many": {
+      "n2": [
+        "due"
+      ],
+      "n3": [
+        "tre"
+      ],
+      "n4": [
+        "quattro"
+      ],
+      "n5": [
+        "cinque"
+      ]
     },
-    "A number kept to one line of a box rules it out elsewhere, leaving this.": "Un numero chiuso in una linea di un riquadro è escluso altrove: resta questo.",
-    "A plot can hold only one number.": "Un lotto può avere un solo numero.",
-    "A plot has as many squares as its number.": "Un lotto ha tante caselle quanto il suo numero.",
-    "A plot needs one number in it.": "Un lotto ha bisogno di un numero dentro.",
-    "A quiz with {name}": "Un quiz con {name}",
-    "A square here can only belong to this number.": "Una casella qui può appartenere solo a questo numero.",
-    "A yes-or-no question that tells {new} from {old}?": "Una domanda sì o no che distingua {new} da {old}?",
-    "All pairs found.": "Tutte le coppie trovate.",
-    "All three of today's boards are solved. Come back tomorrow for new ones.": "Tutti e tre i rompicapi di oggi sono risolti. Torna domani per quelli nuovi.",
-    "Anchor": "Ancora",
-    "And for {new}, the answer is…": "E per {new} la risposta è…",
-    "Animals": "Animali",
-    "Another topic": "Altro argomento",
-    "Any other plot leads to a dead end a few plots on.": "Qualsiasi altro lotto porta a un vicolo cieco qualche lotto dopo.",
-    "Any other plot would leave a number or a square with nowhere to go.": "Qualsiasi altro lotto lascerebbe un numero o una casella senza via d'uscita.",
-    "Arts": "Arte",
-    "As many hearts as stars in every row and column, never three alike in a line. = means the same, × different.": "Tanti cuori quante stelle in ogni riga e colonna, mai tre uguali di fila. = vuol dire uguale, × diverso.",
-    "Ask {name}": "Chiedi a {name}",
-    "At home": "In casa",
-    "Balloon Words": "Parole palloncino",
-    "Bell": "Campana",
-    "Best": "Record",
-    "Best of 10: {n}": "Record su 10: {n}",
-    "Best streak": "Serie migliore",
-    "Best streak ever": "Serie migliore",
-    "Best: {count} guesses": {
-      "one": "Record: {count} tentativo",
-      "other": "Record: {count} tentativi"
+    "dice_many": {
+      "n10": [
+        "dieci"
+      ],
+      "n2": [
+        "due"
+      ],
+      "n3": [
+        "tre"
+      ],
+      "n4": [
+        "quattro"
+      ],
+      "n5": [
+        "cinque"
+      ],
+      "n6": [
+        "sei"
+      ],
+      "n7": [
+        "sette"
+      ],
+      "n8": [
+        "otto"
+      ],
+      "n9": [
+        "nove"
+      ]
     },
-    "Best: {count} moves": {
-      "one": "Record: {count} mossa",
-      "other": "Record: {count} mosse"
+    "hand": {
+      "paper": [
+        "carta"
+      ],
+      "rock": [
+        "sasso"
+      ],
+      "scissors": [
+        "forbici"
+      ]
     },
-    "Best: {n} ms": "Record: {n} ms",
-    "Best: {times}": "Record: {times}",
-    "Between {low} and {high}": "Tra {low} e {high}",
-    "Blossom": "Fiore",
-    "Blossoms": "Fiori",
-    "Blossoms can't touch, not even corner to corner.": "I fiori non si toccano, nemmeno in diagonale.",
-    "Boop the button the moment it says Boop!": "Premi il bottone appena dice Bup!",
-    "Boop!": "Bup!",
-    "Bow": "Inchino",
-    "Burning hot!": "Bollente!",
-    "Card {n}": "Carta {n}",
-    "Cat's game: a draw.": "Patta.",
-    "Caught! The gem was in {name}'s paw.": "Beccato! La gemma era nella zampa di {name}.",
-    "Check {name}'s paw": "Guarda la zampa di {name}",
-    "Clothes": "Vestiti",
-    "Cloud": "Nuvola",
-    "Cold": "Freddo",
-    "Cool": "Fresco",
-    "Copy Me": "Copiami",
-    "Daily Word": "La parola del giorno",
-    "Daily Word · {date}": "La parola del giorno · {date}",
-    "Daily Word: {state}": "La parola del giorno: {state}",
-    "Did you know?": "Lo sapevi?",
-    "Do it": "Fallo tu",
-    "Does it…?": "Ha…?",
-    "Drop": "Goccia",
-    "Easy": "Facile",
-    "Endless": "Senza fine",
-    "Every round, make four together.": "A ogni giro, fate quattro in due.",
-    "Every way to finish this line puts this here.": "Ogni modo di finire questa linea mette questo qui.",
-    "Fair": "Normale",
-    "Fill the grid: every row, column and box holds each number once.": "Riempi la griglia: ogni riga, colonna e riquadro contiene ogni numero una volta.",
-    "Finish": "Termina",
-    "Fish": "Pesce",
-    "Flower": "Fiore",
-    "Food": "Cucina",
-    "Found in {n}": "Trovato in {n}",
-    "Found in {n}, at par or better!": "Trovato in {n}, nella media o meglio!",
-    "Found in {n}: par is {par}.": "Trovato in {n}: la media è {par}.",
-    "Found it!": "Trovata!",
-    "Four characters": "Quattro caratteri",
-    "Freezing": "Gelido",
-    "Game {n} · {level}": "Partita {n} · {level}",
-    "Games and sports": "Giochi e sport",
-    "Garden Plots": "Lotti dell'orto",
-    "Geography": "Geografia",
-    "Getting around": "Trasporti",
-    "Got it: {n}!": "Trovato: {n}!",
-    "Guess My Animal": "Indovina il mio animale",
-    "Guess mine": "Indovina il mio",
-    "Guess the word, a letter at a time.": "Indovina la parola, una lettera alla volta.",
-    "Guess this word in six tries.": "Indovina questa parola in sei tentativi.",
-    "Guess today's word in six tries.": "Indovina la parola di oggi in sei tentativi.",
-    "Guess {n} · par {par}": "Tentativo {n} · media {par}",
-    "Hard": "Difficile",
-    "Heart": "Cuore",
-    "Here's one to keep you going.": "Eccone uno per andare avanti.",
-    "Higher": "Più alto",
-    "Higher or Lower": "Più alto o più basso",
-    "Higher than {n}!": "Più di {n}!",
-    "Hint": "Aiuto",
-    "Hint: letter {n} is {letter}.": "Aiuto: la lettera {n} è {letter}.",
-    "Hints": "Indizi",
-    "History": "Storia",
-    "Hmm, that doesn't fit what you said about {n} before…": "Mmm, non torna con quello che hai detto su {n}…",
-    "Hmm… let me think again.": "Mmm… ci ripenso.",
-    "Hmm… {range}…": "Mmm… {range}…",
-    "Hop": "Saltello",
-    "Hot": "Caldo",
-    "I got it!": "Indovinato!",
-    "I'll guess yours": "Indovino il tuo",
-    "Is it… {animal}?": "È… {animal}?",
-    "Is it… {n}?": "È il… {n}?",
-    "It was in {name}'s paw all along!": "Era nella zampa di {name} fin dall'inizio!",
-    "It was {animal}!": "Era {animal}!",
-    "Keep your eye on the gem… which cup?": "Non perdere di vista la gemma… quale bicchiere?",
-    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "Non perdere di vista la gemma… quale bicchiere? Pensi che la nasconda? Fai clic su di me.",
-    "Key": "Chiave",
-    "Last Stick": "L'ultimo bastoncino",
-    "Leaf": "Foglia",
-    "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "Lascia uno in più di un multiplo di quattro: 17, 13, 9, 5, poi 1.",
-    "Level": "Livello",
-    "Lower": "Più basso",
-    "Lower than {n}!": "Meno di {n}!",
-    "Memory Pairs": "Coppie della memoria",
-    "Missed today": "Oggi niente",
-    "Mix": "Misto",
-    "Moon": "Luna",
-    "Music": "Musica",
-    "My guess": "La mia ipotesi",
-    "Nature": "Natura",
-    "New best": "Nuovo record",
-    "New best!": "Nuovo record!",
-    "Next": "Avanti",
-    "Next game": "Partita successiva",
-    "Next round": "Prossimo round",
-    "No": "No",
-    "No room is left there for its blossom.": "Lì non c'è più spazio per il suo fiore.",
-    "Not a pair.": "Non è una coppia.",
-    "Not played yet": "Non ancora giocato",
-    "Not sure": "Non lo so",
-    "Not that one.": "Non quello.",
-    "Not your turn yet.": "Non è ancora il tuo turno.",
-    "Nothing in my paw! It's under a cup.": "Niente nella mia zampa! È sotto un bicchiere.",
-    "Nothing to undo.": "Niente da annullare.",
-    "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "Un fiore in ogni riga, colonna e aiuola. I fiori non si toccano mai, nemmeno in diagonale.",
-    "Only one number still fits this cell.": "Solo un numero sta ancora in questa casella.",
-    "Only one plot of that size fits around this number.": "Solo un lotto di quella misura sta attorno a questo numero.",
-    "Oops, that one was wrong!": "Ops, quello era sbagliato!",
-    "Other wave": "Saluto con l'altra mano",
-    "Outdoors": "All'aperto",
-    "Pick a number from 1 to 100.": "Scegli un numero da 1 a 100.",
-    "Pick a topic": "Scegli un argomento",
-    "Pick a way to play": "Scegli come giocare",
-    "Play again": "Gioca ancora",
-    "Play another": "Giocane un altro",
-    "Play another word": "Gioca un'altra parola",
-    "Played": "Giocate",
-    "Please write both.": "Scrivi entrambe le cose, per favore.",
-    "Practice": "Allenamento",
-    "Practice word · not in your streak": "Allenamento · fuori dalla serie",
-    "Practice words": "Parole di allenamento",
-    "Puzzles today: {n} of {total}": "Rompicapi di oggi: {n} su {total}",
-    "Question {n}": "Domanda {n}",
-    "Question {n} of {total}": "Domanda {n} di {total}",
-    "Questions": "Domande",
-    "Quick Paws": "Zampe veloci",
-    "Quick, {n} s": "Veloce, {n} s",
-    "Relaxed": "Tranquillo",
-    "Round {n} of {total} · {level}": "Round {n} di {total} · {level}",
-    "Round {n} · {level}": "Round {n} · {level}",
-    "Row {row}, column {column}": "Riga {row}, colonna {column}",
-    "Row {r}, column {c}": "Riga {r}, colonna {c}",
-    "Ruled out": "Esclusa",
-    "Science": "Scienza",
-    "See results": "Vedi il risultato",
-    "Seesaw": "Altalena",
-    "Show a letter": "Mostra una lettera",
-    "Solved": "Risolte",
-    "Solved in {n}": "Risolto in {n}",
-    "Solved in {n}!": "Risolto in {n}!",
-    "Solved in {time}": "Risolto in {time}",
-    "Solved in {time}!": "Risolto in {time}!",
-    "Solved!": "Risolto!",
-    "Space": "Spazio",
-    "Spin": "Giravolta",
-    "Split the garden into rectangles, one number in each: as many squares as it says.": "Dividi l'orto in rettangoli, un numero in ciascuno: tante caselle quante dice.",
-    "Sports": "Sport",
-    "Squares another number always covers are taken, leaving this.": "Le caselle che un altro numero copre sempre sono occupate: resta questa.",
-    "Star": "Stella",
-    "Start": "Inizia",
-    "Start over": "Ricomincia",
-    "Steady…": "Pronti…",
-    "Streak": "Serie",
-    "Streak this round": "Serie della partita",
-    "Streak {n}": "Serie di {n}",
-    "Sudoku": "Sudoku",
-    "Sun": "Sole",
-    "Switch: you guess": "Indovini tu",
-    "Switch: {name} guesses": "Indovina {name}",
-    "Take 1, 2 or 3 sticks.": "Prendi 1, 2 o 3 bastoncini.",
-    "Take 1, 2 or 3. Don't take the last one!": "Prendine 1, 2 o 3. Non prendere l'ultimo!",
-    "Teach": "Insegna",
-    "Tech": "Tecnologia",
-    "Tell": "Dillo",
-    "Thank you! I'll remember {animal}.": "Grazie! Mi ricorderò di {animal}.",
-    "That = or × isn't kept.": "Quel = o × non è rispettato.",
-    "That number is twice in a box.": "Quel numero è due volte in un riquadro.",
-    "That number is twice in a column.": "Quel numero è due volte in una colonna.",
-    "That number is twice in a row.": "Quel numero è due volte in una riga.",
-    "That one is part of the puzzle.": "Fa parte del rompicapo.",
-    "That one's taken.": "Già preso.",
-    "That word isn't the right length.": "La parola non ha la lunghezza giusta.",
-    "That's a bit long.": "È un po' lungo.",
-    "That's it!": "Esatto!",
-    "That's not in the word list.": "Questa parola non è nella lista.",
-    "That's the animal I guessed.": "È l'animale che ho detto io.",
-    "The cells on either side match, so this one is the other.": "Le caselle ai lati sono uguali, quindi questa è l'altra.",
-    "The clue beside it decides this one.": "L'indizio accanto decide questa.",
-    "The hint is used up.": "L'aiuto è già stato usato.",
-    "The last place left in this bed.": "L'ultimo posto libero in questa aiuola.",
-    "The last place left in this column.": "L'ultimo posto libero in questa colonna.",
-    "The last place left in this row.": "L'ultimo posto libero in questa riga.",
-    "The only place left for this number in its box.": "L'unico posto rimasto per questo numero nel suo riquadro.",
-    "The only place left for this number in its column.": "L'unico posto rimasto per questo numero nella sua colonna.",
-    "The only place left for this number in its row.": "L'unico posto rimasto per questo numero nella sua riga.",
-    "The other mark here would break a rule a few moves on.": "L'altro segno qui infrangerebbe una regola qualche mossa dopo.",
-    "The word was {word}.": "La parola era {word}.",
-    "These beds fill those lines between them, ruling out the rest, leaving this.": "Queste aiuole riempiono quelle linee da sole ed escludono il resto: resta questa.",
-    "Things to eat": "Da mangiare",
-    "Think of one": "Pensane uno",
-    "This line already has its half of one: the rest are the other.": "Questa linea ha già la sua metà di uno: il resto è l'altro.",
-    "This mark isn't right: take it back.": "Questo segno non è giusto: toglilo.",
-    "This number isn't right: take it back.": "Questo numero non è giusto: toglilo.",
-    "This plot isn't right: take it away.": "Questo lotto non è giusto: toglilo.",
-    "Three alike in a line: change one.": "Tre uguali di fila: cambiane uno.",
-    "Tic-tac-toe": "Tris",
-    "Time": "Tempo",
-    "Today's puzzle": "Rompicapo del giorno",
-    "Today's word was {word}.": "La parola di oggi era {word}.",
-    "Today's {levels} boards are still waiting.": {
-      "one": "Ancora da fare oggi: {levels}.",
-      "other": "Ancora da fare oggi: {levels}."
-    },
-    "Today: {count} boards to play": {
-      "one": "Oggi: {count} rompicapo da fare",
-      "other": "Oggi: {count} rompicapi da fare"
-    },
-    "Today: {solved}": "Oggi: {solved}",
-    "Too many of one in that line.": "Troppi di uno in quella linea.",
-    "Too slow!": "Troppo lento!",
-    "Too soon!": "Troppo presto!",
-    "Topic": "Argomento",
-    "Trivia": "Quiz",
-    "Try": "Prova",
-    "Tunisia & the Mediterranean": "La Tunisia e il Mediterraneo",
-    "Two alike side by side: the next one is the other.": "Due uguali vicini: il prossimo è l'altro.",
-    "Two blossoms in one bed.": "Due fiori in un'aiuola.",
-    "Two blossoms in one column.": "Due fiori in una colonna.",
-    "Two blossoms in one row.": "Due fiori in una riga.",
-    "Two cells share the same two numbers, ruling them out elsewhere, leaving this.": "Due caselle hanno gli stessi due numeri e li escludono altrove: resta questo.",
-    "Type an idiom": "Scrivi un modo di dire",
-    "Undo": "Annulla",
-    "Use the game's letters.": "Usa le lettere del gioco.",
-    "Want to know my secret?": "Vuoi sapere il mio segreto?",
-    "Warm": "Tiepido",
-    "Watch {name}, then copy.": "Guarda {name}, poi copia.",
-    "Wave": "Saluto",
-    "Which Cup?": "Quale bicchiere?",
-    "Yes": "Sì",
-    "Yes! It was {n}.": "Sì! Era il {n}.",
-    "Yes, that's it!": "Sì, è quello!",
-    "You beat {name}!": "Hai battuto {name}!",
-    "You copied {count} moves.": {
-      "one": "Hai copiato {count} mossa.",
-      "other": "Hai copiato {count} mosse."
-    },
-    "You saved the balloons!": "Hai salvato i palloncini!",
-    "You took the last stick.": "Hai preso l'ultimo bastoncino.",
-    "You tried that one already.": "L'hai già provato.",
-    "You were quicker!": "Sei stato più veloce!",
-    "You win this game!": "Vinci questa partita!",
-    "You win! What was it?": "Hai vinto! Cos'era?",
-    "You {you} · {name} {companion}": "Tu {you} · {name} {companion}",
-    "Your animal": "Il tuo animale",
-    "Your best": "Il tuo record",
-    "Your question": "La tua domanda",
-    "Your turn: copy it.": "Tocca a te: copia.",
-    "Your turn: turn two cards.": "Tocca a te: gira due carte.",
-    "Your turn: you're X.": "Tocca a te: sei X.",
-    "{count} balloons left.": {
-      "one": "Resta {count} palloncino.",
-      "other": "Restano {count} palloncini."
-    },
-    "{count} more to play": {
-      "one": "ancora {count} da fare",
-      "other": "ancora {count} da fare"
-    },
-    "{count} moves · {level}": {
-      "one": "{count} mossa · {level}",
-      "other": "{count} mosse · {level}"
-    },
-    "{count} practice words": {
-      "one": "{count} parola di allenamento",
-      "other": "{count} parole di allenamento"
-    },
-    "{count} sticks left · {level}": {
-      "one": "{count} bastoncino rimasto · {level}",
-      "other": "{count} bastoncini rimasti · {level}"
-    },
-    "{name} counts… {n} left.": "{name} conta… ne restano {n}.",
-    "{name} didn't get it either.": "Neanche {name} l'ha trovata.",
-    "{name} didn't get it either. Tomorrow!": "Neanche {name} l'ha trovata. A domani!",
-    "{name} found it in {count} questions.": {
-      "one": "{name} l'ha trovato in {count} domanda.",
-      "other": "{name} l'ha trovato in {count} domande."
-    },
-    "{name} hides one": "{name} ne nasconde uno",
-    "{name} is thinking…": "{name} ci pensa…",
-    "{name} took the last stick. You win!": "{name} ha preso l'ultimo bastoncino. Hai vinto!",
-    "{name} was quicker.": "{name} è stato più veloce.",
-    "{name} wins this game.": "{name} vince questa partita.",
-    "{name} wins this one.": "Questa la vince {name}.",
-    "{name}'s secret": "Il segreto di {name}",
-    "{name}'s turn.": "Tocca a {name}.",
-    "{name}: “I saw one… around here?”": "{name}: «Ne ho vista una… qui intorno?»",
-    "{n} ms": "{n} ms",
-    "{n} of {total}": "{n} di {total}",
-    "2 players": "2 giocatori",
-    "A word from a friend": "Una parola da un amico",
-    "A word in pinyin, 2 to 14 letters": "Una parola in pinyin, da 2 a 14 lettere",
-    "A word of 2 to 14 letters": "Una parola da 2 a 14 lettere",
-    "Again!": "Di nuovo!",
-    "Back to topics": "Torna agli argomenti",
-    "Both danced!": "Avete ballato tutti e due!",
-    "Did you know? From {name}, not checked": "Lo sapevi? Da {name}, non verificato",
-    "Fresh questions": "Domande nuove",
-    "Game {n}": "Partita {n}",
-    "Head to head": "Testa a testa",
-    "Hide it": "Nascondila",
-    "I'm hiding a number from {low} to {high}. Guess it!": "Nascondo un numero da {low} a {high}. Indovinalo!",
-    "I'm {name}: ready": "Sono {name}: pronto",
-    "Made by {name}. They aren't checked, so a fact may be wrong.": "Scritte da {name}. Non sono verificate: qualche fatto potrebbe essere sbagliato.",
-    "Make questions": "Crea le domande",
-    "Making questions with AI is off. Here are mine.": "Le domande con l'IA sono disattivate. Ecco le mie.",
-    "Nobody pressed.": "Nessuno ha premuto.",
-    "Numbers": "Numeri",
-    "Numbers from {low} to {high}": "Numeri da {low} a {high}",
-    "Other…": "Altro…",
-    "Pass the Mac to {name}.": "Passa il Mac a {name}.",
-    "Pick a number from {low} to {high}.": "Scegli un numero da {low} a {high}.",
-    "Player 1": "Giocatore 1",
-    "Player 1's name": "Nome del giocatore 1",
-    "Player 2": "Giocatore 2",
-    "Player 2's name": "Nome del giocatore 2",
-    "Questions are already being made. Try again in a moment.": "Le domande sono già in preparazione. Riprova tra un attimo.",
-    "Return hides it": "Invio lo nasconde",
-    "Round {n}": "Round {n}",
-    "Round {n} of 2": "Round {n} di 2",
-    "Round {n} of {total}": "Round {n} di {total}",
-    "Set": "Imposta",
-    "That's enough new questions for today. Here are mine.": "Basta domande nuove per oggi. Ecco le mie.",
-    "Type a number from 2 to {max}.": "Scrivi un numero da 2 a {max}.",
-    "Up to": "Fino a",
-    "Up to which number? 2 to {max}": "Fino a quale numero? Da 2 a {max}",
-    "Volcanoes, jazz, Japan…": "Vulcani, jazz, Giappone…",
-    "Who's playing?": "Chi gioca?",
-    "vs {name}": "contro {name}",
-    "{a} presses {ka}, {b} presses {kb}. First after Boop! wins.": "{a} preme {ka}, {b} preme {kb}. Vince il primo dopo Bup!.",
-    "{count} moves": {
-      "one": "{count} mossa",
-      "other": "{count} mosse"
-    },
-    "{count} sticks left": {
-      "one": "{count} bastoncino rimasto",
-      "other": "{count} bastoncini rimasti"
-    },
-    "{loser} took the last stick. {name} wins!": "{loser} ha preso l'ultimo bastoncino. Vince {name}!",
-    "{low} to {high}": "da {low} a {high}",
-    "{name} copied {n}. {other}'s turn: the same dance.": "{name} ha imitato {n}. Tocca a {other}: lo stesso ballo.",
-    "{name} copies first.": "{name} imita per primo.",
-    "{name} couldn't make questions just now. Here are mine.": "{name} non è riuscito a creare domande ora. Ecco le mie.",
-    "{name} found it!": "{name} l'ha trovata!",
-    "{name} hides a number; {other} finds it. Fewer guesses wins.": "{name} nasconde un numero, {other} lo cerca. Vince chi usa meno tentativi.",
-    "{name} is next.": "Ora tocca a {name}.",
-    "{name} is picking a topic and writing questions…": "{name} sta scegliendo un argomento e scrivendo le domande…",
-    "{name} is taking too long. Here are mine.": "{name} ci mette troppo. Ecco le mie.",
-    "{name} is writing questions about {topic}…": "{name} sta scrivendo domande su {topic}…",
-    "{name} pressed too soon!": "{name} ha premuto troppo presto!",
-    "{name} saved the balloons!": "{name} ha salvato i palloncini!",
-    "{name} sets a word; {other} guesses it. More balloons kept wins.": "{name} sceglie una parola, {other} la indovina. Vince chi tiene più palloncini.",
-    "{name} takes the round!": "{name} vince il round!",
-    "{name} wins this game!": "{name} vince questa partita!",
-    "{name} wins!": "Vince {name}!",
-    "{name} wrote questions I couldn't use. Here are mine.": "{name} ha scritto domande che non posso usare. Ecco le mie.",
-    "{name}'s turn": "Tocca a {name}",
-    "{name}'s turn: copy it.": "Tocca a {name}: imitalo.",
-    "{name}'s turn: keep your eye on the gem.": "Tocca a {name}: non perdere di vista la gemma.",
-    "{name}'s turn: take 1, 2 or 3.": "Tocca a {name}: prendine 1, 2 o 3.",
-    "{name}'s turn: turn two cards.": "Tocca a {name}: gira due carte.",
-    "{name}'s turn: which cup?": "Tocca a {name}: quale bicchiere?",
-    "{name}, find {other}'s number.": "{name}, trova il numero di {other}.",
-    "{name}, guess {other}'s word.": "{name}, indovina la parola di {other}.",
-    "{name}, look away!": "{name}, non guardare!",
-    "{name}, type a secret number.": "{name}, scrivi un numero segreto.",
-    "{name}, type a word for {other}.": "{name}, scrivi una parola per {other}.",
-    "{name}: {n} ms": "{name}: {n} ms",
-    "Any topic": "Qualsiasi argomento",
-    "{name} writes the questions": "{name} scrive le domande",
-    "Leave it empty and {name} picks one.": "Lascialo vuoto e {name} ne sceglie uno.",
-    "{count} questions": {
-      "one": "{count} domanda",
-      "other": "{count} domande"
-    },
-    "One new word to find every day": "Una parola nuova ogni giorno",
-    "Questions on every topic": "Domande su ogni argomento",
-    "Three in a row wins": "Tre in fila vince",
-    "Watch the moves, then copy them": "Guarda le mosse, poi copiale",
-    "Boop the moment it says Boop!": "Premi appena dice Bup!",
-    "Keep your eye on the gem": "Non perdere di vista la gemma",
-    "Hot or cold? Find the number": "Caldo o freddo? Trova il numero",
-    "Yes or no, until one guesses": "Sì o no, finché qualcuno indovina",
-    "Find the word before the balloons go": "Trova la parola prima che volino i palloncini",
-    "Don’t take the last stick!": "Non prendere l’ultimo bastoncino!",
-    "Turn two cards, find the pairs": "Gira due carte, trova le coppie",
-    "Split the garden into plots by their numbers": "Dividi l'orto secondo i suoi numeri",
-    "Balance hearts and stars in every line": "Bilancia cuori e stelle in ogni linea",
-    "Each number once in every row, column and box": "Ogni numero una volta per riga, colonna e riquadro",
-    "One flower in every row, column and bed": "Un fiore per riga, colonna e aiuola",
-    "Playtime": "Svago",
-    "1–9 to play": "1–9 per giocare",
-    "1–{n} to answer": "1–{n} per rispondere",
-    "A daily seven days running": "Una sfida del giorno sette giorni di fila",
-    "A draw": "Pareggio",
-    "A week of dailies": "Una settimana di sfide",
-    "All games": "Tutti i giochi",
-    "Arrows and Return to pick": "Frecce e Invio per scegliere",
-    "Arrows to choose · Return to play · Esc to close": "Frecce per scegliere · Invio per giocare · Esc per chiudere",
-    "Back to games": "Torna ai giochi",
-    "Badges": "Badge",
-    "Beat your companion once": "Battere il tuo compagno una volta",
-    "Continue {title}": "Continua {title}",
-    "Delete": "Elimina",
-    "Esc to close": "Esc per chiudere",
-    "Every daily done today": "Tutte le sfide di oggi fatte",
-    "Explorer": "Esploratore",
-    "Fifty wins": "Cinquanta vittorie",
-    "First win": "Prima vittoria",
-    "Five wins in a row": "Cinque vittorie di fila",
-    "Full house": "Filotto",
-    "Game settings": "Impostazioni dei giochi",
-    "Game sounds off": "Suoni dei giochi disattivati",
-    "Game sounds on": "Suoni dei giochi attivati",
-    "Games against {name}, and puzzles of your own": "Giochi contro {name} e rompicapi tutti tuoi",
-    "Games you finish show here.": "Qui compaiono le partite che finisci.",
-    "Hat trick": "Tripletta",
-    "Last games": "Ultime partite",
-    "Levels": "Livelli",
-    "OK": "OK",
-    "Pick a game! Can you beat me?": "Scegli un gioco! Riesci a battermi?",
-    "Play": "Gioca",
-    "Play against a friend on this Mac": "Gioca contro un amico su questo Mac",
-    "Play against {name}": "Contro {name}",
-    "Play every game once": "Gioca una volta a ogni gioco",
-    "Play today's {title}": "Gioca a {title} di oggi",
-    "Play {title}": "Gioca a {title}",
-    "Played {title} with {with}": "Partita a {title} con {with}",
-    "Played {title}: {first} {x} · {second} {y}": "Giocato a {title}: {first} {x} · {second} {y}",
-    "Put the game away": "Metti via il gioco",
-    "Puzzler": "Rompicapista",
-    "Puzzles": "Rompicapi",
-    "Ready when you are!": "Quando vuoi!",
-    "Resume": "Riprendi",
-    "Return: {label}": "A capo: {label}",
-    "Show the Game Center": "Mostra il centro giochi",
-    "Show the games": "Mostra i giochi",
-    "Solve ten puzzles": "Risolvi dieci rompicapi",
-    "Surprise me": "Sorprendimi",
-    "Ten wins": "Dieci vittorie",
-    "Three wins in a row": "Tre vittorie di fila",
-    "Today": "Oggi",
-    "Today's boards are waiting!": "Le sfide di oggi ti aspettano!",
-    "Try this word": "Prova questa parola",
-    "Type a letter": "Scrivi una lettera",
-    "Type a number, Return to guess": "Scrivi un numero, Invio per provare",
-    "Type a word, Return to try": "Scrivi una parola, Invio per provare",
-    "Unstoppable": "Inarrestabile",
-    "VS": "VS",
-    "Win fifty games": "Vinci cinquanta partite",
-    "Win ten games": "Vinci dieci partite",
-    "Wins": "Vittorie",
-    "Won {won} of {played}": "{won} vinte su {played}",
-    "You": "Tu",
-    "You win!": "Hai vinto!",
-    "You won": "Hai vinto",
-    "You {x} · {name} {y}": "Tu {x} · {name} {y}",
-    "Your guess": "Il tuo numero",
-    "right": "giusta",
-    "wrong": "sbagliata",
-    "your pick": "la tua scelta",
-    "{keys} to play": "{keys} per giocare",
-    "{left} of {total} left": "{left} di {total} rimasti",
-    "{name} has picked": "{name} ha scelto",
-    "{name} won": "Ha vinto {name}",
-    "{name}'s pick": "scelta di {name}",
-    "{n} days in a row": "{n} giorni di fila",
-    "{n} in a row": "{n} di fila",
-    "{n} of {total} earned": "{n} su {total} ottenuti",
-    "{n} seconds left": "ancora {n} s",
-    "{n} solved": "{n} risolti",
-    "{n} wins in a row": "{n} vittorie di fila",
-    "{title} has no level “{level}”.": "{title} non ha il livello «{level}».",
-    "{title} has no levels.": "{title} non ha livelli.",
-    "{title} is already at its easiest.": "{title} è già al più facile.",
-    "{title} is already at its hardest.": "{title} è già al più difficile.",
-    "Trivia questions": "Domande di quiz",
-    "Trivia about {topic}": "Quiz su {topic}",
-    "Rock": "Sasso",
-    "Paper": "Carta",
-    "Scissors": "Forbici",
-    "heads": "testa",
-    "tails": "croce",
-    "Again": "Ancora",
-    "Best of three, no peeking": "Al meglio di tre, senza sbirciare",
-    "Both {hand}: a draw.": "Entrambi {hand}: pareggio.",
-    "Dice have 2 to 100 sides, and the number added is at most 100.": "I dadi hanno da 2 a 100 facce, e il numero aggiunto è al massimo 100.",
-    "Doubles!": "Doppio!",
-    "Flip a coin": "Lancia una moneta",
-    "Flip between 1 and {n} coins at a time.": "Lancia da 1 a {n} monete alla volta.",
-    "Flip {n} coins": "Lancia {n} monete",
-    "Heads or tails…": "Testa o croce…",
-    "Heads!": "Testa!",
-    "I'm going paper…": "Faccio carta…",
-    "I'm going rock…": "Faccio sasso…",
-    "I'm going scissors…": "Faccio forbici…",
-    "It's {n}!": "È uscito {n}!",
-    "Natural 20!": "20 naturale!",
-    "Next one's yours.": "La prossima è tua.",
-    "Oof.": "Ahi.",
-    "Paper beats rock: I win!": "La carta batte il sasso: vinco io!",
-    "Paper beats rock: you win!": "La carta batte il sasso: vinci tu!",
-    "Paper…": "Carta…",
-    "Rematch": "Rivincita",
-    "Rock beats scissors: I win!": "Il sasso batte le forbici: vinco io!",
-    "Rock beats scissors: you win!": "Il sasso batte le forbici: vinci tu!",
-    "Rock, Paper, Scissors": "Sasso, carta, forbici",
-    "Rock, paper or scissors?": "Sasso, carta o forbici?",
-    "Rock, paper, scissors": "Sasso, carta, forbici",
-    "Rock…": "Sasso…",
-    "Rock… paper… scissors…": "Sasso… carta… forbici…",
-    "Roll a die": "Tira un dado",
-    "Roll between 1 and {n} dice at a time.": "Tira da 1 a {n} dadi alla volta.",
-    "Roll {dice}": "Tira {dice}",
-    "Rolling…": "Tiro…",
-    "Scissors beat paper: I win!": "Le forbici battono la carta: vinco io!",
-    "Scissors beat paper: you win!": "Le forbici battono la carta: vinci tu!",
-    "Scissors…": "Forbici…",
-    "Shoot!": "Via!",
-    "Snake eyes!": "Doppio uno!",
-    "Tails!": "Croce!",
-    "Tell me the user's hand: rock, paper or scissors.": "Dimmi cosa scegli: sasso, carta o forbici.",
-    "We both played paper: a draw!": "Abbiamo giocato entrambi carta: pareggio!",
-    "We both played rock: a draw!": "Abbiamo giocato entrambi sasso: pareggio!",
-    "We both played scissors: a draw!": "Abbiamo giocato entrambi forbici: pareggio!",
-    "You called it!": "Indovinato!",
-    "You win the match!": "Vinci la partita!",
-    "{name} wins the match!": "{name} vince la partita!",
-    "{name} wins the match.": "{name} vince la partita.",
-    "{name}, pick your hand.": "{name}, scegli la tua mano.",
-    "{n} coins": "{n} monete",
-    "{n} in a row!": "{n} di fila!",
-    "{win} beats {lose}: a point for {name}.": "{win} batte {lose}: un punto a {name}.",
-    "“kind” must be coin, dice or rock_paper_scissors.": "“kind” deve essere coin, dice o rock_paper_scissors.",
-    "A coin": "Una moneta",
-    "{n} dice": "{n} dadi"
-  },
-  "examples": [
-    "giochiamo a un quiz"
-  ],
-  "surfaces": {
-    "play": {
-      "title": "Svago"
-    },
-    "toss": {
-      "title": "Moneta, dadi e mani"
+    "level": {
+      "fair": [
+        "normale"
+      ]
     }
   },
   "commands": {
-    "daily_word": {
-      "say": [
-        "parola del giorno"
-      ],
-      "names": [
-        "la parola del giorno"
-      ]
-    },
-    "trivia": {
-      "say": [
-        "giochiamo a un quiz"
-      ],
-      "names": []
-    },
-    "tictactoe": {
-      "say": [
-        "giochiamo a tris"
-      ],
-      "names": [
-        "tris"
-      ]
-    },
-    "copy_me": {
-      "say": [
-        "giochiamo a copiami"
-      ],
-      "names": [
-        "copiami"
-      ]
-    },
-    "quick_paws": {
-      "say": [
-        "giochiamo a zampe veloci"
-      ],
-      "names": [
-        "zampe veloci"
-      ]
-    },
-    "which_cup": {
-      "say": [
-        "giochiamo a quale bicchiere"
-      ],
-      "names": [
-        "quale bicchiere?"
-      ]
-    },
-    "higher_lower": {
-      "say": [
-        "giochiamo a più alto o più basso"
-      ],
-      "names": [
-        "più alto o più basso"
-      ]
-    },
-    "guess_animal": {
-      "say": [
-        "giochiamo a indovina il mio animale"
-      ],
-      "names": [
-        "indovina il mio animale"
-      ]
-    },
+    "again": [
+      "rivincita",
+      "la rivincita",
+      "voglio la rivincita",
+      "un'altra partita",
+      "un altro round",
+      "giochiamo ancora",
+      "giochiamo di nuovo",
+      "ancora una partita",
+      "rigiochiamo"
+    ],
     "balloon_words": {
-      "say": [
-        "giochiamo a parole palloncino"
-      ],
       "names": [
         "parole palloncino"
-      ]
-    },
-    "last_stick": {
-      "say": [
-        "giochiamo all'ultimo bastoncino"
       ],
-      "names": [
-        "l'ultimo bastoncino"
-      ]
-    },
-    "memory_pairs": {
       "say": [
-        "giochiamo a memory"
-      ],
-      "names": [
-        "coppie della memoria"
+        "giochiamo a parole palloncino"
       ]
-    },
-    "plots": {
-      "say": [
-        "giochiamo ai lotti dell'orto"
-      ],
-      "names": [
-        "lotti dell'orto",
-        "giochiamo ai lotti dell'orto"
-      ]
-    },
-    "seesaw": {
-      "say": [
-        "giochiamo all'altalena"
-      ],
-      "names": [
-        "altalena"
-      ]
-    },
-    "sudoku": {
-      "say": [
-        "giochiamo a sudoku"
-      ],
-      "names": []
     },
     "blossoms": {
-      "say": [
-        "giochiamo ai fiori"
-      ],
       "names": [
         "fiori",
         "giochiamo ai fiori"
+      ],
+      "say": [
+        "giochiamo ai fiori"
+      ]
+    },
+    "center": [
+      "i miei punteggi",
+      "mostrami i miei punteggi",
+      "le mie statistiche",
+      "i miei record",
+      "i miei badge",
+      "centro giochi",
+      "il centro giochi",
+      "apri il centro giochi"
+    ],
+    "copy_me": {
+      "names": [
+        "copiami"
+      ],
+      "say": [
+        "giochiamo a copiami"
+      ]
+    },
+    "daily_word": {
+      "names": [
+        "la parola del giorno"
+      ],
+      "say": [
+        "parola del giorno"
+      ]
+    },
+    "easier": [
+      "più facile",
+      "rendilo più facile",
+      "troppo difficile",
+      "è troppo difficile",
+      "abbassa la difficoltà"
+    ],
+    "guess_animal": {
+      "names": [
+        "indovina il mio animale"
+      ],
+      "say": [
+        "giochiamo a indovina il mio animale"
+      ]
+    },
+    "harder": [
+      "più difficile",
+      "rendilo più difficile",
+      "troppo facile",
+      "è troppo facile",
+      "aumenta la difficoltà"
+    ],
+    "higher_lower": {
+      "names": [
+        "più alto o più basso"
+      ],
+      "say": [
+        "giochiamo a più alto o più basso"
+      ]
+    },
+    "last_stick": {
+      "names": [
+        "l'ultimo bastoncino"
+      ],
+      "say": [
+        "giochiamo all'ultimo bastoncino"
+      ]
+    },
+    "memory_pairs": {
+      "names": [
+        "coppie della memoria"
+      ],
+      "say": [
+        "giochiamo a memory"
       ]
     },
     "number_mine": {
@@ -762,39 +221,31 @@
         "penso a un numero"
       ]
     },
-    "again": [
-      "rivincita",
-      "la rivincita",
-      "voglio la rivincita",
-      "un'altra partita",
-      "un altro round",
-      "giochiamo ancora",
-      "giochiamo di nuovo",
-      "ancora una partita",
-      "rigiochiamo"
+    "pause": [
+      "metti in pausa il gioco",
+      "metti il gioco in pausa",
+      "pausa il gioco",
+      "gioco in pausa",
+      "metti in pausa la partita",
+      "nascondi il gioco"
     ],
-    "harder": [
-      "più difficile",
-      "rendilo più difficile",
-      "troppo facile",
-      "è troppo facile",
-      "aumenta la difficoltà"
-    ],
-    "easier": [
-      "più facile",
-      "rendilo più facile",
-      "troppo difficile",
-      "è troppo difficile",
-      "abbassa la difficoltà"
-    ],
-    "resume": [
-      "riprendi il gioco",
-      "riprendi la partita",
-      "riprendere la partita",
-      "continua la partita",
-      "continuiamo a giocare",
-      "torna al gioco"
-    ],
+    "plots": {
+      "names": [
+        "lotti dell'orto",
+        "giochiamo ai lotti dell'orto"
+      ],
+      "say": [
+        "giochiamo ai lotti dell'orto"
+      ]
+    },
+    "quick_paws": {
+      "names": [
+        "zampe veloci"
+      ],
+      "say": [
+        "giochiamo a zampe veloci"
+      ]
+    },
     "random": [
       "un gioco a caso",
       "gioco a caso",
@@ -806,24 +257,35 @@
       "un gioco qualsiasi",
       "qualsiasi gioco"
     ],
-    "center": [
-      "i miei punteggi",
-      "mostrami i miei punteggi",
-      "le mie statistiche",
-      "i miei record",
-      "i miei badge",
-      "centro giochi",
-      "il centro giochi",
-      "apri il centro giochi"
+    "resume": [
+      "riprendi il gioco",
+      "riprendi la partita",
+      "riprendere la partita",
+      "continua la partita",
+      "continuiamo a giocare",
+      "torna al gioco"
     ],
-    "pause": [
-      "metti in pausa il gioco",
-      "metti il gioco in pausa",
-      "pausa il gioco",
-      "gioco in pausa",
-      "metti in pausa la partita",
-      "nascondi il gioco"
-    ],
+    "rock_paper_scissors": {
+      "names": [
+        "sasso carta forbici",
+        "morra cinese"
+      ],
+      "say": [
+        "sasso carta forbici",
+        "sasso, carta, forbici",
+        "carta sasso forbici",
+        "giochiamo a sasso carta forbici",
+        "morra cinese"
+      ]
+    },
+    "seesaw": {
+      "names": [
+        "altalena"
+      ],
+      "say": [
+        "giochiamo all'altalena"
+      ]
+    },
     "sounds_off": [
       "disattiva i suoni del gioco",
       "togli l'audio del gioco",
@@ -837,17 +299,18 @@
       "suoni del gioco attivati",
       "attiva i suoni dei giochi"
     ],
-    "rock_paper_scissors": {
+    "sudoku": {
+      "names": [],
       "say": [
-        "sasso carta forbici",
-        "sasso, carta, forbici",
-        "carta sasso forbici",
-        "giochiamo a sasso carta forbici",
-        "morra cinese"
-      ],
+        "giochiamo a sudoku"
+      ]
+    },
+    "tictactoe": {
       "names": [
-        "sasso carta forbici",
-        "morra cinese"
+        "tris"
+      ],
+      "say": [
+        "giochiamo a tris"
       ]
     },
     "toss_coin": [
@@ -874,16 +337,16 @@
       "lancia {many:coins_many} monete",
       "tira {many:coins_many} monete"
     ],
-    "toss_die": [
-      "lancia un dado",
-      "tira un dado",
-      "lancia il dado",
-      "tira il dado",
-      "lancia un dado per me"
+    "toss_d": [
+      "lancia un d{sides:integer:2-100}",
+      "tira un d{sides:integer:2-100}",
+      "lancia un dado a {sides:integer:2-100} facce"
     ],
-    "toss_two_dice": [
-      "lancia i dadi",
-      "tira i dadi"
+    "toss_d_minus": [
+      "lancia un d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "lancia un d{sides:integer:2-100}+{modifier:integer:1-100}"
     ],
     "toss_dice": [
       "lancia {count:integer:1-10} dadi",
@@ -893,28 +356,12 @@
       "lancia {many:dice_many} dadi",
       "tira {many:dice_many} dadi"
     ],
-    "toss_d": [
-      "lancia un d{sides:integer:2-100}",
-      "tira un d{sides:integer:2-100}",
-      "lancia un dado a {sides:integer:2-100} facce"
-    ],
-    "toss_nd": [
-      "lancia {count:integer:1-10}d{sides:integer:2-100}",
-      "tira {count:integer:1-10}d{sides:integer:2-100}"
-    ],
-    "toss_nd_plus": [
-      "lancia {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}",
-      "tira {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
-    ],
-    "toss_d_plus": [
-      "lancia un d{sides:integer:2-100}+{modifier:integer:1-100}"
-    ],
-    "toss_nd_minus": [
-      "lancia {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}",
-      "tira {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
-    ],
-    "toss_d_minus": [
-      "lancia un d{sides:integer:2-100}-{minus:integer:1-100}"
+    "toss_die": [
+      "lancia un dado",
+      "tira un dado",
+      "lancia il dado",
+      "tira il dado",
+      "lancia un dado per me"
     ],
     "toss_hand": [
       "scelgo {hand:hand}",
@@ -923,29 +370,109 @@
       "sasso carta forbici, {hand:hand}",
       "sasso carta forbici: {hand:hand}"
     ],
-    "toss_rock": [
-      "sasso"
+    "toss_many_d": [
+      "lancia {many:dice_many} d{sides:integer:2-100}",
+      "tira {many:dice_many} d{sides:integer:2-100}"
+    ],
+    "toss_nd": [
+      "lancia {count:integer:1-10}d{sides:integer:2-100}",
+      "tira {count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_minus": [
+      "lancia {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}",
+      "tira {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_nd_plus": [
+      "lancia {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}",
+      "tira {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
     ],
     "toss_paper": [
       "carta"
     ],
+    "toss_rock": [
+      "sasso"
+    ],
     "toss_scissors": [
       "forbici"
     ],
-    "toss_many_d": [
-      "lancia {many:dice_many} d{sides:integer:2-100}",
-      "tira {many:dice_many} d{sides:integer:2-100}"
-    ]
-  },
-  "ai_purpose": "per scrivere domande di quiz su un argomento che scegli tu",
-  "parts": {
-    "level": [
-      "{level:level}"
+    "toss_two_dice": [
+      "lancia i dadi",
+      "tira i dadi"
     ],
+    "trivia": {
+      "names": [],
+      "say": [
+        "giochiamo a un quiz"
+      ]
+    },
+    "which_cup": {
+      "names": [
+        "quale bicchiere?"
+      ],
+      "say": [
+        "giochiamo a quale bicchiere"
+      ]
+    }
+  },
+  "description": "Una pausa con il tuo compagno: undici giochi contro di lui, accanto a lui sulla scrivania (un quiz, tris, Copiami e altri) e cinque rompicapi per te (la parola del giorno, il sudoku e altri), con punteggi, tempi migliori e serie salvati, e il caso per scegliere un numero o qualcosa da una lista.",
+  "entries": {
+    "all_games": "Tutti i giochi…",
+    "call_heads": "Scegli testa",
+    "call_tails": "Scegli croce",
+    "flip_coin": "Lancia una moneta",
+    "games": "Giochi",
+    "just_flip": "Lancia e basta",
+    "play": "Giochi",
+    "play_balloon_words": "Parole palloncino",
+    "play_blossoms": "Fiori",
+    "play_copy_me": "Copiami",
+    "play_daily_word": "La parola del giorno",
+    "play_guess_animal": "Indovina il mio animale",
+    "play_higher_lower": "Più alto o più basso",
+    "play_last_stick": "L'ultimo bastoncino",
+    "play_memory_pairs": "Coppie della memoria",
+    "play_plots": "Lotti dell'orto",
+    "play_quick_paws": "Zampe veloci",
+    "play_rock_paper_scissors": "Sasso, carta, forbici",
+    "play_seesaw": "Altalena",
+    "play_sudoku": "Sudoku",
+    "play_tictactoe": "Tris",
+    "play_trivia": "Quiz",
+    "play_which_cup": "Quale bicchiere?",
+    "quick_throw": "Lancio rapido",
+    "roll_die": "Tira un dado",
+    "throw_paper": "Carta",
+    "throw_rock": "Sasso",
+    "throw_scissors": "Forbici"
+  },
+  "examples": [
+    "giochiamo a un quiz"
+  ],
+  "name": "Svago",
+  "pages": {
+    "playtime": {
+      "title": "Svago"
+    }
+  },
+  "parts": {
     "count": [
       "{count:integer:1-50} domande",
       "{count:integer:1-50} domanda",
       "{count:integer:1-50} round"
+    ],
+    "friend": [
+      "con il mio amico",
+      "con la mia amica",
+      "con un amico",
+      "con un'amica",
+      "con i miei amici",
+      "contro il mio amico",
+      "in due",
+      "due giocatori",
+      "2 giocatori"
+    ],
+    "level": [
+      "{level:level}"
     ],
     "range": [
       "tra {min:integer} e {max:integer}",
@@ -962,327 +489,809 @@
       "sui {topic:text:40}",
       "sugli {topic:text:40}",
       "sulle {topic:text:40}"
-    ],
-    "friend": [
-      "con il mio amico",
-      "con la mia amica",
-      "con un amico",
-      "con un'amica",
-      "con i miei amici",
-      "contro il mio amico",
-      "in due",
-      "due giocatori",
-      "2 giocatori"
     ]
   },
-  "choices": {
-    "level": {
-      "fair": [
-        "normale"
-      ]
-    },
-    "call": {
-      "heads": [
-        "testa"
-      ],
-      "tails": [
-        "croce"
-      ]
-    },
-    "hand": {
-      "rock": [
-        "sasso"
-      ],
-      "paper": [
-        "carta"
-      ],
-      "scissors": [
-        "forbici"
-      ]
-    },
-    "coins_many": {
-      "n2": [
-        "due"
-      ],
-      "n3": [
-        "tre"
-      ],
-      "n4": [
-        "quattro"
-      ],
-      "n5": [
-        "cinque"
-      ]
-    },
-    "dice_many": {
-      "n2": [
-        "due"
-      ],
-      "n3": [
-        "tre"
-      ],
-      "n4": [
-        "quattro"
-      ],
-      "n5": [
-        "cinque"
-      ],
-      "n6": [
-        "sei"
-      ],
-      "n7": [
-        "sette"
-      ],
-      "n8": [
-        "otto"
-      ],
-      "n9": [
-        "nove"
-      ],
-      "n10": [
-        "dieci"
-      ]
-    }
-  },
-  "carry": {
-    "words": [
-      "giochiamo",
-      "giocare",
-      "gioca",
-      "uno",
-      "il",
-      "lo",
-      "gli",
-      "partita",
-      "gioco",
-      "voglio",
-      "con",
-      "te",
-      "contro",
-      "livello",
-      "modalità",
-      "difficoltà",
-      "giorno",
-      "oggi",
-      "nuova",
-      "nuovo",
-      "di",
-      "del",
-      "della",
-      "a"
-    ],
-    "lead": [
-      "giochiamo",
-      "giocare",
-      "gioca",
-      "giorno"
-    ],
-    "inside": [],
-    "endings": []
-  },
-  "entries": {
-    "games": "Giochi",
-    "play": "Giochi",
-    "all_games": "Tutti i giochi…",
-    "play_which_cup": "Quale bicchiere?",
-    "play_copy_me": "Copiami",
-    "play_quick_paws": "Zampe veloci",
-    "play_last_stick": "L'ultimo bastoncino",
-    "play_trivia": "Quiz",
-    "play_tictactoe": "Tris",
-    "play_higher_lower": "Più alto o più basso",
-    "play_guess_animal": "Indovina il mio animale",
-    "play_balloon_words": "Parole palloncino",
-    "play_memory_pairs": "Coppie della memoria",
-    "play_daily_word": "La parola del giorno",
-    "play_plots": "Lotti dell'orto",
-    "play_seesaw": "Altalena",
-    "play_sudoku": "Sudoku",
-    "play_blossoms": "Fiori",
-    "play_rock_paper_scissors": "Sasso, carta, forbici",
-    "flip_coin": "Lancia una moneta",
-    "call_heads": "Scegli testa",
-    "call_tails": "Scegli croce",
-    "just_flip": "Lancia e basta",
-    "roll_die": "Tira un dado",
-    "quick_throw": "Lancio rapido",
-    "throw_rock": "Sasso",
-    "throw_paper": "Carta",
-    "throw_scissors": "Forbici"
-  },
   "settings": {
-    "tone": {
-      "title": "Quando vince",
-      "detail": "Come {companion} prende una vittoria",
-      "options": {
-        "gentle": "Gentle",
-        "cheeky": "Cheeky",
-        "competitive": "Competitive"
-      }
-    },
-    "sounds": {
-      "title": "Suoni dei giochi",
-      "detail": "Suoni leggeri in ogni gioco; l'altoparlante di un gioco cambia i suoi"
-    },
-    "sneaky": {
-      "title": "Furbetto",
-      "detail": "{companion} può barare per gioco dove un gioco lo permette, e lo ammette se lo scopri"
-    },
-    "sound_daily_word": {
-      "title": "La parola del giorno"
-    },
-    "sound_trivia": {
-      "title": "Quiz"
-    },
-    "level_trivia": {
-      "title": "Quiz",
+    "level_balloon_words": {
       "options": {
         "default": "Predefinito",
         "easy": "Facile",
         "fair": "Normale",
         "hard": "Difficile"
-      }
+      },
+      "title": "Parole palloncino"
     },
-    "sound_tictactoe": {
-      "title": "Tris"
-    },
-    "level_tictactoe": {
-      "title": "Tris",
+    "level_blossoms": {
       "options": {
         "default": "Predefinito",
         "easy": "Facile",
         "fair": "Normale",
         "hard": "Difficile"
-      }
-    },
-    "sound_copy_me": {
-      "title": "Copiami"
+      },
+      "title": "Fiori"
     },
     "level_copy_me": {
-      "title": "Copiami",
       "options": {
         "default": "Predefinito",
         "easy": "Facile",
         "fair": "Normale",
         "hard": "Difficile"
-      }
+      },
+      "title": "Copiami"
     },
-    "sound_quick_paws": {
-      "title": "Zampe veloci"
+    "level_last_stick": {
+      "options": {
+        "default": "Predefinito",
+        "easy": "Facile",
+        "fair": "Normale",
+        "hard": "Difficile"
+      },
+      "title": "L'ultimo bastoncino"
+    },
+    "level_memory_pairs": {
+      "options": {
+        "default": "Predefinito",
+        "easy": "Facile",
+        "fair": "Normale",
+        "hard": "Difficile"
+      },
+      "title": "Coppie della memoria"
+    },
+    "level_plots": {
+      "options": {
+        "default": "Predefinito",
+        "easy": "Facile",
+        "fair": "Normale",
+        "hard": "Difficile"
+      },
+      "title": "Lotti dell'orto"
     },
     "level_quick_paws": {
-      "title": "Zampe veloci",
       "options": {
         "default": "Predefinito",
         "easy": "Facile",
         "fair": "Normale",
         "hard": "Difficile"
-      }
+      },
+      "title": "Zampe veloci"
     },
-    "sound_which_cup": {
-      "title": "Quale bicchiere?"
+    "level_seesaw": {
+      "options": {
+        "default": "Predefinito",
+        "easy": "Facile",
+        "fair": "Normale",
+        "hard": "Difficile"
+      },
+      "title": "Altalena"
+    },
+    "level_sudoku": {
+      "options": {
+        "default": "Predefinito",
+        "easy": "Facile",
+        "fair": "Normale",
+        "hard": "Difficile"
+      },
+      "title": "Sudoku"
+    },
+    "level_tictactoe": {
+      "options": {
+        "default": "Predefinito",
+        "easy": "Facile",
+        "fair": "Normale",
+        "hard": "Difficile"
+      },
+      "title": "Tris"
+    },
+    "level_trivia": {
+      "options": {
+        "default": "Predefinito",
+        "easy": "Facile",
+        "fair": "Normale",
+        "hard": "Difficile"
+      },
+      "title": "Quiz"
     },
     "level_which_cup": {
-      "title": "Quale bicchiere?",
       "options": {
         "default": "Predefinito",
         "easy": "Facile",
         "fair": "Normale",
         "hard": "Difficile"
-      }
+      },
+      "title": "Quale bicchiere?"
     },
-    "sound_higher_lower": {
-      "title": "Più alto o più basso"
-    },
-    "sound_guess_animal": {
-      "title": "Indovina il mio animale"
+    "sneaky": {
+      "detail": "{companion} può barare per gioco dove un gioco lo permette, e lo ammette se lo scopri",
+      "title": "Furbetto"
     },
     "sound_balloon_words": {
       "title": "Parole palloncino"
     },
-    "level_balloon_words": {
-      "title": "Parole palloncino",
-      "options": {
-        "default": "Predefinito",
-        "easy": "Facile",
-        "fair": "Normale",
-        "hard": "Difficile"
-      }
+    "sound_blossoms": {
+      "title": "Fiori"
+    },
+    "sound_copy_me": {
+      "title": "Copiami"
+    },
+    "sound_daily_word": {
+      "title": "La parola del giorno"
+    },
+    "sound_guess_animal": {
+      "title": "Indovina il mio animale"
+    },
+    "sound_higher_lower": {
+      "title": "Più alto o più basso"
     },
     "sound_last_stick": {
       "title": "L'ultimo bastoncino"
     },
-    "level_last_stick": {
-      "title": "L'ultimo bastoncino",
-      "options": {
-        "default": "Predefinito",
-        "easy": "Facile",
-        "fair": "Normale",
-        "hard": "Difficile"
-      }
-    },
     "sound_memory_pairs": {
       "title": "Coppie della memoria"
-    },
-    "level_memory_pairs": {
-      "title": "Coppie della memoria",
-      "options": {
-        "default": "Predefinito",
-        "easy": "Facile",
-        "fair": "Normale",
-        "hard": "Difficile"
-      }
     },
     "sound_plots": {
       "title": "Lotti dell'orto"
     },
-    "level_plots": {
-      "title": "Lotti dell'orto",
-      "options": {
-        "default": "Predefinito",
-        "easy": "Facile",
-        "fair": "Normale",
-        "hard": "Difficile"
-      }
+    "sound_quick_paws": {
+      "title": "Zampe veloci"
+    },
+    "sound_rock_paper_scissors": {
+      "title": "Sasso, carta, forbici"
     },
     "sound_seesaw": {
       "title": "Altalena"
     },
-    "level_seesaw": {
-      "title": "Altalena",
-      "options": {
-        "default": "Predefinito",
-        "easy": "Facile",
-        "fair": "Normale",
-        "hard": "Difficile"
-      }
-    },
     "sound_sudoku": {
       "title": "Sudoku"
     },
-    "level_sudoku": {
-      "title": "Sudoku",
+    "sound_tictactoe": {
+      "title": "Tris"
+    },
+    "sound_trivia": {
+      "title": "Quiz"
+    },
+    "sound_which_cup": {
+      "title": "Quale bicchiere?"
+    },
+    "sounds": {
+      "detail": "Suoni leggeri in ogni gioco; l'altoparlante di un gioco cambia i suoi",
+      "title": "Suoni dei giochi"
+    },
+    "tone": {
+      "detail": "Come {companion} prende una vittoria",
       "options": {
-        "default": "Predefinito",
-        "easy": "Facile",
-        "fair": "Normale",
-        "hard": "Difficile"
-      }
+        "cheeky": "Cheeky",
+        "competitive": "Competitive",
+        "gentle": "Gentle"
+      },
+      "title": "Quando vince"
+    }
+  },
+  "surfaces": {
+    "play": {
+      "title": "Svago"
     },
-    "sound_blossoms": {
-      "title": "Fiori"
+    "toss": {
+      "title": "Moneta, dadi e mani"
+    }
+  },
+  "tagline": "Giochi e rompicapi con il tuo compagno, e scelte a caso",
+  "text": {
+    "1–9 to play": "1–9 per giocare",
+    "1–{n} to answer": "1–{n} per rispondere",
+    "1–{n} to copy": "1–{n} per copiare",
+    "1–{n} to pick": "1–{n} per scegliere",
+    "1–{n} to take": "1–{n} per prendere",
+    "2 players": "2 giocatori",
+    "A bed kept to one line rules out the rest of that line, leaving this.": "Un'aiuola chiusa in una sola linea esclude il resto di quella linea: resta questa.",
+    "A blossom in the other places leads to a dead end a few moves on.": "Un fiore negli altri posti porta a un vicolo cieco qualche mossa dopo.",
+    "A blossom in the other places would leave a row, column or bed no room, leaving this.": "Un fiore negli altri posti lascerebbe una riga, una colonna o un'aiuola senza spazio: resta questa.",
+    "A coin": "Una moneta",
+    "A daily seven days running": "Una sfida del giorno sette giorni di fila",
+    "A draw": "Pareggio",
+    "A draw!": "Pareggio!",
+    "A hint": "Un aiuto",
+    "A new best for {level}!": "Nuovo record in {level}!",
+    "A new best: {count} moves!": {
+      "one": "Nuovo record: {count} mossa!",
+      "other": "Nuovo record: {count} mosse!"
     },
-    "level_blossoms": {
-      "title": "Fiori",
-      "options": {
-        "default": "Predefinito",
-        "easy": "Facile",
-        "fair": "Normale",
-        "hard": "Difficile"
-      }
+    "A new word and {count} puzzle boards every day": {
+      "one": "Una parola nuova e {count} rompicapo ogni giorno",
+      "other": "Una parola nuova e {count} rompicapi ogni giorno"
     },
-    "sound_rock_paper_scissors": {
-      "title": "Sasso, carta, forbici"
+    "A number kept to one line of a box rules it out elsewhere, leaving this.": "Un numero chiuso in una linea di un riquadro è escluso altrove: resta questo.",
+    "A plot can hold only one number.": "Un lotto può avere un solo numero.",
+    "A plot has as many squares as its number.": "Un lotto ha tante caselle quanto il suo numero.",
+    "A plot needs one number in it.": "Un lotto ha bisogno di un numero dentro.",
+    "A quiz with {name}": "Un quiz con {name}",
+    "A square here can only belong to this number.": "Una casella qui può appartenere solo a questo numero.",
+    "A week of dailies": "Una settimana di sfide",
+    "A word from a friend": "Una parola da un amico",
+    "A word in pinyin, 2 to 14 letters": "Una parola in pinyin, da 2 a 14 lettere",
+    "A word of 2 to 14 letters": "Una parola da 2 a 14 lettere",
+    "A yes-or-no question that tells {new} from {old}?": "Una domanda sì o no che distingua {new} da {old}?",
+    "Again": "Ancora",
+    "Again!": "Di nuovo!",
+    "All games": "Tutti i giochi",
+    "All pairs found.": "Tutte le coppie trovate.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "Tutti e tre i rompicapi di oggi sono risolti. Torna domani per quelli nuovi.",
+    "Anchor": "Ancora",
+    "And for {new}, the answer is…": "E per {new} la risposta è…",
+    "Animals": "Animali",
+    "Another topic": "Altro argomento",
+    "Any other plot leads to a dead end a few plots on.": "Qualsiasi altro lotto porta a un vicolo cieco qualche lotto dopo.",
+    "Any other plot would leave a number or a square with nowhere to go.": "Qualsiasi altro lotto lascerebbe un numero o una casella senza via d'uscita.",
+    "Any topic": "Qualsiasi argomento",
+    "Arrows and Return to pick": "Frecce e Invio per scegliere",
+    "Arrows to choose · Return to play · Esc to close": "Frecce per scegliere · Invio per giocare · Esc per chiudere",
+    "Arts": "Arte",
+    "As many hearts as stars in every row and column, never three alike in a line. = means the same, × different.": "Tanti cuori quante stelle in ogni riga e colonna, mai tre uguali di fila. = vuol dire uguale, × diverso.",
+    "Ask {name}": "Chiedi a {name}",
+    "At home": "In casa",
+    "Back to games": "Torna ai giochi",
+    "Back to topics": "Torna agli argomenti",
+    "Badges": "Badge",
+    "Balance hearts and stars in every line": "Bilancia cuori e stelle in ogni linea",
+    "Balloon Words": "Parole palloncino",
+    "Beat your companion once": "Battere il tuo compagno una volta",
+    "Bell": "Campana",
+    "Best": "Record",
+    "Best of 10: {n}": "Record su 10: {n}",
+    "Best of three, no peeking": "Al meglio di tre, senza sbirciare",
+    "Best streak": "Serie migliore",
+    "Best streak ever": "Serie migliore",
+    "Best: {count} guesses": {
+      "one": "Record: {count} tentativo",
+      "other": "Record: {count} tentativi"
+    },
+    "Best: {count} moves": {
+      "one": "Record: {count} mossa",
+      "other": "Record: {count} mosse"
+    },
+    "Best: {n} ms": "Record: {n} ms",
+    "Best: {times}": "Record: {times}",
+    "Between {low} and {high}": "Tra {low} e {high}",
+    "Blossom": "Fiore",
+    "Blossoms": "Fiori",
+    "Blossoms can't touch, not even corner to corner.": "I fiori non si toccano, nemmeno in diagonale.",
+    "Boop the button the moment it says Boop!": "Premi il bottone appena dice Bup!",
+    "Boop the moment it says Boop!": "Premi appena dice Bup!",
+    "Boop!": "Bup!",
+    "Both danced!": "Avete ballato tutti e due!",
+    "Both {hand}: a draw.": "Entrambi {hand}: pareggio.",
+    "Bow": "Inchino",
+    "Burning hot!": "Bollente!",
+    "Card {n}": "Carta {n}",
+    "Cat's game: a draw.": "Patta.",
+    "Caught! The gem was in {name}'s paw.": "Beccato! La gemma era nella zampa di {name}.",
+    "Check {name}'s paw": "Guarda la zampa di {name}",
+    "Clothes": "Vestiti",
+    "Cloud": "Nuvola",
+    "Cold": "Freddo",
+    "Continue {title}": "Continua {title}",
+    "Cool": "Fresco",
+    "Copy Me": "Copiami",
+    "Cup {n}": "Bicchiere {n}",
+    "Daily Word": "La parola del giorno",
+    "Daily Word · {date}": "La parola del giorno · {date}",
+    "Daily Word: {state}": "La parola del giorno: {state}",
+    "Delete": "Elimina",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "I dadi hanno da 2 a 100 facce, e il numero aggiunto è al massimo 100.",
+    "Did you know?": "Lo sapevi?",
+    "Did you know? From {name}, not checked": "Lo sapevi? Da {name}, non verificato",
+    "Do it": "Fallo tu",
+    "Does it…?": "Ha…?",
+    "Don’t take the last stick!": "Non prendere l’ultimo bastoncino!",
+    "Doubles!": "Doppio!",
+    "Drop": "Goccia",
+    "Each number once in every row, column and box": "Ogni numero una volta per riga, colonna e riquadro",
+    "Easy": "Facile",
+    "Endless": "Senza fine",
+    "Esc to close": "Esc per chiudere",
+    "Every daily done today": "Tutte le sfide di oggi fatte",
+    "Every round, make four together.": "A ogni giro, fate quattro in due.",
+    "Every way to finish this line puts this here.": "Ogni modo di finire questa linea mette questo qui.",
+    "Explorer": "Esploratore",
+    "Fair": "Normale",
+    "Fifty wins": "Cinquanta vittorie",
+    "Fill the grid: every row, column and box holds each number once.": "Riempi la griglia: ogni riga, colonna e riquadro contiene ogni numero una volta.",
+    "Find the word before the balloons go": "Trova la parola prima che volino i palloncini",
+    "Finish": "Termina",
+    "First win": "Prima vittoria",
+    "Fish": "Pesce",
+    "Five wins in a row": "Cinque vittorie di fila",
+    "Flip a coin": "Lancia una moneta",
+    "Flip between 1 and {n} coins at a time.": "Lancia da 1 a {n} monete alla volta.",
+    "Flip {n} coins": "Lancia {n} monete",
+    "Flower": "Fiore",
+    "Food": "Cucina",
+    "Found in {n}": "Trovato in {n}",
+    "Found in {n}, at par or better!": "Trovato in {n}, nella media o meglio!",
+    "Found in {n}: par is {par}.": "Trovato in {n}: la media è {par}.",
+    "Found it!": "Trovata!",
+    "Four characters": "Quattro caratteri",
+    "Freezing": "Gelido",
+    "Fresh questions": "Domande nuove",
+    "Full house": "Filotto",
+    "Game settings": "Impostazioni dei giochi",
+    "Game sounds off": "Suoni dei giochi disattivati",
+    "Game sounds on": "Suoni dei giochi attivati",
+    "Game {n}": "Partita {n}",
+    "Game {n} · {level}": "Partita {n} · {level}",
+    "Games against {name}, and puzzles of your own": "Giochi contro {name} e rompicapi tutti tuoi",
+    "Games and sports": "Giochi e sport",
+    "Games you finish show here.": "Qui compaiono le partite che finisci.",
+    "Garden Plots": "Lotti dell'orto",
+    "Geography": "Geografia",
+    "Getting around": "Trasporti",
+    "Got it: {n}!": "Trovato: {n}!",
+    "Guess My Animal": "Indovina il mio animale",
+    "Guess mine": "Indovina il mio",
+    "Guess the word, a letter at a time.": "Indovina la parola, una lettera alla volta.",
+    "Guess this word in six tries.": "Indovina questa parola in sei tentativi.",
+    "Guess today's word in six tries.": "Indovina la parola di oggi in sei tentativi.",
+    "Guess {n} · par {par}": "Tentativo {n} · media {par}",
+    "Hard": "Difficile",
+    "Hat trick": "Tripletta",
+    "Head to head": "Testa a testa",
+    "Heads or tails…": "Testa o croce…",
+    "Heads!": "Testa!",
+    "Heart": "Cuore",
+    "Here's one to keep you going.": "Eccone uno per andare avanti.",
+    "Hide it": "Nascondila",
+    "Higher": "Più alto",
+    "Higher or Lower": "Più alto o più basso",
+    "Higher than {n}!": "Più di {n}!",
+    "Hint": "Aiuto",
+    "Hint: letter {n} is {letter}.": "Aiuto: la lettera {n} è {letter}.",
+    "Hints": "Indizi",
+    "History": "Storia",
+    "Hmm, that doesn't fit what you said about {n} before…": "Mmm, non torna con quello che hai detto su {n}…",
+    "Hmm… let me think again.": "Mmm… ci ripenso.",
+    "Hmm… {range}…": "Mmm… {range}…",
+    "Hop": "Saltello",
+    "Hot": "Caldo",
+    "Hot or cold? Find the number": "Caldo o freddo? Trova il numero",
+    "I got it!": "Indovinato!",
+    "I'll guess yours": "Indovino il tuo",
+    "I'm going paper…": "Faccio carta…",
+    "I'm going rock…": "Faccio sasso…",
+    "I'm going scissors…": "Faccio forbici…",
+    "I'm hiding a number from {low} to {high}. Guess it!": "Nascondo un numero da {low} a {high}. Indovinalo!",
+    "I'm {name}: ready": "Sono {name}: pronto",
+    "Is it… {animal}?": "È… {animal}?",
+    "Is it… {n}?": "È il… {n}?",
+    "It was in {name}'s paw all along!": "Era nella zampa di {name} fin dall'inizio!",
+    "It was {animal}!": "Era {animal}!",
+    "It's {n}!": "È uscito {n}!",
+    "Keep your eye on the gem": "Non perdere di vista la gemma",
+    "Keep your eye on the gem… which cup?": "Non perdere di vista la gemma… quale bicchiere?",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "Non perdere di vista la gemma… quale bicchiere? Pensi che la nasconda? Fai clic su di me.",
+    "Key": "Chiave",
+    "Last Stick": "L'ultimo bastoncino",
+    "Last games": "Ultime partite",
+    "Leaf": "Foglia",
+    "Leave it empty and {name} picks one.": "Lascialo vuoto e {name} ne sceglie uno.",
+    "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "Lascia uno in più di un multiplo di quattro: 17, 13, 9, 5, poi 1.",
+    "Level": "Livello",
+    "Levels": "Livelli",
+    "Lower": "Più basso",
+    "Lower than {n}!": "Meno di {n}!",
+    "Made by {name}. They aren't checked, so a fact may be wrong.": "Scritte da {name}. Non sono verificate: qualche fatto potrebbe essere sbagliato.",
+    "Make questions": "Crea le domande",
+    "Making questions with AI is off. Here are mine.": "Le domande con l'IA sono disattivate. Ecco le mie.",
+    "Memory Pairs": "Coppie della memoria",
+    "Missed today": "Oggi niente",
+    "Mix": "Misto",
+    "Moon": "Luna",
+    "Music": "Musica",
+    "My guess": "La mia ipotesi",
+    "Natural 20!": "20 naturale!",
+    "Nature": "Natura",
+    "New best": "Nuovo record",
+    "New best!": "Nuovo record!",
+    "Next": "Avanti",
+    "Next game": "Partita successiva",
+    "Next one's yours.": "La prossima è tua.",
+    "Next round": "Prossimo round",
+    "No": "No",
+    "No room is left there for its blossom.": "Lì non c'è più spazio per il suo fiore.",
+    "Nobody pressed.": "Nessuno ha premuto.",
+    "Not a pair.": "Non è una coppia.",
+    "Not played yet": "Non ancora giocato",
+    "Not sure": "Non lo so",
+    "Not that one.": "Non quello.",
+    "Not your turn yet.": "Non è ancora il tuo turno.",
+    "Nothing in my paw! It's under a cup.": "Niente nella mia zampa! È sotto un bicchiere.",
+    "Nothing to undo.": "Niente da annullare.",
+    "Numbers": "Numeri",
+    "Numbers from {low} to {high}": "Numeri da {low} a {high}",
+    "OK": "OK",
+    "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "Un fiore in ogni riga, colonna e aiuola. I fiori non si toccano mai, nemmeno in diagonale.",
+    "One flower in every row, column and bed": "Un fiore per riga, colonna e aiuola",
+    "One new word to find every day": "Una parola nuova ogni giorno",
+    "Only one number still fits this cell.": "Solo un numero sta ancora in questa casella.",
+    "Only one plot of that size fits around this number.": "Solo un lotto di quella misura sta attorno a questo numero.",
+    "Oof.": "Ahi.",
+    "Oops, that one was wrong!": "Ops, quello era sbagliato!",
+    "Other wave": "Saluto con l'altra mano",
+    "Other…": "Altro…",
+    "Outdoors": "All'aperto",
+    "Paper": "Carta",
+    "Paper beats rock: I win!": "La carta batte il sasso: vinco io!",
+    "Paper beats rock: you win!": "La carta batte il sasso: vinci tu!",
+    "Paper…": "Carta…",
+    "Pass the Mac to {name}.": "Passa il Mac a {name}.",
+    "Pick a game! Can you beat me?": "Scegli un gioco! Riesci a battermi?",
+    "Pick a number from 1 to 100.": "Scegli un numero da 1 a 100.",
+    "Pick a number from {low} to {high}.": "Scegli un numero da {low} a {high}.",
+    "Pick a topic": "Scegli un argomento",
+    "Pick a way to play": "Scegli come giocare",
+    "Play": "Gioca",
+    "Play again": "Gioca ancora",
+    "Play against a friend on this Mac": "Gioca contro un amico su questo Mac",
+    "Play against {name}": "Contro {name}",
+    "Play another": "Giocane un altro",
+    "Play another word": "Gioca un'altra parola",
+    "Play every game once": "Gioca una volta a ogni gioco",
+    "Play today's {title}": "Gioca a {title} di oggi",
+    "Play {title}": "Gioca a {title}",
+    "Played": "Giocate",
+    "Played {title} with {with}": "Partita a {title} con {with}",
+    "Played {title}: {first} {x} · {second} {y}": "Giocato a {title}: {first} {x} · {second} {y}",
+    "Player 1": "Giocatore 1",
+    "Player 1's name": "Nome del giocatore 1",
+    "Player 2": "Giocatore 2",
+    "Player 2's name": "Nome del giocatore 2",
+    "Playtime": "Svago",
+    "Please write both.": "Scrivi entrambe le cose, per favore.",
+    "Practice": "Allenamento",
+    "Practice word · not in your streak": "Allenamento · fuori dalla serie",
+    "Practice words": "Parole di allenamento",
+    "Put the game away": "Metti via il gioco",
+    "Puzzler": "Rompicapista",
+    "Puzzles": "Rompicapi",
+    "Puzzles today: {n} of {total}": "Rompicapi di oggi: {n} su {total}",
+    "Question {n}": "Domanda {n}",
+    "Question {n} of {total}": "Domanda {n} di {total}",
+    "Questions": "Domande",
+    "Questions are already being made. Try again in a moment.": "Le domande sono già in preparazione. Riprova tra un attimo.",
+    "Questions on every topic": "Domande su ogni argomento",
+    "Quick Paws": "Zampe veloci",
+    "Quick, {n} s": "Veloce, {n} s",
+    "Ready when you are!": "Quando vuoi!",
+    "Relaxed": "Tranquillo",
+    "Rematch": "Rivincita",
+    "Resume": "Riprendi",
+    "Return hides it": "Invio lo nasconde",
+    "Return: {label}": "A capo: {label}",
+    "Rock": "Sasso",
+    "Rock beats scissors: I win!": "Il sasso batte le forbici: vinco io!",
+    "Rock beats scissors: you win!": "Il sasso batte le forbici: vinci tu!",
+    "Rock, Paper, Scissors": "Sasso, carta, forbici",
+    "Rock, paper or scissors?": "Sasso, carta o forbici?",
+    "Rock, paper, scissors": "Sasso, carta, forbici",
+    "Rock…": "Sasso…",
+    "Rock… paper… scissors…": "Sasso… carta… forbici…",
+    "Roll a die": "Tira un dado",
+    "Roll between 1 and {n} dice at a time.": "Tira da 1 a {n} dadi alla volta.",
+    "Roll {dice}": "Tira {dice}",
+    "Rolling…": "Tiro…",
+    "Round {n}": "Round {n}",
+    "Round {n} of 2": "Round {n} di 2",
+    "Round {n} of {total}": "Round {n} di {total}",
+    "Round {n} of {total} · {level}": "Round {n} di {total} · {level}",
+    "Round {n} · {level}": "Round {n} · {level}",
+    "Row {row}, column {column}": "Riga {row}, colonna {column}",
+    "Row {r}, column {c}": "Riga {r}, colonna {c}",
+    "Ruled out": "Esclusa",
+    "Science": "Scienza",
+    "Scissors": "Forbici",
+    "Scissors beat paper: I win!": "Le forbici battono la carta: vinco io!",
+    "Scissors beat paper: you win!": "Le forbici battono la carta: vinci tu!",
+    "Scissors…": "Forbici…",
+    "See results": "Vedi il risultato",
+    "Seesaw": "Altalena",
+    "Set": "Imposta",
+    "Shoot!": "Via!",
+    "Show a letter": "Mostra una lettera",
+    "Show the Game Center": "Mostra il centro giochi",
+    "Show the games": "Mostra i giochi",
+    "Shuffling…": "Mescolo…",
+    "Snake eyes!": "Doppio uno!",
+    "Solve ten puzzles": "Risolvi dieci rompicapi",
+    "Solved": "Risolte",
+    "Solved in {n}": "Risolto in {n}",
+    "Solved in {n}!": "Risolto in {n}!",
+    "Solved in {time}": "Risolto in {time}",
+    "Solved in {time}!": "Risolto in {time}!",
+    "Solved!": "Risolto!",
+    "Space": "Spazio",
+    "Space: {go}": "Spazio: {go}",
+    "Spin": "Giravolta",
+    "Split the garden into plots by their numbers": "Dividi l'orto secondo i suoi numeri",
+    "Split the garden into rectangles, one number in each: as many squares as it says.": "Dividi l'orto in rettangoli, un numero in ciascuno: tante caselle quante dice.",
+    "Sports": "Sport",
+    "Squares another number always covers are taken, leaving this.": "Le caselle che un altro numero copre sempre sono occupate: resta questa.",
+    "Star": "Stella",
+    "Start": "Inizia",
+    "Start over": "Ricomincia",
+    "Steady…": "Pronti…",
+    "Streak": "Serie",
+    "Streak this round": "Serie della partita",
+    "Streak {n}": "Serie di {n}",
+    "Sudoku": "Sudoku",
+    "Sun": "Sole",
+    "Surprise me": "Sorprendimi",
+    "Switch: you guess": "Indovini tu",
+    "Switch: {name} guesses": "Indovina {name}",
+    "Tails!": "Croce!",
+    "Take 1, 2 or 3 sticks.": "Prendi 1, 2 o 3 bastoncini.",
+    "Take 1, 2 or 3. Don't take the last one!": "Prendine 1, 2 o 3. Non prendere l'ultimo!",
+    "Take {n}": "Prendine {n}",
+    "Teach": "Insegna",
+    "Tech": "Tecnologia",
+    "Tell": "Dillo",
+    "Tell me the user's hand: rock, paper or scissors.": "Dimmi cosa scegli: sasso, carta o forbici.",
+    "Ten wins": "Dieci vittorie",
+    "Thank you! I'll remember {animal}.": "Grazie! Mi ricorderò di {animal}.",
+    "That = or × isn't kept.": "Quel = o × non è rispettato.",
+    "That number is twice in a box.": "Quel numero è due volte in un riquadro.",
+    "That number is twice in a column.": "Quel numero è due volte in una colonna.",
+    "That number is twice in a row.": "Quel numero è due volte in una riga.",
+    "That one is part of the puzzle.": "Fa parte del rompicapo.",
+    "That one's taken.": "Già preso.",
+    "That word isn't the right length.": "La parola non ha la lunghezza giusta.",
+    "That's a bit long.": "È un po' lungo.",
+    "That's enough new questions for today. Here are mine.": "Basta domande nuove per oggi. Ecco le mie.",
+    "That's it!": "Esatto!",
+    "That's not in the word list.": "Questa parola non è nella lista.",
+    "That's the animal I guessed.": "È l'animale che ho detto io.",
+    "The cells on either side match, so this one is the other.": "Le caselle ai lati sono uguali, quindi questa è l'altra.",
+    "The clue beside it decides this one.": "L'indizio accanto decide questa.",
+    "The hint is used up.": "L'aiuto è già stato usato.",
+    "The last place left in this bed.": "L'ultimo posto libero in questa aiuola.",
+    "The last place left in this column.": "L'ultimo posto libero in questa colonna.",
+    "The last place left in this row.": "L'ultimo posto libero in questa riga.",
+    "The only place left for this number in its box.": "L'unico posto rimasto per questo numero nel suo riquadro.",
+    "The only place left for this number in its column.": "L'unico posto rimasto per questo numero nella sua colonna.",
+    "The only place left for this number in its row.": "L'unico posto rimasto per questo numero nella sua riga.",
+    "The other mark here would break a rule a few moves on.": "L'altro segno qui infrangerebbe una regola qualche mossa dopo.",
+    "The word was {word}.": "La parola era {word}.",
+    "These beds fill those lines between them, ruling out the rest, leaving this.": "Queste aiuole riempiono quelle linee da sole ed escludono il resto: resta questa.",
+    "Things to eat": "Da mangiare",
+    "Think of one": "Pensane uno",
+    "This line already has its half of one: the rest are the other.": "Questa linea ha già la sua metà di uno: il resto è l'altro.",
+    "This mark isn't right: take it back.": "Questo segno non è giusto: toglilo.",
+    "This number isn't right: take it back.": "Questo numero non è giusto: toglilo.",
+    "This plot isn't right: take it away.": "Questo lotto non è giusto: toglilo.",
+    "Three alike in a line: change one.": "Tre uguali di fila: cambiane uno.",
+    "Three in a row wins": "Tre in fila vince",
+    "Three wins in a row": "Tre vittorie di fila",
+    "Tic-tac-toe": "Tris",
+    "Time": "Tempo",
+    "Today": "Oggi",
+    "Today's boards are waiting!": "Le sfide di oggi ti aspettano!",
+    "Today's puzzle": "Rompicapo del giorno",
+    "Today's word was {word}.": "La parola di oggi era {word}.",
+    "Today's {levels} boards are still waiting.": {
+      "one": "Ancora da fare oggi: {levels}.",
+      "other": "Ancora da fare oggi: {levels}."
+    },
+    "Today: {count} boards to play": {
+      "one": "Oggi: {count} rompicapo da fare",
+      "other": "Oggi: {count} rompicapi da fare"
+    },
+    "Today: {solved}": "Oggi: {solved}",
+    "Too many of one in that line.": "Troppi di uno in quella linea.",
+    "Too slow!": "Troppo lento!",
+    "Too soon!": "Troppo presto!",
+    "Topic": "Argomento",
+    "Trivia": "Quiz",
+    "Trivia about {topic}": "Quiz su {topic}",
+    "Trivia questions": "Domande di quiz",
+    "Try": "Prova",
+    "Try this word": "Prova questa parola",
+    "Tunisia & the Mediterranean": "La Tunisia e il Mediterraneo",
+    "Turn two cards, find the pairs": "Gira due carte, trova le coppie",
+    "Two alike side by side: the next one is the other.": "Due uguali vicini: il prossimo è l'altro.",
+    "Two blossoms in one bed.": "Due fiori in un'aiuola.",
+    "Two blossoms in one column.": "Due fiori in una colonna.",
+    "Two blossoms in one row.": "Due fiori in una riga.",
+    "Two cells share the same two numbers, ruling them out elsewhere, leaving this.": "Due caselle hanno gli stessi due numeri e li escludono altrove: resta questo.",
+    "Type a letter": "Scrivi una lettera",
+    "Type a number from 2 to {max}.": "Scrivi un numero da 2 a {max}.",
+    "Type a number, Return to guess": "Scrivi un numero, Invio per provare",
+    "Type a word, Return to try": "Scrivi una parola, Invio per provare",
+    "Type an idiom": "Scrivi un modo di dire",
+    "Undo": "Annulla",
+    "Unstoppable": "Inarrestabile",
+    "Up to": "Fino a",
+    "Up to which number? 2 to {max}": "Fino a quale numero? Da 2 a {max}",
+    "Use the game's letters.": "Usa le lettere del gioco.",
+    "VS": "VS",
+    "Volcanoes, jazz, Japan…": "Vulcani, jazz, Giappone…",
+    "Want to know my secret?": "Vuoi sapere il mio segreto?",
+    "Warm": "Tiepido",
+    "Watch the moves, then copy them": "Guarda le mosse, poi copiale",
+    "Watch {name}, then copy.": "Guarda {name}, poi copia.",
+    "Watch…": "Osservazione…",
+    "Wave": "Saluto",
+    "We both played paper: a draw!": "Abbiamo giocato entrambi carta: pareggio!",
+    "We both played rock: a draw!": "Abbiamo giocato entrambi sasso: pareggio!",
+    "We both played scissors: a draw!": "Abbiamo giocato entrambi forbici: pareggio!",
+    "Which Cup?": "Quale bicchiere?",
+    "Who's playing?": "Chi gioca?",
+    "Win fifty games": "Vinci cinquanta partite",
+    "Win ten games": "Vinci dieci partite",
+    "Wins": "Vittorie",
+    "Won {won} of {played}": "{won} vinte su {played}",
+    "Yes": "Sì",
+    "Yes or no, until one guesses": "Sì o no, finché qualcuno indovina",
+    "Yes! It was {n}.": "Sì! Era il {n}.",
+    "Yes, that's it!": "Sì, è quello!",
+    "You": "Tu",
+    "You beat {name}!": "Hai battuto {name}!",
+    "You called it!": "Indovinato!",
+    "You copied {count} moves.": {
+      "one": "Hai copiato {count} mossa.",
+      "other": "Hai copiato {count} mosse."
+    },
+    "You saved the balloons!": "Hai salvato i palloncini!",
+    "You took the last stick.": "Hai preso l'ultimo bastoncino.",
+    "You tried that one already.": "L'hai già provato.",
+    "You were quicker!": "Sei stato più veloce!",
+    "You win the match!": "Vinci la partita!",
+    "You win this game!": "Vinci questa partita!",
+    "You win!": "Hai vinto!",
+    "You win! What was it?": "Hai vinto! Cos'era?",
+    "You won": "Hai vinto",
+    "You {x} · {name} {y}": "Tu {x} · {name} {y}",
+    "You {you} · {name} {companion}": "Tu {you} · {name} {companion}",
+    "Your animal": "Il tuo animale",
+    "Your best": "Il tuo record",
+    "Your guess": "Il tuo numero",
+    "Your question": "La tua domanda",
+    "Your turn: copy it.": "Tocca a te: copia.",
+    "Your turn: turn two cards.": "Tocca a te: gira due carte.",
+    "Your turn: you're X.": "Tocca a te: sei X.",
+    "heads": "testa",
+    "right": "giusta",
+    "tails": "croce",
+    "vs {name}": "contro {name}",
+    "wrong": "sbagliata",
+    "your pick": "la tua scelta",
+    "{a} presses {ka}, {b} presses {kb}. First after Boop! wins.": "{a} preme {ka}, {b} preme {kb}. Vince il primo dopo Bup!.",
+    "{a}: {ka} · {b}: {kb}": "{a}: {ka} · {b}: {kb}",
+    "{count} balloons left.": {
+      "one": "Resta {count} palloncino.",
+      "other": "Restano {count} palloncini."
+    },
+    "{count} more to play": {
+      "one": "ancora {count} da fare",
+      "other": "ancora {count} da fare"
+    },
+    "{count} moves": {
+      "one": "{count} mossa",
+      "other": "{count} mosse"
+    },
+    "{count} moves · {level}": {
+      "one": "{count} mossa · {level}",
+      "other": "{count} mosse · {level}"
+    },
+    "{count} practice words": {
+      "one": "{count} parola di allenamento",
+      "other": "{count} parole di allenamento"
+    },
+    "{count} questions": {
+      "one": "{count} domanda",
+      "other": "{count} domande"
+    },
+    "{count} sticks left": {
+      "one": "{count} bastoncino rimasto",
+      "other": "{count} bastoncini rimasti"
+    },
+    "{count} sticks left · {level}": {
+      "one": "{count} bastoncino rimasto · {level}",
+      "other": "{count} bastoncini rimasti · {level}"
+    },
+    "{keys} to play": "{keys} per giocare",
+    "{left} of {total} left": "{left} di {total} rimasti",
+    "{loser} took the last stick. {name} wins!": "{loser} ha preso l'ultimo bastoncino. Vince {name}!",
+    "{low} to {high}": "da {low} a {high}",
+    "{name} copied {n}. {other}'s turn: the same dance.": "{name} ha imitato {n}. Tocca a {other}: lo stesso ballo.",
+    "{name} copies first.": "{name} imita per primo.",
+    "{name} couldn't make questions just now. Here are mine.": "{name} non è riuscito a creare domande ora. Ecco le mie.",
+    "{name} counts… {n} left.": "{name} conta… ne restano {n}.",
+    "{name} didn't get it either.": "Neanche {name} l'ha trovata.",
+    "{name} didn't get it either. Tomorrow!": "Neanche {name} l'ha trovata. A domani!",
+    "{name} found it in {count} questions.": {
+      "one": "{name} l'ha trovato in {count} domanda.",
+      "other": "{name} l'ha trovato in {count} domande."
+    },
+    "{name} found it!": "{name} l'ha trovata!",
+    "{name} has picked": "{name} ha scelto",
+    "{name} hides a number; {other} finds it. Fewer guesses wins.": "{name} nasconde un numero, {other} lo cerca. Vince chi usa meno tentativi.",
+    "{name} hides one": "{name} ne nasconde uno",
+    "{name} is next.": "Ora tocca a {name}.",
+    "{name} is picking a topic and writing questions…": "{name} sta scegliendo un argomento e scrivendo le domande…",
+    "{name} is taking too long. Here are mine.": "{name} ci mette troppo. Ecco le mie.",
+    "{name} is thinking…": "{name} ci pensa…",
+    "{name} is writing questions about {topic}…": "{name} sta scrivendo domande su {topic}…",
+    "{name} pressed too soon!": "{name} ha premuto troppo presto!",
+    "{name} saved the balloons!": "{name} ha salvato i palloncini!",
+    "{name} sets a word; {other} guesses it. More balloons kept wins.": "{name} sceglie una parola, {other} la indovina. Vince chi tiene più palloncini.",
+    "{name} takes the round!": "{name} vince il round!",
+    "{name} took the last stick. You win!": "{name} ha preso l'ultimo bastoncino. Hai vinto!",
+    "{name} was quicker.": "{name} è stato più veloce.",
+    "{name} wins the match!": "{name} vince la partita!",
+    "{name} wins the match.": "{name} vince la partita.",
+    "{name} wins this game!": "{name} vince questa partita!",
+    "{name} wins this game.": "{name} vince questa partita.",
+    "{name} wins this one.": "Questa la vince {name}.",
+    "{name} wins!": "Vince {name}!",
+    "{name} won": "Ha vinto {name}",
+    "{name} writes the questions": "{name} scrive le domande",
+    "{name} wrote questions I couldn't use. Here are mine.": "{name} ha scritto domande che non posso usare. Ecco le mie.",
+    "{name}'s pick": "scelta di {name}",
+    "{name}'s secret": "Il segreto di {name}",
+    "{name}'s turn": "Tocca a {name}",
+    "{name}'s turn.": "Tocca a {name}.",
+    "{name}'s turn: copy it.": "Tocca a {name}: imitalo.",
+    "{name}'s turn: keep your eye on the gem.": "Tocca a {name}: non perdere di vista la gemma.",
+    "{name}'s turn: take 1, 2 or 3.": "Tocca a {name}: prendine 1, 2 o 3.",
+    "{name}'s turn: turn two cards.": "Tocca a {name}: gira due carte.",
+    "{name}'s turn: which cup?": "Tocca a {name}: quale bicchiere?",
+    "{name}, find {other}'s number.": "{name}, trova il numero di {other}.",
+    "{name}, guess {other}'s word.": "{name}, indovina la parola di {other}.",
+    "{name}, look away!": "{name}, non guardare!",
+    "{name}, pick your hand.": "{name}, scegli la tua mano.",
+    "{name}, type a secret number.": "{name}, scrivi un numero segreto.",
+    "{name}, type a word for {other}.": "{name}, scrivi una parola per {other}.",
+    "{name}: {n} ms": "{name}: {n} ms",
+    "{name}: “I saw one… around here?”": "{name}: «Ne ho vista una… qui intorno?»",
+    "{n} coins": "{n} monete",
+    "{n} days in a row": "{n} giorni di fila",
+    "{n} dice": "{n} dadi",
+    "{n} in a row": "{n} di fila",
+    "{n} in a row!": "{n} di fila!",
+    "{n} ms": "{n} ms",
+    "{n} of {total}": "{n} di {total}",
+    "{n} of {total} earned": "{n} su {total} ottenuti",
+    "{n} seconds left": "ancora {n} s",
+    "{n} solved": "{n} risolti",
+    "{n} wins in a row": "{n} vittorie di fila",
+    "{title} has no level “{level}”.": "{title} non ha il livello «{level}».",
+    "{title} has no levels.": "{title} non ha livelli.",
+    "{title} is already at its easiest.": "{title} è già al più facile.",
+    "{title} is already at its hardest.": "{title} è già al più difficile.",
+    "{win} beats {lose}: a point for {name}.": "{win} batte {lose}: un punto a {name}.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind” deve essere coin, dice o rock_paper_scissors."
+  },
+  "tools": {
+    "game_settings": {
+      "summary": "Cambia le impostazioni dei giochi",
+      "title": "Cambia le impostazioni dei giochi"
+    },
+    "open": {
+      "summary": "Apri un gioco",
+      "title": "Apri un gioco"
+    },
+    "pick": {
+      "summary": "Lascia fare al caso",
+      "title": "Scelte a caso"
+    },
+    "put_away": {
+      "summary": "Metti via il gioco",
+      "title": "Metti via il gioco"
+    },
+    "toss": {
+      "summary": "Lancia una moneta, tira i dadi o gioca a sasso, carta, forbici",
+      "title": "Lancia una moneta, tira i dadi o gioca a sasso, carta, forbici"
+    },
+    "trivia": {
+      "summary": "Gioca una partita a quiz",
+      "title": "Quiz"
     }
   }
 }

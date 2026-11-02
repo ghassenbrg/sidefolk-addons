@@ -1,1069 +1,40 @@
 {
-  "name": "وقت اللعب",
-  "tagline": "ألعاب وألغاز مع رفيقك، واختيار عشوائي",
-  "description": "استراحة مع رفيقك: إحدى عشرة لعبة تلعبها ضده بجانبه على سطح المكتب (مسابقة، إكس-أو، قلّدني وغيرها) وخمسة ألغاز لك (كلمة اليوم، سودوكو وغيرها)، مع حفظ نقاطك وأفضل أوقاتك وسلاسلك، والصدفة لاختيار رقم أو شيء من قائمة.",
-  "tools": {
-    "pick": {
-      "title": "اختيار عشوائي",
-      "summary": "ترك الأمر للصدفة"
-    },
-    "trivia": {
-      "title": "مسابقة أسئلة",
-      "summary": "لعب جولة من مسابقة الأسئلة"
-    },
-    "open": {
-      "title": "فتح لعبة",
-      "summary": "فتح لعبة"
-    },
-    "put_away": {
-      "title": "إبعاد اللعبة",
-      "summary": "إبعاد اللعبة"
-    },
-    "game_settings": {
-      "title": "تغيير إعدادات الألعاب",
-      "summary": "تغيير إعدادات الألعاب"
-    },
-    "toss": {
-      "title": "رمي عملة أو رمي النرد أو لعب حجرة ورقة مقص",
-      "summary": "رمي عملة أو رمي النرد أو لعب حجرة ورقة مقص"
-    }
-  },
-  "pages": {
-    "playtime": {
-      "title": "وقت اللعب"
-    }
-  },
-  "text": {
-    "A bed kept to one line rules out the rest of that line, leaving this.": "حوضٌ محصور في خط واحد يستبعد بقية ذلك الخط، فيبقى هذا المكان.",
-    "A blossom in the other places leads to a dead end a few moves on.": "زهرة في الأماكن الأخرى تقود إلى طريق مسدود بعد بضع حركات.",
-    "A blossom in the other places would leave a row, column or bed no room, leaving this.": "زهرة في الأماكن الأخرى تترك صفًا أو عمودًا أو حوضًا بلا مكان، فيبقى هذا المكان.",
-    "A draw!": "تعادل!",
-    "A hint": "تلميح",
-    "A new best for {level}!": "رقم قياسي جديد في المستوى {level}!",
-    "A new best: {count} moves!": {
-      "one": "رقم قياسي جديد: حركة واحدة!",
-      "two": "رقم قياسي جديد: حركتان!",
-      "few": "رقم قياسي جديد: {count} حركات!",
-      "many": "رقم قياسي جديد: {count} حركة!",
-      "other": "رقم قياسي جديد: {count} حركة!",
-      "zero": "رقم قياسي جديد: {count} حركة!"
-    },
-    "A new word and {count} puzzle boards every day": {
-      "zero": "كلمة جديدة كل يوم",
-      "one": "كلمة جديدة ولغز واحد كل يوم",
-      "two": "كلمة جديدة ولغزان كل يوم",
-      "few": "كلمة جديدة و{count} ألغاز كل يوم",
-      "many": "كلمة جديدة و{count} لغزًا كل يوم",
-      "other": "كلمة جديدة و{count} لغز كل يوم"
-    },
-    "A number kept to one line of a box rules it out elsewhere, leaving this.": "رقمٌ محصور في خط واحد من مربعه يُستبعد من غيره، فيبقى هذا.",
-    "A plot can hold only one number.": "لا تحمل القطعة إلا رقمًا واحدًا.",
-    "A plot has as many squares as its number.": "عدد مربعات القطعة يساوي رقمها.",
-    "A plot needs one number in it.": "تحتاج القطعة إلى رقم بداخلها.",
-    "A quiz with {name}": "مسابقة مع {name}",
-    "A square here can only belong to this number.": "هذا المربع لا يمكن أن يتبع إلا هذا الرقم.",
-    "A yes-or-no question that tells {new} from {old}?": "سؤال بنعم أو لا يميّز {new} عن {old}؟",
-    "All pairs found.": "وُجدت كل الأزواج.",
-    "All three of today's boards are solved. Come back tomorrow for new ones.": "حللت ألغاز اليوم الثلاثة. عُد غدًا لألغاز جديدة.",
-    "Anchor": "مرساة",
-    "And for {new}, the answer is…": "وبالنسبة إلى {new}، الجواب…",
-    "Animals": "حيوانات",
-    "Another topic": "موضوع آخر",
-    "Any other plot leads to a dead end a few plots on.": "أي قطعة أخرى تقود إلى طريق مسدود بعد بضع قطع.",
-    "Any other plot would leave a number or a square with nowhere to go.": "أي قطعة أخرى تترك رقمًا أو مربعًا بلا مكان.",
-    "Arts": "الفنون",
-    "As many hearts as stars in every row and column, never three alike in a line. = means the same, × different.": "عدد القلوب يساوي عدد النجوم في كل صف وعمود، ولا ثلاثة متشابهة متتالية. = تعني متشابهين، و× مختلفين.",
-    "Ask {name}": "اسأل {name}",
-    "At home": "في البيت",
-    "Balloon Words": "كلمات البالونات",
-    "Bell": "جرس",
-    "Best": "الأفضل",
-    "Best of 10: {n}": "الأفضل من 10: {n}",
-    "Best streak": "أفضل سلسلة",
-    "Best streak ever": "أفضل سلسلة",
-    "Best: {count} guesses": {
-      "one": "الأفضل: محاولة واحدة",
-      "two": "الأفضل: محاولتان",
-      "few": "الأفضل: {count} محاولات",
-      "many": "الأفضل: {count} محاولة",
-      "other": "الأفضل: {count} محاولة",
-      "zero": "الأفضل: {count} محاولة"
-    },
-    "Best: {count} moves": {
-      "one": "الأفضل: حركة واحدة",
-      "two": "الأفضل: حركتان",
-      "few": "الأفضل: {count} حركات",
-      "many": "الأفضل: {count} حركة",
-      "other": "الأفضل: {count} حركة",
-      "zero": "الأفضل: {count} حركة"
-    },
-    "Best: {n} ms": "الأفضل: {n} م.ث",
-    "Best: {times}": "الأفضل: {times}",
-    "Between {low} and {high}": "بين {low} و{high}",
-    "Blossom": "زهرة",
-    "Blossoms": "أزهار",
-    "Blossoms can't touch, not even corner to corner.": "الأزهار لا تتلامس، ولا حتى قطريًا.",
-    "Boop the button the moment it says Boop!": "اضغط الزر لحظة ظهور «بوب!»",
-    "Boop!": "بوب!",
-    "Bow": "انحناءة",
-    "Burning hot!": "ساخن جدًا!",
-    "Card {n}": "البطاقة {n}",
-    "Cat's game: a draw.": "تعادل.",
-    "Caught! The gem was in {name}'s paw.": "أمسكتك! كانت الجوهرة في يد {name}.",
-    "Check {name}'s paw": "افحص يد {name}",
-    "Clothes": "ملابس",
-    "Cloud": "سحابة",
-    "Cold": "بارد",
-    "Cool": "فاتر",
-    "Copy Me": "قلّدني",
-    "Daily Word": "كلمة اليوم",
-    "Daily Word · {date}": "كلمة اليوم · {date}",
-    "Daily Word: {state}": "كلمة اليوم: {state}",
-    "Did you know?": "هل تعلم؟",
-    "Do it": "نفّذها عني",
-    "Does it…?": "هل هو…؟",
-    "Drop": "قطرة",
-    "Easy": "سهل",
-    "Endless": "بلا نهاية",
-    "Every round, make four together.": "في كل جولة، اجعلا المجموع أربعة.",
-    "Every way to finish this line puts this here.": "كل طريقة لإكمال هذا الخط تضع هذا هنا.",
-    "Fair": "متوسط",
-    "Fill the grid: every row, column and box holds each number once.": "املأ الشبكة: في كل صف وعمود ومربع يظهر كل رقم مرة واحدة.",
-    "Finish": "إنهاء",
-    "Fish": "سمكة",
-    "Flower": "زهرة",
-    "Food": "الطعام",
-    "Found in {n}": "وجدته في {n}",
-    "Found in {n}, at par or better!": "وجدته في {n}، ضمن المعدل أو أفضل!",
-    "Found in {n}: par is {par}.": "وجدته في {n}، والمعدل {par}.",
-    "Found it!": "وجدتها!",
-    "Four characters": "أربعة أحرف",
-    "Freezing": "متجمّد",
-    "Game {n} · {level}": "الجولة {n} · {level}",
-    "Games and sports": "ألعاب ورياضة",
-    "Garden Plots": "قطع الحديقة",
-    "Geography": "الجغرافيا",
-    "Getting around": "المواصلات",
-    "Got it: {n}!": "عرفته: {n}!",
-    "Guess My Animal": "خمّن حيواني",
-    "Guess mine": "خمّن رقمي",
-    "Guess the word, a letter at a time.": "خمّن الكلمة حرفًا بحرف.",
-    "Guess this word in six tries.": "خمّن هذه الكلمة في ست محاولات.",
-    "Guess today's word in six tries.": "خمّن كلمة اليوم في ست محاولات.",
-    "Guess {n} · par {par}": "المحاولة {n} · المعدل {par}",
-    "Hard": "صعب",
-    "Heart": "قلب",
-    "Here's one to keep you going.": "إليك واحدة لتكمل.",
-    "Higher": "أكبر",
-    "Higher or Lower": "أكبر أم أصغر",
-    "Higher than {n}!": "أكبر من {n}!",
-    "Hint": "تلميح",
-    "Hint: letter {n} is {letter}.": "تلميح: الحرف {n} هو {letter}.",
-    "Hints": "التلميحات",
-    "History": "التاريخ",
-    "Hmm, that doesn't fit what you said about {n} before…": "همم، هذا لا يتفق مع ما قلته عن {n}…",
-    "Hmm… let me think again.": "همم… دعني أفكر من جديد.",
-    "Hmm… {range}…": "همم… {range}…",
-    "Hop": "قفزة",
-    "Hot": "ساخن",
-    "I got it!": "عرفته!",
-    "I'll guess yours": "سأخمّن رقمك",
-    "Is it… {animal}?": "هل هو… {animal}؟",
-    "Is it… {n}?": "هل هو… {n}؟",
-    "It was in {name}'s paw all along!": "كانت في يد {name} طوال الوقت!",
-    "It was {animal}!": "كان {animal}!",
-    "Keep your eye on the gem… which cup?": "راقب الجوهرة… أيّ كوب؟",
-    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "راقب الجوهرة… أيّ كوب؟ تظن أنني أخفيها؟ انقر عليّ.",
-    "Key": "مفتاح",
-    "Last Stick": "العود الأخير",
-    "Leaf": "ورقة شجر",
-    "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "اترك عددًا يزيد واحدًا على مضاعفات الأربعة: 17، 13، 9، 5، ثم 1.",
-    "Level": "المستوى",
-    "Lower": "أصغر",
-    "Lower than {n}!": "أصغر من {n}!",
-    "Memory Pairs": "أزواج الذاكرة",
-    "Missed today": "لم تُحلّ اليوم",
-    "Mix": "منوّع",
-    "Moon": "قمر",
-    "Music": "موسيقى",
-    "My guess": "تخميني",
-    "Nature": "الطبيعة",
-    "New best": "رقم قياسي جديد",
-    "New best!": "رقم قياسي جديد!",
-    "Next": "التالي",
-    "Next game": "الجولة التالية",
-    "Next round": "الدور التالي",
-    "No": "لا",
-    "No room is left there for its blossom.": "لم يبق مكان هناك لزهرته.",
-    "Not a pair.": "ليسا زوجًا.",
-    "Not played yet": "لم تلعب بعد",
-    "Not sure": "لست متأكدًا",
-    "Not that one.": "ليس هذا.",
-    "Not your turn yet.": "ليس دورك بعد.",
-    "Nothing in my paw! It's under a cup.": "لا شيء في يدي! إنها تحت أحد الأكواب.",
-    "Nothing to undo.": "لا شيء للتراجع عنه.",
-    "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "زهرة واحدة في كل صف وعمود وحوض. الأزهار لا تتلامس أبدًا، ولا حتى قطريًا.",
-    "Only one number still fits this cell.": "رقم واحد فقط ما زال يناسب هذا المربع.",
-    "Only one plot of that size fits around this number.": "قطعة واحدة فقط بهذا الحجم تتسع حول هذا الرقم.",
-    "Oops, that one was wrong!": "عفوًا، كان هذا خطأ!",
-    "Other wave": "تلويح باليد الأخرى",
-    "Outdoors": "في الخارج",
-    "Pick a number from 1 to 100.": "اختر رقمًا من 1 إلى 100.",
-    "Pick a topic": "اختر موضوعًا",
-    "Pick a way to play": "اختر طريقة اللعب",
-    "Play again": "اللعب مجددًا",
-    "Play another": "العب أخرى",
-    "Play another word": "العب كلمة أخرى",
-    "Played": "لُعبت",
-    "Please write both.": "اكتب الاثنين من فضلك.",
-    "Practice": "تدريب",
-    "Practice word · not in your streak": "تدريب · خارج سلسلتك",
-    "Practice words": "كلمات التدريب",
-    "Puzzles today: {n} of {total}": "ألغاز اليوم: {n} من {total}",
-    "Question {n}": "السؤال {n}",
-    "Question {n} of {total}": "السؤال {n} من {total}",
-    "Questions": "الأسئلة",
-    "Quick Paws": "مخالب سريعة",
-    "Quick, {n} s": "سريع، {n} ث",
-    "Relaxed": "هادئ",
-    "Round {n} of {total} · {level}": "الدور {n} من {total} · {level}",
-    "Round {n} · {level}": "الدور {n} · {level}",
-    "Row {row}, column {column}": "الصف {row}، العمود {column}",
-    "Row {r}, column {c}": "الصف {r}، العمود {c}",
-    "Ruled out": "مستبعد",
-    "Science": "العلوم",
-    "See results": "عرض النتيجة",
-    "Seesaw": "الميزان",
-    "Show a letter": "أظهر حرفًا",
-    "Solved": "المحلولة",
-    "Solved in {n}": "حُلّت في {n}",
-    "Solved in {n}!": "حُلّت في {n}!",
-    "Solved in {time}": "حُلّت في {time}",
-    "Solved in {time}!": "حُلّت في {time}!",
-    "Solved!": "حُلّت!",
-    "Space": "الفضاء",
-    "Spin": "دوران",
-    "Split the garden into rectangles, one number in each: as many squares as it says.": "قسّم الحديقة إلى مستطيلات، في كل منها رقم واحد: بعدد المربعات التي يذكرها.",
-    "Sports": "الرياضة",
-    "Squares another number always covers are taken, leaving this.": "المربعات التي يغطيها رقم آخر دائمًا محجوزة، فيبقى هذا.",
-    "Star": "نجمة",
-    "Start": "بدء",
-    "Start over": "ابدأ من جديد",
-    "Steady…": "استعد…",
-    "Streak": "السلسلة",
-    "Streak this round": "إجابات متتالية في هذه الجولة",
-    "Streak {n}": "سلسلة: {n}",
-    "Sudoku": "سودوكو",
-    "Sun": "شمس",
-    "Switch: you guess": "بدّل: أنت تخمّن",
-    "Switch: {name} guesses": "بدّل: دور {name}",
-    "Take 1, 2 or 3 sticks.": "خذ عودًا أو اثنين أو ثلاثة.",
-    "Take 1, 2 or 3. Don't take the last one!": "خذ واحدًا أو اثنين أو ثلاثة. لا تأخذ الأخير!",
-    "Teach": "علّمه",
-    "Tech": "التقنية",
-    "Tell": "أخبره",
-    "Thank you! I'll remember {animal}.": "شكرًا! سأتذكر {animal}.",
-    "That = or × isn't kept.": "علامة = أو × هذه غير محققة.",
-    "That number is twice in a box.": "هذا الرقم مكرر في مربع.",
-    "That number is twice in a column.": "هذا الرقم مكرر في عمود.",
-    "That number is twice in a row.": "هذا الرقم مكرر في صف.",
-    "That one is part of the puzzle.": "هذه جزء من اللغز.",
-    "That one's taken.": "هذا مأخوذ.",
-    "That word isn't the right length.": "طول الكلمة غير صحيح.",
-    "That's a bit long.": "هذا طويل قليلًا.",
-    "That's it!": "صحيح!",
-    "That's not in the word list.": "هذه الكلمة ليست في القائمة.",
-    "That's the animal I guessed.": "هذا هو الحيوان الذي خمّنته.",
-    "The cells on either side match, so this one is the other.": "المربعان على الجانبين متشابهان، فهذا هو الآخر.",
-    "The clue beside it decides this one.": "الدليل المجاور يحدد هذا المربع.",
-    "The hint is used up.": "استُخدم التلميح من قبل.",
-    "The last place left in this bed.": "آخر مكان متبقٍ في هذا الحوض.",
-    "The last place left in this column.": "آخر مكان متبقٍ في هذا العمود.",
-    "The last place left in this row.": "آخر مكان متبقٍ في هذا الصف.",
-    "The only place left for this number in its box.": "المكان الوحيد المتبقي لهذا الرقم في مربعه.",
-    "The only place left for this number in its column.": "المكان الوحيد المتبقي لهذا الرقم في عموده.",
-    "The only place left for this number in its row.": "المكان الوحيد المتبقي لهذا الرقم في صفه.",
-    "The other mark here would break a rule a few moves on.": "العلامة الأخرى هنا ستكسر قاعدة بعد بضع حركات.",
-    "The word was {word}.": "كانت الكلمة {word}.",
-    "These beds fill those lines between them, ruling out the rest, leaving this.": "هذه الأحواض تملأ تلك الخطوط معًا وتستبعد الباقي، فيبقى هذا المكان.",
-    "Things to eat": "أشياء تؤكل",
-    "Think of one": "فكّر في واحد",
-    "This line already has its half of one: the rest are the other.": "هذا الخط فيه نصفه من أحدهما، فالباقي هو الآخر.",
-    "This mark isn't right: take it back.": "هذه العلامة غير صحيحة: تراجع عنها.",
-    "This number isn't right: take it back.": "هذا الرقم غير صحيح: تراجع عنه.",
-    "This plot isn't right: take it away.": "هذه القطعة غير صحيحة: أزلها.",
-    "Three alike in a line: change one.": "ثلاثة متشابهة متتالية: غيّر واحدًا.",
-    "Tic-tac-toe": "إكس-أو",
-    "Time": "الوقت",
-    "Today's puzzle": "لغز اليوم",
-    "Today's word was {word}.": "كانت كلمة اليوم {word}.",
-    "Today's {levels} boards are still waiting.": {
-      "zero": "ما زال ينتظرك اليوم: {levels}.",
-      "one": "ما زال ينتظرك اليوم: {levels}.",
-      "two": "ما زال ينتظرك اليوم: {levels}.",
-      "few": "ما زال ينتظرك اليوم: {levels}.",
-      "many": "ما زال ينتظرك اليوم: {levels}.",
-      "other": "ما زال ينتظرك اليوم: {levels}."
-    },
-    "Today: {count} boards to play": {
-      "zero": "اليوم: لا ألغاز",
-      "one": "اليوم: لغز واحد للحل",
-      "two": "اليوم: لغزان للحل",
-      "few": "اليوم: {count} ألغاز للحل",
-      "many": "اليوم: {count} لغزًا للحل",
-      "other": "اليوم: {count} لغز للحل"
-    },
-    "Today: {solved}": "اليوم: {solved}",
-    "Too many of one in that line.": "الكثير من أحدهما في ذلك الخط.",
-    "Too slow!": "بطيء جدًا!",
-    "Too soon!": "مبكر جدًا!",
-    "Topic": "الموضوع",
-    "Trivia": "مسابقة",
-    "Try": "جرّب",
-    "Tunisia & the Mediterranean": "تونس والبحر المتوسط",
-    "Two alike side by side: the next one is the other.": "اثنان متشابهان متجاوران: التالي هو الآخر.",
-    "Two blossoms in one bed.": "زهرتان في حوض واحد.",
-    "Two blossoms in one column.": "زهرتان في عمود واحد.",
-    "Two blossoms in one row.": "زهرتان في صف واحد.",
-    "Two cells share the same two numbers, ruling them out elsewhere, leaving this.": "مربعان يتشاركان الرقمين نفسيهما فيستبعدانهما من غيرهما، فيبقى هذا.",
-    "Type an idiom": "اكتب تعبيرًا",
-    "Undo": "تراجع",
-    "Use the game's letters.": "استخدم حروف اللعبة.",
-    "Want to know my secret?": "أتريد أن تعرف سري؟",
-    "Warm": "دافئ",
-    "Watch {name}, then copy.": "راقب {name} ثم قلّده.",
-    "Wave": "تلويح",
-    "Which Cup?": "أيّ كوب؟",
-    "Yes": "نعم",
-    "Yes! It was {n}.": "نعم! كان {n}.",
-    "Yes, that's it!": "نعم، هذا هو!",
-    "You beat {name}!": "هزمت {name}!",
-    "You copied {count} moves.": {
-      "one": "قلّدت حركة واحدة.",
-      "two": "قلّدت حركتين.",
-      "few": "قلّدت {count} حركات.",
-      "many": "قلّدت {count} حركة.",
-      "other": "قلّدت {count} حركة.",
-      "zero": "قلّدت {count} حركة."
-    },
-    "You saved the balloons!": "أنقذت البالونات!",
-    "You took the last stick.": "أخذت العود الأخير.",
-    "You tried that one already.": "جرّبته من قبل.",
-    "You were quicker!": "كنت أسرع!",
-    "You win this game!": "فزت بهذه الجولة!",
-    "You win! What was it?": "فزت! ما هو؟",
-    "You {you} · {name} {companion}": "أنت {you} · {name} {companion}",
-    "Your animal": "حيوانك",
-    "Your best": "أفضل ما لديك",
-    "Your question": "سؤالك",
-    "Your turn: copy it.": "دورك: قلّد.",
-    "Your turn: turn two cards.": "دورك: اقلب بطاقتين.",
-    "Your turn: you're X.": "دورك: أنت X.",
-    "{count} balloons left.": {
-      "one": "بقي بالون واحد.",
-      "two": "بقي بالونان.",
-      "few": "بقيت {count} بالونات.",
-      "many": "بقي {count} بالونًا.",
-      "other": "بقي {count} بالون.",
-      "zero": "بقي {count} بالون."
-    },
-    "{count} more to play": {
-      "zero": "لم يبقَ شيء",
-      "one": "بقي لغز واحد",
-      "two": "بقي لغزان",
-      "few": "بقيت {count} ألغاز",
-      "many": "بقي {count} لغزًا",
-      "other": "بقي {count} لغز"
-    },
-    "{count} moves · {level}": {
-      "one": "حركة واحدة · {level}",
-      "two": "حركتان · {level}",
-      "few": "{count} حركات · {level}",
-      "many": "{count} حركة · {level}",
-      "other": "{count} حركة · {level}",
-      "zero": "{count} حركة · {level}"
-    },
-    "{count} practice words": {
-      "zero": "لا كلمات تدريب",
-      "one": "كلمة تدريب واحدة",
-      "two": "كلمتا تدريب",
-      "few": "{count} كلمات تدريب",
-      "many": "{count} كلمة تدريب",
-      "other": "{count} كلمة تدريب"
-    },
-    "{count} sticks left · {level}": {
-      "zero": "لم يبقَ عود · {level}",
-      "one": "بقي عود واحد · {level}",
-      "two": "بقي عودان · {level}",
-      "few": "بقيت {count} أعواد · {level}",
-      "many": "بقي {count} عودًا · {level}",
-      "other": "بقي {count} عود · {level}"
-    },
-    "{name} counts… {n} left.": "{name} يعدّ… بقي {n}.",
-    "{name} didn't get it either.": "لم يعرفها {name} أيضًا.",
-    "{name} didn't get it either. Tomorrow!": "لم يعرفها {name} أيضًا. إلى الغد!",
-    "{name} found it in {count} questions.": {
-      "one": "وجده {name} بسؤال واحد.",
-      "two": "وجده {name} بسؤالين.",
-      "few": "وجده {name} في {count} أسئلة.",
-      "many": "وجده {name} في {count} سؤالًا.",
-      "other": "وجده {name} في {count} سؤال.",
-      "zero": "وجده {name} في {count} سؤال."
-    },
-    "{name} hides one": "{name} يخفي واحدًا",
-    "{name} is thinking…": "{name} يفكر…",
-    "{name} took the last stick. You win!": "أخذ {name} العود الأخير. فزت!",
-    "{name} was quicker.": "كان {name} أسرع.",
-    "{name} wins this game.": "فاز {name} بهذه الجولة.",
-    "{name} wins this one.": "فاز {name} هذه المرة.",
-    "{name}'s secret": "سر {name}",
-    "{name}'s turn.": "دور {name}.",
-    "{name}: “I saw one… around here?”": "{name}: «رأيت واحدة… هنا تقريبًا؟»",
-    "{n} ms": "{n} م.ث",
-    "{n} of {total}": "{n} من {total}",
-    "2 players": "لاعبان",
-    "A word from a friend": "كلمة من صديق",
-    "A word in pinyin, 2 to 14 letters": "كلمة بالبينيين، من 2 إلى 14 حرفًا",
-    "A word of 2 to 14 letters": "كلمة من 2 إلى 14 حرفًا",
-    "Again!": "مرة أخرى!",
-    "Back to topics": "العودة إلى المواضيع",
-    "Both danced!": "رقصتما كلاكما!",
-    "Did you know? From {name}, not checked": "هل تعلم؟ من {name}، غير مُتحقَّق منها",
-    "Fresh questions": "أسئلة جديدة",
-    "Game {n}": "اللعبة {n}",
-    "Head to head": "المواجهات بينكما",
-    "Hide it": "إخفاؤها",
-    "I'm hiding a number from {low} to {high}. Guess it!": "أخفيت رقمًا من {low} إلى {high}. خمّنه!",
-    "I'm {name}: ready": "أنا {name}: جاهز",
-    "Made by {name}. They aren't checked, so a fact may be wrong.": "كتبها {name}. لم يتحقق منها أحد، فقد تكون فيها معلومة خاطئة.",
-    "Make questions": "اكتب الأسئلة",
-    "Making questions with AI is off. Here are mine.": "كتابة الأسئلة بالذكاء الاصطناعي متوقفة. إليك أسئلتي.",
-    "Nobody pressed.": "لم يضغط أحد.",
-    "Numbers": "الأرقام",
-    "Numbers from {low} to {high}": "أرقام من {low} إلى {high}",
-    "Other…": "غير ذلك…",
-    "Pass the Mac to {name}.": "أعطِ الماك إلى {name}.",
-    "Pick a number from {low} to {high}.": "اختر رقمًا من {low} إلى {high}.",
-    "Player 1": "اللاعب 1",
-    "Player 1's name": "اسم اللاعب 1",
-    "Player 2": "اللاعب 2",
-    "Player 2's name": "اسم اللاعب 2",
-    "Questions are already being made. Try again in a moment.": "تُكتب الأسئلة الآن. حاول بعد لحظة.",
-    "Return hides it": "Return يخفيه",
-    "Round {n}": "الجولة {n}",
-    "Round {n} of 2": "الجولة {n} من 2",
-    "Round {n} of {total}": "الجولة {n} من {total}",
-    "Set": "تعيين",
-    "That's enough new questions for today. Here are mine.": "يكفي هذا من الأسئلة الجديدة اليوم. إليك أسئلتي.",
-    "Type a number from 2 to {max}.": "اكتب رقمًا من 2 إلى {max}.",
-    "Up to": "حتى",
-    "Up to which number? 2 to {max}": "حتى أي رقم؟ من 2 إلى {max}",
-    "Volcanoes, jazz, Japan…": "البراكين، الجاز، اليابان…",
-    "Who's playing?": "من يلعب؟",
-    "vs {name}": "ضد {name}",
-    "{a} presses {ka}, {b} presses {kb}. First after Boop! wins.": "{a} يضغط {ka}، و{b} يضغط {kb}. يفوز أول من يضغط بعد بوب!.",
-    "{count} moves": {
-      "zero": "{count} حركة",
-      "one": "حركة واحدة",
-      "two": "حركتان",
-      "few": "{count} حركات",
-      "many": "{count} حركة",
-      "other": "{count} حركة"
-    },
-    "{count} sticks left": {
-      "zero": "لم يبقَ عود",
-      "one": "بقي عود واحد",
-      "two": "بقي عودان",
-      "few": "بقيت {count} أعواد",
-      "many": "بقي {count} عودًا",
-      "other": "بقي {count} عود"
-    },
-    "{loser} took the last stick. {name} wins!": "أخذ {loser} العود الأخير. فاز {name}!",
-    "{low} to {high}": "{low} إلى {high}",
-    "{name} copied {n}. {other}'s turn: the same dance.": "قلّد {name} {n}. دور {other}: الرقصة نفسها.",
-    "{name} copies first.": "يقلّد {name} أولًا.",
-    "{name} couldn't make questions just now. Here are mine.": "لم يستطع {name} كتابة أسئلة الآن. إليك أسئلتي.",
-    "{name} found it!": "وجدها {name}!",
-    "{name} hides a number; {other} finds it. Fewer guesses wins.": "يخفي {name} رقمًا ويجده {other}. يفوز صاحب المحاولات الأقل.",
-    "{name} is next.": "الدور التالي لـ{name}.",
-    "{name} is picking a topic and writing questions…": "يختار {name} موضوعًا ويكتب الأسئلة…",
-    "{name} is taking too long. Here are mine.": "يتأخر {name} كثيرًا. إليك أسئلتي.",
-    "{name} is writing questions about {topic}…": "يكتب {name} أسئلة عن {topic}…",
-    "{name} pressed too soon!": "ضغط {name} مبكرًا!",
-    "{name} saved the balloons!": "أنقذ {name} البالونات!",
-    "{name} sets a word; {other} guesses it. More balloons kept wins.": "يختار {name} كلمة ويخمّنها {other}. يفوز من يبقي بالونات أكثر.",
-    "{name} takes the round!": "الجولة لـ{name}!",
-    "{name} wins this game!": "فاز {name} بهذه اللعبة!",
-    "{name} wins!": "فاز {name}!",
-    "{name} wrote questions I couldn't use. Here are mine.": "كتب {name} أسئلة لا أستطيع استخدامها. إليك أسئلتي.",
-    "{name}'s turn": "دور {name}",
-    "{name}'s turn: copy it.": "دور {name}: قلّد.",
-    "{name}'s turn: keep your eye on the gem.": "دور {name}: راقب الجوهرة.",
-    "{name}'s turn: take 1, 2 or 3.": "دور {name}: خذ 1 أو 2 أو 3.",
-    "{name}'s turn: turn two cards.": "دور {name}: اقلب بطاقتين.",
-    "{name}'s turn: which cup?": "دور {name}: أي كوب؟",
-    "{name}, find {other}'s number.": "{name}، اعثر على رقم {other}.",
-    "{name}, guess {other}'s word.": "{name}، خمّن كلمة {other}.",
-    "{name}, look away!": "{name}، لا تنظر!",
-    "{name}, type a secret number.": "{name}، اكتب رقمًا سريًا.",
-    "{name}, type a word for {other}.": "{name}، اكتب كلمة لـ{other}.",
-    "{name}: {n} ms": "{name}: {n} م.ث",
-    "Any topic": "أي موضوع",
-    "{name} writes the questions": "يكتب {name} الأسئلة",
-    "Leave it empty and {name} picks one.": "اتركه فارغًا ويختار {name} واحدًا.",
-    "{count} questions": {
-      "zero": "{count} سؤال",
-      "one": "سؤال واحد",
-      "two": "سؤالان",
-      "few": "{count} أسئلة",
-      "many": "{count} سؤالًا",
-      "other": "{count} سؤال"
-    },
-    "One new word to find every day": "كلمة جديدة كل يوم",
-    "Questions on every topic": "أسئلة في كل المواضيع",
-    "Three in a row wins": "ثلاثة في صف تفوز",
-    "Watch the moves, then copy them": "شاهد الحركات ثم قلّدها",
-    "Boop the moment it says Boop!": "اضغط لحظة ظهور «بوب!»",
-    "Keep your eye on the gem": "لا تُبعد عينك عن الجوهرة",
-    "Hot or cold? Find the number": "ساخن أم بارد؟ اعثر على الرقم",
-    "Yes or no, until one guesses": "نعم أو لا، حتى يخمّن أحدكما",
-    "Find the word before the balloons go": "اعثر على الكلمة قبل أن تطير البالونات",
-    "Don’t take the last stick!": "لا تأخذ العود الأخير!",
-    "Turn two cards, find the pairs": "اقلب بطاقتين واعثر على الأزواج",
-    "Split the garden into plots by their numbers": "قسّم الحديقة حسب أرقامها",
-    "Balance hearts and stars in every line": "وازن القلوب والنجوم في كل خط",
-    "Each number once in every row, column and box": "كل رقم مرة في كل صف وعمود ومربع",
-    "One flower in every row, column and bed": "زهرة في كل صف وعمود وحوض",
-    "Playtime": "وقت اللعب",
-    "1–9 to play": "1–9 للعب",
-    "1–{n} to answer": "1–{n} للإجابة",
-    "A daily seven days running": "تحدٍّ يومي سبعة أيام متتالية",
-    "A draw": "تعادل",
-    "A week of dailies": "أسبوع من التحديات",
-    "All games": "كل الألعاب",
-    "Arrows and Return to pick": "الأسهم والإدخال للاختيار",
-    "Arrows to choose · Return to play · Esc to close": "الأسهم للاختيار · Return للعب · Esc للإغلاق",
-    "Back to games": "العودة إلى الألعاب",
-    "Badges": "شارات",
-    "Beat your companion once": "هزيمة رفيقك مرة واحدة",
-    "Continue {title}": "متابعة {title}",
-    "Delete": "حذف",
-    "Esc to close": "Esc للإغلاق",
-    "Every daily done today": "اكتملت كل تحديات اليوم",
-    "Explorer": "مستكشف",
-    "Fifty wins": "خمسون فوزًا",
-    "First win": "أول فوز",
-    "Five wins in a row": "خمسة انتصارات متتالية",
-    "Full house": "علامة كاملة",
-    "Game settings": "إعدادات الألعاب",
-    "Game sounds off": "أصوات الألعاب متوقفة",
-    "Game sounds on": "أصوات الألعاب مشغلة",
-    "Games against {name}, and puzzles of your own": "ألعاب ضد {name}، وألغاز لك وحدك",
-    "Games you finish show here.": "تظهر هنا الألعاب التي تنهيها.",
-    "Hat trick": "هاتريك",
-    "Last games": "آخر الألعاب",
-    "Levels": "الدرجات",
-    "OK": "حسنًا",
-    "Pick a game! Can you beat me?": "اختر لعبة! هل تستطيع هزيمتي؟",
-    "Play": "العب",
-    "Play against a friend on this Mac": "العب ضد صديق على هذا الماك",
-    "Play against {name}": "العب ضد {name}",
-    "Play every game once": "العب كل لعبة مرة",
-    "Play today's {title}": "لعب {title} اليوم",
-    "Play {title}": "لعب {title}",
-    "Played {title} with {with}": "لعب {title} مع {with}",
-    "Played {title}: {first} {x} · {second} {y}": "لُعبت {title}: {first} {x} · {second} {y}",
-    "Put the game away": "إبعاد اللعبة",
-    "Puzzler": "خبير الألغاز",
-    "Puzzles": "ألغاز",
-    "Ready when you are!": "متى شئت!",
-    "Resume": "استئناف",
-    "Return: {label}": "Return: {label}",
-    "Show the Game Center": "عرض مركز الألعاب",
-    "Show the games": "اعرض الألعاب",
-    "Solve ten puzzles": "حل عشرة ألغاز",
-    "Surprise me": "فاجئني",
-    "Ten wins": "عشرة انتصارات",
-    "Three wins in a row": "ثلاثة انتصارات متتالية",
-    "Today": "اليوم",
-    "Today's boards are waiting!": "ألغاز اليوم بانتظارك!",
-    "Try this word": "جرّب هذه الكلمة",
-    "Type a letter": "اكتب حرفًا",
-    "Type a number, Return to guess": "اكتب رقمًا، والإدخال للتخمين",
-    "Type a word, Return to try": "اكتب كلمة، والإدخال للتجربة",
-    "Unstoppable": "لا يُهزم",
-    "VS": "ضد",
-    "Win fifty games": "الفوز بخمسين لعبة",
-    "Win ten games": "الفوز بعشر ألعاب",
-    "Wins": "انتصارات",
-    "Won {won} of {played}": "فاز في {won} من {played}",
-    "You": "أنت",
-    "You win!": "فزت!",
-    "You won": "فزت",
-    "You {x} · {name} {y}": "أنت {x} · {name} {y}",
-    "Your guess": "تخمينك",
-    "right": "صحيحة",
-    "wrong": "خاطئة",
-    "your pick": "اختيارك",
-    "{keys} to play": "{keys} للعب",
-    "{left} of {total} left": "بقي {left} من {total}",
-    "{name} has picked": "اختار {name}",
-    "{name} won": "فاز {name}",
-    "{name}'s pick": "اختيار {name}",
-    "{n} days in a row": "{n} يوم متتالٍ",
-    "{n} in a row": "{n} على التوالي",
-    "{n} of {total} earned": "{n} من {total} مكتسبة",
-    "{n} seconds left": "بقيت {n} ث",
-    "{n} solved": "حُل {n}",
-    "{n} wins in a row": "{n} فوز متتالٍ",
-    "{title} has no level “{level}”.": "لا توجد في {title} درجة «{level}».",
-    "{title} has no levels.": "لا توجد درجات في {title}.",
-    "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
-    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
-    "Trivia questions": "أسئلة المسابقة",
-    "Trivia about {topic}": "مسابقة عن {topic}",
-    "Rock": "حجرة",
-    "Paper": "ورقة",
-    "Scissors": "مقص",
-    "heads": "صورة",
-    "tails": "كتابة",
-    "Again": "مجددًا",
-    "Best of three, no peeking": "الأفضل من ثلاث، بلا غش",
-    "Both {hand}: a draw.": "كلاكما {hand}: تعادل.",
-    "Dice have 2 to 100 sides, and the number added is at most 100.": "يتراوح عدد أوجه النرد بين 2 و100، ولا يزيد العدد المضاف على 100.",
-    "Doubles!": "زوج!",
-    "Flip a coin": "رمي عملة",
-    "Flip between 1 and {n} coins at a time.": "ارمِ من 1 إلى {n} من العملات في المرة الواحدة.",
-    "Flip {n} coins": "رمي {n} عملة",
-    "Heads or tails…": "صورة أم كتابة…",
-    "Heads!": "صورة!",
-    "I'm going paper…": "سأختار ورقة…",
-    "I'm going rock…": "سأختار حجرة…",
-    "I'm going scissors…": "سأختار مقصًا…",
-    "It's {n}!": "ظهر الرقم {n}!",
-    "Natural 20!": "20 طبيعية!",
-    "Next one's yours.": "المرة القادمة لك.",
-    "Oof.": "أوه.",
-    "Paper beats rock: I win!": "الورقة تغلب الحجرة: الفوز لي!",
-    "Paper beats rock: you win!": "الورقة تغلب الحجرة: الفوز لك!",
-    "Paper…": "ورقة…",
-    "Rematch": "مباراة ثأرية",
-    "Rock beats scissors: I win!": "الحجرة تغلب المقص: الفوز لي!",
-    "Rock beats scissors: you win!": "الحجرة تغلب المقص: الفوز لك!",
-    "Rock, Paper, Scissors": "حجرة ورقة مقص",
-    "Rock, paper or scissors?": "حجرة أم ورقة أم مقص؟",
-    "Rock, paper, scissors": "حجرة ورقة مقص",
-    "Rock…": "حجرة…",
-    "Rock… paper… scissors…": "حجرة… ورقة… مقص…",
-    "Roll a die": "رمي النرد",
-    "Roll between 1 and {n} dice at a time.": "ارمِ من 1 إلى {n} من أحجار النرد في المرة الواحدة.",
-    "Roll {dice}": "رمي {dice}",
-    "Rolling…": "النرد يتدحرج…",
-    "Scissors beat paper: I win!": "المقص يغلب الورقة: الفوز لي!",
-    "Scissors beat paper: you win!": "المقص يغلب الورقة: الفوز لك!",
-    "Scissors…": "مقص…",
-    "Shoot!": "الآن!",
-    "Snake eyes!": "واحد وواحد!",
-    "Tails!": "كتابة!",
-    "Tell me the user's hand: rock, paper or scissors.": "أخبرني ماذا تختار: حجرة أو ورقة أو مقص.",
-    "We both played paper: a draw!": "كلانا اختار الورقة: تعادل!",
-    "We both played rock: a draw!": "كلانا اختار الحجرة: تعادل!",
-    "We both played scissors: a draw!": "كلانا اختار المقص: تعادل!",
-    "You called it!": "توقّعك صحيح!",
-    "You win the match!": "فزت بالمباراة!",
-    "{name} wins the match!": "فاز {name} بالمباراة!",
-    "{name} wins the match.": "فاز {name} بالمباراة.",
-    "{name}, pick your hand.": "{name}، اختر يدك.",
-    "{n} coins": "{n} عملة",
-    "{n} in a row!": "{n} على التوالي!",
-    "{win} beats {lose}: a point for {name}.": "{win} يغلب {lose}: نقطة لـ{name}.",
-    "“kind” must be coin, dice or rock_paper_scissors.": "يجب أن تكون قيمة «kind» إحدى القيم coin أو dice أو rock_paper_scissors.",
-    "A coin": "عملة",
-    "{n} dice": "{n} نرد"
-  },
-  "examples": [
-    "هيا نلعب مسابقة أسئلة"
-  ],
-  "surfaces": {
-    "play": {
-      "title": "وقت اللعب"
-    },
-    "toss": {
-      "title": "عملة ونرد وأيدٍ"
-    }
-  },
-  "commands": {
-    "daily_word": {
-      "say": [
-        "كلمة اليوم"
-      ],
-      "names": [
-        "كلمة اليوم"
-      ]
-    },
-    "trivia": {
-      "say": [
-        "لنلعب مسابقة"
-      ],
-      "names": [
-        "مسابقة"
-      ]
-    },
-    "tictactoe": {
-      "say": [
-        "لنلعب إكس أو"
-      ],
-      "names": [
-        "إكس-أو"
-      ]
-    },
-    "copy_me": {
-      "say": [
-        "لنلعب قلّدني"
-      ],
-      "names": [
-        "قلّدني"
-      ]
-    },
-    "quick_paws": {
-      "say": [
-        "لنلعب مخالب سريعة"
-      ],
-      "names": [
-        "مخالب سريعة"
-      ]
-    },
-    "which_cup": {
-      "say": [
-        "لنلعب أي كوب"
-      ],
-      "names": [
-        "أيّ كوب؟",
-        "لنلعب أي كوب"
-      ]
-    },
-    "higher_lower": {
-      "say": [
-        "لنلعب أكبر أم أصغر"
-      ],
-      "names": [
-        "أكبر أم أصغر"
-      ]
-    },
-    "guess_animal": {
-      "say": [
-        "لنلعب خمن حيواني"
-      ],
-      "names": [
-        "خمّن حيواني",
-        "لنلعب خمن حيواني"
-      ]
-    },
-    "balloon_words": {
-      "say": [
-        "لنلعب كلمات البالونات"
-      ],
-      "names": [
-        "كلمات البالونات"
-      ]
-    },
-    "last_stick": {
-      "say": [
-        "لنلعب العود الأخير"
-      ],
-      "names": [
-        "العود الأخير"
-      ]
-    },
-    "memory_pairs": {
-      "say": [
-        "لنلعب أزواج الذاكرة"
-      ],
-      "names": [
-        "أزواج الذاكرة"
-      ]
-    },
-    "plots": {
-      "say": [
-        "لنلعب قطع الحديقة"
-      ],
-      "names": [
-        "قطع الحديقة"
-      ]
-    },
-    "seesaw": {
-      "say": [
-        "لنلعب الميزان"
-      ],
-      "names": [
-        "الميزان"
-      ]
-    },
-    "sudoku": {
-      "say": [
-        "لنلعب سودوكو"
-      ],
-      "names": [
-        "سودوكو"
-      ]
-    },
-    "blossoms": {
-      "say": [
-        "لنلعب الأزهار"
-      ],
-      "names": [
-        "أزهار",
-        "لنلعب الأزهار"
-      ]
-    },
-    "number_mine": {
-      "names": [
-        "خمن رقما",
-        "خمن رقمًا",
-        "تخمين رقم",
-        "سأخمن رقمك",
-        "فكر في رقم"
-      ]
-    },
-    "number_yours": {
-      "names": [
-        "خمن رقمي",
-        "حاول تخمين رقمي",
-        "سأفكر في رقم"
-      ]
-    },
-    "again": [
-      "مباراة أخرى",
-      "جولة أخرى",
-      "لنلعب مرة أخرى",
-      "العب مرة أخرى",
-      "مباراة ثأرية",
-      "أريد الثأر",
-      "لعبة أخرى"
-    ],
-    "harder": [
-      "أصعب",
-      "اجعلها أصعب",
-      "اجعل اللعبة أصعب",
-      "سهلة جدا",
-      "سهلة جدًا",
-      "إنها سهلة جدا",
-      "زد الصعوبة",
-      "ارفع الصعوبة"
-    ],
-    "easier": [
-      "أسهل",
-      "اجعلها أسهل",
-      "اجعل اللعبة أسهل",
-      "صعبة جدا",
-      "صعبة جدًا",
-      "إنها صعبة جدا",
-      "قلل الصعوبة"
-    ],
-    "resume": [
-      "استأنف اللعبة",
-      "استئناف اللعبة",
-      "تابع اللعبة",
-      "أكمل اللعبة",
-      "العودة إلى اللعبة",
-      "لنكمل اللعب"
-    ],
-    "random": [
-      "لعبة عشوائية",
-      "العب لعبة عشوائية",
-      "اختر لعبة",
-      "اختر لي لعبة",
-      "أي لعبة",
-      "اختر أنت لعبة"
-    ],
-    "center": [
-      "نتائجي",
-      "أرني نتائجي",
-      "إحصائياتي",
-      "أرقامي القياسية",
-      "شاراتي",
-      "مركز الألعاب",
-      "افتح مركز الألعاب"
-    ],
-    "pause": [
-      "أوقف اللعبة مؤقتا",
-      "أوقف اللعبة مؤقتًا",
-      "إيقاف اللعبة مؤقتا",
-      "إيقاف مؤقت للعبة",
-      "أخف اللعبة"
-    ],
-    "sounds_off": [
-      "أوقف أصوات اللعبة",
-      "اكتم صوت اللعبة",
-      "أطفئ أصوات اللعبة",
-      "كتم أصوات الألعاب"
-    ],
-    "sounds_on": [
-      "شغل أصوات اللعبة",
-      "شغّل أصوات اللعبة",
-      "ألغ كتم صوت اللعبة",
-      "فعّل أصوات اللعبة"
-    ],
-    "rock_paper_scissors": {
-      "say": [
-        "حجرة ورقة مقص",
-        "حجر ورقة مقص",
-        "لنلعب حجرة ورقة مقص",
-        "لنلعب حجر ورقة مقص",
-        "حجرة، ورقة، مقص"
-      ],
-      "names": [
-        "حجرة ورقة مقص",
-        "حجر ورقة مقص"
-      ]
-    },
-    "toss_coin": [
-      "ارم عملة",
-      "ارمِ عملة",
-      "اقلب عملة",
-      "صورة أم كتابة",
-      "صورة أو كتابة",
-      "ارم عملة لي"
-    ],
-    "toss_coin_call": [
-      "ارم عملة، {call:call}",
-      "صورة أم كتابة، {call:call}",
-      "صورة أم كتابة: {call:call}",
-      "ارم عملة، أختار {call:call}",
-      "صورة أم كتابة، أختار {call:call}"
-    ],
-    "toss_coins": [
-      "ارم {count:integer:1-5} عملات"
-    ],
-    "toss_coins_many": [
-      "ارم {many:coins_many} عملات"
-    ],
-    "toss_die": [
-      "ارم نرد",
-      "ارم النرد",
-      "ارم حجر النرد",
-      "دحرج النرد",
-      "ارم نردا"
-    ],
-    "toss_two_dice": [
-      "ارم نردين",
-      "دحرج نردين"
-    ],
-    "toss_dice": [
-      "ارم {count:integer:1-10} نرد",
-      "دحرج {count:integer:1-10} نرد"
-    ],
-    "toss_dice_many": [
-      "ارم {many:dice_many} نرد",
-      "دحرج {many:dice_many} نرد"
-    ],
-    "toss_d": [
-      "ارم d{sides:integer:2-100}",
-      "ارم نرد {sides:integer:2-100} وجه"
-    ],
-    "toss_nd": [
-      "ارم {count:integer:1-10}d{sides:integer:2-100}"
-    ],
-    "toss_nd_plus": [
-      "ارم {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
-    ],
-    "toss_d_plus": [
-      "ارم d{sides:integer:2-100}+{modifier:integer:1-100}"
-    ],
-    "toss_nd_minus": [
-      "ارم {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
-    ],
-    "toss_d_minus": [
-      "ارم d{sides:integer:2-100}-{minus:integer:1-100}"
-    ],
-    "toss_hand": [
-      "أختار {hand:hand}",
-      "ألعب {hand:hand}",
-      "حجرة ورقة مقص، {hand:hand}",
-      "حجرة ورقة مقص: {hand:hand}"
-    ],
-    "toss_rock": [
-      "حجرة",
-      "حجر"
-    ],
-    "toss_paper": [
-      "ورقة"
-    ],
-    "toss_scissors": [
-      "مقص"
-    ],
-    "toss_many_d": [
-      "ارم {many:dice_many} d{sides:integer:2-100}"
-    ]
-  },
   "ai_purpose": "لكتابة أسئلة مسابقة عن موضوع تختاره",
-  "parts": {
-    "level": [
-      "{level:level}"
+  "carry": {
+    "endings": [],
+    "inside": [],
+    "lead": [
+      "لنلعب",
+      "العب",
+      "نلعب",
+      "اليوم"
     ],
-    "count": [
-      "{count:integer:1-50} أسئلة",
-      "{count:integer:1-50} سؤالًا",
-      "{count:integer:1-50} سؤالا",
-      "{count:integer:1-50} سؤال",
-      "{count:integer:1-50} جولات",
-      "{count:integer:1-50} جولة"
-    ],
-    "range": [
-      "بين {min:integer} و {max:integer}",
-      "من {min:integer} إلى {max:integer}",
-      "حتى {max:integer}"
-    ],
-    "topic": [
-      "عن {topic:text:40}",
-      "حول {topic:text:40}"
-    ],
-    "friend": [
-      "مع صديقي",
-      "مع صديق",
-      "مع صديقتي",
-      "ضد صديقي",
-      "لاعبان",
-      "لاعبين",
-      "لشخصين"
+    "words": [
+      "لنلعب",
+      "العب",
+      "نلعب",
+      "هيا",
+      "لعبة",
+      "أريد",
+      "أن",
+      "ألعب",
+      "على",
+      "مستوى",
+      "بمستوى",
+      "مع",
+      "في",
+      "وضع",
+      "اليوم",
+      "و"
     ]
   },
   "choices": {
-    "level": {
-      "easy": [
-        "سهل",
-        "سهلة",
-        "السهل"
-      ],
-      "fair": [
-        "متوسط",
-        "عادي",
-        "المتوسط"
-      ],
-      "hard": [
-        "صعب",
-        "صعبة",
-        "الصعب"
-      ]
-    },
     "call": {
       "heads": [
         "صورة"
       ],
       "tails": [
         "كتابة"
-      ]
-    },
-    "hand": {
-      "rock": [
-        "حجرة",
-        "حجر"
-      ],
-      "paper": [
-        "ورقة"
-      ],
-      "scissors": [
-        "مقص"
       ]
     },
     "coins_many": {
@@ -1081,6 +52,9 @@
       ]
     },
     "dice_many": {
+      "n10": [
+        "عشرة"
+      ],
       "n2": [
         "اثنين"
       ],
@@ -1104,243 +78,1278 @@
       ],
       "n9": [
         "تسعة"
+      ]
+    },
+    "hand": {
+      "paper": [
+        "ورقة"
       ],
-      "n10": [
-        "عشرة"
+      "rock": [
+        "حجرة",
+        "حجر"
+      ],
+      "scissors": [
+        "مقص"
+      ]
+    },
+    "level": {
+      "easy": [
+        "سهل",
+        "سهلة",
+        "السهل"
+      ],
+      "fair": [
+        "متوسط",
+        "عادي",
+        "المتوسط"
+      ],
+      "hard": [
+        "صعب",
+        "صعبة",
+        "الصعب"
       ]
     }
   },
-  "carry": {
-    "words": [
-      "لنلعب",
-      "العب",
-      "نلعب",
-      "هيا",
-      "لعبة",
-      "أريد",
-      "أن",
-      "ألعب",
-      "على",
-      "مستوى",
-      "بمستوى",
-      "مع",
-      "في",
-      "وضع",
-      "اليوم",
-      "و"
+  "commands": {
+    "again": [
+      "مباراة أخرى",
+      "جولة أخرى",
+      "لنلعب مرة أخرى",
+      "العب مرة أخرى",
+      "مباراة ثأرية",
+      "أريد الثأر",
+      "لعبة أخرى"
     ],
-    "lead": [
-      "لنلعب",
-      "العب",
-      "نلعب",
-      "اليوم"
+    "balloon_words": {
+      "names": [
+        "كلمات البالونات"
+      ],
+      "say": [
+        "لنلعب كلمات البالونات"
+      ]
+    },
+    "blossoms": {
+      "names": [
+        "أزهار",
+        "لنلعب الأزهار"
+      ],
+      "say": [
+        "لنلعب الأزهار"
+      ]
+    },
+    "center": [
+      "نتائجي",
+      "أرني نتائجي",
+      "إحصائياتي",
+      "أرقامي القياسية",
+      "شاراتي",
+      "مركز الألعاب",
+      "افتح مركز الألعاب"
     ],
-    "inside": [],
-    "endings": []
+    "copy_me": {
+      "names": [
+        "قلّدني"
+      ],
+      "say": [
+        "لنلعب قلّدني"
+      ]
+    },
+    "daily_word": {
+      "names": [
+        "كلمة اليوم"
+      ],
+      "say": [
+        "كلمة اليوم"
+      ]
+    },
+    "easier": [
+      "أسهل",
+      "اجعلها أسهل",
+      "اجعل اللعبة أسهل",
+      "صعبة جدا",
+      "صعبة جدًا",
+      "إنها صعبة جدا",
+      "قلل الصعوبة"
+    ],
+    "guess_animal": {
+      "names": [
+        "خمّن حيواني",
+        "لنلعب خمن حيواني"
+      ],
+      "say": [
+        "لنلعب خمن حيواني"
+      ]
+    },
+    "harder": [
+      "أصعب",
+      "اجعلها أصعب",
+      "اجعل اللعبة أصعب",
+      "سهلة جدا",
+      "سهلة جدًا",
+      "إنها سهلة جدا",
+      "زد الصعوبة",
+      "ارفع الصعوبة"
+    ],
+    "higher_lower": {
+      "names": [
+        "أكبر أم أصغر"
+      ],
+      "say": [
+        "لنلعب أكبر أم أصغر"
+      ]
+    },
+    "last_stick": {
+      "names": [
+        "العود الأخير"
+      ],
+      "say": [
+        "لنلعب العود الأخير"
+      ]
+    },
+    "memory_pairs": {
+      "names": [
+        "أزواج الذاكرة"
+      ],
+      "say": [
+        "لنلعب أزواج الذاكرة"
+      ]
+    },
+    "number_mine": {
+      "names": [
+        "خمن رقما",
+        "خمن رقمًا",
+        "تخمين رقم",
+        "سأخمن رقمك",
+        "فكر في رقم"
+      ]
+    },
+    "number_yours": {
+      "names": [
+        "خمن رقمي",
+        "حاول تخمين رقمي",
+        "سأفكر في رقم"
+      ]
+    },
+    "pause": [
+      "أوقف اللعبة مؤقتا",
+      "أوقف اللعبة مؤقتًا",
+      "إيقاف اللعبة مؤقتا",
+      "إيقاف مؤقت للعبة",
+      "أخف اللعبة"
+    ],
+    "plots": {
+      "names": [
+        "قطع الحديقة"
+      ],
+      "say": [
+        "لنلعب قطع الحديقة"
+      ]
+    },
+    "quick_paws": {
+      "names": [
+        "مخالب سريعة"
+      ],
+      "say": [
+        "لنلعب مخالب سريعة"
+      ]
+    },
+    "random": [
+      "لعبة عشوائية",
+      "العب لعبة عشوائية",
+      "اختر لعبة",
+      "اختر لي لعبة",
+      "أي لعبة",
+      "اختر أنت لعبة"
+    ],
+    "resume": [
+      "استأنف اللعبة",
+      "استئناف اللعبة",
+      "تابع اللعبة",
+      "أكمل اللعبة",
+      "العودة إلى اللعبة",
+      "لنكمل اللعب"
+    ],
+    "rock_paper_scissors": {
+      "names": [
+        "حجرة ورقة مقص",
+        "حجر ورقة مقص"
+      ],
+      "say": [
+        "حجرة ورقة مقص",
+        "حجر ورقة مقص",
+        "لنلعب حجرة ورقة مقص",
+        "لنلعب حجر ورقة مقص",
+        "حجرة، ورقة، مقص"
+      ]
+    },
+    "seesaw": {
+      "names": [
+        "الميزان"
+      ],
+      "say": [
+        "لنلعب الميزان"
+      ]
+    },
+    "sounds_off": [
+      "أوقف أصوات اللعبة",
+      "اكتم صوت اللعبة",
+      "أطفئ أصوات اللعبة",
+      "كتم أصوات الألعاب"
+    ],
+    "sounds_on": [
+      "شغل أصوات اللعبة",
+      "شغّل أصوات اللعبة",
+      "ألغ كتم صوت اللعبة",
+      "فعّل أصوات اللعبة"
+    ],
+    "sudoku": {
+      "names": [
+        "سودوكو"
+      ],
+      "say": [
+        "لنلعب سودوكو"
+      ]
+    },
+    "tictactoe": {
+      "names": [
+        "إكس-أو"
+      ],
+      "say": [
+        "لنلعب إكس أو"
+      ]
+    },
+    "toss_coin": [
+      "ارم عملة",
+      "ارمِ عملة",
+      "اقلب عملة",
+      "صورة أم كتابة",
+      "صورة أو كتابة",
+      "ارم عملة لي"
+    ],
+    "toss_coin_call": [
+      "ارم عملة، {call:call}",
+      "صورة أم كتابة، {call:call}",
+      "صورة أم كتابة: {call:call}",
+      "ارم عملة، أختار {call:call}",
+      "صورة أم كتابة، أختار {call:call}"
+    ],
+    "toss_coins": [
+      "ارم {count:integer:1-5} عملات"
+    ],
+    "toss_coins_many": [
+      "ارم {many:coins_many} عملات"
+    ],
+    "toss_d": [
+      "ارم d{sides:integer:2-100}",
+      "ارم نرد {sides:integer:2-100} وجه"
+    ],
+    "toss_d_minus": [
+      "ارم d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "ارم d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_dice": [
+      "ارم {count:integer:1-10} نرد",
+      "دحرج {count:integer:1-10} نرد"
+    ],
+    "toss_dice_many": [
+      "ارم {many:dice_many} نرد",
+      "دحرج {many:dice_many} نرد"
+    ],
+    "toss_die": [
+      "ارم نرد",
+      "ارم النرد",
+      "ارم حجر النرد",
+      "دحرج النرد",
+      "ارم نردا"
+    ],
+    "toss_hand": [
+      "أختار {hand:hand}",
+      "ألعب {hand:hand}",
+      "حجرة ورقة مقص، {hand:hand}",
+      "حجرة ورقة مقص: {hand:hand}"
+    ],
+    "toss_many_d": [
+      "ارم {many:dice_many} d{sides:integer:2-100}"
+    ],
+    "toss_nd": [
+      "ارم {count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_minus": [
+      "ارم {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_nd_plus": [
+      "ارم {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_paper": [
+      "ورقة"
+    ],
+    "toss_rock": [
+      "حجرة",
+      "حجر"
+    ],
+    "toss_scissors": [
+      "مقص"
+    ],
+    "toss_two_dice": [
+      "ارم نردين",
+      "دحرج نردين"
+    ],
+    "trivia": {
+      "names": [
+        "مسابقة"
+      ],
+      "say": [
+        "لنلعب مسابقة"
+      ]
+    },
+    "which_cup": {
+      "names": [
+        "أيّ كوب؟",
+        "لنلعب أي كوب"
+      ],
+      "say": [
+        "لنلعب أي كوب"
+      ]
+    }
   },
+  "description": "استراحة مع رفيقك: إحدى عشرة لعبة تلعبها ضده بجانبه على سطح المكتب (مسابقة، إكس-أو، قلّدني وغيرها) وخمسة ألغاز لك (كلمة اليوم، سودوكو وغيرها)، مع حفظ نقاطك وأفضل أوقاتك وسلاسلك، والصدفة لاختيار رقم أو شيء من قائمة.",
   "entries": {
-    "games": "الألعاب",
-    "play": "الألعاب",
     "all_games": "كل الألعاب…",
-    "play_which_cup": "أيّ كوب؟",
-    "play_copy_me": "قلّدني",
-    "play_quick_paws": "مخالب سريعة",
-    "play_last_stick": "العود الأخير",
-    "play_trivia": "مسابقة",
-    "play_tictactoe": "إكس-أو",
-    "play_higher_lower": "أكبر أم أصغر",
-    "play_guess_animal": "خمّن حيواني",
-    "play_balloon_words": "كلمات البالونات",
-    "play_memory_pairs": "أزواج الذاكرة",
-    "play_daily_word": "كلمة اليوم",
-    "play_plots": "قطع الحديقة",
-    "play_seesaw": "الميزان",
-    "play_sudoku": "سودوكو",
-    "play_blossoms": "أزهار",
-    "play_rock_paper_scissors": "حجرة ورقة مقص",
-    "flip_coin": "رمي عملة",
     "call_heads": "توقّع صورة",
     "call_tails": "توقّع كتابة",
+    "flip_coin": "رمي عملة",
+    "games": "الألعاب",
     "just_flip": "رمي فقط",
-    "roll_die": "رمي النرد",
+    "play": "الألعاب",
+    "play_balloon_words": "كلمات البالونات",
+    "play_blossoms": "أزهار",
+    "play_copy_me": "قلّدني",
+    "play_daily_word": "كلمة اليوم",
+    "play_guess_animal": "خمّن حيواني",
+    "play_higher_lower": "أكبر أم أصغر",
+    "play_last_stick": "العود الأخير",
+    "play_memory_pairs": "أزواج الذاكرة",
+    "play_plots": "قطع الحديقة",
+    "play_quick_paws": "مخالب سريعة",
+    "play_rock_paper_scissors": "حجرة ورقة مقص",
+    "play_seesaw": "الميزان",
+    "play_sudoku": "سودوكو",
+    "play_tictactoe": "إكس-أو",
+    "play_trivia": "مسابقة",
+    "play_which_cup": "أيّ كوب؟",
     "quick_throw": "رمية سريعة",
-    "throw_rock": "حجرة",
+    "roll_die": "رمي النرد",
     "throw_paper": "ورقة",
+    "throw_rock": "حجرة",
     "throw_scissors": "مقص"
   },
+  "examples": [
+    "هيا نلعب مسابقة أسئلة"
+  ],
+  "name": "وقت اللعب",
+  "pages": {
+    "playtime": {
+      "title": "وقت اللعب"
+    }
+  },
+  "parts": {
+    "count": [
+      "{count:integer:1-50} أسئلة",
+      "{count:integer:1-50} سؤالًا",
+      "{count:integer:1-50} سؤالا",
+      "{count:integer:1-50} سؤال",
+      "{count:integer:1-50} جولات",
+      "{count:integer:1-50} جولة"
+    ],
+    "friend": [
+      "مع صديقي",
+      "مع صديق",
+      "مع صديقتي",
+      "ضد صديقي",
+      "لاعبان",
+      "لاعبين",
+      "لشخصين"
+    ],
+    "level": [
+      "{level:level}"
+    ],
+    "range": [
+      "بين {min:integer} و {max:integer}",
+      "من {min:integer} إلى {max:integer}",
+      "حتى {max:integer}"
+    ],
+    "topic": [
+      "عن {topic:text:40}",
+      "حول {topic:text:40}"
+    ]
+  },
   "settings": {
-    "tone": {
-      "title": "عند الفوز",
-      "detail": "كيف يتقبل {companion} الفوز",
-      "options": {
-        "gentle": "Gentle",
-        "cheeky": "Cheeky",
-        "competitive": "Competitive"
-      }
-    },
-    "sounds": {
-      "title": "أصوات الألعاب",
-      "detail": "أصوات هادئة في كل لعبة؛ زر مكبر الصوت في كل لعبة يغيّر أصواتها"
-    },
-    "sneaky": {
-      "title": "المشاكسة",
-      "detail": "قد يغش {companion} للمزاح حيث تسمح اللعبة، ويعترف عند كشفه"
-    },
-    "sound_daily_word": {
-      "title": "كلمة اليوم"
-    },
-    "sound_trivia": {
-      "title": "مسابقة"
-    },
-    "level_trivia": {
-      "title": "مسابقة",
+    "level_balloon_words": {
       "options": {
         "default": "افتراضي",
         "easy": "سهل",
         "fair": "متوسط",
         "hard": "صعب"
-      }
+      },
+      "title": "كلمات البالونات"
     },
-    "sound_tictactoe": {
-      "title": "إكس-أو"
-    },
-    "level_tictactoe": {
-      "title": "إكس-أو",
+    "level_blossoms": {
       "options": {
         "default": "افتراضي",
         "easy": "سهل",
         "fair": "متوسط",
         "hard": "صعب"
-      }
-    },
-    "sound_copy_me": {
-      "title": "قلّدني"
+      },
+      "title": "أزهار"
     },
     "level_copy_me": {
-      "title": "قلّدني",
       "options": {
         "default": "افتراضي",
         "easy": "سهل",
         "fair": "متوسط",
         "hard": "صعب"
-      }
+      },
+      "title": "قلّدني"
     },
-    "sound_quick_paws": {
-      "title": "مخالب سريعة"
+    "level_last_stick": {
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      },
+      "title": "العود الأخير"
+    },
+    "level_memory_pairs": {
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      },
+      "title": "أزواج الذاكرة"
+    },
+    "level_plots": {
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      },
+      "title": "قطع الحديقة"
     },
     "level_quick_paws": {
-      "title": "مخالب سريعة",
       "options": {
         "default": "افتراضي",
         "easy": "سهل",
         "fair": "متوسط",
         "hard": "صعب"
-      }
+      },
+      "title": "مخالب سريعة"
     },
-    "sound_which_cup": {
-      "title": "أيّ كوب؟"
+    "level_seesaw": {
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      },
+      "title": "الميزان"
+    },
+    "level_sudoku": {
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      },
+      "title": "سودوكو"
+    },
+    "level_tictactoe": {
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      },
+      "title": "إكس-أو"
+    },
+    "level_trivia": {
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      },
+      "title": "مسابقة"
     },
     "level_which_cup": {
-      "title": "أيّ كوب؟",
       "options": {
         "default": "افتراضي",
         "easy": "سهل",
         "fair": "متوسط",
         "hard": "صعب"
-      }
+      },
+      "title": "أيّ كوب؟"
     },
-    "sound_higher_lower": {
-      "title": "أكبر أم أصغر"
-    },
-    "sound_guess_animal": {
-      "title": "خمّن حيواني"
+    "sneaky": {
+      "detail": "قد يغش {companion} للمزاح حيث تسمح اللعبة، ويعترف عند كشفه",
+      "title": "المشاكسة"
     },
     "sound_balloon_words": {
       "title": "كلمات البالونات"
     },
-    "level_balloon_words": {
-      "title": "كلمات البالونات",
-      "options": {
-        "default": "افتراضي",
-        "easy": "سهل",
-        "fair": "متوسط",
-        "hard": "صعب"
-      }
+    "sound_blossoms": {
+      "title": "أزهار"
+    },
+    "sound_copy_me": {
+      "title": "قلّدني"
+    },
+    "sound_daily_word": {
+      "title": "كلمة اليوم"
+    },
+    "sound_guess_animal": {
+      "title": "خمّن حيواني"
+    },
+    "sound_higher_lower": {
+      "title": "أكبر أم أصغر"
     },
     "sound_last_stick": {
       "title": "العود الأخير"
     },
-    "level_last_stick": {
-      "title": "العود الأخير",
-      "options": {
-        "default": "افتراضي",
-        "easy": "سهل",
-        "fair": "متوسط",
-        "hard": "صعب"
-      }
-    },
     "sound_memory_pairs": {
       "title": "أزواج الذاكرة"
-    },
-    "level_memory_pairs": {
-      "title": "أزواج الذاكرة",
-      "options": {
-        "default": "افتراضي",
-        "easy": "سهل",
-        "fair": "متوسط",
-        "hard": "صعب"
-      }
     },
     "sound_plots": {
       "title": "قطع الحديقة"
     },
-    "level_plots": {
-      "title": "قطع الحديقة",
-      "options": {
-        "default": "افتراضي",
-        "easy": "سهل",
-        "fair": "متوسط",
-        "hard": "صعب"
-      }
+    "sound_quick_paws": {
+      "title": "مخالب سريعة"
+    },
+    "sound_rock_paper_scissors": {
+      "title": "حجرة ورقة مقص"
     },
     "sound_seesaw": {
       "title": "الميزان"
     },
-    "level_seesaw": {
-      "title": "الميزان",
-      "options": {
-        "default": "افتراضي",
-        "easy": "سهل",
-        "fair": "متوسط",
-        "hard": "صعب"
-      }
-    },
     "sound_sudoku": {
       "title": "سودوكو"
     },
-    "level_sudoku": {
-      "title": "سودوكو",
+    "sound_tictactoe": {
+      "title": "إكس-أو"
+    },
+    "sound_trivia": {
+      "title": "مسابقة"
+    },
+    "sound_which_cup": {
+      "title": "أيّ كوب؟"
+    },
+    "sounds": {
+      "detail": "أصوات هادئة في كل لعبة؛ زر مكبر الصوت في كل لعبة يغيّر أصواتها",
+      "title": "أصوات الألعاب"
+    },
+    "tone": {
+      "detail": "كيف يتقبل {companion} الفوز",
       "options": {
-        "default": "افتراضي",
-        "easy": "سهل",
-        "fair": "متوسط",
-        "hard": "صعب"
-      }
+        "cheeky": "Cheeky",
+        "competitive": "Competitive",
+        "gentle": "Gentle"
+      },
+      "title": "عند الفوز"
+    }
+  },
+  "surfaces": {
+    "play": {
+      "title": "وقت اللعب"
     },
-    "sound_blossoms": {
-      "title": "أزهار"
+    "toss": {
+      "title": "عملة ونرد وأيدٍ"
+    }
+  },
+  "tagline": "ألعاب وألغاز مع رفيقك، واختيار عشوائي",
+  "text": {
+    "1–9 to play": "1–9 للعب",
+    "1–{n} to answer": "1–{n} للإجابة",
+    "1–{n} to copy": "1–{n} للتقليد",
+    "1–{n} to pick": "1–{n} للاختيار",
+    "1–{n} to take": "1–{n} للأخذ",
+    "2 players": "لاعبان",
+    "A bed kept to one line rules out the rest of that line, leaving this.": "حوضٌ محصور في خط واحد يستبعد بقية ذلك الخط، فيبقى هذا المكان.",
+    "A blossom in the other places leads to a dead end a few moves on.": "زهرة في الأماكن الأخرى تقود إلى طريق مسدود بعد بضع حركات.",
+    "A blossom in the other places would leave a row, column or bed no room, leaving this.": "زهرة في الأماكن الأخرى تترك صفًا أو عمودًا أو حوضًا بلا مكان، فيبقى هذا المكان.",
+    "A coin": "عملة",
+    "A daily seven days running": "تحدٍّ يومي سبعة أيام متتالية",
+    "A draw": "تعادل",
+    "A draw!": "تعادل!",
+    "A hint": "تلميح",
+    "A new best for {level}!": "رقم قياسي جديد في المستوى {level}!",
+    "A new best: {count} moves!": {
+      "few": "رقم قياسي جديد: {count} حركات!",
+      "many": "رقم قياسي جديد: {count} حركة!",
+      "one": "رقم قياسي جديد: حركة واحدة!",
+      "other": "رقم قياسي جديد: {count} حركة!",
+      "two": "رقم قياسي جديد: حركتان!",
+      "zero": "رقم قياسي جديد: {count} حركة!"
     },
-    "level_blossoms": {
-      "title": "أزهار",
-      "options": {
-        "default": "افتراضي",
-        "easy": "سهل",
-        "fair": "متوسط",
-        "hard": "صعب"
-      }
+    "A new word and {count} puzzle boards every day": {
+      "few": "كلمة جديدة و{count} ألغاز كل يوم",
+      "many": "كلمة جديدة و{count} لغزًا كل يوم",
+      "one": "كلمة جديدة ولغز واحد كل يوم",
+      "other": "كلمة جديدة و{count} لغز كل يوم",
+      "two": "كلمة جديدة ولغزان كل يوم",
+      "zero": "كلمة جديدة كل يوم"
     },
-    "sound_rock_paper_scissors": {
-      "title": "حجرة ورقة مقص"
+    "A number kept to one line of a box rules it out elsewhere, leaving this.": "رقمٌ محصور في خط واحد من مربعه يُستبعد من غيره، فيبقى هذا.",
+    "A plot can hold only one number.": "لا تحمل القطعة إلا رقمًا واحدًا.",
+    "A plot has as many squares as its number.": "عدد مربعات القطعة يساوي رقمها.",
+    "A plot needs one number in it.": "تحتاج القطعة إلى رقم بداخلها.",
+    "A quiz with {name}": "مسابقة مع {name}",
+    "A square here can only belong to this number.": "هذا المربع لا يمكن أن يتبع إلا هذا الرقم.",
+    "A week of dailies": "أسبوع من التحديات",
+    "A word from a friend": "كلمة من صديق",
+    "A word in pinyin, 2 to 14 letters": "كلمة بالبينيين، من 2 إلى 14 حرفًا",
+    "A word of 2 to 14 letters": "كلمة من 2 إلى 14 حرفًا",
+    "A yes-or-no question that tells {new} from {old}?": "سؤال بنعم أو لا يميّز {new} عن {old}؟",
+    "Again": "مجددًا",
+    "Again!": "مرة أخرى!",
+    "All games": "كل الألعاب",
+    "All pairs found.": "وُجدت كل الأزواج.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "حللت ألغاز اليوم الثلاثة. عُد غدًا لألغاز جديدة.",
+    "Anchor": "مرساة",
+    "And for {new}, the answer is…": "وبالنسبة إلى {new}، الجواب…",
+    "Animals": "حيوانات",
+    "Another topic": "موضوع آخر",
+    "Any other plot leads to a dead end a few plots on.": "أي قطعة أخرى تقود إلى طريق مسدود بعد بضع قطع.",
+    "Any other plot would leave a number or a square with nowhere to go.": "أي قطعة أخرى تترك رقمًا أو مربعًا بلا مكان.",
+    "Any topic": "أي موضوع",
+    "Arrows and Return to pick": "الأسهم والإدخال للاختيار",
+    "Arrows to choose · Return to play · Esc to close": "الأسهم للاختيار · Return للعب · Esc للإغلاق",
+    "Arts": "الفنون",
+    "As many hearts as stars in every row and column, never three alike in a line. = means the same, × different.": "عدد القلوب يساوي عدد النجوم في كل صف وعمود، ولا ثلاثة متشابهة متتالية. = تعني متشابهين، و× مختلفين.",
+    "Ask {name}": "اسأل {name}",
+    "At home": "في البيت",
+    "Back to games": "العودة إلى الألعاب",
+    "Back to topics": "العودة إلى المواضيع",
+    "Badges": "شارات",
+    "Balance hearts and stars in every line": "وازن القلوب والنجوم في كل خط",
+    "Balloon Words": "كلمات البالونات",
+    "Beat your companion once": "هزيمة رفيقك مرة واحدة",
+    "Bell": "جرس",
+    "Best": "الأفضل",
+    "Best of 10: {n}": "الأفضل من 10: {n}",
+    "Best of three, no peeking": "الأفضل من ثلاث، بلا غش",
+    "Best streak": "أفضل سلسلة",
+    "Best streak ever": "أفضل سلسلة",
+    "Best: {count} guesses": {
+      "few": "الأفضل: {count} محاولات",
+      "many": "الأفضل: {count} محاولة",
+      "one": "الأفضل: محاولة واحدة",
+      "other": "الأفضل: {count} محاولة",
+      "two": "الأفضل: محاولتان",
+      "zero": "الأفضل: {count} محاولة"
+    },
+    "Best: {count} moves": {
+      "few": "الأفضل: {count} حركات",
+      "many": "الأفضل: {count} حركة",
+      "one": "الأفضل: حركة واحدة",
+      "other": "الأفضل: {count} حركة",
+      "two": "الأفضل: حركتان",
+      "zero": "الأفضل: {count} حركة"
+    },
+    "Best: {n} ms": "الأفضل: {n} م.ث",
+    "Best: {times}": "الأفضل: {times}",
+    "Between {low} and {high}": "بين {low} و{high}",
+    "Blossom": "زهرة",
+    "Blossoms": "أزهار",
+    "Blossoms can't touch, not even corner to corner.": "الأزهار لا تتلامس، ولا حتى قطريًا.",
+    "Boop the button the moment it says Boop!": "اضغط الزر لحظة ظهور «بوب!»",
+    "Boop the moment it says Boop!": "اضغط لحظة ظهور «بوب!»",
+    "Boop!": "بوب!",
+    "Both danced!": "رقصتما كلاكما!",
+    "Both {hand}: a draw.": "كلاكما {hand}: تعادل.",
+    "Bow": "انحناءة",
+    "Burning hot!": "ساخن جدًا!",
+    "Card {n}": "البطاقة {n}",
+    "Cat's game: a draw.": "تعادل.",
+    "Caught! The gem was in {name}'s paw.": "أمسكتك! كانت الجوهرة في يد {name}.",
+    "Check {name}'s paw": "افحص يد {name}",
+    "Clothes": "ملابس",
+    "Cloud": "سحابة",
+    "Cold": "بارد",
+    "Continue {title}": "متابعة {title}",
+    "Cool": "فاتر",
+    "Copy Me": "قلّدني",
+    "Cup {n}": "الكوب {n}",
+    "Daily Word": "كلمة اليوم",
+    "Daily Word · {date}": "كلمة اليوم · {date}",
+    "Daily Word: {state}": "كلمة اليوم: {state}",
+    "Delete": "حذف",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "يتراوح عدد أوجه النرد بين 2 و100، ولا يزيد العدد المضاف على 100.",
+    "Did you know?": "هل تعلم؟",
+    "Did you know? From {name}, not checked": "هل تعلم؟ من {name}، غير مُتحقَّق منها",
+    "Do it": "نفّذها عني",
+    "Does it…?": "هل هو…؟",
+    "Don’t take the last stick!": "لا تأخذ العود الأخير!",
+    "Doubles!": "زوج!",
+    "Drop": "قطرة",
+    "Each number once in every row, column and box": "كل رقم مرة في كل صف وعمود ومربع",
+    "Easy": "سهل",
+    "Endless": "بلا نهاية",
+    "Esc to close": "Esc للإغلاق",
+    "Every daily done today": "اكتملت كل تحديات اليوم",
+    "Every round, make four together.": "في كل جولة، اجعلا المجموع أربعة.",
+    "Every way to finish this line puts this here.": "كل طريقة لإكمال هذا الخط تضع هذا هنا.",
+    "Explorer": "مستكشف",
+    "Fair": "متوسط",
+    "Fifty wins": "خمسون فوزًا",
+    "Fill the grid: every row, column and box holds each number once.": "املأ الشبكة: في كل صف وعمود ومربع يظهر كل رقم مرة واحدة.",
+    "Find the word before the balloons go": "اعثر على الكلمة قبل أن تطير البالونات",
+    "Finish": "إنهاء",
+    "First win": "أول فوز",
+    "Fish": "سمكة",
+    "Five wins in a row": "خمسة انتصارات متتالية",
+    "Flip a coin": "رمي عملة",
+    "Flip between 1 and {n} coins at a time.": "ارمِ من 1 إلى {n} من العملات في المرة الواحدة.",
+    "Flip {n} coins": "رمي {n} عملة",
+    "Flower": "زهرة",
+    "Food": "الطعام",
+    "Found in {n}": "وجدته في {n}",
+    "Found in {n}, at par or better!": "وجدته في {n}، ضمن المعدل أو أفضل!",
+    "Found in {n}: par is {par}.": "وجدته في {n}، والمعدل {par}.",
+    "Found it!": "وجدتها!",
+    "Four characters": "أربعة أحرف",
+    "Freezing": "متجمّد",
+    "Fresh questions": "أسئلة جديدة",
+    "Full house": "علامة كاملة",
+    "Game settings": "إعدادات الألعاب",
+    "Game sounds off": "أصوات الألعاب متوقفة",
+    "Game sounds on": "أصوات الألعاب مشغلة",
+    "Game {n}": "اللعبة {n}",
+    "Game {n} · {level}": "الجولة {n} · {level}",
+    "Games against {name}, and puzzles of your own": "ألعاب ضد {name}، وألغاز لك وحدك",
+    "Games and sports": "ألعاب ورياضة",
+    "Games you finish show here.": "تظهر هنا الألعاب التي تنهيها.",
+    "Garden Plots": "قطع الحديقة",
+    "Geography": "الجغرافيا",
+    "Getting around": "المواصلات",
+    "Got it: {n}!": "عرفته: {n}!",
+    "Guess My Animal": "خمّن حيواني",
+    "Guess mine": "خمّن رقمي",
+    "Guess the word, a letter at a time.": "خمّن الكلمة حرفًا بحرف.",
+    "Guess this word in six tries.": "خمّن هذه الكلمة في ست محاولات.",
+    "Guess today's word in six tries.": "خمّن كلمة اليوم في ست محاولات.",
+    "Guess {n} · par {par}": "المحاولة {n} · المعدل {par}",
+    "Hard": "صعب",
+    "Hat trick": "هاتريك",
+    "Head to head": "المواجهات بينكما",
+    "Heads or tails…": "صورة أم كتابة…",
+    "Heads!": "صورة!",
+    "Heart": "قلب",
+    "Here's one to keep you going.": "إليك واحدة لتكمل.",
+    "Hide it": "إخفاؤها",
+    "Higher": "أكبر",
+    "Higher or Lower": "أكبر أم أصغر",
+    "Higher than {n}!": "أكبر من {n}!",
+    "Hint": "تلميح",
+    "Hint: letter {n} is {letter}.": "تلميح: الحرف {n} هو {letter}.",
+    "Hints": "التلميحات",
+    "History": "التاريخ",
+    "Hmm, that doesn't fit what you said about {n} before…": "همم، هذا لا يتفق مع ما قلته عن {n}…",
+    "Hmm… let me think again.": "همم… دعني أفكر من جديد.",
+    "Hmm… {range}…": "همم… {range}…",
+    "Hop": "قفزة",
+    "Hot": "ساخن",
+    "Hot or cold? Find the number": "ساخن أم بارد؟ اعثر على الرقم",
+    "I got it!": "عرفته!",
+    "I'll guess yours": "سأخمّن رقمك",
+    "I'm going paper…": "سأختار ورقة…",
+    "I'm going rock…": "سأختار حجرة…",
+    "I'm going scissors…": "سأختار مقصًا…",
+    "I'm hiding a number from {low} to {high}. Guess it!": "أخفيت رقمًا من {low} إلى {high}. خمّنه!",
+    "I'm {name}: ready": "أنا {name}: جاهز",
+    "Is it… {animal}?": "هل هو… {animal}؟",
+    "Is it… {n}?": "هل هو… {n}؟",
+    "It was in {name}'s paw all along!": "كانت في يد {name} طوال الوقت!",
+    "It was {animal}!": "كان {animal}!",
+    "It's {n}!": "ظهر الرقم {n}!",
+    "Keep your eye on the gem": "لا تُبعد عينك عن الجوهرة",
+    "Keep your eye on the gem… which cup?": "راقب الجوهرة… أيّ كوب؟",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "راقب الجوهرة… أيّ كوب؟ تظن أنني أخفيها؟ انقر عليّ.",
+    "Key": "مفتاح",
+    "Last Stick": "العود الأخير",
+    "Last games": "آخر الألعاب",
+    "Leaf": "ورقة شجر",
+    "Leave it empty and {name} picks one.": "اتركه فارغًا ويختار {name} واحدًا.",
+    "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "اترك عددًا يزيد واحدًا على مضاعفات الأربعة: 17، 13، 9، 5، ثم 1.",
+    "Level": "المستوى",
+    "Levels": "الدرجات",
+    "Lower": "أصغر",
+    "Lower than {n}!": "أصغر من {n}!",
+    "Made by {name}. They aren't checked, so a fact may be wrong.": "كتبها {name}. لم يتحقق منها أحد، فقد تكون فيها معلومة خاطئة.",
+    "Make questions": "اكتب الأسئلة",
+    "Making questions with AI is off. Here are mine.": "كتابة الأسئلة بالذكاء الاصطناعي متوقفة. إليك أسئلتي.",
+    "Memory Pairs": "أزواج الذاكرة",
+    "Missed today": "لم تُحلّ اليوم",
+    "Mix": "منوّع",
+    "Moon": "قمر",
+    "Music": "موسيقى",
+    "My guess": "تخميني",
+    "Natural 20!": "20 طبيعية!",
+    "Nature": "الطبيعة",
+    "New best": "رقم قياسي جديد",
+    "New best!": "رقم قياسي جديد!",
+    "Next": "التالي",
+    "Next game": "الجولة التالية",
+    "Next one's yours.": "المرة القادمة لك.",
+    "Next round": "الدور التالي",
+    "No": "لا",
+    "No room is left there for its blossom.": "لم يبق مكان هناك لزهرته.",
+    "Nobody pressed.": "لم يضغط أحد.",
+    "Not a pair.": "ليسا زوجًا.",
+    "Not played yet": "لم تلعب بعد",
+    "Not sure": "لست متأكدًا",
+    "Not that one.": "ليس هذا.",
+    "Not your turn yet.": "ليس دورك بعد.",
+    "Nothing in my paw! It's under a cup.": "لا شيء في يدي! إنها تحت أحد الأكواب.",
+    "Nothing to undo.": "لا شيء للتراجع عنه.",
+    "Numbers": "الأرقام",
+    "Numbers from {low} to {high}": "أرقام من {low} إلى {high}",
+    "OK": "حسنًا",
+    "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "زهرة واحدة في كل صف وعمود وحوض. الأزهار لا تتلامس أبدًا، ولا حتى قطريًا.",
+    "One flower in every row, column and bed": "زهرة في كل صف وعمود وحوض",
+    "One new word to find every day": "كلمة جديدة كل يوم",
+    "Only one number still fits this cell.": "رقم واحد فقط ما زال يناسب هذا المربع.",
+    "Only one plot of that size fits around this number.": "قطعة واحدة فقط بهذا الحجم تتسع حول هذا الرقم.",
+    "Oof.": "أوه.",
+    "Oops, that one was wrong!": "عفوًا، كان هذا خطأ!",
+    "Other wave": "تلويح باليد الأخرى",
+    "Other…": "غير ذلك…",
+    "Outdoors": "في الخارج",
+    "Paper": "ورقة",
+    "Paper beats rock: I win!": "الورقة تغلب الحجرة: الفوز لي!",
+    "Paper beats rock: you win!": "الورقة تغلب الحجرة: الفوز لك!",
+    "Paper…": "ورقة…",
+    "Pass the Mac to {name}.": "أعطِ الماك إلى {name}.",
+    "Pick a game! Can you beat me?": "اختر لعبة! هل تستطيع هزيمتي؟",
+    "Pick a number from 1 to 100.": "اختر رقمًا من 1 إلى 100.",
+    "Pick a number from {low} to {high}.": "اختر رقمًا من {low} إلى {high}.",
+    "Pick a topic": "اختر موضوعًا",
+    "Pick a way to play": "اختر طريقة اللعب",
+    "Play": "العب",
+    "Play again": "اللعب مجددًا",
+    "Play against a friend on this Mac": "العب ضد صديق على هذا الماك",
+    "Play against {name}": "العب ضد {name}",
+    "Play another": "العب أخرى",
+    "Play another word": "العب كلمة أخرى",
+    "Play every game once": "العب كل لعبة مرة",
+    "Play today's {title}": "لعب {title} اليوم",
+    "Play {title}": "لعب {title}",
+    "Played": "لُعبت",
+    "Played {title} with {with}": "لعب {title} مع {with}",
+    "Played {title}: {first} {x} · {second} {y}": "لُعبت {title}: {first} {x} · {second} {y}",
+    "Player 1": "اللاعب 1",
+    "Player 1's name": "اسم اللاعب 1",
+    "Player 2": "اللاعب 2",
+    "Player 2's name": "اسم اللاعب 2",
+    "Playtime": "وقت اللعب",
+    "Please write both.": "اكتب الاثنين من فضلك.",
+    "Practice": "تدريب",
+    "Practice word · not in your streak": "تدريب · خارج سلسلتك",
+    "Practice words": "كلمات التدريب",
+    "Put the game away": "إبعاد اللعبة",
+    "Puzzler": "خبير الألغاز",
+    "Puzzles": "ألغاز",
+    "Puzzles today: {n} of {total}": "ألغاز اليوم: {n} من {total}",
+    "Question {n}": "السؤال {n}",
+    "Question {n} of {total}": "السؤال {n} من {total}",
+    "Questions": "الأسئلة",
+    "Questions are already being made. Try again in a moment.": "تُكتب الأسئلة الآن. حاول بعد لحظة.",
+    "Questions on every topic": "أسئلة في كل المواضيع",
+    "Quick Paws": "مخالب سريعة",
+    "Quick, {n} s": "سريع، {n} ث",
+    "Ready when you are!": "متى شئت!",
+    "Relaxed": "هادئ",
+    "Rematch": "مباراة ثأرية",
+    "Resume": "استئناف",
+    "Return hides it": "Return يخفيه",
+    "Return: {label}": "Return: {label}",
+    "Rock": "حجرة",
+    "Rock beats scissors: I win!": "الحجرة تغلب المقص: الفوز لي!",
+    "Rock beats scissors: you win!": "الحجرة تغلب المقص: الفوز لك!",
+    "Rock, Paper, Scissors": "حجرة ورقة مقص",
+    "Rock, paper or scissors?": "حجرة أم ورقة أم مقص؟",
+    "Rock, paper, scissors": "حجرة ورقة مقص",
+    "Rock…": "حجرة…",
+    "Rock… paper… scissors…": "حجرة… ورقة… مقص…",
+    "Roll a die": "رمي النرد",
+    "Roll between 1 and {n} dice at a time.": "ارمِ من 1 إلى {n} من أحجار النرد في المرة الواحدة.",
+    "Roll {dice}": "رمي {dice}",
+    "Rolling…": "النرد يتدحرج…",
+    "Round {n}": "الجولة {n}",
+    "Round {n} of 2": "الجولة {n} من 2",
+    "Round {n} of {total}": "الجولة {n} من {total}",
+    "Round {n} of {total} · {level}": "الدور {n} من {total} · {level}",
+    "Round {n} · {level}": "الدور {n} · {level}",
+    "Row {row}, column {column}": "الصف {row}، العمود {column}",
+    "Row {r}, column {c}": "الصف {r}، العمود {c}",
+    "Ruled out": "مستبعد",
+    "Science": "العلوم",
+    "Scissors": "مقص",
+    "Scissors beat paper: I win!": "المقص يغلب الورقة: الفوز لي!",
+    "Scissors beat paper: you win!": "المقص يغلب الورقة: الفوز لك!",
+    "Scissors…": "مقص…",
+    "See results": "عرض النتيجة",
+    "Seesaw": "الميزان",
+    "Set": "تعيين",
+    "Shoot!": "الآن!",
+    "Show a letter": "أظهر حرفًا",
+    "Show the Game Center": "عرض مركز الألعاب",
+    "Show the games": "اعرض الألعاب",
+    "Shuffling…": "أخلط…",
+    "Snake eyes!": "واحد وواحد!",
+    "Solve ten puzzles": "حل عشرة ألغاز",
+    "Solved": "المحلولة",
+    "Solved in {n}": "حُلّت في {n}",
+    "Solved in {n}!": "حُلّت في {n}!",
+    "Solved in {time}": "حُلّت في {time}",
+    "Solved in {time}!": "حُلّت في {time}!",
+    "Solved!": "حُلّت!",
+    "Space": "الفضاء",
+    "Space: {go}": "مسافة: {go}",
+    "Spin": "دوران",
+    "Split the garden into plots by their numbers": "قسّم الحديقة حسب أرقامها",
+    "Split the garden into rectangles, one number in each: as many squares as it says.": "قسّم الحديقة إلى مستطيلات، في كل منها رقم واحد: بعدد المربعات التي يذكرها.",
+    "Sports": "الرياضة",
+    "Squares another number always covers are taken, leaving this.": "المربعات التي يغطيها رقم آخر دائمًا محجوزة، فيبقى هذا.",
+    "Star": "نجمة",
+    "Start": "بدء",
+    "Start over": "ابدأ من جديد",
+    "Steady…": "استعد…",
+    "Streak": "السلسلة",
+    "Streak this round": "إجابات متتالية في هذه الجولة",
+    "Streak {n}": "سلسلة: {n}",
+    "Sudoku": "سودوكو",
+    "Sun": "شمس",
+    "Surprise me": "فاجئني",
+    "Switch: you guess": "بدّل: أنت تخمّن",
+    "Switch: {name} guesses": "بدّل: دور {name}",
+    "Tails!": "كتابة!",
+    "Take 1, 2 or 3 sticks.": "خذ عودًا أو اثنين أو ثلاثة.",
+    "Take 1, 2 or 3. Don't take the last one!": "خذ واحدًا أو اثنين أو ثلاثة. لا تأخذ الأخير!",
+    "Take {n}": "خذ {n}",
+    "Teach": "علّمه",
+    "Tech": "التقنية",
+    "Tell": "أخبره",
+    "Tell me the user's hand: rock, paper or scissors.": "أخبرني ماذا تختار: حجرة أو ورقة أو مقص.",
+    "Ten wins": "عشرة انتصارات",
+    "Thank you! I'll remember {animal}.": "شكرًا! سأتذكر {animal}.",
+    "That = or × isn't kept.": "علامة = أو × هذه غير محققة.",
+    "That number is twice in a box.": "هذا الرقم مكرر في مربع.",
+    "That number is twice in a column.": "هذا الرقم مكرر في عمود.",
+    "That number is twice in a row.": "هذا الرقم مكرر في صف.",
+    "That one is part of the puzzle.": "هذه جزء من اللغز.",
+    "That one's taken.": "هذا مأخوذ.",
+    "That word isn't the right length.": "طول الكلمة غير صحيح.",
+    "That's a bit long.": "هذا طويل قليلًا.",
+    "That's enough new questions for today. Here are mine.": "يكفي هذا من الأسئلة الجديدة اليوم. إليك أسئلتي.",
+    "That's it!": "صحيح!",
+    "That's not in the word list.": "هذه الكلمة ليست في القائمة.",
+    "That's the animal I guessed.": "هذا هو الحيوان الذي خمّنته.",
+    "The cells on either side match, so this one is the other.": "المربعان على الجانبين متشابهان، فهذا هو الآخر.",
+    "The clue beside it decides this one.": "الدليل المجاور يحدد هذا المربع.",
+    "The hint is used up.": "استُخدم التلميح من قبل.",
+    "The last place left in this bed.": "آخر مكان متبقٍ في هذا الحوض.",
+    "The last place left in this column.": "آخر مكان متبقٍ في هذا العمود.",
+    "The last place left in this row.": "آخر مكان متبقٍ في هذا الصف.",
+    "The only place left for this number in its box.": "المكان الوحيد المتبقي لهذا الرقم في مربعه.",
+    "The only place left for this number in its column.": "المكان الوحيد المتبقي لهذا الرقم في عموده.",
+    "The only place left for this number in its row.": "المكان الوحيد المتبقي لهذا الرقم في صفه.",
+    "The other mark here would break a rule a few moves on.": "العلامة الأخرى هنا ستكسر قاعدة بعد بضع حركات.",
+    "The word was {word}.": "كانت الكلمة {word}.",
+    "These beds fill those lines between them, ruling out the rest, leaving this.": "هذه الأحواض تملأ تلك الخطوط معًا وتستبعد الباقي، فيبقى هذا المكان.",
+    "Things to eat": "أشياء تؤكل",
+    "Think of one": "فكّر في واحد",
+    "This line already has its half of one: the rest are the other.": "هذا الخط فيه نصفه من أحدهما، فالباقي هو الآخر.",
+    "This mark isn't right: take it back.": "هذه العلامة غير صحيحة: تراجع عنها.",
+    "This number isn't right: take it back.": "هذا الرقم غير صحيح: تراجع عنه.",
+    "This plot isn't right: take it away.": "هذه القطعة غير صحيحة: أزلها.",
+    "Three alike in a line: change one.": "ثلاثة متشابهة متتالية: غيّر واحدًا.",
+    "Three in a row wins": "ثلاثة في صف تفوز",
+    "Three wins in a row": "ثلاثة انتصارات متتالية",
+    "Tic-tac-toe": "إكس-أو",
+    "Time": "الوقت",
+    "Today": "اليوم",
+    "Today's boards are waiting!": "ألغاز اليوم بانتظارك!",
+    "Today's puzzle": "لغز اليوم",
+    "Today's word was {word}.": "كانت كلمة اليوم {word}.",
+    "Today's {levels} boards are still waiting.": {
+      "few": "ما زال ينتظرك اليوم: {levels}.",
+      "many": "ما زال ينتظرك اليوم: {levels}.",
+      "one": "ما زال ينتظرك اليوم: {levels}.",
+      "other": "ما زال ينتظرك اليوم: {levels}.",
+      "two": "ما زال ينتظرك اليوم: {levels}.",
+      "zero": "ما زال ينتظرك اليوم: {levels}."
+    },
+    "Today: {count} boards to play": {
+      "few": "اليوم: {count} ألغاز للحل",
+      "many": "اليوم: {count} لغزًا للحل",
+      "one": "اليوم: لغز واحد للحل",
+      "other": "اليوم: {count} لغز للحل",
+      "two": "اليوم: لغزان للحل",
+      "zero": "اليوم: لا ألغاز"
+    },
+    "Today: {solved}": "اليوم: {solved}",
+    "Too many of one in that line.": "الكثير من أحدهما في ذلك الخط.",
+    "Too slow!": "بطيء جدًا!",
+    "Too soon!": "مبكر جدًا!",
+    "Topic": "الموضوع",
+    "Trivia": "مسابقة",
+    "Trivia about {topic}": "مسابقة عن {topic}",
+    "Trivia questions": "أسئلة المسابقة",
+    "Try": "جرّب",
+    "Try this word": "جرّب هذه الكلمة",
+    "Tunisia & the Mediterranean": "تونس والبحر المتوسط",
+    "Turn two cards, find the pairs": "اقلب بطاقتين واعثر على الأزواج",
+    "Two alike side by side: the next one is the other.": "اثنان متشابهان متجاوران: التالي هو الآخر.",
+    "Two blossoms in one bed.": "زهرتان في حوض واحد.",
+    "Two blossoms in one column.": "زهرتان في عمود واحد.",
+    "Two blossoms in one row.": "زهرتان في صف واحد.",
+    "Two cells share the same two numbers, ruling them out elsewhere, leaving this.": "مربعان يتشاركان الرقمين نفسيهما فيستبعدانهما من غيرهما، فيبقى هذا.",
+    "Type a letter": "اكتب حرفًا",
+    "Type a number from 2 to {max}.": "اكتب رقمًا من 2 إلى {max}.",
+    "Type a number, Return to guess": "اكتب رقمًا، والإدخال للتخمين",
+    "Type a word, Return to try": "اكتب كلمة، والإدخال للتجربة",
+    "Type an idiom": "اكتب تعبيرًا",
+    "Undo": "تراجع",
+    "Unstoppable": "لا يُهزم",
+    "Up to": "حتى",
+    "Up to which number? 2 to {max}": "حتى أي رقم؟ من 2 إلى {max}",
+    "Use the game's letters.": "استخدم حروف اللعبة.",
+    "VS": "ضد",
+    "Volcanoes, jazz, Japan…": "البراكين، الجاز، اليابان…",
+    "Want to know my secret?": "أتريد أن تعرف سري؟",
+    "Warm": "دافئ",
+    "Watch the moves, then copy them": "شاهد الحركات ثم قلّدها",
+    "Watch {name}, then copy.": "راقب {name} ثم قلّده.",
+    "Watch…": "مراقبة…",
+    "Wave": "تلويح",
+    "We both played paper: a draw!": "كلانا اختار الورقة: تعادل!",
+    "We both played rock: a draw!": "كلانا اختار الحجرة: تعادل!",
+    "We both played scissors: a draw!": "كلانا اختار المقص: تعادل!",
+    "Which Cup?": "أيّ كوب؟",
+    "Who's playing?": "من يلعب؟",
+    "Win fifty games": "الفوز بخمسين لعبة",
+    "Win ten games": "الفوز بعشر ألعاب",
+    "Wins": "انتصارات",
+    "Won {won} of {played}": "فاز في {won} من {played}",
+    "Yes": "نعم",
+    "Yes or no, until one guesses": "نعم أو لا، حتى يخمّن أحدكما",
+    "Yes! It was {n}.": "نعم! كان {n}.",
+    "Yes, that's it!": "نعم، هذا هو!",
+    "You": "أنت",
+    "You beat {name}!": "هزمت {name}!",
+    "You called it!": "توقّعك صحيح!",
+    "You copied {count} moves.": {
+      "few": "قلّدت {count} حركات.",
+      "many": "قلّدت {count} حركة.",
+      "one": "قلّدت حركة واحدة.",
+      "other": "قلّدت {count} حركة.",
+      "two": "قلّدت حركتين.",
+      "zero": "قلّدت {count} حركة."
+    },
+    "You saved the balloons!": "أنقذت البالونات!",
+    "You took the last stick.": "أخذت العود الأخير.",
+    "You tried that one already.": "جرّبته من قبل.",
+    "You were quicker!": "كنت أسرع!",
+    "You win the match!": "فزت بالمباراة!",
+    "You win this game!": "فزت بهذه الجولة!",
+    "You win!": "فزت!",
+    "You win! What was it?": "فزت! ما هو؟",
+    "You won": "فزت",
+    "You {x} · {name} {y}": "أنت {x} · {name} {y}",
+    "You {you} · {name} {companion}": "أنت {you} · {name} {companion}",
+    "Your animal": "حيوانك",
+    "Your best": "أفضل ما لديك",
+    "Your guess": "تخمينك",
+    "Your question": "سؤالك",
+    "Your turn: copy it.": "دورك: قلّد.",
+    "Your turn: turn two cards.": "دورك: اقلب بطاقتين.",
+    "Your turn: you're X.": "دورك: أنت X.",
+    "heads": "صورة",
+    "right": "صحيحة",
+    "tails": "كتابة",
+    "vs {name}": "ضد {name}",
+    "wrong": "خاطئة",
+    "your pick": "اختيارك",
+    "{a} presses {ka}, {b} presses {kb}. First after Boop! wins.": "{a} يضغط {ka}، و{b} يضغط {kb}. يفوز أول من يضغط بعد بوب!.",
+    "{a}: {ka} · {b}: {kb}": "{a}: {ka} · {b}: {kb}",
+    "{count} balloons left.": {
+      "few": "بقيت {count} بالونات.",
+      "many": "بقي {count} بالونًا.",
+      "one": "بقي بالون واحد.",
+      "other": "بقي {count} بالون.",
+      "two": "بقي بالونان.",
+      "zero": "بقي {count} بالون."
+    },
+    "{count} more to play": {
+      "few": "بقيت {count} ألغاز",
+      "many": "بقي {count} لغزًا",
+      "one": "بقي لغز واحد",
+      "other": "بقي {count} لغز",
+      "two": "بقي لغزان",
+      "zero": "لم يبقَ شيء"
+    },
+    "{count} moves": {
+      "few": "{count} حركات",
+      "many": "{count} حركة",
+      "one": "حركة واحدة",
+      "other": "{count} حركة",
+      "two": "حركتان",
+      "zero": "{count} حركة"
+    },
+    "{count} moves · {level}": {
+      "few": "{count} حركات · {level}",
+      "many": "{count} حركة · {level}",
+      "one": "حركة واحدة · {level}",
+      "other": "{count} حركة · {level}",
+      "two": "حركتان · {level}",
+      "zero": "{count} حركة · {level}"
+    },
+    "{count} practice words": {
+      "few": "{count} كلمات تدريب",
+      "many": "{count} كلمة تدريب",
+      "one": "كلمة تدريب واحدة",
+      "other": "{count} كلمة تدريب",
+      "two": "كلمتا تدريب",
+      "zero": "لا كلمات تدريب"
+    },
+    "{count} questions": {
+      "few": "{count} أسئلة",
+      "many": "{count} سؤالًا",
+      "one": "سؤال واحد",
+      "other": "{count} سؤال",
+      "two": "سؤالان",
+      "zero": "{count} سؤال"
+    },
+    "{count} sticks left": {
+      "few": "بقيت {count} أعواد",
+      "many": "بقي {count} عودًا",
+      "one": "بقي عود واحد",
+      "other": "بقي {count} عود",
+      "two": "بقي عودان",
+      "zero": "لم يبقَ عود"
+    },
+    "{count} sticks left · {level}": {
+      "few": "بقيت {count} أعواد · {level}",
+      "many": "بقي {count} عودًا · {level}",
+      "one": "بقي عود واحد · {level}",
+      "other": "بقي {count} عود · {level}",
+      "two": "بقي عودان · {level}",
+      "zero": "لم يبقَ عود · {level}"
+    },
+    "{keys} to play": "{keys} للعب",
+    "{left} of {total} left": "بقي {left} من {total}",
+    "{loser} took the last stick. {name} wins!": "أخذ {loser} العود الأخير. فاز {name}!",
+    "{low} to {high}": "{low} إلى {high}",
+    "{name} copied {n}. {other}'s turn: the same dance.": "قلّد {name} {n}. دور {other}: الرقصة نفسها.",
+    "{name} copies first.": "يقلّد {name} أولًا.",
+    "{name} couldn't make questions just now. Here are mine.": "لم يستطع {name} كتابة أسئلة الآن. إليك أسئلتي.",
+    "{name} counts… {n} left.": "{name} يعدّ… بقي {n}.",
+    "{name} didn't get it either.": "لم يعرفها {name} أيضًا.",
+    "{name} didn't get it either. Tomorrow!": "لم يعرفها {name} أيضًا. إلى الغد!",
+    "{name} found it in {count} questions.": {
+      "few": "وجده {name} في {count} أسئلة.",
+      "many": "وجده {name} في {count} سؤالًا.",
+      "one": "وجده {name} بسؤال واحد.",
+      "other": "وجده {name} في {count} سؤال.",
+      "two": "وجده {name} بسؤالين.",
+      "zero": "وجده {name} في {count} سؤال."
+    },
+    "{name} found it!": "وجدها {name}!",
+    "{name} has picked": "اختار {name}",
+    "{name} hides a number; {other} finds it. Fewer guesses wins.": "يخفي {name} رقمًا ويجده {other}. يفوز صاحب المحاولات الأقل.",
+    "{name} hides one": "{name} يخفي واحدًا",
+    "{name} is next.": "الدور التالي لـ{name}.",
+    "{name} is picking a topic and writing questions…": "يختار {name} موضوعًا ويكتب الأسئلة…",
+    "{name} is taking too long. Here are mine.": "يتأخر {name} كثيرًا. إليك أسئلتي.",
+    "{name} is thinking…": "{name} يفكر…",
+    "{name} is writing questions about {topic}…": "يكتب {name} أسئلة عن {topic}…",
+    "{name} pressed too soon!": "ضغط {name} مبكرًا!",
+    "{name} saved the balloons!": "أنقذ {name} البالونات!",
+    "{name} sets a word; {other} guesses it. More balloons kept wins.": "يختار {name} كلمة ويخمّنها {other}. يفوز من يبقي بالونات أكثر.",
+    "{name} takes the round!": "الجولة لـ{name}!",
+    "{name} took the last stick. You win!": "أخذ {name} العود الأخير. فزت!",
+    "{name} was quicker.": "كان {name} أسرع.",
+    "{name} wins the match!": "فاز {name} بالمباراة!",
+    "{name} wins the match.": "فاز {name} بالمباراة.",
+    "{name} wins this game!": "فاز {name} بهذه اللعبة!",
+    "{name} wins this game.": "فاز {name} بهذه الجولة.",
+    "{name} wins this one.": "فاز {name} هذه المرة.",
+    "{name} wins!": "فاز {name}!",
+    "{name} won": "فاز {name}",
+    "{name} writes the questions": "يكتب {name} الأسئلة",
+    "{name} wrote questions I couldn't use. Here are mine.": "كتب {name} أسئلة لا أستطيع استخدامها. إليك أسئلتي.",
+    "{name}'s pick": "اختيار {name}",
+    "{name}'s secret": "سر {name}",
+    "{name}'s turn": "دور {name}",
+    "{name}'s turn.": "دور {name}.",
+    "{name}'s turn: copy it.": "دور {name}: قلّد.",
+    "{name}'s turn: keep your eye on the gem.": "دور {name}: راقب الجوهرة.",
+    "{name}'s turn: take 1, 2 or 3.": "دور {name}: خذ 1 أو 2 أو 3.",
+    "{name}'s turn: turn two cards.": "دور {name}: اقلب بطاقتين.",
+    "{name}'s turn: which cup?": "دور {name}: أي كوب؟",
+    "{name}, find {other}'s number.": "{name}، اعثر على رقم {other}.",
+    "{name}, guess {other}'s word.": "{name}، خمّن كلمة {other}.",
+    "{name}, look away!": "{name}، لا تنظر!",
+    "{name}, pick your hand.": "{name}، اختر يدك.",
+    "{name}, type a secret number.": "{name}، اكتب رقمًا سريًا.",
+    "{name}, type a word for {other}.": "{name}، اكتب كلمة لـ{other}.",
+    "{name}: {n} ms": "{name}: {n} م.ث",
+    "{name}: “I saw one… around here?”": "{name}: «رأيت واحدة… هنا تقريبًا؟»",
+    "{n} coins": "{n} عملة",
+    "{n} days in a row": "{n} يوم متتالٍ",
+    "{n} dice": "{n} نرد",
+    "{n} in a row": "{n} على التوالي",
+    "{n} in a row!": "{n} على التوالي!",
+    "{n} ms": "{n} م.ث",
+    "{n} of {total}": "{n} من {total}",
+    "{n} of {total} earned": "{n} من {total} مكتسبة",
+    "{n} seconds left": "بقيت {n} ث",
+    "{n} solved": "حُل {n}",
+    "{n} wins in a row": "{n} فوز متتالٍ",
+    "{title} has no level “{level}”.": "لا توجد في {title} درجة «{level}».",
+    "{title} has no levels.": "لا توجد درجات في {title}.",
+    "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
+    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
+    "{win} beats {lose}: a point for {name}.": "{win} يغلب {lose}: نقطة لـ{name}.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "يجب أن تكون قيمة «kind» إحدى القيم coin أو dice أو rock_paper_scissors."
+  },
+  "tools": {
+    "game_settings": {
+      "summary": "تغيير إعدادات الألعاب",
+      "title": "تغيير إعدادات الألعاب"
+    },
+    "open": {
+      "summary": "فتح لعبة",
+      "title": "فتح لعبة"
+    },
+    "pick": {
+      "summary": "ترك الأمر للصدفة",
+      "title": "اختيار عشوائي"
+    },
+    "put_away": {
+      "summary": "إبعاد اللعبة",
+      "title": "إبعاد اللعبة"
+    },
+    "toss": {
+      "summary": "رمي عملة أو رمي النرد أو لعب حجرة ورقة مقص",
+      "title": "رمي عملة أو رمي النرد أو لعب حجرة ورقة مقص"
+    },
+    "trivia": {
+      "summary": "لعب جولة من مسابقة الأسئلة",
+      "title": "مسابقة أسئلة"
     }
   }
 }

@@ -1,755 +1,217 @@
 {
-  "name": "Ratos libres",
-  "tagline": "Juegos y rompecabezas con tu compañero, y sorteos",
-  "description": "Un respiro con tu compañero: once juegos contra él, a su lado en el escritorio (un quiz, tres en raya, Imítame y más) y cinco rompecabezas para ti (la palabra del día, el sudoku y más), con tus puntuaciones, mejores tiempos y rachas guardados, y el azar para elegir un número o una opción de una lista.",
-  "tools": {
-    "pick": {
-      "title": "Elecciones al azar",
-      "summary": "Dejarlo al azar"
-    },
-    "trivia": {
-      "title": "Trivial",
-      "summary": "Jugar una ronda de trivial"
-    },
-    "open": {
-      "title": "Abrir un juego",
-      "summary": "Abrir un juego"
-    },
-    "put_away": {
-      "title": "Guardar el juego",
-      "summary": "Guardar el juego"
-    },
-    "game_settings": {
-      "title": "Cambiar los ajustes de juegos",
-      "summary": "Cambiar los ajustes de juegos"
-    },
-    "toss": {
-      "title": "Lanzar una moneda, tirar dados o jugar a piedra, papel o tijera",
-      "summary": "Lanzar una moneda, tirar dados o jugar a piedra, papel o tijera"
-    }
+  "ai_purpose": "para escribir preguntas de trivia sobre un tema que elijas",
+  "carry": {
+    "endings": [],
+    "inside": [],
+    "lead": [
+      "juguemos",
+      "jugar",
+      "juega",
+      "día"
+    ],
+    "words": [
+      "juguemos",
+      "jugar",
+      "juega",
+      "vamos",
+      "el",
+      "los",
+      "las",
+      "una",
+      "partida",
+      "juego",
+      "quiero",
+      "contigo",
+      "tú",
+      "modo",
+      "nivel",
+      "dificultad",
+      "y",
+      "día",
+      "hoy",
+      "nueva",
+      "nuevo",
+      "del"
+    ]
   },
-  "pages": {
-    "playtime": {
-      "title": "Ratos libres"
-    }
-  },
-  "text": {
-    "A bed kept to one line rules out the rest of that line, leaving this.": "Un macizo limitado a una sola línea descarta el resto de esa línea: queda esta.",
-    "A blossom in the other places leads to a dead end a few moves on.": "Una flor en los otros sitios lleva a un callejón sin salida unas jugadas más adelante.",
-    "A blossom in the other places would leave a row, column or bed no room, leaving this.": "Una flor en los otros sitios dejaría una fila, columna o macizo sin sitio: queda esta.",
-    "A draw!": "¡Empate!",
-    "A hint": "Una pista",
-    "A new best for {level}!": "¡Nuevo récord en {level}!",
-    "A new best: {count} moves!": {
-      "one": "¡Nuevo récord: {count} movimiento!",
-      "other": "¡Nuevo récord: {count} movimientos!"
+  "choices": {
+    "call": {
+      "heads": [
+        "cara"
+      ],
+      "tails": [
+        "cruz",
+        "sello"
+      ]
     },
-    "A new word and {count} puzzle boards every day": {
-      "one": "Una palabra nueva y {count} rompecabezas cada día",
-      "other": "Una palabra nueva y {count} rompecabezas cada día"
+    "coins_many": {
+      "n2": [
+        "dos"
+      ],
+      "n3": [
+        "tres"
+      ],
+      "n4": [
+        "cuatro"
+      ],
+      "n5": [
+        "cinco"
+      ]
     },
-    "A number kept to one line of a box rules it out elsewhere, leaving this.": "Un número limitado a una línea de un bloque se descarta en el resto: queda este.",
-    "A plot can hold only one number.": "Una parcela solo puede tener un número.",
-    "A plot has as many squares as its number.": "Una parcela tiene tantas casillas como su número.",
-    "A plot needs one number in it.": "Una parcela necesita un número dentro.",
-    "A quiz with {name}": "Un quiz con {name}",
-    "A square here can only belong to this number.": "Una casilla aquí solo puede ser de este número.",
-    "A yes-or-no question that tells {new} from {old}?": "¿Una pregunta de sí o no que distinga {new} de {old}?",
-    "All pairs found.": "Todas las parejas encontradas.",
-    "All three of today's boards are solved. Come back tomorrow for new ones.": "Los tres rompecabezas de hoy están resueltos. Vuelve mañana por otros nuevos.",
-    "Anchor": "Ancla",
-    "And for {new}, the answer is…": "Y para {new}, la respuesta es…",
-    "Animals": "Animales",
-    "Another topic": "Otro tema",
-    "Any other plot leads to a dead end a few plots on.": "Cualquier otra parcela lleva a un callejón sin salida unas parcelas más adelante.",
-    "Any other plot would leave a number or a square with nowhere to go.": "Cualquier otra parcela dejaría un número o una casilla sin salida.",
-    "Arts": "Arte",
-    "As many hearts as stars in every row and column, never three alike in a line. = means the same, × different.": "Tantos corazones como estrellas en cada fila y columna, nunca tres iguales seguidos. = significa igual, × distinto.",
-    "Ask {name}": "Pregúntale a {name}",
-    "At home": "En casa",
-    "Balloon Words": "Palabras globo",
-    "Bell": "Campana",
-    "Best": "Récord",
-    "Best of 10: {n}": "Récord de 10: {n}",
-    "Best streak": "Mejor racha",
-    "Best streak ever": "Mejor racha",
-    "Best: {count} guesses": {
-      "one": "Récord: {count} intento",
-      "other": "Récord: {count} intentos"
+    "dice_many": {
+      "n10": [
+        "diez"
+      ],
+      "n2": [
+        "dos"
+      ],
+      "n3": [
+        "tres"
+      ],
+      "n4": [
+        "cuatro"
+      ],
+      "n5": [
+        "cinco"
+      ],
+      "n6": [
+        "seis"
+      ],
+      "n7": [
+        "siete"
+      ],
+      "n8": [
+        "ocho"
+      ],
+      "n9": [
+        "nueve"
+      ]
     },
-    "Best: {count} moves": {
-      "one": "Récord: {count} movimiento",
-      "other": "Récord: {count} movimientos"
+    "hand": {
+      "paper": [
+        "papel"
+      ],
+      "rock": [
+        "piedra"
+      ],
+      "scissors": [
+        "tijera",
+        "tijeras"
+      ]
     },
-    "Best: {n} ms": "Récord: {n} ms",
-    "Best: {times}": "Récord: {times}",
-    "Between {low} and {high}": "Entre {low} y {high}",
-    "Blossom": "Flor",
-    "Blossoms": "Flores",
-    "Blossoms can't touch, not even corner to corner.": "Las flores no pueden tocarse, ni siquiera en diagonal.",
-    "Boop the button the moment it says Boop!": "Pulsa el botón en cuanto diga ¡Bup!",
-    "Boop!": "¡Bup!",
-    "Bow": "Reverencia",
-    "Burning hot!": "¡Que te quemas!",
-    "Card {n}": "Carta {n}",
-    "Cat's game: a draw.": "Empate.",
-    "Caught! The gem was in {name}'s paw.": "¡Pillado! La gema estaba en la pata de {name}.",
-    "Check {name}'s paw": "Mirar la pata de {name}",
-    "Clothes": "Ropa",
-    "Cloud": "Nube",
-    "Cold": "Frío",
-    "Cool": "Fresco",
-    "Copy Me": "Imítame",
-    "Daily Word": "La palabra del día",
-    "Daily Word · {date}": "La palabra del día · {date}",
-    "Daily Word: {state}": "La palabra del día: {state}",
-    "Did you know?": "¿Sabías que…?",
-    "Do it": "Hazlo tú",
-    "Does it…?": "¿Tiene…?",
-    "Drop": "Gota",
-    "Easy": "Fácil",
-    "Endless": "Sin fin",
-    "Every round, make four together.": "En cada ronda, sumad cuatro entre los dos.",
-    "Every way to finish this line puts this here.": "Todas las formas de terminar esta línea ponen esto aquí.",
-    "Fair": "Normal",
-    "Fill the grid: every row, column and box holds each number once.": "Llena la cuadrícula: cada fila, columna y bloque tiene cada número una vez.",
-    "Finish": "Terminar",
-    "Fish": "Pez",
-    "Flower": "Flor",
-    "Food": "Comida",
-    "Found in {n}": "Encontrado en {n}",
-    "Found in {n}, at par or better!": "¡Encontrado en {n}, en la media o mejor!",
-    "Found in {n}: par is {par}.": "Encontrado en {n}: la media es {par}.",
-    "Found it!": "¡Encontrada!",
-    "Four characters": "Cuatro caracteres",
-    "Freezing": "Helado",
-    "Game {n} · {level}": "Partida {n} · {level}",
-    "Games and sports": "Juegos y deportes",
-    "Garden Plots": "Parcelas del huerto",
-    "Geography": "Geografía",
-    "Getting around": "Transporte",
-    "Got it: {n}!": "¡Lo tengo: {n}!",
-    "Guess My Animal": "Adivina mi animal",
-    "Guess mine": "Adivina el mío",
-    "Guess the word, a letter at a time.": "Adivina la palabra, letra a letra.",
-    "Guess this word in six tries.": "Adivina esta palabra en seis intentos.",
-    "Guess today's word in six tries.": "Adivina la palabra de hoy en seis intentos.",
-    "Guess {n} · par {par}": "Intento {n} · media {par}",
-    "Hard": "Difícil",
-    "Heart": "Corazón",
-    "Here's one to keep you going.": "Aquí tienes una para seguir.",
-    "Higher": "Más alto",
-    "Higher or Lower": "Mayor o menor",
-    "Higher than {n}!": "¡Mayor que {n}!",
-    "Hint": "Pista",
-    "Hint: letter {n} is {letter}.": "Pista: la letra {n} es {letter}.",
-    "Hints": "Pistas",
-    "History": "Historia",
-    "Hmm, that doesn't fit what you said about {n} before…": "Mmm, eso no encaja con lo que dijiste del {n}…",
-    "Hmm… let me think again.": "Mmm… déjame pensar otra vez.",
-    "Hmm… {range}…": "Mmm… {range}…",
-    "Hop": "Salto",
-    "Hot": "Caliente",
-    "I got it!": "¡Acerté!",
-    "I'll guess yours": "Yo adivino el tuyo",
-    "Is it… {animal}?": "¿Es… {animal}?",
-    "Is it… {n}?": "¿Es el… {n}?",
-    "It was in {name}'s paw all along!": "¡Estaba en la pata de {name} todo el tiempo!",
-    "It was {animal}!": "¡Era {animal}!",
-    "Keep your eye on the gem… which cup?": "No pierdas de vista la gema… ¿qué vaso?",
-    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "No pierdas de vista la gema… ¿qué vaso? ¿Crees que la escondo? Haz clic en mí.",
-    "Key": "Llave",
-    "Last Stick": "El último palito",
-    "Leaf": "Hoja",
-    "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "Deja uno más que un múltiplo de cuatro: 17, 13, 9, 5 y luego 1.",
-    "Level": "Nivel",
-    "Lower": "Más bajo",
-    "Lower than {n}!": "¡Menor que {n}!",
-    "Memory Pairs": "Parejas de memoria",
-    "Missed today": "Hoy no salió",
-    "Mix": "Mezcla",
-    "Moon": "Luna",
-    "Music": "Música",
-    "My guess": "Mi respuesta",
-    "Nature": "Naturaleza",
-    "New best": "Nuevo récord",
-    "New best!": "¡Nuevo récord!",
-    "Next": "Siguiente",
-    "Next game": "Siguiente partida",
-    "Next round": "Siguiente ronda",
-    "No": "No",
-    "No room is left there for its blossom.": "Ya no queda sitio ahí para su flor.",
-    "Not a pair.": "No es pareja.",
-    "Not played yet": "Aún sin jugar",
-    "Not sure": "No estoy seguro",
-    "Not that one.": "Ese no.",
-    "Not your turn yet.": "Aún no es tu turno.",
-    "Nothing in my paw! It's under a cup.": "¡Nada en mi pata! Está bajo un vaso.",
-    "Nothing to undo.": "Nada que deshacer.",
-    "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "Una flor en cada fila, columna y macizo. Las flores nunca se tocan, ni siquiera en diagonal.",
-    "Only one number still fits this cell.": "Solo un número cabe aún en esta casilla.",
-    "Only one plot of that size fits around this number.": "Solo una parcela de ese tamaño cabe alrededor de este número.",
-    "Oops, that one was wrong!": "¡Uy, ese no era!",
-    "Other wave": "Saludo con la otra mano",
-    "Outdoors": "Al aire libre",
-    "Pick a number from 1 to 100.": "Elige un número del 1 al 100.",
-    "Pick a topic": "Elige un tema",
-    "Pick a way to play": "Elige cómo jugar",
-    "Play again": "Jugar otra vez",
-    "Play another": "Jugar otro",
-    "Play another word": "Jugar otra palabra",
-    "Played": "Jugadas",
-    "Please write both.": "Escribe las dos cosas, por favor.",
-    "Practice": "Práctica",
-    "Practice word · not in your streak": "Práctica · no cuenta en tu racha",
-    "Practice words": "Palabras de práctica",
-    "Puzzles today: {n} of {total}": "Rompecabezas de hoy: {n} de {total}",
-    "Question {n}": "Pregunta {n}",
-    "Question {n} of {total}": "Pregunta {n} de {total}",
-    "Questions": "Preguntas",
-    "Quick Paws": "Patas rápidas",
-    "Quick, {n} s": "Rápido, {n} s",
-    "Relaxed": "Tranquilo",
-    "Round {n} of {total} · {level}": "Ronda {n} de {total} · {level}",
-    "Round {n} · {level}": "Ronda {n} · {level}",
-    "Row {row}, column {column}": "Fila {row}, columna {column}",
-    "Row {r}, column {c}": "Fila {r}, columna {c}",
-    "Ruled out": "Descartada",
-    "Science": "Ciencia",
-    "See results": "Ver resultado",
-    "Seesaw": "Balancín",
-    "Show a letter": "Mostrar una letra",
-    "Solved": "Resueltas",
-    "Solved in {n}": "Resuelto en {n}",
-    "Solved in {n}!": "¡Resuelto en {n}!",
-    "Solved in {time}": "Resuelto en {time}",
-    "Solved in {time}!": "¡Resuelto en {time}!",
-    "Solved!": "¡Resuelto!",
-    "Space": "Espacio",
-    "Spin": "Giro",
-    "Split the garden into rectangles, one number in each: as many squares as it says.": "Divide el huerto en rectángulos, un número en cada uno: tantas casillas como indica.",
-    "Sports": "Deporte",
-    "Squares another number always covers are taken, leaving this.": "Las casillas que otro número siempre cubre están ocupadas: queda esta.",
-    "Star": "Estrella",
-    "Start": "Empezar",
-    "Start over": "Empezar de nuevo",
-    "Steady…": "Atención…",
-    "Streak": "Racha",
-    "Streak this round": "Racha de la partida",
-    "Streak {n}": "Racha de {n}",
-    "Sudoku": "Sudoku",
-    "Sun": "Sol",
-    "Switch: you guess": "Te toca adivinar",
-    "Switch: {name} guesses": "Le toca a {name}",
-    "Take 1, 2 or 3 sticks.": "Toma 1, 2 o 3 palitos.",
-    "Take 1, 2 or 3. Don't take the last one!": "Toma 1, 2 o 3. ¡No te quedes el último!",
-    "Teach": "Enseñar",
-    "Tech": "Tecnología",
-    "Tell": "Decir",
-    "Thank you! I'll remember {animal}.": "¡Gracias! Me acordaré de {animal}.",
-    "That = or × isn't kept.": "Ese = o × no se cumple.",
-    "That number is twice in a box.": "Ese número está dos veces en un bloque.",
-    "That number is twice in a column.": "Ese número está dos veces en una columna.",
-    "That number is twice in a row.": "Ese número está dos veces en una fila.",
-    "That one is part of the puzzle.": "Esa es parte del rompecabezas.",
-    "That one's taken.": "Ya está ocupado.",
-    "That word isn't the right length.": "Esa palabra no tiene la longitud correcta.",
-    "That's a bit long.": "Es un poco largo.",
-    "That's it!": "¡Ese es!",
-    "That's not in the word list.": "Esa palabra no está en la lista.",
-    "That's the animal I guessed.": "Ese es el animal que dije.",
-    "The cells on either side match, so this one is the other.": "Las casillas de ambos lados son iguales, así que esta es la otra.",
-    "The clue beside it decides this one.": "La pista de al lado decide esta.",
-    "The hint is used up.": "Ya usaste la pista.",
-    "The last place left in this bed.": "El último sitio libre en este macizo.",
-    "The last place left in this column.": "El último sitio libre en esta columna.",
-    "The last place left in this row.": "El último sitio libre en esta fila.",
-    "The only place left for this number in its box.": "El único sitio que le queda a este número en su bloque.",
-    "The only place left for this number in its column.": "El único sitio que le queda a este número en su columna.",
-    "The only place left for this number in its row.": "El único sitio que le queda a este número en su fila.",
-    "The other mark here would break a rule a few moves on.": "La otra marca aquí rompería una regla unas jugadas más adelante.",
-    "The word was {word}.": "La palabra era {word}.",
-    "These beds fill those lines between them, ruling out the rest, leaving this.": "Estos macizos llenan esas líneas entre ellos y descartan el resto: queda esta.",
-    "Things to eat": "Para comer",
-    "Think of one": "Piensa uno",
-    "This line already has its half of one: the rest are the other.": "Esta línea ya tiene su mitad de uno: el resto son del otro.",
-    "This mark isn't right: take it back.": "Esta marca no es correcta: quítala.",
-    "This number isn't right: take it back.": "Este número no es correcto: quítalo.",
-    "This plot isn't right: take it away.": "Esta parcela no es correcta: quítala.",
-    "Three alike in a line: change one.": "Tres iguales seguidos: cambia uno.",
-    "Tic-tac-toe": "Tres en raya",
-    "Time": "Tiempo",
-    "Today's puzzle": "Rompecabezas del día",
-    "Today's word was {word}.": "La palabra de hoy era {word}.",
-    "Today's {levels} boards are still waiting.": {
-      "one": "Aún te espera hoy: {levels}.",
-      "other": "Aún te esperan hoy: {levels}."
-    },
-    "Today: {count} boards to play": {
-      "one": "Hoy: {count} rompecabezas por jugar",
-      "other": "Hoy: {count} rompecabezas por jugar"
-    },
-    "Today: {solved}": "Hoy: {solved}",
-    "Too many of one in that line.": "Demasiados de uno en esa línea.",
-    "Too slow!": "¡Demasiado lento!",
-    "Too soon!": "¡Demasiado pronto!",
-    "Topic": "Tema",
-    "Trivia": "Quiz",
-    "Try": "Probar",
-    "Tunisia & the Mediterranean": "Túnez y el Mediterráneo",
-    "Two alike side by side: the next one is the other.": "Dos iguales juntos: el siguiente es el otro.",
-    "Two blossoms in one bed.": "Dos flores en un macizo.",
-    "Two blossoms in one column.": "Dos flores en una columna.",
-    "Two blossoms in one row.": "Dos flores en una fila.",
-    "Two cells share the same two numbers, ruling them out elsewhere, leaving this.": "Dos casillas comparten los mismos dos números y los descartan en el resto: queda este.",
-    "Type an idiom": "Escribe un modismo",
-    "Undo": "Deshacer",
-    "Use the game's letters.": "Usa las letras del juego.",
-    "Want to know my secret?": "¿Quieres saber mi secreto?",
-    "Warm": "Templado",
-    "Watch {name}, then copy.": "Mira a {name} y luego imítalo.",
-    "Wave": "Saludo",
-    "Which Cup?": "¿Qué vaso?",
-    "Yes": "Sí",
-    "Yes! It was {n}.": "¡Sí! Era el {n}.",
-    "Yes, that's it!": "¡Sí, ese es!",
-    "You beat {name}!": "¡Le ganaste a {name}!",
-    "You copied {count} moves.": {
-      "one": "Imitaste {count} movimiento.",
-      "other": "Imitaste {count} movimientos."
-    },
-    "You saved the balloons!": "¡Salvaste los globos!",
-    "You took the last stick.": "Te quedaste el último palito.",
-    "You tried that one already.": "Ya lo probaste.",
-    "You were quicker!": "¡Fuiste más rápido!",
-    "You win this game!": "¡Ganas esta partida!",
-    "You win! What was it?": "¡Ganaste! ¿Qué era?",
-    "You {you} · {name} {companion}": "Tú {you} · {name} {companion}",
-    "Your animal": "Tu animal",
-    "Your best": "Tu récord",
-    "Your question": "Tu pregunta",
-    "Your turn: copy it.": "Tu turno: imítalo.",
-    "Your turn: turn two cards.": "Tu turno: da vuelta a dos cartas.",
-    "Your turn: you're X.": "Tu turno: eres X.",
-    "{count} balloons left.": {
-      "one": "Queda {count} globo.",
-      "other": "Quedan {count} globos."
-    },
-    "{count} more to play": {
-      "one": "falta {count}",
-      "other": "faltan {count}"
-    },
-    "{count} moves · {level}": {
-      "one": "{count} movimiento · {level}",
-      "other": "{count} movimientos · {level}"
-    },
-    "{count} practice words": {
-      "one": "{count} palabra de práctica",
-      "other": "{count} palabras de práctica"
-    },
-    "{count} sticks left · {level}": {
-      "one": "Queda {count} palito · {level}",
-      "other": "Quedan {count} palitos · {level}"
-    },
-    "{name} counts… {n} left.": "{name} cuenta… quedan {n}.",
-    "{name} didn't get it either.": "{name} tampoco lo sabía.",
-    "{name} didn't get it either. Tomorrow!": "{name} tampoco lo sabía. ¡Mañana más!",
-    "{name} found it in {count} questions.": {
-      "one": "{name} lo encontró en {count} pregunta.",
-      "other": "{name} lo encontró en {count} preguntas."
-    },
-    "{name} hides one": "{name} esconde uno",
-    "{name} is thinking…": "{name} está pensando…",
-    "{name} took the last stick. You win!": "{name} se quedó el último palito. ¡Ganas!",
-    "{name} was quicker.": "{name} fue más rápido.",
-    "{name} wins this game.": "{name} gana esta partida.",
-    "{name} wins this one.": "Esta la gana {name}.",
-    "{name}'s secret": "El secreto de {name}",
-    "{name}'s turn.": "Turno de {name}.",
-    "{name}: “I saw one… around here?”": "{name}: «Vi una… ¿por aquí?»",
-    "{n} ms": "{n} ms",
-    "{n} of {total}": "{n} de {total}",
-    "2 players": "2 jugadores",
-    "A word from a friend": "Una palabra de un amigo",
-    "A word in pinyin, 2 to 14 letters": "Una palabra en pinyin, de 2 a 14 letras",
-    "A word of 2 to 14 letters": "Una palabra de 2 a 14 letras",
-    "Again!": "¡Otra vez!",
-    "Back to topics": "Volver a los temas",
-    "Both danced!": "¡Los dos bailaron!",
-    "Did you know? From {name}, not checked": "¿Sabías que…? Según {name}, sin comprobar",
-    "Fresh questions": "Preguntas nuevas",
-    "Game {n}": "Partida {n}",
-    "Head to head": "Cara a cara",
-    "Hide it": "Esconderla",
-    "I'm hiding a number from {low} to {high}. Guess it!": "Escondo un número del {low} al {high}. ¡Adivínalo!",
-    "I'm {name}: ready": "Soy {name}: listo",
-    "Made by {name}. They aren't checked, so a fact may be wrong.": "Las escribió {name}. No están comprobadas: algún dato puede estar mal.",
-    "Make questions": "Crear preguntas",
-    "Making questions with AI is off. Here are mine.": "Las preguntas con IA están desactivadas. Aquí tienes las mías.",
-    "Nobody pressed.": "Nadie pulsó.",
-    "Numbers": "Números",
-    "Numbers from {low} to {high}": "Números del {low} al {high}",
-    "Other…": "Otro…",
-    "Pass the Mac to {name}.": "Pasa el Mac a {name}.",
-    "Pick a number from {low} to {high}.": "Elige un número del {low} al {high}.",
-    "Player 1": "Jugador 1",
-    "Player 1's name": "Nombre del jugador 1",
-    "Player 2": "Jugador 2",
-    "Player 2's name": "Nombre del jugador 2",
-    "Questions are already being made. Try again in a moment.": "Ya se están creando preguntas. Inténtalo en un momento.",
-    "Return hides it": "Intro lo esconde",
-    "Round {n}": "Ronda {n}",
-    "Round {n} of 2": "Ronda {n} de 2",
-    "Round {n} of {total}": "Ronda {n} de {total}",
-    "Set": "Aplicar",
-    "That's enough new questions for today. Here are mine.": "Ya hay bastantes preguntas nuevas por hoy. Aquí tienes las mías.",
-    "Type a number from 2 to {max}.": "Escribe un número del 2 al {max}.",
-    "Up to": "Hasta",
-    "Up to which number? 2 to {max}": "¿Hasta qué número? Del 2 al {max}",
-    "Volcanoes, jazz, Japan…": "Volcanes, jazz, Japón…",
-    "Who's playing?": "¿Quién juega?",
-    "vs {name}": "contra {name}",
-    "{a} presses {ka}, {b} presses {kb}. First after Boop! wins.": "{a} pulsa {ka}, {b} pulsa {kb}. Gana el primero después de ¡Bup!.",
-    "{count} moves": {
-      "one": "{count} movimiento",
-      "other": "{count} movimientos"
-    },
-    "{count} sticks left": {
-      "one": "Queda {count} palito",
-      "other": "Quedan {count} palitos"
-    },
-    "{loser} took the last stick. {name} wins!": "{loser} cogió el último palito. ¡Gana {name}!",
-    "{low} to {high}": "{low} a {high}",
-    "{name} copied {n}. {other}'s turn: the same dance.": "{name} imitó {n}. Turno de {other}: el mismo baile.",
-    "{name} copies first.": "{name} imita primero.",
-    "{name} couldn't make questions just now. Here are mine.": "{name} no pudo crear preguntas ahora. Aquí tienes las mías.",
-    "{name} found it!": "¡{name} la encontró!",
-    "{name} hides a number; {other} finds it. Fewer guesses wins.": "{name} esconde un número y {other} lo busca. Gana quien use menos intentos.",
-    "{name} is next.": "Ahora le toca a {name}.",
-    "{name} is picking a topic and writing questions…": "{name} está eligiendo un tema y escribiendo preguntas…",
-    "{name} is taking too long. Here are mine.": "{name} tarda demasiado. Aquí tienes las mías.",
-    "{name} is writing questions about {topic}…": "{name} está escribiendo preguntas sobre {topic}…",
-    "{name} pressed too soon!": "¡{name} pulsó demasiado pronto!",
-    "{name} saved the balloons!": "¡{name} salvó los globos!",
-    "{name} sets a word; {other} guesses it. More balloons kept wins.": "{name} elige una palabra y {other} la adivina. Gana quien conserve más globos.",
-    "{name} takes the round!": "¡{name} gana la ronda!",
-    "{name} wins this game!": "¡{name} gana esta partida!",
-    "{name} wins!": "¡Gana {name}!",
-    "{name} wrote questions I couldn't use. Here are mine.": "{name} escribió preguntas que no pude usar. Aquí tienes las mías.",
-    "{name}'s turn": "Turno de {name}",
-    "{name}'s turn: copy it.": "Turno de {name}: imítalo.",
-    "{name}'s turn: keep your eye on the gem.": "Turno de {name}: no pierdas de vista la gema.",
-    "{name}'s turn: take 1, 2 or 3.": "Turno de {name}: coge 1, 2 o 3.",
-    "{name}'s turn: turn two cards.": "Turno de {name}: da la vuelta a dos cartas.",
-    "{name}'s turn: which cup?": "Turno de {name}: ¿qué vaso?",
-    "{name}, find {other}'s number.": "{name}, encuentra el número de {other}.",
-    "{name}, guess {other}'s word.": "{name}, adivina la palabra de {other}.",
-    "{name}, look away!": "¡{name}, no mires!",
-    "{name}, type a secret number.": "{name}, escribe un número secreto.",
-    "{name}, type a word for {other}.": "{name}, escribe una palabra para {other}.",
-    "{name}: {n} ms": "{name}: {n} ms",
-    "Any topic": "Cualquier tema",
-    "{name} writes the questions": "{name} escribe las preguntas",
-    "Leave it empty and {name} picks one.": "Déjalo vacío y {name} elige uno.",
-    "{count} questions": {
-      "one": "{count} pregunta",
-      "other": "{count} preguntas"
-    },
-    "One new word to find every day": "Una palabra nueva cada día",
-    "Questions on every topic": "Preguntas de todos los temas",
-    "Three in a row wins": "Tres en raya gana",
-    "Watch the moves, then copy them": "Mira los pasos y cópialos",
-    "Boop the moment it says Boop!": "Pulsa justo cuando diga ¡Bup!",
-    "Keep your eye on the gem": "No pierdas de vista la gema",
-    "Hot or cold? Find the number": "¿Frío o caliente? Encuentra el número",
-    "Yes or no, until one guesses": "Sí o no, hasta adivinarlo",
-    "Find the word before the balloons go": "Adivina la palabra antes de que se vayan los globos",
-    "Don’t take the last stick!": "¡No cojas el último palito!",
-    "Turn two cards, find the pairs": "Gira dos cartas, encuentra las parejas",
-    "Split the garden into plots by their numbers": "Divide el huerto según sus números",
-    "Balance hearts and stars in every line": "Equilibra corazones y estrellas en cada línea",
-    "Each number once in every row, column and box": "Cada número una vez por fila, columna y bloque",
-    "One flower in every row, column and bed": "Una flor por fila, columna y macizo",
-    "Playtime": "Ratos libres",
-    "1–9 to play": "1–9 para jugar",
-    "1–{n} to answer": "1–{n} para responder",
-    "A daily seven days running": "Un reto diario siete días seguidos",
-    "A draw": "Empate",
-    "A week of dailies": "Una semana de retos",
-    "All games": "Todos los juegos",
-    "Arrows and Return to pick": "Flechas y Retorno para elegir",
-    "Arrows to choose · Return to play · Esc to close": "Flechas para elegir · Retorno para jugar · Esc para cerrar",
-    "Back to games": "Volver a los juegos",
-    "Badges": "Insignias",
-    "Beat your companion once": "Gana a tu compañero una vez",
-    "Continue {title}": "Continuar {title}",
-    "Delete": "Eliminar",
-    "Esc to close": "Esc para cerrar",
-    "Every daily done today": "Todos los retos de hoy hechos",
-    "Explorer": "Explorador",
-    "Fifty wins": "Cincuenta victorias",
-    "First win": "Primera victoria",
-    "Five wins in a row": "Cinco victorias seguidas",
-    "Full house": "Pleno",
-    "Game settings": "Ajustes de juegos",
-    "Game sounds off": "Sonidos de juegos desactivados",
-    "Game sounds on": "Sonidos de juegos activados",
-    "Games against {name}, and puzzles of your own": "Juegos contra {name} y rompecabezas para ti",
-    "Games you finish show here.": "Aquí aparecen las partidas que terminas.",
-    "Hat trick": "Triplete",
-    "Last games": "Últimas partidas",
-    "Levels": "Niveles",
-    "OK": "Aceptar",
-    "Pick a game! Can you beat me?": "¡Elige un juego! ¿Me ganas?",
-    "Play": "Jugar",
-    "Play against a friend on this Mac": "Jugar contra un amigo en este Mac",
-    "Play against {name}": "Contra {name}",
-    "Play every game once": "Juega una vez a cada juego",
-    "Play today's {title}": "Jugar al {title} de hoy",
-    "Play {title}": "Jugar a {title}",
-    "Played {title} with {with}": "Partida de {title} con {with}",
-    "Played {title}: {first} {x} · {second} {y}": "Jugaste a {title}: {first} {x} · {second} {y}",
-    "Put the game away": "Guardar el juego",
-    "Puzzler": "Rompecabecista",
-    "Puzzles": "Rompecabezas",
-    "Ready when you are!": "¡Cuando quieras!",
-    "Resume": "Reanudar",
-    "Return: {label}": "Retorno: {label}",
-    "Show the Game Center": "Mostrar el centro de juegos",
-    "Show the games": "Ver los juegos",
-    "Solve ten puzzles": "Resuelve diez rompecabezas",
-    "Surprise me": "Sorpréndeme",
-    "Ten wins": "Diez victorias",
-    "Three wins in a row": "Tres victorias seguidas",
-    "Today": "Hoy",
-    "Today's boards are waiting!": "¡Los tableros de hoy te esperan!",
-    "Try this word": "Probar esta palabra",
-    "Type a letter": "Escribe una letra",
-    "Type a number, Return to guess": "Escribe un número, Retorno para probar",
-    "Type a word, Return to try": "Escribe una palabra, Retorno para probar",
-    "Unstoppable": "Imparable",
-    "VS": "VS",
-    "Win fifty games": "Gana cincuenta partidas",
-    "Win ten games": "Gana diez partidas",
-    "Wins": "Victorias",
-    "Won {won} of {played}": "{won} ganadas de {played}",
-    "You": "Tú",
-    "You win!": "¡Ganaste!",
-    "You won": "Ganaste",
-    "You {x} · {name} {y}": "Tú {x} · {name} {y}",
-    "Your guess": "Tu número",
-    "right": "correcta",
-    "wrong": "incorrecta",
-    "your pick": "tu elección",
-    "{keys} to play": "{keys} para jugar",
-    "{left} of {total} left": "Quedan {left} de {total}",
-    "{name} has picked": "{name} ya eligió",
-    "{name} won": "Ganó {name}",
-    "{name}'s pick": "elección de {name}",
-    "{n} days in a row": "{n} días seguidos",
-    "{n} in a row": "{n} seguidas",
-    "{n} of {total} earned": "{n} de {total} conseguidas",
-    "{n} seconds left": "quedan {n} s",
-    "{n} solved": "{n} resueltos",
-    "{n} wins in a row": "{n} victorias seguidas",
-    "{title} has no level “{level}”.": "{title} no tiene el nivel «{level}».",
-    "{title} has no levels.": "{title} no tiene niveles.",
-    "{title} is already at its easiest.": "{title} ya está en lo más fácil.",
-    "{title} is already at its hardest.": "{title} ya está en lo más difícil.",
-    "Trivia questions": "Preguntas de trivia",
-    "Trivia about {topic}": "Trivia sobre {topic}",
-    "Rock": "Piedra",
-    "Paper": "Papel",
-    "Scissors": "Tijera",
-    "heads": "cara",
-    "tails": "cruz",
-    "Again": "Otra vez",
-    "Best of three, no peeking": "Al mejor de tres, sin mirar",
-    "Both {hand}: a draw.": "Los dos sacaron {hand}: empate.",
-    "Dice have 2 to 100 sides, and the number added is at most 100.": "Los dados tienen de 2 a 100 caras, y el número que se suma es como máximo 100.",
-    "Doubles!": "¡Dobles!",
-    "Flip a coin": "Lanzar una moneda",
-    "Flip between 1 and {n} coins at a time.": "Lanza entre 1 y {n} monedas a la vez.",
-    "Flip {n} coins": "Lanzar {n} monedas",
-    "Heads or tails…": "Cara o cruz…",
-    "Heads!": "¡Cara!",
-    "I'm going paper…": "Voy a sacar papel…",
-    "I'm going rock…": "Voy a sacar piedra…",
-    "I'm going scissors…": "Voy a sacar tijera…",
-    "It's {n}!": "¡Salió el {n}!",
-    "Natural 20!": "¡20 natural!",
-    "Next one's yours.": "La próxima es tuya.",
-    "Oof.": "Uf.",
-    "Paper beats rock: I win!": "El papel gana a la piedra: ¡gano yo!",
-    "Paper beats rock: you win!": "El papel gana a la piedra: ¡ganas tú!",
-    "Paper…": "Papel…",
-    "Rematch": "Revancha",
-    "Rock beats scissors: I win!": "La piedra gana a la tijera: ¡gano yo!",
-    "Rock beats scissors: you win!": "La piedra gana a la tijera: ¡ganas tú!",
-    "Rock, Paper, Scissors": "Piedra, papel o tijera",
-    "Rock, paper or scissors?": "¿Piedra, papel o tijera?",
-    "Rock, paper, scissors": "Piedra, papel o tijera",
-    "Rock…": "Piedra…",
-    "Rock… paper… scissors…": "Piedra… papel… tijera…",
-    "Roll a die": "Tirar un dado",
-    "Roll between 1 and {n} dice at a time.": "Tira entre 1 y {n} dados a la vez.",
-    "Roll {dice}": "Tirar {dice}",
-    "Rolling…": "Tirando…",
-    "Scissors beat paper: I win!": "La tijera gana al papel: ¡gano yo!",
-    "Scissors beat paper: you win!": "La tijera gana al papel: ¡ganas tú!",
-    "Scissors…": "Tijera…",
-    "Shoot!": "¡Ya!",
-    "Snake eyes!": "¡Doble uno!",
-    "Tails!": "¡Cruz!",
-    "Tell me the user's hand: rock, paper or scissors.": "Dime qué eliges: piedra, papel o tijera.",
-    "We both played paper: a draw!": "Los dos hemos sacado papel: ¡empate!",
-    "We both played rock: a draw!": "Los dos hemos sacado piedra: ¡empate!",
-    "We both played scissors: a draw!": "Los dos hemos sacado tijera: ¡empate!",
-    "You called it!": "¡Acertaste!",
-    "You win the match!": "¡Ganas la partida!",
-    "{name} wins the match!": "¡{name} gana la partida!",
-    "{name} wins the match.": "{name} gana la partida.",
-    "{name}, pick your hand.": "{name}, elige tu mano.",
-    "{n} coins": "{n} monedas",
-    "{n} in a row!": "¡{n} seguidas!",
-    "{win} beats {lose}: a point for {name}.": "{win} gana a {lose}: un punto para {name}.",
-    "“kind” must be coin, dice or rock_paper_scissors.": "“kind” debe ser coin, dice o rock_paper_scissors.",
-    "A coin": "Una moneda",
-    "{n} dice": "{n} dados"
-  },
-  "examples": [
-    "juguemos al trivial"
-  ],
-  "surfaces": {
-    "play": {
-      "title": "Ratos libres"
-    },
-    "toss": {
-      "title": "Moneda, dados y manos"
+    "level": {
+      "easy": [
+        "fácil"
+      ],
+      "fair": [
+        "medio"
+      ],
+      "hard": [
+        "difícil"
+      ]
     }
   },
   "commands": {
-    "daily_word": {
-      "say": [
-        "palabra del día"
-      ],
-      "names": [
-        "la palabra del día"
-      ]
-    },
-    "trivia": {
-      "say": [
-        "juguemos a trivia"
-      ],
-      "names": []
-    },
-    "tictactoe": {
-      "say": [
-        "juguemos al tres en raya"
-      ],
-      "names": [
-        "tres en raya",
-        "juguemos al tres en raya"
-      ]
-    },
-    "copy_me": {
-      "say": [
-        "juguemos a imítame"
-      ],
-      "names": [
-        "imítame"
-      ]
-    },
-    "quick_paws": {
-      "say": [
-        "juguemos a patas rápidas"
-      ],
-      "names": [
-        "patas rápidas"
-      ]
-    },
-    "which_cup": {
-      "say": [
-        "juguemos a qué vaso"
-      ],
-      "names": [
-        "¿qué vaso?",
-        "juguemos a qué vaso"
-      ]
-    },
-    "higher_lower": {
-      "say": [
-        "juguemos a mayor o menor"
-      ],
-      "names": [
-        "mayor o menor"
-      ]
-    },
-    "guess_animal": {
-      "say": [
-        "juguemos a adivina mi animal"
-      ],
-      "names": [
-        "adivina mi animal"
-      ]
-    },
+    "again": [
+      "revancha",
+      "la revancha",
+      "quiero la revancha",
+      "otra partida",
+      "otra ronda",
+      "juguemos otra vez",
+      "jugar otra vez",
+      "jugar de nuevo",
+      "juguemos de nuevo"
+    ],
     "balloon_words": {
-      "say": [
-        "juguemos a palabras globo"
-      ],
       "names": [
         "palabras globo"
+      ],
+      "say": [
+        "juguemos a palabras globo"
+      ]
+    },
+    "blossoms": {
+      "names": [
+        "flores"
+      ],
+      "say": [
+        "juguemos a las flores"
+      ]
+    },
+    "center": [
+      "mis puntuaciones",
+      "muéstrame mis puntuaciones",
+      "mis estadísticas",
+      "mis récords",
+      "mis insignias",
+      "mis marcadores",
+      "centro de juegos",
+      "el centro de juegos",
+      "abre el centro de juegos"
+    ],
+    "copy_me": {
+      "names": [
+        "imítame"
+      ],
+      "say": [
+        "juguemos a imítame"
+      ]
+    },
+    "daily_word": {
+      "names": [
+        "la palabra del día"
+      ],
+      "say": [
+        "palabra del día"
+      ]
+    },
+    "easier": [
+      "más fácil",
+      "hazlo más fácil",
+      "demasiado difícil",
+      "es demasiado difícil",
+      "baja la dificultad"
+    ],
+    "guess_animal": {
+      "names": [
+        "adivina mi animal"
+      ],
+      "say": [
+        "juguemos a adivina mi animal"
+      ]
+    },
+    "harder": [
+      "más difícil",
+      "hazlo más difícil",
+      "demasiado fácil",
+      "es demasiado fácil",
+      "sube la dificultad"
+    ],
+    "higher_lower": {
+      "names": [
+        "mayor o menor"
+      ],
+      "say": [
+        "juguemos a mayor o menor"
       ]
     },
     "last_stick": {
-      "say": [
-        "juguemos al último palito"
-      ],
       "names": [
         "el último palito",
+        "juguemos al último palito"
+      ],
+      "say": [
         "juguemos al último palito"
       ]
     },
     "memory_pairs": {
-      "say": [
-        "juguemos a memoria"
-      ],
       "names": [
         "parejas de memoria",
         "juguemos a memoria"
-      ]
-    },
-    "plots": {
-      "say": [
-        "juguemos a parcelas del huerto"
       ],
-      "names": [
-        "parcelas del huerto"
-      ]
-    },
-    "seesaw": {
       "say": [
-        "juguemos al balancín"
-      ],
-      "names": [
-        "balancín",
-        "juguemos al balancín"
-      ]
-    },
-    "sudoku": {
-      "say": [
-        "juguemos al sudoku"
-      ],
-      "names": [
-        "juguemos al sudoku"
-      ]
-    },
-    "blossoms": {
-      "say": [
-        "juguemos a las flores"
-      ],
-      "names": [
-        "flores"
+        "juguemos a memoria"
       ]
     },
     "number_mine": {
@@ -768,41 +230,30 @@
         "yo pienso un número"
       ]
     },
-    "again": [
-      "revancha",
-      "la revancha",
-      "quiero la revancha",
-      "otra partida",
-      "otra ronda",
-      "juguemos otra vez",
-      "jugar otra vez",
-      "jugar de nuevo",
-      "juguemos de nuevo"
+    "pause": [
+      "pausa el juego",
+      "pausar el juego",
+      "pon el juego en pausa",
+      "juego en pausa",
+      "pausa la partida",
+      "esconde el juego"
     ],
-    "harder": [
-      "más difícil",
-      "hazlo más difícil",
-      "demasiado fácil",
-      "es demasiado fácil",
-      "sube la dificultad"
-    ],
-    "easier": [
-      "más fácil",
-      "hazlo más fácil",
-      "demasiado difícil",
-      "es demasiado difícil",
-      "baja la dificultad"
-    ],
-    "resume": [
-      "reanuda el juego",
-      "reanudar el juego",
-      "reanuda la partida",
-      "continúa la partida",
-      "continuar la partida",
-      "seguir jugando",
-      "sigamos jugando",
-      "volver al juego"
-    ],
+    "plots": {
+      "names": [
+        "parcelas del huerto"
+      ],
+      "say": [
+        "juguemos a parcelas del huerto"
+      ]
+    },
+    "quick_paws": {
+      "names": [
+        "patas rápidas"
+      ],
+      "say": [
+        "juguemos a patas rápidas"
+      ]
+    },
     "random": [
       "un juego al azar",
       "juego al azar",
@@ -814,25 +265,38 @@
       "cualquier juego",
       "escoge un juego"
     ],
-    "center": [
-      "mis puntuaciones",
-      "muéstrame mis puntuaciones",
-      "mis estadísticas",
-      "mis récords",
-      "mis insignias",
-      "mis marcadores",
-      "centro de juegos",
-      "el centro de juegos",
-      "abre el centro de juegos"
+    "resume": [
+      "reanuda el juego",
+      "reanudar el juego",
+      "reanuda la partida",
+      "continúa la partida",
+      "continuar la partida",
+      "seguir jugando",
+      "sigamos jugando",
+      "volver al juego"
     ],
-    "pause": [
-      "pausa el juego",
-      "pausar el juego",
-      "pon el juego en pausa",
-      "juego en pausa",
-      "pausa la partida",
-      "esconde el juego"
-    ],
+    "rock_paper_scissors": {
+      "names": [
+        "piedra papel o tijera",
+        "piedra papel tijera"
+      ],
+      "say": [
+        "piedra papel o tijera",
+        "piedra, papel o tijera",
+        "piedra papel tijera",
+        "juguemos a piedra papel o tijera",
+        "vamos a jugar a piedra papel o tijera"
+      ]
+    },
+    "seesaw": {
+      "names": [
+        "balancín",
+        "juguemos al balancín"
+      ],
+      "say": [
+        "juguemos al balancín"
+      ]
+    },
     "sounds_off": [
       "silencia el juego",
       "apaga los sonidos del juego",
@@ -847,17 +311,21 @@
       "pon el sonido del juego",
       "sonidos del juego activados"
     ],
-    "rock_paper_scissors": {
-      "say": [
-        "piedra papel o tijera",
-        "piedra, papel o tijera",
-        "piedra papel tijera",
-        "juguemos a piedra papel o tijera",
-        "vamos a jugar a piedra papel o tijera"
-      ],
+    "sudoku": {
       "names": [
-        "piedra papel o tijera",
-        "piedra papel tijera"
+        "juguemos al sudoku"
+      ],
+      "say": [
+        "juguemos al sudoku"
+      ]
+    },
+    "tictactoe": {
+      "names": [
+        "tres en raya",
+        "juguemos al tres en raya"
+      ],
+      "say": [
+        "juguemos al tres en raya"
       ]
     },
     "toss_coin": [
@@ -886,18 +354,17 @@
       "lanza {many:coins_many} monedas",
       "tira {many:coins_many} monedas"
     ],
-    "toss_die": [
-      "lanza un dado",
-      "tira un dado",
-      "lanza el dado",
-      "tira el dado",
-      "tira un dado por mí"
+    "toss_d": [
+      "lanza un d{sides:integer:2-100}",
+      "tira un d{sides:integer:2-100}",
+      "lanza un dado de {sides:integer:2-100} caras",
+      "tira un dado de {sides:integer:2-100} caras"
     ],
-    "toss_two_dice": [
-      "lanza los dados",
-      "tira los dados",
-      "lanza dados",
-      "tira dados"
+    "toss_d_minus": [
+      "tira un d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "tira un d{sides:integer:2-100}+{modifier:integer:1-100}"
     ],
     "toss_dice": [
       "lanza {count:integer:1-10} dados",
@@ -907,29 +374,12 @@
       "lanza {many:dice_many} dados",
       "tira {many:dice_many} dados"
     ],
-    "toss_d": [
-      "lanza un d{sides:integer:2-100}",
-      "tira un d{sides:integer:2-100}",
-      "lanza un dado de {sides:integer:2-100} caras",
-      "tira un dado de {sides:integer:2-100} caras"
-    ],
-    "toss_nd": [
-      "tira {count:integer:1-10}d{sides:integer:2-100}",
-      "lanza {count:integer:1-10}d{sides:integer:2-100}"
-    ],
-    "toss_nd_plus": [
-      "tira {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}",
-      "lanza {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
-    ],
-    "toss_d_plus": [
-      "tira un d{sides:integer:2-100}+{modifier:integer:1-100}"
-    ],
-    "toss_nd_minus": [
-      "tira {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}",
-      "lanza {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
-    ],
-    "toss_d_minus": [
-      "tira un d{sides:integer:2-100}-{minus:integer:1-100}"
+    "toss_die": [
+      "lanza un dado",
+      "tira un dado",
+      "lanza el dado",
+      "tira el dado",
+      "tira un dado por mí"
     ],
     "toss_hand": [
       "elijo {hand:hand}",
@@ -938,31 +388,113 @@
       "piedra papel o tijera, {hand:hand}",
       "piedra papel o tijera: {hand:hand}"
     ],
-    "toss_rock": [
-      "piedra"
+    "toss_many_d": [
+      "lanza {many:dice_many} d{sides:integer:2-100}",
+      "tira {many:dice_many} d{sides:integer:2-100}"
+    ],
+    "toss_nd": [
+      "tira {count:integer:1-10}d{sides:integer:2-100}",
+      "lanza {count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_minus": [
+      "tira {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}",
+      "lanza {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_nd_plus": [
+      "tira {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}",
+      "lanza {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
     ],
     "toss_paper": [
       "papel"
+    ],
+    "toss_rock": [
+      "piedra"
     ],
     "toss_scissors": [
       "tijera",
       "tijeras"
     ],
-    "toss_many_d": [
-      "lanza {many:dice_many} d{sides:integer:2-100}",
-      "tira {many:dice_many} d{sides:integer:2-100}"
-    ]
-  },
-  "ai_purpose": "para escribir preguntas de trivia sobre un tema que elijas",
-  "parts": {
-    "level": [
-      "{level:level}"
+    "toss_two_dice": [
+      "lanza los dados",
+      "tira los dados",
+      "lanza dados",
+      "tira dados"
     ],
+    "trivia": {
+      "names": [],
+      "say": [
+        "juguemos a trivia"
+      ]
+    },
+    "which_cup": {
+      "names": [
+        "¿qué vaso?",
+        "juguemos a qué vaso"
+      ],
+      "say": [
+        "juguemos a qué vaso"
+      ]
+    }
+  },
+  "description": "Un respiro con tu compañero: once juegos contra él, a su lado en el escritorio (un quiz, tres en raya, Imítame y más) y cinco rompecabezas para ti (la palabra del día, el sudoku y más), con tus puntuaciones, mejores tiempos y rachas guardados, y el azar para elegir un número o una opción de una lista.",
+  "entries": {
+    "all_games": "Todos los juegos…",
+    "call_heads": "Pedir cara",
+    "call_tails": "Pedir cruz",
+    "flip_coin": "Lanzar una moneda",
+    "games": "Juegos",
+    "just_flip": "Solo lanzar",
+    "play": "Juegos",
+    "play_balloon_words": "Palabras globo",
+    "play_blossoms": "Flores",
+    "play_copy_me": "Imítame",
+    "play_daily_word": "La palabra del día",
+    "play_guess_animal": "Adivina mi animal",
+    "play_higher_lower": "Mayor o menor",
+    "play_last_stick": "El último palito",
+    "play_memory_pairs": "Parejas de memoria",
+    "play_plots": "Parcelas del huerto",
+    "play_quick_paws": "Patas rápidas",
+    "play_rock_paper_scissors": "Piedra, papel o tijera",
+    "play_seesaw": "Balancín",
+    "play_sudoku": "Sudoku",
+    "play_tictactoe": "Tres en raya",
+    "play_trivia": "Quiz",
+    "play_which_cup": "¿Qué vaso?",
+    "quick_throw": "Tirada rápida",
+    "roll_die": "Tirar un dado",
+    "throw_paper": "Papel",
+    "throw_rock": "Piedra",
+    "throw_scissors": "Tijera"
+  },
+  "examples": [
+    "juguemos al trivial"
+  ],
+  "name": "Ratos libres",
+  "pages": {
+    "playtime": {
+      "title": "Ratos libres"
+    }
+  },
+  "parts": {
     "count": [
       "{count:integer:1-50} preguntas",
       "{count:integer:1-50} pregunta",
       "{count:integer:1-50} rondas",
       "{count:integer:1-50} ronda"
+    ],
+    "friend": [
+      "con mi amigo",
+      "con mi amiga",
+      "con un amigo",
+      "con una amiga",
+      "con mis amigos",
+      "contra mi amigo",
+      "dos jugadores",
+      "2 jugadores"
+    ],
+    "level": [
+      "{level:level}"
     ],
     "range": [
       "entre {min:integer} y {max:integer}",
@@ -978,332 +510,809 @@
       "sobre la {topic:text:40}",
       "sobre los {topic:text:40}",
       "sobre las {topic:text:40}"
-    ],
-    "friend": [
-      "con mi amigo",
-      "con mi amiga",
-      "con un amigo",
-      "con una amiga",
-      "con mis amigos",
-      "contra mi amigo",
-      "dos jugadores",
-      "2 jugadores"
     ]
   },
-  "choices": {
-    "level": {
-      "easy": [
-        "fácil"
-      ],
-      "fair": [
-        "medio"
-      ],
-      "hard": [
-        "difícil"
-      ]
-    },
-    "call": {
-      "heads": [
-        "cara"
-      ],
-      "tails": [
-        "cruz",
-        "sello"
-      ]
-    },
-    "hand": {
-      "rock": [
-        "piedra"
-      ],
-      "paper": [
-        "papel"
-      ],
-      "scissors": [
-        "tijera",
-        "tijeras"
-      ]
-    },
-    "coins_many": {
-      "n2": [
-        "dos"
-      ],
-      "n3": [
-        "tres"
-      ],
-      "n4": [
-        "cuatro"
-      ],
-      "n5": [
-        "cinco"
-      ]
-    },
-    "dice_many": {
-      "n2": [
-        "dos"
-      ],
-      "n3": [
-        "tres"
-      ],
-      "n4": [
-        "cuatro"
-      ],
-      "n5": [
-        "cinco"
-      ],
-      "n6": [
-        "seis"
-      ],
-      "n7": [
-        "siete"
-      ],
-      "n8": [
-        "ocho"
-      ],
-      "n9": [
-        "nueve"
-      ],
-      "n10": [
-        "diez"
-      ]
-    }
-  },
-  "carry": {
-    "words": [
-      "juguemos",
-      "jugar",
-      "juega",
-      "vamos",
-      "el",
-      "los",
-      "las",
-      "una",
-      "partida",
-      "juego",
-      "quiero",
-      "contigo",
-      "tú",
-      "modo",
-      "nivel",
-      "dificultad",
-      "y",
-      "día",
-      "hoy",
-      "nueva",
-      "nuevo",
-      "del"
-    ],
-    "lead": [
-      "juguemos",
-      "jugar",
-      "juega",
-      "día"
-    ],
-    "inside": [],
-    "endings": []
-  },
-  "entries": {
-    "games": "Juegos",
-    "play": "Juegos",
-    "all_games": "Todos los juegos…",
-    "play_which_cup": "¿Qué vaso?",
-    "play_copy_me": "Imítame",
-    "play_quick_paws": "Patas rápidas",
-    "play_last_stick": "El último palito",
-    "play_trivia": "Quiz",
-    "play_tictactoe": "Tres en raya",
-    "play_higher_lower": "Mayor o menor",
-    "play_guess_animal": "Adivina mi animal",
-    "play_balloon_words": "Palabras globo",
-    "play_memory_pairs": "Parejas de memoria",
-    "play_daily_word": "La palabra del día",
-    "play_plots": "Parcelas del huerto",
-    "play_seesaw": "Balancín",
-    "play_sudoku": "Sudoku",
-    "play_blossoms": "Flores",
-    "play_rock_paper_scissors": "Piedra, papel o tijera",
-    "flip_coin": "Lanzar una moneda",
-    "call_heads": "Pedir cara",
-    "call_tails": "Pedir cruz",
-    "just_flip": "Solo lanzar",
-    "roll_die": "Tirar un dado",
-    "quick_throw": "Tirada rápida",
-    "throw_rock": "Piedra",
-    "throw_paper": "Papel",
-    "throw_scissors": "Tijera"
-  },
   "settings": {
-    "tone": {
-      "title": "Cuando gana",
-      "detail": "Cómo se toma {companion} una victoria",
-      "options": {
-        "gentle": "Gentle",
-        "cheeky": "Cheeky",
-        "competitive": "Competitive"
-      }
-    },
-    "sounds": {
-      "title": "Sonidos de juegos",
-      "detail": "Sonidos suaves en todos los juegos; el altavoz de cada juego cambia el suyo"
-    },
-    "sneaky": {
-      "title": "Tramposo",
-      "detail": "{companion} puede hacer trampa de broma donde un juego lo permita, y lo confiesa si lo pillas"
-    },
-    "sound_daily_word": {
-      "title": "La palabra del día"
-    },
-    "sound_trivia": {
-      "title": "Quiz"
-    },
-    "level_trivia": {
-      "title": "Quiz",
+    "level_balloon_words": {
       "options": {
         "default": "Predeterminado",
         "easy": "Fácil",
         "fair": "Normal",
         "hard": "Difícil"
-      }
+      },
+      "title": "Palabras globo"
     },
-    "sound_tictactoe": {
-      "title": "Tres en raya"
-    },
-    "level_tictactoe": {
-      "title": "Tres en raya",
+    "level_blossoms": {
       "options": {
         "default": "Predeterminado",
         "easy": "Fácil",
         "fair": "Normal",
         "hard": "Difícil"
-      }
-    },
-    "sound_copy_me": {
-      "title": "Imítame"
+      },
+      "title": "Flores"
     },
     "level_copy_me": {
-      "title": "Imítame",
       "options": {
         "default": "Predeterminado",
         "easy": "Fácil",
         "fair": "Normal",
         "hard": "Difícil"
-      }
+      },
+      "title": "Imítame"
     },
-    "sound_quick_paws": {
-      "title": "Patas rápidas"
+    "level_last_stick": {
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      },
+      "title": "El último palito"
+    },
+    "level_memory_pairs": {
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      },
+      "title": "Parejas de memoria"
+    },
+    "level_plots": {
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      },
+      "title": "Parcelas del huerto"
     },
     "level_quick_paws": {
-      "title": "Patas rápidas",
       "options": {
         "default": "Predeterminado",
         "easy": "Fácil",
         "fair": "Normal",
         "hard": "Difícil"
-      }
+      },
+      "title": "Patas rápidas"
     },
-    "sound_which_cup": {
-      "title": "¿Qué vaso?"
+    "level_seesaw": {
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      },
+      "title": "Balancín"
+    },
+    "level_sudoku": {
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      },
+      "title": "Sudoku"
+    },
+    "level_tictactoe": {
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      },
+      "title": "Tres en raya"
+    },
+    "level_trivia": {
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      },
+      "title": "Quiz"
     },
     "level_which_cup": {
-      "title": "¿Qué vaso?",
       "options": {
         "default": "Predeterminado",
         "easy": "Fácil",
         "fair": "Normal",
         "hard": "Difícil"
-      }
+      },
+      "title": "¿Qué vaso?"
     },
-    "sound_higher_lower": {
-      "title": "Mayor o menor"
-    },
-    "sound_guess_animal": {
-      "title": "Adivina mi animal"
+    "sneaky": {
+      "detail": "{companion} puede hacer trampa de broma donde un juego lo permita, y lo confiesa si lo pillas",
+      "title": "Tramposo"
     },
     "sound_balloon_words": {
       "title": "Palabras globo"
     },
-    "level_balloon_words": {
-      "title": "Palabras globo",
-      "options": {
-        "default": "Predeterminado",
-        "easy": "Fácil",
-        "fair": "Normal",
-        "hard": "Difícil"
-      }
+    "sound_blossoms": {
+      "title": "Flores"
+    },
+    "sound_copy_me": {
+      "title": "Imítame"
+    },
+    "sound_daily_word": {
+      "title": "La palabra del día"
+    },
+    "sound_guess_animal": {
+      "title": "Adivina mi animal"
+    },
+    "sound_higher_lower": {
+      "title": "Mayor o menor"
     },
     "sound_last_stick": {
       "title": "El último palito"
     },
-    "level_last_stick": {
-      "title": "El último palito",
-      "options": {
-        "default": "Predeterminado",
-        "easy": "Fácil",
-        "fair": "Normal",
-        "hard": "Difícil"
-      }
-    },
     "sound_memory_pairs": {
       "title": "Parejas de memoria"
-    },
-    "level_memory_pairs": {
-      "title": "Parejas de memoria",
-      "options": {
-        "default": "Predeterminado",
-        "easy": "Fácil",
-        "fair": "Normal",
-        "hard": "Difícil"
-      }
     },
     "sound_plots": {
       "title": "Parcelas del huerto"
     },
-    "level_plots": {
-      "title": "Parcelas del huerto",
-      "options": {
-        "default": "Predeterminado",
-        "easy": "Fácil",
-        "fair": "Normal",
-        "hard": "Difícil"
-      }
+    "sound_quick_paws": {
+      "title": "Patas rápidas"
+    },
+    "sound_rock_paper_scissors": {
+      "title": "Piedra, papel o tijera"
     },
     "sound_seesaw": {
       "title": "Balancín"
     },
-    "level_seesaw": {
-      "title": "Balancín",
-      "options": {
-        "default": "Predeterminado",
-        "easy": "Fácil",
-        "fair": "Normal",
-        "hard": "Difícil"
-      }
-    },
     "sound_sudoku": {
       "title": "Sudoku"
     },
-    "level_sudoku": {
-      "title": "Sudoku",
+    "sound_tictactoe": {
+      "title": "Tres en raya"
+    },
+    "sound_trivia": {
+      "title": "Quiz"
+    },
+    "sound_which_cup": {
+      "title": "¿Qué vaso?"
+    },
+    "sounds": {
+      "detail": "Sonidos suaves en todos los juegos; el altavoz de cada juego cambia el suyo",
+      "title": "Sonidos de juegos"
+    },
+    "tone": {
+      "detail": "Cómo se toma {companion} una victoria",
       "options": {
-        "default": "Predeterminado",
-        "easy": "Fácil",
-        "fair": "Normal",
-        "hard": "Difícil"
-      }
+        "cheeky": "Cheeky",
+        "competitive": "Competitive",
+        "gentle": "Gentle"
+      },
+      "title": "Cuando gana"
+    }
+  },
+  "surfaces": {
+    "play": {
+      "title": "Ratos libres"
     },
-    "sound_blossoms": {
-      "title": "Flores"
+    "toss": {
+      "title": "Moneda, dados y manos"
+    }
+  },
+  "tagline": "Juegos y rompecabezas con tu compañero, y sorteos",
+  "text": {
+    "1–9 to play": "1–9 para jugar",
+    "1–{n} to answer": "1–{n} para responder",
+    "1–{n} to copy": "1–{n} para imitar",
+    "1–{n} to pick": "1–{n} para elegir",
+    "1–{n} to take": "1–{n} para tomar",
+    "2 players": "2 jugadores",
+    "A bed kept to one line rules out the rest of that line, leaving this.": "Un macizo limitado a una sola línea descarta el resto de esa línea: queda esta.",
+    "A blossom in the other places leads to a dead end a few moves on.": "Una flor en los otros sitios lleva a un callejón sin salida unas jugadas más adelante.",
+    "A blossom in the other places would leave a row, column or bed no room, leaving this.": "Una flor en los otros sitios dejaría una fila, columna o macizo sin sitio: queda esta.",
+    "A coin": "Una moneda",
+    "A daily seven days running": "Un reto diario siete días seguidos",
+    "A draw": "Empate",
+    "A draw!": "¡Empate!",
+    "A hint": "Una pista",
+    "A new best for {level}!": "¡Nuevo récord en {level}!",
+    "A new best: {count} moves!": {
+      "one": "¡Nuevo récord: {count} movimiento!",
+      "other": "¡Nuevo récord: {count} movimientos!"
     },
-    "level_blossoms": {
-      "title": "Flores",
-      "options": {
-        "default": "Predeterminado",
-        "easy": "Fácil",
-        "fair": "Normal",
-        "hard": "Difícil"
-      }
+    "A new word and {count} puzzle boards every day": {
+      "one": "Una palabra nueva y {count} rompecabezas cada día",
+      "other": "Una palabra nueva y {count} rompecabezas cada día"
     },
-    "sound_rock_paper_scissors": {
-      "title": "Piedra, papel o tijera"
+    "A number kept to one line of a box rules it out elsewhere, leaving this.": "Un número limitado a una línea de un bloque se descarta en el resto: queda este.",
+    "A plot can hold only one number.": "Una parcela solo puede tener un número.",
+    "A plot has as many squares as its number.": "Una parcela tiene tantas casillas como su número.",
+    "A plot needs one number in it.": "Una parcela necesita un número dentro.",
+    "A quiz with {name}": "Un quiz con {name}",
+    "A square here can only belong to this number.": "Una casilla aquí solo puede ser de este número.",
+    "A week of dailies": "Una semana de retos",
+    "A word from a friend": "Una palabra de un amigo",
+    "A word in pinyin, 2 to 14 letters": "Una palabra en pinyin, de 2 a 14 letras",
+    "A word of 2 to 14 letters": "Una palabra de 2 a 14 letras",
+    "A yes-or-no question that tells {new} from {old}?": "¿Una pregunta de sí o no que distinga {new} de {old}?",
+    "Again": "Otra vez",
+    "Again!": "¡Otra vez!",
+    "All games": "Todos los juegos",
+    "All pairs found.": "Todas las parejas encontradas.",
+    "All three of today's boards are solved. Come back tomorrow for new ones.": "Los tres rompecabezas de hoy están resueltos. Vuelve mañana por otros nuevos.",
+    "Anchor": "Ancla",
+    "And for {new}, the answer is…": "Y para {new}, la respuesta es…",
+    "Animals": "Animales",
+    "Another topic": "Otro tema",
+    "Any other plot leads to a dead end a few plots on.": "Cualquier otra parcela lleva a un callejón sin salida unas parcelas más adelante.",
+    "Any other plot would leave a number or a square with nowhere to go.": "Cualquier otra parcela dejaría un número o una casilla sin salida.",
+    "Any topic": "Cualquier tema",
+    "Arrows and Return to pick": "Flechas y Retorno para elegir",
+    "Arrows to choose · Return to play · Esc to close": "Flechas para elegir · Retorno para jugar · Esc para cerrar",
+    "Arts": "Arte",
+    "As many hearts as stars in every row and column, never three alike in a line. = means the same, × different.": "Tantos corazones como estrellas en cada fila y columna, nunca tres iguales seguidos. = significa igual, × distinto.",
+    "Ask {name}": "Pregúntale a {name}",
+    "At home": "En casa",
+    "Back to games": "Volver a los juegos",
+    "Back to topics": "Volver a los temas",
+    "Badges": "Insignias",
+    "Balance hearts and stars in every line": "Equilibra corazones y estrellas en cada línea",
+    "Balloon Words": "Palabras globo",
+    "Beat your companion once": "Gana a tu compañero una vez",
+    "Bell": "Campana",
+    "Best": "Récord",
+    "Best of 10: {n}": "Récord de 10: {n}",
+    "Best of three, no peeking": "Al mejor de tres, sin mirar",
+    "Best streak": "Mejor racha",
+    "Best streak ever": "Mejor racha",
+    "Best: {count} guesses": {
+      "one": "Récord: {count} intento",
+      "other": "Récord: {count} intentos"
+    },
+    "Best: {count} moves": {
+      "one": "Récord: {count} movimiento",
+      "other": "Récord: {count} movimientos"
+    },
+    "Best: {n} ms": "Récord: {n} ms",
+    "Best: {times}": "Récord: {times}",
+    "Between {low} and {high}": "Entre {low} y {high}",
+    "Blossom": "Flor",
+    "Blossoms": "Flores",
+    "Blossoms can't touch, not even corner to corner.": "Las flores no pueden tocarse, ni siquiera en diagonal.",
+    "Boop the button the moment it says Boop!": "Pulsa el botón en cuanto diga ¡Bup!",
+    "Boop the moment it says Boop!": "Pulsa justo cuando diga ¡Bup!",
+    "Boop!": "¡Bup!",
+    "Both danced!": "¡Los dos bailaron!",
+    "Both {hand}: a draw.": "Los dos sacaron {hand}: empate.",
+    "Bow": "Reverencia",
+    "Burning hot!": "¡Que te quemas!",
+    "Card {n}": "Carta {n}",
+    "Cat's game: a draw.": "Empate.",
+    "Caught! The gem was in {name}'s paw.": "¡Pillado! La gema estaba en la pata de {name}.",
+    "Check {name}'s paw": "Mirar la pata de {name}",
+    "Clothes": "Ropa",
+    "Cloud": "Nube",
+    "Cold": "Frío",
+    "Continue {title}": "Continuar {title}",
+    "Cool": "Fresco",
+    "Copy Me": "Imítame",
+    "Cup {n}": "Vaso {n}",
+    "Daily Word": "La palabra del día",
+    "Daily Word · {date}": "La palabra del día · {date}",
+    "Daily Word: {state}": "La palabra del día: {state}",
+    "Delete": "Eliminar",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "Los dados tienen de 2 a 100 caras, y el número que se suma es como máximo 100.",
+    "Did you know?": "¿Sabías que…?",
+    "Did you know? From {name}, not checked": "¿Sabías que…? Según {name}, sin comprobar",
+    "Do it": "Hazlo tú",
+    "Does it…?": "¿Tiene…?",
+    "Don’t take the last stick!": "¡No cojas el último palito!",
+    "Doubles!": "¡Dobles!",
+    "Drop": "Gota",
+    "Each number once in every row, column and box": "Cada número una vez por fila, columna y bloque",
+    "Easy": "Fácil",
+    "Endless": "Sin fin",
+    "Esc to close": "Esc para cerrar",
+    "Every daily done today": "Todos los retos de hoy hechos",
+    "Every round, make four together.": "En cada ronda, sumad cuatro entre los dos.",
+    "Every way to finish this line puts this here.": "Todas las formas de terminar esta línea ponen esto aquí.",
+    "Explorer": "Explorador",
+    "Fair": "Normal",
+    "Fifty wins": "Cincuenta victorias",
+    "Fill the grid: every row, column and box holds each number once.": "Llena la cuadrícula: cada fila, columna y bloque tiene cada número una vez.",
+    "Find the word before the balloons go": "Adivina la palabra antes de que se vayan los globos",
+    "Finish": "Terminar",
+    "First win": "Primera victoria",
+    "Fish": "Pez",
+    "Five wins in a row": "Cinco victorias seguidas",
+    "Flip a coin": "Lanzar una moneda",
+    "Flip between 1 and {n} coins at a time.": "Lanza entre 1 y {n} monedas a la vez.",
+    "Flip {n} coins": "Lanzar {n} monedas",
+    "Flower": "Flor",
+    "Food": "Comida",
+    "Found in {n}": "Encontrado en {n}",
+    "Found in {n}, at par or better!": "¡Encontrado en {n}, en la media o mejor!",
+    "Found in {n}: par is {par}.": "Encontrado en {n}: la media es {par}.",
+    "Found it!": "¡Encontrada!",
+    "Four characters": "Cuatro caracteres",
+    "Freezing": "Helado",
+    "Fresh questions": "Preguntas nuevas",
+    "Full house": "Pleno",
+    "Game settings": "Ajustes de juegos",
+    "Game sounds off": "Sonidos de juegos desactivados",
+    "Game sounds on": "Sonidos de juegos activados",
+    "Game {n}": "Partida {n}",
+    "Game {n} · {level}": "Partida {n} · {level}",
+    "Games against {name}, and puzzles of your own": "Juegos contra {name} y rompecabezas para ti",
+    "Games and sports": "Juegos y deportes",
+    "Games you finish show here.": "Aquí aparecen las partidas que terminas.",
+    "Garden Plots": "Parcelas del huerto",
+    "Geography": "Geografía",
+    "Getting around": "Transporte",
+    "Got it: {n}!": "¡Lo tengo: {n}!",
+    "Guess My Animal": "Adivina mi animal",
+    "Guess mine": "Adivina el mío",
+    "Guess the word, a letter at a time.": "Adivina la palabra, letra a letra.",
+    "Guess this word in six tries.": "Adivina esta palabra en seis intentos.",
+    "Guess today's word in six tries.": "Adivina la palabra de hoy en seis intentos.",
+    "Guess {n} · par {par}": "Intento {n} · media {par}",
+    "Hard": "Difícil",
+    "Hat trick": "Triplete",
+    "Head to head": "Cara a cara",
+    "Heads or tails…": "Cara o cruz…",
+    "Heads!": "¡Cara!",
+    "Heart": "Corazón",
+    "Here's one to keep you going.": "Aquí tienes una para seguir.",
+    "Hide it": "Esconderla",
+    "Higher": "Más alto",
+    "Higher or Lower": "Mayor o menor",
+    "Higher than {n}!": "¡Mayor que {n}!",
+    "Hint": "Pista",
+    "Hint: letter {n} is {letter}.": "Pista: la letra {n} es {letter}.",
+    "Hints": "Pistas",
+    "History": "Historia",
+    "Hmm, that doesn't fit what you said about {n} before…": "Mmm, eso no encaja con lo que dijiste del {n}…",
+    "Hmm… let me think again.": "Mmm… déjame pensar otra vez.",
+    "Hmm… {range}…": "Mmm… {range}…",
+    "Hop": "Salto",
+    "Hot": "Caliente",
+    "Hot or cold? Find the number": "¿Frío o caliente? Encuentra el número",
+    "I got it!": "¡Acerté!",
+    "I'll guess yours": "Yo adivino el tuyo",
+    "I'm going paper…": "Voy a sacar papel…",
+    "I'm going rock…": "Voy a sacar piedra…",
+    "I'm going scissors…": "Voy a sacar tijera…",
+    "I'm hiding a number from {low} to {high}. Guess it!": "Escondo un número del {low} al {high}. ¡Adivínalo!",
+    "I'm {name}: ready": "Soy {name}: listo",
+    "Is it… {animal}?": "¿Es… {animal}?",
+    "Is it… {n}?": "¿Es el… {n}?",
+    "It was in {name}'s paw all along!": "¡Estaba en la pata de {name} todo el tiempo!",
+    "It was {animal}!": "¡Era {animal}!",
+    "It's {n}!": "¡Salió el {n}!",
+    "Keep your eye on the gem": "No pierdas de vista la gema",
+    "Keep your eye on the gem… which cup?": "No pierdas de vista la gema… ¿qué vaso?",
+    "Keep your eye on the gem… which cup? Think I'm hiding it? Click me.": "No pierdas de vista la gema… ¿qué vaso? ¿Crees que la escondo? Haz clic en mí.",
+    "Key": "Llave",
+    "Last Stick": "El último palito",
+    "Last games": "Últimas partidas",
+    "Leaf": "Hoja",
+    "Leave it empty and {name} picks one.": "Déjalo vacío y {name} elige uno.",
+    "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "Deja uno más que un múltiplo de cuatro: 17, 13, 9, 5 y luego 1.",
+    "Level": "Nivel",
+    "Levels": "Niveles",
+    "Lower": "Más bajo",
+    "Lower than {n}!": "¡Menor que {n}!",
+    "Made by {name}. They aren't checked, so a fact may be wrong.": "Las escribió {name}. No están comprobadas: algún dato puede estar mal.",
+    "Make questions": "Crear preguntas",
+    "Making questions with AI is off. Here are mine.": "Las preguntas con IA están desactivadas. Aquí tienes las mías.",
+    "Memory Pairs": "Parejas de memoria",
+    "Missed today": "Hoy no salió",
+    "Mix": "Mezcla",
+    "Moon": "Luna",
+    "Music": "Música",
+    "My guess": "Mi respuesta",
+    "Natural 20!": "¡20 natural!",
+    "Nature": "Naturaleza",
+    "New best": "Nuevo récord",
+    "New best!": "¡Nuevo récord!",
+    "Next": "Siguiente",
+    "Next game": "Siguiente partida",
+    "Next one's yours.": "La próxima es tuya.",
+    "Next round": "Siguiente ronda",
+    "No": "No",
+    "No room is left there for its blossom.": "Ya no queda sitio ahí para su flor.",
+    "Nobody pressed.": "Nadie pulsó.",
+    "Not a pair.": "No es pareja.",
+    "Not played yet": "Aún sin jugar",
+    "Not sure": "No estoy seguro",
+    "Not that one.": "Ese no.",
+    "Not your turn yet.": "Aún no es tu turno.",
+    "Nothing in my paw! It's under a cup.": "¡Nada en mi pata! Está bajo un vaso.",
+    "Nothing to undo.": "Nada que deshacer.",
+    "Numbers": "Números",
+    "Numbers from {low} to {high}": "Números del {low} al {high}",
+    "OK": "Aceptar",
+    "One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.": "Una flor en cada fila, columna y macizo. Las flores nunca se tocan, ni siquiera en diagonal.",
+    "One flower in every row, column and bed": "Una flor por fila, columna y macizo",
+    "One new word to find every day": "Una palabra nueva cada día",
+    "Only one number still fits this cell.": "Solo un número cabe aún en esta casilla.",
+    "Only one plot of that size fits around this number.": "Solo una parcela de ese tamaño cabe alrededor de este número.",
+    "Oof.": "Uf.",
+    "Oops, that one was wrong!": "¡Uy, ese no era!",
+    "Other wave": "Saludo con la otra mano",
+    "Other…": "Otro…",
+    "Outdoors": "Al aire libre",
+    "Paper": "Papel",
+    "Paper beats rock: I win!": "El papel gana a la piedra: ¡gano yo!",
+    "Paper beats rock: you win!": "El papel gana a la piedra: ¡ganas tú!",
+    "Paper…": "Papel…",
+    "Pass the Mac to {name}.": "Pasa el Mac a {name}.",
+    "Pick a game! Can you beat me?": "¡Elige un juego! ¿Me ganas?",
+    "Pick a number from 1 to 100.": "Elige un número del 1 al 100.",
+    "Pick a number from {low} to {high}.": "Elige un número del {low} al {high}.",
+    "Pick a topic": "Elige un tema",
+    "Pick a way to play": "Elige cómo jugar",
+    "Play": "Jugar",
+    "Play again": "Jugar otra vez",
+    "Play against a friend on this Mac": "Jugar contra un amigo en este Mac",
+    "Play against {name}": "Contra {name}",
+    "Play another": "Jugar otro",
+    "Play another word": "Jugar otra palabra",
+    "Play every game once": "Juega una vez a cada juego",
+    "Play today's {title}": "Jugar al {title} de hoy",
+    "Play {title}": "Jugar a {title}",
+    "Played": "Jugadas",
+    "Played {title} with {with}": "Partida de {title} con {with}",
+    "Played {title}: {first} {x} · {second} {y}": "Jugaste a {title}: {first} {x} · {second} {y}",
+    "Player 1": "Jugador 1",
+    "Player 1's name": "Nombre del jugador 1",
+    "Player 2": "Jugador 2",
+    "Player 2's name": "Nombre del jugador 2",
+    "Playtime": "Ratos libres",
+    "Please write both.": "Escribe las dos cosas, por favor.",
+    "Practice": "Práctica",
+    "Practice word · not in your streak": "Práctica · no cuenta en tu racha",
+    "Practice words": "Palabras de práctica",
+    "Put the game away": "Guardar el juego",
+    "Puzzler": "Rompecabecista",
+    "Puzzles": "Rompecabezas",
+    "Puzzles today: {n} of {total}": "Rompecabezas de hoy: {n} de {total}",
+    "Question {n}": "Pregunta {n}",
+    "Question {n} of {total}": "Pregunta {n} de {total}",
+    "Questions": "Preguntas",
+    "Questions are already being made. Try again in a moment.": "Ya se están creando preguntas. Inténtalo en un momento.",
+    "Questions on every topic": "Preguntas de todos los temas",
+    "Quick Paws": "Patas rápidas",
+    "Quick, {n} s": "Rápido, {n} s",
+    "Ready when you are!": "¡Cuando quieras!",
+    "Relaxed": "Tranquilo",
+    "Rematch": "Revancha",
+    "Resume": "Reanudar",
+    "Return hides it": "Intro lo esconde",
+    "Return: {label}": "Retorno: {label}",
+    "Rock": "Piedra",
+    "Rock beats scissors: I win!": "La piedra gana a la tijera: ¡gano yo!",
+    "Rock beats scissors: you win!": "La piedra gana a la tijera: ¡ganas tú!",
+    "Rock, Paper, Scissors": "Piedra, papel o tijera",
+    "Rock, paper or scissors?": "¿Piedra, papel o tijera?",
+    "Rock, paper, scissors": "Piedra, papel o tijera",
+    "Rock…": "Piedra…",
+    "Rock… paper… scissors…": "Piedra… papel… tijera…",
+    "Roll a die": "Tirar un dado",
+    "Roll between 1 and {n} dice at a time.": "Tira entre 1 y {n} dados a la vez.",
+    "Roll {dice}": "Tirar {dice}",
+    "Rolling…": "Tirando…",
+    "Round {n}": "Ronda {n}",
+    "Round {n} of 2": "Ronda {n} de 2",
+    "Round {n} of {total}": "Ronda {n} de {total}",
+    "Round {n} of {total} · {level}": "Ronda {n} de {total} · {level}",
+    "Round {n} · {level}": "Ronda {n} · {level}",
+    "Row {row}, column {column}": "Fila {row}, columna {column}",
+    "Row {r}, column {c}": "Fila {r}, columna {c}",
+    "Ruled out": "Descartada",
+    "Science": "Ciencia",
+    "Scissors": "Tijera",
+    "Scissors beat paper: I win!": "La tijera gana al papel: ¡gano yo!",
+    "Scissors beat paper: you win!": "La tijera gana al papel: ¡ganas tú!",
+    "Scissors…": "Tijera…",
+    "See results": "Ver resultado",
+    "Seesaw": "Balancín",
+    "Set": "Aplicar",
+    "Shoot!": "¡Ya!",
+    "Show a letter": "Mostrar una letra",
+    "Show the Game Center": "Mostrar el centro de juegos",
+    "Show the games": "Ver los juegos",
+    "Shuffling…": "Mezclando…",
+    "Snake eyes!": "¡Doble uno!",
+    "Solve ten puzzles": "Resuelve diez rompecabezas",
+    "Solved": "Resueltas",
+    "Solved in {n}": "Resuelto en {n}",
+    "Solved in {n}!": "¡Resuelto en {n}!",
+    "Solved in {time}": "Resuelto en {time}",
+    "Solved in {time}!": "¡Resuelto en {time}!",
+    "Solved!": "¡Resuelto!",
+    "Space": "Espacio",
+    "Space: {go}": "Espacio: {go}",
+    "Spin": "Giro",
+    "Split the garden into plots by their numbers": "Divide el huerto según sus números",
+    "Split the garden into rectangles, one number in each: as many squares as it says.": "Divide el huerto en rectángulos, un número en cada uno: tantas casillas como indica.",
+    "Sports": "Deporte",
+    "Squares another number always covers are taken, leaving this.": "Las casillas que otro número siempre cubre están ocupadas: queda esta.",
+    "Star": "Estrella",
+    "Start": "Empezar",
+    "Start over": "Empezar de nuevo",
+    "Steady…": "Atención…",
+    "Streak": "Racha",
+    "Streak this round": "Racha de la partida",
+    "Streak {n}": "Racha de {n}",
+    "Sudoku": "Sudoku",
+    "Sun": "Sol",
+    "Surprise me": "Sorpréndeme",
+    "Switch: you guess": "Te toca adivinar",
+    "Switch: {name} guesses": "Le toca a {name}",
+    "Tails!": "¡Cruz!",
+    "Take 1, 2 or 3 sticks.": "Toma 1, 2 o 3 palitos.",
+    "Take 1, 2 or 3. Don't take the last one!": "Toma 1, 2 o 3. ¡No te quedes el último!",
+    "Take {n}": "Tomar {n}",
+    "Teach": "Enseñar",
+    "Tech": "Tecnología",
+    "Tell": "Decir",
+    "Tell me the user's hand: rock, paper or scissors.": "Dime qué eliges: piedra, papel o tijera.",
+    "Ten wins": "Diez victorias",
+    "Thank you! I'll remember {animal}.": "¡Gracias! Me acordaré de {animal}.",
+    "That = or × isn't kept.": "Ese = o × no se cumple.",
+    "That number is twice in a box.": "Ese número está dos veces en un bloque.",
+    "That number is twice in a column.": "Ese número está dos veces en una columna.",
+    "That number is twice in a row.": "Ese número está dos veces en una fila.",
+    "That one is part of the puzzle.": "Esa es parte del rompecabezas.",
+    "That one's taken.": "Ya está ocupado.",
+    "That word isn't the right length.": "Esa palabra no tiene la longitud correcta.",
+    "That's a bit long.": "Es un poco largo.",
+    "That's enough new questions for today. Here are mine.": "Ya hay bastantes preguntas nuevas por hoy. Aquí tienes las mías.",
+    "That's it!": "¡Ese es!",
+    "That's not in the word list.": "Esa palabra no está en la lista.",
+    "That's the animal I guessed.": "Ese es el animal que dije.",
+    "The cells on either side match, so this one is the other.": "Las casillas de ambos lados son iguales, así que esta es la otra.",
+    "The clue beside it decides this one.": "La pista de al lado decide esta.",
+    "The hint is used up.": "Ya usaste la pista.",
+    "The last place left in this bed.": "El último sitio libre en este macizo.",
+    "The last place left in this column.": "El último sitio libre en esta columna.",
+    "The last place left in this row.": "El último sitio libre en esta fila.",
+    "The only place left for this number in its box.": "El único sitio que le queda a este número en su bloque.",
+    "The only place left for this number in its column.": "El único sitio que le queda a este número en su columna.",
+    "The only place left for this number in its row.": "El único sitio que le queda a este número en su fila.",
+    "The other mark here would break a rule a few moves on.": "La otra marca aquí rompería una regla unas jugadas más adelante.",
+    "The word was {word}.": "La palabra era {word}.",
+    "These beds fill those lines between them, ruling out the rest, leaving this.": "Estos macizos llenan esas líneas entre ellos y descartan el resto: queda esta.",
+    "Things to eat": "Para comer",
+    "Think of one": "Piensa uno",
+    "This line already has its half of one: the rest are the other.": "Esta línea ya tiene su mitad de uno: el resto son del otro.",
+    "This mark isn't right: take it back.": "Esta marca no es correcta: quítala.",
+    "This number isn't right: take it back.": "Este número no es correcto: quítalo.",
+    "This plot isn't right: take it away.": "Esta parcela no es correcta: quítala.",
+    "Three alike in a line: change one.": "Tres iguales seguidos: cambia uno.",
+    "Three in a row wins": "Tres en raya gana",
+    "Three wins in a row": "Tres victorias seguidas",
+    "Tic-tac-toe": "Tres en raya",
+    "Time": "Tiempo",
+    "Today": "Hoy",
+    "Today's boards are waiting!": "¡Los tableros de hoy te esperan!",
+    "Today's puzzle": "Rompecabezas del día",
+    "Today's word was {word}.": "La palabra de hoy era {word}.",
+    "Today's {levels} boards are still waiting.": {
+      "one": "Aún te espera hoy: {levels}.",
+      "other": "Aún te esperan hoy: {levels}."
+    },
+    "Today: {count} boards to play": {
+      "one": "Hoy: {count} rompecabezas por jugar",
+      "other": "Hoy: {count} rompecabezas por jugar"
+    },
+    "Today: {solved}": "Hoy: {solved}",
+    "Too many of one in that line.": "Demasiados de uno en esa línea.",
+    "Too slow!": "¡Demasiado lento!",
+    "Too soon!": "¡Demasiado pronto!",
+    "Topic": "Tema",
+    "Trivia": "Quiz",
+    "Trivia about {topic}": "Trivia sobre {topic}",
+    "Trivia questions": "Preguntas de trivia",
+    "Try": "Probar",
+    "Try this word": "Probar esta palabra",
+    "Tunisia & the Mediterranean": "Túnez y el Mediterráneo",
+    "Turn two cards, find the pairs": "Gira dos cartas, encuentra las parejas",
+    "Two alike side by side: the next one is the other.": "Dos iguales juntos: el siguiente es el otro.",
+    "Two blossoms in one bed.": "Dos flores en un macizo.",
+    "Two blossoms in one column.": "Dos flores en una columna.",
+    "Two blossoms in one row.": "Dos flores en una fila.",
+    "Two cells share the same two numbers, ruling them out elsewhere, leaving this.": "Dos casillas comparten los mismos dos números y los descartan en el resto: queda este.",
+    "Type a letter": "Escribe una letra",
+    "Type a number from 2 to {max}.": "Escribe un número del 2 al {max}.",
+    "Type a number, Return to guess": "Escribe un número, Retorno para probar",
+    "Type a word, Return to try": "Escribe una palabra, Retorno para probar",
+    "Type an idiom": "Escribe un modismo",
+    "Undo": "Deshacer",
+    "Unstoppable": "Imparable",
+    "Up to": "Hasta",
+    "Up to which number? 2 to {max}": "¿Hasta qué número? Del 2 al {max}",
+    "Use the game's letters.": "Usa las letras del juego.",
+    "VS": "VS",
+    "Volcanoes, jazz, Japan…": "Volcanes, jazz, Japón…",
+    "Want to know my secret?": "¿Quieres saber mi secreto?",
+    "Warm": "Templado",
+    "Watch the moves, then copy them": "Mira los pasos y cópialos",
+    "Watch {name}, then copy.": "Mira a {name} y luego imítalo.",
+    "Watch…": "Vigilancia…",
+    "Wave": "Saludo",
+    "We both played paper: a draw!": "Los dos hemos sacado papel: ¡empate!",
+    "We both played rock: a draw!": "Los dos hemos sacado piedra: ¡empate!",
+    "We both played scissors: a draw!": "Los dos hemos sacado tijera: ¡empate!",
+    "Which Cup?": "¿Qué vaso?",
+    "Who's playing?": "¿Quién juega?",
+    "Win fifty games": "Gana cincuenta partidas",
+    "Win ten games": "Gana diez partidas",
+    "Wins": "Victorias",
+    "Won {won} of {played}": "{won} ganadas de {played}",
+    "Yes": "Sí",
+    "Yes or no, until one guesses": "Sí o no, hasta adivinarlo",
+    "Yes! It was {n}.": "¡Sí! Era el {n}.",
+    "Yes, that's it!": "¡Sí, ese es!",
+    "You": "Tú",
+    "You beat {name}!": "¡Le ganaste a {name}!",
+    "You called it!": "¡Acertaste!",
+    "You copied {count} moves.": {
+      "one": "Imitaste {count} movimiento.",
+      "other": "Imitaste {count} movimientos."
+    },
+    "You saved the balloons!": "¡Salvaste los globos!",
+    "You took the last stick.": "Te quedaste el último palito.",
+    "You tried that one already.": "Ya lo probaste.",
+    "You were quicker!": "¡Fuiste más rápido!",
+    "You win the match!": "¡Ganas la partida!",
+    "You win this game!": "¡Ganas esta partida!",
+    "You win!": "¡Ganaste!",
+    "You win! What was it?": "¡Ganaste! ¿Qué era?",
+    "You won": "Ganaste",
+    "You {x} · {name} {y}": "Tú {x} · {name} {y}",
+    "You {you} · {name} {companion}": "Tú {you} · {name} {companion}",
+    "Your animal": "Tu animal",
+    "Your best": "Tu récord",
+    "Your guess": "Tu número",
+    "Your question": "Tu pregunta",
+    "Your turn: copy it.": "Tu turno: imítalo.",
+    "Your turn: turn two cards.": "Tu turno: da vuelta a dos cartas.",
+    "Your turn: you're X.": "Tu turno: eres X.",
+    "heads": "cara",
+    "right": "correcta",
+    "tails": "cruz",
+    "vs {name}": "contra {name}",
+    "wrong": "incorrecta",
+    "your pick": "tu elección",
+    "{a} presses {ka}, {b} presses {kb}. First after Boop! wins.": "{a} pulsa {ka}, {b} pulsa {kb}. Gana el primero después de ¡Bup!.",
+    "{a}: {ka} · {b}: {kb}": "{a}: {ka} · {b}: {kb}",
+    "{count} balloons left.": {
+      "one": "Queda {count} globo.",
+      "other": "Quedan {count} globos."
+    },
+    "{count} more to play": {
+      "one": "falta {count}",
+      "other": "faltan {count}"
+    },
+    "{count} moves": {
+      "one": "{count} movimiento",
+      "other": "{count} movimientos"
+    },
+    "{count} moves · {level}": {
+      "one": "{count} movimiento · {level}",
+      "other": "{count} movimientos · {level}"
+    },
+    "{count} practice words": {
+      "one": "{count} palabra de práctica",
+      "other": "{count} palabras de práctica"
+    },
+    "{count} questions": {
+      "one": "{count} pregunta",
+      "other": "{count} preguntas"
+    },
+    "{count} sticks left": {
+      "one": "Queda {count} palito",
+      "other": "Quedan {count} palitos"
+    },
+    "{count} sticks left · {level}": {
+      "one": "Queda {count} palito · {level}",
+      "other": "Quedan {count} palitos · {level}"
+    },
+    "{keys} to play": "{keys} para jugar",
+    "{left} of {total} left": "Quedan {left} de {total}",
+    "{loser} took the last stick. {name} wins!": "{loser} cogió el último palito. ¡Gana {name}!",
+    "{low} to {high}": "{low} a {high}",
+    "{name} copied {n}. {other}'s turn: the same dance.": "{name} imitó {n}. Turno de {other}: el mismo baile.",
+    "{name} copies first.": "{name} imita primero.",
+    "{name} couldn't make questions just now. Here are mine.": "{name} no pudo crear preguntas ahora. Aquí tienes las mías.",
+    "{name} counts… {n} left.": "{name} cuenta… quedan {n}.",
+    "{name} didn't get it either.": "{name} tampoco lo sabía.",
+    "{name} didn't get it either. Tomorrow!": "{name} tampoco lo sabía. ¡Mañana más!",
+    "{name} found it in {count} questions.": {
+      "one": "{name} lo encontró en {count} pregunta.",
+      "other": "{name} lo encontró en {count} preguntas."
+    },
+    "{name} found it!": "¡{name} la encontró!",
+    "{name} has picked": "{name} ya eligió",
+    "{name} hides a number; {other} finds it. Fewer guesses wins.": "{name} esconde un número y {other} lo busca. Gana quien use menos intentos.",
+    "{name} hides one": "{name} esconde uno",
+    "{name} is next.": "Ahora le toca a {name}.",
+    "{name} is picking a topic and writing questions…": "{name} está eligiendo un tema y escribiendo preguntas…",
+    "{name} is taking too long. Here are mine.": "{name} tarda demasiado. Aquí tienes las mías.",
+    "{name} is thinking…": "{name} está pensando…",
+    "{name} is writing questions about {topic}…": "{name} está escribiendo preguntas sobre {topic}…",
+    "{name} pressed too soon!": "¡{name} pulsó demasiado pronto!",
+    "{name} saved the balloons!": "¡{name} salvó los globos!",
+    "{name} sets a word; {other} guesses it. More balloons kept wins.": "{name} elige una palabra y {other} la adivina. Gana quien conserve más globos.",
+    "{name} takes the round!": "¡{name} gana la ronda!",
+    "{name} took the last stick. You win!": "{name} se quedó el último palito. ¡Ganas!",
+    "{name} was quicker.": "{name} fue más rápido.",
+    "{name} wins the match!": "¡{name} gana la partida!",
+    "{name} wins the match.": "{name} gana la partida.",
+    "{name} wins this game!": "¡{name} gana esta partida!",
+    "{name} wins this game.": "{name} gana esta partida.",
+    "{name} wins this one.": "Esta la gana {name}.",
+    "{name} wins!": "¡Gana {name}!",
+    "{name} won": "Ganó {name}",
+    "{name} writes the questions": "{name} escribe las preguntas",
+    "{name} wrote questions I couldn't use. Here are mine.": "{name} escribió preguntas que no pude usar. Aquí tienes las mías.",
+    "{name}'s pick": "elección de {name}",
+    "{name}'s secret": "El secreto de {name}",
+    "{name}'s turn": "Turno de {name}",
+    "{name}'s turn.": "Turno de {name}.",
+    "{name}'s turn: copy it.": "Turno de {name}: imítalo.",
+    "{name}'s turn: keep your eye on the gem.": "Turno de {name}: no pierdas de vista la gema.",
+    "{name}'s turn: take 1, 2 or 3.": "Turno de {name}: coge 1, 2 o 3.",
+    "{name}'s turn: turn two cards.": "Turno de {name}: da la vuelta a dos cartas.",
+    "{name}'s turn: which cup?": "Turno de {name}: ¿qué vaso?",
+    "{name}, find {other}'s number.": "{name}, encuentra el número de {other}.",
+    "{name}, guess {other}'s word.": "{name}, adivina la palabra de {other}.",
+    "{name}, look away!": "¡{name}, no mires!",
+    "{name}, pick your hand.": "{name}, elige tu mano.",
+    "{name}, type a secret number.": "{name}, escribe un número secreto.",
+    "{name}, type a word for {other}.": "{name}, escribe una palabra para {other}.",
+    "{name}: {n} ms": "{name}: {n} ms",
+    "{name}: “I saw one… around here?”": "{name}: «Vi una… ¿por aquí?»",
+    "{n} coins": "{n} monedas",
+    "{n} days in a row": "{n} días seguidos",
+    "{n} dice": "{n} dados",
+    "{n} in a row": "{n} seguidas",
+    "{n} in a row!": "¡{n} seguidas!",
+    "{n} ms": "{n} ms",
+    "{n} of {total}": "{n} de {total}",
+    "{n} of {total} earned": "{n} de {total} conseguidas",
+    "{n} seconds left": "quedan {n} s",
+    "{n} solved": "{n} resueltos",
+    "{n} wins in a row": "{n} victorias seguidas",
+    "{title} has no level “{level}”.": "{title} no tiene el nivel «{level}».",
+    "{title} has no levels.": "{title} no tiene niveles.",
+    "{title} is already at its easiest.": "{title} ya está en lo más fácil.",
+    "{title} is already at its hardest.": "{title} ya está en lo más difícil.",
+    "{win} beats {lose}: a point for {name}.": "{win} gana a {lose}: un punto para {name}.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind” debe ser coin, dice o rock_paper_scissors."
+  },
+  "tools": {
+    "game_settings": {
+      "summary": "Cambiar los ajustes de juegos",
+      "title": "Cambiar los ajustes de juegos"
+    },
+    "open": {
+      "summary": "Abrir un juego",
+      "title": "Abrir un juego"
+    },
+    "pick": {
+      "summary": "Dejarlo al azar",
+      "title": "Elecciones al azar"
+    },
+    "put_away": {
+      "summary": "Guardar el juego",
+      "title": "Guardar el juego"
+    },
+    "toss": {
+      "summary": "Lanzar una moneda, tirar dados o jugar a piedra, papel o tijera",
+      "title": "Lanzar una moneda, tirar dados o jugar a piedra, papel o tijera"
+    },
+    "trivia": {
+      "summary": "Jugar una ronda de trivial",
+      "title": "Trivial"
     }
   }
 }
