@@ -38,6 +38,13 @@ enum PlanWords {
         }
     }
 
+    /// The times a prayer's reminder names, in the timetable's zone. Nothing for one that isn't about a prayer, and no iqamah where the source gives none.
+    static func times(_ occurrence: PlannedOccurrence, model: NoorModel) -> (start: String?, iqamah: String?) {
+        let zone = model.source?.zone ?? model.prefs.place?.zone ?? .current
+        guard let prayer = occurrence.prayer, let day = model.day(occurrence.date) else { return (nil, nil) }
+        return (day.starts[prayer].map { Words.time($0, zone: zone) }, day.iqamah[prayer].map { Words.time($0, zone: zone) })
+    }
+
     /// The plan the host's scheduler holds, whole. Reading a page never reaches this: only Sidefolk's asking, or something that was just saved.
     static func plan(model: NoorModel) -> OccurrencePlan {
         let occurrences = model.planned().map { o -> Occurrence in
