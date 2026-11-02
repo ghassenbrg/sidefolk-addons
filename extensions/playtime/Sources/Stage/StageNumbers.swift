@@ -134,23 +134,26 @@ extension BoardDrawing {
         }
     }
 
-    /// Balloons or hearts left: balloons are the pack's picture tinted one colour each; the ones lost shrink to faint grey (a heart's
-    /// outline). `tint` is a stencil, so a balloon's own light and shade go with it: drawn with its highlight on top, the plain gradient shine (D99).
+    /// Balloons or hearts left. Balloons are the pack's picture in one colour each, light and shade kept (baked: the panel multiplied a colour over it, and
+    /// a scene's `tint` is a flat stencil); one lost shrinks to faint grey, where its shade doesn't show. A heart keeps its outline.
     func lives(total: Int, left: Int, symbol: String) -> PartBlock {
         let balloon = symbol == "balloon"
         let hue = [Paint.coral, Paint.sun, Paint.blue, Paint.green, Paint.purple]
-        let side = balloon ? 30.0 : 22.0, gap = balloon ? 2.0 : 4.0
-        return PartBlock(.box("lives", w: Self.inner, h: side) {
+        let art: [(day: String, night: String?)] = [("coral", nil), ("sun", nil), ("blue", "blue-night"), ("green", "green-night"), ("purple", "purple-night")]
+        let w = balloon ? 30 * 86.0 / 120 : 22.0, h = balloon ? 30.0 : 22.0, gap = balloon ? 2.0 : 4.0
+        return PartBlock(.box("lives", w: Self.inner, h: h) {
             for i in 0..<total {
                 let kept = i < left
                 if balloon {
-                    Node.image("art/game-balloon.webp", tint: kept ? hue[i % 5] : .inkFaint).id("life.\(i)").at(Double(i) * (side + gap), 0).size(side, side)
+                    let picture = art[i % 5]
+                    (kept ? Node.image("art/balloon-\(picture.day).png", dark: picture.night.map { "art/balloon-\($0).png" }) : Node.image("art/game-balloon.png", tint: .inkFaint))
+                        .id("life.\(i)").at(Double(i) * (w + gap), 0).size(w, h)
                         .anchor(0.5, 1).scale(kept ? 1 : 0.6).rotate(kept ? Double(i % 3 - 1) * 5 : 0).opacity(kept ? 1 : 0.3)
                 } else {
                     Node.symbol(kept ? "heart.fill" : "heart", color: kept ? hue[i % 5] : Color.inkFaint.tuned(alpha: 0.5)).symbolLook(weight: "regular")
-                        .id("life.\(i)").at(Double(i) * (side + gap), 0).size(side, side).scale(kept ? 1 : 0.8)
+                        .id("life.\(i)").at(Double(i) * (w + gap), 0).size(w, h).scale(kept ? 1 : 0.8)
                 }
             }
-        }.label(L("{left} of {total} left", ["left": left, "total": total])), height: side)
+        }.label(L("{left} of {total} left", ["left": left, "total": total])), height: h)
     }
 }

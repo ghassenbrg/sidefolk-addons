@@ -17,29 +17,29 @@ extension BoardDrawing {
     func keyboard(pages: [KeyPage], mode: String, length: Int?, script: String, locked: Bool) -> PartBlock {
         // A keyboard of many rows (kana, hangul) has slimmer keys, so the board fits the panel.
         let keyH = (pages.map(\.rows.count).max() ?? 0) > 3 ? 26.0 : 30.0
-        let page = min(ctx.local.page, pages.count - 1)
-        let shown = pages[max(page, 0)]
+        let page = max(min(ctx.local.page, pages.count - 1), 0)
         let width = Self.inner
         var y = 0.0
         var nodes: [Node] = []
         if pages.count > 1 {
-            let segW = (width - 6 - 4 * Double(pages.count - 1)) / Double(pages.count), h = 26.0
+            let segW = (width - 6 - 4 * Double(pages.count - 1)) / Double(pages.count), segH = TextFit.lineHeight(11.5, "semibold") + 8, h = segH + 6
             nodes.append(Node.capsule(fill: .surfaceSunken).id("keys.tabs").size(width, h))
             for (i, p) in pages.enumerated() {
-                nodes.append(.box("keys.tab.\(i)", x: 3 + Double(i) * (segW + 4), y: 3, w: segW, h: h - 6) {
-                    Node.capsule(fill: i == page ? Color.accent : Color.clear).size(segW, h - 6)
-                    Node.words(p.label, size: 11.5, weight: "semibold", color: i == page ? .onAccent : .ink, align: "center", design: "default", w: segW, h: h - 6)
+                nodes.append(.box("keys.tab.\(i)", x: 3 + Double(i) * (segW + 4), y: 3, w: segW, h: segH) {
+                    Node.capsule(fill: i == page ? Color.accent : Color.clear).size(segW, segH)
+                    Node.words(p.label, size: 11.5, weight: "semibold", color: i == page ? .onAccent : .ink, align: "center", design: "default", w: segW, h: segH)
                 }.area("keys_page", value: "\(i)", label: p.label, hover: nil, press: AreaLook(scale: 0.97), selected: i == page))
             }
             y += h + 5
         }
+        let shown = pages[page]
         for (r, row) in shown.rows.enumerated() {
-            let last = mode == "spell" && r == shown.rows.count - 1
-            let specials = last ? 2.0 : 0
-            let keyW = Swift.min(30, (width - 4 * Double(row.count - 1 + Int(specials)) - specials * 40) / Double(max(row.count, 1)))
-            let rowW = Double(row.count) * keyW + 4 * Double(row.count - 1 + Int(specials)) + specials * 40
-            var x = (width - rowW) / 2
-            if last {
+            let specials = mode == "spell" && r == shown.rows.count - 1
+            // The keys share what the row leaves, however few: a row always runs the keyboard's width.
+            let extra = specials ? 2.0 : 0
+            let keyW = (width - 4 * (Double(row.count - 1) + extra) - extra * 40) / Double(max(row.count, 1))
+            var x = 0.0
+            if specials {
                 nodes.append(special("return", symbol: "return", label: L("Try this word"), x: x, y: y, h: keyH, locked: locked))
                 x += 44
             }
@@ -47,8 +47,8 @@ extension BoardDrawing {
                 nodes.append(keyCapButton(k.key, mark: k.mark, script: script, mode: mode, x: x, y: y, w: keyW, h: keyH, locked: locked))
                 x += keyW + 4
             }
-            if last { nodes.append(special("delete", symbol: "delete.left", label: L("Delete"), x: x, y: y, h: keyH, locked: locked)) }
-            y += keyH + 2 + 5
+            if specials { nodes.append(special("delete", symbol: "delete.left", label: L("Delete"), x: x, y: y, h: keyH, locked: locked)) }
+            y += keyH + 5
         }
         let height = y - 5
         if !locked {
@@ -63,18 +63,20 @@ extension BoardDrawing {
         return PartBlock(group, height: height)
     }
 
+    /// A key: its fill on a slightly darker lip, an outline while unused. A word's letters only join what is typed, so they make no sound;
+    /// a letter that is a move does, as any move.
     private func keyCapButton(_ key: String, mark: String, script: String, mode: String, x: Double, y: Double, w: Double, h: Double, locked: Bool) -> Node {
         let (fill, ink) = keyColors(mark)
         let plain = mark == "none"
         let used = mode == "letter" && !plain
         let id = "key.\(key)"
-        let label = Node.words(script == "latin" ? key.uppercased() : key, size: 14, weight: "semibold", color: ink, align: "center", minScale: 0.6, w: w, h: h)
-        return Node.box(id, x: x, y: y, w: w, h: h + 2) {
-            Node.rect(fill: plain ? .line : lip(mark), corner: 6).at(0, 2).size(w, h)
-            Node.rect(fill: fill, stroke: plain ? Color.line : nil, lineWidth: 1, corner: 6).id(id + ".face").size(w, h)
-            Node.rect(corner: 6).gradient([Paint.clear("#FFFFFF", 0.18), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(w, h)
+        let label = Node.words(script == "latin" ? key.uppercased() : key, size: 14, weight: "semibold", color: ink, align: "center", minScale: 0.6, w: w, h: h).id(id + ".text")
+        return Node.box(id, x: x, y: y, w: w, h: h) {
+            Node.rect(fill: plain ? .line : lip(mark), corner: 6).id(id + ".lip").at(0, 2).size(w, h - 2)
+            Node.rect(fill: fill, stroke: plain ? Color.line : nil, lineWidth: 1, corner: 6).id(id + ".face").size(w, h - 2)
+            Node.rect(corner: 6).gradient([Paint.clear("#FFFFFF", 0.18), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(w, h - 2)
             mark == "miss" || mark == "absent" ? label.textLook(strike: true) : label
-        }.area("key", value: key, label: key, disabled: locked || used, hover: nil, press: AreaLook(scale: 0.95), sound: "sounds/tap.wav")
+        }.area("key", value: key, label: key, disabled: locked || used, hover: nil, press: AreaLook(scale: 0.95), sound: mode == "letter" ? "sounds/tap.wav" : nil)
     }
 
     private func lip(_ mark: String) -> Color {
@@ -82,16 +84,17 @@ extension BoardDrawing {
         case "right", "hit": Color.win.tuned(brightness: -0.14)
         case "elsewhere": .hex("#DBAD33")
         case "miss": .adaptive(light: "#D1C4B8", dark: "#3F3128")
-        default: Color.inkFaint.tuned(alpha: 0.4)
+        default: Color.inkFaint.tuned(alpha: 0.3, brightness: -0.14)
         }
     }
 
     private func special(_ name: String, symbol: String, label: String, x: Double, y: Double, h: Double, locked: Bool) -> Node {
-        Node.box("key.\(name)", x: x, y: y, w: 40, h: h + 2) {
-            Node.rect(fill: .line, corner: 6).at(0, 2).size(40, h)
-            Node.rect(fill: .surfaceRaised, stroke: .line, lineWidth: 1, corner: 6).size(40, h)
-            Node.symbol(symbol, color: .ink).symbolLook().at(12, (h - 16) / 2).size(16, 16)
-        }.area("draft", value: name, label: label, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: "sounds/tap.wav")
+        Node.box("key.\(name)", x: x, y: y, w: 40, h: h) {
+            Node.rect(fill: .line, corner: 6).at(0, 2).size(40, h - 2)
+            Node.rect(fill: .surfaceRaised, stroke: .line, lineWidth: 1, corner: 6).size(40, h - 2)
+            // Sized by height: a wide symbol would shrink to fit a square box.
+            Node.symbol(symbol, color: .ink).symbolLook().at(9, (h - 16) / 2 - 1).size(22, 16)
+        }.area("draft", value: name, label: label, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: name == "return" ? "sounds/tap.wav" : nil)
     }
 
     /// A text field: `word` sends `.word`, `text` sends `.text`; Return or its button sends it, and the app's field takes the input method.

@@ -132,6 +132,7 @@ enum StageMoves {
         local.guessesSeen = board.numberPart?.history.count
         if let g = board.gridPart, let c = local.cursor, c >= g.rows * g.columns { local.cursor = nil }
         if board.gridPart == nil, !board.hasPuzzle, !board.hasCups { local.cursor = nil }
-        local.page = 0
+        // A keyboard keeps its page from word to word; a new one starts on the first.
+        if !board.hasKeys { local.page = 0 }
     }
 }
