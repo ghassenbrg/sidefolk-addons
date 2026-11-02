@@ -1,0 +1,15 @@
+{
+  "id": "dev.sidefolk.companions.piko",
+  "kind": "companion",
+  "name": "Piko",
+  "tagline": "A little robot cat in an aqua scarf",
+  "description": "A chibi robot cat in 3D: an ivory helmet with glowing aqua cat ears, a dark glass visor whose eyes and smile are aqua light, aqua headphones that glow while it listens, a chunky knit scarf and a little bunny on its chest. Friendly, calm and supportive. Now and then it scans the room.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "piko",
+  "engine": 1,
+  "body": "biped",
+  "published": "2026-11-02",
+  "minimum_sidefolk": "0.1.0-snapshot.779"
+}
