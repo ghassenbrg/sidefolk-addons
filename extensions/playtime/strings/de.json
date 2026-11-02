@@ -1,7 +1,7 @@
 {
   "name": "Spielzeit",
   "tagline": "Spiele und Rätsel mit deinem Begleiter, und Zufallswahl",
-  "description": "Eine Pause mit deinem Begleiter: zehn Spiele gegen ihn, neben ihm auf dem Schreibtisch (Quiz, Tic-Tac-Toe, Mach's nach und mehr) und fünf Rätsel für dich (Wort des Tages, Sudoku und mehr), mit gespeicherten Punkten, Bestzeiten und Serien, und Zufall, um eine Zahl oder etwas aus einer Liste zu wählen.",
+  "description": "Eine Pause mit deinem Begleiter: elf Spiele gegen ihn, neben ihm auf dem Schreibtisch (Quiz, Tic-Tac-Toe, Mach's nach und mehr) und fünf Rätsel für dich (Wort des Tages, Sudoku und mehr), mit gespeicherten Punkten, Bestzeiten und Serien, und Zufall, um eine Zahl oder etwas aus einer Liste zu wählen.",
   "tools": {
     "pick": {
       "title": "Zufallswahl",

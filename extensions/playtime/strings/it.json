@@ -1,7 +1,7 @@
 {
   "name": "Svago",
   "tagline": "Giochi e rompicapi con il tuo compagno, e scelte a caso",
-  "description": "Una pausa con il tuo compagno: dieci giochi contro di lui, accanto a lui sulla scrivania (un quiz, tris, Copiami e altri) e cinque rompicapi per te (la parola del giorno, il sudoku e altri), con punteggi, tempi migliori e serie salvati, e il caso per scegliere un numero o qualcosa da una lista.",
+  "description": "Una pausa con il tuo compagno: undici giochi contro di lui, accanto a lui sulla scrivania (un quiz, tris, Copiami e altri) e cinque rompicapi per te (la parola del giorno, il sudoku e altri), con punteggi, tempi migliori e serie salvati, e il caso per scegliere un numero o qualcosa da una lista.",
   "tools": {
     "pick": {
       "title": "Scelte a caso",

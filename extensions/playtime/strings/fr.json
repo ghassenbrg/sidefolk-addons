@@ -1,7 +1,7 @@
 {
   "name": "Récré",
   "tagline": "Jeux et casse-têtes avec votre compagnon, et tirages au sort",
-  "description": "Une pause avec votre compagnon : dix jeux contre lui, à côté de lui sur le bureau (un quiz, le morpion, Imite-moi et d'autres) et cinq casse-têtes pour vous (le mot du jour, le sudoku et d'autres), vos scores, meilleurs temps et séries gardés, et le hasard pour tirer un nombre ou choisir dans une liste.",
+  "description": "Une pause avec votre compagnon : onze jeux contre lui, à côté de lui sur le bureau (un quiz, le morpion, Imite-moi et d'autres) et cinq casse-têtes pour vous (le mot du jour, le sudoku et d'autres), vos scores, meilleurs temps et séries gardés, et le hasard pour tirer un nombre ou choisir dans une liste.",
   "tools": {
     "pick": {
       "title": "Tirages au sort",

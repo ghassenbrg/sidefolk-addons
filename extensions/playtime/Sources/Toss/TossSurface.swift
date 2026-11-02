@@ -84,17 +84,17 @@ enum TossSurface {
         case .dice: L("Rolling…")
         case .hands: L("Rock… paper… scissors…")
         }
-        let (move, sound): (String, String) = switch toss {
-        case .coins: ("flick", "flip")
-        case .dice: ("roll", "rattle")
-        case .hands: ("pump", "whoosh")
+        let move = switch toss {
+        case .coins: "flick"
+        case .dice: "roll"
+        case .hands: "pump"
         }
         let whisper = TossParts.whisper(waiting)
         let objects = TossParts.objects(toss, time: time, playing: true)
         let width = max(max(objects.width, whisper.width), 170) + 2 * pad
         let height = pad + whisper.height + 6 + objects.height + pad
         var anims = objects.anims
-        anims.append(.sequence([.react(Reaction(move: move)), .sound("sounds/\(sound).wav")]))
+        anims.append(.sequence([.react(Reaction(move: move))]))
         return Scene(width: width, height: height) {
             whisper.node.at((width - whisper.width) / 2, pad)
             objects.node.at((width - objects.width) / 2, pad + whisper.height + 6)
@@ -342,7 +342,7 @@ enum TossParts {
             if let verdict {
                 Node.symbol(verdict.symbol, color: .surface).symbolLook(weight: "bold", secondary: verdict.color).at(16, (h - 20) / 2).size(20, 20)
             }
-            Node.words(words, size: size, weight: weight, align: "center", x: x, w: wordsW, h: h).leftToRight()
+            Node.words(words, size: size, weight: weight, align: "center", x: x, w: wordsW, h: h)
             if let beside {
                 Node.words(beside, size: 11.5, weight: "semibold", color: .inkMuted, design: "default", x: x + wordsW + 8, w: besideW, h: h).leftToRight()
             }
@@ -358,6 +358,6 @@ enum TossParts {
             Node.capsule(fill: .accent).size(w, h)
             Node.symbol("arrow.clockwise", color: .onAccent).symbolLook(weight: "semibold").at(12, 6).size(14, 14)
             Node.words(words, size: 11.5, weight: "semibold", color: .onAccent, design: "default", x: 32, w: textW, h: h)
-        }.area("again", label: words, hover: AreaLook(scale: 1.03), press: AreaLook(scale: 0.97), sound: "sounds/tap.wav"), width: w, height: h)
+        }.area("again", label: words, hover: AreaLook(scale: 1.03), press: AreaLook(scale: 0.97)), width: w, height: h)
     }
 }

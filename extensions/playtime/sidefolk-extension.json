@@ -3,7 +3,7 @@
   "name": "Playtime",
   "version": "1.0.0",
   "sidefolk": ">=0.1",
-  "description": "A break with your companion: ten games you play against it beside it on the desktop (trivia, tic-tac-toe, Copy Me and more) and five puzzles of your own (Daily Word, Sudoku and more), with your scores, best times and streaks kept, and chance to pick a number or choose from a list.",
+  "description": "A break with your companion: eleven games you play against it beside it on the desktop (trivia, tic-tac-toe, Copy Me and more) and five puzzles of your own (Daily Word, Sudoku and more), with your scores, best times and streaks kept, and chance to pick a number or choose from a list.",
   "tagline": "Games and puzzles with your companion, and random picks",
   "folk": "play",
   "author": "Sidefolk",

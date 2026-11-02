@@ -1,7 +1,7 @@
 {
   "name": "Ratos libres",
   "tagline": "Juegos y rompecabezas con tu compañero, y sorteos",
-  "description": "Un respiro con tu compañero: diez juegos contra él, a su lado en el escritorio (un quiz, tres en raya, Imítame y más) y cinco rompecabezas para ti (la palabra del día, el sudoku y más), con tus puntuaciones, mejores tiempos y rachas guardados, y el azar para elegir un número o una opción de una lista.",
+  "description": "Un respiro con tu compañero: once juegos contra él, a su lado en el escritorio (un quiz, tres en raya, Imítame y más) y cinco rompecabezas para ti (la palabra del día, el sudoku y más), con tus puntuaciones, mejores tiempos y rachas guardados, y el azar para elegir un número o una opción de una lista.",
   "tools": {
     "pick": {
       "title": "Elecciones al azar",
