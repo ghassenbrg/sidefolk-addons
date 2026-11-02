@@ -13,9 +13,12 @@ enum QiblaPage {
         var out: [Section] = []
         if let note = NoorPage.offlineNote(ctx) { out.append(Section(nil, [note], wide: true)) }
         let scene = ctx.narrow ? narrow(ctx, bearing, place) : wide(ctx, bearing, place)
-        out.append(Section(nil, [.scene(PageSceneBlock(scene, actions: ["refresh": ("refresh", [:])], acts: ["place": .go(Go(set: ["sheet": "prefs", "section": "place"], push: true))]))], wide: true))
-        // What is copied hangs on a button of Sidefolk's own, which says so (D105): a scene's area can't copy, so this one stands under the composition.
-        out.append(Section(nil, [.action(Action(L("Copy bearing"), act: .copy(L("Qibla from {place}: {degrees}° clockwise from true north", ["place": place.label, "degrees": "\(bearing.rounded)"])), symbol: "doc.on.doc"))], wide: true))
+        let copy = Block.action(Action(L("Copy bearing"), act: .copy(L("Qibla from {place}: {degrees}° clockwise from true north", ["place": place.label, "degrees": "\(bearing.rounded)"])), symbol: "doc.on.doc"))
+        let r = ctx.ruler
+        // In its place in the panel; on one column it stands under the composition.
+        let inlays = ctx.narrow ? [] : [PageInlay(x: r.u(686) + r.u(27), y: r.u(15) + r.u(332), w: r.u(186), h: r.u(42), copy)]
+        out.append(Section(nil, [.scene(PageSceneBlock(scene, actions: ["refresh": ("refresh", [:])], acts: ["place": .go(Go(set: ["sheet": "prefs", "section": "place"], push: true))], inlays: inlays))], wide: true))
+        if ctx.narrow { out.append(Section(nil, [copy], wide: true)) }
         return out
     }
 
@@ -82,7 +85,14 @@ enum QiblaPage {
 
             Node.gilded("\(bearing.rounded)°", 0, r.u(156), blockW, r.u(128), size: r.f(100, min: 54), weight: "semibold", tabular: true).leftToRight()
             Node.say(L("From true north"), 0, r.u(272), blockW, r.u(38), size: r.f(25, min: 14), color: Noor.warm, align: "center")
-            Node.pill("refresh", label: L("Check again"), x: r.u(27), y: r.u(332), w: r.u(238), h: r.u(42), symbol: "arrow.clockwise", size: r.f(17, min: 12))
+            // Copy bearing's words and press are Sidefolk's own, an inlay over this pill: a scene's area can't copy (D105).
+            Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(r.u(186), r.u(42)).at(r.u(27), r.u(332))
+            Node.group {
+                Node.ellipse(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(r.u(42), r.u(42))
+                Node.symbol("arrow.clockwise", color: Noor.text).size(r.u(18), r.u(18)).at(r.u(12), r.u(12))
+            }
+            .size(r.u(42), r.u(42)).at(r.u(223), r.u(332))
+            .area("refresh", label: L("Check again"))
             Node.rect(fill: Noor.hairline).size(1, r.u(154)).at(ruleX, r.u(175))
             Node.say(L("North-up direction"), noteX, r.u(172), noteW, r.u(30), size: r.f(21, min: 13), weight: "semibold")
             Node.say(L("The diagram shows a bearing from your selected place."), noteX, r.u(204), noteW, r.u(54), size: r.f(17.5, min: 11.5), color: Noor.muted, lines: 2)

@@ -35,7 +35,6 @@ enum NamesPage {
         var out: [Section] = []
         if let note = NoorPage.offlineNote(ctx) { out.append(Section(nil, [note], wide: true)) }
         out.append(Section(nil, [block], wide: true))
-        if !ctx.narrow { out.append(Section(nil, [.action(copy(selected))], wide: true)) }
         return out
     }
 

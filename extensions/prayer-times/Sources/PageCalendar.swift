@@ -357,11 +357,7 @@ enum CalendarPage {
             // What types comes first, so a change in the switches beside it never moves it.
             inlays = list.inlays(ctx, w: rightW, h: h, r: r, dx: rightX, dy: r.u(2)) + conversion.inlays(ctx, w: leftW, r: r, dx: x, dy: r.u(2))
         }
-        var out = [Section(nil, [.scene(PageSceneBlock(scene, actions: tools, acts: acts, inlays: inlays))], wide: true)]
-        if let words = conversion.copyWords, !ctx.narrow || asked == .convert {
-            out.append(Section(nil, [.action(Action(L("Copy result"), act: .copy(words), style: .primary, symbol: "doc.on.doc"))], wide: true))
-        }
-        return out
+        return [Section(nil, [.scene(PageSceneBlock(scene, actions: tools, acts: acts, inlays: inlays))], wide: true)]
     }
 
     /// One of F03's two panels: the lattice above an arch, the title under its peak.
@@ -441,6 +437,9 @@ enum CalendarPage {
         func inlays(_ ctx: Context, w: Double, r: Ruler, dx: Double, dy: Double = 0) -> [PageInlay] {
             let m = Places(w: w, r: r)
             var out = [PageInlay(x: dx + m.dropX, y: dy + m.dropY, w: m.dropW, h: m.dropH, CalendarPage.methodChoice(ctx))]
+            if let words = copyWords {
+                out.append(PageInlay(x: dx + r.u(20), y: dy + r.u(619), w: (w - r.u(40)) * 0.59, h: r.u(53), .action(Action(L("Copy result"), act: .copy(words), style: .primary, symbol: "doc.on.doc"))))
+            }
             if result == nil {
                 let example = toHijri ? "2026-11-02" : "1448-05-22"
                 out.append(PageInlay(x: dx + m.wellX + r.u(58), y: dy + m.fromY + r.u(10), w: m.wellW - r.u(70), h: m.wellH - r.u(20),
@@ -492,7 +491,12 @@ enum CalendarPage {
             Node.say(L("Calendar method"), r.u(26), m.dropY, m.dropX - r.u(30), m.dropH, size: r.f(16.5, min: 12))
             methodPill(ctx, x: m.dropX, y: m.dropY, w: m.dropW, h: m.dropH, r: r)
             resultPlate(c, x: r.u(19), y: resultY, w: w - r.u(38), h: resultH, r: r)
-            panelButton("run", L("Convert"), x: r.u(20), y: buttonsY, w: mainW, h: buttonsH, filled: true, disabled: c.input.isEmpty, r: r)
+            if c.copyWords == nil {
+                panelButton("run", L("Convert"), x: r.u(20), y: buttonsY, w: mainW, h: buttonsH, filled: true, disabled: c.input.isEmpty, r: r)
+            } else {
+                // Copy result's words and press are Sidefolk's own, an inlay over this: a scene's area can't copy (D105).
+                Node.rect(stroke: .hex("#9A85E8"), lineWidth: 1, corner: r.u(14)).gradient([.hex("#6E4FDC"), .hex("#5439BE")], from: (0, 0.5), to: (1, 0.5)).size(mainW, buttonsH).at(r.u(20), buttonsY)
+            }
             panelButton("open", L("Open in calendar"), symbol: "calendar", x: r.u(20) + mainW + r.u(11), y: buttonsY, w: w - r.u(40) - mainW - r.u(11), h: buttonsH, disabled: result == nil, r: r)
             if let problem = c.problem {
                 Node.group {
