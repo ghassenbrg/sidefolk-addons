@@ -991,6 +991,9 @@
     ],
     "toss_scissors": [
       "مقص"
+    ],
+    "toss_many_d": [
+      "ارم {many:dice_many} d{sides:integer:2-100}"
     ]
   },
   "ai_purpose": "لكتابة أسئلة مسابقة عن موضوع تختاره",

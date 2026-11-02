@@ -917,6 +917,9 @@
     "toss_scissors": [
       "チョキ",
       "ちょき"
+    ],
+    "toss_many_d": [
+      "d{sides:integer:2-100}を{many:dice_many}つ振って"
     ]
   },
   "ai_purpose": "あなたが選んだテーマのクイズ問題を作るため",

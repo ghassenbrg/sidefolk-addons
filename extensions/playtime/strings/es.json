@@ -947,6 +947,10 @@
     "toss_scissors": [
       "tijera",
       "tijeras"
+    ],
+    "toss_many_d": [
+      "lanza {many:dice_many} d{sides:integer:2-100}",
+      "tira {many:dice_many} d{sides:integer:2-100}"
     ]
   },
   "ai_purpose": "para escribir preguntas de trivia sobre un tema que elijas",

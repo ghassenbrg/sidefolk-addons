@@ -907,6 +907,9 @@
     ],
     "toss_scissors": [
       "가위"
+    ],
+    "toss_many_d": [
+      "d{sides:integer:2-100} {many:dice_many} 개 굴려줘"
     ]
   },
   "ai_purpose": "원하는 주제의 퀴즈 문제를 만들기 위해",

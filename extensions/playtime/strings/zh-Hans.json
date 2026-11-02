@@ -916,6 +916,9 @@
     "toss_scissors": [
       "剪刀",
       "出剪刀"
+    ],
+    "toss_many_d": [
+      "掷{many:dice_many}个d{sides:integer:2-100}"
     ]
   },
   "ai_purpose": "用于根据你指定的主题编写问答题",

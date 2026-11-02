@@ -935,6 +935,10 @@
     ],
     "toss_scissors": [
       "tesoura"
+    ],
+    "toss_many_d": [
+      "jogue {many:dice_many} d{sides:integer:2-100}",
+      "role {many:dice_many} d{sides:integer:2-100}"
     ]
   },
   "ai_purpose": "para escrever perguntas de trivia sobre um tema que você escolher",

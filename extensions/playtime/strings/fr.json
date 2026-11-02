@@ -943,6 +943,10 @@
     ],
     "toss_scissors": [
       "ciseaux"
+    ],
+    "toss_many_d": [
+      "lance {many:dice_many} d{sides:integer:2-100}",
+      "jette {many:dice_many} d{sides:integer:2-100}"
     ]
   },
   "ai_purpose": "pour écrire des questions de quiz sur un sujet que vous choisissez",
