@@ -66,8 +66,6 @@ struct PlaytimeRecords: Codable, Equatable {
     var plays: [Play]?
     /// What was handed over from the app, once.
     var carried: Bool?
-    /// The switch for every game's sounds as last seen, so a change to it can reach each game's own speaker.
-    var soundsSeen: Bool?
 
     struct Duel: Codable, Equatable {
         var wins: [String: Int] = [:]

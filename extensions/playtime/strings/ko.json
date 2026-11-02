@@ -487,6 +487,13 @@
     }
   },
   "parts": {
+    "again": [
+      "다시",
+      "한번 더"
+    ],
+    "coin_call": [
+      "{call:call}"
+    ],
     "count": [
       "{count:integer:1-50}문제",
       "{count:integer:1-50}문항",
@@ -502,8 +509,19 @@
       "두 명이서",
       "2명이서"
     ],
+    "lets": [
+      "자"
+    ],
     "level": [
       "{level:level}"
+    ],
+    "minus": [
+      "-{minus:integer:1-100}",
+      "- {minus:integer:1-100}"
+    ],
+    "plus": [
+      "+{modifier:integer:1-100}",
+      "+ {modifier:integer:1-100}"
     ],
     "range": [
       "{min:integer}부터 {max:integer}까지",
@@ -511,9 +529,15 @@
       "{min:integer}부터 {max:integer}",
       "{max:integer}까지"
     ],
+    "rps_lead": [
+      "가위바위보"
+    ],
     "topic": [
       "{topic:text:40}에 대한",
       "{topic:text:40} 관련"
+    ],
+    "with_me": [
+      "나랑"
     ]
   },
   "settings": {
@@ -898,11 +922,12 @@
     "Leaf": "나뭇잎",
     "Leave it empty and {name} picks one.": "비워 두면 {name}이(가) 골라요.",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "4의 배수보다 하나 더 남기세요: 17, 13, 9, 5, 그리고 1.",
-    "Level": "난이도",
+    "Level": "단계",
     "Levels": "단계",
     "Lower": "더 작아요",
     "Lower than {n}!": "{n}보다 작아요!",
     "Made by {name}. They aren't checked, so a fact may be wrong.": "{name}이(가) 만든 문제예요. 확인되지 않았으니 틀린 내용이 있을 수 있어요.",
+    "Make new trivia questions with AI": "AI로 새 퀴즈 문제 만들기",
     "Make questions": "문제 만들기",
     "Making questions with AI is off. Here are mine.": "AI로 문제 만들기가 꺼져 있어요. 제 문제로 해요.",
     "Memory Pairs": "짝 맞추기",
@@ -1115,6 +1140,7 @@
     "Topic": "주제",
     "Trivia": "퀴즈",
     "Trivia about {topic}": "{topic} 퀴즈",
+    "Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked.": "원하는 어떤 주제든 내 언어로 퀴즈를 해요. 새 주제마다 AI에 짧은 요청을 한 번 보내며, 문제는 확인되지 않아요.",
     "Trivia questions": "퀴즈 문제",
     "Try": "확인",
     "Try this word": "이 단어로 해 보기",
@@ -1181,6 +1207,11 @@
     "Your turn: turn two cards.": "당신 차례: 카드 두 장을 뒤집어요.",
     "Your turn: you're X.": "당신 차례: 당신은 X.",
     "blank": "빈칸",
+    "games|Best streak": "최고 연승",
+    "games|Not played yet": "아직 안 해 봤어요",
+    "games|Played": "플레이",
+    "games|Solved": "풀이 완료",
+    "games|Streak": "연승",
     "heads": "앞면",
     "in the word, elsewhere": "단어에 있지만 다른 자리",
     "not in the word": "단어에 없음",

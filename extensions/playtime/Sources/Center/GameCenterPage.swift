@@ -34,7 +34,9 @@ enum GameCenterPage {
         func group(_ title: String, solo: Bool, picture: Picture?) {
             let games = entries.filter { $0.solo == solo }
             guard !games.isEmpty else { return }
-            out.append(Section(title, [.cards(size: .large, games.map { card($0, record($0), kept: kept == $0.id, last: last($0)) })], picture: picture))
+            // The menu's own bands, so Home and the menu read as one.
+            let banner = solo ? (tint: "#4D9BEA", symbol: "puzzlepiece.fill" as String?) : (tint: Paint.sun.json as? String ?? "#FFC93C", symbol: "gamecontroller.fill" as String?)
+            out.append(Section(title, [.cards(size: .large, games.map { card($0, record($0), kept: kept == $0.id, last: last($0)) })], picture: picture, banner: banner))
         }
         group(L("Play against {name}", ["name": "{companion}"]), solo: false, picture: .companion(.face))
         group(L("Puzzles"), solo: true, picture: nil)
@@ -47,8 +49,12 @@ enum GameCenterPage {
         let all = badges(totals, entries: entries, record: record, dailies: dailies)
         let earned = all.filter(\.earned).count
         out.append(Section(L("Badges"), [.badges(nil, all.filter(\.earned) + all.filter { !$0.earned })], detail: L("{n} of {total} earned", ["n": earned, "total": all.count])))
-        out.append(Section(L("Game settings"), [.settings(nil, keys: ["tone", "sounds", "sneaky"], ai: true)]))
-        out.append(Section(L("Levels"), [.settings(nil, keys: entries.filter(\.levels).map { GameSoundSetting.levelKey($0.id) })], collapsed: true))
+        out.append(Section(L("Game settings"), [.settings(nil, keys: ["tone", "sounds", "sneaky"], ai: true, aiTitle: L("Make new trivia questions with AI"),
+                                                          aiDetail: L("Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked."))], wide: true))
+        let leveled = entries.filter(\.levels)
+        var pictures: [String: Picture] = [:]
+        for e in leveled { pictures[GameSoundSetting.levelKey(e.id)] = picture(e) }
+        out.append(Section(L("Levels"), [.settings(nil, keys: leveled.map { GameSoundSetting.levelKey($0.id) }, grid: true, pictures: pictures)], wide: true))
         return out
     }
 
@@ -63,17 +69,21 @@ enum GameCenterPage {
             action = Action(L("Play today's {title}", ["title": daily.title]), tool: "open", input: ["game": daily.id, "person": true], style: .primary, symbol: "sun.max.fill")
             says = L("Today's boards are waiting!")
         }
-        return .hero(Hero(L("Playtime"), detail: L("Games against {name}, and puzzles of your own", ["name": "{companion}"]), symbol: "gamecontroller.fill",
-                          actions: [action, Action(L("All games"), tool: "open", input: ["game": "menu", "person": true], symbol: "square.grid.2x2.fill")],
-                          scene: .pack(Look.dance.scene, dark: Look.dance.sceneAtNight), figure: .companion(.full), says: says))
+        var hero = Hero(L("Playtime"), detail: L("Games against {name}, and puzzles of your own", ["name": "{companion}"]), symbol: "gamecontroller.fill",
+                        actions: [action, Action(L("All games"), tool: "open", input: ["game": "menu", "person": true], symbol: "square.grid.2x2.fill")],
+                        scene: .pack(Look.dance.scene, dark: Look.dance.sceneAtNight), figure: .companion(.full), says: says)
+        let colours = [Look.dance.top, Look.dance.bottom].compactMap { $0.json as? String }
+        hero.tile = colours
+        hero.wash = colours
+        return .hero(hero)
     }
 
     /// Wins, puzzles solved, the best run of wins and games played.
     private static func stats(_ t: Totals) -> Block {
-        .stats([StatItem(L("Wins"), Format.integer(t.wins), symbol: "trophy.fill"),
-                StatItem(L("Solved"), Format.integer(t.solved), symbol: "checkmark.seal.fill", tone: .good),
-                StatItem(L("Best streak"), Format.integer(t.bestStreak), symbol: "flame.fill"),
-                StatItem(L("Played"), Format.integer(t.played), symbol: "gamecontroller.fill")])
+        .stats([StatItem(L("Wins"), Format.integer(t.wins), symbol: "trophy.fill", color: Paint.sun.json as? String),
+                StatItem(L("Solved", context: "games"), Format.integer(t.solved), symbol: "checkmark.seal.fill", tone: .good),
+                StatItem(L("Best streak", context: "games"), Format.integer(t.bestStreak), symbol: "flame.fill", color: Look.numbers.bottom.json as? String),
+                StatItem(L("Played", context: "games"), Format.integer(t.played), symbol: "gamecontroller.fill")])
     }
 
     private static func picture(_ e: GameEntry) -> Picture { .pack(e.look.icon) }
@@ -81,12 +91,12 @@ enum GameCenterPage {
     private static func daily(_ e: GameEntry, _ r: Record) -> Card {
         let streak = r.today?.streak ?? 0
         return Card(e.title, detail: r.today?.text, meta: streak > 1 ? L("{n} days in a row", ["n": streak]) : nil, picture: picture(e), color: e.look.bottom.json as? String, done: r.today?.done == true,
-                    actions: [Action(L("Play"), tool: "open", input: ["game": e.id, "person": true], symbol: "play.fill")])
+                    actions: [Action(L("Play"), tool: "open", input: ["game": e.id, "person": true], symbol: "play.fill", round: true)])
     }
 
     /// A game as a card: its art, title and tagline, its best and record, when it was last played, Play (with a level from the menu beside it), and Resume when it was put away.
     private static func card(_ e: GameEntry, _ r: Record, kept: Bool, last: Date?) -> Card {
-        var actions = [Action(kept ? L("Resume") : L("Play"), tool: "open", input: ["game": e.id, "person": true], symbol: "play.fill")]
+        var actions = [Action(kept ? L("Resume") : L("Play"), tool: "open", input: ["game": e.id, "person": true], style: kept ? .accent : .secondary, symbol: "play.fill")]
         if TwoPlayers.games.contains(e.id) {
             actions.append(Action(L("2 players"), tool: "open", input: ["game": e.id, "players": 2, "person": true], symbol: "person.2.fill", detail: L("Play against a friend on this Mac")))
         }
@@ -98,7 +108,7 @@ enum GameCenterPage {
 
     /// Its record in plain words: the game's own best, then wins of games played (a puzzle's solves), or not yet played. Nothing when a game was opened but none finished.
     private static func recordLine(_ e: GameEntry, _ r: Record, last: Date?) -> String? {
-        guard r.played > 0 else { return last == nil ? L("Not played yet") : nil }
+        guard r.played > 0 else { return last == nil ? L("Not played yet", context: "games") : nil }
         var parts: [String] = []
         if let best = r.best { parts.append(best) }
         parts.append(e.solo ? L("{n} solved", ["n": r.won]) : L("Won {won} of {played}", ["won": r.won, "played": r.played]))

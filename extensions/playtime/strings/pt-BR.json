@@ -496,6 +496,15 @@
     }
   },
   "parts": {
+    "again": [
+      "para mim",
+      "de novo"
+    ],
+    "coin_call": [
+      "{call:call}",
+      "digo {call:call}",
+      "escolho {call:call}"
+    ],
     "count": [
       "{count:integer:1-50} perguntas",
       "{count:integer:1-50} pergunta",
@@ -514,8 +523,19 @@
       "dois jogadores",
       "2 jogadores"
     ],
+    "lets": [
+      "vamos"
+    ],
     "level": [
       "{level:level}"
+    ],
+    "minus": [
+      "-{minus:integer:1-100}",
+      "- {minus:integer:1-100}"
+    ],
+    "plus": [
+      "+{modifier:integer:1-100}",
+      "+ {modifier:integer:1-100}"
     ],
     "range": [
       "entre {min:integer} e {max:integer}",
@@ -523,12 +543,20 @@
       "até {max:integer}",
       "até o {max:integer}"
     ],
+    "rps_lead": [
+      "pedra papel tesoura",
+      "pedra, papel, tesoura",
+      "pedra, papel e tesoura"
+    ],
     "topic": [
       "sobre {topic:text:40}",
       "sobre o {topic:text:40}",
       "sobre a {topic:text:40}",
       "sobre os {topic:text:40}",
       "sobre as {topic:text:40}"
+    ],
+    "with_me": [
+      "comigo"
     ]
   },
   "settings": {
@@ -922,6 +950,7 @@
     "Lower": "Menor",
     "Lower than {n}!": "Menor que {n}!",
     "Made by {name}. They aren't checked, so a fact may be wrong.": "Escritas por {name}. Não foram verificadas, então algum fato pode estar errado.",
+    "Make new trivia questions with AI": "Criar novas perguntas de quiz com IA",
     "Make questions": "Criar perguntas",
     "Making questions with AI is off. Here are mine.": "As perguntas com IA estão desativadas. Aqui estão as minhas.",
     "Memory Pairs": "Pares da memória",
@@ -1136,6 +1165,7 @@
     "Topic": "Tema",
     "Trivia": "Quiz",
     "Trivia about {topic}": "Trivia sobre {topic}",
+    "Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked.": "Quiz sobre qualquer tema que você disser, no seu idioma. Cada tema novo é um pedido curto à sua IA; as perguntas não são verificadas.",
     "Trivia questions": "Perguntas de trivia",
     "Try": "Tentar",
     "Try this word": "Tentar esta palavra",
@@ -1203,6 +1233,11 @@
     "Your turn: turn two cards.": "Sua vez: vire duas cartas.",
     "Your turn: you're X.": "Sua vez: você é X.",
     "blank": "vazia",
+    "games|Best streak": "Melhor sequência",
+    "games|Not played yet": "Ainda não jogado",
+    "games|Played": "Partidas",
+    "games|Solved": "Resolvido",
+    "games|Streak": "Sequência",
     "heads": "cara",
     "in the word, elsewhere": "na palavra, em outro lugar",
     "not in the word": "fora da palavra",

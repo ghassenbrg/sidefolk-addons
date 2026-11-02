@@ -78,11 +78,21 @@ enum PlayTable {
         }
     }
 
-    /// Whether a game is waiting: Home's Continue.
+    /// Whether a game is waiting: Home's Continue. The panel's ✕ only hides it and the session goes on, with no word to the program, so one still open counts;
+    /// failing that, the one written down when another opening ended it.
     static var keptGame: String? {
-        guard let data = FileManager.default.contents(atPath: keptFile), let session = try? JSONDecoder().decode(Session.self, from: data),
-              Date().timeIntervalSince(session.keptAt) < keptFor else { return nil }
-        return session.game
+        let now = Date(), fm = FileManager.default
+        var newest: (when: Date, game: String)?
+        for name in (try? fm.contentsOfDirectory(atPath: folder)) ?? [] where name.hasSuffix(".json") {
+            let file = folder + "/" + name
+            guard let when = (try? fm.attributesOfItem(atPath: file))?[.modificationDate] as? Date, now.timeIntervalSince(when) < keptFor,
+                  let data = fm.contents(atPath: file), let session = try? JSONDecoder().decode(Session.self, from: data),
+                  let game = session.game, session.state != nil, !session.over, newest.map({ when > $0.when }) ?? true else { continue }
+            // What was written down keeps the moment it was put away.
+            if file == keptFile, now.timeIntervalSince(session.keptAt) >= keptFor { continue }
+            newest = (when, game)
+        }
+        return newest?.game
     }
 
     private static func takeKept() -> Session? {
@@ -245,11 +255,15 @@ enum PlayTable {
         PlaytimeRecords.update { $0.addPlay(entry.id, result: result) }
     }
 
-    /// A game that was played and never said it was over still gets its row when it goes.
+    /// A game that was played and never said it was over still gets its row when it goes, with the score it stood at.
     private static func finishRow(_ session: inout Session) {
         guard session.played, !session.recorded, let game = session.game, let entry = GameCatalog.entry(game) else { return }
         session.recorded = true
-        Activity.add(L("Played {title} with {with}", ["title": entry.title, "with": L("Playtime")]), key: game)
+        var text = L("Played {title} with {with}", ["title": entry.title, "with": L("Playtime")])
+        if let data = session.state, let score = GameTable.drivers[game]?.board(data, [], session.options)?.scorePart, score.players == nil {
+            text += " · " + L("You {x} · {name} {y}", ["x": score.you, "name": "{companion}", "y": score.companion])
+        }
+        Activity.add(text, key: game)
     }
 
     // MARK: Files

@@ -126,8 +126,7 @@ extension BoardDrawing {
             y += 18 + 6
         }
         let measured = TextFit.height(text, size: 17, weight: "heavy", width: room, lines: 5)
-        // The rounded face stands 20 a line, a point under the system face TextFit measures. Its box keeps the extra, so nothing shrinks.
-        let shown = (measured / 20.5).rounded() * 20
+        let shown = measured
         inside.append(Node.words(text, size: 17, weight: "heavy", valign: "top", lines: 5, minScale: 0.8, x: 14, y: y, w: room, h: measured + 2).id("bubble.text"))
         y += shown
         if let clock = board.timerPart {

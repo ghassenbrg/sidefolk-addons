@@ -510,6 +510,16 @@
     }
   },
   "parts": {
+    "again": [
+      "für mich",
+      "nochmal",
+      "noch mal"
+    ],
+    "coin_call": [
+      "{call:call}",
+      "ich sage {call:call}",
+      "ich wähle {call:call}"
+    ],
     "count": [
       "{count:integer:1-50} fragen",
       "{count:integer:1-50} frage",
@@ -527,8 +537,19 @@
       "zwei spieler",
       "2 spieler"
     ],
+    "lets": [
+      "los"
+    ],
     "level": [
       "{level:level}"
+    ],
+    "minus": [
+      "-{minus:integer:1-100}",
+      "- {minus:integer:1-100}"
+    ],
+    "plus": [
+      "+{modifier:integer:1-100}",
+      "+ {modifier:integer:1-100}"
     ],
     "range": [
       "zwischen {min:integer} und {max:integer}",
@@ -536,12 +557,22 @@
       "bis {max:integer}",
       "bis zu {max:integer}"
     ],
+    "rps_lead": [
+      "schere stein papier",
+      "schere, stein, papier",
+      "stein schere papier",
+      "stein, schere, papier",
+      "schnick schnack schnuck"
+    ],
     "topic": [
       "über {topic:text:40}",
       "über das {topic:text:40}",
       "über die {topic:text:40}",
       "über den {topic:text:40}",
       "zum thema {topic:text:40}"
+    ],
+    "with_me": [
+      "mit mir"
     ]
   },
   "settings": {
@@ -935,6 +966,7 @@
     "Lower": "Niedriger",
     "Lower than {n}!": "Niedriger als {n}!",
     "Made by {name}. They aren't checked, so a fact may be wrong.": "Von {name} geschrieben. Nicht geprüft, ein Fakt kann also falsch sein.",
+    "Make new trivia questions with AI": "Neue Quizfragen mit KI schreiben",
     "Make questions": "Fragen schreiben",
     "Making questions with AI is off. Here are mine.": "Fragen mit KI sind ausgeschaltet. Hier sind meine.",
     "Memory Pairs": "Memo-Paare",
@@ -988,7 +1020,7 @@
     "Pick a topic": "Wähle ein Thema",
     "Pick a way to play": "Wähle, wie du spielst",
     "Play": "Spielen",
-    "Play again": "Noch mal spielen",
+    "Play again": "Nochmal spielen",
     "Play against a friend on this Mac": "Auf diesem Mac gegen Freunde spielen",
     "Play against {name}": "Gegen {name}",
     "Play another": "Noch eins spielen",
@@ -1149,6 +1181,7 @@
     "Topic": "Thema",
     "Trivia": "Quiz",
     "Trivia about {topic}": "Quiz über {topic}",
+    "Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked.": "Quiz zu jedem Thema, das du nennst, in deiner Sprache. Jedes neue Thema ist eine kurze Anfrage an deine KI; die Fragen werden nicht geprüft.",
     "Trivia questions": "Quizfragen",
     "Try": "Versuchen",
     "Try this word": "Dieses Wort versuchen",
@@ -1216,6 +1249,11 @@
     "Your turn: turn two cards.": "Du bist dran: deck zwei Karten auf.",
     "Your turn: you're X.": "Du bist dran: du bist X.",
     "blank": "leer",
+    "games|Best streak": "Beste Serie",
+    "games|Not played yet": "Noch nicht gespielt",
+    "games|Played": "Gespielt",
+    "games|Solved": "Gelöst",
+    "games|Streak": "Serie",
     "heads": "Kopf",
     "in the word, elsewhere": "im Wort, an anderer Stelle",
     "not in the word": "nicht im Wort",

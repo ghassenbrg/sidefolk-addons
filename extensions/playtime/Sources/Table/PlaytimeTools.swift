@@ -30,7 +30,7 @@ enum PlaytimeTools {
                  ])) { args in try open(args) }
         ext.tool("put_away", "Put the game away",
                  "Puts the game on the panel away, to resume later from the menu, the Game Center or \"resume\".", input: Schema.none) { _ in
-            ToolReply(L("Put the game away")).closingSurface("play")
+            ToolReply(L("Put the game away")).row(L("Put the game away")).closingSurface("play")
         }
         ext.tool("game_settings", "Change game settings",
                  """
@@ -45,17 +45,16 @@ enum PlaytimeTools {
                      "game": Schema.string("For a level: the game's name."),
                      "level": Schema.string("easy, fair, hard or default."),
                  ])) { args in try ToolReply(settings(args)) }
-        ext.settingsChanged = { followSounds() }
     }
 
     private static func open(_ a: Arguments) throws -> ToolReply {
         let person = a.bool("person") == true
         switch a.string("game") ?? "menu" {
         case "menu":
-            return ToolReply(L("Show the games"))
+            return ToolReply(L("Show the games")).row(L("Show the games"))
                 .opening(surface: "play", arguments: ["view": "menu"])
         case "center":
-            return ToolReply(L("Show the Game Center")).opening(page: "playtime")
+            return ToolReply(L("Show the Game Center")).row(L("Show the Game Center")).opening(page: "playtime")
         case "random":
             let others = GameCatalog.all.filter { $0.id != PlaytimeRecords.load().lastOpened?.game }
             guard let pick = others.randomElement() else { return try open(Arguments(["game": "menu"])) }
@@ -109,14 +108,18 @@ enum PlaytimeTools {
         }
         // Two people only where two can play (D96): not the puzzles, not Guess My Animal.
         if a.int("players") == 2, TwoPlayers.games.contains(entry.id) { arguments["players"] = 2 }
-        return ToolReply(L("Play {title}", ["title": entry.title]))
+        // History's row, as it read: what was opened, at the level it opened at.
+        var row = L("Play {title}", ["title": entry.title])
+        if let opened = level ?? chosen, entry.levels { row += " · " + ScreenKit.level(opened) }
+        return ToolReply(L("Play {title}", ["title": entry.title])).row(row)
             .opening(surface: "play", arguments: arguments)
     }
 
     private static func settings(_ a: Arguments) throws -> String {
         var said: [String] = []
         if let on = a.bool("sounds") {
-            setAllSounds(on)
+            // One write: each game's own speaker follows this one until it is pressed, and a change here clears those (the manifest's `follows`).
+            ExtensionSettings.set("sounds", on)
             said.append(on ? L("Game sounds on") : L("Game sounds off"))
         }
         if let tone = a.string("tone") {
@@ -138,22 +141,4 @@ enum PlaytimeTools {
         return said.joined(separator: ", ")
     }
 
-    /// Every game, so a speaker turned on in one game doesn't keep playing after "sounds off".
-    private static func setAllSounds(_ on: Bool) {
-        ExtensionSettings.set("sounds", on)
-        PlaytimeRecords.update { $0.soundsSeen = on }
-        for game in GameTable.drivers.keys { ExtensionSettings.set(GameSoundSetting.key(game), on) }
-    }
-
-    /// The page's switch for every game was changed: each game's own speaker follows, as `sounds` always has.
-    private static func followSounds() {
-        guard let on = ExtensionSettings.bool("sounds") else { return }
-        let seen = PlaytimeRecords.load().soundsSeen
-        guard seen != on else { return }
-        if seen == nil {
-            PlaytimeRecords.update { $0.soundsSeen = on }
-            return
-        }
-        setAllSounds(on)
-    }
 }

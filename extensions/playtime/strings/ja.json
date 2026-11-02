@@ -500,6 +500,13 @@
     }
   },
   "parts": {
+    "again": [
+      "もう一回",
+      "もう一度"
+    ],
+    "coin_call": [
+      "{call:call}"
+    ],
     "count": [
       "{count:integer:1-50}問題",
       "{count:integer:1-50}問",
@@ -515,17 +522,34 @@
       "二人用",
       "2人用"
     ],
+    "lets": [
+      "ねえ"
+    ],
     "level": [
       "{level:level}"
+    ],
+    "minus": [
+      "-{minus:integer:1-100}",
+      "- {minus:integer:1-100}"
+    ],
+    "plus": [
+      "+{modifier:integer:1-100}",
+      "+ {modifier:integer:1-100}"
     ],
     "range": [
       "{min:integer}から{max:integer}まで",
       "{min:integer}から{max:integer}",
       "{max:integer}まで"
     ],
+    "rps_lead": [
+      "じゃんけん"
+    ],
     "topic": [
       "{topic:text:40}について",
       "{topic:text:40}に関する"
+    ],
+    "with_me": [
+      "一緒に"
     ]
   },
   "settings": {
@@ -915,6 +939,7 @@
     "Lower": "もっと小さい",
     "Lower than {n}!": "{n}より小さい！",
     "Made by {name}. They aren't checked, so a fact may be wrong.": "{name}が作った問題です。確認されていないので、まちがいがあるかもしれません。",
+    "Make new trivia questions with AI": "AIで新しいクイズの問題を作る",
     "Make questions": "問題を作る",
     "Making questions with AI is off. Here are mine.": "AIで問題を作る設定はオフです。わたしの問題で遊ぼう。",
     "Memory Pairs": "神経衰弱",
@@ -968,7 +993,7 @@
     "Pick a topic": "テーマを選んでください",
     "Pick a way to play": "遊び方をえらんでね",
     "Play": "あそぶ",
-    "Play again": "もう一度遊ぶ",
+    "Play again": "もう一回",
     "Play against a friend on this Mac": "このMacで友だちと対戦",
     "Play against {name}": "{name}と対戦",
     "Play another": "もうひとつ遊ぶ",
@@ -1127,6 +1152,7 @@
     "Topic": "テーマ",
     "Trivia": "クイズ",
     "Trivia about {topic}": "{topic}のクイズ",
+    "Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked.": "好きなテーマで、あなたの言語のクイズ。新しいテーマごとにAIへ短いリクエストを1回送ります。問題は確認されていません。",
     "Trivia questions": "クイズの問題",
     "Try": "ためす",
     "Try this word": "この言葉でためす",
@@ -1193,6 +1219,11 @@
     "Your turn: turn two cards.": "あなたの番：2枚めくってね。",
     "Your turn: you're X.": "あなたの番：あなたは✕。",
     "blank": "空き",
+    "games|Best streak": "最高連勝",
+    "games|Not played yet": "まだ遊んでいません",
+    "games|Played": "プレイ数",
+    "games|Solved": "クリア",
+    "games|Streak": "連勝",
     "heads": "表",
     "in the word, elsewhere": "ことばの中、別の場所",
     "not in the word": "ことばにない",

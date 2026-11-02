@@ -29,7 +29,7 @@ enum TossTool {
         let toss = try draw(a, random: &random)
         if case .hands(let person, let companion) = toss { _ = PlaytimeRecords.addThrow(person: person, companion: companion) }
         // The person's words: someone who said "flip a coin" reads this on a card, and the AI says it as it came.
-        return ToolReply(toss.result).opening(surface: "toss", arguments: toss.arguments).holdingAnswer(ms: TossSurface.Timing(toss).totalMs)
+        return ToolReply(toss.result).row(toss.row).opening(surface: "toss", arguments: toss.arguments).holdingAnswer(ms: TossSurface.Timing(toss).totalMs)
     }
 
     /// What the words asked for, with the same limits a person's and the AI's words meet.

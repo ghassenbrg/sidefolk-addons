@@ -32,6 +32,18 @@ enum Toss: Equatable {
         }
     }
 
+    /// History's row: what was done and what came up, "Flip a coin — Heads!", "Roll 2d6+1 — 4 + 2 + 1 = 7".
+    var row: String {
+        let what: String
+        switch self {
+        case .coins(let flips, _): what = flips.count > 1 ? L("Flip {n} coins", ["n": flips.count]) : L("Flip a coin")
+        case .dice(let sides, let rolls, let modifier):
+            what = rolls.count == 1 && sides == 6 && modifier == 0 ? L("Roll a die") : L("Roll {dice}", ["dice": Self.notation(count: rolls.count, sides: sides, modifier: modifier)])
+        case .hands: what = L("Rock, paper, scissors")
+        }
+        return what + " — " + result
+    }
+
     /// Whether the person's call was right, when they called one coin.
     var called: Bool? {
         guard case .coins(let flips, let call?) = self, flips.count == 1 else { return nil }

@@ -422,7 +422,7 @@ struct PlaytimeStageTests {
                                                      "levels": ["dev.sidefolk.playtime/tictactoe": "hard"], "players": ["Ana", "Sam"], "aiTrivia": false]),
                                           store: [:], history: ["games.play": rows])
         let settings = try #require(reply["settings"] as? [String: Any])
-        #expect(settings["tone"] as? String == "gentle" && settings["sneaky"] as? Bool == true && settings["sound_sudoku"] as? Bool == true && settings["sound_trivia"] as? Bool == false)
+        #expect(settings["tone"] as? String == "gentle" && settings["sneaky"] as? Bool == true && settings["sound_sudoku"] as? Bool == true && settings["sound_trivia"] == nil, "only what was pressed in a game: the others follow sounds")
         #expect(settings["level_tictactoe"] as? String == "hard" && reply["ai"] as? Bool == false)
         let r = PlaytimeRecords.load()
         #expect(r.players == ["Ana", "Sam"] && r.stats.played == 2 && r.stats.wins == 1 && r.stats.streak == 1, "only its own games, the newest first")

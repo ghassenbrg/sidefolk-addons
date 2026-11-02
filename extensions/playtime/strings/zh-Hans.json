@@ -487,6 +487,13 @@
     }
   },
   "parts": {
+    "again": [
+      "再来一次",
+      "再一次"
+    ],
+    "coin_call": [
+      "{call:call}"
+    ],
     "count": [
       "{count:integer:1-50}道题",
       "{count:integer:1-50}道",
@@ -504,8 +511,19 @@
       "两人",
       "2人"
     ],
+    "lets": [
+      "来"
+    ],
     "level": [
       "{level:level}"
+    ],
+    "minus": [
+      "-{minus:integer:1-100}",
+      "- {minus:integer:1-100}"
+    ],
+    "plus": [
+      "+{modifier:integer:1-100}",
+      "+ {modifier:integer:1-100}"
     ],
     "range": [
       "从{min:integer}到{max:integer}",
@@ -514,8 +532,14 @@
       "{min:integer}到{max:integer}之间",
       "{max:integer}以内"
     ],
+    "rps_lead": [
+      "石头剪刀布"
+    ],
     "topic": [
       "关于{topic:text:40}的"
+    ],
+    "with_me": [
+      "和我"
     ]
   },
   "settings": {
@@ -905,6 +929,7 @@
     "Lower": "更小",
     "Lower than {n}!": "比{n}小！",
     "Made by {name}. They aren't checked, so a fact may be wrong.": "由{name}出题。题目未经核实，可能有错误。",
+    "Make new trivia questions with AI": "用AI出新的问答题",
     "Make questions": "出题",
     "Making questions with AI is off. Here are mine.": "AI出题已关闭。来玩我的题吧。",
     "Memory Pairs": "记忆配对",
@@ -1117,6 +1142,7 @@
     "Topic": "主题",
     "Trivia": "答题",
     "Trivia about {topic}": "关于{topic}的问答",
+    "Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked.": "任何你说的主题，用你的语言来答题。每个新主题会向你的AI发一次简短请求；题目未经核实。",
     "Trivia questions": "问答题",
     "Try": "试试",
     "Try this word": "试这个词",
@@ -1183,6 +1209,11 @@
     "Your turn: turn two cards.": "轮到你：翻两张牌。",
     "Your turn: you're X.": "轮到你：你是 X。",
     "blank": "空",
+    "games|Best streak": "最佳连胜",
+    "games|Not played yet": "还没玩过",
+    "games|Played": "已玩",
+    "games|Solved": "已解开",
+    "games|Streak": "连胜",
     "heads": "正面",
     "in the word, elsewhere": "在词里，位置不对",
     "not in the word": "不在词里",

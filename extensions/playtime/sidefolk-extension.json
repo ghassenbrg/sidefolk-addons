@@ -127,7 +127,6 @@
           }
         },
         {
-          "name": "menu_more",
           "say": [
             "the game menu",
             "list the games",
@@ -387,7 +386,6 @@
           "names": [
             "rock paper scissors",
             "rps",
-            "rock paper and scissors",
             "rock paper or scissors"
           ],
           "with": [
@@ -480,7 +478,6 @@
           ],
           "names": [
             "you guess my number",
-            "guess my number",
             "try to guess my number",
             "i'll think of a number",
             "i'll pick a number"
@@ -500,11 +497,8 @@
           "names": [
             "guess a number",
             "guess your number",
-            "i guess your number",
-            "let me guess your number",
             "i'll guess your number",
-            "think of a number",
-            "you think of a number"
+            "think of a number"
           ],
           "with": [
             "range",
@@ -769,7 +763,6 @@
           }
         },
         {
-          "name": "toss_heads_or_tails",
           "say": [
             "heads or tails"
           ],
@@ -970,7 +963,6 @@
           }
         },
         {
-          "name": "toss_sided",
           "say": [
             "roll a {sides:integer:2-100}-sided die",
             "roll a {sides:integer:2-100}-sided dice",
@@ -1090,6 +1082,7 @@
             "rock"
           ],
           "with": [
+            "lets",
             "rps_lead"
           ],
           "input": {
@@ -1103,6 +1096,7 @@
             "paper"
           ],
           "with": [
+            "lets",
             "rps_lead"
           ],
           "input": {
@@ -1116,6 +1110,7 @@
             "scissors"
           ],
           "with": [
+            "lets",
             "rps_lead"
           ],
           "input": {
@@ -1138,6 +1133,7 @@
             "my hand is {hand:hand}"
           ],
           "with": [
+            "lets",
             "rps_lead"
           ],
           "input": {
@@ -1219,7 +1215,8 @@
           "title": "Competitive"
         }
       ],
-      "default": "cheeky"
+      "default": "cheeky",
+      "segmented": true
     },
     {
       "key": "sounds",
@@ -1239,15 +1236,15 @@
       "key": "sound_daily_word",
       "type": "switch",
       "title": "Daily Word",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "sound_trivia",
       "type": "switch",
       "title": "Trivia",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_trivia",
@@ -1278,8 +1275,8 @@
       "key": "sound_tictactoe",
       "type": "switch",
       "title": "Tic-tac-toe",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_tictactoe",
@@ -1310,8 +1307,8 @@
       "key": "sound_copy_me",
       "type": "switch",
       "title": "Copy Me",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_copy_me",
@@ -1342,8 +1339,8 @@
       "key": "sound_quick_paws",
       "type": "switch",
       "title": "Quick Paws",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_quick_paws",
@@ -1374,8 +1371,8 @@
       "key": "sound_which_cup",
       "type": "switch",
       "title": "Which Cup?",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_which_cup",
@@ -1406,22 +1403,22 @@
       "key": "sound_higher_lower",
       "type": "switch",
       "title": "Higher or Lower",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "sound_guess_animal",
       "type": "switch",
       "title": "Guess My Animal",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "sound_balloon_words",
       "type": "switch",
       "title": "Balloon Words",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_balloon_words",
@@ -1452,8 +1449,8 @@
       "key": "sound_last_stick",
       "type": "switch",
       "title": "Last Stick",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_last_stick",
@@ -1484,8 +1481,8 @@
       "key": "sound_memory_pairs",
       "type": "switch",
       "title": "Memory Pairs",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_memory_pairs",
@@ -1516,15 +1513,15 @@
       "key": "sound_rock_paper_scissors",
       "type": "switch",
       "title": "Rock, Paper, Scissors",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "sound_plots",
       "type": "switch",
       "title": "Garden Plots",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_plots",
@@ -1555,8 +1552,8 @@
       "key": "sound_seesaw",
       "type": "switch",
       "title": "Seesaw",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_seesaw",
@@ -1587,8 +1584,8 @@
       "key": "sound_sudoku",
       "type": "switch",
       "title": "Sudoku",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_sudoku",
@@ -1619,8 +1616,8 @@
       "key": "sound_blossoms",
       "type": "switch",
       "title": "Blossoms",
-      "default": false,
-      "listed": false
+      "listed": false,
+      "follows": "sounds"
     },
     {
       "key": "level_blossoms",
@@ -1840,18 +1837,6 @@
     },
     "rps_lead": {
       "say": [
-        "let's play rock paper scissors",
-        "let's play rock, paper, scissors",
-        "let's play rock paper and scissors",
-        "let's play rock, paper and scissors",
-        "let's play rock, paper, and scissors",
-        "let's play rock paper or scissors",
-        "let's play rock, paper or scissors",
-        "let's play rock, paper, or scissors",
-        "let's play rps",
-        "lets play rock paper scissors",
-        "lets play rock, paper, scissors",
-        "lets play rps",
         "play rock paper scissors",
         "play rock, paper, scissors",
         "play rock paper and scissors",
@@ -1861,8 +1846,6 @@
         "play rock, paper or scissors",
         "play rock, paper, or scissors",
         "play rps",
-        "let's rock paper scissors",
-        "let's rock, paper, scissors",
         "rock paper scissors",
         "rock, paper, scissors",
         "rock paper and scissors",

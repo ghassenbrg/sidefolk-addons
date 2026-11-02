@@ -19,16 +19,16 @@ enum PlaytimeCarry {
         settings["sounds"] = sounds
         let speakers = values.values["speakers"] as? [String: Any] ?? [:], levels = values.values["levels"] as? [String: Any] ?? [:]
         for game in GameTable.drivers.keys {
-            settings[GameSoundSetting.key(game)] = speakers[owner + game] as? Bool ?? sounds
+            // Only what the person pressed in that game: the others follow `sounds`, as they always did.
+            if let own = speakers[owner + game] as? Bool { settings[GameSoundSetting.key(game)] = own }
             if let level = levels[owner + game] as? String, GameLevel(rawValue: level) != nil { settings[GameSoundSetting.levelKey(game)] = level }
         }
         // Rock, paper, scissors was the app's own game until it moved here.
-        settings[GameSoundSetting.key(RockPaperScissorsScreen.id)] = speakers["sidefolk/" + RockPaperScissorsScreen.id] as? Bool ?? sounds
+        if let own = speakers["sidefolk/" + RockPaperScissorsScreen.id] as? Bool { settings[GameSoundSetting.key(RockPaperScissorsScreen.id)] = own }
         let rows = (history["games.play"] ?? []).compactMap(play)
         let tally = (store["companion.handsScore"] as? [String: Any]).map(Arguments.init)
         let duels = store["companion.handsDuels"] as? [String: Any] ?? [:]
         PlaytimeRecords.update { r in
-            r.soundsSeen = sounds
             let names = values.strings("players")
             if r.players == nil, names.count == 2 { r.players = names }
             if r.plays == nil { r.plays = Array(rows.prefix(1000)) }

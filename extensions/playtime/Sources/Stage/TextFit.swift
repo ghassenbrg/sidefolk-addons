@@ -12,9 +12,13 @@ enum TextFit {
         let key = "\(size)/\(weight)"
         if let known = fonts[key] { return known }
         let traits: [CFString: Any] = [kCTFontWeightTrait: trait(weight)]
-        let base = CTFontCreateUIFontForLanguage(.system, size, nil) ?? CTFontCreateWithName("Helvetica" as CFString, size, nil)
-        let described = CTFontDescriptorCreateCopyWithAttributes(CTFontCopyFontDescriptor(base), [kCTFontTraitsAttribute: traits] as CFDictionary)
-        let made = CTFontCreateWithFontDescriptor(described, size, nil)
+        // The face a scene's text draws with: the system's rounded one, a little narrower than the plain one, so a line that fits isn't counted as two.
+        let rounded = CTFontDescriptorCreateWithAttributes([kCTFontFamilyNameAttribute: ".AppleSystemUIFontRounded", kCTFontTraitsAttribute: traits] as CFDictionary)
+        var made = CTFontCreateWithFontDescriptor(rounded, size, nil)
+        if !(CTFontCopyFamilyName(made) as String).contains("Rounded") {
+            let base = CTFontCreateUIFontForLanguage(.system, size, nil) ?? CTFontCreateWithName("Helvetica" as CFString, size, nil)
+            made = CTFontCreateWithFontDescriptor(CTFontDescriptorCreateCopyWithAttributes(CTFontCopyFontDescriptor(base), [kCTFontTraitsAttribute: traits] as CFDictionary), size, nil)
+        }
         fonts[key] = made
         return made
     }

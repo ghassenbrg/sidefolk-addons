@@ -483,6 +483,16 @@
     }
   },
   "parts": {
+    "again": [
+      "per me",
+      "ancora",
+      "di nuovo"
+    ],
+    "coin_call": [
+      "{call:call}",
+      "dico {call:call}",
+      "scelgo {call:call}"
+    ],
     "count": [
       "{count:integer:1-50} domande",
       "{count:integer:1-50} domanda",
@@ -499,8 +509,19 @@
       "due giocatori",
       "2 giocatori"
     ],
+    "lets": [
+      "dai"
+    ],
     "level": [
       "{level:level}"
+    ],
+    "minus": [
+      "-{minus:integer:1-100}",
+      "- {minus:integer:1-100}"
+    ],
+    "plus": [
+      "+{modifier:integer:1-100}",
+      "+ {modifier:integer:1-100}"
     ],
     "range": [
       "tra {min:integer} e {max:integer}",
@@ -508,6 +529,12 @@
       "da {min:integer} a {max:integer}",
       "fino a {max:integer}",
       "fino al {max:integer}"
+    ],
+    "rps_lead": [
+      "sasso carta forbici",
+      "sasso, carta, forbici",
+      "carta sasso forbici",
+      "morra cinese"
     ],
     "topic": [
       "su {topic:text:40}",
@@ -517,6 +544,9 @@
       "sui {topic:text:40}",
       "sugli {topic:text:40}",
       "sulle {topic:text:40}"
+    ],
+    "with_me": [
+      "con me"
     ]
   },
   "settings": {
@@ -910,6 +940,7 @@
     "Lower": "Più basso",
     "Lower than {n}!": "Meno di {n}!",
     "Made by {name}. They aren't checked, so a fact may be wrong.": "Scritte da {name}. Non sono verificate: qualche fatto potrebbe essere sbagliato.",
+    "Make new trivia questions with AI": "Crea nuove domande di quiz con l'IA",
     "Make questions": "Crea le domande",
     "Making questions with AI is off. Here are mine.": "Le domande con l'IA sono disattivate. Ecco le mie.",
     "Memory Pairs": "Coppie della memoria",
@@ -925,7 +956,7 @@
     "Next": "Avanti",
     "Next game": "Partita successiva",
     "Next one's yours.": "La prossima è tua.",
-    "Next round": "Prossimo round",
+    "Next round": "Round successivo",
     "No": "No",
     "No room is left there for its blossom.": "Lì non c'è più spazio per il suo fiore.",
     "Nobody pressed.": "Nessuno ha premuto.",
@@ -1124,6 +1155,7 @@
     "Topic": "Argomento",
     "Trivia": "Quiz",
     "Trivia about {topic}": "Quiz su {topic}",
+    "Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked.": "Quiz su qualsiasi argomento tu dica, nella tua lingua. Ogni nuovo argomento è una breve richiesta alla tua IA; le domande non sono verificate.",
     "Trivia questions": "Domande di quiz",
     "Try": "Prova",
     "Try this word": "Prova questa parola",
@@ -1191,6 +1223,11 @@
     "Your turn: turn two cards.": "Tocca a te: gira due carte.",
     "Your turn: you're X.": "Tocca a te: sei X.",
     "blank": "vuota",
+    "games|Best streak": "Serie migliore",
+    "games|Not played yet": "Non ancora giocato",
+    "games|Played": "Giocate",
+    "games|Solved": "Risolto",
+    "games|Streak": "Serie",
     "heads": "testa",
     "in the word, elsewhere": "nella parola, altrove",
     "not in the word": "non nella parola",

@@ -52,6 +52,9 @@ enum PlayMenu {
             nodes
         }
         .title(L("Playtime"))
+        // The menu has no sound, so no speaker; and whatever the last game put above the companion is put away.
+        .noSpeaker()
+        .react(Reaction(prop: "none", look: "panel"))
         for arrow in ["left", "right", "up", "down"] { scene = scene.key(arrow, id: "arrow_\(arrow)") }
         return scene.key("return", id: "menu_return").key("space", id: "menu_space")
     }
@@ -72,9 +75,9 @@ enum PlayMenu {
             Node.gameCard(w: width, h: 50)
             stat(0, s.wins, L("Wins"), "trophy.fill", Paint.sun, Paint.clear("#FFC93C", 0.16))
             Node.rect(fill: Paint.edge).at(4 + w, 10).size(1, 30)
-            stat(1, s.streak, L("Streak"), "flame.fill", .win, Color.win.tuned(alpha: 0.16))
+            stat(1, s.streak, L("Streak", context: "games"), "flame.fill", .win, Color.win.tuned(alpha: 0.16))
             Node.rect(fill: Paint.edge).at(4 + 2 * w + 1, 10).size(1, 30)
-            stat(2, s.played, L("Played"), "gamecontroller.fill", .accent, Color.accent.tuned(alpha: 0.16))
+            stat(2, s.played, L("Played", context: "games"), "gamecontroller.fill", .accent, Color.accent.tuned(alpha: 0.16))
         }
     }
 

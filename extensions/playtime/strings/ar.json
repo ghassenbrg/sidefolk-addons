@@ -485,6 +485,14 @@
     }
   },
   "parts": {
+    "again": [
+      "مرة أخرى",
+      "لي"
+    ],
+    "coin_call": [
+      "{call:call}",
+      "أختار {call:call}"
+    ],
     "count": [
       "{count:integer:1-50} أسئلة",
       "{count:integer:1-50} سؤالًا",
@@ -502,17 +510,35 @@
       "لاعبين",
       "لشخصين"
     ],
+    "lets": [
+      "هيا"
+    ],
     "level": [
       "{level:level}"
+    ],
+    "minus": [
+      "-{minus:integer:1-100}",
+      "- {minus:integer:1-100}"
+    ],
+    "plus": [
+      "+{modifier:integer:1-100}",
+      "+ {modifier:integer:1-100}"
     ],
     "range": [
       "بين {min:integer} و {max:integer}",
       "من {min:integer} إلى {max:integer}",
       "حتى {max:integer}"
     ],
+    "rps_lead": [
+      "حجر ورقة مقص",
+      "حجر، ورقة، مقص"
+    ],
     "topic": [
       "عن {topic:text:40}",
       "حول {topic:text:40}"
+    ],
+    "with_me": [
+      "معي"
     ]
   },
   "settings": {
@@ -917,11 +943,12 @@
     "Leaf": "ورقة شجر",
     "Leave it empty and {name} picks one.": "اتركه فارغًا ويختار {name} واحدًا.",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "اترك عددًا يزيد واحدًا على مضاعفات الأربعة: 17، 13، 9، 5، ثم 1.",
-    "Level": "المستوى",
+    "Level": "الدرجة",
     "Levels": "الدرجات",
     "Lower": "أصغر",
     "Lower than {n}!": "أصغر من {n}!",
     "Made by {name}. They aren't checked, so a fact may be wrong.": "كتبها {name}. لم يتحقق منها أحد، فقد تكون فيها معلومة خاطئة.",
+    "Make new trivia questions with AI": "كتابة أسئلة مسابقة جديدة بالذكاء الاصطناعي",
     "Make questions": "اكتب الأسئلة",
     "Making questions with AI is off. Here are mine.": "كتابة الأسئلة بالذكاء الاصطناعي متوقفة. إليك أسئلتي.",
     "Memory Pairs": "أزواج الذاكرة",
@@ -937,7 +964,7 @@
     "Next": "التالي",
     "Next game": "الجولة التالية",
     "Next one's yours.": "المرة القادمة لك.",
-    "Next round": "الدور التالي",
+    "Next round": "الجولة التالية",
     "No": "لا",
     "No room is left there for its blossom.": "لم يبق مكان هناك لزهرته.",
     "Nobody pressed.": "لم يضغط أحد.",
@@ -975,7 +1002,7 @@
     "Pick a topic": "اختر موضوعًا",
     "Pick a way to play": "اختر طريقة اللعب",
     "Play": "العب",
-    "Play again": "اللعب مجددًا",
+    "Play again": "العب مرة أخرى",
     "Play against a friend on this Mac": "العب ضد صديق على هذا الماك",
     "Play against {name}": "العب ضد {name}",
     "Play another": "العب أخرى",
@@ -1144,6 +1171,7 @@
     "Topic": "الموضوع",
     "Trivia": "مسابقة",
     "Trivia about {topic}": "مسابقة عن {topic}",
+    "Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked.": "مسابقة عن أي موضوع تذكره، بلغتك. كل موضوع جديد طلب قصير واحد إلى ذكائك الاصطناعي، والأسئلة غير مُتحقَّق منها.",
     "Trivia questions": "أسئلة المسابقة",
     "Try": "جرّب",
     "Try this word": "جرّب هذه الكلمة",
@@ -1215,6 +1243,11 @@
     "Your turn: turn two cards.": "دورك: اقلب بطاقتين.",
     "Your turn: you're X.": "دورك: أنت X.",
     "blank": "فارغ",
+    "games|Best streak": "أفضل سلسلة",
+    "games|Not played yet": "لم تُلعب بعد",
+    "games|Played": "لُعبت",
+    "games|Solved": "حُلّت",
+    "games|Streak": "سلسلة",
     "heads": "صورة",
     "in the word, elsewhere": "في الكلمة، في مكان آخر",
     "not in the word": "ليس في الكلمة",
