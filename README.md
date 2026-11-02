@@ -7,7 +7,7 @@ lead there too.
 
 | | What | |
 |---|---|---|
-| **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish), Iris (a camera scout), Nori (a tuxedo cat), Purl (a ragdoll), Rune (a stone golem) | 3D, a few MB each; their 2D forms are built into Sidefolk (D59) |
+| **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish), Iris (a camera scout), Nori (a tuxedo cat), Purl (a ragdoll), Rune (a stone golem), Piko (a robot cat) | 3D, a few MB each; their 2D forms are built into Sidefolk (D59), Piko is 3D only |
 | **Extensions** | World Clock, Calculator, System Vitals, Weather (these four are a fresh Mac's first extensions, Sidefolk D98), Git, Currency, Playtime (eleven games and four puzzles in Sidefolk's Play panel), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
 | **Themes** | None at the moment: Sidefolk's four themes (Harbor, Paper Garden, Night Studio, Marshmallow) are built into the app (Sidefolk D92). Daylight, Night Studio and Paper Garden left the gallery; copies people have stay theirs | |
 
