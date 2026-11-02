@@ -35,7 +35,7 @@ export default {
   marks: [0.55, 0.7, 0.15],
   blob: [1.1, 0.75],
 
-  // The outfit is all here. The texture only says which part is which (its red parts, its dark parts), and every
+  // The outfit is all here. The texture only says which part is which (its aqua parts, its dark parts), and every
   // colour below is Spark's.
   // Soft-touch ivory plastic, a glossy glass visor, aqua and navy parts, a soft aqua knit scarf.
   material: (body) => bodyMaterial(body, {
@@ -43,9 +43,9 @@ export default {
     ao: [0.5, 0.35, 0.85],
     uniforms: { uPulse: { value: 0 } },
     surface: `
-      float lum = dot(s, vec3(0.3, 0.55, 0.15));
-      float red = smoothstep(0.2, 0.32, s.r - s.g) * smoothstep(0.4, 0.5, s.r);
-      float dark = (1.0 - smoothstep(0.26, 0.4, lum)) * (1.0 - red);
+      float lum = dot(s.grb, vec3(0.3, 0.55, 0.15));
+      float accent = smoothstep(0.2, 0.32, s.g - s.r) * smoothstep(0.4, 0.5, s.g);
+      float dark = (1.0 - smoothstep(0.26, 0.4, lum)) * (1.0 - accent);
       float ax = abs(p.x);
       // The visor is the dark glass on the front of the helmet. Its outline is a curve fitted to the model's,
       // antialiased: the texture's edge showed stair-steps up close.
@@ -55,23 +55,23 @@ export default {
       float dv = length(q) - rim, aa = fwidth(dv) * 0.75 + 0.0006;
       float helmetFront = smoothstep(-0.2, -0.15, p.y) * smoothstep(0.18, 0.24, p.z) * (1.0 - step(0.5, abs(p.x)));
       float visor = (1.0 - smoothstep(-aa, aa, dv)) * helmetFront;
-      dark = mix(dark, visor, helmetFront); red *= 1.0 - helmetFront;
-      // The chest is plain under the bunny, drawn over it (extras): a few flecks in the texture there are painted out.
+      dark = mix(dark, visor, helmetFront); accent *= 1.0 - helmetFront;
+      // The chest is plain under the bunny, drawn over it (extras).
       // The scarf's tail, just beside it, is marked by the rig (part).
       float logo = (1.0 - smoothstep(0.127, 0.132, abs(p.x))) * smoothstep(-0.6, -0.59, p.y) * (1.0 - smoothstep(-0.357, -0.352, p.y - 0.012 * smoothstep(0.06, 0.08, p.x)))
         * smoothstep(0.15, 0.2, p.z) * (1.0 - smoothstep(0.36, 0.37, p.z)) * (1.0 - step(0.5, part));
-      red *= 1.0 - logo; dark *= 1.0 - logo;
-      // Low on each leg's outer side the model has a little red slot: it goes ivory and a round navy dot
+      accent *= 1.0 - logo; dark *= 1.0 - logo;
+      // Low on each leg's outer side the model has a little slot: it goes ivory and a round navy dot
       // sits on it.
-      float slot = red * (1.0 - smoothstep(-0.7, -0.68, p.y)) * (1.0 - smoothstep(0.1, 0.12, abs(p.z)));
-      red *= 1.0 - slot;
+      float slot = accent * (1.0 - smoothstep(-0.7, -0.68, p.y)) * (1.0 - smoothstep(0.1, 0.12, abs(p.z)));
+      accent *= 1.0 - slot;
       // Low on the body only the tail (the rig's mark) is scarf, and the mark also fills in the knot: the texture has
-      // red and white flecks in and near them.
+      // flecks in and near them.
       float below = 1.0 - smoothstep(-0.37, -0.35, p.y);
-      red = mix(red, red * smoothstep(0.02, 0.1, part), below);
-      red = max(red, smoothstep(0.45, 0.6, part) * (1.0 - logo));
-      float knit = red * (1.0 - smoothstep(-0.17, -0.15, p.y));
-      float phones = red * smoothstep(0.46, 0.52, ax) * smoothstep(-0.12, -0.05, p.y);
+      accent = mix(accent, accent * smoothstep(0.02, 0.1, part), below);
+      accent = max(accent, smoothstep(0.45, 0.6, part) * (1.0 - logo));
+      float knit = accent * (1.0 - smoothstep(-0.17, -0.15, p.y));
+      float phones = accent * smoothstep(0.46, 0.52, ax) * smoothstep(-0.12, -0.05, p.y);
       // The white ring in each cup (round its axis at height 0.188), measured on the mesh and drawn here with a clean
       // edge: ivory between the aqua rim and dome, like the rings on Spark's cups.
       float cupR = length(vec2(p.y - 0.188, p.z));
@@ -100,24 +100,24 @@ export default {
       c = vec3(0.93, 0.915, 0.88) * (0.97 + 0.03 * lum);
       c = mix(c, navy, navyPart);
       c = mix(c, aqua, pad);
-      c = mix(c, aqua, red);
+      c = mix(c, aqua, accent);
       c = mix(c, vec3(0.04, 0.44, 0.44), knit);
       c = mix(c, vec3(0.93, 0.915, 0.88), stripe);
       c = mix(c, navy, legDot);
       c = mix(c, vec3(0.008, 0.012, 0.035), visor);
-      rough = mix(mix(0.4, 0.3, red), 0.5, navyPart);
+      rough = mix(mix(0.4, 0.3, accent), 0.5, navyPart);
       rough = mix(rough, 0.75, knit);
       // Dark smoked glass: a soft, dim sheen of the room, not a mirror with a lamp in it.
       rough = mix(rough, 0.32, visor);
-      clear = mix(0.6, 1.0, red) * (1.0 - knit) * (1.0 - 0.6 * visor);
+      clear = mix(0.6, 1.0, accent) * (1.0 - knit) * (1.0 - 0.6 * visor);
       spec = 1.0 - 0.75 * visor;
       sheenTint = knit * vec3(0.05, 0.3, 0.3);
       // A faint grain on the plastic so it isn't a CG-perfect surface.
-      bumpH = tri(uKnit, p, nR, 14.0) * 0.006 * knit + tri(uPlush, p, nR, 9.0) * 0.0012 * (1.0 - knit - visor) * (1.0 - red) * (1.0 - legDot);
+      bumpH = tri(uKnit, p, nR, 14.0) * 0.006 * knit + tri(uPlush, p, nR, 9.0) * 0.0012 * (1.0 - knit - visor) * (1.0 - accent) * (1.0 - legDot);
       inner = 0.55 * (1.0 - navyPart) * (1.0 - visor);
       // As on Spark, the visor glows a deep blue from inside, and the aqua parts glow, brighter while Piko listens or
       // thinks. The knit is cloth: it doesn't.
-      glow = visor * vec3(0.0024, 0.0072, 0.018) + ((red * (1.0 - knit) * (1.0 - stripe)) + pad * 0.6) * vec3(0.02, 0.2, 0.2) * (0.25 + uPulse);`,
+      glow = visor * vec3(0.0024, 0.0072, 0.018) + ((accent * (1.0 - knit) * (1.0 - stripe)) + pad * 0.6) * vec3(0.02, 0.2, 0.2) * (0.25 + uPulse);`,
   }),
 
   // Spark's face, in its colour and proportions: eyes and mouth measured on its portrait as fractions of its visor.
