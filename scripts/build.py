@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Builds every add-on into a signed pack, and the signed catalog, in dist/ (sidefolk's docs/DECISIONS.md, D55).
 
-    scripts/build.py              sign with the keychain's Developer ID Application (or $SIDEFOLK_SIGN_IDENTITY)
+    scripts/build.py --sidefolk-build N   sign with the keychain's Developer ID Application (or $SIDEFOLK_SIGN_IDENTITY).
+                                  N is the snapshot of Sidefolk these packs are for (`git rev-list --count HEAD` on its main):
+                                  a pack naming a newer one, or the placeholder a branch names before it is merged, stops the build
     scripts/build.py --unsigned   ad-hoc, for checks (CI): Sidefolk refuses these packs
     scripts/build.py --rebuild    sign every pack anew, even versions already published (a new certificate)
 
@@ -391,8 +393,29 @@ def extensions(ident, work, previews, unsigned, prior):
     return entries
 
 
+# What a branch names until the real number is known (Sidefolk D98): a copy between it and the real snapshot would pass the
+# catalog's check and then refuse the manifest.
+MINIMUM_PLACEHOLDER = "0.1.0-snapshot.786"
+
+
+def check_minimums(build):
+    """A signed build says which Sidefolk it is for, and no pack may ask for more, or still name the placeholder."""
+    for file in sorted((ROOT / "extensions").glob("*/addon.json")):
+        minimum = json.loads(file.read_text()).get("minimum_sidefolk")
+        if not minimum:
+            continue
+        if minimum == MINIMUM_PLACEHOLDER:
+            sys.exit(f"{file.parent.name}: minimum_sidefolk is still the placeholder {minimum}: set the real snapshot (Sidefolk docs/RELEASE.md).")
+        if int(minimum.rsplit(".", 1)[1]) > build:
+            sys.exit(f"{file.parent.name}: minimum_sidefolk {minimum} is newer than Sidefolk snapshot {build}: no copy could install it.")
+
+
 def main():
     unsigned = "--unsigned" in sys.argv
+    if not unsigned:
+        if "--sidefolk-build" not in sys.argv or sys.argv.index("--sidefolk-build") + 1 >= len(sys.argv) or not sys.argv[sys.argv.index("--sidefolk-build") + 1].isdigit():
+            sys.exit("A signed build needs --sidefolk-build N: the snapshot of Sidefolk these packs are for.")
+        check_minimums(int(sys.argv[sys.argv.index("--sidefolk-build") + 1]))
     ident = identity(unsigned)
     shutil.rmtree(DIST, ignore_errors=True)
     work = DIST / "work"
