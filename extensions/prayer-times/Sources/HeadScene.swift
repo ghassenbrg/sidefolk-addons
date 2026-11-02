@@ -67,7 +67,8 @@ enum HeadScene {
         var out: [Node] = []
         var x = r.u(30)
         for (tab, word) in zip(NoorTab.allCases, words) {
-            let chosen = tab == ctx.tab
+            // Preferences stands over the tabs and is none of them.
+            let chosen = tab == ctx.tab && ctx.state.string("sheet") != "prefs"
             let width = tight && !chosen ? glyph + r.u(28) : Double(word.count) * size * 0.56 + glyph + r.u(48)
             let ink = chosen ? Color.hex("#FFFFFF") : Noor.text
             out.append(Node.group {
