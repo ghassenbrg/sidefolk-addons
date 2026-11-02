@@ -241,11 +241,17 @@ final class NoorModel {
         // This month and the next: tomorrow's Fajr and the reminders' horizon cross into it.
         let months = [(today.year, today.month), Self.monthAfter(today.year, today.month)]
         if source?.kind == .calculated, let convention = prefs.convention {
+            var monthFailed: UnavailableReason?
             for (year, month) in months {
-                if let list = note(await provider.prayerMonth(year: year, month: month, place: place, convention: convention, calendarMethod: prefs.calendarMethod, now: now, refresh: refresh), into: &failed, at: &fetched) {
+                if let list = note(await provider.prayerMonth(year: year, month: month, place: place, convention: convention, calendarMethod: prefs.calendarMethod, now: now, refresh: refresh), into: &monthFailed, at: &fetched) {
                     for day in list { days[day.date] = day }
                 }
             }
+            // A month that didn't come needn't cost today and tomorrow, which are asked for on their own.
+            for date in [today, today.next] where days[date] == nil {
+                if let day = await provider.prayerDay(date, place: place, convention: convention, calendarMethod: prefs.calendarMethod, now: now, refresh: refresh).value { days[day.date] = day }
+            }
+            if days[today] == nil { failed = failed ?? monthFailed }
         }
         for (year, month) in months {
             if let list = note(await provider.load(AlAdhan.gregorianMonth(year: year, month: month, method: prefs.calendarMethod), now: now, refresh: refresh), into: &failed, at: &fetched) {
@@ -357,7 +363,11 @@ enum NoorDebug {
             }
             let parts = url.path.split(separator: "/").dropFirst().map(String.init)
             let name = parts.joined(separator: "_") + ".json"
-            guard let data = try? Data(contentsOf: root.appendingPathComponent(name)) else { return try await URLSessionFetching().get(url) }
+            guard let data = try? Data(contentsOf: root.appendingPathComponent(name)) else {
+                // `fixtures`: only what is in the folder, for tests, which never touch the network.
+                if mode == "fixtures" { return (404, Data()) }
+                return try await URLSessionFetching().get(url)
+            }
             return (200, data)
         }
     }

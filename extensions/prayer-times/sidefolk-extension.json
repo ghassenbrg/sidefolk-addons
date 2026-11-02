@@ -386,7 +386,7 @@
     "noor": {
       "title": "Noor",
       "symbol": "moon.stars",
-      "refresh": 20,
+      "refresh": 5,
       "widget": true
     }
   },
