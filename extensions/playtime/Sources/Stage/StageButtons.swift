@@ -137,7 +137,7 @@ extension BoardDrawing {
                 nodes.append(Node.box(segId, x: x + 3 + Double(i) * (segW + 4), y: y + 3, w: segW, h: h - 6) {
                     Node.capsule(fill: on ? Color.accent : Color.clear).size(segW, h - 6)
                     Node.words(o.label, size: 11.5, weight: "semibold", color: on ? .onAccent : .ink, align: "center", design: "default", x: 3, w: segW - 6, h: h - 6)
-                }.area("choice", value: "\(name)|\(o.value)", label: o.label, hover: nil, press: AreaLook(scale: 0.97), selected: on, sound: "sounds/tap.wav"))
+                }.area("choice", value: "\(name)|\(o.value)", label: o.label, hover: nil, press: AreaLook(scale: 0.97), selected: on, always: playing, sound: "sounds/tap.wav"))
             }
             y += h
         }
@@ -198,7 +198,7 @@ extension BoardDrawing {
             // A choice is a selection, not a result: the app's accent, as everywhere else.
             Node.rect(stroke: selected ? .accent : Paint.edge, lineWidth: selected ? 2.5 : 1, corner: 14).id(id + ".edge").size(w, h)
             inner
-        }.area("choice", value: "\(name)|\(o.value)", label: o.label, hover: nil, press: AreaLook(scale: 0.98), selected: selected, sound: "sounds/tap.wav")
+        }.area("choice", value: "\(name)|\(o.value)", label: o.label, hover: nil, press: AreaLook(scale: 0.98), selected: selected, always: playing, sound: "sounds/tap.wav")
     }
 
     /// A choice card's picture for its SF Symbol (trivia's topics, Higher or Lower's two ways).

@@ -179,7 +179,7 @@ enum PlayTable {
     private static func draw(_ board: Board, entry: GameEntry, session: Session, previous: Board?, fresh: Bool, id: String) -> Scene {
         shown[id] = board
         var scene = BoardDrawing(board, context(entry, session: session, previous: previous, fresh: fresh)).scene()
-        if !board.typesWithDelete { scene = scene.key("delete", id: "back_delete") }
+        if !board.typesWithDelete { scene = scene.key("delete", id: "back_delete", always: true) }
         return scene
     }
 

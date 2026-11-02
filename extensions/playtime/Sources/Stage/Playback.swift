@@ -55,7 +55,7 @@ extension Board {
 }
 
 extension BoardDrawing {
-    /// Its run is playing on this scene.
+    /// Its run is playing on this scene: it holds the part's own moves, never a choice of who plays or at what level (`always` on those).
     var playing: Bool {
         guard let playback = ctx.local.playback, !playback.done else { return false }
         return board.plays?.what == playback.what
