@@ -14,6 +14,8 @@ enum Noor {
     static let accent = Color.adaptive(light: "#6A2FB0", dark: "#E79AE0")
     static let warm = Color.adaptive(light: "#8A5A16", dark: "#EFCF8E")
     static let inlay = Color.adaptive(light: "#C9AB72", dark: "#D9A36E")
+    /// The rose-gold line round a lattice plate.
+    static let rosy = Color.adaptive(light: "#B79A6A", dark: "#B55A7A")
     static let hairline = Color.adaptive(light: "#DAD5EA", dark: "#2B3070")
     static let surface = Color.adaptive(light: "#FFFFFF", dark: "#11153A")
     static let quiet = Color.adaptive(light: "#FBF9FD", dark: "#14183F")
