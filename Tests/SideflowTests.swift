@@ -69,7 +69,7 @@ import SidefolkExtensionKit
                 Actions.Tool(name: "notes.save", title: "Save a note", schema: #"{"properties":{"text":{"type":"string"}},"required":["text"]}"#, mutates: true),
             ]))
             engine.host = host
-            engine.clock = { [unowned self] in self.now }
+            engine.clock = { [weak self] in self?.now ?? Date() }
         }
 
         /// Sidefolk quit and came back: a new program over the same folder.
@@ -77,7 +77,7 @@ import SidefolkExtensionKit
             store = FlowStore(folder: folder)
             engine = Engine(store: store, catalog: catalog)
             engine.host = host
-            engine.clock = { [unowned self] in self.now }
+            engine.clock = { [weak self] in self?.now ?? Date() }
         }
 
         func flow(_ steps: [[String: Any]], trigger: [String: Any] = ["type": "manual"], state: Flow.State = .on) throws -> Flow {
