@@ -8,6 +8,8 @@ import SidefolkExtensionKit
         case .trigger: return trigger(flow)
         case .adding(let after): return adding(flow, after: after, app)
         case .step(let id):
+            // The rows that open a branch hold nothing of their own: they're where to add.
+            if id.hasPrefix("then:") || id.hasPrefix("else:") { return adding(flow, after: id, app) }
             guard let step = flow.draft.step(id) else { return trigger(flow) }
             return self.step(step, flow, app, problems: problems)
         }

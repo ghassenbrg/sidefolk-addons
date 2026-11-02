@@ -14,7 +14,7 @@ import SidefolkExtensionKit
 
     static var all: [Template] {
         [
-            Template(id: "morning", name: L("Morning brief"), line: L("Your day and the weather, in three lines, every weekday."), symbol: "sun.max", color: "#F2B33D", body: [
+            Template(id: "morning", name: L("Morning brief"), line: L("Your day in three lines, every weekday morning."), symbol: "sun.max", color: "#F2B33D", body: [
                 "trigger": ["type": "schedule", "days": ["mon", "tue", "wed", "thu", "fri"], "at": "08:30"],
                 "steps": [
                     ["id": "agenda", "do": "agenda.today", "name": L("Get today's plan")],

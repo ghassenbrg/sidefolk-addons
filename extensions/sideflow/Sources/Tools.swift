@@ -39,7 +39,9 @@ import SidefolkExtensionKit
             if flow.hasChanges { out["running_now"] = FlowCodec.json(flow.running) }
             let problems = flow.draft.problems(app.catalog).map(\.text)
             if !problems.isEmpty { out["problems"] = problems }
-            return JSONText.write(out, pretty: true)
+            // What reaches a model stops at 20 KB, and half a definition is worse than none: the words go first, then it's kept compact.
+            if JSONText.write(out).utf8.count > 18_000 { out["in_words"] = nil }
+            return JSONText.write(out)
         }
 
         ext.tool("create_flow", "Make a flow", "Saves a new flow as a draft, from a definition or a template. Nothing runs. With start, it then asks the person, on a card showing what it will do, to turn it on.",

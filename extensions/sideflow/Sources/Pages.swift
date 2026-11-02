@@ -200,7 +200,9 @@ import SidefolkExtensionKit
         switch app.nav.inspecting(flow) {
         case .trigger: return L("When it runs")
         case .adding: return L("Add a step")
-        case .step(let id): return flow.draft.step(id).map { Words.label($0, catalog: app.catalog) } ?? L("Step")
+        case .step(let id):
+            if id.hasPrefix("then:") || id.hasPrefix("else:") { return L("Add a step") }
+            return flow.draft.step(id).map { Words.label($0, catalog: app.catalog) } ?? L("Step")
         }
     }
 
@@ -213,9 +215,9 @@ import SidefolkExtensionKit
                 items.append(item(step, flow, app, practice: practice, problems: problems, depth: depth, label: label))
                 label = nil
                 if case .branch(_, let then, let otherwise) = step.kind {
-                    items.append(StepRail.Item("then:\(step.id)", then.isEmpty ? L("Nothing yet") : L("Then"), tone: .neutral, depth: depth + 1, label: L("If yes"), locked: true))
+                    items.append(StepRail.Item("then:\(step.id)", L("If yes"), detail: then.isEmpty ? L("Nothing yet") : nil, symbol: "checkmark", tone: .neutral, depth: depth + 1, locked: true))
                     add(then, depth: depth + 1, label: nil)
-                    items.append(StepRail.Item("else:\(step.id)", otherwise.isEmpty ? L("Nothing") : L("Otherwise"), tone: .neutral, depth: depth + 1, label: L("If not"), locked: true))
+                    items.append(StepRail.Item("else:\(step.id)", L("If not"), detail: otherwise.isEmpty ? L("Nothing happens") : nil, symbol: "xmark", tone: .neutral, depth: depth + 1, locked: true))
                     add(otherwise, depth: depth + 1, label: nil)
                 }
             }

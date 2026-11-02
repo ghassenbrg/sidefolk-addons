@@ -117,8 +117,15 @@ import SidefolkExtensionKit
 
     /// The flow read aloud.
     static func aloud(_ body: FlowBody, catalog: Catalog) -> String {
-        let steps = body.steps.map { step($0, body: body, catalog: catalog) }
-        return Format.sentences([trigger(body.trigger) + ":"] + steps.map { $0 + "." })
+        func said(_ list: [Step]) -> [String] {
+            list.flatMap { s -> [String] in
+                guard case .branch(let c, let then, let otherwise) = s.kind else { return [step(s, body: body, catalog: catalog) + "."] }
+                var out = [condition(c, body: body, catalog: catalog) + ":"] + said(then)
+                if !otherwise.isEmpty { out += [L("Otherwise:")] + said(otherwise) }
+                return out
+            }
+        }
+        return Format.sentences([trigger(body.trigger) + ":"] + said(body.steps))
     }
 
     static func aiRefusal(_ reason: String) -> String {
