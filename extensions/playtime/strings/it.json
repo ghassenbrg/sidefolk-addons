@@ -553,7 +553,11 @@
     "{title} is already at its easiest.": "{title} è già al più facile.",
     "{title} is already at its hardest.": "{title} è già al più difficile.",
     "Trivia questions": "Domande di quiz",
-    "Trivia about {topic}": "Quiz su {topic}"
+    "Trivia about {topic}": "Quiz su {topic}",
+    "blank": "vuota",
+    "in the word, elsewhere": "nella parola, altrove",
+    "not in the word": "non nella parola",
+    "right place": "posto giusto"
   },
   "examples": [
     "giochiamo a un quiz"

@@ -537,7 +537,11 @@
     "{title} is already at its easiest.": "{title} 已经是最简单的了。",
     "{title} is already at its hardest.": "{title} 已经是最难的了。",
     "Trivia questions": "问答题",
-    "Trivia about {topic}": "关于{topic}的问答"
+    "Trivia about {topic}": "关于{topic}的问答",
+    "blank": "空",
+    "in the word, elsewhere": "在词里，位置不对",
+    "not in the word": "不在词里",
+    "right place": "位置正确"
   },
   "examples": [
     "我们来玩问答吧"

@@ -537,7 +537,11 @@
     "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
     "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
     "Trivia questions": "퀴즈 문제",
-    "Trivia about {topic}": "{topic} 퀴즈"
+    "Trivia about {topic}": "{topic} 퀴즈",
+    "blank": "빈칸",
+    "in the word, elsewhere": "단어에 있지만 다른 자리",
+    "not in the word": "단어에 없음",
+    "right place": "맞는 자리"
   },
   "examples": [
     "퀴즈 하자"

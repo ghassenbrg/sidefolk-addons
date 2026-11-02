@@ -617,7 +617,11 @@
     "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
     "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
     "Trivia questions": "أسئلة المسابقة",
-    "Trivia about {topic}": "مسابقة عن {topic}"
+    "Trivia about {topic}": "مسابقة عن {topic}",
+    "blank": "فارغ",
+    "in the word, elsewhere": "في الكلمة، في مكان آخر",
+    "not in the word": "ليس في الكلمة",
+    "right place": "في المكان الصحيح"
   },
   "examples": [
     "هيا نلعب مسابقة أسئلة"

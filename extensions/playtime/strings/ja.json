@@ -537,7 +537,11 @@
     "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
     "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
     "Trivia questions": "クイズの問題",
-    "Trivia about {topic}": "{topic}のクイズ"
+    "Trivia about {topic}": "{topic}のクイズ",
+    "blank": "空き",
+    "in the word, elsewhere": "ことばの中、別の場所",
+    "not in the word": "ことばにない",
+    "right place": "正しい位置"
   },
   "examples": [
     "クイズをしよう"
