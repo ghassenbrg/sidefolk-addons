@@ -195,8 +195,7 @@ enum PlayTable {
         let held = session.held ?? []
         session.held = nil
         session.pick = nil
-        let fresher = driver.board(data, held, session.options)
-        let board = shown[id]?.clocked(from: fresher) ?? fresher ?? Board([])
+        let board = shown[id].map { $0.hasPuzzle ? $0.clocked(from: driver.board(data, held, session.options)) : $0 } ?? driver.board(data, held, session.options) ?? Board([])
         return draw(board, entry: entry, session: session, previous: nil, fresh: fresh, id: id)
     }
 

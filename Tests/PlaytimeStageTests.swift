@@ -72,7 +72,11 @@ struct PlaytimeStageTests {
     }
 
     @Test func aLongLanguageAndOneThatReadsTheOtherWayFit() throws {
-        for language in ["de", "ar", "ja"] { try playAll(HigherLowerScreen.self, seeds: [1], language: language) }
+        for language in ["de", "ar", "ja"] {
+            try playAll(HigherLowerScreen.self, seeds: [1], language: language)
+            try playAll(PuzzleScreen<SudokuKind>.self, seeds: [1], language: language)
+            try playAll(PuzzleScreen<GardenPlotsKind>.self, seeds: [1], language: language)
+        }
     }
 
     @Test func aMoveOnASceneIsTheBoardsMove() {

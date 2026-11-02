@@ -49,6 +49,30 @@ struct PlaytimePuzzleStageTests {
         #expect((scene.json["styles"] as? [String: Any])?.count ?? 0 <= 48, "the reader's cap")
     }
 
+    /// Every level's board at its real size, each one's hint and a mark on it.
+    func everyLevel<K: PuzzleKind>(_ kind: K.Type) throws {
+        for level in GameLevel.allCases {
+            PlaytimeRecords.update { $0 = PlaytimeRecords() }
+            var random = Games.Random(seed: 7)
+            let options = PlaytimeScreensTests.options("en")
+            var state = PuzzleEngine<K>.start(level: level, options: { var o = options; o.asked = level; return o }(), random: &random)
+            for move: Move in [.button("hint"), .button("do_hint")] {
+                let events = GameTable.play(PuzzleScreen<K>.self, move, on: &state, random: &random)
+                let scene = Self.scene(PuzzleScreen<K>.board(state, events: events, options: options), K.id)
+                try PlaytimeStageTests.check(scene, "\(K.id) \(level)")
+            }
+        }
+    }
+
+    @Test func everyLevelOfEveryPuzzleFitsAScene() throws {
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            try everyLevel(GardenPlotsKind.self)
+            try everyLevel(SeesawKind.self)
+            try everyLevel(SudokuKind.self)
+            try everyLevel(BlossomsKind.self)
+        }
+    }
+
     @Test func aPuzzleIsLeftToRightInEveryLanguage() throws {
         let board = Self.board(input: "digits", digits: 9, rows: 9, columns: 9, box: (3, 3))
         try Language.with("ar", strings: PlaytimeGameTests.strings) {
