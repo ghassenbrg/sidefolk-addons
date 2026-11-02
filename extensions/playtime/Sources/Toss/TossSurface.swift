@@ -340,7 +340,7 @@ enum TossParts {
         return Part(node: .box("toss.chip", w: w, h: h) {
             Node.rect(fill: .surface, stroke: verdict.map { $0.color.tuned(alpha: 0.7) } ?? .line, lineWidth: verdict == nil ? 1 : 2, corner: 14).size(w, h)
             if let verdict {
-                Node.symbol(verdict.symbol, color: verdict.color).symbolLook(weight: "bold").at(16, (h - 20) / 2).size(20, 20)
+                Node.symbol(verdict.symbol, color: verdict.color).symbolLook(weight: "bold", mono: true).at(16, (h - 20) / 2).size(20, 20)
             }
             Node.words(words, size: size, weight: weight, align: "center", x: x, w: wordsW, h: h).leftToRight()
             if let beside {

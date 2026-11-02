@@ -88,9 +88,9 @@ extension BoardDrawing {
                 Node.faceDisc(x: w - 10 - (verdict == nil ? 22 : 48), y: 10, side: 22).shadow(Paint.clear("#000000", 0.2), radius: 2, dx: 0, dy: 1)
             }
             if let verdict {
-                Node.symbol(verdict.symbol, color: verdict == .win ? Paint.white : verdict.color).symbolLook(weight: "bold").at(w - 10 - 22, 10).size(22, 22)
+                Node.symbol(verdict.symbol, color: verdict == .win ? Paint.white : verdict.color).symbolLook(weight: "bold", mono: true).at(w - 10 - 22, 10).size(22, 22)
             }
-        }.scale(scale)
+        }.scale(scale).shadow(Paint.clear("#000000", 0.04), radius: 2, dx: 0, dy: 2)
         if tile.state == .faded { body = body.opacity(0.35) }
         var words = "\(cap), \(tile.label)"
         switch tile.state {

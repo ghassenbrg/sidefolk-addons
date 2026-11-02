@@ -90,7 +90,7 @@ enum Toss: Equatable {
     static func number(_ n: Int) -> String { n.formatted(.number.grouping(.never).locale(Language.locale)) }
 
     /// "heads, tails and heads", as the person's language joins a list.
-    private static func list(_ items: [String]) -> String { items.formatted(.list(type: .and).locale(Language.locale)) }
+    private static func list(_ items: [String]) -> String { items.formatted(.list(type: .and, width: .narrow).locale(Language.locale)) }
 
     private static func capitalizedFirst(_ text: String) -> String { text.prefix(1).uppercased() + text.dropFirst() }
 

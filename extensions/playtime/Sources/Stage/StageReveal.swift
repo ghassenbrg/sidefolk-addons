@@ -13,6 +13,8 @@ extension BoardDrawing {
 
     func revealCard(_ reveal: Reveal) -> PartBlock {
         let width = Self.inner, height = 118.0
+        // It comes in with the board easing round it, as the panel's did.
+        if ctx.buildUp { anims.append(.keys("reveal", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 300)) }
         return PartBlock(.box("reveal", w: width, h: height) {
             Node.gameCard(corner: 18, alpha: 0.92, w: width, h: height).id("reveal.card")
             if case .hands(let you, let companion) = reveal {
@@ -53,8 +55,7 @@ extension BoardDrawing {
                 }
                 if lost { defeat(hand, id: id, beat: beat) }
             }
-            var thrown = defeated(hand, id: id, lost: lost, box: box)
-            if mirrored { thrown = Node.box(w: box, h: box) { thrown }.scale(x: -1, y: 1) }
+            let thrown = defeated(hand, id: id, lost: lost, mirrored: mirrored, box: box)
             return Node.box(id, x: restX, y: y, w: box, h: box) {
                 if won, !playing {
                     // The person's win in success green; the companion's win is the person's loss, in the calm tone.
@@ -113,19 +114,22 @@ extension BoardDrawing {
 
     /// A thrown hand's picture, where it ends: the hand that lost stays its own shape and takes the winner's effect. Scissors bend and drop, paper is cut in two, rock sinks and
     /// fades under the paper that covered it.
-    private func defeated(_ hand: String, id: String, lost: Bool, box: Double) -> Node {
-        let picture = "art/hand-\(hand).png"
-        guard lost else { return TossArt.padded(picture, side: box, exported: 58).id(id + ".defeat") }
+    private func defeated(_ hand: String, id: String, lost: Bool, mirrored: Bool, box: Double) -> Node {
+        // Turned to face the other way first, so what happens to it happens the same way on both sides.
+        func picture(x: Double = 0) -> Node {
+            Node.box(x: x, w: box, h: box) { TossArt.padded("art/hand-\(hand).png", side: box, exported: 58) }.scale(x: mirrored ? -1 : 1, y: 1)
+        }
+        guard lost else { return Node.box(id + ".defeat", w: box, h: box) { picture() } }
         switch hand {
         case "paper":
             return .box(id + ".defeat", w: box, h: box) {
-                Node.box(id + ".half.a", x: -9, y: 6, w: 29, h: box) { TossArt.padded(picture, side: box, exported: 58) }.clip().anchor(1, 0.5).rotate(-14)
-                Node.box(id + ".half.b", x: 38, y: 6, w: 29, h: box) { TossArt.padded(picture, side: box, exported: 58, x: -29) }.clip().anchor(0, 0.5).rotate(14)
+                Node.box(id + ".half.a", x: -9, y: 6, w: 29, h: box) { picture() }.clip().anchor(1, 0.5).rotate(-14)
+                Node.box(id + ".half.b", x: 38, y: 6, w: 29, h: box) { picture(x: -29) }.clip().anchor(0, 0.5).rotate(14)
             }.opacity(0.6)
         case "scissors":
-            return Node.box(id + ".defeat", y: 24, w: box, h: box) { TossArt.padded(picture, side: box, exported: 58) }.rotate(70).opacity(0.5)
+            return Node.box(id + ".defeat", y: 24, w: box, h: box) { picture() }.rotate(70).opacity(0.5)
         default:
-            return Node.box(id + ".defeat", y: 10, w: box, h: box) { TossArt.padded(picture, side: box, exported: 58) }.scale(0.8).opacity(0.5)
+            return Node.box(id + ".defeat", y: 10, w: box, h: box) { picture() }.scale(0.8).opacity(0.5)
         }
     }
 
