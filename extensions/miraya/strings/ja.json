@@ -340,5 +340,11 @@
     "{tv}: not seen now, paired": "{tv}：現在見つからない、ペアリング済み",
     "{tv}: on, not paired yet": "{tv}：オン、未ペアリング",
     "{tv}: on, paired": "{tv}：オン、ペアリング済み"
+  },
+  "drops": {
+    "play_on_tv": {
+      "title": "TV で再生",
+      "detail": "Miraya で動画を TV に再生します。"
+    }
   }
 }

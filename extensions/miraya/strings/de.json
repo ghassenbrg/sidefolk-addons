@@ -343,5 +343,11 @@
     "{tv}: not seen now, paired": "{tv}: gerade nicht sichtbar, gekoppelt",
     "{tv}: on, not paired yet": "{tv}: an, noch nicht gekoppelt",
     "{tv}: on, paired": "{tv}: an, gekoppelt"
+  },
+  "drops": {
+    "play_on_tv": {
+      "title": "Auf dem TV abspielen",
+      "detail": "Spielt das Video mit Miraya auf deinem TV ab."
+    }
   }
 }

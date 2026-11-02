@@ -355,5 +355,11 @@
     "{tv}: not seen now, paired": "{tv}: غير ظاهر الآن، مقترن",
     "{tv}: on, not paired yet": "{tv}: يعمل، غير مقترن بعد",
     "{tv}: on, paired": "{tv}: يعمل، مقترن"
+  },
+  "drops": {
+    "play_on_tv": {
+      "title": "التشغيل على التلفاز",
+      "detail": "يشغّل الفيديو على التلفاز باستخدام Miraya."
+    }
   }
 }

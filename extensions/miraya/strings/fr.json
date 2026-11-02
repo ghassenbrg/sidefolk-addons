@@ -343,5 +343,11 @@
     "{tv}: not seen now, paired": "{tv} : pas visible maintenant, jumelée",
     "{tv}: on, not paired yet": "{tv} : allumée, pas encore jumelée",
     "{tv}: on, paired": "{tv} : allumée, jumelée"
+  },
+  "drops": {
+    "play_on_tv": {
+      "title": "Lire sur la TV",
+      "detail": "Lit la vidéo sur votre TV avec Miraya."
+    }
   }
 }
