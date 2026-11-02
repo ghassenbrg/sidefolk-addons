@@ -21,7 +21,7 @@ enum HeadScene {
             "preferences": .go(Go(set: ["sheet": "prefs", "section": "place"], push: true)),
             "reminders": .go(Go(set: ["sheet": "prefs", "section": "reminders"], push: true)),
         ]
-        for tab in NoorTab.allCases { acts["tab-\(tab.rawValue)"] = .go(Go(set: ["tab": tab.rawValue, "sheet": NSNull()])) }
+        for tab in NoorTab.allCases { acts["tab-\(tab.rawValue)"] = .go(Go(set: ["tab": tab.rawValue, "sheet": NSNull(), "setup": NSNull()])) }
         let scene = Scene(width: w, height: bandH + tabsH) {
             if !compact {
                 Node.image("art/pendant-l.png", dark: "art/pendant-d.png", fit: "fill").size(pendantW, r.u(122)).at(pendantX, 0)

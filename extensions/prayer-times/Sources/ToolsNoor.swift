@@ -292,7 +292,7 @@ enum NoorTools {
         ext.tool("discard_import", "Discard the import", "Forgets the file being reviewed. No source is added.", reply: { _ in
             model.review = nil
             ImportHolding.clear()
-            return ToolReply(L("Nothing was added.")).opening(page: "noor", state: ["sheet": "prefs", "section": "sources"])
+            return ToolReply(L("Nothing was added.")).opening(page: "noor", state: model.isSetUp ? ["sheet": "prefs", "section": "sources"] : ["sheet": NSNull(), "setup": "source"])
         })
         ext.tool("save_manual", "Save a timetable", "Saves a fixed timetable the person entered, for the date range they gave. It is labelled Manual.",
                  input: Schema.object(["name": Schema.string("Its name"), "zone": Schema.string("IANA time zone"), "from": Schema.string("YYYY-MM-DD"), "to": Schema.string("YYYY-MM-DD"), "starts": ["type": "object"] as [String: Any], "iqamah": ["type": "object"] as [String: Any]], required: ["name", "zone", "from", "to", "starts"]), reply: { args in

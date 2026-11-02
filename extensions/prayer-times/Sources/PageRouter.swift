@@ -27,9 +27,10 @@ enum NoorPage {
             switch state.string("sheet") {
             case "import": sections = SourcePage.review(ctx)
             case "manual": sections = SourcePage.manual(ctx)
-            default: sections = SetupPage.sections(ctx)
+            case "prefs": sections = PreferencesPage.sections(ctx)
+            default: sections = setupTab(ctx)
             }
-            return page(summary, [head(ctx, subtitle: L("Choose a place to get started"))] + sections, back: state.string("sheet") == nil ? nil : L("Back"))
+            return page(summary, [head(ctx, subtitle: snapshot.place == nil ? L("Choose a place to get started") : L("Choose your timetable"))] + sections, back: state.string("sheet") == nil ? nil : L("Back"))
         }
         let back: String?
         switch state.string("sheet") {
@@ -64,7 +65,7 @@ enum NoorPage {
             case .names: sections = NamesPage.sections(ctx)
             }
         }
-        return page(summary, [head(ctx, subtitle: Words.provenance(snapshot))] + sections, back: back)
+        return page(summary, [head(ctx, subtitle: NoorPage.headLine(ctx) ?? Words.provenance(snapshot))] + sections, back: back)
     }
 
     private static func page(_ summary: Summary, _ sections: [Section], back: String?) -> Page {
@@ -72,7 +73,17 @@ enum NoorPage {
     }
 
     private static func head(_ ctx: Context, subtitle: String) -> Section {
-        Section(nil, [HeadScene.block(ctx, subtitle: subtitle, reminders: ctx.snapshot.reminderStatus, tabs: ctx.model.isSetUp)], wide: true)
+        Section(nil, [HeadScene.block(ctx, subtitle: subtitle, reminders: ctx.snapshot.reminderStatus)], wide: true)
+    }
+
+    /// Before set-up the tabs still lead somewhere: Overview is the welcome, Names need no place, and the rest say what they are waiting for.
+    private static func setupTab(_ ctx: Context) -> [Section] {
+        if ctx.state.string("setup") != nil || ctx.tab == .overview { return SetupPage.sections(ctx) }
+        if ctx.tab == .names { return NamesPage.sections(ctx) }
+        switch ctx.snapshot.validity {
+        case .noPlace, .noSource: return [NoorPage.unavailable(ctx)].compactMap { $0 }
+        default: return SetupPage.sections(ctx)
+        }
     }
 
     /// What this view needs that the provider wasn't already asked for.
@@ -115,71 +126,9 @@ enum NoorPage {
         return Summary("\(focus.title) \(focus.time)", detail: detail, tone: snapshot.validity == .offlineValid ? .warn : .good, symbol: "moon.stars")
     }
 
-    /// A status panel in Noor's frame, for what stands in place of a tab's content: no place, loading, ended, unreachable. It never shows a time it doesn't have.
-    static func status(_ ctx: Context, symbol: String, title: String, detail: String, tint: Color = Noor.warm, buttons: [(id: String, label: String, filled: Bool, act: Act)] = []) -> Section {
-        let w = ctx.width
-        let h = 380.0 + (ctx.narrow ? 40 : 0)
-        var tools: [String: (tool: String, input: [String: Any])] = [:]
-        var acts: [String: PageAct] = [:]
-        let scene = Scene(width: w, height: h) {
-            Node.patternPanel(w, h, corner: 18)
-            let archW = min(w - 40, 620.0)
-            Node.arch(archW, h - 20, lift: 110).at((w - archW) / 2, 20)
-            Node.ellipse(fill: Noor.surface, stroke: Noor.inlay, lineWidth: 1.5).size(64, 64).at(w / 2 - 32, 62)
-            Node.symbol(symbol, color: tint).size(30, 30).at(w / 2 - 15, 79)
-            Node.say(title, (w - archW) / 2 + 30, 136, archW - 60, 34, size: 22, weight: "semibold", align: "center", lines: 1)
-            Node.say(detail, (w - archW) / 2 + 40, 172, archW - 80, 62, size: 14, color: Noor.muted, align: "center", lines: 3)
-            let bw = min(280.0, archW - 80)
-            for (i, b) in buttons.enumerated() {
-                Node.pill(b.id, label: b.label, x: (w - bw) / 2, y: 244 + Double(i) * 46, w: bw, h: 38, filled: b.filled)
-            }
-        }
-        for b in buttons {
-            switch b.act {
-            case .tool(let name, let input): tools[b.id] = (name, input)
-            case .go(let go): acts[b.id] = .go(go)
-            }
-        }
-        return Section(nil, [.scene(PageSceneBlock(scene, actions: tools, acts: acts))], wide: true)
-    }
-
     enum Act {
         case tool(String, [String: Any] = [:])
         case go(Go)
-    }
-
-    /// What every tab says the same way when it has no times to show. Nil when it does.
-    static func unavailable(_ ctx: Context) -> Section? {
-        let s = ctx.snapshot
-        switch s.validity {
-        case .ready, .offlineValid:
-            return nil
-        case .noPlace, .noSource:
-            return status(ctx, symbol: "mappin.and.ellipse", title: L("Choose a place"), detail: L("Set your city to show prayer times, the calendar and Qibla direction."),
-                          buttons: [("place", L("Choose a place"), true, .go(Go(set: ["sheet": "prefs", "section": "place"], push: true)))])
-        case .loading:
-            return status(ctx, symbol: "hourglass", title: L("Loading timetable"), detail: s.place.map { L("Fetching prayer times for {place}…", ["place": $0.label]) } ?? "", tint: Noor.muted)
-        case .expired:
-            let end = s.coverage.map { Words.date($0.upperBound, weekday: false) } ?? ""
-            return status(ctx, symbol: "exclamationmark.circle", title: L("This timetable has ended"), detail: L("The saved timetable finished on {date}. Nothing new is reminded from it until you update it.", ["date": end]),
-                          buttons: [("update", L("Update timetable"), true, .go(Go(set: ["sheet": "prefs", "section": "sources"], push: true))),
-                                    ("calculated", L("Choose calculated times"), false, .tool("use_calculated"))])
-        case .notStarted:
-            let start = s.coverage.map { Words.date($0.lowerBound, weekday: false) } ?? ""
-            return status(ctx, symbol: "calendar", title: L("This timetable hasn't started"), detail: L("It begins on {date}. Until then there are no times from it.", ["date": start]),
-                          buttons: [("sources", L("Choose another timetable"), true, .go(Go(set: ["sheet": "prefs", "section": "sources"], push: true)))])
-        case .error:
-            return status(ctx, symbol: "wifi.exclamationmark", title: L("Couldn't get this timetable"), detail: ctx.model.problem == .offline ? L("No connection, and no times saved for today yet. Try again once you're online.") : Words.problem(ctx.model.problem).isEmpty ? L("The provider didn't answer.") : Words.problem(ctx.model.problem),
-                          buttons: [("retry", L("Try again"), true, .tool("refresh"))])
-        }
-    }
-
-    /// A strip that says the times shown were saved earlier: an older copy still answers for today, so it isn't an error, only worth knowing.
-    static func offlineNote(_ ctx: Context) -> Block? {
-        guard ctx.snapshot.validity == .offlineValid || ctx.model.load == .failed || ctx.model.load == .offline else { return nil }
-        let saved = ctx.model.fetchedAt.map { Format.dateTime($0, timeZone: ctx.zone) }
-        let text = saved.map { L("Offline. Showing times saved {when}.", ["when": $0]) } ?? L("Offline. Showing saved times.")
-        return .note(ctx.model.problem == .offline || ctx.model.load == .offline ? text : (Words.problem(ctx.model.problem).isEmpty ? text : Words.problem(ctx.model.problem)), tone: .warn)
     }
 }
 
