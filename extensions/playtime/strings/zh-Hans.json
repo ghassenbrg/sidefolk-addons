@@ -537,7 +537,16 @@
     "{title} is already at its easiest.": "{title} 已经是最简单的了。",
     "{title} is already at its hardest.": "{title} 已经是最难的了。",
     "Trivia questions": "问答题",
-    "Trivia about {topic}": "关于{topic}的问答"
+    "Trivia about {topic}": "关于{topic}的问答",
+    "1–{n} to copy": "1–{n} 跟着做",
+    "1–{n} to pick": "1–{n} 选择",
+    "1–{n} to take": "1–{n} 拿取",
+    "Cup {n}": "杯子 {n}",
+    "Shuffling…": "洗牌中…",
+    "Space: {go}": "空格：{go}",
+    "Take {n}": "拿 {n} 根",
+    "Watch…": "监视…",
+    "{a}: {ka} · {b}: {kb}": "{a}：{ka} · {b}：{kb}"
   },
   "examples": [
     "我们来玩问答吧"

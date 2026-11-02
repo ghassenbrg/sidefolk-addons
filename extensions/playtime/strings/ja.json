@@ -537,7 +537,16 @@
     "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
     "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
     "Trivia questions": "クイズの問題",
-    "Trivia about {topic}": "{topic}のクイズ"
+    "Trivia about {topic}": "{topic}のクイズ",
+    "1–{n} to copy": "1〜{n}でまねる",
+    "1–{n} to pick": "1〜{n}で選ぶ",
+    "1–{n} to take": "1〜{n}でとる",
+    "Cup {n}": "カップ{n}",
+    "Shuffling…": "シャッフル中…",
+    "Space: {go}": "スペース：{go}",
+    "Take {n}": "{n}本とる",
+    "Watch…": "監視…",
+    "{a}: {ka} · {b}: {kb}": "{a}：{ka} · {b}：{kb}"
   },
   "examples": [
     "クイズをしよう"

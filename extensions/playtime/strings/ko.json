@@ -537,7 +537,16 @@
     "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
     "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
     "Trivia questions": "퀴즈 문제",
-    "Trivia about {topic}": "{topic} 퀴즈"
+    "Trivia about {topic}": "{topic} 퀴즈",
+    "1–{n} to copy": "1~{n}로 따라 하기",
+    "1–{n} to pick": "1~{n}로 고르기",
+    "1–{n} to take": "1~{n}로 가져가기",
+    "Cup {n}": "컵 {n}",
+    "Shuffling…": "섞는 중…",
+    "Space: {go}": "스페이스: {go}",
+    "Take {n}": "{n}개 가져가기",
+    "Watch…": "지켜보기…",
+    "{a}: {ka} · {b}: {kb}": "{a}: {ka} · {b}: {kb}"
   },
   "examples": [
     "퀴즈 하자"

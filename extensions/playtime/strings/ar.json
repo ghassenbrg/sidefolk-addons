@@ -617,7 +617,16 @@
     "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
     "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
     "Trivia questions": "أسئلة المسابقة",
-    "Trivia about {topic}": "مسابقة عن {topic}"
+    "Trivia about {topic}": "مسابقة عن {topic}",
+    "1–{n} to copy": "1–{n} للتقليد",
+    "1–{n} to pick": "1–{n} للاختيار",
+    "1–{n} to take": "1–{n} للأخذ",
+    "Cup {n}": "الكوب {n}",
+    "Shuffling…": "أخلط…",
+    "Space: {go}": "مسافة: {go}",
+    "Take {n}": "خذ {n}",
+    "Watch…": "مراقبة…",
+    "{a}: {ka} · {b}: {kb}": "{a}: {ka} · {b}: {kb}"
   },
   "examples": [
     "هيا نلعب مسابقة أسئلة"

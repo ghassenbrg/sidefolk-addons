@@ -553,7 +553,16 @@
     "{title} is already at its easiest.": "{title} est déjà au plus facile.",
     "{title} is already at its hardest.": "{title} est déjà au plus difficile.",
     "Trivia questions": "Questions de quiz",
-    "Trivia about {topic}": "Quiz sur {topic}"
+    "Trivia about {topic}": "Quiz sur {topic}",
+    "1–{n} to copy": "1–{n} pour imiter",
+    "1–{n} to pick": "1–{n} pour choisir",
+    "1–{n} to take": "1–{n} pour prendre",
+    "Cup {n}": "Gobelet {n}",
+    "Shuffling…": "Je mélange…",
+    "Space: {go}": "Espace : {go}",
+    "Take {n}": "En prendre {n}",
+    "Watch…": "Surveillance…",
+    "{a}: {ka} · {b}: {kb}": "{a} : {ka} · {b} : {kb}"
   },
   "examples": [
     "on joue au quiz"

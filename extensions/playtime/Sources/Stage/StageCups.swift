@@ -91,11 +91,13 @@ extension BoardDrawing {
                 let samples = (0...Self.swapSamples).map { Double($0) / Double(Self.swapSamples) }
                 func x(_ p: Double) -> Double { from + (to - from) * (1 - cos(p * .pi)) / 2 }
                 func depth(_ p: Double) -> Double { toward * sin(p * .pi) }
+                // Whole tenths: a reply has 64 KB, and a long shuffle is mostly these numbers.
+                func tenth(_ v: Double) -> Double { (v * 10).rounded() / 10 }
                 return [
-                    .keys("cup.\(ends[cup])", samples.map { ["t": $0, "x": cupX(x($0)), "y": Self.restY + depth($0) * 9, "scale": 1 + depth($0) * 0.1] }, ms: Double(swapMs)),
+                    .keys("cup.\(ends[cup])", samples.map { ["t": $0, "x": tenth(cupX(x($0))), "y": tenth(Self.restY + depth($0) * 9), "scale": (1000 + (depth($0) * 100).rounded()) / 1000] }, ms: Double(swapMs)),
                     // Set just after it starts: a first key at 0 says where a step starts from, not a change.
                     .keys("cup.\(ends[cup])", [["t": 0.001, "z": toward], ["t": 1, "z": 0]], ms: Double(swapMs)),
-                    .keys("cup.\(ends[cup]).shadow", samples.map { ["t": $0, "x": shadowX(x($0)), "y": Self.floor + 1 - 4.5 + depth($0) * 9, "sx": 1 + depth($0) * 0.1] }, ms: Double(swapMs)),
+                    .keys("cup.\(ends[cup]).shadow", samples.map { ["t": $0, "x": tenth(shadowX(x($0))), "y": tenth(Self.floor + 1 - 4.5 + depth($0) * 9), "sx": (1000 + (depth($0) * 100).rounded()) / 1000] }, ms: Double(swapMs)),
                 ]
             }
             steps.append(.together(pass(a, from: Double(swap[0]), to: Double(swap[1]), toward: 1) + pass(b, from: Double(swap[1]), to: Double(swap[0]), toward: -1)))
