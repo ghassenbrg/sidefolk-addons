@@ -537,7 +537,14 @@
     "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
     "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
     "Trivia questions": "クイズの問題",
-    "Trivia about {topic}": "{topic}のクイズ"
+    "Trivia about {topic}": "{topic}のクイズ",
+    "Arrows stretch the plot · Return plants it · Esc lets it go": "矢印で区画を広げる · Returnで植える · Escでやめる",
+    "Clear the cell": "マスを空にする",
+    "Click a cell to change it": "マスをクリックして変える",
+    "Drag corner to corner, or Space and the arrows · Click a plot to clear it": "角から角へドラッグ、またはスペースと矢印 · 区画をクリックで消す",
+    "Notes off": "メモ オフ",
+    "Notes on": "メモ オン",
+    "Pick a cell, then a number · N for notes": "マスを選んで数字 · Nでメモ"
   },
   "examples": [
     "クイズをしよう"

@@ -32,6 +32,8 @@ import Testing
         if json["after_ms"] != nil { return .next }
         let ps = parts(board)
         func find(_ t: String) -> [String: Any]? { ps.first { $0["type"] as? String == t } }
+        // A puzzle solves itself by taking every hint: the hint's board, then the move on it.
+        if let p = find("puzzle"), p["locked"] as? Bool != true { return step % 2 == 0 ? .button("hint") : .button("do_hint") }
         if let r = find("reflex"), r["after_ms"] != nil, r["shows"] == nil { return .press(milliseconds: step % 2 == 0 ? 180 : 600) }
         if let a = find("answers"), a["locked"] as? Bool != true {
             let items = a["items"] as! [[String: Any]]

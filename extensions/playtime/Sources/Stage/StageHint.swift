@@ -31,17 +31,18 @@ extension BoardDrawing {
 
     static func hintCard(_ text: String, width: Double) -> PartBlock {
         let parts = text.components(separatedBy: " · ")
-        let room = width - 24 - 20 - 8
+        // The bulb is 20 tall and as wide as its picture is.
+        let bulb = 14.0, room = width - 24 - bulb - 8
         let whole = TextFit.height(text, size: 12, weight: "semibold", width: room, lines: 2)
         let wide = Swift.min(TextFit.width(text, size: 12, weight: "semibold"), room)
         let height = Swift.max(whole, 20) + 12
-        let x = (width - wide - 28) / 2
+        let x = (width - wide - bulb - 8) / 2
         let rest = parts.count > 1 ? " · " + parts.dropFirst().joined(separator: " · ") : ""
         return PartBlock(.box("hint", w: width, h: height) {
             Node.gameCard(corner: 15, alpha: 0.94, w: width, h: height).id("hint.card")
-            Node.art("art/game-bulb.webp", x: x, y: (height - 20) / 2, w: 20, h: 20)
+            Node.art("art/game-bulb.webp", x: x, y: (height - 20) / 2, w: bulb, h: 20)
             Node.runs([(parts[0], Color.ink, nil), (rest, Color.inkMuted, nil)], size: 12, weight: "semibold", design: "rounded", align: "leading", lines: 2)
-                .id("hint.words").at(x + 28, 6).size(wide + 1, height - 12)
+                .id("hint.words").at(x + bulb + 8, 6).size(wide + 1, height - 12)
         }, height: height)
     }
 }

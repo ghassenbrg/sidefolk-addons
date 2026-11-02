@@ -553,7 +553,14 @@
     "{title} is already at its easiest.": "{title} ist schon am leichtesten.",
     "{title} is already at its hardest.": "{title} ist schon am schwersten.",
     "Trivia questions": "Quizfragen",
-    "Trivia about {topic}": "Quiz über {topic}"
+    "Trivia about {topic}": "Quiz über {topic}",
+    "Arrows stretch the plot · Return plants it · Esc lets it go": "Pfeile ziehen die Parzelle auf · Return pflanzt sie · Esc verwirft sie",
+    "Clear the cell": "Feld leeren",
+    "Click a cell to change it": "Klick ein Feld an, um es zu ändern",
+    "Drag corner to corner, or Space and the arrows · Click a plot to clear it": "Von Ecke zu Ecke ziehen oder Leertaste und Pfeile · Parzelle anklicken zum Entfernen",
+    "Notes off": "Notizen aus",
+    "Notes on": "Notizen an",
+    "Pick a cell, then a number · N for notes": "Feld wählen, dann eine Zahl · N für Notizen"
   },
   "examples": [
     "lass uns ein Quiz spielen"

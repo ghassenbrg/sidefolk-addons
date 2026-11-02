@@ -617,7 +617,14 @@
     "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
     "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
     "Trivia questions": "أسئلة المسابقة",
-    "Trivia about {topic}": "مسابقة عن {topic}"
+    "Trivia about {topic}": "مسابقة عن {topic}",
+    "Arrows stretch the plot · Return plants it · Esc lets it go": "الأسهم تمدّ القطعة · الإدخال يزرعها · Esc يلغيها",
+    "Clear the cell": "أفرغ الخانة",
+    "Click a cell to change it": "انقر خانة لتغييرها",
+    "Drag corner to corner, or Space and the arrows · Click a plot to clear it": "اسحب من زاوية إلى أخرى، أو المسافة والأسهم · انقر قطعة لإزالتها",
+    "Notes off": "الملاحظات متوقفة",
+    "Notes on": "الملاحظات مفعّلة",
+    "Pick a cell, then a number · N for notes": "اختر خانة ثم رقمًا · N للملاحظات"
   },
   "examples": [
     "هيا نلعب مسابقة أسئلة"

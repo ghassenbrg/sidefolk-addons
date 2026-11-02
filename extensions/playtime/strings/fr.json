@@ -553,7 +553,14 @@
     "{title} is already at its easiest.": "{title} est déjà au plus facile.",
     "{title} is already at its hardest.": "{title} est déjà au plus difficile.",
     "Trivia questions": "Questions de quiz",
-    "Trivia about {topic}": "Quiz sur {topic}"
+    "Trivia about {topic}": "Quiz sur {topic}",
+    "Arrows stretch the plot · Return plants it · Esc lets it go": "Flèches pour étirer la parcelle · Retour pour la planter · Échap pour l'annuler",
+    "Clear the cell": "Vider la case",
+    "Click a cell to change it": "Cliquez sur une case pour la changer",
+    "Drag corner to corner, or Space and the arrows · Click a plot to clear it": "Glissez d'un coin à l'autre, ou Espace et les flèches · Cliquez sur une parcelle pour l'effacer",
+    "Notes off": "Notes désactivées",
+    "Notes on": "Notes activées",
+    "Pick a cell, then a number · N for notes": "Choisissez une case, puis un chiffre · N pour les notes"
   },
   "examples": [
     "on joue au quiz"

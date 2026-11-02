@@ -537,7 +537,14 @@
     "{title} is already at its easiest.": "{title} 已经是最简单的了。",
     "{title} is already at its hardest.": "{title} 已经是最难的了。",
     "Trivia questions": "问答题",
-    "Trivia about {topic}": "关于{topic}的问答"
+    "Trivia about {topic}": "关于{topic}的问答",
+    "Arrows stretch the plot · Return plants it · Esc lets it go": "方向键拉伸地块 · 回车种下 · Esc 放弃",
+    "Clear the cell": "清空这一格",
+    "Click a cell to change it": "点一格来改变它",
+    "Drag corner to corner, or Space and the arrows · Click a plot to clear it": "从一角拖到对角，或按空格和方向键 · 点一块地来去掉",
+    "Notes off": "笔记关",
+    "Notes on": "笔记开",
+    "Pick a cell, then a number · N for notes": "选一格，再选数字 · N 切换笔记"
   },
   "examples": [
     "我们来玩问答吧"

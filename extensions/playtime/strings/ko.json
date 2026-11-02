@@ -537,7 +537,14 @@
     "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
     "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
     "Trivia questions": "퀴즈 문제",
-    "Trivia about {topic}": "{topic} 퀴즈"
+    "Trivia about {topic}": "{topic} 퀴즈",
+    "Arrows stretch the plot · Return plants it · Esc lets it go": "화살표로 구획 늘리기 · Return으로 심기 · Esc로 취소",
+    "Clear the cell": "칸 비우기",
+    "Click a cell to change it": "칸을 클릭해 바꾸기",
+    "Drag corner to corner, or Space and the arrows · Click a plot to clear it": "모서리에서 모서리로 드래그 또는 Space와 화살표 · 구획을 클릭하면 지우기",
+    "Notes off": "메모 끔",
+    "Notes on": "메모 켬",
+    "Pick a cell, then a number · N for notes": "칸을 고른 뒤 숫자 · N은 메모"
   },
   "examples": [
     "퀴즈 하자"
