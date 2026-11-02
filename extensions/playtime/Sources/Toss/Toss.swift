@@ -47,26 +47,6 @@ enum Toss: Equatable {
         }
     }
 
-    /// The same, in English for the model.
-    var forModel: String {
-        switch self {
-        case .coins(let flips, let call):
-            let faces = flips.map { $0 ? "heads" : "tails" }
-            guard flips.count > 1 else {
-                guard let call else { return faces[0] }
-                return "\(faces[0]); the user called \(call ? "heads" : "tails") and was \(call == flips[0] ? "right" : "wrong")"
-            }
-            let heads = flips.filter { $0 }.count
-            return "\(faces.joined(separator: ", ")) (\(heads) heads, \(flips.count - heads) tails)"
-        case .dice(let sides, let rolls, let modifier):
-            let total = rolls.count == 1 && modifier == 0 ? "\(rolls[0])" : Self.sum(rolls, modifier) { "\($0)" }
-            return "\(Self.notation(count: rolls.count, sides: sides, modifier: modifier)): \(total)"
-        case .hands(let person, let companion):
-            let outcome = person == companion ? "a draw" : person.beats == companion ? "the user wins" : "you win"
-            return "the user played \(person.rawValue) and you played \(companion.rawValue): \(outcome)"
-        }
-    }
-
     /// "2d6+1", "d20": dice as players write them, in every language.
     static func notation(count: Int, sides: Int, modifier: Int) -> String {
         "\(count == 1 ? "" : String(count))d\(sides)" + (modifier == 0 ? "" : modifier > 0 ? "+\(modifier)" : "\(modifier)")

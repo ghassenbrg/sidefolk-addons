@@ -150,7 +150,6 @@ struct PlaytimeHandsAndTossTests {
             #expect(Toss.notation(count: 2, sides: 6, modifier: 1) == "2d6+1")
             #expect(Toss.coins([true], call: false).called == false && Toss.coins([true], call: false).verdict == .loss)
             #expect(Toss.dice(sides: 6, rolls: [4], modifier: 0).verdict == nil)
-            #expect(Toss.hands(person: .rock, companion: .rock).forModel.hasSuffix("a draw"))
         }
     }
 

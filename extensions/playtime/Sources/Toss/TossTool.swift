@@ -27,15 +27,9 @@ enum TossTool {
     private static func run(_ a: Arguments) throws -> ToolReply {
         var random = Games.Random.fresh()
         let toss = try draw(a, random: &random)
-        let text: String
-        switch toss {
-        case .coins: text = "Flipped on the user's desktop, where they saw it: \(toss.forModel). Say it in a few words."
-        case .dice: text = "Rolled on the user's desktop, where they saw it: \(toss.forModel). Say it in a few words."
-        case .hands(let person, let companion):
-            let s = PlaytimeRecords.addThrow(person: person, companion: companion)
-            text = "Played on the user's desktop, where they saw it: \(toss.forModel). Score this far: the user \(s.person), you \(s.companion), draws \(s.draws). Say it in a few words."
-        }
-        return ToolReply(text).opening(surface: "toss", arguments: toss.arguments).holdingAnswer(ms: TossSurface.Timing(toss).totalMs)
+        if case .hands(let person, let companion) = toss { _ = PlaytimeRecords.addThrow(person: person, companion: companion) }
+        // The person's words: someone who said "flip a coin" reads this on a card, and the AI says it as it came.
+        return ToolReply(toss.result).opening(surface: "toss", arguments: toss.arguments).holdingAnswer(ms: TossSurface.Timing(toss).totalMs)
     }
 
     /// What the words asked for, with the same limits a person's and the AI's words meet.
