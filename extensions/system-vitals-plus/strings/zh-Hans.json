@@ -247,5 +247,8 @@
     "{title}. {advice}": "{title}。{advice}",
     "{title}: {advice}": "{title}：{advice}",
     "{used} of {total} in use; memory pressure is {pressure}.": "已用 {used}（共 {total}）；内存压力：{pressure}。"
-  }
+  },
+  "examples": [
+    "是什么让我的 Mac 变慢？"
+  ]
 }

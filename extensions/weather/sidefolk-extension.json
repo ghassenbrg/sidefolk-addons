@@ -1,0 +1,30 @@
+{
+  "id": "dev.sidefolk.weather",
+  "name": "Weather",
+  "version": "1.3.0",
+  "sidefolk": ">=0.1",
+  "description": "Today's weather and the week ahead for any place, and a heads-up before rain, from Open-Meteo. Only the place you ask about leaves your Mac.",
+  "tagline": "Today's weather and the week ahead",
+  "folk": "scout",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": { "command": "bin/ext-weather" },
+  "permissions": { "network": true },
+  "examples": ["will it rain in Lisbon this week?"],
+  "services": [{ "name": "Open-Meteo", "hosts": ["api.open-meteo.com", "geocoding-api.open-meteo.com"] }],
+  "tools": {
+    "forecast": { "summary": "Get the forecast for {place} from Open-Meteo", "title": "Weather forecast", "risk": "low", "category": "web", "mutates": false },
+    "sun_and_moon": { "summary": "Get sunrise and sunset for {place} from Open-Meteo", "title": "Sunrise, sunset and the moon", "risk": "low", "category": "web", "mutates": false }
+  },
+  "watchers": {
+    "rain_soon": {
+      "title": "Rain soon",
+      "description": "Tells you once when rain becomes likely in a place within the next few hours.",
+      "config": {
+        "place": { "type": "string", "description": "A city or town.", "required": true },
+        "within_hours": { "type": "integer", "description": "How far ahead to look.", "default": 3, "minimum": 1, "maximum": 12 },
+        "chance_percent": { "type": "integer", "description": "How likely rain must be.", "default": 60, "minimum": 10, "maximum": 100 }
+      }
+    }
+  }
+}

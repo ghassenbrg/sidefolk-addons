@@ -4,16 +4,20 @@
   "description": "Los detalles y el texto de un PDF, varios PDF unidos en uno, y algunas de sus páginas guardadas como un PDF nuevo. Tus originales se quedan como están.",
   "tools": {
     "combine_pdfs": {
-      "title": "Unir PDF"
+      "title": "Unir PDF",
+      "summary": "Unir los PDF de {folder} en uno nuevo"
     },
     "extract_pages": {
-      "title": "Sacar páginas de un PDF"
+      "title": "Sacar páginas de un PDF",
+      "summary": "Guardar las páginas {pages} de {file} como un PDF nuevo en {folder}"
     },
     "pdf_info": {
-      "title": "Detalles de un PDF"
+      "title": "Detalles de un PDF",
+      "summary": "Leer los detalles de {path}"
     },
     "pdf_text": {
-      "title": "Leer el texto de un PDF"
+      "title": "Leer el texto de un PDF",
+      "summary": "Leer el texto de {path}"
     }
   },
   "text": {
@@ -43,5 +47,8 @@
     "{file} isn't a PDF I can read.": "{file} no es un PDF que pueda leer.",
     "{paper}, landscape": "{paper}, horizontal",
     "“{file}” should be just a file name in {folder}.": "«{file}» debe ser solo un nombre de archivo de {folder}."
-  }
+  },
+  "examples": [
+    "une los PDF de ~/Downloads en uno"
+  ]
 }

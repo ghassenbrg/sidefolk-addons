@@ -12,6 +12,7 @@
     "command": "bin/ext-dev-toolbox"
   },
   "permissions": {},
+  "examples": ["what date is the Unix time 1800000000?"],
   "tools": {
     "transform": {
       "title": "Transform text",
@@ -77,6 +78,7 @@
       ]
     },
     "checksum": {
+      "summary": "Work out the checksum of {path}",
       "title": "File checksum",
       "risk": "low",
       "category": "files",

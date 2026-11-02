@@ -1,0 +1,28 @@
+{
+  "id": "dev.sidefolk.world-clock",
+  "name": "World Clock",
+  "version": "1.3.0",
+  "sidefolk": ">=0.1",
+  "description": "The time anywhere in the world, and a time converted between places, with daylight saving worked out exactly.",
+  "tagline": "The time anywhere, and times between places",
+  "folk": "tempo",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": { "command": "bin/ext-world-clock" },
+  "examples": ["what time is it in Tokyo?"],
+  "tools": {
+    "current_time": {
+      "summary": [{ "unless": "places", "text": "Look up the time here" }, { "text": "Look up the time in {places}" }],
+      "title": "Time around the world", "risk": "low", "category": "time", "mutates": false,
+      "commands": [
+        {
+          "say": ["time in {place:place}", "what time is it in {place:place}", "what's the time in {place:place}",
+                  "whats the time in {place:place}", "what is the time in {place:place}", "current time in {place:place}",
+                  "local time in {place:place}"],
+          "input": { "places": ["{place}"] }
+        }
+      ]
+    },
+    "convert_time": { "summary": [{ "unless": "from", "text": "Convert {time} here to the time in {to}" }, { "text": "Convert {time} in {from} to the time in {to}" }], "title": "Convert a time between places", "risk": "low", "category": "time", "mutates": false }
+  }
+}

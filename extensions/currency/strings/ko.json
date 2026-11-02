@@ -4,7 +4,8 @@
   "description": "유럽중앙은행의 일일 기준 환율로 유로와 주요 30개 통화 사이의 금액을 환산하고, 환율이 정한 선을 넘으면 알려 줘요. 나에 관한 정보는 보내지 않아요.",
   "tools": {
     "convert_currency": {
-      "title": "돈 환산"
+      "title": "돈 환산",
+      "summary": "유럽중앙은행 환율로 {amount} {from}을(를) {to}(으)로 환산"
     }
   },
   "watchers": {
@@ -23,5 +24,8 @@
     "{rate}, above {line}.": "{rate}, {line} 초과.",
     "{rate}, below {line}.": "{rate}, {line} 미만.",
     "“{key}” must be a number.": "‘{key}’은(는) 숫자여야 합니다."
-  }
+  },
+  "examples": [
+    "50달러는 유로로 얼마야?"
+  ]
 }

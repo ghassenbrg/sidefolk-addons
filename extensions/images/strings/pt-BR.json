@@ -4,10 +4,15 @@
   "description": "Os detalhes de uma foto, e cópias de imagens convertidas para JPEG, PNG ou HEIC, menores ou sem a localização. Seus originais ficam como estão.",
   "tools": {
     "convert_images": {
-      "title": "Converter imagens"
+      "title": "Converter imagens",
+      "summary": [
+        "Criar cópias das imagens em {folder} sem a localização",
+        "Criar cópias convertidas das imagens em {folder}"
+      ]
     },
     "image_info": {
-      "title": "Detalhes da imagem"
+      "title": "Detalhes da imagem",
+      "summary": "Ler os detalhes de {path}"
     }
   },
   "text": {
@@ -39,5 +44,8 @@
     "{file}: not a file in that folder": "{file}: não é um arquivo dessa pasta",
     "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} px ({megapixels} megapixels)",
     "{folder} isn't a folder.": "{folder} não é uma pasta."
-  }
+  },
+  "examples": [
+    "deixe as fotos em ~/Downloads menores"
+  ]
 }

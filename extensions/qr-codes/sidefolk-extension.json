@@ -14,8 +14,10 @@
   "permissions": {
     "media": true
   },
+  "examples": ["make a QR code of https://example.com on my Desktop"],
   "tools": {
     "make_qr": {
+      "summary": "Make a QR code picture in {folder}",
       "title": "Make a QR code",
       "risk": "medium",
       "category": "files",
@@ -37,6 +39,7 @@
       ]
     },
     "read_qr": {
+      "summary": "Read the QR code in {path}",
       "title": "Read a QR code",
       "risk": "low",
       "category": "files",

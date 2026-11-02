@@ -249,5 +249,8 @@
     "{title}. {advice}": "{title}. {advice}",
     "{title}: {advice}": "{title}: {advice}",
     "{used} of {total} in use; memory pressure is {pressure}.": "{used} von {total} belegt; Speicherdruck {pressure}."
-  }
+  },
+  "examples": [
+    "was bremst meinen Mac aus?"
+  ]
 }

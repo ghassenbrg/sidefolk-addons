@@ -4,10 +4,12 @@
   "description": "Packt Dateien und Ordner zum Versenden in ZIP-Dateien und öffnet ZIP-Dateien, die du bekommst, mit den Werkzeugen von macOS.",
   "tools": {
     "unzip": {
-      "title": "Eine ZIP-Datei öffnen"
+      "title": "Eine ZIP-Datei öffnen",
+      "summary": "{file} in {folder} entpacken"
     },
     "zip": {
-      "title": "Eine ZIP-Datei erstellen"
+      "title": "Eine ZIP-Datei erstellen",
+      "summary": "Eine ZIP-Datei in {folder} erstellen"
     }
   },
   "text": {
@@ -25,5 +27,8 @@
       "other": "{count} Objekten"
     },
     "“{name}” should be just a name of something in {folder}.": "„{name}“ sollte nur der Name von etwas in {folder} sein."
-  }
+  },
+  "examples": [
+    "packe den Ordner Bildschirmfotos auf meinem Schreibtisch in eine ZIP-Datei"
+  ]
 }

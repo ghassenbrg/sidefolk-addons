@@ -78,5 +78,8 @@
     "{app} isn't open. Open it first, or say how long instead.": "{app} 没有打开。请先打开它，或改为说明时长。",
     "{app} quit.": "{app} 已退出。",
     "{time} left": "剩余 {time}"
-  }
+  },
+  "examples": [
+    "让我的 Mac 保持唤醒 2 小时"
+  ]
 }

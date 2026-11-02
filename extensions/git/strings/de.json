@@ -4,16 +4,20 @@
   "description": "Klone öffentliche Repositorys in einen Ordner deiner Wahl, prüfe und aktualisiere die vorhandenen und lies ihren Verlauf.",
   "tools": {
     "clone": {
-      "title": "Ein Repository klonen"
+      "title": "Ein Repository klonen",
+      "summary": "{url} in {destination} klonen"
     },
     "log": {
-      "title": "Letzte Commits"
+      "title": "Letzte Commits",
+      "summary": "Die letzten Commits in {repository} lesen"
     },
     "pull": {
-      "title": "Die neuesten Änderungen holen"
+      "title": "Die neuesten Änderungen holen",
+      "summary": "Die neuesten Änderungen in {repository} holen"
     },
     "status": {
-      "title": "Repository-Status"
+      "title": "Repository-Status",
+      "summary": "Den Status des Repositorys in {repository} prüfen"
     }
   },
   "text": {
@@ -51,5 +55,8 @@
     "{folder} on {branch}": "{folder} auf {branch}",
     "{folder} on {branch} is already up to date.": "{folder} auf {branch} ist schon aktuell.",
     "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent} gibt es noch nicht. Leg es zuerst an und klone dann nach {folder}."
-  }
+  },
+  "examples": [
+    "clone https://github.com/octocat/Hello-World into ~/Downloads"
+  ]
 }

@@ -78,5 +78,8 @@
     "{app} isn't open. Open it first, or say how long instead.": "{app}は開いていません。先に開くか、代わりに時間を指定してください。",
     "{app} quit.": "{app}が終了しました。",
     "{time} left": "残り{time}"
-  }
+  },
+  "examples": [
+    "Macを2時間スリープさせないで"
+  ]
 }

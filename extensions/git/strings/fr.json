@@ -4,16 +4,20 @@
   "description": "Cloner des dépôts publics dans un dossier de votre choix, puis vérifier l’état de ceux que vous avez, les mettre à jour et lire leur historique.",
   "tools": {
     "clone": {
-      "title": "Cloner un dépôt"
+      "title": "Cloner un dépôt",
+      "summary": "Cloner {url} dans {destination}"
     },
     "log": {
-      "title": "Commits récents"
+      "title": "Commits récents",
+      "summary": "Lire les commits récents dans {repository}"
     },
     "pull": {
-      "title": "Récupérer les dernières modifications"
+      "title": "Récupérer les dernières modifications",
+      "summary": "Récupérer les dernières modifications dans {repository}"
     },
     "status": {
-      "title": "État du dépôt"
+      "title": "État du dépôt",
+      "summary": "Vérifier l’état du dépôt dans {repository}"
     }
   },
   "text": {
@@ -51,5 +55,8 @@
     "{folder} on {branch}": "{folder} sur {branch}",
     "{folder} on {branch} is already up to date.": "{folder} sur {branch} est déjà à jour.",
     "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent} n’existe pas encore. Créez-le d’abord, puis clonez dans {folder}."
-  }
+  },
+  "examples": [
+    "clone https://github.com/octocat/Hello-World dans ~/Downloads"
+  ]
 }

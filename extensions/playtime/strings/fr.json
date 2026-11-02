@@ -4,10 +4,12 @@
   "description": "Une pause avec votre compagnon : dix jeux contre lui, à côté de lui sur le bureau (un quiz, le morpion, Imite-moi et d'autres) et cinq casse-têtes pour vous (le mot du jour, le sudoku et d'autres), vos scores, meilleurs temps et séries gardés, et le hasard pour tirer un nombre ou choisir dans une liste.",
   "tools": {
     "pick": {
-      "title": "Tirages au sort"
+      "title": "Tirages au sort",
+      "summary": "Laisser faire le hasard"
     },
     "trivia": {
-      "title": "Quiz"
+      "title": "Quiz",
+      "summary": "Jouer une partie de quiz"
     }
   },
   "pages": {
@@ -500,5 +502,8 @@
       "one": "{count} question",
       "other": "{count} questions"
     }
-  }
+  },
+  "examples": [
+    "on joue au quiz"
+  ]
 }

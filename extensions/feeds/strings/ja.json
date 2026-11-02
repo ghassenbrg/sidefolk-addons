@@ -4,7 +4,8 @@
   "description": "ブログ、ニュースサイト、ポッドキャストのRSSまたはAtomフィードから最新の投稿を表示し、新しい投稿があれば知らせます。",
   "tools": {
     "read_feed": {
-      "title": "最新の投稿"
+      "title": "最新の投稿",
+      "summary": "{url}の最新の投稿を読む"
     }
   },
   "watchers": {
@@ -24,5 +25,8 @@
     "untitled": "無題",
     "{feed} has no posts yet.": "{feed}にはまだ投稿がありません。",
     "{feed}, latest {count}:": "{feed}の最新{count}件："
-  }
+  },
+  "examples": [
+    "swift.org のブログの新着は？"
+  ]
 }

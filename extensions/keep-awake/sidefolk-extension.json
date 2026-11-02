@@ -23,6 +23,7 @@
       "widget": true
     }
   },
+  "examples": ["keep my Mac awake for 2 hours"],
   "tools": {
     "keep_awake": {
       "title": "Keep the Mac awake",

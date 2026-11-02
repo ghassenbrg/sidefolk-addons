@@ -4,10 +4,12 @@
   "description": "Compacta arquivos e pastas para enviar e abre os arquivos zip que você recebe, com as ferramentas do macOS.",
   "tools": {
     "unzip": {
-      "title": "Abrir um arquivo zip"
+      "title": "Abrir um arquivo zip",
+      "summary": "Descompactar {file} em {folder}"
     },
     "zip": {
-      "title": "Criar um arquivo zip"
+      "title": "Criar um arquivo zip",
+      "summary": "Criar um arquivo zip em {folder}"
     }
   },
   "text": {
@@ -25,5 +27,8 @@
       "other": "{count} itens"
     },
     "“{name}” should be just a name of something in {folder}.": "“{name}” deve ser só o nome de algo em {folder}."
-  }
+  },
+  "examples": [
+    "compacte a pasta Capturas de Tela da minha mesa"
+  ]
 }

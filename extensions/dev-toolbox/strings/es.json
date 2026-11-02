@@ -4,7 +4,8 @@
   "description": "Para desarrolladores: formatear JSON, codificar y decodificar base64, URL y hexadecimal, decodificar JWT, convertir marcas de tiempo, crear UUID y comprobar la suma de verificación de un archivo.",
   "tools": {
     "checksum": {
-      "title": "Suma de comprobación"
+      "title": "Suma de comprobación",
+      "summary": "Calcular la suma de comprobación de {path}"
     },
     "generate": {
       "title": "Generar identificadores"
@@ -60,5 +61,8 @@
       "other": "{count} palabras"
     },
     "{file} can't be read.": "No se puede leer {file}."
-  }
+  },
+  "examples": [
+    "¿qué fecha es el tiempo Unix 1800000000?"
+  ]
 }

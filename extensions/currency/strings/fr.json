@@ -4,7 +4,8 @@
   "description": "Convertit de l’argent entre l’euro et 30 grandes devises aux taux de référence quotidiens de la Banque centrale européenne, et vous prévient quand un taux franchit un seuil. Rien sur vous n’est envoyé.",
   "tools": {
     "convert_currency": {
-      "title": "Convertir de l’argent"
+      "title": "Convertir de l’argent",
+      "summary": "Convertir {amount} {from} en {to} aux taux de la Banque centrale européenne"
     }
   },
   "watchers": {
@@ -23,5 +24,8 @@
     "{rate}, above {line}.": "{rate}, au-dessus de {line}.",
     "{rate}, below {line}.": "{rate}, en dessous de {line}.",
     "“{key}” must be a number.": "« {key} » doit être un nombre."
-  }
+  },
+  "examples": [
+    "combien font 50 dollars en euros ?"
+  ]
 }

@@ -257,5 +257,8 @@
     "{title}. {advice}": "{title}. {advice}",
     "{title}: {advice}": "{title}: {advice}",
     "{used} of {total} in use; memory pressure is {pressure}.": "{used} من {total} قيد الاستخدام؛ ضغط الذاكرة {pressure}."
-  }
+  },
+  "examples": [
+    "ما الذي يبطئ جهاز Mac الخاص بي؟"
+  ]
 }

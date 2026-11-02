@@ -4,16 +4,20 @@
   "description": "PDF의 정보와 텍스트, 여러 PDF를 하나로 합치기, 일부 페이지를 새 PDF로 저장하기. 원본은 그대로 남아요.",
   "tools": {
     "combine_pdfs": {
-      "title": "PDF 합치기"
+      "title": "PDF 합치기",
+      "summary": "{folder}의 PDF를 새 PDF 하나로 합치기"
     },
     "extract_pages": {
-      "title": "PDF에서 페이지 꺼내기"
+      "title": "PDF에서 페이지 꺼내기",
+      "summary": "{file}의 {pages} 페이지를 {folder}에 새 PDF로 저장"
     },
     "pdf_info": {
-      "title": "PDF 정보"
+      "title": "PDF 정보",
+      "summary": "{path}의 정보 읽기"
     },
     "pdf_text": {
-      "title": "PDF 텍스트 읽기"
+      "title": "PDF 텍스트 읽기",
+      "summary": "{path}의 텍스트 읽기"
     }
   },
   "text": {
@@ -41,5 +45,8 @@
     "{file} isn't a PDF I can read.": "{file}은(는) 읽을 수 있는 PDF가 아닙니다.",
     "{paper}, landscape": "{paper}, 가로",
     "“{file}” should be just a file name in {folder}.": "‘{file}’은(는) {folder} 안의 파일 이름이어야 합니다."
-  }
+  },
+  "examples": [
+    "~/Downloads에 있는 PDF를 하나로 합쳐 줘"
+  ]
 }

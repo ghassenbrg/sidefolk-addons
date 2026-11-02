@@ -23,6 +23,8 @@
       "widget": true
     }
   },
+  "examples": ["what's slowing my Mac?"],
+  "replaces": ["dev.sidefolk.system-vitals"],
   "tools": {
     "health": {
       "title": "Mac health check",

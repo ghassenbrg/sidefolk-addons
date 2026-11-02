@@ -4,7 +4,8 @@
   "description": "블로그, 뉴스 사이트, 팟캐스트의 RSS나 Atom 피드에서 최신 글을 보여 주고, 새 글이 올라오면 알려 줘요.",
   "tools": {
     "read_feed": {
-      "title": "최신 글"
+      "title": "최신 글",
+      "summary": "{url}의 최신 글 읽기"
     }
   },
   "watchers": {
@@ -24,5 +25,8 @@
     "untitled": "제목 없음",
     "{feed} has no posts yet.": "{feed}에는 아직 글이 없습니다.",
     "{feed}, latest {count}:": "{feed} 최근 {count}개:"
-  }
+  },
+  "examples": [
+    "swift.org 블로그에 새 글 있어?"
+  ]
 }

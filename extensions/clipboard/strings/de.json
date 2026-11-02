@@ -199,5 +199,8 @@
     "“{pattern}” isn't a regular expression Clipboard can read.": "„{pattern}“ ist kein regulärer Ausdruck, den Zwischenablage lesen kann.",
     "↩ copies, ⌥↩ pastes": "↩ kopiert, ⌥↩ fügt ein",
     "↩ pastes, ⌥↩ only copies": "↩ fügt ein, ⌥↩ kopiert nur"
-  }
+  },
+  "examples": [
+    "was habe ich kopiert?"
+  ]
 }

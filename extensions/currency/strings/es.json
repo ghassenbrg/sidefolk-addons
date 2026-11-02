@@ -4,7 +4,8 @@
   "description": "Convierte dinero entre el euro y 30 monedas principales con los tipos de referencia diarios del Banco Central Europeo, y te avisa cuando un tipo cruza un límite. No se envía nada sobre ti.",
   "tools": {
     "convert_currency": {
-      "title": "Convertir dinero"
+      "title": "Convertir dinero",
+      "summary": "Convertir {amount} {from} a {to} con los tipos del Banco Central Europeo"
     }
   },
   "watchers": {
@@ -23,5 +24,8 @@
     "{rate}, above {line}.": "{rate}, por encima de {line}.",
     "{rate}, below {line}.": "{rate}, por debajo de {line}.",
     "“{key}” must be a number.": "«{key}» debe ser un número."
-  }
+  },
+  "examples": [
+    "¿cuánto son 50 dólares en euros?"
+  ]
 }

@@ -4,10 +4,12 @@
   "description": "リンクやテキストのQRコード画像を作成し、画像やスクリーンショットのQRコードを読み取ります。",
   "tools": {
     "make_qr": {
-      "title": "QRコードを作成"
+      "title": "QRコードを作成",
+      "summary": "{folder}にQRコード画像を作成"
     },
     "read_qr": {
-      "title": "QRコードを読み取る"
+      "title": "QRコードを読み取る",
+      "summary": "{path}のQRコードを読み取る"
     }
   },
   "text": {
@@ -18,5 +20,8 @@
     "This Mac can't make QR codes.": "このMacではQRコードを作れません。",
     "{file} isn't a picture I can read.": "{file}は読み取れる画像ではありません。",
     "{folder} can't be written to.": "{folder}に書き込めません。"
-  }
+  },
+  "examples": [
+    "デスクトップに https://example.com のQRコードを作って"
+  ]
 }

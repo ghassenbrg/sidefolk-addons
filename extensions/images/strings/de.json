@@ -4,10 +4,15 @@
   "description": "Details eines Fotos und Kopien von Bildern als JPEG, PNG oder HEIC, verkleinert oder ohne Ortsangabe. Deine Originale bleiben, wie sie sind.",
   "tools": {
     "convert_images": {
-      "title": "Bilder umwandeln"
+      "title": "Bilder umwandeln",
+      "summary": [
+        "Kopien der Bilder in {folder} ohne Ortsangabe erstellen",
+        "Umgewandelte Kopien der Bilder in {folder} erstellen"
+      ]
     },
     "image_info": {
-      "title": "Bilddetails"
+      "title": "Bilddetails",
+      "summary": "Die Details von {path} lesen"
     }
   },
   "text": {
@@ -39,5 +44,8 @@
     "{file}: not a file in that folder": "{file}: keine Datei in diesem Ordner",
     "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} px ({megapixels} Megapixel)",
     "{folder} isn't a folder.": "{folder} ist kein Ordner."
-  }
+  },
+  "examples": [
+    "mach die Fotos in ~/Downloads kleiner"
+  ]
 }

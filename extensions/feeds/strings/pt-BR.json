@@ -4,7 +4,8 @@
   "description": "As últimas publicações de blogs, sites de notícias e podcasts pelos feeds RSS ou Atom, e um aviso quando sai uma nova.",
   "tools": {
     "read_feed": {
-      "title": "Últimas publicações"
+      "title": "Últimas publicações",
+      "summary": "Ler as últimas publicações de {url}"
     }
   },
   "watchers": {
@@ -24,5 +25,8 @@
     "untitled": "sem título",
     "{feed} has no posts yet.": "{feed} ainda não tem publicações.",
     "{feed}, latest {count}:": "{feed}, as {count} mais recentes:"
-  }
+  },
+  "examples": [
+    "o que há de novo no blog do swift.org?"
+  ]
 }

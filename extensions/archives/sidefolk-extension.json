@@ -17,8 +17,10 @@
       "/usr/bin/ditto"
     ]
   },
+  "examples": ["zip the Screenshots folder on my Desktop"],
   "tools": {
     "zip": {
+      "summary": "Make a zip file in {folder}",
       "title": "Make a zip file",
       "risk": "medium",
       "category": "files",
@@ -29,6 +31,7 @@
       "timeout": 300
     },
     "unzip": {
+      "summary": "Unpack {file} in {folder}",
       "title": "Open a zip file",
       "risk": "medium",
       "category": "files",

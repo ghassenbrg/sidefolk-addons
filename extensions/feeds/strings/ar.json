@@ -4,7 +4,8 @@
   "description": "أحدث منشورات المدونات ومواقع الأخبار والبودكاست من خلاصات RSS أو Atom، وتنبيه حين يظهر منشور جديد.",
   "tools": {
     "read_feed": {
-      "title": "أحدث المنشورات"
+      "title": "أحدث المنشورات",
+      "summary": "قراءة أحدث المنشورات من {url}"
     }
   },
   "watchers": {
@@ -24,5 +25,8 @@
     "untitled": "بلا عنوان",
     "{feed} has no posts yet.": "لا منشورات على {feed} بعد.",
     "{feed}, latest {count}:": "{feed}، أحدث {count}:"
-  }
+  },
+  "examples": [
+    "ما الجديد في مدونة swift.org؟"
+  ]
 }

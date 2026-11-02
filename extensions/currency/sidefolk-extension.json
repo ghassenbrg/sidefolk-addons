@@ -14,8 +14,11 @@
   "permissions": {
     "network": true
   },
+  "examples": ["how much is 50 dollars in euros?"],
+  "services": [{ "name": "ecb.europa.eu", "hosts": ["www.ecb.europa.eu"] }],
   "tools": {
     "convert_currency": {
+      "summary": "Convert {amount} {from} to {to} with the European Central Bank's rates",
       "title": "Convert money",
       "risk": "low",
       "category": "web",

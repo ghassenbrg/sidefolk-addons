@@ -199,5 +199,8 @@
     "“{pattern}” isn't a regular expression Clipboard can read.": "« {pattern} » n’est pas une expression régulière lisible par Presse-papiers.",
     "↩ copies, ⌥↩ pastes": "↩ copie, ⌥↩ colle",
     "↩ pastes, ⌥↩ only copies": "↩ colle, ⌥↩ copie seulement"
-  }
+  },
+  "examples": [
+    "qu’est-ce que j’ai copié ?"
+  ]
 }

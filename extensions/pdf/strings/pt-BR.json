@@ -4,16 +4,20 @@
   "description": "Os detalhes e o texto de um PDF, vários PDFs juntos em um só, e algumas páginas salvas como um novo PDF. Seus originais ficam como estão.",
   "tools": {
     "combine_pdfs": {
-      "title": "Juntar PDFs"
+      "title": "Juntar PDFs",
+      "summary": "Juntar os PDFs de {folder} em um novo"
     },
     "extract_pages": {
-      "title": "Tirar páginas de um PDF"
+      "title": "Tirar páginas de um PDF",
+      "summary": "Salvar as páginas {pages} de {file} como um novo PDF em {folder}"
     },
     "pdf_info": {
-      "title": "Detalhes do PDF"
+      "title": "Detalhes do PDF",
+      "summary": "Ler os detalhes de {path}"
     },
     "pdf_text": {
-      "title": "Ler o texto de um PDF"
+      "title": "Ler o texto de um PDF",
+      "summary": "Ler o texto de {path}"
     }
   },
   "text": {
@@ -43,5 +47,8 @@
     "{file} isn't a PDF I can read.": "{file} não é um PDF que eu consiga ler.",
     "{paper}, landscape": "{paper}, paisagem",
     "“{file}” should be just a file name in {folder}.": "“{file}” deve ser só um nome de arquivo em {folder}."
-  }
+  },
+  "examples": [
+    "junte os PDFs em ~/Downloads em um só"
+  ]
 }

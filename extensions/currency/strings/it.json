@@ -4,7 +4,8 @@
   "description": "Converte denaro tra l’euro e 30 valute principali con i tassi di riferimento giornalieri della Banca centrale europea, e ti avvisa quando un tasso supera una soglia. Nulla su di te viene inviato.",
   "tools": {
     "convert_currency": {
-      "title": "Converti denaro"
+      "title": "Converti denaro",
+      "summary": "Converti {amount} {from} in {to} con i tassi della Banca centrale europea"
     }
   },
   "watchers": {
@@ -23,5 +24,8 @@
     "{rate}, above {line}.": "{rate}, sopra {line}.",
     "{rate}, below {line}.": "{rate}, sotto {line}.",
     "“{key}” must be a number.": "«{key}» deve essere un numero."
-  }
+  },
+  "examples": [
+    "quanto fanno 50 dollari in euro?"
+  ]
 }

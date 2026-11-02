@@ -13,20 +13,25 @@
     "network": true,
     "exec": ["git"]
   },
+  "examples": ["clone https://github.com/octocat/Hello-World into ~/Downloads"],
   "tools": {
     "clone": {
+      "summary": "Clone {url} into {destination}",
       "title": "Clone a repository", "risk": "medium", "category": "files", "mutates": true,
       "paths": { "destination": "write" }, "timeout": 300
     },
     "status": {
+      "summary": "Check the status of the repository in {repository}",
       "title": "Repository status", "risk": "low", "category": "files", "mutates": false,
       "paths": { "repository": "read" }
     },
     "pull": {
+      "summary": "Pull the latest changes into {repository}",
       "title": "Pull the latest changes", "risk": "medium", "category": "files", "mutates": true,
       "paths": { "repository": "write" }, "timeout": 300
     },
     "log": {
+      "summary": "Read the recent commits in {repository}",
       "title": "Recent commits", "risk": "low", "category": "files", "mutates": false,
       "paths": { "repository": "read" }
     }

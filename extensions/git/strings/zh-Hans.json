@@ -4,16 +4,20 @@
   "description": "把公开仓库克隆到你选择的文件夹，并检查、更新已有的仓库，查看它们的提交历史。",
   "tools": {
     "clone": {
-      "title": "克隆仓库"
+      "title": "克隆仓库",
+      "summary": "将 {url} 克隆到 {destination}"
     },
     "log": {
-      "title": "最近的提交"
+      "title": "最近的提交",
+      "summary": "读取 {repository} 中最近的提交"
     },
     "pull": {
-      "title": "拉取最新更改"
+      "title": "拉取最新更改",
+      "summary": "将最新更改拉取到 {repository}"
     },
     "status": {
-      "title": "仓库状态"
+      "title": "仓库状态",
+      "summary": "查看 {repository} 中仓库的状态"
     }
   },
   "text": {
@@ -50,5 +54,8 @@
     "{folder} on {branch}": "{folder}（{branch}）",
     "{folder} on {branch} is already up to date.": "{folder}（{branch}）已是最新。",
     "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent} 还不存在。请先创建它，然后克隆到 {folder}。"
-  }
+  },
+  "examples": [
+    "把 https://github.com/octocat/Hello-World 克隆到 ~/Downloads"
+  ]
 }

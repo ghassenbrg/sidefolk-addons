@@ -4,10 +4,12 @@
   "description": "링크나 텍스트로 QR 코드 이미지를 만들고, 사진이나 스크린샷의 QR 코드를 읽어요.",
   "tools": {
     "make_qr": {
-      "title": "QR 코드 만들기"
+      "title": "QR 코드 만들기",
+      "summary": "{folder}에 QR 코드 이미지 만들기"
     },
     "read_qr": {
-      "title": "QR 코드 읽기"
+      "title": "QR 코드 읽기",
+      "summary": "{path}의 QR 코드 읽기"
     }
   },
   "text": {
@@ -18,5 +20,8 @@
     "This Mac can't make QR codes.": "이 Mac에서는 QR 코드를 만들 수 없습니다.",
     "{file} isn't a picture I can read.": "{file}은(는) 읽을 수 있는 그림이 아닙니다.",
     "{folder} can't be written to.": "{folder}에 쓸 수 없습니다."
-  }
+  },
+  "examples": [
+    "데스크탑에 https://example.com QR 코드를 만들어 줘"
+  ]
 }

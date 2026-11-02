@@ -199,5 +199,8 @@
     "“{pattern}” isn't a regular expression Clipboard can read.": "«{pattern}» non è un’espressione regolare che Appunti possa leggere.",
     "↩ copies, ⌥↩ pastes": "↩ copia, ⌥↩ incolla",
     "↩ pastes, ⌥↩ only copies": "↩ incolla, ⌥↩ copia soltanto"
-  }
+  },
+  "examples": [
+    "cosa ho copiato?"
+  ]
 }

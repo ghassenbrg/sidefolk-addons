@@ -4,10 +4,12 @@
   "description": "Uma pausa com o seu companheiro: dez jogos contra ele, ao lado dele na mesa (quiz, jogo da velha, Me imite e mais) e cinco quebra-cabeças para você (a palavra do dia, o sudoku e mais), com pontuações, melhores tempos e sequências guardados, e o acaso para sortear um número ou algo de uma lista.",
   "tools": {
     "pick": {
-      "title": "Sorteios"
+      "title": "Sorteios",
+      "summary": "Deixar com o acaso"
     },
     "trivia": {
-      "title": "Quiz"
+      "title": "Quiz",
+      "summary": "Jogar uma rodada de quiz"
     }
   },
   "pages": {
@@ -500,5 +502,8 @@
       "one": "{count} pergunta",
       "other": "{count} perguntas"
     }
-  }
+  },
+  "examples": [
+    "vamos jogar um quiz"
+  ]
 }

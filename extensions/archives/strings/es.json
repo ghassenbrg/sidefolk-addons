@@ -4,10 +4,12 @@
   "description": "Comprime archivos y carpetas para enviarlos, y abre los archivos zip que recibes, con las herramientas de macOS.",
   "tools": {
     "unzip": {
-      "title": "Abrir un archivo zip"
+      "title": "Abrir un archivo zip",
+      "summary": "Descomprimir {file} en {folder}"
     },
     "zip": {
-      "title": "Crear un archivo zip"
+      "title": "Crear un archivo zip",
+      "summary": "Crear un archivo zip en {folder}"
     }
   },
   "text": {
@@ -25,5 +27,8 @@
       "other": "{count} elementos"
     },
     "“{name}” should be just a name of something in {folder}.": "«{name}» debe ser solo el nombre de algo en {folder}."
-  }
+  },
+  "examples": [
+    "comprime la carpeta Capturas de pantalla de mi escritorio"
+  ]
 }

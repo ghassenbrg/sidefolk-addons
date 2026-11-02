@@ -223,5 +223,8 @@
     "“{pattern}” isn't a regular expression Clipboard can read.": "«{pattern}» ليس تعبيرًا نمطيًا تستطيع الحافظة قراءته.",
     "↩ copies, ⌥↩ pastes": "↩ ينسخ، ⌥↩ يلصق",
     "↩ pastes, ⌥↩ only copies": "↩ يلصق، ⌥↩ ينسخ فقط"
-  }
+  },
+  "examples": [
+    "ماذا نسخت؟"
+  ]
 }

@@ -14,8 +14,10 @@
   "permissions": {
     "media": true
   },
+  "examples": ["make the photos in ~/Downloads smaller"],
   "tools": {
     "image_info": {
+      "summary": "Read the details of {path}",
       "title": "Picture details",
       "risk": "low",
       "category": "files",
@@ -25,6 +27,7 @@
       }
     },
     "convert_images": {
+      "summary": [{ "if": "remove_location", "text": "Make copies of the pictures in {folder} without their location" }, { "text": "Make converted copies of the pictures in {folder}" }],
       "title": "Convert pictures",
       "risk": "medium",
       "category": "files",

@@ -4,10 +4,12 @@
   "description": "Un respiro con tu compañero: diez juegos contra él, a su lado en el escritorio (un quiz, tres en raya, Imítame y más) y cinco rompecabezas para ti (la palabra del día, el sudoku y más), con tus puntuaciones, mejores tiempos y rachas guardados, y el azar para elegir un número o una opción de una lista.",
   "tools": {
     "pick": {
-      "title": "Elecciones al azar"
+      "title": "Elecciones al azar",
+      "summary": "Dejarlo al azar"
     },
     "trivia": {
-      "title": "Trivial"
+      "title": "Trivial",
+      "summary": "Jugar una ronda de trivial"
     }
   },
   "pages": {
@@ -500,5 +502,8 @@
       "one": "{count} pregunta",
       "other": "{count} preguntas"
     }
-  }
+  },
+  "examples": [
+    "juguemos al trivial"
+  ]
 }

@@ -4,7 +4,8 @@
   "description": "面向开发者：格式化 JSON，编码和解码 base64、URL 和十六进制，解码 JWT，转换时间戳，生成 UUID，以及核对文件的校验和。",
   "tools": {
     "checksum": {
-      "title": "文件校验和"
+      "title": "文件校验和",
+      "summary": "计算 {path} 的校验和"
     },
     "generate": {
       "title": "生成 ID"
@@ -55,5 +56,8 @@
       "other": "{count} 个词"
     },
     "{file} can't be read.": "无法读取 {file}。"
-  }
+  },
+  "examples": [
+    "Unix 时间 1800000000 是哪一天？"
+  ]
 }
