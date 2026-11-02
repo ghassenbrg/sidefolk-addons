@@ -535,7 +535,9 @@
     "{title} has no level “{level}”.": "{title}にはレベル「{level}」がありません。",
     "{title} has no levels.": "{title}にはレベルがありません。",
     "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
-    "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。"
+    "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
+    "Trivia questions": "クイズの問題",
+    "Trivia about {topic}": "{topic}のクイズ"
   },
   "examples": [
     "クイズをしよう"

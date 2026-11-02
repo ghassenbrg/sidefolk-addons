@@ -535,7 +535,9 @@
     "{title} has no level “{level}”.": "{title}에는 “{level}” 단계가 없어요.",
     "{title} has no levels.": "{title}에는 단계가 없어요.",
     "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
-    "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요."
+    "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
+    "Trivia questions": "퀴즈 문제",
+    "Trivia about {topic}": "{topic} 퀴즈"
   },
   "examples": [
     "퀴즈 하자"

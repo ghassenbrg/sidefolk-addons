@@ -551,7 +551,9 @@
     "{title} has no level “{level}”.": "{title} no tiene el nivel «{level}».",
     "{title} has no levels.": "{title} no tiene niveles.",
     "{title} is already at its easiest.": "{title} ya está en lo más fácil.",
-    "{title} is already at its hardest.": "{title} ya está en lo más difícil."
+    "{title} is already at its hardest.": "{title} ya está en lo más difícil.",
+    "Trivia questions": "Preguntas de trivia",
+    "Trivia about {topic}": "Trivia sobre {topic}"
   },
   "examples": [
     "juguemos al trivial"

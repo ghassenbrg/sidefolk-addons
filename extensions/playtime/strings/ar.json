@@ -615,7 +615,9 @@
     "{title} has no level “{level}”.": "لا توجد في {title} درجة «{level}».",
     "{title} has no levels.": "لا توجد درجات في {title}.",
     "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
-    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل."
+    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
+    "Trivia questions": "أسئلة المسابقة",
+    "Trivia about {topic}": "مسابقة عن {topic}"
   },
   "examples": [
     "هيا نلعب مسابقة أسئلة"

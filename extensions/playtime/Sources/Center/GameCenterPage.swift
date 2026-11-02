@@ -80,7 +80,7 @@ enum GameCenterPage {
 
     private static func daily(_ e: GameEntry, _ r: Record) -> Card {
         let streak = r.today?.streak ?? 0
-        return Card(e.title, detail: r.today?.text, meta: streak > 1 ? L("{n} days in a row", ["n": streak]) : nil, picture: picture(e), done: r.today?.done == true,
+        return Card(e.title, detail: r.today?.text, meta: streak > 1 ? L("{n} days in a row", ["n": streak]) : nil, picture: picture(e), color: e.look.bottom.json as? String, done: r.today?.done == true,
                     actions: [Action(L("Play"), tool: "open", input: ["game": e.id, "person": true], symbol: "play.fill")])
     }
 
@@ -92,7 +92,7 @@ enum GameCenterPage {
         }
         let levels = e.levels ? GameLevel.allCases.map { Action(ScreenKit.level($0), tool: "open", input: ["game": e.id, "level": $0.rawValue, "person": true]) } : []
         let chosen = PlayOptions.chosenLevel(e.id)
-        return Card(e.title, detail: e.tagline, meta: recordLine(e, r, last: last), at: last, picture: picture(e),
+        return Card(e.title, detail: e.tagline, meta: recordLine(e, r, last: last), at: last, picture: picture(e), color: e.look.bottom.json as? String,
                     badge: chosen.map { Badge(ScreenKit.level($0), tone: .info) }, actions: actions, menu: levels.isEmpty ? nil : (L("Level"), levels))
     }
 

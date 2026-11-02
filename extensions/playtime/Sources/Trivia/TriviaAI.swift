@@ -23,7 +23,7 @@ enum TriviaAI {
         let id = UUID().uuidString
         let topic = String(topic.prefix(TriviaPrompt.longestTopic)), count = min(max(count, 10), 20)
         asked[id] = (topic, count)
-        send(id, TriviaPrompt.request(topic: topic, count: count, level: level.rawValue, language: Localized.normalized(language)), topic.isEmpty ? "Trivia questions" : "Trivia about \(topic)")
+        send(id, TriviaPrompt.request(topic: topic, count: count, level: level.rawValue, language: Localized.normalized(language)), topic.isEmpty ? L("Trivia questions") : L("Trivia about {topic}", ["topic": topic]))
         return id
     }
 

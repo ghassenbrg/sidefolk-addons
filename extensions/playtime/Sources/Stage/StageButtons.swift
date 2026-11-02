@@ -184,7 +184,10 @@ extension BoardDrawing {
             inner.append(Node.symbol(symbol, color: selected ? .onAccent : .ink).symbolLook().at((w - 24) / 2, cursor + 7).size(24, 24))
             cursor += 42
         }
-        inner.append(Node.words(o.label, size: 11.5, weight: "semibold", align: "center", lines: 3, minScale: 0.8, design: "default", x: 4, y: cursor, w: w - 8, h: label))
+        // A long name wraps a little smaller rather than being cut mid-word.
+        let longest = o.label.split(separator: " ").map { TextFit.width(String($0), size: 11.5, weight: "semibold") }.max() ?? 0
+        let fitted = max(11.5 * min(1, (w - 8) / max(longest, 1)), 9.2)
+        inner.append(Node.words(o.label, size: fitted, weight: "semibold", align: "center", lines: 3, minScale: 0.8, design: "default", x: 4, y: cursor, w: w - 8, h: label))
         cursor += label + 4
         if let d = o.detail {
             inner.append(Node.words(d, size: 11.5, weight: "regular", color: .inkMuted, align: "center", lines: 2, design: "default", x: 4, y: cursor, w: w - 8, h: detail))
