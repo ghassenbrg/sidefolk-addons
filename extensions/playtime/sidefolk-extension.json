@@ -1189,7 +1189,6 @@
       "title": "Games",
       "symbol": "gamecontroller.fill",
       "places": [
-        "companion",
         "pocket",
         "ask"
       ],
@@ -1198,6 +1197,160 @@
         "game": "menu",
         "person": true
       }
+    },
+    {
+      "id": "play",
+      "title": "Games",
+      "symbol": "gamecontroller.fill",
+      "places": [
+        "companion"
+      ],
+      "items": [
+        {
+          "id": "all_games",
+          "title": "All Games…",
+          "tool": "open",
+          "input": {
+            "game": "menu",
+            "person": true
+          }
+        },
+        {
+          "id": "play_which_cup",
+          "title": "Which Cup?",
+          "tool": "open",
+          "input": {
+            "game": "which_cup",
+            "person": true
+          }
+        },
+        {
+          "id": "play_copy_me",
+          "title": "Copy Me",
+          "tool": "open",
+          "input": {
+            "game": "copy_me",
+            "person": true
+          }
+        },
+        {
+          "id": "play_quick_paws",
+          "title": "Quick Paws",
+          "tool": "open",
+          "input": {
+            "game": "quick_paws",
+            "person": true
+          }
+        },
+        {
+          "id": "play_last_stick",
+          "title": "Last Stick",
+          "tool": "open",
+          "input": {
+            "game": "last_stick",
+            "person": true
+          }
+        },
+        {
+          "id": "play_trivia",
+          "title": "Trivia",
+          "tool": "open",
+          "input": {
+            "game": "trivia",
+            "person": true
+          }
+        },
+        {
+          "id": "play_tictactoe",
+          "title": "Tic-tac-toe",
+          "tool": "open",
+          "input": {
+            "game": "tictactoe",
+            "person": true
+          }
+        },
+        {
+          "id": "play_higher_lower",
+          "title": "Higher or Lower",
+          "tool": "open",
+          "input": {
+            "game": "higher_lower",
+            "person": true
+          }
+        },
+        {
+          "id": "play_guess_animal",
+          "title": "Guess My Animal",
+          "tool": "open",
+          "input": {
+            "game": "guess_animal",
+            "person": true
+          }
+        },
+        {
+          "id": "play_balloon_words",
+          "title": "Balloon Words",
+          "tool": "open",
+          "input": {
+            "game": "balloon_words",
+            "person": true
+          }
+        },
+        {
+          "id": "play_memory_pairs",
+          "title": "Memory Pairs",
+          "tool": "open",
+          "input": {
+            "game": "memory_pairs",
+            "person": true
+          }
+        },
+        {
+          "id": "play_daily_word",
+          "title": "Daily Word",
+          "tool": "open",
+          "input": {
+            "game": "daily_word",
+            "person": true
+          }
+        },
+        {
+          "id": "play_plots",
+          "title": "Garden Plots",
+          "tool": "open",
+          "input": {
+            "game": "plots",
+            "person": true
+          }
+        },
+        {
+          "id": "play_seesaw",
+          "title": "Seesaw",
+          "tool": "open",
+          "input": {
+            "game": "seesaw",
+            "person": true
+          }
+        },
+        {
+          "id": "play_sudoku",
+          "title": "Sudoku",
+          "tool": "open",
+          "input": {
+            "game": "sudoku",
+            "person": true
+          }
+        },
+        {
+          "id": "play_blossoms",
+          "title": "Blossoms",
+          "tool": "open",
+          "input": {
+            "game": "blossoms",
+            "person": true
+          }
+        }
+      ]
     }
   ]
 }

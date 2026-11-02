@@ -234,6 +234,7 @@
     "Solved": "المحلولة",
     "Solved in {n}": "حُلّت في {n}",
     "Solved in {n}!": "حُلّت في {n}!",
+    "Solved in {time}": "حُلّت في {time}",
     "Solved in {time}!": "حُلّت في {time}!",
     "Solved!": "حُلّت!",
     "Space": "الفضاء",
@@ -565,13 +566,17 @@
     "Play against {name}": "العب ضد {name}",
     "Play every game once": "العب كل لعبة مرة",
     "Play today's {title}": "لعب {title} اليوم",
+    "Play {title}": "لعب {title}",
     "Played {title} with {with}": "لعب {title} مع {with}",
     "Played {title}: {first} {x} · {second} {y}": "لُعبت {title}: {first} {x} · {second} {y}",
+    "Put the game away": "إبعاد اللعبة",
     "Puzzler": "خبير الألغاز",
     "Puzzles": "ألغاز",
     "Ready when you are!": "متى شئت!",
     "Resume": "استئناف",
     "Return: {label}": "Return: {label}",
+    "Show the Game Center": "عرض مركز الألعاب",
+    "Show the games": "اعرض الألعاب",
     "Solve ten puzzles": "حل عشرة ألغاز",
     "Surprise me": "فاجئني",
     "Ten wins": "عشرة انتصارات",
@@ -610,11 +615,7 @@
     "{title} has no level “{level}”.": "لا توجد في {title} درجة «{level}».",
     "{title} has no levels.": "لا توجد درجات في {title}.",
     "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
-    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
-    "Play {title}": "لعب {title}",
-    "Put the game away": "إبعاد اللعبة",
-    "Show the Game Center": "عرض مركز الألعاب",
-    "Show the games": "اعرض الألعاب"
+    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل."
   },
   "examples": [
     "هيا نلعب مسابقة أسئلة"
@@ -872,7 +873,24 @@
     "endings": []
   },
   "entries": {
-    "games": "الألعاب"
+    "games": "الألعاب",
+    "play": "الألعاب",
+    "all_games": "كل الألعاب…",
+    "play_which_cup": "أيّ كوب؟",
+    "play_copy_me": "قلّدني",
+    "play_quick_paws": "مخالب سريعة",
+    "play_last_stick": "العود الأخير",
+    "play_trivia": "مسابقة",
+    "play_tictactoe": "إكس-أو",
+    "play_higher_lower": "أكبر أم أصغر",
+    "play_guess_animal": "خمّن حيواني",
+    "play_balloon_words": "كلمات البالونات",
+    "play_memory_pairs": "أزواج الذاكرة",
+    "play_daily_word": "كلمة اليوم",
+    "play_plots": "قطع الحديقة",
+    "play_seesaw": "الميزان",
+    "play_sudoku": "سودوكو",
+    "play_blossoms": "أزهار"
   },
   "settings": {
     "tone": {

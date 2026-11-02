@@ -165,12 +165,13 @@ import Testing
         return o
     }
 
-    static func pack(_ id: String, choices: Int = 4) -> Arguments {
+    /// What the AI would answer.
+    static func pack(choices: Int = 4) -> String {
         let questions = (0..<10).map { i -> [String: Any] in
             ["question": "Which volcano is number \(i)?", "choices": Array(["Etna", "Fuji", "Hekla", "Kilauea"].prefix(choices)), "answer": i % 4,
              "fact": "Volcano \(i) is real.", "difficulty": 2]
         }
-        return Arguments(["request": id, "ok": true, "topic": "volcanoes", "made_by": "Claude Code", "questions": questions])
+        return String(decoding: try! JSONSerialization.data(withJSONObject: ["topic": "volcanoes", "questions": questions]), as: UTF8.self)
     }
 
     @Test func aCustomAINamedInLowerCaseStillStartsASentence() {
@@ -182,7 +183,7 @@ import Testing
 
     @Test func aTopicOfYourOwnGetsFreshQuestions() throws {
         let sent = Sent()
-        TriviaAI.send = { sent.calls.append(($0, $1)) }
+        TriviaAI.send = { id, prompt, _ in sent.calls.append((id, ["prompt": prompt])) }
         var random = Games.Random(seed: 6)
         var s = TriviaEngine.start(level: .hard, options: Self.ai(), random: &random)
         let setup = TriviaScreen.board(s, events: [.opened], options: Self.ai())
@@ -193,13 +194,13 @@ import Testing
                 "the field takes the topics' place")
         _ = GameTable.play(TriviaScreen.self, .text(name: "topic", value: "volcanoes"), on: &s, random: &random)
         let request = try #require(sent.calls.last)
-        #expect(request.0 == "sidefolk/trivia.request" && request.1["topic"] as? String == "volcanoes" && request.1["level"] as? String == "hard")
-        #expect(request.1["count"] as? Int == 10 && Set(request.1.keys) == ["request", "topic", "count", "level", "language"], "nothing else goes")
+        let prompt = request.1["prompt"] as? String ?? ""
+        #expect(prompt.contains("Topic: \"volcanoes\"") && prompt.contains("Level: hard") && prompt.contains("Questions: 10"), "the request's own fields, and nothing else")
         let waiting = TriviaScreen.board(s, events: [.think(ms: 1500)], options: Self.ai())
         #expect(s.phase == .making && waiting.afterMs == TriviaEngine.checkMs)
         _ = GameTable.play(TriviaScreen.self, .next, on: &s, random: &random)
         #expect(s.phase == .making, "still waiting")
-        TriviaAI.receive(Self.pack(request.1["request"] as! String))
+        TriviaAI.answered(request.0, text: Self.pack(), madeBy: "Claude Code")
         _ = GameTable.play(TriviaScreen.self, .next, on: &s, random: &random)
         #expect(s.phase == .question && s.made.count == 10 && s.madeTopic == "volcanoes")
         let question = TriviaScreen.board(s, events: [.sealed], options: Self.ai())
@@ -212,12 +213,12 @@ import Testing
     }
 
     @Test func noPackFallsBackToTheBank() throws {
-        TriviaAI.send = { _, _ in }
+        TriviaAI.send = { _, _, _ in }
         var random = Games.Random(seed: 7)
         // Refused by Sidefolk: back to the topics, with why, and the bank as ever.
         var s = TriviaEngine.start(level: .fair, options: Self.ai(), random: &random)
         _ = GameTable.play(TriviaScreen.self, .text(name: "topic", value: "jazz"), on: &s, random: &random)
-        TriviaAI.receive(Arguments(["request": s.asking!.id, "ok": false, "reason": "limit"]))
+        TriviaAI.refused(s.asking!.id, reason: "limit")
         _ = GameTable.play(TriviaScreen.self, .next, on: &s, random: &random)
         #expect(s.phase == .setup && s.notice == "limit")
         let back = TriviaScreen.board(s, events: [], options: Self.ai())
@@ -228,7 +229,7 @@ import Testing
         // Malformed: three choices each.
         var bad = TriviaEngine.start(level: .fair, options: Self.ai(), random: &random)
         _ = GameTable.play(TriviaScreen.self, .text(name: "topic", value: "jazz"), on: &bad, random: &random)
-        TriviaAI.receive(Self.pack(bad.asking!.id, choices: 3))
+        TriviaAI.answered(bad.asking!.id, text: Self.pack(choices: 3), madeBy: "Claude Code")
         _ = GameTable.play(TriviaScreen.self, .next, on: &bad, random: &random)
         #expect(bad.phase == .setup && bad.notice == "unusable")
         // Never answered: after its patience, the same.
@@ -243,7 +244,7 @@ import Testing
     }
 
     @Test func aTopicNamedInWordsIsPickedOrMade() {
-        TriviaAI.send = { _, _ in }
+        TriviaAI.send = { _, _, _ in }
         var random = Games.Random(seed: 8)
         var o = Self.ai()
         o.topic = "Space"

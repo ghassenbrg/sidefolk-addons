@@ -214,6 +214,7 @@
     "Solved": "正解",
     "Solved in {n}": "{n}回で正解",
     "Solved in {n}!": "{n}回で正解！",
+    "Solved in {time}": "{time}で解けました",
     "Solved in {time}!": "{time}で解けました！",
     "Solved!": "解けました！",
     "Space": "宇宙",
@@ -485,13 +486,17 @@
     "Play against {name}": "{name}と対戦",
     "Play every game once": "すべてのゲームを1回遊ぶ",
     "Play today's {title}": "今日の{title}で遊ぶ",
+    "Play {title}": "{title}で遊ぶ",
     "Played {title} with {with}": "{with}と{title}で遊びました",
     "Played {title}: {first} {x} · {second} {y}": "{title}で遊んだ：{first} {x} · {second} {y}",
+    "Put the game away": "ゲームをしまう",
     "Puzzler": "パズル名人",
     "Puzzles": "パズル",
     "Ready when you are!": "いつでもいいよ！",
     "Resume": "再開",
     "Return: {label}": "Return：{label}",
+    "Show the Game Center": "ゲームセンターを表示",
+    "Show the games": "ゲームを見る",
     "Solve ten puzzles": "パズルを10回クリア",
     "Surprise me": "おまかせ",
     "Ten wins": "10勝",
@@ -530,11 +535,7 @@
     "{title} has no level “{level}”.": "{title}にはレベル「{level}」がありません。",
     "{title} has no levels.": "{title}にはレベルがありません。",
     "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
-    "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
-    "Play {title}": "{title}で遊ぶ",
-    "Put the game away": "ゲームをしまう",
-    "Show the Game Center": "ゲームセンターを表示",
-    "Show the games": "ゲームを見る"
+    "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。"
   },
   "examples": [
     "クイズをしよう"
@@ -801,7 +802,24 @@
     "endings": []
   },
   "entries": {
-    "games": "ゲーム"
+    "games": "ゲーム",
+    "play": "ゲーム",
+    "all_games": "すべてのゲーム…",
+    "play_which_cup": "どのカップ？",
+    "play_copy_me": "まねっこ",
+    "play_quick_paws": "はやおし",
+    "play_last_stick": "さいごの1本",
+    "play_trivia": "クイズ",
+    "play_tictactoe": "まるばつ",
+    "play_higher_lower": "ハイ＆ロー",
+    "play_guess_animal": "どうぶつ当て",
+    "play_balloon_words": "ふうせんことば",
+    "play_memory_pairs": "神経衰弱",
+    "play_daily_word": "今日のことば",
+    "play_plots": "畑わけ",
+    "play_seesaw": "シーソー",
+    "play_sudoku": "数独",
+    "play_blossoms": "花ばたけ"
   },
   "settings": {
     "tone": {

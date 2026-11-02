@@ -376,7 +376,7 @@ import Testing
         #expect(a.game.day == day && a.game == b.game)
     }
 
-    @Test func dailyWordKeepsTheDayTheStreakAndTheTile() throws {
+    @Test @MainActor func dailyWordKeepsTheDayTheStreakAndTheTile() throws {
         let date = ISO8601DateFormatter().date(from: "2026-11-02T12:00:00Z")!
         DailyWordEngine.now = { date }
         defer { DailyWordEngine.now = { Date() } }
@@ -424,7 +424,7 @@ import Testing
             let day = PlaytimeRecords.load()
             let tile = DailyWordScreen.tile()
             #expect(day.daily.streak == 1 && tile.map(\.seen) == ["Solved in 2"])
-            #expect(PlaytimePage.render().games?.records[DailyWordScreen.id]?.today?.done == true, "the Game Center shows the day's word done")
+            #expect(PlaytimePage.records(PlaytimeRecords.load(), today: DailyWordEngine.today(), tile: DailyWordScreen.tile())[DailyWordScreen.id]?.today?.done == true, "the Game Center shows the day's word done")
 
             var practiced: [String] = []
             for round in 0..<3 {
@@ -537,15 +537,5 @@ import Testing
         #expect(t.played == 3 && t.won == 2 && t.lost == 1 && t.best == 230 && t.bestStreak == 2 && t.streak == 0)
         for _ in 0..<12 { PlaytimeRecords.finish("tictactoe", .draw, you: 1, companion: 1) }
         #expect(PlaytimeRecords.load().history.count == 10)
-    }
-
-    // MARK: Boards for Sidefolk's UI snapshots
-
-    /// With `PLAYTIME_SAMPLE_BOARDS=<folder>`, writes each game's boards (the bot's game, in each language asked by
-    /// `PLAYTIME_SAMPLE_LANGUAGES`, English by default) as JSON for `SidefolkApp --ui-snapshots --game-boards`.
-    @Test func writeSampleBoards() throws {
-        guard let folder = ProcessInfo.processInfo.environment["PLAYTIME_SAMPLE_BOARDS"] else { return }
-        let languages = (ProcessInfo.processInfo.environment["PLAYTIME_SAMPLE_LANGUAGES"] ?? "en").split(separator: ",").map(String.init)
-        try SampleBoards.write(to: folder, languages: languages)
     }
 }

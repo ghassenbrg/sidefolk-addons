@@ -218,6 +218,7 @@
     "Solved": "Gelöst",
     "Solved in {n}": "In {n} gelöst",
     "Solved in {n}!": "In {n} gelöst!",
+    "Solved in {time}": "Gelöst in {time}",
     "Solved in {time}!": "Gelöst in {time}!",
     "Solved!": "Gelöst!",
     "Space": "Weltall",
@@ -501,13 +502,17 @@
     "Play against {name}": "Gegen {name}",
     "Play every game once": "Spiel jedes Spiel einmal",
     "Play today's {title}": "Heutiges {title} spielen",
+    "Play {title}": "{title} spielen",
     "Played {title} with {with}": "{title} mit {with} gespielt",
     "Played {title}: {first} {x} · {second} {y}": "{title} gespielt: {first} {x} · {second} {y}",
+    "Put the game away": "Spiel weglegen",
     "Puzzler": "Rätselprofi",
     "Puzzles": "Rätsel",
     "Ready when you are!": "Bereit, wenn du es bist!",
     "Resume": "Fortsetzen",
     "Return: {label}": "Return: {label}",
+    "Show the Game Center": "Spielecenter zeigen",
+    "Show the games": "Spiele zeigen",
     "Solve ten puzzles": "Löse zehn Rätsel",
     "Surprise me": "Überrasch mich",
     "Ten wins": "Zehn Siege",
@@ -546,11 +551,7 @@
     "{title} has no level “{level}”.": "{title} hat keine Stufe „{level}“.",
     "{title} has no levels.": "{title} hat keine Stufen.",
     "{title} is already at its easiest.": "{title} ist schon am leichtesten.",
-    "{title} is already at its hardest.": "{title} ist schon am schwersten.",
-    "Play {title}": "{title} spielen",
-    "Put the game away": "Spiel weglegen",
-    "Show the Game Center": "Spielecenter zeigen",
-    "Show the games": "Spiele zeigen"
+    "{title} is already at its hardest.": "{title} ist schon am schwersten."
   },
   "examples": [
     "lass uns ein Quiz spielen"
@@ -833,7 +834,24 @@
     "endings": []
   },
   "entries": {
-    "games": "Spiele"
+    "games": "Spiele",
+    "play": "Spiele",
+    "all_games": "Alle Spiele…",
+    "play_which_cup": "Welcher Becher?",
+    "play_copy_me": "Mach's nach",
+    "play_quick_paws": "Flinke Pfoten",
+    "play_last_stick": "Das letzte Stäbchen",
+    "play_trivia": "Quiz",
+    "play_tictactoe": "Tic-Tac-Toe",
+    "play_higher_lower": "Höher oder tiefer",
+    "play_guess_animal": "Rate mein Tier",
+    "play_balloon_words": "Ballonwörter",
+    "play_memory_pairs": "Memo-Paare",
+    "play_daily_word": "Wort des Tages",
+    "play_plots": "Gartenparzellen",
+    "play_seesaw": "Wippe",
+    "play_sudoku": "Sudoku",
+    "play_blossoms": "Blüten"
   },
   "settings": {
     "tone": {

@@ -11,7 +11,7 @@ enum GameCenterPage {
         var wins = 0, solved = 0, played = 0, bestStreak = 0, dailyStreak = 0
     }
 
-    static func sections(_ records: [String: Record], plays: [PlaytimeRecords.Play], duels: [(game: String, names: [String], wins: [Int])]) -> [Section] {
+    static func sections(_ records: [String: Record], history: [PlaytimeRecords.Played], duels: [(game: String, names: [String], wins: [Int])]) -> [Section] {
         let entries = GameCatalog.all
         func record(_ e: GameEntry) -> Record { records[e.id] ?? Record() }
         var totals = Totals()
@@ -24,7 +24,7 @@ enum GameCenterPage {
         }
         let dailies = entries.filter { record($0).today != nil }
         let kept = PlayTable.keptGame
-        func last(_ e: GameEntry) -> Date? { plays.first { $0.game == e.id || $0.game.hasPrefix(e.id + "_") }?.at }
+        func last(_ e: GameEntry) -> Date? { history.first { $0.game == e.id || $0.game.hasPrefix(e.id + "_") }?.date }
 
         var out: [Section] = [Section(nil, [hero(dailies: dailies, record: record, kept: kept), stats(totals)])]
         if !dailies.isEmpty {
@@ -38,7 +38,7 @@ enum GameCenterPage {
         }
         group(L("Play against {name}", ["name": "{companion}"]), solo: false, picture: .companion(.face))
         group(L("Puzzles"), solo: true, picture: nil)
-        out.append(Section(L("Last games"), [lastGames(plays, records: records)]))
+        out.append(Section(L("Last games"), [lastGames(history)]))
         if !duels.isEmpty {
             out.append(Section(L("Head to head"), [.facts(nil, duels.map { d in
                 (GameCatalog.entry(d.game)?.title ?? d.game, "\(d.names[0]) \(Format.integer(d.wins[0])) · \(d.names[1]) \(Format.integer(d.wins[1]))")
@@ -106,29 +106,30 @@ enum GameCenterPage {
         return parts.joined(separator: " · ")
     }
 
-    /// The last games played. Verdicts by symbol and word, in the calm tones (D78).
-    private static func lastGames(_ plays: [PlaytimeRecords.Play], records: [String: Record]) -> Block {
-        let shown = plays.filter { $0.result != nil }.prefix(10)
+    /// The last games played: a puzzle's row says its time, not who won. Verdicts by symbol and word, in the calm tones (D78).
+    private static func lastGames(_ history: [PlaytimeRecords.Played]) -> Block {
+        let puzzles = Set(PlaytimePage.puzzles.map(\.id))
+        let shown = history.compactMap { p -> (PlaytimeRecords.Played, GameEntry)? in
+            (GameCatalog.entry(p.game) ?? GameCatalog.all.first { p.game.hasPrefix($0.id + "_") }).map { (p, $0) }
+        }.prefix(10)
         guard !shown.isEmpty else { return .note(L("Games you finish show here.")) }
-        return .recent(nil, shown.map { play in
-            let entry = GameCatalog.entry(play.game) ?? GameCatalog.all.first { play.game.hasPrefix($0.id + "_") }
-            let solo = entry?.solo == true
-            let words: String, symbol: String, tone: Tone
-            switch play.result {
-            case "win":
-                words = solo ? L("Solved") : L("You won")
-                symbol = Verdict.win.symbol
-                tone = .good
-            case "loss":
+        return .recent(nil, shown.map { play, entry in
+            let words: String, verdict: Verdict
+            switch play.outcome {
+            case _ where puzzles.contains(play.game):
+                words = L("Solved in {time}", ["time": PuzzleParts.clock(play.you)])
+                verdict = .win
+            case .won:
+                words = L("You won")
+                verdict = .win
+            case .lost:
                 words = L("{name} won", ["name": "{companion}"])
-                symbol = Verdict.loss.symbol
-                tone = .neutral
-            default:
+                verdict = .loss
+            case .draw:
                 words = L("A draw")
-                symbol = Verdict.draw.symbol
-                tone = .neutral
+                verdict = .draw
             }
-            return RecentItem(entry?.title ?? play.game, detail: words, at: play.at, tone: tone, symbol: symbol, picture: entry.map(picture))
+            return RecentItem(entry.title, detail: words, at: play.date, tone: verdict == .win ? .good : .neutral, symbol: verdict.symbol, picture: picture(entry))
         })
     }
 

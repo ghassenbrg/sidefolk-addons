@@ -164,7 +164,7 @@ extension PlaytimeScreensTests {
         #expect(days[BlossomsKind.id] == nil && days[BlossomsKind.id + ".fair"] != nil, "kept again under its level")
     }
 
-    @Test func everyPuzzleSolvesThroughItsScreen() throws {
+    @Test @MainActor func everyPuzzleSolvesThroughItsScreen() throws {
         let date = ISO8601DateFormatter().date(from: "2026-11-02T09:00:00Z")!
         DailyWordEngine.now = { date }
         defer { DailyWordEngine.now = { Date() } }
@@ -204,7 +204,7 @@ extension PlaytimeScreensTests {
             #expect(blossoms.game.solved)
 
             // The Game Center and the Today tile: each puzzle's day, and streaks once they run past one day.
-            let records = PlaytimePage.render().games?.records ?? [:]
+            let records = PlaytimePage.records(PlaytimeRecords.load(), today: DailyWordEngine.today(), tile: DailyWordScreen.tile())
             let garden = records[GardenPlotsKind.id]?.today?.text
             #expect(garden?.seen.hasPrefix(L("Today: {solved}", ["solved": ScreenKit.level(.fair) + " "]).seen) == true, "\(garden ?? "")")
             #expect(garden?.contains(L(one: "{count} more to play", other: "{count} more to play", count: 2)) == true, "\(garden ?? "")")

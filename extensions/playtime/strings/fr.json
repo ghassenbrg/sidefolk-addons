@@ -218,6 +218,7 @@
     "Solved": "Trouvés",
     "Solved in {n}": "Trouvé en {n}",
     "Solved in {n}!": "Trouvé en {n} !",
+    "Solved in {time}": "Résolu en {time}",
     "Solved in {time}!": "Résolu en {time} !",
     "Solved!": "Résolu !",
     "Space": "Espace",
@@ -501,13 +502,17 @@
     "Play against {name}": "Contre {name}",
     "Play every game once": "Jouer une fois à chaque jeu",
     "Play today's {title}": "Jouer au {title} du jour",
+    "Play {title}": "Jouer à {title}",
     "Played {title} with {with}": "Partie de {title} avec {with}",
     "Played {title}: {first} {x} · {second} {y}": "Joué à {title} : {first} {x} · {second} {y}",
+    "Put the game away": "Ranger le jeu",
     "Puzzler": "Pro des casse-têtes",
     "Puzzles": "Casse-têtes",
     "Ready when you are!": "Quand tu veux !",
     "Resume": "Reprendre",
     "Return: {label}": "Retour : {label}",
+    "Show the Game Center": "Afficher le centre de jeux",
+    "Show the games": "Afficher les jeux",
     "Solve ten puzzles": "Résoudre dix casse-têtes",
     "Surprise me": "Surprends-moi",
     "Ten wins": "Dix victoires",
@@ -546,11 +551,7 @@
     "{title} has no level “{level}”.": "{title} n'a pas de niveau « {level} ».",
     "{title} has no levels.": "{title} n'a pas de niveaux.",
     "{title} is already at its easiest.": "{title} est déjà au plus facile.",
-    "{title} is already at its hardest.": "{title} est déjà au plus difficile.",
-    "Play {title}": "Jouer à {title}",
-    "Put the game away": "Ranger le jeu",
-    "Show the Game Center": "Afficher le centre de jeux",
-    "Show the games": "Afficher les jeux"
+    "{title} is already at its hardest.": "{title} est déjà au plus difficile."
   },
   "examples": [
     "on joue au quiz"
@@ -831,7 +832,24 @@
     "endings": []
   },
   "entries": {
-    "games": "Jeux"
+    "games": "Jeux",
+    "play": "Jeux",
+    "all_games": "Tous les jeux…",
+    "play_which_cup": "Quel gobelet ?",
+    "play_copy_me": "Imite-moi",
+    "play_quick_paws": "Pattes rapides",
+    "play_last_stick": "Le dernier bâton",
+    "play_trivia": "Quiz",
+    "play_tictactoe": "Morpion",
+    "play_higher_lower": "Plus ou moins",
+    "play_guess_animal": "Devine mon animal",
+    "play_balloon_words": "Mots en ballons",
+    "play_memory_pairs": "Paires mémoire",
+    "play_daily_word": "Le mot du jour",
+    "play_plots": "Parcelles du jardin",
+    "play_seesaw": "Bascule",
+    "play_sudoku": "Sudoku",
+    "play_blossoms": "Fleurettes"
   },
   "settings": {
     "tone": {

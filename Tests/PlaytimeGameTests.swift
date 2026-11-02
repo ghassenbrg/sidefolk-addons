@@ -40,7 +40,7 @@ import Testing
                     #expect(forms["other"].map(slots) == slots(key), "\(language) \(key)")
                 }
             }
-            #expect((file["games"] as? [String: Any])?.count == 15, "\(language): every game's title")
+            for game in ["Daily Word", "Which Cup?", "Sudoku"] where language != "en" { #expect(text[game] != nil, "\(language): \(game)") }
         }
     }
 
@@ -165,7 +165,7 @@ import Testing
         #expect(TriviaScreen.cue([]) == nil)
     }
 
-    @Test func theGameCenterGetsEveryGameWithItsBest() {
+    @Test @MainActor func theGameCenterGetsEveryGameWithItsBest() {
         Language.with("fr", strings: Self.strings) {
             PlaytimeRecords.update { $0 = PlaytimeRecords() }
             let empty = PlaytimePage.render()
@@ -175,11 +175,12 @@ import Testing
             let page = PlaytimePage.render()
             let json = String(decoding: try! JSONSerialization.data(withJSONObject: page.json), as: UTF8.self)
             #expect(json.seen.contains("Record : 243 ms"), "\(json.prefix(400))")
-            let paws = page.games?.records[QuickPawsScreen.id]
+            let records = PlaytimePage.records(PlaytimeRecords.load(), today: DailyWordEngine.today(), tile: DailyWordScreen.tile())
+            let paws = records[QuickPawsScreen.id]
             #expect(paws?.played == 2 && paws?.won == 1 && paws?.lost == 1 && paws?.best?.seen == "Record : 243 ms")
-            #expect(page.sections.isEmpty, "Sidefolk draws the Game Center from the records")
-            #expect(page.games?.recent.map(\.outcome) == [.lost, .won] && page.games?.recent.first?.game == QuickPawsScreen.id)
-            #expect(page.games?.records[DailyWordScreen.id]?.today?.done == false)
+            #expect(!page.sections.isEmpty, "the Game Center is Playtime's own page")
+            #expect(PlaytimeRecords.load().history.map(\.outcome) == [.lost, .won])
+            #expect(records[DailyWordScreen.id]?.today?.done == false)
         }
     }
 }

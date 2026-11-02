@@ -4,18 +4,17 @@ import SidefolkExtensionKit
 /// Playtime's page in Home and its Today tile: the Game Center, built here from the extension's own records (Sidefolk D100, D101). A hero with the companion and the
 /// one big action (continue the game put away, today's daily, or a surprise), the day's boards, every game as a card in its group, the person's numbers, last games and
 /// badges, and the games' settings in one place. A new game in the catalog is a new card in its group, nothing else.
-@MainActor
 enum PlaytimePage {
     /// The puzzles, by id and title.
     static var puzzles: [(id: String, title: String)] {
         [(GardenPlotsKind.id, L("Garden Plots")), (SeesawKind.id, L("Seesaw")), (SudokuKind.id, L("Sudoku")), (BlossomsKind.id, L("Blossoms"))]
     }
 
-    static func render() -> Page {
+    @MainActor static func render() -> Page {
         let r = PlaytimeRecords.load()
         let today = DailyWordEngine.today()
         let tile = DailyWordScreen.tile()
-        return Page(summary: summary(today: today, tile: tile), sections: GameCenterPage.sections(records(r, today: today, tile: tile), plays: r.plays ?? [], duels: duels(r)))
+        return Page(summary: summary(today: today, tile: tile), sections: GameCenterPage.sections(records(r, today: today, tile: tile), history: r.history, duels: duels(r)))
     }
 
     /// The Today tile: Daily Word, then the word's streak, how many of the puzzles' boards of the day are solved (one

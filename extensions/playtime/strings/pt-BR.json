@@ -218,6 +218,7 @@
     "Solved": "Resolvidas",
     "Solved in {n}": "Resolvido em {n}",
     "Solved in {n}!": "Resolvido em {n}!",
+    "Solved in {time}": "Resolvido em {time}",
     "Solved in {time}!": "Resolvido em {time}!",
     "Solved!": "Resolvido!",
     "Space": "Espaço",
@@ -501,13 +502,17 @@
     "Play against {name}": "Contra {name}",
     "Play every game once": "Jogar cada jogo uma vez",
     "Play today's {title}": "Jogar o {title} de hoje",
+    "Play {title}": "Jogar {title}",
     "Played {title} with {with}": "Partida de {title} com {with}",
     "Played {title}: {first} {x} · {second} {y}": "Jogou {title}: {first} {x} · {second} {y}",
+    "Put the game away": "Guardar o jogo",
     "Puzzler": "Mestre dos quebra-cabeças",
     "Puzzles": "Quebra-cabeças",
     "Ready when you are!": "Quando quiser!",
     "Resume": "Retomar",
     "Return: {label}": "Return: {label}",
+    "Show the Game Center": "Mostrar a central de jogos",
+    "Show the games": "Mostrar os jogos",
     "Solve ten puzzles": "Resolver dez quebra-cabeças",
     "Surprise me": "Me surpreenda",
     "Ten wins": "Dez vitórias",
@@ -546,11 +551,7 @@
     "{title} has no level “{level}”.": "{title} não tem o nível “{level}”.",
     "{title} has no levels.": "{title} não tem níveis.",
     "{title} is already at its easiest.": "{title} já está no mais fácil.",
-    "{title} is already at its hardest.": "{title} já está no mais difícil.",
-    "Play {title}": "Jogar {title}",
-    "Put the game away": "Guardar o jogo",
-    "Show the Game Center": "Mostrar a central de jogos",
-    "Show the games": "Mostrar os jogos"
+    "{title} is already at its hardest.": "{title} já está no mais difícil."
   },
   "examples": [
     "vamos jogar um quiz"
@@ -807,7 +808,24 @@
     "endings": []
   },
   "entries": {
-    "games": "Jogos"
+    "games": "Jogos",
+    "play": "Jogos",
+    "all_games": "Todos os jogos…",
+    "play_which_cup": "Qual copo?",
+    "play_copy_me": "Me imite",
+    "play_quick_paws": "Patas rápidas",
+    "play_last_stick": "O último palito",
+    "play_trivia": "Quiz",
+    "play_tictactoe": "Jogo da velha",
+    "play_higher_lower": "Maior ou menor",
+    "play_guess_animal": "Adivinhe meu bicho",
+    "play_balloon_words": "Palavras de balão",
+    "play_memory_pairs": "Pares da memória",
+    "play_daily_word": "Palavra do dia",
+    "play_plots": "Canteiros da horta",
+    "play_seesaw": "Gangorra",
+    "play_sudoku": "Sudoku",
+    "play_blossoms": "Flores"
   },
   "settings": {
     "tone": {

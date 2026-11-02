@@ -214,6 +214,7 @@
     "Solved": "성공",
     "Solved in {n}": "{n}번 만에 성공",
     "Solved in {n}!": "{n}번 만에 성공!",
+    "Solved in {time}": "{time}에 풀었어요",
     "Solved in {time}!": "{time}에 풀었어요!",
     "Solved!": "풀었어요!",
     "Space": "우주",
@@ -485,13 +486,17 @@
     "Play against {name}": "{name}와 대결",
     "Play every game once": "모든 게임 한 번씩 하기",
     "Play today's {title}": "오늘의 {title} 하기",
+    "Play {title}": "{title} 하기",
     "Played {title} with {with}": "{with}와(과) {title} 플레이",
     "Played {title}: {first} {x} · {second} {y}": "{title} 플레이: {first} {x} · {second} {y}",
+    "Put the game away": "게임 넣어 두기",
     "Puzzler": "퍼즐 달인",
     "Puzzles": "퍼즐",
     "Ready when you are!": "준비되면 말해요!",
     "Resume": "재개",
     "Return: {label}": "Return: {label}",
+    "Show the Game Center": "게임 센터 보기",
+    "Show the games": "게임 보기",
     "Solve ten puzzles": "퍼즐 10개 풀기",
     "Surprise me": "골라 줘",
     "Ten wins": "10승",
@@ -530,11 +535,7 @@
     "{title} has no level “{level}”.": "{title}에는 “{level}” 단계가 없어요.",
     "{title} has no levels.": "{title}에는 단계가 없어요.",
     "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
-    "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
-    "Play {title}": "{title} 하기",
-    "Put the game away": "게임 넣어 두기",
-    "Show the Game Center": "게임 센터 보기",
-    "Show the games": "게임 보기"
+    "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요."
   },
   "examples": [
     "퀴즈 하자"
@@ -787,7 +788,24 @@
     ]
   },
   "entries": {
-    "games": "게임"
+    "games": "게임",
+    "play": "게임",
+    "all_games": "모든 게임…",
+    "play_which_cup": "어느 컵?",
+    "play_copy_me": "따라 해 봐",
+    "play_quick_paws": "빠른 발",
+    "play_last_stick": "마지막 막대",
+    "play_trivia": "퀴즈",
+    "play_tictactoe": "틱택토",
+    "play_higher_lower": "업 앤 다운",
+    "play_guess_animal": "동물 맞히기",
+    "play_balloon_words": "풍선 단어",
+    "play_memory_pairs": "짝 맞추기",
+    "play_daily_word": "오늘의 단어",
+    "play_plots": "텃밭 나누기",
+    "play_seesaw": "시소",
+    "play_sudoku": "스도쿠",
+    "play_blossoms": "꽃밭"
   },
   "settings": {
     "tone": {

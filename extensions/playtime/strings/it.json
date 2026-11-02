@@ -218,6 +218,7 @@
     "Solved": "Risolte",
     "Solved in {n}": "Risolto in {n}",
     "Solved in {n}!": "Risolto in {n}!",
+    "Solved in {time}": "Risolto in {time}",
     "Solved in {time}!": "Risolto in {time}!",
     "Solved!": "Risolto!",
     "Space": "Spazio",
@@ -501,13 +502,17 @@
     "Play against {name}": "Contro {name}",
     "Play every game once": "Gioca una volta a ogni gioco",
     "Play today's {title}": "Gioca a {title} di oggi",
+    "Play {title}": "Gioca a {title}",
     "Played {title} with {with}": "Partita a {title} con {with}",
     "Played {title}: {first} {x} · {second} {y}": "Giocato a {title}: {first} {x} · {second} {y}",
+    "Put the game away": "Metti via il gioco",
     "Puzzler": "Rompicapista",
     "Puzzles": "Rompicapi",
     "Ready when you are!": "Quando vuoi!",
     "Resume": "Riprendi",
     "Return: {label}": "A capo: {label}",
+    "Show the Game Center": "Mostra il centro giochi",
+    "Show the games": "Mostra i giochi",
     "Solve ten puzzles": "Risolvi dieci rompicapi",
     "Surprise me": "Sorprendimi",
     "Ten wins": "Dieci vittorie",
@@ -546,11 +551,7 @@
     "{title} has no level “{level}”.": "{title} non ha il livello «{level}».",
     "{title} has no levels.": "{title} non ha livelli.",
     "{title} is already at its easiest.": "{title} è già al più facile.",
-    "{title} is already at its hardest.": "{title} è già al più difficile.",
-    "Play {title}": "Gioca a {title}",
-    "Put the game away": "Metti via il gioco",
-    "Show the Game Center": "Mostra il centro giochi",
-    "Show the games": "Mostra i giochi"
+    "{title} is already at its hardest.": "{title} è già al più difficile."
   },
   "examples": [
     "giochiamo a un quiz"
@@ -807,7 +808,24 @@
     "endings": []
   },
   "entries": {
-    "games": "Giochi"
+    "games": "Giochi",
+    "play": "Giochi",
+    "all_games": "Tutti i giochi…",
+    "play_which_cup": "Quale bicchiere?",
+    "play_copy_me": "Copiami",
+    "play_quick_paws": "Zampe veloci",
+    "play_last_stick": "L'ultimo bastoncino",
+    "play_trivia": "Quiz",
+    "play_tictactoe": "Tris",
+    "play_higher_lower": "Più alto o più basso",
+    "play_guess_animal": "Indovina il mio animale",
+    "play_balloon_words": "Parole palloncino",
+    "play_memory_pairs": "Coppie della memoria",
+    "play_daily_word": "La parola del giorno",
+    "play_plots": "Lotti dell'orto",
+    "play_seesaw": "Altalena",
+    "play_sudoku": "Sudoku",
+    "play_blossoms": "Fiori"
   },
   "settings": {
     "tone": {
