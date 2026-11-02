@@ -35,15 +35,6 @@
     "which direction is qibla",
     "what is today's hijri date"
   ],
-  "words": {
-    "prayer": [
-      "fajr",
-      "dhuhr",
-      "asr",
-      "maghrib",
-      "isha"
-    ]
-  },
   "tools": {
     "next_prayer": {
       "title": "What is next",
@@ -70,9 +61,9 @@
         {
           "name": "when",
           "say": [
-            "when is {prayer:prayer}",
-            "what time is {prayer:prayer}",
-            "{prayer:prayer} time"
+            "when is {prayer:enum}",
+            "what time is {prayer:enum}",
+            "{prayer:enum} time"
           ]
         }
       ],
@@ -331,9 +322,9 @@
         {
           "name": "remind",
           "say": [
-            "noor remind me {minutes:integer} minutes before {prayer:prayer}",
-            "remind me {minutes:integer} minutes before {prayer:prayer} prayer",
-            "set a {minutes:integer} minute reminder before {prayer:prayer}"
+            "noor remind me {minutes:integer} minutes before {prayer:enum}",
+            "remind me {minutes:integer} minutes before {prayer:enum} prayer",
+            "set a {minutes:integer} minute reminder before {prayer:enum}"
           ]
         }
       ],
@@ -408,6 +399,27 @@
       "symbol": "moon.stars",
       "refresh": 20,
       "widget": true
+    }
+  },
+  "choices": {
+    "prayer": {
+      "fajr": [
+        "fajr"
+      ],
+      "dhuhr": [
+        "dhuhr",
+        "zuhr"
+      ],
+      "asr": [
+        "asr"
+      ],
+      "maghrib": [
+        "maghrib",
+        "iftar"
+      ],
+      "isha": [
+        "isha"
+      ]
     }
   }
 }
