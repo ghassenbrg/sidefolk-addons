@@ -8,7 +8,7 @@ lead there too.
 | | What | |
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish), Iris (a camera scout), Nori (a tuxedo cat), Purl (a ragdoll), Rune (a stone golem), Piko (a robot cat) | 3D, a few MB each; their 2D forms are built into Sidefolk (D59), Piko is 3D only |
-| **Extensions** | World Clock, Calculator, System Vitals, Weather (these four are a fresh Mac's first extensions, Sidefolk D98), Git, Currency, Playtime (eleven games and four puzzles in Sidefolk's Play panel), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
+| **Extensions** | World Clock, Calculator, System Vitals, Weather (these four are a fresh Mac's first extensions, Sidefolk D98), Git, Currency, Playtime (eleven games and five puzzles, on its own surfaces, its look and words entirely in its pack), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
 | **Themes** | None at the moment: Sidefolk's four themes (Harbor, Paper Garden, Night Studio, Marshmallow) are built into the app (Sidefolk D92). Daylight, Night Studio and Paper Garden left the gallery; copies people have stay theirs | |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
@@ -114,8 +114,8 @@ that version and keep the one they have.
 - **What the Kit offers** follows Sidefolk's protocol: tools, watchers, pages (gauges, charts, switches, buttons, and
   since Sidefolk D68 `choice`, `field` and `list` with pictures), palettes (items with a picture, a swatch and a
   section; `PalettePreview` for the picked item in full; list actions like `clear`), notices (`ext.on`, as
-  Clipboard hears which app a copy came from), and games (boards from Sidefolk's fixed parts, played in its Play panel,
-  Sidefolk D75 and D79; Playtime is the example). A picture is a file the program wrote in its own data folder
+  Clipboard hears which app a copy came from), and surfaces and scenes (your own screens, drawn natively from your pack,
+  Sidefolk D99; Playtime is the example). A picture is a file the program wrote in its own data folder
   (`Paths.data`), named relative to it: make thumbnails once and small. Change Kit/ in Sidefolk first, then copy it here.
 
 Sidefolk is proprietary (its LICENSE); so are the add-ons here unless an `addon.json` or manifest says otherwise.
