@@ -4,16 +4,20 @@
   "description": "Les détails et le texte d’un PDF, plusieurs PDF réunis en un seul, et certaines de leurs pages enregistrées dans un nouveau PDF. Vos originaux restent tels quels.",
   "tools": {
     "combine_pdfs": {
-      "title": "Réunir des PDF"
+      "title": "Réunir des PDF",
+      "summary": "Réunir des PDF de {folder} en un nouveau"
     },
     "extract_pages": {
-      "title": "Extraire des pages d’un PDF"
+      "title": "Extraire des pages d’un PDF",
+      "summary": "Enregistrer les pages {pages} de {file} dans un nouveau PDF dans {folder}"
     },
     "pdf_info": {
-      "title": "Détails d’un PDF"
+      "title": "Détails d’un PDF",
+      "summary": "Lire les détails de {path}"
     },
     "pdf_text": {
-      "title": "Lire le texte d’un PDF"
+      "title": "Lire le texte d’un PDF",
+      "summary": "Lire le texte de {path}"
     }
   },
   "text": {
@@ -43,5 +47,8 @@
     "{file} isn't a PDF I can read.": "{file} n’est pas un PDF lisible.",
     "{paper}, landscape": "{paper}, paysage",
     "“{file}” should be just a file name in {folder}.": "« {file} » doit être juste un nom de fichier dans {folder}."
-  }
+  },
+  "examples": [
+    "réunis les PDF de ~/Downloads en un seul"
+  ]
 }

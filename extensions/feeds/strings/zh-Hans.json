@@ -4,7 +4,8 @@
   "description": "通过 RSS 或 Atom 订阅源获取博客、新闻网站和播客的最新文章，有新文章时提醒你。",
   "tools": {
     "read_feed": {
-      "title": "最新文章"
+      "title": "最新文章",
+      "summary": "读取 {url} 的最新文章"
     }
   },
   "watchers": {
@@ -24,5 +25,8 @@
     "untitled": "无标题",
     "{feed} has no posts yet.": "{feed} 还没有内容。",
     "{feed}, latest {count}:": "{feed}，最新 {count} 篇："
-  }
+  },
+  "examples": [
+    "swift.org 的博客有什么新文章？"
+  ]
 }

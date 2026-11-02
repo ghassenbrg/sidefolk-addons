@@ -12,8 +12,10 @@
     "command": "bin/ext-pdf"
   },
   "permissions": {},
+  "examples": ["combine the PDFs in ~/Downloads into one"],
   "tools": {
     "pdf_info": {
+      "summary": "Read the details of {path}",
       "title": "PDF details",
       "risk": "low",
       "category": "files",
@@ -23,6 +25,7 @@
       }
     },
     "pdf_text": {
+      "summary": "Read the text of {path}",
       "title": "Read a PDF's text",
       "risk": "low",
       "category": "files",
@@ -32,6 +35,7 @@
       }
     },
     "combine_pdfs": {
+      "summary": "Combine PDFs in {folder} into a new one",
       "title": "Combine PDFs",
       "risk": "medium",
       "category": "files",
@@ -42,6 +46,7 @@
       "timeout": 120
     },
     "extract_pages": {
+      "summary": "Save pages {pages} of {file} as a new PDF in {folder}",
       "title": "Take pages out of a PDF",
       "risk": "medium",
       "category": "files",

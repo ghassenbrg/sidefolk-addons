@@ -4,7 +4,8 @@
   "description": "Les derniers articles de blogs, de sites d’actualité et de podcasts via leurs flux RSS ou Atom, et une alerte quand un nouveau paraît.",
   "tools": {
     "read_feed": {
-      "title": "Derniers articles"
+      "title": "Derniers articles",
+      "summary": "Lire les derniers articles de {url}"
     }
   },
   "watchers": {
@@ -24,5 +25,8 @@
     "untitled": "sans titre",
     "{feed} has no posts yet.": "{feed} n’a encore aucun article.",
     "{feed}, latest {count}:": "{feed}, les {count} derniers :"
-  }
+  },
+  "examples": [
+    "quoi de neuf sur le blog de swift.org ?"
+  ]
 }

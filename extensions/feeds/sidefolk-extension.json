@@ -14,8 +14,10 @@
   "permissions": {
     "network": true
   },
+  "examples": ["what's new on the swift.org blog?"],
   "tools": {
     "read_feed": {
+      "summary": "Read the latest posts from {url}",
       "title": "Latest posts",
       "risk": "low",
       "category": "web",

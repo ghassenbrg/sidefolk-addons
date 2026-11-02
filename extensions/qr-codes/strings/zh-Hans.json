@@ -4,10 +4,12 @@
   "description": "为链接或文字生成二维码图片，并读取图片或截图中的二维码。",
   "tools": {
     "make_qr": {
-      "title": "生成二维码"
+      "title": "生成二维码",
+      "summary": "在 {folder} 中生成二维码图片"
     },
     "read_qr": {
-      "title": "读取二维码"
+      "title": "读取二维码",
+      "summary": "读取 {path} 中的二维码"
     }
   },
   "text": {
@@ -18,5 +20,8 @@
     "This Mac can't make QR codes.": "这台 Mac 无法生成二维码。",
     "{file} isn't a picture I can read.": "{file} 不是能读取的图片。",
     "{folder} can't be written to.": "无法写入 {folder}。"
-  }
+  },
+  "examples": [
+    "在桌面上生成 https://example.com 的二维码"
+  ]
 }

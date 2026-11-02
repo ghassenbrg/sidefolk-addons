@@ -4,16 +4,20 @@
   "description": "تفاصيل ملف PDF ونصه، ودمج عدة ملفات PDF في ملف واحد، وحفظ بعض صفحاتها في ملف PDF جديد. تبقى ملفاتك الأصلية كما هي.",
   "tools": {
     "combine_pdfs": {
-      "title": "دمج ملفات PDF"
+      "title": "دمج ملفات PDF",
+      "summary": "دمج ملفات PDF في {folder} في ملف جديد"
     },
     "extract_pages": {
-      "title": "إخراج صفحات من ملف PDF"
+      "title": "إخراج صفحات من ملف PDF",
+      "summary": "حفظ الصفحات {pages} من {file} في ملف PDF جديد في {folder}"
     },
     "pdf_info": {
-      "title": "تفاصيل PDF"
+      "title": "تفاصيل PDF",
+      "summary": "قراءة تفاصيل {path}"
     },
     "pdf_text": {
-      "title": "قراءة نص ملف PDF"
+      "title": "قراءة نص ملف PDF",
+      "summary": "قراءة نص {path}"
     }
   },
   "text": {
@@ -51,5 +55,8 @@
     "{file} isn't a PDF I can read.": "{file} ليس ملف PDF يمكن قراءته.",
     "{paper}, landscape": "{paper}، أفقي",
     "“{file}” should be just a file name in {folder}.": "يجب أن يكون «{file}» مجرد اسم ملف في {folder}."
-  }
+  },
+  "examples": [
+    "ادمج ملفات PDF في ~/Downloads في ملف واحد"
+  ]
 }

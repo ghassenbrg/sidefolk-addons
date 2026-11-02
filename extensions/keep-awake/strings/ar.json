@@ -78,5 +78,8 @@
     "{app} isn't open. Open it first, or say how long instead.": "{app} غير مفتوح. افتحه أولًا، أو حدّد المدة بدلًا من ذلك.",
     "{app} quit.": "أُغلق {app}.",
     "{time} left": "متبقٍ {time}"
-  }
+  },
+  "examples": [
+    "أبقِ جهاز Mac مستيقظًا لمدة ساعتين"
+  ]
 }

@@ -29,6 +29,7 @@
       "refresh": 3
     }
   },
+  "examples": ["what did I copy?"],
   "tools": {
     "recent_copies": {
       "title": "Recent copies",

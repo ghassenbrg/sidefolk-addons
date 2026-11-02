@@ -4,10 +4,15 @@
   "description": "사진의 정보, 그리고 JPEG·PNG·HEIC로 변환하거나 작게 줄이거나 위치 정보를 뺀 사본. 원본은 그대로 남아요.",
   "tools": {
     "convert_images": {
-      "title": "사진 변환"
+      "title": "사진 변환",
+      "summary": [
+        "{folder}의 사진을 위치 정보 없이 복사하기",
+        "{folder}의 사진을 변환한 사본 만들기"
+      ]
     },
     "image_info": {
-      "title": "사진 정보"
+      "title": "사진 정보",
+      "summary": "{path}의 정보 읽기"
     }
   },
   "text": {
@@ -37,5 +42,8 @@
     "{file}: not a file in that folder": "{file}: 그 폴더의 파일이 아님",
     "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height}px({megapixels}메가픽셀)",
     "{folder} isn't a folder.": "{folder}은(는) 폴더가 아닙니다."
-  }
+  },
+  "examples": [
+    "~/Downloads에 있는 사진들을 작게 줄여 줘"
+  ]
 }

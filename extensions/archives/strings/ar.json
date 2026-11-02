@@ -4,10 +4,12 @@
   "description": "يضغط الملفات والمجلدات في ملف zip لإرسالها، ويفتح ملفات zip التي تصلك، بأدوات macOS نفسها.",
   "tools": {
     "unzip": {
-      "title": "فتح ملف zip"
+      "title": "فتح ملف zip",
+      "summary": "فك ضغط {file} في {folder}"
     },
     "zip": {
-      "title": "إنشاء ملف zip"
+      "title": "إنشاء ملف zip",
+      "summary": "إنشاء ملف zip في {folder}"
     }
   },
   "text": {
@@ -33,5 +35,8 @@
       "other": "{count} عنصر"
     },
     "“{name}” should be just a name of something in {folder}.": "يجب أن يكون «{name}» مجرد اسم شيء في {folder}."
-  }
+  },
+  "examples": [
+    "اضغط مجلد لقطات الشاشة على سطح المكتب في ملف zip"
+  ]
 }

@@ -4,16 +4,20 @@
   "description": "公開リポジトリを選んだフォルダにクローンし、手元のリポジトリの状態確認、更新、履歴の閲覧ができます。",
   "tools": {
     "clone": {
-      "title": "リポジトリをクローン"
+      "title": "リポジトリをクローン",
+      "summary": "{url}を{destination}にクローン"
     },
     "log": {
-      "title": "最近のコミット"
+      "title": "最近のコミット",
+      "summary": "{repository}内の最近のコミットを読み込む"
     },
     "pull": {
-      "title": "最新の変更をプル"
+      "title": "最新の変更をプル",
+      "summary": "{repository}に最新の変更をプル"
     },
     "status": {
-      "title": "リポジトリの状態"
+      "title": "リポジトリの状態",
+      "summary": "{repository}内のリポジトリの状態を確認"
     }
   },
   "text": {
@@ -50,5 +54,8 @@
     "{folder} on {branch}": "{folder}（{branch}）",
     "{folder} on {branch} is already up to date.": "{folder}（{branch}）はすでに最新です。",
     "{parent} doesn't exist yet. Create it first, then clone into {folder}.": "{parent}はまだありません。先に作成してから{folder}にクローンしてください。"
-  }
+  },
+  "examples": [
+    "https://github.com/octocat/Hello-World を ~/Downloads にクローンして"
+  ]
 }

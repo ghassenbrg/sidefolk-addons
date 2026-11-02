@@ -381,8 +381,10 @@
       "widget": true
     }
   },
+  "examples": ["let's play trivia"],
   "tools": {
     "pick": {
+      "summary": "Leave it to chance",
       "title": "Random picks",
       "risk": "low",
       "category": "system",
@@ -432,6 +434,7 @@
       ]
     },
     "trivia": {
+      "summary": "Play a round of trivia",
       "title": "Trivia quiz",
       "risk": "low",
       "category": "system",

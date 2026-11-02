@@ -4,10 +4,12 @@
   "description": "Compresse des fichiers et des dossiers pour les envoyer, et ouvre les fichiers zip que vous recevez, avec les outils de macOS.",
   "tools": {
     "unzip": {
-      "title": "Ouvrir un fichier zip"
+      "title": "Ouvrir un fichier zip",
+      "summary": "Décompresser {file} dans {folder}"
     },
     "zip": {
-      "title": "Créer un fichier zip"
+      "title": "Créer un fichier zip",
+      "summary": "Créer un fichier zip dans {folder}"
     }
   },
   "text": {
@@ -25,5 +27,8 @@
       "other": "{count} éléments"
     },
     "“{name}” should be just a name of something in {folder}.": "« {name} » doit être juste le nom d’un élément de {folder}."
-  }
+  },
+  "examples": [
+    "compresse le dossier Captures d’écran de mon bureau"
+  ]
 }

@@ -4,7 +4,8 @@
   "description": "Gli ultimi post di blog, siti di notizie e podcast dai loro feed RSS o Atom, e un avviso quando ne esce uno nuovo.",
   "tools": {
     "read_feed": {
-      "title": "Ultimi post"
+      "title": "Ultimi post",
+      "summary": "Leggi gli ultimi post di {url}"
     }
   },
   "watchers": {
@@ -24,5 +25,8 @@
     "untitled": "senza titolo",
     "{feed} has no posts yet.": "{feed} non ha ancora post.",
     "{feed}, latest {count}:": "{feed}, gli ultimi {count}:"
-  }
+  },
+  "examples": [
+    "che novità ci sono sul blog di swift.org?"
+  ]
 }

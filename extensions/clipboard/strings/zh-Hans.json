@@ -193,5 +193,8 @@
     "“{pattern}” isn't a regular expression Clipboard can read.": "“{pattern}”不是剪贴板能读取的正则表达式。",
     "↩ copies, ⌥↩ pastes": "↩ 复制，⌥↩ 粘贴",
     "↩ pastes, ⌥↩ only copies": "↩ 粘贴，⌥↩ 仅复制"
-  }
+  },
+  "examples": [
+    "我复制了什么？"
+  ]
 }

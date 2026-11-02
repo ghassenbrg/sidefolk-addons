@@ -4,10 +4,12 @@
   "description": "macOS 기본 도구로 파일과 폴더를 보내기 좋게 zip으로 압축하고, 받은 zip 파일을 열어요.",
   "tools": {
     "unzip": {
-      "title": "zip 파일 열기"
+      "title": "zip 파일 열기",
+      "summary": "{folder}에서 {file} 압축 풀기"
     },
     "zip": {
-      "title": "zip 파일 만들기"
+      "title": "zip 파일 만들기",
+      "summary": "{folder}에 zip 파일 만들기"
     }
   },
   "text": {
@@ -23,5 +25,8 @@
       "other": "{count}개 항목"
     },
     "“{name}” should be just a name of something in {folder}.": "‘{name}’은(는) {folder} 안에 있는 항목의 이름이어야 합니다."
-  }
+  },
+  "examples": [
+    "데스크탑의 스크린샷 폴더를 zip으로 압축해 줘"
+  ]
 }

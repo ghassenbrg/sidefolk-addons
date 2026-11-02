@@ -193,5 +193,8 @@
     "“{pattern}” isn't a regular expression Clipboard can read.": "‘{pattern}’은(는) 클립보드가 읽을 수 있는 정규 표현식이 아닙니다.",
     "↩ copies, ⌥↩ pastes": "↩ 복사, ⌥↩ 붙여넣기",
     "↩ pastes, ⌥↩ only copies": "↩ 붙여넣기, ⌥↩ 복사만"
-  }
+  },
+  "examples": [
+    "내가 뭘 복사했지?"
+  ]
 }

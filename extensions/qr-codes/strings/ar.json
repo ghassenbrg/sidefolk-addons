@@ -4,10 +4,12 @@
   "description": "ينشئ صورة رمز QR لرابط أو نص، ويقرأ رمز QR في صورة أو لقطة شاشة.",
   "tools": {
     "make_qr": {
-      "title": "إنشاء رمز QR"
+      "title": "إنشاء رمز QR",
+      "summary": "إنشاء صورة رمز QR في {folder}"
     },
     "read_qr": {
-      "title": "قراءة رمز QR"
+      "title": "قراءة رمز QR",
+      "summary": "قراءة رمز QR في {path}"
     }
   },
   "text": {
@@ -18,5 +20,8 @@
     "This Mac can't make QR codes.": "لا يستطيع هذا الـMac إنشاء رموز QR.",
     "{file} isn't a picture I can read.": "{file} ليست صورة يمكن قراءتها.",
     "{folder} can't be written to.": "لا يمكن الكتابة في {folder}."
-  }
+  },
+  "examples": [
+    "أنشئ رمز QR لـ https://example.com على سطح المكتب"
+  ]
 }

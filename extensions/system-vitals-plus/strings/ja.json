@@ -247,5 +247,8 @@
     "{title}. {advice}": "{title}。{advice}",
     "{title}: {advice}": "{title}：{advice}",
     "{used} of {total} in use; memory pressure is {pressure}.": "{total}中{used}を使用中。メモリプレッシャー：{pressure}。"
-  }
+  },
+  "examples": [
+    "Macが遅いのはなぜ？"
+  ]
 }

@@ -4,10 +4,12 @@
   "description": "Crea la imagen de un código QR de un enlace o un texto, y lee el código QR de una imagen o una captura de pantalla.",
   "tools": {
     "make_qr": {
-      "title": "Crear un código QR"
+      "title": "Crear un código QR",
+      "summary": "Crear una imagen de código QR en {folder}"
     },
     "read_qr": {
-      "title": "Leer un código QR"
+      "title": "Leer un código QR",
+      "summary": "Leer el código QR de {path}"
     }
   },
   "text": {
@@ -18,5 +20,8 @@
     "This Mac can't make QR codes.": "Este Mac no puede hacer códigos QR.",
     "{file} isn't a picture I can read.": "{file} no es una imagen que pueda leer.",
     "{folder} can't be written to.": "No se puede escribir en {folder}."
-  }
+  },
+  "examples": [
+    "crea un código QR de https://example.com en mi escritorio"
+  ]
 }

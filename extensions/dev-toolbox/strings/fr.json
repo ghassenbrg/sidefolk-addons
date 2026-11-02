@@ -4,7 +4,8 @@
   "description": "Pour les développeurs : formater du JSON, encoder et décoder du base64, des URL et de l’hexadécimal, décoder des JWT, convertir des horodatages, créer des UUID et vérifier la somme de contrôle d’un fichier.",
   "tools": {
     "checksum": {
-      "title": "Somme de contrôle d’un fichier"
+      "title": "Somme de contrôle d’un fichier",
+      "summary": "Calculer la somme de contrôle de {path}"
     },
     "generate": {
       "title": "Générer des identifiants"
@@ -60,5 +61,8 @@
       "other": "{count} mots"
     },
     "{file} can't be read.": "{file} ne peut pas être lu."
-  }
+  },
+  "examples": [
+    "quelle date correspond au temps Unix 1800000000 ?"
+  ]
 }

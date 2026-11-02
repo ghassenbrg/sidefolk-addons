@@ -193,5 +193,8 @@
     "“{pattern}” isn't a regular expression Clipboard can read.": "「{pattern}」はクリップボードが読み取れる正規表現ではありません。",
     "↩ copies, ⌥↩ pastes": "↩でコピー、⌥↩でペースト",
     "↩ pastes, ⌥↩ only copies": "↩でペースト、⌥↩でコピーのみ"
-  }
+  },
+  "examples": [
+    "何をコピーした？"
+  ]
 }

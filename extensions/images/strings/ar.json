@@ -4,10 +4,15 @@
   "description": "تفاصيل صورة، ونسخ من الصور محوّلة إلى JPEG أو PNG أو HEIC، أو مصغّرة، أو بلا موقعها. تبقى ملفاتك الأصلية كما هي.",
   "tools": {
     "convert_images": {
-      "title": "تحويل الصور"
+      "title": "تحويل الصور",
+      "summary": [
+        "إنشاء نسخ من الصور في {folder} بلا موقعها",
+        "إنشاء نسخ محوّلة من الصور في {folder}"
+      ]
     },
     "image_info": {
-      "title": "تفاصيل الصورة"
+      "title": "تفاصيل الصورة",
+      "summary": "قراءة تفاصيل {path}"
     }
   },
   "text": {
@@ -47,5 +52,8 @@
     "{file}: not a file in that folder": "{file}: ليس ملفًا في ذلك المجلد",
     "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} بكسل ({megapixels} ميغابكسل)",
     "{folder} isn't a folder.": "{folder} ليس مجلدًا."
-  }
+  },
+  "examples": [
+    "صغّر الصور في ~/Downloads"
+  ]
 }

@@ -4,10 +4,12 @@
   "description": "macOSの標準ツールで、送るためにファイルやフォルダをzipに圧縮し、受け取ったzipファイルを開きます。",
   "tools": {
     "unzip": {
-      "title": "zipファイルを開く"
+      "title": "zipファイルを開く",
+      "summary": "{folder}で{file}を展開"
     },
     "zip": {
-      "title": "zipファイルを作成"
+      "title": "zipファイルを作成",
+      "summary": "{folder}にzipファイルを作成"
     }
   },
   "text": {
@@ -23,5 +25,8 @@
       "other": "{count}項目"
     },
     "“{name}” should be just a name of something in {folder}.": "「{name}」は{folder}内の項目名だけにしてください。"
-  }
+  },
+  "examples": [
+    "デスクトップのスクリーンショットフォルダをzipにして"
+  ]
 }

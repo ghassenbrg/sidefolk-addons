@@ -4,16 +4,20 @@
   "description": "Details und Text eines PDFs, mehrere PDFs zu einem zusammengefügt und einzelne Seiten als neues PDF gespeichert. Deine Originale bleiben, wie sie sind.",
   "tools": {
     "combine_pdfs": {
-      "title": "PDFs zusammenfügen"
+      "title": "PDFs zusammenfügen",
+      "summary": "PDFs in {folder} zu einem neuen zusammenfügen"
     },
     "extract_pages": {
-      "title": "Seiten aus einem PDF herausnehmen"
+      "title": "Seiten aus einem PDF herausnehmen",
+      "summary": "Die Seiten {pages} von {file} als neues PDF in {folder} sichern"
     },
     "pdf_info": {
-      "title": "PDF-Details"
+      "title": "PDF-Details",
+      "summary": "Die Details von {path} lesen"
     },
     "pdf_text": {
-      "title": "Den Text eines PDFs lesen"
+      "title": "Den Text eines PDFs lesen",
+      "summary": "Den Text von {path} lesen"
     }
   },
   "text": {
@@ -43,5 +47,8 @@
     "{file} isn't a PDF I can read.": "{file} ist kein PDF, das ich lesen kann.",
     "{paper}, landscape": "{paper}, Querformat",
     "“{file}” should be just a file name in {folder}.": "„{file}“ sollte nur ein Dateiname in {folder} sein."
-  }
+  },
+  "examples": [
+    "füge die PDFs in ~/Downloads zu einem zusammen"
+  ]
 }

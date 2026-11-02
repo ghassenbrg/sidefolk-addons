@@ -19,8 +19,11 @@ docs/SECURITY.md T33 before changing how packs are made.
 - A companion's folder holds exactly its four files and addon.json; `scripts/build.py` refuses anything else.
 - `Kit/` is a copy of Sidefolk's `extensions/Kit`: change it there first, then copy it here.
 - An extension's words live in its `strings/<language>.json`, ten languages (Sidefolk D76): change the English, then
-  every language (`../sidefolk/scripts/extension-strings.py sync|check`). Its name, tagline, description and titles are
-  also in Sidefolk's `BuiltInExtensionWords` (for packs from before `strings/`): keep those word for word with the manifest.
+  every language (`../sidefolk/scripts/extension-strings.py sync|check`). Sidefolk keeps no copy of them (D98): its
+  examples, tool summaries, services and `replaces` are in the manifest too, and the summaries are translated in `strings/`.
+- World Clock, System Vitals, Weather and Calculator are also Sidefolk's seed packs (D98): its release takes their signed
+  packs from the published gallery, so publish the gallery first.
+- Any extension whose manifest uses a key from a newer Sidefolk (D98's among them) names that snapshot in `minimum_sidefolk`.
 - After a change: `swift test --no-parallel`, `python3 scripts/build.py --unsigned`, `scripts/check.sh`, and in Sidefolk
   `make test` (its sandbox tests run these extensions from `../sidefolk-addons`).
 

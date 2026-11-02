@@ -4,7 +4,8 @@
   "description": "Rechnet Geld zwischen dem Euro und 30 wichtigen Währungen zu den täglichen Referenzkursen der Europäischen Zentralbank um und sagt dir, wenn ein Kurs eine Grenze überschreitet. Nichts über dich wird gesendet.",
   "tools": {
     "convert_currency": {
-      "title": "Geld umrechnen"
+      "title": "Geld umrechnen",
+      "summary": "{amount} {from} zu den Kursen der Europäischen Zentralbank in {to} umrechnen"
     }
   },
   "watchers": {
@@ -23,5 +24,8 @@
     "{rate}, above {line}.": "{rate}, über {line}.",
     "{rate}, below {line}.": "{rate}, unter {line}.",
     "“{key}” must be a number.": "„{key}“ muss eine Zahl sein."
-  }
+  },
+  "examples": [
+    "wie viel sind 50 Dollar in Euro?"
+  ]
 }

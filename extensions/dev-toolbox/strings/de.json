@@ -4,7 +4,8 @@
   "description": "Für Entwickler: JSON formatieren, Base64, URLs und Hex kodieren und dekodieren, JWTs dekodieren, Zeitstempel umrechnen, UUIDs erzeugen und die Prüfsumme einer Datei ermitteln.",
   "tools": {
     "checksum": {
-      "title": "Prüfsumme einer Datei"
+      "title": "Prüfsumme einer Datei",
+      "summary": "Die Prüfsumme von {path} ausrechnen"
     },
     "generate": {
       "title": "IDs erzeugen"
@@ -60,5 +61,8 @@
       "other": "{count} Wörter"
     },
     "{file} can't be read.": "{file} lässt sich nicht lesen."
-  }
+  },
+  "examples": [
+    "welches Datum ist die Unix-Zeit 1800000000?"
+  ]
 }

@@ -4,7 +4,8 @@
   "description": "Per sviluppatori: formatta JSON, codifica e decodifica base64, URL ed esadecimale, decodifica JWT, converte timestamp, crea UUID e calcola il checksum di un file.",
   "tools": {
     "checksum": {
-      "title": "Checksum di un file"
+      "title": "Checksum di un file",
+      "summary": "Calcola il checksum di {path}"
     },
     "generate": {
       "title": "Genera ID"
@@ -60,5 +61,8 @@
       "other": "{count} parole"
     },
     "{file} can't be read.": "Impossibile leggere {file}."
-  }
+  },
+  "examples": [
+    "che data è il tempo Unix 1800000000?"
+  ]
 }

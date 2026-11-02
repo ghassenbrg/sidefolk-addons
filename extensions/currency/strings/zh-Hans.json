@@ -4,7 +4,8 @@
   "description": "按欧洲中央银行每日的参考汇率，在欧元和 30 种主要货币之间换算金额，并在汇率越过设定值时提醒你。不会发送任何关于你的信息。",
   "tools": {
     "convert_currency": {
-      "title": "换算货币"
+      "title": "换算货币",
+      "summary": "按欧洲中央银行的汇率将 {amount} {from} 换算为 {to}"
     }
   },
   "watchers": {
@@ -23,5 +24,8 @@
     "{rate}, above {line}.": "{rate}，高于 {line}。",
     "{rate}, below {line}.": "{rate}，低于 {line}。",
     "“{key}” must be a number.": "“{key}”必须是数字。"
-  }
+  },
+  "examples": [
+    "50 美元是多少欧元？"
+  ]
 }

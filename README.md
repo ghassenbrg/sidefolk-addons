@@ -8,11 +8,14 @@ lead there too.
 | | What | |
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish), Iris (a camera scout), Nori (a tuxedo cat), Purl (a ragdoll), Rune (a stone golem) | 3D, a few MB each; their 2D forms are built into Sidefolk (D59) |
-| **Extensions** | Git, Currency, Playtime (eleven games and four puzzles in Sidefolk's Play panel), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
+| **Extensions** | World Clock, Calculator, System Vitals, Weather (these four are a fresh Mac's first extensions, Sidefolk D98), Git, Currency, Playtime (eleven games and four puzzles in Sidefolk's Play panel), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
 | **Themes** | None at the moment: Sidefolk's four themes (Harbor, Paper Garden, Night Studio, Marshmallow) are built into the app (Sidefolk D92). Daylight, Night Studio and Paper Garden left the gallery; copies people have stay theirs | |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
-Built into the app are Mochi, Spark, the folks, and World Clock, Calculator, System Vitals and Weather.
+Built into the app are Mochi and Spark and the folks, and no extension: everything about an extension lives here. A fresh
+Mac starts with World Clock, Calculator, System Vitals and Weather, from these same signed packs carried in the app
+(Sidefolk D98, its `Resources/SeedPacks`); from then on the gallery updates them like any other, and removing one is
+remembered. Publish the gallery before a Sidefolk release: `sidefolk/scripts/seed-packs.py` takes the packs from it.
 
 ## How Sidefolk trusts what it downloads
 
@@ -30,7 +33,8 @@ companions/<name>/    addon.json, characters/<name>.js, assets/<name>.glb, portr
 themes/<name>/        addon.json, theme.json, art/*.png (Sidefolk checks it again and re-encodes the pictures; none now, D92)
 extensions/<name>/    sidefolk-extension.json, icon.pdf, addon.json (its shelf: everyday, files, developer or fun;
                       `minimum_sidefolk`: a Sidefolk snapshot it needs, e.g. "0.1.0-snapshot.593", Sidefolk D83),
-                      strings/<language>.json (its words in Sidefolk's ten languages, Sidefolk D76),
+                      strings/<language>.json (its words in Sidefolk's ten languages, Sidefolk D76); the manifest also
+                      holds what the app used to keep about it: examples, tool summaries, services, replaces (Sidefolk D98),
                       Sources/ (a Swift program on Kit/); optionally licenses/ (packed as is) and frameworks
                       the program links (packed as lib/<Name>.framework/<Name>, signed like the program)
 Kit/                  a copy of Sidefolk's extensions/Kit (scripts/check.sh warns when they differ)
@@ -104,7 +108,7 @@ that version and keep the one they have.
 - **Every word in ten languages** (Sidefolk D76): write what people read as `L("English", ["name": value])` and
   numbers, sizes and dates with `Format`; `../sidefolk/scripts/extension-strings.py sync extensions/<name>` writes
   `strings/en.json` from the code, and each other language's file translates `text` and the manifest's words (name,
-  tagline, description, titles). `extension-strings.py check` lists what's missing; Sidefolk's `ExtensionLanguagesTests`
+  tagline, description, titles, examples, tool summaries). `extension-strings.py check` lists what's missing; Sidefolk's `ExtensionLanguagesTests`
   wants all of it for Sidefolk's own. `build.py` packs `strings/` and puts each language's name, tagline and description
   in the catalog. Playtime's words and its games' phrases live there too (Sidefolk D79).
 - **What the Kit offers** follows Sidefolk's protocol: tools, watchers, pages (gauges, charts, switches, buttons, and

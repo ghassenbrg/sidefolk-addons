@@ -4,10 +4,15 @@
   "description": "I dettagli di una foto, e copie di immagini convertite in JPEG, PNG o HEIC, rimpicciolite o senza la posizione. I tuoi originali restano come sono.",
   "tools": {
     "convert_images": {
-      "title": "Converti immagini"
+      "title": "Converti immagini",
+      "summary": [
+        "Crea copie delle immagini in {folder} senza la posizione",
+        "Crea copie convertite delle immagini in {folder}"
+      ]
     },
     "image_info": {
-      "title": "Dettagli dell’immagine"
+      "title": "Dettagli dell’immagine",
+      "summary": "Leggi i dettagli di {path}"
     }
   },
   "text": {
@@ -39,5 +44,8 @@
     "{file}: not a file in that folder": "{file}: non è un file di quella cartella",
     "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}: {width} × {height} px ({megapixels} megapixel)",
     "{folder} isn't a folder.": "{folder} non è una cartella."
-  }
+  },
+  "examples": [
+    "rimpicciolisci le foto in ~/Downloads"
+  ]
 }

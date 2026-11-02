@@ -4,10 +4,12 @@
   "description": "Una pausa con il tuo compagno: dieci giochi contro di lui, accanto a lui sulla scrivania (un quiz, tris, Copiami e altri) e cinque rompicapi per te (la parola del giorno, il sudoku e altri), con punteggi, tempi migliori e serie salvati, e il caso per scegliere un numero o qualcosa da una lista.",
   "tools": {
     "pick": {
-      "title": "Scelte a caso"
+      "title": "Scelte a caso",
+      "summary": "Lascia fare al caso"
     },
     "trivia": {
-      "title": "Quiz"
+      "title": "Quiz",
+      "summary": "Gioca una partita a quiz"
     }
   },
   "pages": {
@@ -500,5 +502,8 @@
       "one": "{count} domanda",
       "other": "{count} domande"
     }
-  }
+  },
+  "examples": [
+    "giochiamo a un quiz"
+  ]
 }

@@ -4,7 +4,8 @@
   "description": "開発者向け：JSONの整形、base64・URL・16進数のエンコードとデコード、JWTのデコード、タイムスタンプの変換、UUIDの作成、ファイルのチェックサムの確認。",
   "tools": {
     "checksum": {
-      "title": "ファイルのチェックサム"
+      "title": "ファイルのチェックサム",
+      "summary": "{path}のチェックサムを計算"
     },
     "generate": {
       "title": "IDを生成"
@@ -55,5 +56,8 @@
       "other": "{count}語"
     },
     "{file} can't be read.": "{file}を読み取れません。"
-  }
+  },
+  "examples": [
+    "Unix時間 1800000000 は何日？"
+  ]
 }

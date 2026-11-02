@@ -78,5 +78,8 @@
     "{app} isn't open. Open it first, or say how long instead.": "{app}이(가) 열려 있지 않습니다. 먼저 열거나 대신 시간을 말해 주세요.",
     "{app} quit.": "{app}이(가) 종료되었습니다.",
     "{time} left": "{time} 남음"
-  }
+  },
+  "examples": [
+    "Mac을 2시간 동안 깨어 있게 해 줘"
+  ]
 }

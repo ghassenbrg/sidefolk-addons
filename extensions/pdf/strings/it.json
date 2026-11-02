@@ -4,16 +4,20 @@
   "description": "I dettagli e il testo di un PDF, più PDF uniti in uno, e alcune pagine salvate come nuovo PDF. I tuoi originali restano come sono.",
   "tools": {
     "combine_pdfs": {
-      "title": "Unisci PDF"
+      "title": "Unisci PDF",
+      "summary": "Unisci i PDF in {folder} in uno nuovo"
     },
     "extract_pages": {
-      "title": "Estrai pagine da un PDF"
+      "title": "Estrai pagine da un PDF",
+      "summary": "Salva le pagine {pages} di {file} come nuovo PDF in {folder}"
     },
     "pdf_info": {
-      "title": "Dettagli del PDF"
+      "title": "Dettagli del PDF",
+      "summary": "Leggi i dettagli di {path}"
     },
     "pdf_text": {
-      "title": "Leggi il testo di un PDF"
+      "title": "Leggi il testo di un PDF",
+      "summary": "Leggi il testo di {path}"
     }
   },
   "text": {
@@ -43,5 +47,8 @@
     "{file} isn't a PDF I can read.": "{file} non è un PDF che riesco a leggere.",
     "{paper}, landscape": "{paper}, orizzontale",
     "“{file}” should be just a file name in {folder}.": "«{file}» deve essere solo un nome di file in {folder}."
-  }
+  },
+  "examples": [
+    "unisci i PDF in ~/Downloads in uno solo"
+  ]
 }

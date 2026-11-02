@@ -4,16 +4,20 @@
   "description": "PDF 的信息和文字，把多个 PDF 合并成一个，以及把部分页面另存为新的 PDF。原始文件保持不变。",
   "tools": {
     "combine_pdfs": {
-      "title": "合并 PDF"
+      "title": "合并 PDF",
+      "summary": "将 {folder} 中的 PDF 合并为一个新文件"
     },
     "extract_pages": {
-      "title": "从 PDF 中取出页面"
+      "title": "从 PDF 中取出页面",
+      "summary": "将 {file} 的第 {pages} 页另存为 {folder} 中的新 PDF"
     },
     "pdf_info": {
-      "title": "PDF 信息"
+      "title": "PDF 信息",
+      "summary": "读取 {path} 的信息"
     },
     "pdf_text": {
-      "title": "读取 PDF 的文字"
+      "title": "读取 PDF 的文字",
+      "summary": "读取 {path} 的文字"
     }
   },
   "text": {
@@ -41,5 +45,8 @@
     "{file} isn't a PDF I can read.": "{file} 不是能读取的 PDF。",
     "{paper}, landscape": "{paper}，横向",
     "“{file}” should be just a file name in {folder}.": "“{file}”应只是 {folder} 中的文件名。"
-  }
+  },
+  "examples": [
+    "把 ~/Downloads 里的 PDF 合并成一个"
+  ]
 }

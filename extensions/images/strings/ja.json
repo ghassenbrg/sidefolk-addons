@@ -4,10 +4,15 @@
   "description": "写真の詳細と、JPEG・PNG・HEICへの変換、縮小、位置情報を除いた画像のコピー。元のファイルはそのまま残ります。",
   "tools": {
     "convert_images": {
-      "title": "画像を変換"
+      "title": "画像を変換",
+      "summary": [
+        "{folder}内の画像を位置情報なしでコピー",
+        "{folder}内の画像の変換済みコピーを作成"
+      ]
     },
     "image_info": {
-      "title": "画像の詳細"
+      "title": "画像の詳細",
+      "summary": "{path}の詳細を読み取る"
     }
   },
   "text": {
@@ -37,5 +42,8 @@
     "{file}: not a file in that folder": "{file}：そのフォルダのファイルではありません",
     "{file}: {width} × {height} px ({megapixels} megapixels)": "{file}：{width} × {height} px（{megapixels}メガピクセル）",
     "{folder} isn't a folder.": "{folder}はフォルダではありません。"
-  }
+  },
+  "examples": [
+    "~/Downloads の写真を小さくして"
+  ]
 }

@@ -78,5 +78,8 @@
     "{app} isn't open. Open it first, or say how long instead.": "{app} no está abierta. Ábrela primero, o di cuánto tiempo.",
     "{app} quit.": "Se cerró {app}.",
     "{time} left": "quedan {time}"
-  }
+  },
+  "examples": [
+    "mantén mi Mac despierto 2 horas"
+  ]
 }

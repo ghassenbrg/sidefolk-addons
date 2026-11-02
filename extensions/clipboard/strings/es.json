@@ -199,5 +199,8 @@
     "“{pattern}” isn't a regular expression Clipboard can read.": "«{pattern}» no es una expresión regular que Portapapeles pueda leer.",
     "↩ copies, ⌥↩ pastes": "↩ copia, ⌥↩ pega",
     "↩ pastes, ⌥↩ only copies": "↩ pega, ⌥↩ solo copia"
-  }
+  },
+  "examples": [
+    "¿qué he copiado?"
+  ]
 }

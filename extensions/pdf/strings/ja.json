@@ -4,16 +4,20 @@
   "description": "PDFの詳細とテキストの読み取り、複数のPDFの結合、一部のページを新しいPDFとして保存。元のファイルはそのまま残ります。",
   "tools": {
     "combine_pdfs": {
-      "title": "PDFを結合"
+      "title": "PDFを結合",
+      "summary": "{folder}内のPDFを結合して新しいPDFを作成"
     },
     "extract_pages": {
-      "title": "PDFからページを取り出す"
+      "title": "PDFからページを取り出す",
+      "summary": "{file}の{pages}ページを新しいPDFとして{folder}に保存"
     },
     "pdf_info": {
-      "title": "PDFの詳細"
+      "title": "PDFの詳細",
+      "summary": "{path}の詳細を読み取る"
     },
     "pdf_text": {
-      "title": "PDFのテキストを読む"
+      "title": "PDFのテキストを読む",
+      "summary": "{path}のテキストを読む"
     }
   },
   "text": {
@@ -41,5 +45,8 @@
     "{file} isn't a PDF I can read.": "{file}は読み取れるPDFではありません。",
     "{paper}, landscape": "{paper}、横向き",
     "“{file}” should be just a file name in {folder}.": "「{file}」は{folder}内のファイル名だけにしてください。"
-  }
+  },
+  "examples": [
+    "~/Downloads のPDFを1つにまとめて"
+  ]
 }

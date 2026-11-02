@@ -4,10 +4,12 @@
   "description": "Comprime file e cartelle per inviarli e apre i file zip che ricevi, con gli strumenti di macOS.",
   "tools": {
     "unzip": {
-      "title": "Apri un file zip"
+      "title": "Apri un file zip",
+      "summary": "Estrai {file} in {folder}"
     },
     "zip": {
-      "title": "Crea un file zip"
+      "title": "Crea un file zip",
+      "summary": "Crea un file zip in {folder}"
     }
   },
   "text": {
@@ -25,5 +27,8 @@
       "other": "{count} elementi"
     },
     "“{name}” should be just a name of something in {folder}.": "«{name}» deve essere solo il nome di qualcosa in {folder}."
-  }
+  },
+  "examples": [
+    "comprimi la cartella Schermate sulla mia scrivania"
+  ]
 }
