@@ -92,7 +92,7 @@ enum OverviewPage {
                 if let day = s.today {
                     Node.group { DialScene.nodes(cx: cx, cy: cy, radius: radius, labelRadius: radius + r.f(15) * 2.5, snapshot: s, day: day, focusAt: focusAt(s), big: true, label: r.f(15.5)) }.size(w, h)
                 }
-                Node.group { DialScene.middle(cx: cx, cy: cy, radius: radius * 0.835, focus: focus) }.size(w, h)
+                Node.group { DialScene.middle(cx: cx, cy: cy, radius: radius * 0.86, focus: focus) }.size(w, h)
             }
             .size(w, h).leftToRight().label(DialScene.spoken(s, focus: focus))
             Node.pill("dial", label: L("View today's prayer times"), x: w / 2 - r.u(150), y: h - r.u(68), w: r.u(300), h: r.u(46), symbol: "chevron.forward", size: r.f(16.5))

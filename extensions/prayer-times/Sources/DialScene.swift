@@ -35,8 +35,8 @@ enum DialScene {
         }
         let fajr = at(.fajr, 5), dhuhr = at(.dhuhr, 12), asr = at(.asr, 15), maghrib = at(.maghrib, 18), isha = at(.isha, 19.5)
         let stops: [(Double, (Int, Int, Int))] = [
-            (0, (34, 38, 112)), (fajr - 1, (36, 54, 142)), (fajr, (42, 92, 200)), ((fajr + dhuhr) / 2, (52, 112, 214)), (dhuhr - 0.8, (106, 128, 170)), (dhuhr, (222, 192, 118)), (dhuhr + 0.8, (116, 114, 128)),
-            (asr, (92, 96, 136)), ((asr + maghrib) / 2, (128, 104, 146)), (maghrib - 0.4, (206, 104, 172)), (maghrib, (222, 70, 164)), (isha, (112, 74, 200)), (isha + 2, (66, 52, 160)), (24, (34, 38, 112)),
+            (0, (28, 30, 96)), (fajr - 1, (28, 42, 128)), (fajr, (26, 74, 184)), ((fajr + dhuhr) / 2, (34, 96, 206)), (dhuhr - 0.8, (74, 96, 148)), (dhuhr, (214, 180, 100)), (dhuhr + 0.8, (88, 88, 104)),
+            (asr, (64, 68, 108)), ((asr + maghrib) / 2, (112, 78, 132)), (maghrib - 0.4, (196, 84, 162)), (maghrib, (226, 58, 160)), (isha, (98, 56, 196)), (isha + 2, (54, 40, 150)), (24, (28, 30, 96)),
         ]
         var last = stops[0]
         for next in stops.dropFirst() {
@@ -66,7 +66,7 @@ enum DialScene {
         let zone = day.zone
         let box = (cx * 2, cy * 2)
         var out: [Node] = []
-        let band = radius * 0.165
+        let band = radius * 0.14
         let inner = radius - band
         out.append(Node.image("art/dial-face-l.png", dark: "art/dial-face-d.png", fit: "fill").size(inner * 2, inner * 2).at(cx - inner, cy - inner))
         // The ring: the day's light, a little at a time.

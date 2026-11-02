@@ -76,11 +76,11 @@ face("dial-face-l", (255, 255, 255), (246, 242, 252), (206, 196, 232), 0.20)
 
 # The ring's grain and bevel: light and shade only, over whatever colours the day gives it.
 big = SIDE * 2
-ring = Image.new("RGBA", (big, big), (0, 0, 0, 0)); dr = ImageDraw.Draw(ring); c = big / 2; R, r = c - 2, c * 0.835
+ring = Image.new("RGBA", (big, big), (0, 0, 0, 0)); dr = ImageDraw.Draw(ring); c = big / 2; R, r = c - 2, c * 0.86
 for i in range(0, 720):
     a = math.radians(i / 2); ca, sa = math.cos(a), math.sin(a)
-    dr.line((c + r * ca, c + r * sa, c + R * ca, c + R * sa), fill=(255, 255, 255, 30 if i % 2 else 0), width=2)
-dr.ellipse((c - R, c - R, c + R, c + R), outline=(255, 255, 255, 120), width=5)
+    dr.line((c + r * ca, c + r * sa, c + R * ca, c + R * sa), fill=(255, 255, 255, 13 if i % 2 else 0), width=2)
+dr.ellipse((c - R, c - R, c + R, c + R), outline=(255, 255, 255, 70), width=4)
 dr.ellipse((c - R + 12, c - R + 12, c + R - 12, c + R - 12), outline=(0, 0, 0, 90), width=10)
 dr.ellipse((c - r, c - r, c + r, c + r), outline=(0, 0, 0, 130), width=12)
 dr.ellipse((c - r - 8, c - r - 8, c + r + 8, c + r + 8), outline=(255, 255, 255, 70), width=4)
