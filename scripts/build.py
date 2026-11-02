@@ -380,6 +380,9 @@ def extensions(ident, work, previews, unsigned, prior):
         # Its words in Sidefolk's other languages (D76); a copy of Sidefolk from before them ignores the folder.
         if (folder / "strings").is_dir():
             shutil.copytree(folder / "strings", stage / "strings", ignore=shutil.ignore_patterns(".DS_Store"))
+        # The pictures and sounds its scenes draw from (Sidefolk D99), named by the manifest and checked by its validator.
+        if m.get("assets"):
+            shutil.copytree(folder / m["assets"], stage / m["assets"], ignore=shutil.ignore_patterns(".DS_Store"))
         libraries = bundle_libraries(program, binaries, stage, ident)
         # The hardened runtime loads only libraries signed by the same team: an ad-hoc check build has no team, so
         # its program goes without the runtime when it carries libraries (Sidefolk refuses ad-hoc packs anyway).
