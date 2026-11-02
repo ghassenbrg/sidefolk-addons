@@ -214,16 +214,49 @@
         "juguemos a memoria"
       ]
     },
+    "menu": [
+      "juegos",
+      "los juegos",
+      "jugar",
+      "juguemos",
+      "vamos a jugar",
+      "juguemos a algo",
+      "quiero jugar",
+      "quiero jugar a algo",
+      "muéstrame los juegos",
+      "enséñame los juegos",
+      "qué juegos tienes",
+      "¿qué juegos tienes",
+      "cuáles son los juegos",
+      "a qué podemos jugar",
+      "¿a qué podemos jugar",
+      "volver a los juegos",
+      "vuelve a los juegos"
+    ],
     "number_mine": {
       "names": [
         "adivina un número",
         "adivinar un número",
         "yo adivino tu número",
+        "adivino tu número",
+        "piensa en un número"
+      ],
+      "say": [
+        "adivina un número",
+        "adivinar un número",
+        "yo adivino tu número",
+        "adivino tu número",
         "piensa en un número"
       ]
     },
     "number_yours": {
       "names": [
+        "adivina mi número",
+        "tú adivinas mi número",
+        "pienso un número",
+        "yo pienso un número"
+      ],
+      "say": [
         "adivina mi número",
         "tú adivinas mi número",
         "pienso un número",

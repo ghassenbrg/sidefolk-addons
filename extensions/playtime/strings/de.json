@@ -233,8 +233,32 @@
         "lass uns memo spielen"
       ]
     },
+    "menu": [
+      "spiele",
+      "die spiele",
+      "spielen",
+      "lass uns spielen",
+      "lass uns etwas spielen",
+      "ich will spielen",
+      "ich möchte spielen",
+      "ich will etwas spielen",
+      "zeig mir die spiele",
+      "zeig mir alle spiele",
+      "zeig die spiele",
+      "welche spiele hast du",
+      "welche spiele gibt es",
+      "was können wir spielen",
+      "zurück zu den spielen",
+      "zurück zur spieleliste"
+    ],
     "number_mine": {
       "names": [
+        "rate eine zahl",
+        "zahl raten",
+        "ich rate deine zahl",
+        "denk dir eine zahl aus"
+      ],
+      "say": [
         "rate eine zahl",
         "zahl raten",
         "ich rate deine zahl",
@@ -243,6 +267,11 @@
     },
     "number_yours": {
       "names": [
+        "rate meine zahl",
+        "du rätst meine zahl",
+        "ich denke mir eine zahl aus"
+      ],
+      "say": [
         "rate meine zahl",
         "du rätst meine zahl",
         "ich denke mir eine zahl aus"

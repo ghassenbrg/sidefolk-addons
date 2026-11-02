@@ -227,8 +227,34 @@
         "jouons au memory"
       ]
     },
+    "menu": [
+      "jeux",
+      "les jeux",
+      "jouer",
+      "on joue",
+      "jouons",
+      "jouons à quelque chose",
+      "on joue à un jeu",
+      "je veux jouer",
+      "je veux jouer à quelque chose",
+      "montre-moi les jeux",
+      "montre moi les jeux",
+      "montre les jeux",
+      "quels jeux as-tu",
+      "quels sont les jeux",
+      "à quoi on peut jouer",
+      "à quoi peut-on jouer",
+      "retour aux jeux",
+      "reviens aux jeux"
+    ],
     "number_mine": {
       "names": [
+        "deviner un nombre",
+        "devine un nombre",
+        "je devine ton nombre",
+        "pense à un nombre"
+      ],
+      "say": [
         "deviner un nombre",
         "devine un nombre",
         "je devine ton nombre",
@@ -241,6 +267,8 @@
         "tu devines mon nombre"
       ],
       "say": [
+        "devine mon nombre",
+        "tu devines mon nombre",
         "je pense à un nombre"
       ]
     },

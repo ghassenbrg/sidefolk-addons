@@ -206,8 +206,31 @@
         "giochiamo a memory"
       ]
     },
+    "menu": [
+      "giochi",
+      "i giochi",
+      "giocare",
+      "giochiamo",
+      "giochiamo a qualcosa",
+      "voglio giocare",
+      "voglio giocare a qualcosa",
+      "mostrami i giochi",
+      "fammi vedere i giochi",
+      "che giochi hai",
+      "quali giochi hai",
+      "quali sono i giochi",
+      "a cosa possiamo giocare",
+      "torna ai giochi",
+      "tornare ai giochi"
+    ],
     "number_mine": {
       "names": [
+        "indovina un numero",
+        "indovinare un numero",
+        "indovino il tuo numero",
+        "pensa a un numero"
+      ],
+      "say": [
         "indovina un numero",
         "indovinare un numero",
         "indovino il tuo numero",
@@ -216,6 +239,11 @@
     },
     "number_yours": {
       "names": [
+        "indovina il mio numero",
+        "tu indovini il mio numero",
+        "penso a un numero"
+      ],
+      "say": [
         "indovina il mio numero",
         "tu indovini il mio numero",
         "penso a un numero"
