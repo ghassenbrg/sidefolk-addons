@@ -43,6 +43,15 @@ struct PlaytimeMoveReviewTests {
         #expect(scene["speaker"] as? Bool == false)
     }
 
+    /// Straight from one game to another too: what the last one held above the companion goes, and a later board of the same game leaves its own alone.
+    @Test func aGameComingToTheTableClearsProps() {
+        let entry = GameCatalog.entry("sudoku")!
+        let opening = BoardDrawing(Board([]), StageContext(entry: entry, fresh: true)).scene().json
+        #expect((opening["react"] as? [String: Any])?["prop"] as? String == "none")
+        let later = BoardDrawing(Board([]), StageContext(entry: entry, previous: Board([]), fresh: true)).scene().json
+        #expect((later["react"] as? [String: Any])?["prop"] == nil)
+    }
+
     /// One switch for every game: a game's speaker reads it until pressed, a change to it clears those, and nothing the program writes makes a row per game.
     @Test func eachGamesSoundFollowsTheOneSwitch() throws {
         let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("extensions/playtime/sidefolk-extension.json")

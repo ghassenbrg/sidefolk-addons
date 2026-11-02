@@ -156,9 +156,11 @@ final class BoardDrawing {
             return out.react(Reaction(move: move)).animating(.sequence([.sound("sounds/\(sound).wav")]))
         }
         if ctx.buildUp { return out.react(Reaction(effect: "question")).animating(.sequence([.sound("sounds/tick.wav")])) }
-        guard let cue = board.companion else { return out }
+        // A game just come to the table starts with nothing of the last one's above the companion, however it got here.
+        let opening = ctx.fresh && ctx.previous == nil
+        guard let cue = board.companion else { return opening ? out.react(Reaction(prop: "none")) : out }
         let look: String? = (cue.look as? String) ?? (cue.look == nil ? nil : "panel")
-        out = out.react(Reaction(move: cue.move, effect: cue.effect, prop: cue.prop, look: look))
+        out = out.react(Reaction(move: cue.move, effect: cue.effect, prop: cue.prop ?? (opening ? "none" : nil), look: look))
         if let sound = cue.sound { out = out.animating(.sequence([.sound("sounds/\(sound).wav")])) }
         return out
     }
