@@ -11,377 +11,23 @@
   "run": {
     "command": "bin/ext-playtime"
   },
-  "permissions": {},
-  "games": {
-    "daily_word": {
-      "title": "Daily Word",
-      "symbol": "textformat.abc",
-      "tagline": "One new word to find every day",
-      "look": "words",
-      "say": [
-        "daily word",
-        "let's play daily word",
-        "word of the day",
-        "mot du jour",
-        "palabra del día",
-        "wort des tages",
-        "parola del giorno",
-        "palavra do dia",
-        "今日のことば",
-        "오늘의 단어",
-        "每日成语",
-        "كلمة اليوم"
-      ]
-    },
-    "trivia": {
-      "title": "Trivia",
-      "symbol": "questionmark.bubble.fill",
-      "tagline": "Questions on every topic",
-      "look": "quiz",
-      "say": [
-        "let's play trivia",
-        "play trivia",
-        "trivia",
-        "quiz me",
-        "let's do a quiz",
-        "jouons au quiz",
-        "juguemos a trivia",
-        "lass uns ein quiz spielen",
-        "giochiamo a un quiz",
-        "vamos jogar trivia",
-        "クイズしよう",
-        "퀴즈 하자",
-        "来玩问答",
-        "لنلعب مسابقة"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "tictactoe": {
-      "title": "Tic-tac-toe",
-      "symbol": "number",
-      "tagline": "Three in a row wins",
-      "look": "grid",
-      "say": [
-        "let's play tic-tac-toe",
-        "let's play tic tac toe",
-        "tic tac toe",
-        "noughts and crosses",
-        "jouons au morpion",
-        "juguemos al tres en raya",
-        "lass uns tic-tac-toe spielen",
-        "giochiamo a tris",
-        "vamos jogar jogo da velha",
-        "まるばつゲームしよう",
-        "틱택토 하자",
-        "来玩井字棋",
-        "لنلعب إكس أو"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "copy_me": {
-      "title": "Copy Me",
-      "symbol": "figure.dance",
-      "tagline": "Watch the moves, then copy them",
-      "look": "dance",
-      "say": [
-        "let's play copy me",
-        "copy me",
-        "jouons à imite-moi",
-        "juguemos a imítame",
-        "lass uns nachmachen spielen",
-        "giochiamo a copiami",
-        "vamos jogar me imite",
-        "まねっこしよう",
-        "따라 하기 하자",
-        "来玩跟我学",
-        "لنلعب قلّدني"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "quick_paws": {
-      "title": "Quick Paws",
-      "symbol": "bolt.fill",
-      "tagline": "Boop the moment it says Boop!",
-      "look": "arcade",
-      "say": [
-        "let's play quick paws",
-        "quick paws",
-        "reflex game",
-        "jouons à pattes rapides",
-        "juguemos a patas rápidas",
-        "lass uns flinke pfoten spielen",
-        "giochiamo a zampe veloci",
-        "vamos jogar patas rápidas",
-        "はやおししよう",
-        "빠른 발 하자",
-        "来玩快爪比赛",
-        "لنلعب مخالب سريعة"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "which_cup": {
-      "title": "Which Cup?",
-      "symbol": "cup.and.saucer.fill",
-      "tagline": "Keep your eye on the gem",
-      "look": "cups",
-      "say": [
-        "let's play which cup",
-        "which cup",
-        "shell game",
-        "jouons au bonneteau",
-        "juguemos a qué vaso",
-        "lass uns das hütchenspiel spielen",
-        "giochiamo a quale bicchiere",
-        "vamos jogar qual copo",
-        "カップあてしよう",
-        "컵 맞히기 하자",
-        "来玩猜杯子",
-        "لنلعب أي كوب"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "higher_lower": {
-      "title": "Higher or Lower",
-      "symbol": "arrow.up.arrow.down",
-      "tagline": "Hot or cold? Find the number",
-      "look": "numbers",
-      "say": [
-        "let's play higher or lower",
-        "higher or lower",
-        "guess my number",
-        "jouons à plus ou moins",
-        "juguemos a mayor o menor",
-        "lass uns höher oder tiefer spielen",
-        "giochiamo a più alto o più basso",
-        "vamos jogar maior ou menor",
-        "ハイアンドローしよう",
-        "업 앤 다운 하자",
-        "来玩猜大小",
-        "لنلعب أكبر أم أصغر"
-      ]
-    },
-    "guess_animal": {
-      "title": "Guess My Animal",
-      "symbol": "pawprint.fill",
-      "tagline": "Yes or no, until one guesses",
-      "look": "animals",
-      "say": [
-        "let's play guess my animal",
-        "guess my animal",
-        "animal game",
-        "jouons à devine mon animal",
-        "juguemos a adivina mi animal",
-        "lass uns rate mein tier spielen",
-        "giochiamo a indovina il mio animale",
-        "vamos jogar adivinhe meu bicho",
-        "どうぶつ当てしよう",
-        "동물 맞히기 하자",
-        "来玩猜动物",
-        "لنلعب خمن حيواني"
-      ]
-    },
-    "balloon_words": {
-      "title": "Balloon Words",
-      "symbol": "balloon.2.fill",
-      "tagline": "Find the word before the balloons go",
-      "look": "balloons",
-      "say": [
-        "let's play balloon words",
-        "balloon words",
-        "hangman",
-        "jouons aux mots en ballons",
-        "juguemos a palabras globo",
-        "lass uns ballonwörter spielen",
-        "giochiamo a parole palloncino",
-        "vamos jogar palavras de balão",
-        "ふうせんことばしよう",
-        "풍선 단어 하자",
-        "来玩气球猜词",
-        "لنلعب كلمات البالونات"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "last_stick": {
-      "title": "Last Stick",
-      "symbol": "line.3.horizontal",
-      "tagline": "Don’t take the last stick!",
-      "look": "sticks",
-      "say": [
-        "let's play last stick",
-        "last stick",
-        "nim",
-        "jouons au dernier bâton",
-        "juguemos al último palito",
-        "lass uns das letzte stäbchen spielen",
-        "giochiamo all'ultimo bastoncino",
-        "vamos jogar o último palito",
-        "さいごの1本しよう",
-        "마지막 막대 하자",
-        "来玩最后一根",
-        "لنلعب العود الأخير"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "memory_pairs": {
-      "title": "Memory Pairs",
-      "symbol": "square.grid.2x2.fill",
-      "tagline": "Turn two cards, find the pairs",
-      "look": "cards",
-      "say": [
-        "let's play memory pairs",
-        "memory pairs",
-        "memory game",
-        "jouons au memory",
-        "juguemos a memoria",
-        "lass uns memo spielen",
-        "giochiamo a memory",
-        "vamos jogar jogo da memória",
-        "神経衰弱しよう",
-        "짝 맞추기 하자",
-        "来玩记忆配对",
-        "لنلعب أزواج الذاكرة"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "plots": {
-      "title": "Garden Plots",
-      "symbol": "square.split.2x2.fill",
-      "tagline": "Split the garden into plots by their numbers",
-      "look": "plots",
-      "say": [
-        "garden plots",
-        "let's play garden plots",
-        "jouons aux parcelles du jardin",
-        "juguemos a parcelas del huerto",
-        "lass uns gartenparzellen spielen",
-        "giochiamo ai lotti dell'orto",
-        "vamos jogar canteiros da horta",
-        "畑わけをしよう",
-        "텃밭 나누기 하자",
-        "来玩菜园分地",
-        "لنلعب قطع الحديقة"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "seesaw": {
-      "title": "Seesaw",
-      "symbol": "heart.circle.fill",
-      "tagline": "Balance hearts and stars in every line",
-      "look": "seesaw",
-      "say": [
-        "seesaw",
-        "let's play seesaw",
-        "jouons à la bascule",
-        "juguemos al balancín",
-        "lass uns wippe spielen",
-        "giochiamo all'altalena",
-        "vamos jogar gangorra",
-        "シーソーをしよう",
-        "시소 하자",
-        "来玩跷跷板",
-        "لنلعب الميزان"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "sudoku": {
-      "title": "Sudoku",
-      "symbol": "square.grid.3x3.fill",
-      "tagline": "Each number once in every row, column and box",
-      "look": "sudoku",
-      "say": [
-        "sudoku",
-        "let's play sudoku",
-        "play sudoku",
-        "jouons au sudoku",
-        "juguemos al sudoku",
-        "lass uns sudoku spielen",
-        "giochiamo a sudoku",
-        "vamos jogar sudoku",
-        "数独をしよう",
-        "스도쿠 하자",
-        "来玩数独",
-        "لنلعب سودوكو"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
-    },
-    "blossoms": {
-      "title": "Blossoms",
-      "symbol": "camera.macro",
-      "tagline": "One flower in every row, column and bed",
-      "look": "blossoms",
-      "say": [
-        "blossoms",
-        "let's play blossoms",
-        "jouons aux fleurettes",
-        "juguemos a las flores",
-        "lass uns blüten spielen",
-        "giochiamo ai fiori",
-        "vamos jogar flores",
-        "花ばたけをしよう",
-        "꽃밭 하자",
-        "来玩花开",
-        "لنلعب الأزهار"
-      ],
-      "levels": [
-        "easy",
-        "fair",
-        "hard"
-      ]
+  "permissions": {
+    "ai": {
+      "purpose": "to write trivia questions on a topic you name",
+      "daily_cap": 20
     }
   },
   "pages": {
     "playtime": {
       "title": "Playtime",
       "symbol": "gamecontroller.fill",
-      "refresh": 30,
+      "refresh": 10,
       "widget": true
     }
   },
-  "examples": ["let's play trivia"],
+  "examples": [
+    "let's play trivia"
+  ],
   "tools": {
     "pick": {
       "summary": "Leave it to chance",
@@ -439,6 +85,1119 @@
       "risk": "low",
       "category": "system",
       "mutates": false
+    },
+    "open": {
+      "title": "Open a game",
+      "summary": "Open a game",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "name": "daily_word",
+          "names": [
+            "daily word"
+          ],
+          "with": [],
+          "input": {
+            "game": "daily_word",
+            "person": true
+          }
+        },
+        {
+          "name": "trivia",
+          "names": [
+            "let's play trivia",
+            "quiz me"
+          ],
+          "with": [
+            "level",
+            "count",
+            "topic",
+            "friend"
+          ],
+          "input": {
+            "game": "trivia",
+            "person": true
+          }
+        },
+        {
+          "name": "tictactoe",
+          "names": [
+            "let's play tic-tac-toe",
+            "noughts and crosses"
+          ],
+          "with": [
+            "level",
+            "friend"
+          ],
+          "input": {
+            "game": "tictactoe",
+            "person": true
+          }
+        },
+        {
+          "name": "copy_me",
+          "names": [
+            "let's play copy me"
+          ],
+          "with": [
+            "level",
+            "friend"
+          ],
+          "input": {
+            "game": "copy_me",
+            "person": true
+          }
+        },
+        {
+          "name": "quick_paws",
+          "names": [
+            "let's play quick paws",
+            "reflex game"
+          ],
+          "with": [
+            "level",
+            "friend"
+          ],
+          "input": {
+            "game": "quick_paws",
+            "person": true
+          }
+        },
+        {
+          "name": "which_cup",
+          "names": [
+            "let's play which cup",
+            "shell game"
+          ],
+          "with": [
+            "level",
+            "friend"
+          ],
+          "input": {
+            "game": "which_cup",
+            "person": true
+          }
+        },
+        {
+          "name": "higher_lower",
+          "names": [
+            "let's play higher or lower"
+          ],
+          "with": [
+            "range",
+            "friend"
+          ],
+          "input": {
+            "game": "higher_lower",
+            "person": true
+          }
+        },
+        {
+          "name": "guess_animal",
+          "names": [
+            "let's play guess my animal",
+            "animal game"
+          ],
+          "with": [],
+          "input": {
+            "game": "guess_animal",
+            "person": true
+          }
+        },
+        {
+          "name": "balloon_words",
+          "names": [
+            "let's play balloon words",
+            "hangman"
+          ],
+          "with": [
+            "level",
+            "friend"
+          ],
+          "input": {
+            "game": "balloon_words",
+            "person": true
+          }
+        },
+        {
+          "name": "last_stick",
+          "names": [
+            "let's play last stick",
+            "nim"
+          ],
+          "with": [
+            "level",
+            "friend"
+          ],
+          "input": {
+            "game": "last_stick",
+            "person": true
+          }
+        },
+        {
+          "name": "memory_pairs",
+          "names": [
+            "let's play memory pairs",
+            "memory game"
+          ],
+          "with": [
+            "level",
+            "friend"
+          ],
+          "input": {
+            "game": "memory_pairs",
+            "person": true
+          }
+        },
+        {
+          "name": "plots",
+          "names": [
+            "garden plots"
+          ],
+          "with": [
+            "level"
+          ],
+          "input": {
+            "game": "plots",
+            "person": true
+          }
+        },
+        {
+          "name": "seesaw",
+          "names": [
+            "seesaw"
+          ],
+          "with": [
+            "level"
+          ],
+          "input": {
+            "game": "seesaw",
+            "person": true
+          }
+        },
+        {
+          "name": "sudoku",
+          "names": [
+            "sudoku"
+          ],
+          "with": [
+            "level"
+          ],
+          "input": {
+            "game": "sudoku",
+            "person": true
+          }
+        },
+        {
+          "name": "blossoms",
+          "names": [
+            "blossoms"
+          ],
+          "with": [
+            "level"
+          ],
+          "input": {
+            "game": "blossoms",
+            "person": true
+          }
+        },
+        {
+          "name": "number_mine",
+          "names": [
+            "guess a number",
+            "guess your number",
+            "i'll guess your number",
+            "think of a number"
+          ],
+          "with": [
+            "range",
+            "friend"
+          ],
+          "input": {
+            "game": "higher_lower",
+            "mode": "mine",
+            "person": true
+          }
+        },
+        {
+          "name": "number_yours",
+          "say": [
+            "i think of a number"
+          ],
+          "names": [
+            "you guess my number",
+            "try to guess my number",
+            "i'll think of a number",
+            "i'll pick a number"
+          ],
+          "with": [
+            "range",
+            "friend"
+          ],
+          "input": {
+            "game": "higher_lower",
+            "mode": "yours",
+            "person": true
+          }
+        },
+        {
+          "name": "again",
+          "say": [
+            "rematch",
+            "a rematch",
+            "i want a rematch",
+            "give me a rematch",
+            "play again",
+            "let's play again",
+            "play that again",
+            "play it again",
+            "one more game",
+            "one more round",
+            "another round",
+            "another game",
+            "same game again",
+            "let's go again",
+            "run it back"
+          ],
+          "input": {
+            "game": "again",
+            "person": true
+          }
+        },
+        {
+          "name": "harder",
+          "say": [
+            "make it harder",
+            "harder",
+            "a harder one",
+            "harder level",
+            "too easy",
+            "this is too easy",
+            "that was too easy",
+            "level up",
+            "make it more difficult",
+            "more difficult",
+            "make the game harder",
+            "make this harder",
+            "turn up the difficulty",
+            "go harder"
+          ],
+          "input": {
+            "game": "again",
+            "level": "harder",
+            "person": true
+          }
+        },
+        {
+          "name": "easier",
+          "say": [
+            "make it easier",
+            "easier",
+            "an easier one",
+            "easier level",
+            "too hard",
+            "this is too hard",
+            "that was too hard",
+            "too difficult",
+            "make it less difficult",
+            "less difficult",
+            "make the game easier",
+            "make this easier",
+            "turn down the difficulty",
+            "go easy on me"
+          ],
+          "input": {
+            "game": "again",
+            "level": "easier",
+            "person": true
+          }
+        },
+        {
+          "name": "resume",
+          "say": [
+            "resume the game",
+            "resume my game",
+            "continue the game",
+            "continue my game",
+            "back to the game",
+            "back to my game",
+            "unpause the game",
+            "keep playing",
+            "let's keep playing",
+            "continue playing"
+          ],
+          "input": {
+            "game": "last",
+            "person": true
+          }
+        },
+        {
+          "name": "random",
+          "say": [
+            "a random game",
+            "random game",
+            "play a random game",
+            "let's play a random game",
+            "pick a random game",
+            "pick a game",
+            "pick a game for me",
+            "you pick a game",
+            "you choose a game",
+            "choose a game for me",
+            "surprise me with a game",
+            "any game",
+            "play any game"
+          ],
+          "input": {
+            "game": "random",
+            "person": true
+          }
+        },
+        {
+          "name": "center",
+          "say": [
+            "show my stats",
+            "my stats",
+            "my game stats",
+            "game stats",
+            "show my game stats",
+            "my scores",
+            "show my scores",
+            "my high scores",
+            "my best scores",
+            "my game records",
+            "show my game records",
+            "game center",
+            "the game center",
+            "open the game center",
+            "show the game center",
+            "how am i doing in games",
+            "my achievements",
+            "my badges",
+            "show my badges"
+          ],
+          "input": {
+            "game": "center",
+            "person": true
+          }
+        }
+      ]
+    },
+    "put_away": {
+      "title": "Put the game away",
+      "summary": "Put the game away",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "ai": true,
+      "commands": [
+        {
+          "name": "pause",
+          "say": [
+            "pause the game",
+            "pause game",
+            "pause my game",
+            "pause this game",
+            "hide the game",
+            "put the game away",
+            "game pause",
+            "pause the match"
+          ]
+        }
+      ]
+    },
+    "game_settings": {
+      "title": "Change game settings",
+      "summary": "Change game settings",
+      "risk": "low",
+      "category": "system",
+      "mutates": true,
+      "commands": [
+        {
+          "name": "sounds_off",
+          "say": [
+            "turn game sounds off",
+            "turn off game sounds",
+            "game sounds off",
+            "mute the game",
+            "mute game sounds",
+            "mute the games",
+            "no game sounds",
+            "silence the game",
+            "turn the game sounds off",
+            "turn off the game sounds",
+            "mute games"
+          ],
+          "input": {
+            "sounds": false
+          }
+        },
+        {
+          "name": "sounds_on",
+          "say": [
+            "turn game sounds on",
+            "turn on game sounds",
+            "game sounds on",
+            "unmute the game",
+            "unmute game sounds",
+            "unmute the games",
+            "turn the game sounds on",
+            "turn on the game sounds"
+          ],
+          "input": {
+            "sounds": true
+          }
+        }
+      ]
     }
-  }
+  },
+  "assets": "assets",
+  "surfaces": {
+    "play": {
+      "title": "Playtime",
+      "symbol": "gamecontroller.fill",
+      "width": 400,
+      "height": 676,
+      "ai": true,
+      "activity": false,
+      "arguments": {
+        "game": [
+          "balloon_words",
+          "blossoms",
+          "copy_me",
+          "daily_word",
+          "guess_animal",
+          "higher_lower",
+          "last_stick",
+          "memory_pairs",
+          "plots",
+          "quick_paws",
+          "seesaw",
+          "sudoku",
+          "tictactoe",
+          "trivia",
+          "which_cup"
+        ],
+        "level": [
+          "easy",
+          "fair",
+          "hard"
+        ],
+        "view": [
+          "menu"
+        ],
+        "fresh": [
+          "true"
+        ]
+      }
+    }
+  },
+  "settings": [
+    {
+      "key": "tone",
+      "type": "choice",
+      "title": "When it wins",
+      "detail": "How {companion} takes a win",
+      "options": [
+        {
+          "value": "gentle",
+          "title": "Gentle"
+        },
+        {
+          "value": "cheeky",
+          "title": "Cheeky"
+        },
+        {
+          "value": "competitive",
+          "title": "Competitive"
+        }
+      ],
+      "default": "cheeky"
+    },
+    {
+      "key": "sounds",
+      "type": "switch",
+      "title": "Game sounds",
+      "detail": "Soft sounds in every game; a game's speaker button changes its own",
+      "default": false
+    },
+    {
+      "key": "sneaky",
+      "type": "switch",
+      "title": "Sneaky",
+      "detail": "{companion} may cheat for fun where a game allows it, and owns up when caught",
+      "default": false
+    },
+    {
+      "key": "sound_daily_word",
+      "type": "switch",
+      "title": "Daily Word",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "sound_trivia",
+      "type": "switch",
+      "title": "Trivia",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_trivia",
+      "type": "choice",
+      "title": "Trivia",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_tictactoe",
+      "type": "switch",
+      "title": "Tic-tac-toe",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_tictactoe",
+      "type": "choice",
+      "title": "Tic-tac-toe",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_copy_me",
+      "type": "switch",
+      "title": "Copy Me",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_copy_me",
+      "type": "choice",
+      "title": "Copy Me",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_quick_paws",
+      "type": "switch",
+      "title": "Quick Paws",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_quick_paws",
+      "type": "choice",
+      "title": "Quick Paws",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_which_cup",
+      "type": "switch",
+      "title": "Which Cup?",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_which_cup",
+      "type": "choice",
+      "title": "Which Cup?",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_higher_lower",
+      "type": "switch",
+      "title": "Higher or Lower",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "sound_guess_animal",
+      "type": "switch",
+      "title": "Guess My Animal",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "sound_balloon_words",
+      "type": "switch",
+      "title": "Balloon Words",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_balloon_words",
+      "type": "choice",
+      "title": "Balloon Words",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_last_stick",
+      "type": "switch",
+      "title": "Last Stick",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_last_stick",
+      "type": "choice",
+      "title": "Last Stick",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_memory_pairs",
+      "type": "switch",
+      "title": "Memory Pairs",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_memory_pairs",
+      "type": "choice",
+      "title": "Memory Pairs",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_plots",
+      "type": "switch",
+      "title": "Garden Plots",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_plots",
+      "type": "choice",
+      "title": "Garden Plots",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_seesaw",
+      "type": "switch",
+      "title": "Seesaw",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_seesaw",
+      "type": "choice",
+      "title": "Seesaw",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_sudoku",
+      "type": "switch",
+      "title": "Sudoku",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_sudoku",
+      "type": "choice",
+      "title": "Sudoku",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    },
+    {
+      "key": "sound_blossoms",
+      "type": "switch",
+      "title": "Blossoms",
+      "default": false,
+      "listed": false
+    },
+    {
+      "key": "level_blossoms",
+      "type": "choice",
+      "title": "Blossoms",
+      "options": [
+        {
+          "value": "default",
+          "title": "Default"
+        },
+        {
+          "value": "easy",
+          "title": "Easy"
+        },
+        {
+          "value": "fair",
+          "title": "Fair"
+        },
+        {
+          "value": "hard",
+          "title": "Hard"
+        }
+      ],
+      "default": "default",
+      "listed": false
+    }
+  ],
+  "settings_from": "games",
+  "carries": {
+    "history": [
+      "games.play"
+    ]
+  },
+  "choices": {
+    "level": {
+      "easy": [
+        "easy",
+        "beginner"
+      ],
+      "fair": [
+        "fair",
+        "medium",
+        "normal"
+      ],
+      "hard": [
+        "hard",
+        "difficult",
+        "expert"
+      ]
+    }
+  },
+  "parts": {
+    "level": {
+      "say": [
+        "{level:level}"
+      ]
+    },
+    "count": {
+      "say": [
+        "{count:integer:1-50} questions",
+        "{count:integer:1-50} question",
+        "{count:integer:1-50} rounds",
+        "{count:integer:1-50} round",
+        "{count:integer:1-50} qs"
+      ]
+    },
+    "range": {
+      "say": [
+        "between {min:integer} and {max:integer}",
+        "from {min:integer} to {max:integer}",
+        "{min:integer} to {max:integer}",
+        "up to {max:integer}",
+        "at most {max:integer}",
+        "max {max:integer}",
+        "maximum {max:integer}"
+      ]
+    },
+    "topic": {
+      "say": [
+        "about {topic:text:40}",
+        "on the topic of {topic:text:40}",
+        "on the subject of {topic:text:40}"
+      ]
+    },
+    "friend": {
+      "say": [
+        "with my friend",
+        "with a friend",
+        "with my friends",
+        "with friends",
+        "with a friend of mine",
+        "two players",
+        "2 players",
+        "two player",
+        "2 player",
+        "two-player",
+        "2-player",
+        "for two",
+        "against my friend",
+        "against a friend"
+      ],
+      "input": {
+        "players": 2
+      }
+    }
+  },
+  "carry": {
+    "words": [
+      "let's",
+      "lets",
+      "let",
+      "us",
+      "play",
+      "playing",
+      "start",
+      "open",
+      "launch",
+      "begin",
+      "a",
+      "an",
+      "the",
+      "game",
+      "round",
+      "match",
+      "of",
+      "some",
+      "i",
+      "want",
+      "to",
+      "wanna",
+      "would",
+      "like",
+      "we",
+      "can",
+      "could",
+      "shall",
+      "with",
+      "you",
+      "against",
+      "on",
+      "at",
+      "in",
+      "level",
+      "mode",
+      "difficulty",
+      "and",
+      "today's",
+      "todays",
+      "daily",
+      "today",
+      "day",
+      "new",
+      "quick",
+      "for",
+      "me",
+      "do",
+      "go",
+      "have",
+      "now",
+      "questions",
+      "question",
+      "game's"
+    ],
+    "lead": [
+      "play",
+      "let's",
+      "lets",
+      "start",
+      "launch",
+      "daily",
+      "today's",
+      "todays"
+    ]
+  },
+  "entries": [
+    {
+      "id": "games",
+      "title": "Games",
+      "symbol": "gamecontroller.fill",
+      "places": [
+        "companion",
+        "pocket",
+        "ask"
+      ],
+      "tool": "open",
+      "input": {
+        "game": "menu",
+        "person": true
+      }
+    }
+  ]
 }

@@ -10,73 +10,23 @@
     "trivia": {
       "title": "퀴즈",
       "summary": "퀴즈 한 판 하기"
+    },
+    "open": {
+      "title": "게임 열기",
+      "summary": "게임 열기"
+    },
+    "put_away": {
+      "title": "게임 넣어 두기",
+      "summary": "게임 넣어 두기"
+    },
+    "game_settings": {
+      "title": "게임 설정 변경",
+      "summary": "게임 설정 변경"
     }
   },
   "pages": {
     "playtime": {
       "title": "놀이 시간"
-    }
-  },
-  "games": {
-    "daily_word": {
-      "title": "오늘의 단어",
-      "tagline": "매일 새로운 단어 하나"
-    },
-    "trivia": {
-      "title": "퀴즈",
-      "tagline": "모든 주제의 퀴즈"
-    },
-    "tictactoe": {
-      "title": "틱택토",
-      "tagline": "세 개를 이으면 승리"
-    },
-    "copy_me": {
-      "title": "따라 해 봐",
-      "tagline": "동작을 보고 따라 해요"
-    },
-    "quick_paws": {
-      "title": "빠른 발",
-      "tagline": "‘콕!’ 하는 순간 눌러요"
-    },
-    "which_cup": {
-      "title": "어느 컵?",
-      "tagline": "보석에서 눈을 떼지 마요"
-    },
-    "higher_lower": {
-      "title": "업 앤 다운",
-      "tagline": "뜨거울까 차가울까? 숫자 찾기"
-    },
-    "guess_animal": {
-      "title": "동물 맞히기",
-      "tagline": "예 아니요로 맞혀 봐요"
-    },
-    "balloon_words": {
-      "title": "풍선 단어",
-      "tagline": "풍선이 날아가기 전에 단어 찾기"
-    },
-    "last_stick": {
-      "title": "마지막 막대",
-      "tagline": "마지막 막대는 가져가지 마요!"
-    },
-    "memory_pairs": {
-      "title": "짝 맞추기",
-      "tagline": "카드 두 장을 뒤집어 짝 찾기"
-    },
-    "plots": {
-      "title": "텃밭 나누기",
-      "tagline": "숫자대로 텃밭을 나누세요"
-    },
-    "seesaw": {
-      "title": "시소",
-      "tagline": "모든 줄에 하트와 별을 똑같이"
-    },
-    "sudoku": {
-      "title": "스도쿠",
-      "tagline": "행, 열, 상자마다 숫자는 한 번씩"
-    },
-    "blossoms": {
-      "title": "꽃밭",
-      "tagline": "행, 열, 화단마다 꽃 한 송이"
     }
   },
   "text": {
@@ -264,7 +214,6 @@
     "Solved": "성공",
     "Solved in {n}": "{n}번 만에 성공",
     "Solved in {n}!": "{n}번 만에 성공!",
-    "Solved in {time}": "{time}에 풀었어요",
     "Solved in {time}!": "{time}에 풀었어요!",
     "Solved!": "풀었어요!",
     "Space": "우주",
@@ -314,7 +263,6 @@
     "These beds fill those lines between them, ruling out the rest, leaving this.": "이 화단들이 그 줄들을 함께 채워 나머지를 지웁니다. 남는 곳은 여기예요.",
     "Things to eat": "먹을 것",
     "Think of one": "하나 떠올려요",
-    "This game has ended. Open it again to play.": "이 게임은 끝났어요. 다시 열어서 플레이하세요.",
     "This line already has its half of one: the rest are the other.": "이 줄은 한쪽이 이미 절반이에요. 나머지는 다른 것이에요.",
     "This mark isn't right: take it back.": "이 표시는 틀렸어요. 되돌리세요.",
     "This number isn't right: take it back.": "이 숫자는 틀렸어요. 되돌리세요.",
@@ -485,9 +433,528 @@
     "Leave it empty and {name} picks one.": "비워 두면 {name}이(가) 골라요.",
     "{count} questions": {
       "other": "{count}문제"
-    }
+    },
+    "One new word to find every day": "매일 새로운 단어 하나",
+    "Questions on every topic": "모든 주제의 퀴즈",
+    "Three in a row wins": "세 개를 이으면 승리",
+    "Watch the moves, then copy them": "동작을 보고 따라 해요",
+    "Boop the moment it says Boop!": "‘콕!’ 하는 순간 눌러요",
+    "Keep your eye on the gem": "보석에서 눈을 떼지 마요",
+    "Hot or cold? Find the number": "뜨거울까 차가울까? 숫자 찾기",
+    "Yes or no, until one guesses": "예 아니요로 맞혀 봐요",
+    "Find the word before the balloons go": "풍선이 날아가기 전에 단어 찾기",
+    "Don’t take the last stick!": "마지막 막대는 가져가지 마요!",
+    "Turn two cards, find the pairs": "카드 두 장을 뒤집어 짝 찾기",
+    "Split the garden into plots by their numbers": "숫자대로 텃밭을 나누세요",
+    "Balance hearts and stars in every line": "모든 줄에 하트와 별을 똑같이",
+    "Each number once in every row, column and box": "행, 열, 상자마다 숫자는 한 번씩",
+    "One flower in every row, column and bed": "행, 열, 화단마다 꽃 한 송이",
+    "Playtime": "놀이 시간",
+    "1–9 to play": "1~9로 두기",
+    "1–{n} to answer": "1–{n}로 답하기",
+    "A daily seven days running": "일일 도전 7일 연속",
+    "A draw": "무승부",
+    "A week of dailies": "일일 도전 일주일",
+    "All games": "모든 게임",
+    "Arrows and Return to pick": "화살표와 Return으로 고르기",
+    "Arrows to choose · Return to play · Esc to close": "화살표로 선택 · Return으로 시작 · Esc로 닫기",
+    "Back to games": "게임 목록으로",
+    "Badges": "배지",
+    "Beat your companion once": "동반자에게 한 번 이기기",
+    "Continue {title}": "{title} 계속하기",
+    "Delete": "삭제",
+    "Esc to close": "Esc로 닫기",
+    "Every daily done today": "오늘의 일일 도전 모두 완료",
+    "Explorer": "탐험가",
+    "Fifty wins": "50승",
+    "First win": "첫 승리",
+    "Five wins in a row": "5연승",
+    "Full house": "올클리어",
+    "Game settings": "게임 설정",
+    "Game sounds off": "게임 소리 끔",
+    "Game sounds on": "게임 소리 켬",
+    "Games against {name}, and puzzles of your own": "{name}와 대결하는 게임과 혼자 푸는 퍼즐",
+    "Games you finish show here.": "끝낸 게임이 여기에 보여요.",
+    "Hat trick": "해트트릭",
+    "Last games": "최근 게임",
+    "Levels": "단계",
+    "OK": "확인",
+    "Pick a game! Can you beat me?": "게임을 골라요! 나를 이길 수 있을까?",
+    "Play": "놀기",
+    "Play against a friend on this Mac": "이 Mac에서 친구와 대결",
+    "Play against {name}": "{name}와 대결",
+    "Play every game once": "모든 게임 한 번씩 하기",
+    "Play today's {title}": "오늘의 {title} 하기",
+    "Played {title} with {with}": "{with}와(과) {title} 플레이",
+    "Played {title}: {first} {x} · {second} {y}": "{title} 플레이: {first} {x} · {second} {y}",
+    "Puzzler": "퍼즐 달인",
+    "Puzzles": "퍼즐",
+    "Ready when you are!": "준비되면 말해요!",
+    "Resume": "재개",
+    "Return: {label}": "Return: {label}",
+    "Solve ten puzzles": "퍼즐 10개 풀기",
+    "Surprise me": "골라 줘",
+    "Ten wins": "10승",
+    "Three wins in a row": "3연승",
+    "Today": "오늘",
+    "Today's boards are waiting!": "오늘의 퍼즐이 기다려요!",
+    "Try this word": "이 단어로 해 보기",
+    "Type a letter": "글자를 입력해요",
+    "Type a number, Return to guess": "숫자를 입력하고 Return으로 맞히기",
+    "Type a word, Return to try": "단어를 입력하고 Return으로 확인",
+    "Unstoppable": "무적",
+    "VS": "VS",
+    "Win fifty games": "50번 이기기",
+    "Win ten games": "10번 이기기",
+    "Wins": "승리",
+    "Won {won} of {played}": "{played}판 중 {won}승",
+    "You": "나",
+    "You win!": "당신의 승리!",
+    "You won": "이겼어요",
+    "You {x} · {name} {y}": "나 {x} · {name} {y}",
+    "Your guess": "내 숫자",
+    "right": "정답",
+    "wrong": "오답",
+    "your pick": "내 선택",
+    "{keys} to play": "{keys} 키로 내기",
+    "{left} of {total} left": "{total}개 중 {left}개 남음",
+    "{name} has picked": "{name} 선택 완료",
+    "{name} won": "{name} 승리",
+    "{name}'s pick": "{name}의 선택",
+    "{n} days in a row": "{n}일 연속",
+    "{n} in a row": "{n}연속",
+    "{n} of {total} earned": "{total}개 중 {n}개 획득",
+    "{n} seconds left": "{n}초 남음",
+    "{n} solved": "{n}개 풀이",
+    "{n} wins in a row": "{n}연승 중",
+    "{title} has no level “{level}”.": "{title}에는 “{level}” 단계가 없어요.",
+    "{title} has no levels.": "{title}에는 단계가 없어요.",
+    "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
+    "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요."
   },
   "examples": [
     "퀴즈 하자"
-  ]
+  ],
+  "surfaces": {
+    "play": {
+      "title": "놀이 시간"
+    }
+  },
+  "commands": {
+    "daily_word": {
+      "names": [
+        "오늘의 단어"
+      ]
+    },
+    "trivia": {
+      "names": [
+        "퀴즈"
+      ]
+    },
+    "tictactoe": {
+      "names": [
+        "틱택토"
+      ]
+    },
+    "copy_me": {
+      "names": [
+        "따라 해 봐",
+        "따라 하기 하자"
+      ]
+    },
+    "quick_paws": {
+      "names": [
+        "빠른 발"
+      ]
+    },
+    "which_cup": {
+      "names": [
+        "어느 컵?",
+        "컵 맞히기 하자"
+      ]
+    },
+    "higher_lower": {
+      "names": [
+        "업 앤 다운"
+      ]
+    },
+    "guess_animal": {
+      "names": [
+        "동물 맞히기"
+      ]
+    },
+    "balloon_words": {
+      "names": [
+        "풍선 단어"
+      ]
+    },
+    "last_stick": {
+      "names": [
+        "마지막 막대"
+      ]
+    },
+    "memory_pairs": {
+      "names": [
+        "짝 맞추기"
+      ]
+    },
+    "plots": {
+      "names": [
+        "텃밭 나누기"
+      ]
+    },
+    "seesaw": {
+      "names": [
+        "시소"
+      ]
+    },
+    "sudoku": {
+      "names": [
+        "스도쿠"
+      ]
+    },
+    "blossoms": {
+      "names": [
+        "꽃밭"
+      ]
+    },
+    "number_mine": {
+      "names": [
+        "숫자 맞히기",
+        "숫자 맞추기",
+        "네 숫자 맞힐게",
+        "숫자 하나 생각해"
+      ]
+    },
+    "number_yours": {
+      "names": [
+        "내 숫자 맞혀봐",
+        "내 숫자 맞춰봐",
+        "내 숫자 맞혀"
+      ]
+    },
+    "again": [
+      "한 판 더",
+      "한 판 더 하자",
+      "다시 하자",
+      "재경기",
+      "다시 한 판",
+      "리매치",
+      "한 게임 더"
+    ],
+    "harder": [
+      "더 어렵게",
+      "더 어렵게 해줘",
+      "너무 쉬워",
+      "난이도 올려줘",
+      "어렵게 해줘"
+    ],
+    "easier": [
+      "더 쉽게",
+      "더 쉽게 해줘",
+      "너무 어려워",
+      "난이도 내려줘",
+      "난이도 낮춰줘",
+      "쉽게 해줘"
+    ],
+    "resume": [
+      "게임 다시 시작",
+      "게임 재개",
+      "게임 계속하기",
+      "계속하자",
+      "게임으로 돌아가",
+      "이어서 하자"
+    ],
+    "random": [
+      "랜덤 게임",
+      "아무 게임",
+      "아무 게임이나",
+      "게임 골라줘",
+      "게임 하나 골라줘",
+      "랜덤으로 게임하자"
+    ],
+    "center": [
+      "내 점수",
+      "내 점수 보여줘",
+      "점수 보여줘",
+      "내 기록",
+      "게임 기록",
+      "게임 센터",
+      "게임 센터 열어줘",
+      "내 배지"
+    ],
+    "pause": [
+      "게임 일시정지",
+      "게임 멈춰",
+      "게임 멈춰줘",
+      "게임 잠깐 멈춰",
+      "게임 숨겨줘"
+    ],
+    "sounds_off": [
+      "게임 소리 꺼줘",
+      "게임 소리 끄기",
+      "게임 소리 꺼",
+      "게임 음소거"
+    ],
+    "sounds_on": [
+      "게임 소리 켜줘",
+      "게임 소리 켜기",
+      "게임 소리 켜",
+      "게임 음소거 해제"
+    ]
+  },
+  "ai_purpose": "원하는 주제의 퀴즈 문제를 만들기 위해",
+  "parts": {
+    "level": [
+      "{level:level}"
+    ],
+    "count": [
+      "{count:integer:1-50}문제",
+      "{count:integer:1-50}문항",
+      "{count:integer:1-50}라운드"
+    ],
+    "range": [
+      "{min:integer}부터 {max:integer}까지",
+      "{min:integer}에서 {max:integer}까지",
+      "{min:integer}부터 {max:integer}",
+      "{max:integer}까지"
+    ],
+    "topic": [
+      "{topic:text:40}에 대한",
+      "{topic:text:40} 관련"
+    ],
+    "friend": [
+      "친구랑",
+      "친구와",
+      "친구하고",
+      "둘이서",
+      "둘이",
+      "2인용",
+      "두 명이서",
+      "2명이서"
+    ]
+  },
+  "choices": {
+    "level": {
+      "easy": [
+        "쉬움",
+        "쉬운",
+        "쉽게"
+      ],
+      "fair": [
+        "보통"
+      ],
+      "hard": [
+        "어려움",
+        "어려운",
+        "어렵게"
+      ]
+    }
+  },
+  "carry": {
+    "words": [
+      "하자",
+      "할래",
+      "게임",
+      "같이",
+      "오늘의",
+      "모드",
+      "난이도",
+      "하고",
+      "싶어",
+      "해줘",
+      "해",
+      "줘",
+      "놀자",
+      "한",
+      "판"
+    ],
+    "lead": [
+      "하자",
+      "놀자",
+      "오늘의"
+    ],
+    "inside": [],
+    "endings": [
+      "으로",
+      "를",
+      "을",
+      "로"
+    ]
+  },
+  "entries": {
+    "games": "게임"
+  },
+  "settings": {
+    "tone": {
+      "title": "이겼을 때",
+      "detail": "{companion}이(가) 이겼을 때",
+      "options": {
+        "gentle": "Gentle",
+        "cheeky": "Cheeky",
+        "competitive": "Competitive"
+      }
+    },
+    "sounds": {
+      "title": "게임 소리",
+      "detail": "모든 게임에 부드러운 소리. 게임마다 스피커 버튼으로 따로 바꿔요"
+    },
+    "sneaky": {
+      "title": "장난꾸러기",
+      "detail": "{companion}이(가) 게임이 허락하는 곳에서 장난으로 속이고, 들키면 털어놓아요"
+    },
+    "sound_daily_word": {
+      "title": "오늘의 단어"
+    },
+    "sound_trivia": {
+      "title": "퀴즈"
+    },
+    "level_trivia": {
+      "title": "퀴즈",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_tictactoe": {
+      "title": "틱택토"
+    },
+    "level_tictactoe": {
+      "title": "틱택토",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_copy_me": {
+      "title": "따라 해 봐"
+    },
+    "level_copy_me": {
+      "title": "따라 해 봐",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_quick_paws": {
+      "title": "빠른 발"
+    },
+    "level_quick_paws": {
+      "title": "빠른 발",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_which_cup": {
+      "title": "어느 컵?"
+    },
+    "level_which_cup": {
+      "title": "어느 컵?",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_higher_lower": {
+      "title": "업 앤 다운"
+    },
+    "sound_guess_animal": {
+      "title": "동물 맞히기"
+    },
+    "sound_balloon_words": {
+      "title": "풍선 단어"
+    },
+    "level_balloon_words": {
+      "title": "풍선 단어",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_last_stick": {
+      "title": "마지막 막대"
+    },
+    "level_last_stick": {
+      "title": "마지막 막대",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_memory_pairs": {
+      "title": "짝 맞추기"
+    },
+    "level_memory_pairs": {
+      "title": "짝 맞추기",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_plots": {
+      "title": "텃밭 나누기"
+    },
+    "level_plots": {
+      "title": "텃밭 나누기",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_seesaw": {
+      "title": "시소"
+    },
+    "level_seesaw": {
+      "title": "시소",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_sudoku": {
+      "title": "스도쿠"
+    },
+    "level_sudoku": {
+      "title": "스도쿠",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    },
+    "sound_blossoms": {
+      "title": "꽃밭"
+    },
+    "level_blossoms": {
+      "title": "꽃밭",
+      "options": {
+        "default": "기본값",
+        "easy": "쉬움",
+        "fair": "보통",
+        "hard": "어려움"
+      }
+    }
+  }
 }

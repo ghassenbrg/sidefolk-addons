@@ -10,73 +10,23 @@
     "trivia": {
       "title": "クイズ",
       "summary": "クイズを1回遊ぶ"
+    },
+    "open": {
+      "title": "ゲームを開く",
+      "summary": "ゲームを開く"
+    },
+    "put_away": {
+      "title": "ゲームをしまう",
+      "summary": "ゲームをしまう"
+    },
+    "game_settings": {
+      "title": "ゲームの設定を変更",
+      "summary": "ゲームの設定を変更"
     }
   },
   "pages": {
     "playtime": {
       "title": "あそびタイム"
-    }
-  },
-  "games": {
-    "daily_word": {
-      "title": "今日のことば",
-      "tagline": "毎日ひとつ、新しい言葉"
-    },
-    "trivia": {
-      "title": "クイズ",
-      "tagline": "いろんなジャンルのクイズ"
-    },
-    "tictactoe": {
-      "title": "まるばつ",
-      "tagline": "3つ並べたら勝ち"
-    },
-    "copy_me": {
-      "title": "まねっこ",
-      "tagline": "動きを見て、まねしよう"
-    },
-    "quick_paws": {
-      "title": "はやおし",
-      "tagline": "「ポン！」の瞬間に押そう"
-    },
-    "which_cup": {
-      "title": "どのカップ？",
-      "tagline": "宝石から目をはなさないで"
-    },
-    "higher_lower": {
-      "title": "ハイ＆ロー",
-      "tagline": "熱い?冷たい?数を当てよう"
-    },
-    "guess_animal": {
-      "title": "どうぶつ当て",
-      "tagline": "はい・いいえで当てっこ"
-    },
-    "balloon_words": {
-      "title": "ふうせんことば",
-      "tagline": "風船が飛ぶ前に言葉を当てよう"
-    },
-    "last_stick": {
-      "title": "さいごの1本",
-      "tagline": "最後の1本を取らないで!"
-    },
-    "memory_pairs": {
-      "title": "神経衰弱",
-      "tagline": "2枚めくってペアを探そう"
-    },
-    "plots": {
-      "title": "畑わけ",
-      "tagline": "数字のとおりに畑を区切ろう"
-    },
-    "seesaw": {
-      "title": "シーソー",
-      "tagline": "どの列もハートと星をつり合わせよう"
-    },
-    "sudoku": {
-      "title": "数独",
-      "tagline": "どの行・列・ブロックにも数字は1回ずつ"
-    },
-    "blossoms": {
-      "title": "花ばたけ",
-      "tagline": "行・列・花壇にひとつずつ花を"
     }
   },
   "text": {
@@ -264,7 +214,6 @@
     "Solved": "正解",
     "Solved in {n}": "{n}回で正解",
     "Solved in {n}!": "{n}回で正解！",
-    "Solved in {time}": "{time}で解けました",
     "Solved in {time}!": "{time}で解けました！",
     "Solved!": "解けました！",
     "Space": "宇宙",
@@ -314,7 +263,6 @@
     "These beds fill those lines between them, ruling out the rest, leaving this.": "これらの花壇でその列が埋まるので、ほかは除外されます。残るのはここです。",
     "Things to eat": "たべもの",
     "Think of one": "あなたが思いうかべる",
-    "This game has ended. Open it again to play.": "このゲームは終わりました。もう一度開いて遊んでください。",
     "This line already has its half of one: the rest are the other.": "この列はもう片方が半分そろっています。残りはもう一方です。",
     "This mark isn't right: take it back.": "この印は違います。取り消しましょう。",
     "This number isn't right: take it back.": "この数字は違います。取り消しましょう。",
@@ -485,9 +433,542 @@
     "Leave it empty and {name} picks one.": "空欄なら{name}が選びます。",
     "{count} questions": {
       "other": "{count}問"
-    }
+    },
+    "One new word to find every day": "毎日ひとつ、新しい言葉",
+    "Questions on every topic": "いろんなジャンルのクイズ",
+    "Three in a row wins": "3つ並べたら勝ち",
+    "Watch the moves, then copy them": "動きを見て、まねしよう",
+    "Boop the moment it says Boop!": "「ポン！」の瞬間に押そう",
+    "Keep your eye on the gem": "宝石から目をはなさないで",
+    "Hot or cold? Find the number": "熱い?冷たい?数を当てよう",
+    "Yes or no, until one guesses": "はい・いいえで当てっこ",
+    "Find the word before the balloons go": "風船が飛ぶ前に言葉を当てよう",
+    "Don’t take the last stick!": "最後の1本を取らないで!",
+    "Turn two cards, find the pairs": "2枚めくってペアを探そう",
+    "Split the garden into plots by their numbers": "数字のとおりに畑を区切ろう",
+    "Balance hearts and stars in every line": "どの列もハートと星をつり合わせよう",
+    "Each number once in every row, column and box": "どの行・列・ブロックにも数字は1回ずつ",
+    "One flower in every row, column and bed": "行・列・花壇にひとつずつ花を",
+    "Playtime": "あそびタイム",
+    "1–9 to play": "1〜9で置く",
+    "1–{n} to answer": "1〜{n}で回答",
+    "A daily seven days running": "デイリーを7日連続で",
+    "A draw": "引き分け",
+    "A week of dailies": "デイリーの1週間",
+    "All games": "すべてのゲーム",
+    "Arrows and Return to pick": "矢印とReturnで選ぶ",
+    "Arrows to choose · Return to play · Esc to close": "矢印で選ぶ · Returnで遊ぶ · Escで閉じる",
+    "Back to games": "ゲーム一覧へ",
+    "Badges": "バッジ",
+    "Beat your companion once": "相棒に1回勝つ",
+    "Continue {title}": "{title}を続ける",
+    "Delete": "削除",
+    "Esc to close": "Escで閉じる",
+    "Every daily done today": "今日のデイリーをすべてクリア",
+    "Explorer": "探検家",
+    "Fifty wins": "50勝",
+    "First win": "初勝利",
+    "Five wins in a row": "5連勝",
+    "Full house": "パーフェクト",
+    "Game settings": "ゲームの設定",
+    "Game sounds off": "ゲームの効果音オフ",
+    "Game sounds on": "ゲームの効果音オン",
+    "Games against {name}, and puzzles of your own": "{name}との対戦ゲームと、ひとりで遊べるパズル",
+    "Games you finish show here.": "終わったゲームがここに表示されます。",
+    "Hat trick": "ハットトリック",
+    "Last games": "最近のゲーム",
+    "Levels": "レベル",
+    "OK": "OK",
+    "Pick a game! Can you beat me?": "ゲームを選んで！ わたしに勝てるかな？",
+    "Play": "あそぶ",
+    "Play against a friend on this Mac": "このMacで友だちと対戦",
+    "Play against {name}": "{name}と対戦",
+    "Play every game once": "すべてのゲームを1回遊ぶ",
+    "Play today's {title}": "今日の{title}で遊ぶ",
+    "Played {title} with {with}": "{with}と{title}で遊びました",
+    "Played {title}: {first} {x} · {second} {y}": "{title}で遊んだ：{first} {x} · {second} {y}",
+    "Puzzler": "パズル名人",
+    "Puzzles": "パズル",
+    "Ready when you are!": "いつでもいいよ！",
+    "Resume": "再開",
+    "Return: {label}": "Return：{label}",
+    "Solve ten puzzles": "パズルを10回クリア",
+    "Surprise me": "おまかせ",
+    "Ten wins": "10勝",
+    "Three wins in a row": "3連勝",
+    "Today": "今日",
+    "Today's boards are waiting!": "今日のパズルが待ってるよ！",
+    "Try this word": "この言葉でためす",
+    "Type a letter": "文字を入力",
+    "Type a number, Return to guess": "数を入力、Returnで答える",
+    "Type a word, Return to try": "言葉を入力、Returnでためす",
+    "Unstoppable": "無敵",
+    "VS": "VS",
+    "Win fifty games": "50回勝つ",
+    "Win ten games": "10回勝つ",
+    "Wins": "勝ち",
+    "Won {won} of {played}": "{played}戦{won}勝",
+    "You": "自分",
+    "You win!": "あなたの勝ち！",
+    "You won": "あなたの勝ち",
+    "You {x} · {name} {y}": "自分 {x} · {name} {y}",
+    "Your guess": "あなたの数",
+    "right": "正解",
+    "wrong": "不正解",
+    "your pick": "自分の選択",
+    "{keys} to play": "{keys}で遊ぶ",
+    "{left} of {total} left": "残り{total}個中{left}個",
+    "{name} has picked": "{name}は選びました",
+    "{name} won": "{name}の勝ち",
+    "{name}'s pick": "{name}の選択",
+    "{n} days in a row": "{n}日連続",
+    "{n} in a row": "{n}連続",
+    "{n} of {total} earned": "{total}個中{n}個獲得",
+    "{n} seconds left": "残り{n}秒",
+    "{n} solved": "{n}回クリア",
+    "{n} wins in a row": "{n}連勝中",
+    "{title} has no level “{level}”.": "{title}にはレベル「{level}」がありません。",
+    "{title} has no levels.": "{title}にはレベルがありません。",
+    "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
+    "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。"
   },
   "examples": [
     "クイズをしよう"
-  ]
+  ],
+  "surfaces": {
+    "play": {
+      "title": "あそびタイム"
+    }
+  },
+  "commands": {
+    "daily_word": {
+      "names": [
+        "今日のことば"
+      ]
+    },
+    "trivia": {
+      "names": [
+        "クイズ"
+      ]
+    },
+    "tictactoe": {
+      "names": [
+        "まるばつ"
+      ]
+    },
+    "copy_me": {
+      "names": [
+        "まねっこ"
+      ]
+    },
+    "quick_paws": {
+      "names": [
+        "はやおし"
+      ]
+    },
+    "which_cup": {
+      "names": [
+        "どのカップ？",
+        "カップあてしよう"
+      ]
+    },
+    "higher_lower": {
+      "names": [
+        "ハイ＆ロー",
+        "ハイアンドローしよう"
+      ]
+    },
+    "guess_animal": {
+      "names": [
+        "どうぶつ当て"
+      ]
+    },
+    "balloon_words": {
+      "names": [
+        "ふうせんことば"
+      ]
+    },
+    "last_stick": {
+      "names": [
+        "さいごの1本"
+      ]
+    },
+    "memory_pairs": {
+      "names": [
+        "神経衰弱"
+      ]
+    },
+    "plots": {
+      "names": [
+        "畑わけ"
+      ]
+    },
+    "seesaw": {
+      "names": [
+        "シーソー"
+      ]
+    },
+    "sudoku": {
+      "names": [
+        "数独"
+      ]
+    },
+    "blossoms": {
+      "names": [
+        "花ばたけ"
+      ]
+    },
+    "number_mine": {
+      "names": [
+        "数当て",
+        "数あて",
+        "数字当て",
+        "あなたの数字を当てる",
+        "数字を考えて"
+      ]
+    },
+    "number_yours": {
+      "names": [
+        "私の数字を当てて",
+        "わたしの数字を当てて",
+        "僕の数字を当てて",
+        "数字を当てて"
+      ]
+    },
+    "again": [
+      "もう一回やろう",
+      "もう一回しよう",
+      "もう1回やろう",
+      "もう一戦",
+      "リベンジ",
+      "再戦",
+      "リマッチ"
+    ],
+    "harder": [
+      "もっと難しく",
+      "もっとむずかしく",
+      "難しくして",
+      "むずかしくして",
+      "もっと難しくして",
+      "簡単すぎる",
+      "かんたんすぎる",
+      "難易度を上げて"
+    ],
+    "easier": [
+      "もっと簡単に",
+      "もっとかんたんに",
+      "簡単にして",
+      "かんたんにして",
+      "やさしくして",
+      "もっとやさしく",
+      "難しすぎる",
+      "むずかしすぎる",
+      "難易度を下げて"
+    ],
+    "resume": [
+      "ゲームを再開",
+      "ゲームを再開して",
+      "続きをやろう",
+      "続きをしよう",
+      "ゲームに戻る",
+      "ゲームに戻って"
+    ],
+    "random": [
+      "ランダムなゲーム",
+      "ランダムでゲーム",
+      "ゲームを選んで",
+      "何かゲームを選んで",
+      "おまかせでゲーム",
+      "適当なゲーム",
+      "ランダムで遊ぼう"
+    ],
+    "center": [
+      "スコアを見せて",
+      "私のスコア",
+      "成績を見せて",
+      "ゲームの成績",
+      "ゲームの記録",
+      "ゲームセンター",
+      "ゲームセンターを開いて",
+      "バッジを見せて"
+    ],
+    "pause": [
+      "ゲームを一時停止",
+      "ゲームを一時停止して",
+      "ゲームを止めて",
+      "ゲームをしまって",
+      "ゲームを隠して"
+    ],
+    "sounds_off": [
+      "ゲームの音を消して",
+      "ゲーム音オフ",
+      "ゲームの音をオフ",
+      "ゲームの音をオフにして",
+      "ゲームをミュート"
+    ],
+    "sounds_on": [
+      "ゲームの音をつけて",
+      "ゲーム音オン",
+      "ゲームの音をオン",
+      "ゲームの音をオンにして",
+      "ゲームのミュートを解除"
+    ]
+  },
+  "ai_purpose": "あなたが選んだテーマのクイズ問題を作るため",
+  "parts": {
+    "level": [
+      "{level:level}"
+    ],
+    "count": [
+      "{count:integer:1-50}問題",
+      "{count:integer:1-50}問",
+      "{count:integer:1-50}もん"
+    ],
+    "range": [
+      "{min:integer}から{max:integer}まで",
+      "{min:integer}から{max:integer}",
+      "{max:integer}まで"
+    ],
+    "topic": [
+      "{topic:text:40}について",
+      "{topic:text:40}に関する"
+    ],
+    "friend": [
+      "友だちと",
+      "友達と",
+      "ともだちと",
+      "ふたりで",
+      "二人で",
+      "2人で",
+      "二人用",
+      "2人用"
+    ]
+  },
+  "choices": {
+    "level": {
+      "easy": [
+        "かんたん",
+        "簡単",
+        "やさしい",
+        "易しい"
+      ],
+      "fair": [
+        "ふつう",
+        "普通"
+      ],
+      "hard": [
+        "むずかしい",
+        "難しい"
+      ]
+    }
+  },
+  "carry": {
+    "words": [],
+    "lead": [
+      "しよう",
+      "やろう",
+      "遊ぼう",
+      "あそぼう",
+      "今日の"
+    ],
+    "inside": [
+      "をしよう",
+      "でしよう",
+      "しよう",
+      "しよ",
+      "をやろう",
+      "でやろう",
+      "やろう",
+      "で遊ぼう",
+      "遊ぼう",
+      "あそぼう",
+      "がしたい",
+      "したい",
+      "やりたい",
+      "一緒に",
+      "今日の",
+      "ゲーム",
+      "モード",
+      "レベル",
+      "を",
+      "で",
+      "の"
+    ],
+    "endings": []
+  },
+  "entries": {
+    "games": "ゲーム"
+  },
+  "settings": {
+    "tone": {
+      "title": "勝ったとき",
+      "detail": "{companion}が勝ったときの反応",
+      "options": {
+        "gentle": "Gentle",
+        "cheeky": "Cheeky",
+        "competitive": "Competitive"
+      }
+    },
+    "sounds": {
+      "title": "ゲームの効果音",
+      "detail": "すべてのゲームでやさしい効果音。ゲームごとのスピーカーボタンでそのゲームだけ切り替え"
+    },
+    "sneaky": {
+      "title": "いたずら",
+      "detail": "{companion}はゲームが許すところでふざけてズルをし、見つかったら白状します"
+    },
+    "sound_daily_word": {
+      "title": "今日のことば"
+    },
+    "sound_trivia": {
+      "title": "クイズ"
+    },
+    "level_trivia": {
+      "title": "クイズ",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_tictactoe": {
+      "title": "まるばつ"
+    },
+    "level_tictactoe": {
+      "title": "まるばつ",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_copy_me": {
+      "title": "まねっこ"
+    },
+    "level_copy_me": {
+      "title": "まねっこ",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_quick_paws": {
+      "title": "はやおし"
+    },
+    "level_quick_paws": {
+      "title": "はやおし",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_which_cup": {
+      "title": "どのカップ？"
+    },
+    "level_which_cup": {
+      "title": "どのカップ？",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_higher_lower": {
+      "title": "ハイ＆ロー"
+    },
+    "sound_guess_animal": {
+      "title": "どうぶつ当て"
+    },
+    "sound_balloon_words": {
+      "title": "ふうせんことば"
+    },
+    "level_balloon_words": {
+      "title": "ふうせんことば",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_last_stick": {
+      "title": "さいごの1本"
+    },
+    "level_last_stick": {
+      "title": "さいごの1本",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_memory_pairs": {
+      "title": "神経衰弱"
+    },
+    "level_memory_pairs": {
+      "title": "神経衰弱",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_plots": {
+      "title": "畑わけ"
+    },
+    "level_plots": {
+      "title": "畑わけ",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_seesaw": {
+      "title": "シーソー"
+    },
+    "level_seesaw": {
+      "title": "シーソー",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_sudoku": {
+      "title": "数独"
+    },
+    "level_sudoku": {
+      "title": "数独",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    },
+    "sound_blossoms": {
+      "title": "花ばたけ"
+    },
+    "level_blossoms": {
+      "title": "花ばたけ",
+      "options": {
+        "default": "デフォルト",
+        "easy": "かんたん",
+        "fair": "ふつう",
+        "hard": "むずかしい"
+      }
+    }
+  }
 }

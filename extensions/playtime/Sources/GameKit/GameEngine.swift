@@ -48,8 +48,9 @@ struct GameOptions: Codable, Equatable {
     var sneaky = false
     /// How the companion takes a win: gentle, cheeky, competitive.
     var tone = "cheeky"
-    /// The companion's name, for the words that name it ("Ask Mochi").
-    var companion = "Mochi"
+    /// The companion's name, for the words that name it ("Ask Mochi"): `{companion}`, which Sidefolk fills in where it draws them. The
+    /// program is never told it.
+    var companion = "{companion}"
     /// The person's language, for content that comes per language (questions, words, animals).
     var language = "en"
     /// The level the person asked for, nil when Sidefolk sent none (a game opened from the menu): a puzzle then opens
@@ -73,7 +74,6 @@ struct GameOptions: Codable, Equatable {
     init(_ args: Arguments, language: String) {
         sneaky = args.bool("sneaky") ?? false
         tone = args.string("tone") ?? "cheeky"
-        companion = args.string("companion") ?? "Mochi"
         self.language = Localized.normalized(language)
         twoPlayers = args.int("players") == 2
         let given = (args.values["names"] as? [Any] ?? []).compactMap { $0 as? String }

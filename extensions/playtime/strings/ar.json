@@ -10,73 +10,23 @@
     "trivia": {
       "title": "مسابقة أسئلة",
       "summary": "لعب جولة من مسابقة الأسئلة"
+    },
+    "open": {
+      "title": "فتح لعبة",
+      "summary": "فتح لعبة"
+    },
+    "put_away": {
+      "title": "إبعاد اللعبة",
+      "summary": "إبعاد اللعبة"
+    },
+    "game_settings": {
+      "title": "تغيير إعدادات الألعاب",
+      "summary": "تغيير إعدادات الألعاب"
     }
   },
   "pages": {
     "playtime": {
       "title": "وقت اللعب"
-    }
-  },
-  "games": {
-    "daily_word": {
-      "title": "كلمة اليوم",
-      "tagline": "كلمة جديدة كل يوم"
-    },
-    "trivia": {
-      "title": "مسابقة",
-      "tagline": "أسئلة في كل المواضيع"
-    },
-    "tictactoe": {
-      "title": "إكس-أو",
-      "tagline": "ثلاثة في صف تفوز"
-    },
-    "copy_me": {
-      "title": "قلّدني",
-      "tagline": "شاهد الحركات ثم قلّدها"
-    },
-    "quick_paws": {
-      "title": "مخالب سريعة",
-      "tagline": "اضغط لحظة ظهور «بوب!»"
-    },
-    "which_cup": {
-      "title": "أيّ كوب؟",
-      "tagline": "لا تُبعد عينك عن الجوهرة"
-    },
-    "higher_lower": {
-      "title": "أكبر أم أصغر",
-      "tagline": "ساخن أم بارد؟ اعثر على الرقم"
-    },
-    "guess_animal": {
-      "title": "خمّن حيواني",
-      "tagline": "نعم أو لا، حتى يخمّن أحدكما"
-    },
-    "balloon_words": {
-      "title": "كلمات البالونات",
-      "tagline": "اعثر على الكلمة قبل أن تطير البالونات"
-    },
-    "last_stick": {
-      "title": "العود الأخير",
-      "tagline": "لا تأخذ العود الأخير!"
-    },
-    "memory_pairs": {
-      "title": "أزواج الذاكرة",
-      "tagline": "اقلب بطاقتين واعثر على الأزواج"
-    },
-    "plots": {
-      "title": "قطع الحديقة",
-      "tagline": "قسّم الحديقة حسب أرقامها"
-    },
-    "seesaw": {
-      "title": "الميزان",
-      "tagline": "وازن القلوب والنجوم في كل خط"
-    },
-    "sudoku": {
-      "title": "سودوكو",
-      "tagline": "كل رقم مرة في كل صف وعمود ومربع"
-    },
-    "blossoms": {
-      "title": "أزهار",
-      "tagline": "زهرة في كل صف وعمود وحوض"
     }
   },
   "text": {
@@ -284,7 +234,6 @@
     "Solved": "المحلولة",
     "Solved in {n}": "حُلّت في {n}",
     "Solved in {n}!": "حُلّت في {n}!",
-    "Solved in {time}": "حُلّت في {time}",
     "Solved in {time}!": "حُلّت في {time}!",
     "Solved!": "حُلّت!",
     "Space": "الفضاء",
@@ -334,7 +283,6 @@
     "These beds fill those lines between them, ruling out the rest, leaving this.": "هذه الأحواض تملأ تلك الخطوط معًا وتستبعد الباقي، فيبقى هذا المكان.",
     "Things to eat": "أشياء تؤكل",
     "Think of one": "فكّر في واحد",
-    "This game has ended. Open it again to play.": "انتهت هذه اللعبة. افتحها مجددًا للعب.",
     "This line already has its half of one: the rest are the other.": "هذا الخط فيه نصفه من أحدهما، فالباقي هو الآخر.",
     "This mark isn't right: take it back.": "هذه العلامة غير صحيحة: تراجع عنها.",
     "This number isn't right: take it back.": "هذا الرقم غير صحيح: تراجع عنه.",
@@ -565,9 +513,533 @@
       "few": "{count} أسئلة",
       "many": "{count} سؤالًا",
       "other": "{count} سؤال"
-    }
+    },
+    "One new word to find every day": "كلمة جديدة كل يوم",
+    "Questions on every topic": "أسئلة في كل المواضيع",
+    "Three in a row wins": "ثلاثة في صف تفوز",
+    "Watch the moves, then copy them": "شاهد الحركات ثم قلّدها",
+    "Boop the moment it says Boop!": "اضغط لحظة ظهور «بوب!»",
+    "Keep your eye on the gem": "لا تُبعد عينك عن الجوهرة",
+    "Hot or cold? Find the number": "ساخن أم بارد؟ اعثر على الرقم",
+    "Yes or no, until one guesses": "نعم أو لا، حتى يخمّن أحدكما",
+    "Find the word before the balloons go": "اعثر على الكلمة قبل أن تطير البالونات",
+    "Don’t take the last stick!": "لا تأخذ العود الأخير!",
+    "Turn two cards, find the pairs": "اقلب بطاقتين واعثر على الأزواج",
+    "Split the garden into plots by their numbers": "قسّم الحديقة حسب أرقامها",
+    "Balance hearts and stars in every line": "وازن القلوب والنجوم في كل خط",
+    "Each number once in every row, column and box": "كل رقم مرة في كل صف وعمود ومربع",
+    "One flower in every row, column and bed": "زهرة في كل صف وعمود وحوض",
+    "Playtime": "وقت اللعب",
+    "1–9 to play": "1–9 للعب",
+    "1–{n} to answer": "1–{n} للإجابة",
+    "A daily seven days running": "تحدٍّ يومي سبعة أيام متتالية",
+    "A draw": "تعادل",
+    "A week of dailies": "أسبوع من التحديات",
+    "All games": "كل الألعاب",
+    "Arrows and Return to pick": "الأسهم والإدخال للاختيار",
+    "Arrows to choose · Return to play · Esc to close": "الأسهم للاختيار · Return للعب · Esc للإغلاق",
+    "Back to games": "العودة إلى الألعاب",
+    "Badges": "شارات",
+    "Beat your companion once": "هزيمة رفيقك مرة واحدة",
+    "Continue {title}": "متابعة {title}",
+    "Delete": "حذف",
+    "Esc to close": "Esc للإغلاق",
+    "Every daily done today": "اكتملت كل تحديات اليوم",
+    "Explorer": "مستكشف",
+    "Fifty wins": "خمسون فوزًا",
+    "First win": "أول فوز",
+    "Five wins in a row": "خمسة انتصارات متتالية",
+    "Full house": "علامة كاملة",
+    "Game settings": "إعدادات الألعاب",
+    "Game sounds off": "أصوات الألعاب متوقفة",
+    "Game sounds on": "أصوات الألعاب مشغلة",
+    "Games against {name}, and puzzles of your own": "ألعاب ضد {name}، وألغاز لك وحدك",
+    "Games you finish show here.": "تظهر هنا الألعاب التي تنهيها.",
+    "Hat trick": "هاتريك",
+    "Last games": "آخر الألعاب",
+    "Levels": "الدرجات",
+    "OK": "حسنًا",
+    "Pick a game! Can you beat me?": "اختر لعبة! هل تستطيع هزيمتي؟",
+    "Play": "العب",
+    "Play against a friend on this Mac": "العب ضد صديق على هذا الماك",
+    "Play against {name}": "العب ضد {name}",
+    "Play every game once": "العب كل لعبة مرة",
+    "Play today's {title}": "لعب {title} اليوم",
+    "Played {title} with {with}": "لعب {title} مع {with}",
+    "Played {title}: {first} {x} · {second} {y}": "لُعبت {title}: {first} {x} · {second} {y}",
+    "Puzzler": "خبير الألغاز",
+    "Puzzles": "ألغاز",
+    "Ready when you are!": "متى شئت!",
+    "Resume": "استئناف",
+    "Return: {label}": "Return: {label}",
+    "Solve ten puzzles": "حل عشرة ألغاز",
+    "Surprise me": "فاجئني",
+    "Ten wins": "عشرة انتصارات",
+    "Three wins in a row": "ثلاثة انتصارات متتالية",
+    "Today": "اليوم",
+    "Today's boards are waiting!": "ألغاز اليوم بانتظارك!",
+    "Try this word": "جرّب هذه الكلمة",
+    "Type a letter": "اكتب حرفًا",
+    "Type a number, Return to guess": "اكتب رقمًا، والإدخال للتخمين",
+    "Type a word, Return to try": "اكتب كلمة، والإدخال للتجربة",
+    "Unstoppable": "لا يُهزم",
+    "VS": "ضد",
+    "Win fifty games": "الفوز بخمسين لعبة",
+    "Win ten games": "الفوز بعشر ألعاب",
+    "Wins": "انتصارات",
+    "Won {won} of {played}": "فاز في {won} من {played}",
+    "You": "أنت",
+    "You win!": "فزت!",
+    "You won": "فزت",
+    "You {x} · {name} {y}": "أنت {x} · {name} {y}",
+    "Your guess": "تخمينك",
+    "right": "صحيحة",
+    "wrong": "خاطئة",
+    "your pick": "اختيارك",
+    "{keys} to play": "{keys} للعب",
+    "{left} of {total} left": "بقي {left} من {total}",
+    "{name} has picked": "اختار {name}",
+    "{name} won": "فاز {name}",
+    "{name}'s pick": "اختيار {name}",
+    "{n} days in a row": "{n} يوم متتالٍ",
+    "{n} in a row": "{n} على التوالي",
+    "{n} of {total} earned": "{n} من {total} مكتسبة",
+    "{n} seconds left": "بقيت {n} ث",
+    "{n} solved": "حُل {n}",
+    "{n} wins in a row": "{n} فوز متتالٍ",
+    "{title} has no level “{level}”.": "لا توجد في {title} درجة «{level}».",
+    "{title} has no levels.": "لا توجد درجات في {title}.",
+    "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
+    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل."
   },
   "examples": [
     "هيا نلعب مسابقة أسئلة"
-  ]
+  ],
+  "surfaces": {
+    "play": {
+      "title": "وقت اللعب"
+    }
+  },
+  "commands": {
+    "daily_word": {
+      "names": [
+        "كلمة اليوم"
+      ]
+    },
+    "trivia": {
+      "names": [
+        "مسابقة"
+      ]
+    },
+    "tictactoe": {
+      "names": [
+        "إكس-أو"
+      ]
+    },
+    "copy_me": {
+      "names": [
+        "قلّدني"
+      ]
+    },
+    "quick_paws": {
+      "names": [
+        "مخالب سريعة"
+      ]
+    },
+    "which_cup": {
+      "names": [
+        "أيّ كوب؟",
+        "لنلعب أي كوب"
+      ]
+    },
+    "higher_lower": {
+      "names": [
+        "أكبر أم أصغر"
+      ]
+    },
+    "guess_animal": {
+      "names": [
+        "خمّن حيواني",
+        "لنلعب خمن حيواني"
+      ]
+    },
+    "balloon_words": {
+      "names": [
+        "كلمات البالونات"
+      ]
+    },
+    "last_stick": {
+      "names": [
+        "العود الأخير"
+      ]
+    },
+    "memory_pairs": {
+      "names": [
+        "أزواج الذاكرة"
+      ]
+    },
+    "plots": {
+      "names": [
+        "قطع الحديقة"
+      ]
+    },
+    "seesaw": {
+      "names": [
+        "الميزان"
+      ]
+    },
+    "sudoku": {
+      "names": [
+        "سودوكو"
+      ]
+    },
+    "blossoms": {
+      "names": [
+        "أزهار",
+        "لنلعب الأزهار"
+      ]
+    },
+    "number_mine": {
+      "names": [
+        "خمن رقما",
+        "خمن رقمًا",
+        "تخمين رقم",
+        "سأخمن رقمك",
+        "فكر في رقم"
+      ]
+    },
+    "number_yours": {
+      "names": [
+        "خمن رقمي",
+        "حاول تخمين رقمي",
+        "سأفكر في رقم"
+      ]
+    },
+    "again": [
+      "مباراة أخرى",
+      "جولة أخرى",
+      "لنلعب مرة أخرى",
+      "العب مرة أخرى",
+      "مباراة ثأرية",
+      "أريد الثأر",
+      "لعبة أخرى"
+    ],
+    "harder": [
+      "أصعب",
+      "اجعلها أصعب",
+      "اجعل اللعبة أصعب",
+      "سهلة جدا",
+      "سهلة جدًا",
+      "إنها سهلة جدا",
+      "زد الصعوبة",
+      "ارفع الصعوبة"
+    ],
+    "easier": [
+      "أسهل",
+      "اجعلها أسهل",
+      "اجعل اللعبة أسهل",
+      "صعبة جدا",
+      "صعبة جدًا",
+      "إنها صعبة جدا",
+      "قلل الصعوبة"
+    ],
+    "resume": [
+      "استأنف اللعبة",
+      "استئناف اللعبة",
+      "تابع اللعبة",
+      "أكمل اللعبة",
+      "العودة إلى اللعبة",
+      "لنكمل اللعب"
+    ],
+    "random": [
+      "لعبة عشوائية",
+      "العب لعبة عشوائية",
+      "اختر لعبة",
+      "اختر لي لعبة",
+      "أي لعبة",
+      "اختر أنت لعبة"
+    ],
+    "center": [
+      "نتائجي",
+      "أرني نتائجي",
+      "إحصائياتي",
+      "أرقامي القياسية",
+      "شاراتي",
+      "مركز الألعاب",
+      "افتح مركز الألعاب"
+    ],
+    "pause": [
+      "أوقف اللعبة مؤقتا",
+      "أوقف اللعبة مؤقتًا",
+      "إيقاف اللعبة مؤقتا",
+      "إيقاف مؤقت للعبة",
+      "أخف اللعبة"
+    ],
+    "sounds_off": [
+      "أوقف أصوات اللعبة",
+      "اكتم صوت اللعبة",
+      "أطفئ أصوات اللعبة",
+      "كتم أصوات الألعاب"
+    ],
+    "sounds_on": [
+      "شغل أصوات اللعبة",
+      "شغّل أصوات اللعبة",
+      "ألغ كتم صوت اللعبة",
+      "فعّل أصوات اللعبة"
+    ]
+  },
+  "ai_purpose": "لكتابة أسئلة مسابقة عن موضوع تختاره",
+  "parts": {
+    "level": [
+      "{level:level}"
+    ],
+    "count": [
+      "{count:integer:1-50} أسئلة",
+      "{count:integer:1-50} سؤالًا",
+      "{count:integer:1-50} سؤالا",
+      "{count:integer:1-50} سؤال",
+      "{count:integer:1-50} جولات",
+      "{count:integer:1-50} جولة"
+    ],
+    "range": [
+      "بين {min:integer} و {max:integer}",
+      "من {min:integer} إلى {max:integer}",
+      "حتى {max:integer}"
+    ],
+    "topic": [
+      "عن {topic:text:40}",
+      "حول {topic:text:40}"
+    ],
+    "friend": [
+      "مع صديقي",
+      "مع صديق",
+      "مع صديقتي",
+      "ضد صديقي",
+      "لاعبان",
+      "لاعبين",
+      "لشخصين"
+    ]
+  },
+  "choices": {
+    "level": {
+      "easy": [
+        "سهل",
+        "سهلة",
+        "السهل"
+      ],
+      "fair": [
+        "متوسط",
+        "عادي",
+        "المتوسط"
+      ],
+      "hard": [
+        "صعب",
+        "صعبة",
+        "الصعب"
+      ]
+    }
+  },
+  "carry": {
+    "words": [
+      "لنلعب",
+      "العب",
+      "نلعب",
+      "هيا",
+      "لعبة",
+      "أريد",
+      "أن",
+      "ألعب",
+      "على",
+      "مستوى",
+      "بمستوى",
+      "مع",
+      "في",
+      "وضع",
+      "اليوم",
+      "و"
+    ],
+    "lead": [
+      "لنلعب",
+      "العب",
+      "نلعب",
+      "اليوم"
+    ],
+    "inside": [],
+    "endings": []
+  },
+  "entries": {
+    "games": "الألعاب"
+  },
+  "settings": {
+    "tone": {
+      "title": "عند الفوز",
+      "detail": "كيف يتقبل {companion} الفوز",
+      "options": {
+        "gentle": "Gentle",
+        "cheeky": "Cheeky",
+        "competitive": "Competitive"
+      }
+    },
+    "sounds": {
+      "title": "أصوات الألعاب",
+      "detail": "أصوات هادئة في كل لعبة؛ زر مكبر الصوت في كل لعبة يغيّر أصواتها"
+    },
+    "sneaky": {
+      "title": "المشاكسة",
+      "detail": "قد يغش {companion} للمزاح حيث تسمح اللعبة، ويعترف عند كشفه"
+    },
+    "sound_daily_word": {
+      "title": "كلمة اليوم"
+    },
+    "sound_trivia": {
+      "title": "مسابقة"
+    },
+    "level_trivia": {
+      "title": "مسابقة",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_tictactoe": {
+      "title": "إكس-أو"
+    },
+    "level_tictactoe": {
+      "title": "إكس-أو",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_copy_me": {
+      "title": "قلّدني"
+    },
+    "level_copy_me": {
+      "title": "قلّدني",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_quick_paws": {
+      "title": "مخالب سريعة"
+    },
+    "level_quick_paws": {
+      "title": "مخالب سريعة",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_which_cup": {
+      "title": "أيّ كوب؟"
+    },
+    "level_which_cup": {
+      "title": "أيّ كوب؟",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_higher_lower": {
+      "title": "أكبر أم أصغر"
+    },
+    "sound_guess_animal": {
+      "title": "خمّن حيواني"
+    },
+    "sound_balloon_words": {
+      "title": "كلمات البالونات"
+    },
+    "level_balloon_words": {
+      "title": "كلمات البالونات",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_last_stick": {
+      "title": "العود الأخير"
+    },
+    "level_last_stick": {
+      "title": "العود الأخير",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_memory_pairs": {
+      "title": "أزواج الذاكرة"
+    },
+    "level_memory_pairs": {
+      "title": "أزواج الذاكرة",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_plots": {
+      "title": "قطع الحديقة"
+    },
+    "level_plots": {
+      "title": "قطع الحديقة",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_seesaw": {
+      "title": "الميزان"
+    },
+    "level_seesaw": {
+      "title": "الميزان",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_sudoku": {
+      "title": "سودوكو"
+    },
+    "level_sudoku": {
+      "title": "سودوكو",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    },
+    "sound_blossoms": {
+      "title": "أزهار"
+    },
+    "level_blossoms": {
+      "title": "أزهار",
+      "options": {
+        "default": "افتراضي",
+        "easy": "سهل",
+        "fair": "متوسط",
+        "hard": "صعب"
+      }
+    }
+  }
 }

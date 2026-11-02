@@ -50,6 +50,24 @@ struct PlaytimeRecords: Codable, Equatable {
     var duels: [String: [String: Duel]]?
     /// The names two people last played under, when Sidefolk passed none.
     var players: [String]?
+    /// The game opened last, for "play again" and "resume".
+    struct Opened: Codable, Equatable {
+        var game: String
+        var level: String?
+    }
+    var lastOpened: Opened?
+    /// Games played to the end, newest first, for the menu's and the center's numbers: what Sidefolk's History used to count, carried once.
+    struct Play: Codable, Equatable {
+        var game: String
+        /// `win`, `loss`, `draw`; nil when two people played each other.
+        var result: String?
+        var at: Date
+    }
+    var plays: [Play]?
+    /// What was handed over from the app, once.
+    var carried: Bool?
+    /// The switch for every game's sounds as last seen, so a change to it can reach each game's own speaker.
+    var soundsSeen: Bool?
 
     struct Duel: Codable, Equatable {
         var wins: [String: Int] = [:]
@@ -59,6 +77,34 @@ struct PlaytimeRecords: Codable, Equatable {
 
     static var file: String { Paths.data + "/records.json" }
     static var animalsFile: String { Paths.data + "/animals.json" }
+
+    /// One more game, at most the latest thousand kept.
+    mutating func addPlay(_ game: String, result: String?, at date: Date = Date()) {
+        plays = Array(([Play(game: game, result: result, at: date)] + (plays ?? [])).prefix(1000))
+    }
+
+    /// The person's games at a glance.
+    struct Stats: Equatable {
+        var played = 0, wins = 0, streak = 0, bestStreak = 0
+    }
+
+    var stats: Stats {
+        var s = Stats(), run = 0, counting = true
+        for play in plays ?? [] {
+            guard let result = play.result else { continue }
+            s.played += 1
+            if result == "win" {
+                s.wins += 1
+                run += 1
+                if counting { s.streak += 1 }
+            } else {
+                counting = false
+                run = 0
+            }
+            s.bestStreak = max(s.bestStreak, run)
+        }
+        return s
+    }
 
     static func load() -> PlaytimeRecords {
         FileManager.default.contents(atPath: file).flatMap { try? JSONDecoder().decode(PlaytimeRecords.self, from: $0) } ?? PlaytimeRecords()

@@ -10,73 +10,23 @@
     "trivia": {
       "title": "Trivial",
       "summary": "Jugar una ronda de trivial"
+    },
+    "open": {
+      "title": "Abrir un juego",
+      "summary": "Abrir un juego"
+    },
+    "put_away": {
+      "title": "Guardar el juego",
+      "summary": "Guardar el juego"
+    },
+    "game_settings": {
+      "title": "Cambiar los ajustes de juegos",
+      "summary": "Cambiar los ajustes de juegos"
     }
   },
   "pages": {
     "playtime": {
       "title": "Ratos libres"
-    }
-  },
-  "games": {
-    "daily_word": {
-      "title": "La palabra del día",
-      "tagline": "Una palabra nueva cada día"
-    },
-    "trivia": {
-      "title": "Quiz",
-      "tagline": "Preguntas de todos los temas"
-    },
-    "tictactoe": {
-      "title": "Tres en raya",
-      "tagline": "Tres en raya gana"
-    },
-    "copy_me": {
-      "title": "Imítame",
-      "tagline": "Mira los pasos y cópialos"
-    },
-    "quick_paws": {
-      "title": "Patas rápidas",
-      "tagline": "Pulsa justo cuando diga ¡Bup!"
-    },
-    "which_cup": {
-      "title": "¿Qué vaso?",
-      "tagline": "No pierdas de vista la gema"
-    },
-    "higher_lower": {
-      "title": "Mayor o menor",
-      "tagline": "¿Frío o caliente? Encuentra el número"
-    },
-    "guess_animal": {
-      "title": "Adivina mi animal",
-      "tagline": "Sí o no, hasta adivinarlo"
-    },
-    "balloon_words": {
-      "title": "Palabras globo",
-      "tagline": "Adivina la palabra antes de que se vayan los globos"
-    },
-    "last_stick": {
-      "title": "El último palito",
-      "tagline": "¡No cojas el último palito!"
-    },
-    "memory_pairs": {
-      "title": "Parejas de memoria",
-      "tagline": "Gira dos cartas, encuentra las parejas"
-    },
-    "plots": {
-      "title": "Parcelas del huerto",
-      "tagline": "Divide el huerto según sus números"
-    },
-    "seesaw": {
-      "title": "Balancín",
-      "tagline": "Equilibra corazones y estrellas en cada línea"
-    },
-    "sudoku": {
-      "title": "Sudoku",
-      "tagline": "Cada número una vez por fila, columna y bloque"
-    },
-    "blossoms": {
-      "title": "Flores",
-      "tagline": "Una flor por fila, columna y macizo"
     }
   },
   "text": {
@@ -268,7 +218,6 @@
     "Solved": "Resueltas",
     "Solved in {n}": "Resuelto en {n}",
     "Solved in {n}!": "¡Resuelto en {n}!",
-    "Solved in {time}": "Resuelto en {time}",
     "Solved in {time}!": "¡Resuelto en {time}!",
     "Solved!": "¡Resuelto!",
     "Space": "Espacio",
@@ -318,7 +267,6 @@
     "These beds fill those lines between them, ruling out the rest, leaving this.": "Estos macizos llenan esas líneas entre ellos y descartan el resto: queda esta.",
     "Things to eat": "Para comer",
     "Think of one": "Piensa uno",
-    "This game has ended. Open it again to play.": "Esta partida terminó. Ábrela de nuevo para jugar.",
     "This line already has its half of one: the rest are the other.": "Esta línea ya tiene su mitad de uno: el resto son del otro.",
     "This mark isn't right: take it back.": "Esta marca no es correcta: quítala.",
     "This number isn't right: take it back.": "Este número no es correcto: quítalo.",
@@ -501,9 +449,545 @@
     "{count} questions": {
       "one": "{count} pregunta",
       "other": "{count} preguntas"
-    }
+    },
+    "One new word to find every day": "Una palabra nueva cada día",
+    "Questions on every topic": "Preguntas de todos los temas",
+    "Three in a row wins": "Tres en raya gana",
+    "Watch the moves, then copy them": "Mira los pasos y cópialos",
+    "Boop the moment it says Boop!": "Pulsa justo cuando diga ¡Bup!",
+    "Keep your eye on the gem": "No pierdas de vista la gema",
+    "Hot or cold? Find the number": "¿Frío o caliente? Encuentra el número",
+    "Yes or no, until one guesses": "Sí o no, hasta adivinarlo",
+    "Find the word before the balloons go": "Adivina la palabra antes de que se vayan los globos",
+    "Don’t take the last stick!": "¡No cojas el último palito!",
+    "Turn two cards, find the pairs": "Gira dos cartas, encuentra las parejas",
+    "Split the garden into plots by their numbers": "Divide el huerto según sus números",
+    "Balance hearts and stars in every line": "Equilibra corazones y estrellas en cada línea",
+    "Each number once in every row, column and box": "Cada número una vez por fila, columna y bloque",
+    "One flower in every row, column and bed": "Una flor por fila, columna y macizo",
+    "Playtime": "Ratos libres",
+    "1–9 to play": "1–9 para jugar",
+    "1–{n} to answer": "1–{n} para responder",
+    "A daily seven days running": "Un reto diario siete días seguidos",
+    "A draw": "Empate",
+    "A week of dailies": "Una semana de retos",
+    "All games": "Todos los juegos",
+    "Arrows and Return to pick": "Flechas y Retorno para elegir",
+    "Arrows to choose · Return to play · Esc to close": "Flechas para elegir · Retorno para jugar · Esc para cerrar",
+    "Back to games": "Volver a los juegos",
+    "Badges": "Insignias",
+    "Beat your companion once": "Gana a tu compañero una vez",
+    "Continue {title}": "Continuar {title}",
+    "Delete": "Eliminar",
+    "Esc to close": "Esc para cerrar",
+    "Every daily done today": "Todos los retos de hoy hechos",
+    "Explorer": "Explorador",
+    "Fifty wins": "Cincuenta victorias",
+    "First win": "Primera victoria",
+    "Five wins in a row": "Cinco victorias seguidas",
+    "Full house": "Pleno",
+    "Game settings": "Ajustes de juegos",
+    "Game sounds off": "Sonidos de juegos desactivados",
+    "Game sounds on": "Sonidos de juegos activados",
+    "Games against {name}, and puzzles of your own": "Juegos contra {name} y rompecabezas para ti",
+    "Games you finish show here.": "Aquí aparecen las partidas que terminas.",
+    "Hat trick": "Triplete",
+    "Last games": "Últimas partidas",
+    "Levels": "Niveles",
+    "OK": "Aceptar",
+    "Pick a game! Can you beat me?": "¡Elige un juego! ¿Me ganas?",
+    "Play": "Jugar",
+    "Play against a friend on this Mac": "Jugar contra un amigo en este Mac",
+    "Play against {name}": "Contra {name}",
+    "Play every game once": "Juega una vez a cada juego",
+    "Play today's {title}": "Jugar al {title} de hoy",
+    "Played {title} with {with}": "Partida de {title} con {with}",
+    "Played {title}: {first} {x} · {second} {y}": "Jugaste a {title}: {first} {x} · {second} {y}",
+    "Puzzler": "Rompecabecista",
+    "Puzzles": "Rompecabezas",
+    "Ready when you are!": "¡Cuando quieras!",
+    "Resume": "Reanudar",
+    "Return: {label}": "Retorno: {label}",
+    "Solve ten puzzles": "Resuelve diez rompecabezas",
+    "Surprise me": "Sorpréndeme",
+    "Ten wins": "Diez victorias",
+    "Three wins in a row": "Tres victorias seguidas",
+    "Today": "Hoy",
+    "Today's boards are waiting!": "¡Los tableros de hoy te esperan!",
+    "Try this word": "Probar esta palabra",
+    "Type a letter": "Escribe una letra",
+    "Type a number, Return to guess": "Escribe un número, Retorno para probar",
+    "Type a word, Return to try": "Escribe una palabra, Retorno para probar",
+    "Unstoppable": "Imparable",
+    "VS": "VS",
+    "Win fifty games": "Gana cincuenta partidas",
+    "Win ten games": "Gana diez partidas",
+    "Wins": "Victorias",
+    "Won {won} of {played}": "{won} ganadas de {played}",
+    "You": "Tú",
+    "You win!": "¡Ganaste!",
+    "You won": "Ganaste",
+    "You {x} · {name} {y}": "Tú {x} · {name} {y}",
+    "Your guess": "Tu número",
+    "right": "correcta",
+    "wrong": "incorrecta",
+    "your pick": "tu elección",
+    "{keys} to play": "{keys} para jugar",
+    "{left} of {total} left": "Quedan {left} de {total}",
+    "{name} has picked": "{name} ya eligió",
+    "{name} won": "Ganó {name}",
+    "{name}'s pick": "elección de {name}",
+    "{n} days in a row": "{n} días seguidos",
+    "{n} in a row": "{n} seguidas",
+    "{n} of {total} earned": "{n} de {total} conseguidas",
+    "{n} seconds left": "quedan {n} s",
+    "{n} solved": "{n} resueltos",
+    "{n} wins in a row": "{n} victorias seguidas",
+    "{title} has no level “{level}”.": "{title} no tiene el nivel «{level}».",
+    "{title} has no levels.": "{title} no tiene niveles.",
+    "{title} is already at its easiest.": "{title} ya está en lo más fácil.",
+    "{title} is already at its hardest.": "{title} ya está en lo más difícil."
   },
   "examples": [
     "juguemos al trivial"
-  ]
+  ],
+  "surfaces": {
+    "play": {
+      "title": "Ratos libres"
+    }
+  },
+  "commands": {
+    "daily_word": {
+      "names": [
+        "la palabra del día"
+      ]
+    },
+    "trivia": {
+      "names": []
+    },
+    "tictactoe": {
+      "names": [
+        "tres en raya",
+        "juguemos al tres en raya"
+      ]
+    },
+    "copy_me": {
+      "names": [
+        "imítame"
+      ]
+    },
+    "quick_paws": {
+      "names": [
+        "patas rápidas"
+      ]
+    },
+    "which_cup": {
+      "names": [
+        "¿qué vaso?",
+        "juguemos a qué vaso"
+      ]
+    },
+    "higher_lower": {
+      "names": [
+        "mayor o menor"
+      ]
+    },
+    "guess_animal": {
+      "names": [
+        "adivina mi animal"
+      ]
+    },
+    "balloon_words": {
+      "names": [
+        "palabras globo"
+      ]
+    },
+    "last_stick": {
+      "names": [
+        "el último palito",
+        "juguemos al último palito"
+      ]
+    },
+    "memory_pairs": {
+      "names": [
+        "parejas de memoria",
+        "juguemos a memoria"
+      ]
+    },
+    "plots": {
+      "names": [
+        "parcelas del huerto"
+      ]
+    },
+    "seesaw": {
+      "names": [
+        "balancín",
+        "juguemos al balancín"
+      ]
+    },
+    "sudoku": {
+      "names": [
+        "juguemos al sudoku"
+      ]
+    },
+    "blossoms": {
+      "names": [
+        "flores"
+      ]
+    },
+    "number_mine": {
+      "names": [
+        "adivina un número",
+        "adivinar un número",
+        "yo adivino tu número",
+        "piensa en un número"
+      ]
+    },
+    "number_yours": {
+      "names": [
+        "adivina mi número",
+        "tú adivinas mi número",
+        "pienso un número",
+        "yo pienso un número"
+      ]
+    },
+    "again": [
+      "revancha",
+      "la revancha",
+      "quiero la revancha",
+      "otra partida",
+      "otra ronda",
+      "juguemos otra vez",
+      "jugar otra vez",
+      "jugar de nuevo",
+      "juguemos de nuevo"
+    ],
+    "harder": [
+      "más difícil",
+      "hazlo más difícil",
+      "demasiado fácil",
+      "es demasiado fácil",
+      "sube la dificultad"
+    ],
+    "easier": [
+      "más fácil",
+      "hazlo más fácil",
+      "demasiado difícil",
+      "es demasiado difícil",
+      "baja la dificultad"
+    ],
+    "resume": [
+      "reanuda el juego",
+      "reanudar el juego",
+      "reanuda la partida",
+      "continúa la partida",
+      "continuar la partida",
+      "seguir jugando",
+      "sigamos jugando",
+      "volver al juego"
+    ],
+    "random": [
+      "un juego al azar",
+      "juego al azar",
+      "juego aleatorio",
+      "un juego aleatorio",
+      "elige un juego",
+      "elige tú un juego",
+      "elígeme un juego",
+      "cualquier juego",
+      "escoge un juego"
+    ],
+    "center": [
+      "mis puntuaciones",
+      "muéstrame mis puntuaciones",
+      "mis estadísticas",
+      "mis récords",
+      "mis insignias",
+      "mis marcadores",
+      "centro de juegos",
+      "el centro de juegos",
+      "abre el centro de juegos"
+    ],
+    "pause": [
+      "pausa el juego",
+      "pausar el juego",
+      "pon el juego en pausa",
+      "juego en pausa",
+      "pausa la partida",
+      "esconde el juego"
+    ],
+    "sounds_off": [
+      "silencia el juego",
+      "apaga los sonidos del juego",
+      "desactiva los sonidos del juego",
+      "quita el sonido del juego",
+      "sonidos del juego desactivados",
+      "apaga los sonidos de los juegos"
+    ],
+    "sounds_on": [
+      "activa los sonidos del juego",
+      "enciende los sonidos del juego",
+      "pon el sonido del juego",
+      "sonidos del juego activados"
+    ]
+  },
+  "ai_purpose": "para escribir preguntas de trivia sobre un tema que elijas",
+  "parts": {
+    "level": [
+      "{level:level}"
+    ],
+    "count": [
+      "{count:integer:1-50} preguntas",
+      "{count:integer:1-50} pregunta",
+      "{count:integer:1-50} rondas",
+      "{count:integer:1-50} ronda"
+    ],
+    "range": [
+      "entre {min:integer} y {max:integer}",
+      "de {min:integer} a {max:integer}",
+      "del {min:integer} al {max:integer}",
+      "desde {min:integer} hasta {max:integer}",
+      "hasta {max:integer}",
+      "hasta el {max:integer}"
+    ],
+    "topic": [
+      "sobre {topic:text:40}",
+      "sobre el {topic:text:40}",
+      "sobre la {topic:text:40}",
+      "sobre los {topic:text:40}",
+      "sobre las {topic:text:40}"
+    ],
+    "friend": [
+      "con mi amigo",
+      "con mi amiga",
+      "con un amigo",
+      "con una amiga",
+      "con mis amigos",
+      "contra mi amigo",
+      "dos jugadores",
+      "2 jugadores"
+    ]
+  },
+  "choices": {
+    "level": {
+      "easy": [
+        "fácil"
+      ],
+      "fair": [
+        "medio"
+      ],
+      "hard": [
+        "difícil"
+      ]
+    }
+  },
+  "carry": {
+    "words": [
+      "juguemos",
+      "jugar",
+      "juega",
+      "vamos",
+      "el",
+      "los",
+      "las",
+      "una",
+      "partida",
+      "juego",
+      "quiero",
+      "contigo",
+      "tú",
+      "modo",
+      "nivel",
+      "dificultad",
+      "y",
+      "día",
+      "hoy",
+      "nueva",
+      "nuevo",
+      "del"
+    ],
+    "lead": [
+      "juguemos",
+      "jugar",
+      "juega",
+      "día"
+    ],
+    "inside": [],
+    "endings": []
+  },
+  "entries": {
+    "games": "Juegos"
+  },
+  "settings": {
+    "tone": {
+      "title": "Cuando gana",
+      "detail": "Cómo se toma {companion} una victoria",
+      "options": {
+        "gentle": "Gentle",
+        "cheeky": "Cheeky",
+        "competitive": "Competitive"
+      }
+    },
+    "sounds": {
+      "title": "Sonidos de juegos",
+      "detail": "Sonidos suaves en todos los juegos; el altavoz de cada juego cambia el suyo"
+    },
+    "sneaky": {
+      "title": "Tramposo",
+      "detail": "{companion} puede hacer trampa de broma donde un juego lo permita, y lo confiesa si lo pillas"
+    },
+    "sound_daily_word": {
+      "title": "La palabra del día"
+    },
+    "sound_trivia": {
+      "title": "Quiz"
+    },
+    "level_trivia": {
+      "title": "Quiz",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_tictactoe": {
+      "title": "Tres en raya"
+    },
+    "level_tictactoe": {
+      "title": "Tres en raya",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_copy_me": {
+      "title": "Imítame"
+    },
+    "level_copy_me": {
+      "title": "Imítame",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_quick_paws": {
+      "title": "Patas rápidas"
+    },
+    "level_quick_paws": {
+      "title": "Patas rápidas",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_which_cup": {
+      "title": "¿Qué vaso?"
+    },
+    "level_which_cup": {
+      "title": "¿Qué vaso?",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_higher_lower": {
+      "title": "Mayor o menor"
+    },
+    "sound_guess_animal": {
+      "title": "Adivina mi animal"
+    },
+    "sound_balloon_words": {
+      "title": "Palabras globo"
+    },
+    "level_balloon_words": {
+      "title": "Palabras globo",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_last_stick": {
+      "title": "El último palito"
+    },
+    "level_last_stick": {
+      "title": "El último palito",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_memory_pairs": {
+      "title": "Parejas de memoria"
+    },
+    "level_memory_pairs": {
+      "title": "Parejas de memoria",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_plots": {
+      "title": "Parcelas del huerto"
+    },
+    "level_plots": {
+      "title": "Parcelas del huerto",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_seesaw": {
+      "title": "Balancín"
+    },
+    "level_seesaw": {
+      "title": "Balancín",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_sudoku": {
+      "title": "Sudoku"
+    },
+    "level_sudoku": {
+      "title": "Sudoku",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    },
+    "sound_blossoms": {
+      "title": "Flores"
+    },
+    "level_blossoms": {
+      "title": "Flores",
+      "options": {
+        "default": "Predeterminado",
+        "easy": "Fácil",
+        "fair": "Normal",
+        "hard": "Difícil"
+      }
+    }
+  }
 }

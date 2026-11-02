@@ -1,16 +1,15 @@
 import SidefolkExtensionKit
 
-// Playtime, an extension that ships with Sidefolk: games in Sidefolk's Play panel (D75, D79): ten played against the
-// companion (trivia, tic-tac-toe, Copy Me, Quick Paws, Which Cup?, Higher or Lower, Guess My Animal, Balloon Words, Last
-// Stick and Memory Pairs) and five puzzles played alone (Daily Word, Garden Plots, Seesaw, Sudoku and Blossoms); and
-// random picks for a break. Coins, dice and rock, paper, scissors are the
-// companion's own (`companion.toss`). No permissions; scores stay in its own folder. Its words come in Sidefolk's ten
-// languages (strings/, the Kit's L), chosen by the `language` Sidefolk passes.
+// Playtime: games beside the companion, all of it in this pack (Sidefolk D101): every game's screens, words, art and sounds, a menu,
+// and the Game Center as its page. Ten played against the companion (trivia, tic-tac-toe, Copy Me, Quick Paws, Which Cup?, Higher or Lower,
+// Guess My Animal, Balloon Words, Last Stick and Memory Pairs) and five puzzles played alone (Daily Word, Garden Plots, Seesaw, Sudoku and
+// Blossoms); and random picks for a break. Scores stay in its own folder. Its words come in Sidefolk's ten languages (strings/, the Kit's L),
+// chosen by the `language` Sidefolk passes.
 let ext = Extension(name: "playtime", version: "1.0.0")
 
 ext.tool("pick", "Random picks",
          "Truly random: pick a number in a range, or pick from a list of choices (one, or several in order). Use it whenever "
-         + "the user wants chance to choose. Coins and dice are companion.toss.",
+         + "the user wants chance to choose.",
          input: Schema.object([
              "kind": Schema.string("What to pick.", oneOf: ["number", "choice"]),
              "min": Schema.integer("For number: the lowest (1 if not given)."),
@@ -34,25 +33,18 @@ ext.tool("trivia", "Trivia quiz",
     try Trivia.play(answer: args.string("answer"), category: args.string("category"))
 }
 
-// Trivia packs made by the person's AI come through Sidefolk (D95): the request goes out, the pack comes back as data.
-TriviaAI.send = { method, params in ext.send(method, params) }
-ext.on("sidefolk/trivia.pack") { args in TriviaAI.receive(args) }
-
-GameTable.register(TriviaScreen.self, on: ext)
-GameTable.register(TicTacToeScreen.self, on: ext)
-GameTable.register(CopyMeScreen.self, on: ext)
-GameTable.register(QuickPawsScreen.self, on: ext)
-GameTable.register(WhichCupScreen.self, on: ext)
-GameTable.register(HigherLowerScreen.self, on: ext)
-GameTable.register(GuessAnimalScreen.self, on: ext)
-GameTable.register(BalloonWordsScreen.self, on: ext)
-GameTable.register(LastStickScreen.self, on: ext)
-GameTable.register(MemoryPairsScreen.self, on: ext)
-GameTable.register(DailyWordScreen.self, on: ext)
-GameTable.register(PuzzleScreen<GardenPlotsKind>.self, on: ext)
-GameTable.register(PuzzleScreen<SeesawKind>.self, on: ext)
-GameTable.register(PuzzleScreen<SudokuKind>.self, on: ext)
-GameTable.register(PuzzleScreen<BlossomsKind>.self, on: ext)
+ext.surface("play", open: { request in PlayTable.open(request) }, move: { request in PlayTable.move(request) }, close: { request in PlayTable.close(request) })
+// Trivia packs made by the person's AI (D95): through the one narrow road any extension has (D100), and checked here.
+TriviaAI.send = { id, prompt, label in
+    Task { @MainActor in
+        switch await AI.ask(prompt, label: label, seconds: 120) {
+        case .answer(let text, let madeBy): TriviaAI.answered(id, text: text, madeBy: madeBy)
+        case .refused(let reason): TriviaAI.refused(id, reason: reason)
+        }
+    }
+}
+PlaytimeTools.install(on: ext)
+PlaytimeCarry.install(on: ext)
 
 ext.page("playtime") { _ in PlaytimePage.render() }
 

@@ -1,41 +1,45 @@
 import Foundation
 import SidefolkExtensionKit
 
-/// Plays a screen's game over the channel: a session per game opened, its state kept in the data folder as JSON so a
-/// game survives Playtime stopping while idle, and forgotten when Sidefolk says it ended.
+/// Plays a screen's game: its state as data the surface's session keeps in the data folder (`PlayTable`), so a game survives Playtime
+/// stopping while idle.
 enum GameTable {
     static var folder: String { Paths.data + "/sessions" }
 
-    struct Saved<State: Codable>: Codable {
-        var state: State
-        var options: GameOptions
-        var language: String
+    /// One screen's game with its state as data, so one surface can hold any of them (`PlayTable`).
+    struct Driver {
+        let id: String
+        let start: (_ options: GameOptions, _ level: GameLevel) -> (state: Data, board: Board)
+        let move: (_ move: Move, _ state: Data, _ options: GameOptions) -> (state: Data, events: [Games.Event], board: Board)?
+        /// The board for a state, with what just happened: a verdict held back during its build-up, or a game coming back.
+        let board: (_ state: Data, _ events: [Games.Event], _ options: GameOptions) -> Board?
     }
 
-    @MainActor
-    static func register<S: GameScreen>(_ screen: S.Type, on ext: Extension) {
-        ext.game(S.id, start: { request in
+    static func driver<S: GameScreen>(_ screen: S.Type) -> Driver {
+        func read(_ data: Data) -> S.Engine.State? { try? JSONDecoder().decode(S.Engine.State.self, from: data) }
+        func write(_ state: S.Engine.State) -> Data { (try? JSONEncoder().encode(state)) ?? Data() }
+        return Driver(id: S.id, start: { options, level in
             // Real chance from the Mac's generator for every game; tests seed their own.
             var random = Games.Random.fresh()
-            var options = GameOptions(request.options, language: request.language)
-            options.asked = request.level.flatMap(GameLevel.init(rawValue:))
-            let state = S.Engine.start(level: GameLevel(rawValue: request.level ?? "") ?? .fair, options: options, random: &random)
-            let session = UUID().uuidString
-            save(Saved(state: state, options: options, language: options.language), session)
-            // The words are in the request's language, which the Kit keeps for it (D76).
-            return GameReply(session: session, board: S.board(state, events: [.opened] + S.Engine.opening(state), options: options))
-        }, move: { request in
-            guard var saved: Saved<S.Engine.State> = load(request.session) else {
-                return Board([.note(L("This game has ended. Open it again to play."), tone: .warn)], over: true)
-            }
+            let state = S.Engine.start(level: level, options: options, random: &random)
+            return (write(state), S.board(state, events: [.opened] + S.Engine.opening(state), options: options))
+        }, move: { move, data, options in
+            guard var state = read(data) else { return nil }
             var random = Games.Random.fresh()
-            let events = play(S.self, request.move, on: &saved.state, random: &random)
-            save(saved, request.session)
-            return S.board(saved.state, events: events, options: saved.options)
-        }, end: { request in
-            try? FileManager.default.removeItem(atPath: path(request.session))
+            let events = play(S.self, move, on: &state, random: &random)
+            return (write(state), events, S.board(state, events: events, options: options))
+        }, board: { data, events, options in
+            read(data).map { S.board($0, events: events, options: options) }
         })
     }
+
+    /// Every game, by the id its menu card and commands name.
+    nonisolated(unsafe) static let drivers: [String: Driver] = Dictionary(uniqueKeysWithValues: [
+        driver(TriviaScreen.self), driver(TicTacToeScreen.self), driver(CopyMeScreen.self), driver(QuickPawsScreen.self), driver(WhichCupScreen.self),
+        driver(HigherLowerScreen.self), driver(GuessAnimalScreen.self), driver(BalloonWordsScreen.self), driver(LastStickScreen.self), driver(MemoryPairsScreen.self),
+        driver(DailyWordScreen.self), driver(PuzzleScreen<GardenPlotsKind>.self), driver(PuzzleScreen<SeesawKind>.self), driver(PuzzleScreen<SudokuKind>.self),
+        driver(PuzzleScreen<BlossomsKind>.self),
+    ].map { ($0.id, $0) })
 
     /// One move on a state: the engine's events, or the reason it refused the move (the state unchanged).
     static func play<S: GameScreen>(_ screen: S.Type, _ move: Move?, on state: inout S.Engine.State,
@@ -50,33 +54,6 @@ enum GameTable {
             return [.refused(refusal.reason)]
         } catch {
             return []
-        }
-    }
-
-    static func path(_ session: String) -> String {
-        // Only names Playtime made: a UUID's letters, digits and dashes.
-        let safe = session.filter { $0.isLetter || $0.isNumber || $0 == "-" }
-        return folder + "/\(safe.isEmpty ? "none" : safe).json"
-    }
-
-    static func save<T: Codable>(_ value: T, _ session: String) {
-        try? FileManager.default.createDirectory(atPath: folder, withIntermediateDirectories: true)
-        if let data = try? JSONEncoder().encode(value) { FileManager.default.createFile(atPath: path(session), contents: data) }
-        tidy()
-    }
-
-    static func load<T: Codable>(_ session: String) -> T? {
-        FileManager.default.contents(atPath: path(session)).flatMap { try? JSONDecoder().decode(T.self, from: $0) }
-    }
-
-    /// Sessions Sidefolk never ended (it quit mid-game) go after a day.
-    private static func tidy() {
-        let fm = FileManager.default
-        for name in (try? fm.contentsOfDirectory(atPath: folder)) ?? [] {
-            let file = folder + "/" + name
-            if let date = (try? fm.attributesOfItem(atPath: file))?[.modificationDate] as? Date, date < Date().addingTimeInterval(-86_400) {
-                try? fm.removeItem(atPath: file)
-            }
         }
     }
 }
