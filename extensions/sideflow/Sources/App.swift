@@ -13,6 +13,7 @@ import SidefolkExtensionKit
     /// A request to the AI to draft a flow, while it runs, and what came of the last.
     var drafting: String?
     var draftProblem: String?
+    var startDelay: Double = 8
 
     init(folder: URL) {
         store = FlowStore(folder: folder)
@@ -20,15 +21,15 @@ import SidefolkExtensionKit
         engine.host = host
     }
 
-    /// While the program runs: catalog first (recovery needs to know what only reads), then the clock.
+    /// While the program runs. Sidefolk starts its extensions one after another, so the tools a flow needs may not be there in the first moments:
+    /// it looks after a moment, so that what's mid-air is judged, and what's due is run, with the whole list in hand.
     func run() async {
+        try? await Task.sleep(for: .seconds(startDelay))
         await catalog.refresh()
         engine.recover()
-        var loads = 0
         while !Task.isCancelled {
+            await catalog.refresh()
             engine.tick()
-            loads += 1
-            if loads % 10 == 0 { await catalog.refresh() }
             try? await Task.sleep(for: .seconds(30))
         }
     }

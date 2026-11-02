@@ -9,6 +9,8 @@ import SidefolkExtensionKit
     static func make(_ app: App, state: Arguments, background: Bool) async -> Page {
         // Today and the sidebar read only the summary, once a minute.
         if background { return Page(summary: summary(app)) }
+        // An extension just turned on or off shows on the next look, not at the next tick.
+        if app.catalog.loadedAt.map({ Date().timeIntervalSince($0) > 5 }) ?? true { Task { await app.catalog.refresh() } }
         switch Nav.place(state) {
         case .flow(let id):
             if let flow = app.store.flow(id) { return flowPage(flow, app) }
