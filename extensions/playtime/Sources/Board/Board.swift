@@ -1,51 +1,10 @@
 import Foundation
+import SidefolkExtensionKit
 
-/// A game played in Sidefolk's Play panel beside the companion (docs/EXTENSIONS.md › Games, D75). The game keeps its
-/// own state and answers with a `Board`; Sidefolk draws every part, sends the person's moves back, keeps the time, and
-/// plays the companion's `Cue` from its own fixed lists. Moves are not tool calls: they can only change the game.
-///
-/// ```swift
-/// ext.game("coin", start: { request in
-///     GameReply(session: UUID().uuidString, board: Board([.prompt("Heads or tails?"), .answers([Tile("Heads"), Tile("Tails")])]))
-/// }, move: { request in
-///     Board([.reveal(.coin(heads: Bool.random()))], companion: Cue(move: "cheer"), over: true)
-/// })
-/// ```
-public struct GameRequest {
-    /// What the game said its session was when it started; empty in `start`.
-    public var session: String
-    public var level: String?
-    /// The person's language, as Sidefolk speaks it (`en`, `fr`, `pt-BR`, `zh-Hans`, `ar`): see `Localized`.
-    public var language: String
-    /// Sidefolk's options for every game: `tone` (gentle, cheeky, competitive), `sneaky`, `companion` (its name).
-    public var options: Arguments
-    /// The person's move, in `move`.
-    public var move: Move?
-    /// Why it ended, in `end`: `closed`, `timeout` or `finished`.
-    public var reason: String?
+// What a game says it shows, and what the person can do: Playtime's own model of a board. `BoardDrawing` makes it a scene.
+// `json` and `Move(_:)` are how the tests read a board and play it, by what it says rather than by its types.
 
-    init(_ params: [String: Any]) {
-        session = params["session"] as? String ?? ""
-        level = params["level"] as? String
-        language = params["language"] as? String ?? "en"
-        options = Arguments(params["options"] as? [String: Any] ?? [:])
-        move = (params["move"] as? [String: Any]).map(Move.init)
-        reason = params["reason"] as? String
-    }
-}
-
-/// What starting a game returns: the session Sidefolk sends back with every move (up to 64 letters, digits, `_`, `-`).
-public struct GameReply {
-    public var session: String
-    public var board: Board
-
-    public init(session: String, board: Board) {
-        self.session = session
-        self.board = board
-    }
-}
-
-/// The person's move, as Sidefolk sends it: only ever one the board offered.
+/// The person's move: only ever one the board offered.
 public enum Move: Equatable {
     case answer(Int)
     case cell(row: Int, column: Int)
@@ -331,13 +290,3 @@ public struct Cue {
 
 func drop(_ values: [String: Any?]) -> [String: Any] { values.compactMapValues { $0 } }
 
-extension Extension {
-    /// A game the manifest declares (`games.<name>`): `start` makes a session and its first board, `move` answers each
-    /// move with the next board, `end` hears that the panel closed, was left too long, or the game finished. Answer
-    /// within two seconds and under 64 KB, or Sidefolk ends the game.
-    public func game(_ name: String, start: @escaping @MainActor (GameRequest) async throws -> GameReply,
-                     move: @escaping @MainActor (GameRequest) async throws -> Board,
-                     end: @escaping @MainActor (GameRequest) async -> Void = { _ in }) {
-        games[name] = (start, move, end)
-    }
-}

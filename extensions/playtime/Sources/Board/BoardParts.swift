@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 
 /// The board parts of games beyond questions and grids (docs/EXTENSIONS.md › Games), used as `.play(...)`. Sidefolk
 /// draws each, keeps their time and takes the person's input on them; values off their lists are dropped.
