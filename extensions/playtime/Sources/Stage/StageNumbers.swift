@@ -134,19 +134,17 @@ extension BoardDrawing {
         }
     }
 
-    /// Balloons or hearts left. Balloons are the pack's picture in one colour each, light and shade kept (baked: the panel multiplied a colour over it, and
-    /// a scene's `tint` is a flat stencil); one lost shrinks to faint grey, where its shade doesn't show. A heart keeps its outline.
+    /// Balloons or hearts left. Balloons are the pack's picture as a flat stencil, one colour each, as the panel really drew them (its multiply over a mask
+    /// came out flat on screen); one lost shrinks to faint grey. A heart keeps its outline.
     func lives(total: Int, left: Int, symbol: String) -> PartBlock {
         let balloon = symbol == "balloon"
         let hue = [Paint.coral, Paint.sun, Paint.blue, Paint.green, Paint.purple]
-        let art: [(day: String, night: String?)] = [("coral", nil), ("sun", nil), ("blue", "blue-night"), ("green", "green-night"), ("purple", "purple-night")]
         let w = balloon ? 30 * 86.0 / 120 : 22.0, h = balloon ? 30.0 : 22.0, gap = balloon ? 2.0 : 4.0
         return PartBlock(.box("lives", w: Self.inner, h: h) {
             for i in 0..<total {
                 let kept = i < left
                 if balloon {
-                    let picture = art[i % 5]
-                    (kept ? Node.image("art/balloon-\(picture.day).png", dark: picture.night.map { "art/balloon-\($0).png" }) : Node.image("art/game-balloon.png", tint: .inkFaint))
+                    Node.image("art/game-balloon.png", tint: kept ? hue[i % 5] : .inkFaint)
                         .id("life.\(i)").at(Double(i) * (w + gap), 0).size(w, h)
                         .anchor(0.5, 1).scale(kept ? 1 : 0.6).rotate(kept ? Double(i % 3 - 1) * 5 : 0).opacity(kept ? 1 : 0.3)
                 } else {
