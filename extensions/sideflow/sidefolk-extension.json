@@ -1,0 +1,55 @@
+{
+  "id": "dev.sidefolk.sideflow",
+  "name": "Sideflow",
+  "version": "1.0.0",
+  "sidefolk": ">=0.1",
+  "description": "Teach your companion a routine. Say what you repeat or build it step by step. It practises first and changes nothing; then you read what it will do, once, and it runs by itself. Every run is a story you can read, with a way forward when it stops.",
+  "tagline": "Teach your companion a routine",
+  "folk": "tempo",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": { "command": "bin/ext-sideflow" },
+  "background": true,
+  "permissions": {
+    "act": { "purpose": "to run the steps of the flows you make" },
+    "ai": { "purpose": "for flows' steps that write something, and to draft a flow from your words", "daily_cap": 40 }
+  },
+  "pages": {
+    "flows": { "title": "Sideflow", "symbol": "point.3.connected.trianglepath.dotted", "refresh": 3, "widget": true }
+  },
+  "settings": [
+    { "key": "tell", "type": "choice", "title": "Tell me when a flow finishes", "detail": "It always tells you when one stops or needs you.", "segmented": true,
+      "options": [{ "value": "always", "title": "Always, with its result" }, { "value": "problems", "title": "Only problems" }], "default": "problems" }
+  ],
+  "examples": ["what flows do i have", "run morning brief", "every weekday at 8:30 tell me what's on today"],
+  "entries": [
+    { "id": "flows", "title": "Sideflow", "symbol": "point.3.connected.trianglepath.dotted", "places": ["companion", "pocket"], "page": "flows" }
+  ],
+  "tools": {
+    "flow_guide": { "title": "How to write a flow", "risk": "low", "mutates": false, "category": "extensions", "agents": true },
+    "list_actions": { "title": "What flows can use", "risk": "low", "mutates": false, "category": "extensions", "agents": true },
+    "list_templates": { "title": "Flows to start from", "risk": "low", "mutates": false, "category": "extensions", "agents": true },
+    "list_flows": { "title": "List flows", "risk": "low", "mutates": false, "category": "extensions", "agents": true,
+      "commands": [{ "say": ["what flows do i have", "list my flows", "show my flows", "my flows"] }] },
+    "get_flow": { "title": "Read a flow", "risk": "low", "mutates": false, "category": "extensions", "agents": true },
+    "create_flow": { "title": "Make a flow", "risk": "low", "mutates": true, "category": "extensions", "agents": true, "timeout": 30 },
+    "update_flow": { "title": "Change a flow", "risk": "low", "mutates": true, "category": "extensions", "agents": true },
+    "practice_flow": { "title": "Practise a flow", "risk": "low", "mutates": false, "category": "extensions", "agents": true,
+      "commands": [{ "say": ["practice {flow}", "practise {flow}", "do a practice run of {flow}"] }] },
+    "start_flow": { "title": "Turn a flow on", "risk": "low", "mutates": true, "category": "extensions", "agents": true,
+      "commands": [{ "say": ["turn on flow {flow}", "start flow {flow}", "turn on the {flow} flow"] }] },
+    "pause_flow": { "title": "Pause a flow", "risk": "low", "mutates": true, "category": "extensions", "agents": true,
+      "commands": [{ "say": ["pause flow {flow}", "pause the {flow} flow"] }] },
+    "resume_flow": { "title": "Resume a flow", "risk": "low", "mutates": true, "category": "extensions", "agents": true,
+      "commands": [{ "say": ["resume flow {flow}", "resume the {flow} flow"] }] },
+    "run_flow": { "title": "Run a flow now", "risk": "medium", "mutates": true, "category": "extensions", "agents": true,
+      "commands": [{ "say": ["run {flow}", "run flow {flow}", "run the {flow} flow", "run my {flow} flow", "run my {flow}"] }] },
+    "list_runs": { "title": "List runs", "risk": "low", "mutates": false, "category": "extensions", "agents": true },
+    "get_run": { "title": "Read a run", "risk": "low", "mutates": false, "category": "extensions", "agents": true,
+      "commands": [{ "say": ["how did {flow} go", "why did {flow} stop", "why did {flow} fail"] }] },
+    "continue_run": { "title": "Carry on with a run", "risk": "medium", "mutates": true, "category": "extensions" },
+    "delete_flow": { "title": "Delete a flow", "risk": "high", "mutates": true, "category": "extensions" },
+    "ui": { "title": "Open Sideflow", "risk": "low", "mutates": true, "category": "extensions", "ai": false,
+      "commands": [{ "say": ["open sideflow", "show sideflow"] }] }
+  }
+}

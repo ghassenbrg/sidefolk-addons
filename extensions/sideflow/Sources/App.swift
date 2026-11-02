@@ -1,0 +1,108 @@
+import Foundation
+import SidefolkExtensionKit
+
+/// Everything the program holds while it runs.
+@MainActor final class App {
+    let store: FlowStore
+    let catalog = Catalog()
+    let engine: Engine
+    let host = SidefolkHost()
+    var nav = Nav()
+    /// What Guard says of each step now: its sentence and whether it would ask.
+    var preflight: [String: [String: Actions.Check]] = [:]
+    /// A request to the AI to draft a flow, while it runs, and what came of the last.
+    var drafting: String?
+    var draftProblem: String?
+
+    init(folder: URL) {
+        store = FlowStore(folder: folder)
+        engine = Engine(store: store, catalog: catalog)
+        engine.host = host
+    }
+
+    /// While the program runs: catalog first (recovery needs to know what only reads), then the clock.
+    func run() async {
+        await catalog.refresh()
+        engine.recover()
+        var loads = 0
+        while !Task.isCancelled {
+            engine.tick()
+            loads += 1
+            if loads % 10 == 0 { await catalog.refresh() }
+            try? await Task.sleep(for: .seconds(30))
+        }
+    }
+
+    func flow(named words: String) throws -> Flow {
+        guard let flow = store.find(words) else {
+            throw Problem(L("I don't have a flow called “{name}”. You have: {list}.", ["name": words, "list": store.flows().map(\.name).joined(separator: ", ")]))
+        }
+        return flow
+    }
+
+    func newFlow(name: String, body: FlowBody) -> Flow {
+        var base = name.nonEmpty ?? L("New flow"), n = 2
+        let names = Set(store.flows().map(\.name))
+        while names.contains(base) {
+            base = "\(name.nonEmpty ?? L("New flow")) \(n)"
+            n += 1
+        }
+        let now = Date()
+        let flow = Flow(id: String(UUID().uuidString.lowercased().prefix(8)), name: base, draft: body, createdAt: now, updatedAt: now)
+        store.save(flow)
+        return flow
+    }
+
+    /// What Guard would say of each action now, for the rail: refreshed after any change. Values to fill in are checked with a stand-in.
+    func refreshPreflight(_ id: String) {
+        guard let flow = store.flow(id) else { return }
+        Task {
+            if catalog.loadedAt == nil { await catalog.refresh() }
+            var out: [String: Actions.Check] = [:]
+            var values = Values()
+            for step in flow.draft.allSteps where step.hasOutput { values.set(step.id, "…") }
+            values.set("trigger", "…")
+            let plan = flow.state == .draft ? nil : flow.planId
+            for step in flow.draft.allSteps {
+                guard case .action(let tool, let input) = step.kind else { continue }
+                if let check = await host.check(tool, values.fill(input), plan: plan) { out[step.id] = check }
+            }
+            preflight[id] = out
+        }
+    }
+}
+
+/// Where the page is.
+struct Nav {
+    enum Place: Equatable {
+        case home
+        case flow(String)
+        case run(String)
+    }
+
+    enum Inspecting: Equatable {
+        case trigger
+        case step(String)
+        /// The picker, adding after this row (`start`, or a step, or a branch's `then:`/`else:` row).
+        case adding(after: String)
+    }
+
+    var search = ""
+    /// What's selected on each flow's rail.
+    private var inspected: [String: Inspecting] = [:]
+
+    func inspecting(_ flow: Flow) -> Inspecting {
+        inspected[flow.id] ?? (flow.draft.steps.isEmpty ? .adding(after: "start") : .trigger)
+    }
+
+    mutating func inspect(_ what: Inspecting, in flow: String) { inspected[flow] = what }
+
+    /// Where the page's state says it is: Sidefolk keeps it while Home is open, with the way back.
+    static func place(_ state: Arguments) -> Place {
+        if let run = state.string("run") { return .run(run) }
+        if let flow = state.string("flow") { return .flow(flow) }
+        return .home
+    }
+
+    static func open(flow id: String) -> [String: Any] { ["flow": id, "run": NSNull()] }
+}
