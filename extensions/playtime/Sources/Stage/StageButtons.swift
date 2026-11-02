@@ -83,9 +83,9 @@ extension BoardDrawing {
         return PartBlock(.box("note", w: Self.inner, h: height) {
             Node.rect(fill: Paint.card(0.96), stroke: Paint.edge, lineWidth: 1, corner: 14).id("note.card").size(Self.inner, height)
             Node.rect(fill: Paint.clear("#FFC93C", 0.14), corner: 14).id("note.tint").size(Self.inner, height)
-            Node.symbol(symbol, color: Paint.sun).symbolLook().at(12, 12).size(18, 18)
+            Node.symbol(symbol, color: Paint.sun).symbolLook(mono: true).at(12, 12).size(18, 18)
             if let title { Node.words(title, size: 11.5, weight: "semibold", design: "default", x: 40, y: 12, w: room, h: titleH) }
-            Node.words(text, size: 13, weight: "regular", valign: "top", lines: 0, design: "default", x: 40, y: 12 + titleH, w: room, h: textH)
+            Node.words(text, size: 13, weight: "regular", valign: "top", lines: 40, design: "default", x: 40, y: 12 + titleH, w: room, h: textH)
         }, height: height)
     }
 

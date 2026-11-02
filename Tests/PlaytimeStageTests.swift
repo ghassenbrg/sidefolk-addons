@@ -18,6 +18,14 @@ struct PlaytimeStageTests {
         for key in scene.keys {
             #expect((key["id"] as? String)?.range(of: token, options: .regularExpression) != nil, "\(context): \(key)")
         }
+        // What it names is in the pack: a picture or a sound that isn't draws or plays nothing, and nothing says so.
+        let assets = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("extensions/playtime/assets")
+        let names = try NSRegularExpression(pattern: #"(art|sounds)\\?/[A-Za-z0-9_.-]+\.[a-z0-9]+"#)
+        let text = String(decoding: data, as: UTF8.self)
+        for match in names.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+            let path = (text as NSString).substring(with: match.range).replacingOccurrences(of: "\\/", with: "/")
+            #expect(FileManager.default.fileExists(atPath: assets.appendingPathComponent(path).path), "\(context): \(path)")
+        }
         func visit(_ node: [String: Any]) {
             if let area = node["area"] as? [String: Any] {
                 #expect((area["id"] as? String)?.range(of: token, options: .regularExpression) != nil, "\(context): \(area)")

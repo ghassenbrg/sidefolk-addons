@@ -71,7 +71,7 @@ extension BoardDrawing {
             nodes.append(Node.symbol(Verdict.loss.symbol, color: .loss).symbolLook().at(x, (height - side) / 2).size(side, side))
             x += side + 6
         }
-        nodes.append(Node.words(words, size: size, weight: "heavy", color: Paint.white, align: "center", lines: 0, minScale: 0.6, x: x, y: 9, w: textW, h: height - 18))
+        nodes.append(Node.words(words, size: size, weight: "heavy", color: Paint.white, align: "center", lines: 4, minScale: 0.6, x: x, y: 9, w: textW, h: height - 18))
         x += textW + 6
         for (i, cap) in caps.enumerated() {
             nodes.append(keyCap(cap, light: true).at(x, (height - 16) / 2))

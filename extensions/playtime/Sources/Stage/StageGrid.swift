@@ -116,7 +116,7 @@ extension BoardDrawing {
             return Node.box(target, w: side, h: side) { candyStick(color: Paint.coral, x: (side - side * 0.16) / 2, y: side * 0.12, w: side * 0.16, h: side * 0.76) }
         case "cup":
             let h = side * 0.62
-            return Node.image("art/game-cup.webp").id(target).at((side - h) / 2, (side - h) / 2).size(h, h)
+            return Node.image("art/game-cup.png").id(target).at((side - h) / 2, (side - h) / 2).size(h, h)
         default:
             return Node.box(target, w: 1, h: 1) {}
         }
