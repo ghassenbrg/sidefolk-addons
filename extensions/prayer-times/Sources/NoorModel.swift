@@ -140,6 +140,10 @@ final class NoorModel {
     }
 
     func clear(_ scope: NoorStore.Scope) throws {
+        // What is on its way must not write back what was just cleared.
+        freshening?.cancel()
+        freshening = nil
+        againAfter = false
         try store.clear(scope)
         forgetLoaded()
         names = []
@@ -156,6 +160,7 @@ final class NoorModel {
     }
 
     private func forgetLoaded() {
+        generation += 1
         days = [:]
         calendar = [:]
         ramadan = [:]
@@ -198,6 +203,32 @@ final class NoorModel {
     }
 
     private var againAfter = false
+    /// Goes up whenever what is loaded no longer counts, so an answer asked for before that isn't kept.
+    private var generation = 0
+    /// A saved change is waiting to reach the host's plan until the days it depends on are here.
+    private var planWaiting = false
+
+    /// Can a whole plan be made now? A plan is the whole truth about what comes, so one made without today's days would cancel good reminders.
+    var planIsReady: Bool {
+        let chosen = prefs.reminders
+        guard chosen.master || chosen.ramadan.enabled else { return true }
+        if chosen.master, source?.kind != .manual, let zone = source?.zone, day(CivilDate(now, in: zone)) == nil { return false }
+        if chosen.ramadan.enabled, source?.kind != .manual, let year = snapshot().calendar.map({ RamadanMonth.nextYear(from: $0.hijri) }), ramadan[year] == nil { return false }
+        if chosen.ramadan.enabled, snapshot().calendar == nil { return false }
+        return true
+    }
+
+    /// Sends the plan now if it can be whole, and otherwise once the days have come.
+    func replan() {
+        guard Occurrences.allowed else { return }
+        guard planIsReady else {
+            planWaiting = true
+            freshen()
+            return
+        }
+        planWaiting = false
+        Occurrences.replace(PlanWords.plan(model: self))
+    }
 
     /// Waits a moment for what is on its way, so opening a page with a good cache doesn't flash its loading state.
     func settle(ms: Int = 700) async {
@@ -225,6 +256,10 @@ final class NoorModel {
         var failed: UnavailableReason?
         var fetched: Date?
         let prefs = prefs
+        let mine = generation
+        defer {
+            if planWaiting, planIsReady { replan() }
+        }
         // The Names ask for no place, so they can be read before there is one.
         if let list = note(await provider.load(AlAdhan.names(), now: now, refresh: refresh), into: &failed, at: &fetched) { names = list }
         if let list = await provider.load(AlAdhan.calendarMethods(), now: now).value { calendarMethods = list }
@@ -243,13 +278,13 @@ final class NoorModel {
         if source?.kind == .calculated, let convention = prefs.convention {
             var monthFailed: UnavailableReason?
             for (year, month) in months {
-                if let list = note(await provider.prayerMonth(year: year, month: month, place: place, convention: convention, calendarMethod: prefs.calendarMethod, now: now, refresh: refresh), into: &monthFailed, at: &fetched) {
+                if let list = note(await provider.prayerMonth(year: year, month: month, place: place, convention: convention, calendarMethod: prefs.calendarMethod, now: now, refresh: refresh), into: &monthFailed, at: &fetched), mine == generation {
                     for day in list { days[day.date] = day }
                 }
             }
             // A month that didn't come needn't cost today and tomorrow, which are asked for on their own.
             for date in [today, today.next] where days[date] == nil {
-                if let day = await provider.prayerDay(date, place: place, convention: convention, calendarMethod: prefs.calendarMethod, now: now, refresh: refresh).value { days[day.date] = day }
+                if let day = await provider.prayerDay(date, place: place, convention: convention, calendarMethod: prefs.calendarMethod, now: now, refresh: refresh).value, mine == generation { days[day.date] = day }
             }
             if days[today] == nil { failed = failed ?? monthFailed }
         }
@@ -258,6 +293,9 @@ final class NoorModel {
                 calendar["g\(year)-\(month)-\(prefs.calendarMethod.rawValue)"] = list
             }
         }
+        guard mine == generation else { return }
+        // A plan needs its Ramadan whether or not anyone opens the planner.
+        if prefs.reminders.ramadan.enabled, let year = snapshot(now).calendar.map({ RamadanMonth.nextYear(from: $0.hijri) }) { extras.insert("r:\(year)") }
         for extra in extras.sorted() { await fetchExtra(extra, now: now, refresh: refresh, failed: &failed, fetched: &fetched) }
         if let year = snapshot(now).calendar?.hijri.year, occasions[year] == nil,
            let list = note(await provider.load(AlAdhan.occasions(hijriYear: year, method: prefs.calendarMethod), now: now, refresh: refresh), into: &failed, at: &fetched) {
@@ -281,7 +319,7 @@ final class NoorModel {
             guard let y = Int(parts[1]), let m = Int(parts[2]) else { return }
             if let list = note(await provider.load(AlAdhan.hijriMonth(year: y, month: m, method: method), now: now, refresh: refresh), into: &failed, at: &fetched) { calendar["h\(y)-\(m)-\(method.rawValue)"] = list }
         case "r" where parts.count == 2:
-            guard let y = Int(parts[1]), let place = prefs.place, let convention = prefs.convention else { return }
+            guard let y = Int(parts[1]), let place = prefs.place, let convention = prefs.convention, source?.kind == .calculated else { return }
             if let list = note(await provider.hijriPrayerMonth(year: y, month: 9, place: place, convention: convention, calendarMethod: method, now: now, refresh: refresh), into: &failed, at: &fetched),
                let month = RamadanMonth(days: list) { ramadan[y] = month }
         case "o" where parts.count == 2:

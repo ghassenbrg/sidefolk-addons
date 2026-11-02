@@ -23,8 +23,13 @@ enum NoorPage {
         var sections: [Section] = []
         let setup = !model.isSetUp
         if setup {
-            sections = SetupPage.sections(ctx)
-            return page(summary, [head(ctx, subtitle: L("Choose a place to get started"))] + sections, back: nil)
+            // A mosque's timetable can be the first thing someone sets up, by file or by hand.
+            switch state.string("sheet") {
+            case "import": sections = SourcePage.review(ctx)
+            case "manual": sections = SourcePage.manual(ctx)
+            default: sections = SetupPage.sections(ctx)
+            }
+            return page(summary, [head(ctx, subtitle: L("Choose a place to get started"))] + sections, back: state.string("sheet") == nil ? nil : L("Back"))
         }
         let back: String?
         switch state.string("sheet") {
@@ -69,7 +74,7 @@ enum NoorPage {
     }
 
     private static func head(_ ctx: Context, subtitle: String) -> Section {
-        Section(nil, [HeadScene.block(width: ctx.width, snapshot: ctx.snapshot, subtitle: subtitle, remindersOn: ctx.snapshot.reminderStatus != .off)], wide: true)
+        Section(nil, [HeadScene.block(width: ctx.width, snapshot: ctx.snapshot, subtitle: subtitle, reminders: ctx.snapshot.reminderStatus)], wide: true)
     }
 
     /// What this view needs that the provider wasn't already asked for.
@@ -92,6 +97,8 @@ enum NoorPage {
             return Summary(L("Choose a place"), detail: L("Noor needs a place to show prayer times."), tone: .info, symbol: "location")
         case .expired:
             return Summary(L("Timetable ended"), detail: where_, tone: .warn, symbol: "calendar.badge.exclamationmark")
+        case .notStarted:
+            return Summary(L("Timetable hasn't started"), detail: where_, tone: .info, symbol: "calendar")
         case .loading:
             return Summary(L("Loading timetable"), detail: where_, tone: .neutral, symbol: "hourglass")
         case .error:
@@ -104,7 +111,8 @@ enum NoorPage {
         }
         var detail = "\(focus.countdown) · \(where_)"
         if case .paused(let until) = snapshot.reminderStatus {
-            detail += " · " + L("Reminders paused until {time}", ["time": Words.time(until, zone: snapshot.source?.zone ?? .current)])
+            let zone = snapshot.source?.zone ?? snapshot.place?.zone ?? .current
+            detail += " · " + L("Reminders paused until {time}", ["time": "\(Words.date(CivilDate(until, in: zone), weekday: false, year: false)) \(Words.time(until, zone: zone))"])
         }
         return Summary("\(focus.title) \(focus.time)", detail: detail, tone: snapshot.validity == .offlineValid ? .warn : .good, symbol: "moon.stars")
     }
@@ -158,6 +166,10 @@ enum NoorPage {
             return status(ctx, symbol: "exclamationmark.circle", title: L("This timetable has ended"), detail: L("The saved timetable finished on {date}. Nothing new is reminded from it until you update it.", ["date": end]),
                           buttons: [("update", L("Update timetable"), true, .go(Go(set: ["sheet": "prefs", "section": "sources"], push: true))),
                                     ("calculated", L("Choose calculated times"), false, .tool("use_calculated"))])
+        case .notStarted:
+            let start = s.coverage.map { Words.date($0.lowerBound, weekday: false) } ?? ""
+            return status(ctx, symbol: "calendar", title: L("This timetable hasn't started"), detail: L("It begins on {date}. Until then there are no times from it.", ["date": start]),
+                          buttons: [("sources", L("Choose another timetable"), true, .go(Go(set: ["sheet": "prefs", "section": "sources"], push: true)))])
         case .error:
             return status(ctx, symbol: "wifi.exclamationmark", title: L("Couldn't get this timetable"), detail: Words.problem(ctx.model.problem).isEmpty ? L("The provider didn't answer.") : Words.problem(ctx.model.problem),
                           buttons: [("retry", L("Try again"), true, .tool("refresh"))])

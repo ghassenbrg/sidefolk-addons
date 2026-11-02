@@ -75,6 +75,12 @@ struct NoorSnapshotTests {
         #expect(lastDay.validity == .ready && lastDay.next == .unavailable(reason: .noTomorrow), "the day after coverage isn't borrowed")
     }
 
+    @Test func aManualSourceThatHasNotBegunSaysSo() throws {
+        let manual = try #require(TimetableSource(id: "manual.m", kind: .manual, name: "M", zoneID: "Asia/Tokyo", coverage: S.date("2026-12-01")...S.date("2026-12-31"), attribution: "M"))
+        let snapshot = snapshot(prefs(source: manual), sources: [manual], days: [S.day("2026-12-01", source: "manual.m")])
+        #expect(snapshot.validity == .notStarted && snapshot.today == nil, "a timetable that starts next month hasn't ended")
+    }
+
     @Test func aManualSourceNeedsNoPlace() throws {
         let manual = try #require(TimetableSource(id: "manual.m", kind: .manual, name: "M", zoneID: "America/New_York", coverage: S.date("2026-11-01")...S.date("2026-11-30"), attribution: ""))
         let snapshot = snapshot(prefs(source: manual, place: nil), sources: [manual], days: [S.day("2026-11-01", zone: "America/New_York", source: "manual.m")], at: S.instant("2026-11-01T16:00:00Z"))

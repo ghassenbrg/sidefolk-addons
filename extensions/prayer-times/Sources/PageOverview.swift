@@ -5,7 +5,7 @@ import SidefolkExtensionKit
 @MainActor
 enum OverviewPage {
     static func sections(_ ctx: Context) -> [Section] {
-        if ctx.snapshot.validity == .noPlace || ctx.snapshot.validity == .noSource || ctx.snapshot.validity == .expired || ctx.snapshot.validity == .error || ctx.snapshot.validity == .loading,
+        if ctx.snapshot.validity == .noPlace || ctx.snapshot.validity == .noSource || ctx.snapshot.validity == .expired || ctx.snapshot.validity == .notStarted || ctx.snapshot.validity == .error || ctx.snapshot.validity == .loading,
            let status = NoorPage.unavailable(ctx) {
             return [status]
         }

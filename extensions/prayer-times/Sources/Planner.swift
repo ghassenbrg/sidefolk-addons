@@ -52,7 +52,8 @@ enum Planner {
     /// another's, so a date without data gets no reminders. Days from any source but `prefs.sourceID` are ignored.
     static func plan(now: Date, prefs: Preferences, days: [PrayerDay], ramadan: RamadanMonth?, occasions: [Occasion], names: [NameEntry]) -> [PlannedOccurrence] {
         let reminders = prefs.reminders
-        guard reminders.master, reminders.route.companion || reminders.route.systemFallback else { return [] }
+        // Ramadan's have a switch of their own: turning them on doesn't start what was left off, and the other way round.
+        guard reminders.master || reminders.ramadan.enabled, reminders.route.companion || reminders.route.systemFallback else { return [] }
         let fallback = reminders.route.systemFallback
         let sourceDays = days.filter { $0.sourceID == prefs.sourceID }
         var planned: [(occurrence: PlannedOccurrence, zone: TimeZone)] = []
@@ -62,7 +63,7 @@ enum Planner {
                                               sourceID: sourceID, date: date, group: group, systemFallback: fallback, intents: [intent]), zone))
         }
 
-        for day in sourceDays {
+        for day in reminders.master ? sourceDays : [] {
             for prayer in PrayerID.allCases {
                 guard let choice = reminders.prayers[prayer], let start = day.starts[prayer] else { continue }
                 let suffix = "\(day.date.iso).\(day.sourceID)"
@@ -98,13 +99,14 @@ enum Planner {
         }
 
         // Dates and Names belong to no timetable; only the place's zone says when their day is.
-        if let zone = prefs.place?.zone ?? sourceDays.first?.zone {
+        if reminders.master, let zone = prefs.place?.zone ?? sourceDays.first?.zone {
             let choice = reminders.occasions
             if Reminders.daysBeforeBounds.contains(choice.daysBefore) {
                 for occasion in Occasion.dedupe(occasions) where occasion.method == prefs.calendarMethod && choice.selected.contains(occasion.identity) {
                     let at = CivilClock.resolve(occasion.gregorian.adding(days: -choice.daysBefore), choice.time, in: zone).settled
                     add(ReminderIntent(kind: .occasion, occasion: occasion.identity, daysBefore: choice.daysBefore),
-                        id: "occasion.\(occasion.identity).before\(choice.daysBefore).\(occasion.gregorian.iso).\(occasion.method.rawValue)",
+                        // The scheduler's ids are lower case and bounded; the date keeps a shortened one apart.
+                        id: "occasion.\(occasion.identity.prefix(60)).before\(choice.daysBefore).\(occasion.gregorian.iso).\(occasion.method.rawValue.lowercased())",
                         at: at, expiresAt: CivilClock.startOfDay(occasion.gregorian.next, in: zone), sourceID: occasion.method.rawValue,
                         date: occasion.gregorian, group: "occasion", zone: zone)
                 }

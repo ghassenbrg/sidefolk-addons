@@ -241,7 +241,7 @@ struct NoorPlannerTests {
         #expect(plan(prefs(), days: [], occasions: listed).isEmpty)
         let settings = prefs { $0.occasions = .init(selected: ["birth-of-a", "urs-of-b"], daysBefore: 2) }
         let plan = plan(settings, days: [], occasions: listed)
-        #expect(plan.map(\.id) == ["occasion.birth-of-a.before2.2026-11-20.UAQ", "occasion.urs-of-b.before2.2026-11-20.UAQ"], "duplicates gone, both events kept, out of horizon dropped")
+        #expect(plan.map(\.id) == ["occasion.birth-of-a.before2.2026-11-20.uaq", "occasion.urs-of-b.before2.2026-11-20.uaq"], "duplicates gone, both events kept, out of horizon dropped")
         #expect(plan[0].at == S.at("2026-11-18", "09:00") && plan[0].date == S.date("2026-11-20") && plan[0].kind == .occasion)
         #expect(plan[0].expiresAt == S.at("2026-11-21", "00:00") && plan[0].intents[0].occasion == "birth-of-a" && plan[0].intents[0].daysBefore == 2)
     }
@@ -274,5 +274,89 @@ struct NoorPlannerTests {
         let settings = prefs { $0.prayers[.isha] = .init(atStart: true) }
         let days = days(count: 2)
         #expect(plan(settings, days: days) == plan(settings, days: days))
+    }
+}
+
+/// What the code review found: ids the host would refuse, and Ramadan's own switch.
+struct NoorPlannerReviewTests {
+    typealias S = NoorSupport
+
+    private func prefs(_ change: (inout Reminders) -> Void) -> Preferences {
+        var prefs = Preferences()
+        prefs.place = S.tokyo
+        prefs.sourceID = "calculated.tokyo"
+        prefs.reminders.route.companion = true
+        change(&prefs.reminders)
+        return prefs
+    }
+
+    private let now = S.instant("2026-11-02T12:00:00+09:00")
+
+    @Test func everyIDIsOneTheHostAccepts() throws {
+        // `^[a-z0-9._:-]{1,120}$`, the rule of ScheduledOccurrence.parse in Sidefolk. A method's raw value is in capitals, and a place's id holds an underscore.
+        let long = String(repeating: "A very long occasion title ", count: 12)
+        let occasion = Occasion(title: long, method: .uaq, hijri: try #require(HijriDate(year: 1448, month: 6, day: 9)), gregorian: S.date("2026-11-20"))
+        var settings = prefs {
+            $0.master = true
+            $0.prayers[.fajr] = .init(atStart: true)
+            $0.occasions = .init(selected: [occasion.identity], daysBefore: 1)
+            $0.nameOfDay.enabled = true
+        }
+        settings.sourceID = "calculated.p35.68_m139.69"
+        settings.calendarMethod = .uaq
+        let day = S.day("2026-11-03", source: settings.sourceID ?? "")
+        let names = (1...99).map { NameEntry(number: $0, arabic: "a", transliteration: "b", meaning: "c") }
+        let plan = Planner.plan(now: now, prefs: settings, days: [day], ramadan: nil, occasions: [occasion], names: names)
+        #expect(Set(plan.map { $0.kind }) == [.prayerStart, .occasion, .nameOfDay])
+        for item in plan { #expect(item.id.range(of: "^[a-z0-9._:-]{1,120}$", options: .regularExpression) != nil, "\(item.id)") }
+    }
+
+    @Test func ramadanHasItsOwnSwitch() throws {
+        let month = try #require(RamadanMonth(days: AlAdhanDecoder.hijriPrayerCalendar(S.fixture("ramadan-month"), year: 1448, month: 9, query: S.query)))
+        let then = S.instant("2027-02-07T12:00:00+09:00")
+        let names = [NameEntry(number: 1, arabic: "a", transliteration: "b", meaning: "c")]
+        var settings = prefs {
+            $0.master = false
+            $0.ramadan = .init(enabled: true, days: [1], suhoorMinutesBeforeFajr: 30, iftar: true)
+            $0.prayers[.fajr] = .init(atStart: true)
+            $0.nameOfDay.enabled = true
+        }
+        settings.sourceID = month.sourceID
+        let days = [S.day("2027-02-08", source: month.sourceID)]
+        let alone = Planner.plan(now: then, prefs: settings, days: days, ramadan: month, occasions: [], names: names)
+        #expect(alone.count == 2 && alone.allSatisfy { $0.id.hasPrefix("ramadan.") }, "the planner's yes doesn't start what the master holds off")
+        settings.reminders.ramadan.enabled = false
+        settings.reminders.master = true
+        let without = Planner.plan(now: then, prefs: settings, days: days, ramadan: month, occasions: [], names: names)
+        #expect(!without.isEmpty && without.allSatisfy { !$0.id.hasPrefix("ramadan.") })
+    }
+}
+
+/// A plan is the whole truth about what comes, so one made without the days it needs would cancel good reminders.
+@MainActor struct NoorPlanReadinessTests {
+    typealias S = NoorSupport
+
+    private func model() throws -> NoorModel {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("noor-ready-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return NoorModel(folder: folder)
+    }
+
+    @Test func nothingToPlanIsAlwaysReady() throws {
+        #expect(try model().planIsReady)
+    }
+
+    @Test func remindersOnWithoutTodayAreNotReady() throws {
+        let model = try model()
+        try model.commit(place: S.tokyo, sourceID: S.tokyoSource.id, sources: [S.tokyoSource]) { $0.reminders.master = true }
+        #expect(!model.planIsReady, "today's day hasn't come, and a plan now would be empty")
+        try model.save { $0.reminders.master = false }
+        #expect(model.planIsReady, "off is a whole answer of its own")
+    }
+
+    @Test func ramadanWithoutItsMonthIsNotReady() throws {
+        let model = try model()
+        try model.commit(place: S.tokyo, sourceID: S.tokyoSource.id, sources: [S.tokyoSource]) { $0.reminders.ramadan = .init(enabled: true, days: [1], iftar: true) }
+        #expect(!model.planIsReady)
     }
 }

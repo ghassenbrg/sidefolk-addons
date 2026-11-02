@@ -61,7 +61,7 @@ enum SetupPage {
         let method = ctx.state.string("d_method") ?? ""
         var out = [Section(L("Choose your timetable"), [
             .note(L("There is no one right method: pick what your community follows. You can change it at any time."), tone: .info),
-        ] + PreferencesPage.methodChoice(ctx, selected: method) + [
+        ] + PreferencesPage.methodChoice(ctx, selected: method, list: true) + [
             .action(Action(L("Use calculated times"), tool: "use_calculated", input: ["method": Int(method) ?? -1], style: .primary, symbol: "arrow.forward", detail: method.isEmpty ? L("Choose a method first.") : nil, disabled: method.isEmpty)),
         ], wide: true)]
         out.append(Section(L("Or my mosque's timetable"), SourcePage.addButtons(ctx), detail: L("Enter it by hand or import a CSV file. Noor doesn't search for mosques and never guesses an iqamah."), wide: true))
@@ -92,7 +92,8 @@ enum PlaceParts {
 
     static func coordinates(_ ctx: Context) -> [Block] {
         let lat = ctx.state.string("c_lat") ?? "", lon = ctx.state.string("c_lon") ?? "", zone = ctx.state.string("c_zone") ?? "", label = ctx.state.string("c_label") ?? ""
-        let number = { (t: String) in Double(t) }
+        // "nan" and "inf" read as numbers, and aren't coordinates.
+        let number = { (t: String) in Double(t).flatMap { $0.isFinite ? $0 : nil } }
         let ready = number(lat) != nil && number(lon) != nil && IANAZone.zone(zone) != nil && !label.isEmpty
         return [
             .draftField(L("Name"), placeholder: L("Home"), button: L("Clear"), key: "c_label", value: label.isEmpty ? nil : label),

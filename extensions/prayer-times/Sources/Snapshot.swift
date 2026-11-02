@@ -2,7 +2,7 @@ import Foundation
 
 /// One immutable picture of Noor at one instant: Home, Today and Ask all read this, so they can't disagree.
 struct NoorSnapshot: Hashable, Sendable {
-    enum Validity: Hashable, Sendable { case loading, ready, offlineValid, expired, noPlace, noSource, error }
+    enum Validity: Hashable, Sendable { case loading, ready, offlineValid, expired, notStarted, noPlace, noSource, error }
 
     /// How the last load went, which the data alone can't say.
     enum LoadState: Hashable, Sendable { case settled, loading, offline, failed }
@@ -58,8 +58,7 @@ struct NoorSnapshot: Hashable, Sendable {
         } else if today != nil {
             validity = load == .offline ? .offlineValid : .ready
         } else if let coverage = source?.coverage, let localDate, !coverage.contains(localDate) {
-            // Coverage that hasn't begun is just as unusable today; the page offers the same way out.
-            validity = .expired
+            validity = localDate < coverage.lowerBound ? .notStarted : .expired
         } else {
             switch load {
             case .loading, .settled: validity = .loading

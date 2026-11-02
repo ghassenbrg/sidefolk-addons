@@ -4,8 +4,15 @@ import SidefolkExtensionKit
 /// Noor's head: the rosette, its name, where its times come from, and the way to Preferences. Its right end opens onto the pattern through a pendant arch; the words stay on quiet ground.
 @MainActor
 enum HeadScene {
-    static func block(width w: Double, snapshot: NoorSnapshot, subtitle: String, remindersOn: Bool) -> Block {
+    static func block(width w: Double, snapshot: NoorSnapshot, subtitle: String, reminders: NoorSnapshot.ReminderStatus) -> Block {
         let h = 104.0
+        let remindersOn = reminders != .off
+        let spoken: String
+        switch reminders {
+        case .off: spoken = L("Reminders are off. Open reminder settings.")
+        case .on: spoken = L("Reminders are on. Open reminder settings.")
+        case .paused: spoken = L("Reminders are paused. Open reminder settings.")
+        }
         let compact = w < 620
         let center = w * (compact ? 0.74 : 0.60), half = min(w * 0.16, 170)
         // Everything but the arch is filled, so the pattern shows only through it.
@@ -40,7 +47,7 @@ enum HeadScene {
                     Node.symbol(remindersOn ? "bell.badge" : "bell", color: Noor.text).size(20, 20).at(8, 8)
                 }
                 .size(36, 36).at(w - 52, 16)
-                .area("reminders", label: remindersOn ? L("Reminders are on. Open reminder settings.") : L("Reminders are off. Open reminder settings."))
+                .area("reminders", label: spoken)
             }
         }
         return .scene(PageSceneBlock(scene, acts: [

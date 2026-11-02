@@ -12,7 +12,7 @@ enum RamadanPage {
         guard let year = year(ctx.state, model: ctx.model) else {
             return [NoorPage.status(ctx, symbol: "moon", title: L("Loading Ramadan…"), detail: L("It needs today's Hijri date first."))]
         }
-        guard ctx.snapshot.source?.kind != .manual || ctx.model.ramadan[year] != nil else {
+        guard ctx.snapshot.source?.kind != .manual else {
             return [NoorPage.status(ctx, symbol: "moon", title: L("Ramadan needs calculated times"), detail: L("The planner uses calculated times for your place, and your current timetable is a manual one. Reminders from it stay as they are."),
                                     buttons: [("sources", L("Open sources"), true, .go(Go(set: ["sheet": "prefs", "section": "sources"], push: true)))])]
         }
@@ -124,7 +124,7 @@ enum RamadanPage {
         let suhoor = state.string("r_suhoor") ?? saved.suhoorMinutesBeforeFajr.map { "\($0)" } ?? "off"
         let iftar = state.bool("r_iftar") ?? saved.iftar
         let days = state.string("r_days") ?? (saved.days.isEmpty || saved.days.count == month.dayCount ? "all" : "picked")
-        let choice = days == "all" ? Set(1...month.dayCount) : (saved.days.isEmpty ? [ctx.state.int("ramadan_day") ?? 1] : saved.days)
+        let choice = days == "all" ? Set(1...month.dayCount) : [ctx.state.int("ramadan_day") ?? saved.days.min() ?? 1]
         var trial = ctx.model.prefs
         trial.reminders.master = true
         if !trial.reminders.route.companion && !trial.reminders.route.systemFallback { trial.reminders.route.companion = true }

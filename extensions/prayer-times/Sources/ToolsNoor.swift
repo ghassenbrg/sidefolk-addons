@@ -6,11 +6,8 @@ import SidefolkExtensionKit
 enum NoorTools {
     private static var model: NoorModel { .shared }
 
-    /// A saved change goes to the host's plan at once; if it can't, the next asking brings it.
-    private static func replan() {
-        guard Occurrences.allowed else { return }
-        Occurrences.replace(PlanWords.plan(model: model))
-    }
+    /// A saved change goes to the host's plan as soon as the days it needs are here.
+    private static func replan() { model.replan() }
 
     private static func prayerArg(_ text: String?) throws -> PrayerID {
         guard let text = text?.lowercased(), let prayer = PrayerID(rawValue: text) else { throw Problem(L("Which prayer: Fajr, Dhuhr, Asr, Maghrib or Isha?")) }
@@ -132,9 +129,9 @@ enum NoorTools {
             let text = (args.string("name") ?? "").lowercased()
             let flat = { (s: String) in s.lowercased().filter(\.isLetter) }
             guard let found = model.names.first(where: { "\($0.number)" == text || flat($0.transliteration) == flat(text) || $0.arabic == text }) else {
-                return ToolReply(L("I couldn't find “{name}” among the Names.", ["name": text])).opening(page: "noor", state: ["tab": "names", "q": text])
+                return ToolReply(L("I couldn't find “{name}” among the Names.", ["name": text])).opening(page: "noor", state: ["tab": "names", "q": text, "sheet": NSNull(), "filter": NSNull(), "shelf": NSNull()])
             }
-            return ToolReply("\(found.transliteration): \(found.meaning) (\(L("English meaning"))).").opening(page: "noor", state: ["tab": "names", "name": found.number])
+            return ToolReply("\(found.transliteration): \(found.meaning) (\(L("English meaning"))).").opening(page: "noor", state: ["tab": "names", "name": found.number, "sheet": NSNull(), "q": NSNull(), "filter": NSNull(), "shelf": NSNull()])
         })
     }
 
@@ -156,7 +153,8 @@ enum NoorTools {
 
     /// The source a place brings when calculated times are what is followed: same reminder choices, a new revision, so nothing is scheduled twice.
     private static func moving(to place: Place) throws {
-        var next = model.sources.filter { $0.kind == .manual || $0.id != TimetableSource.calculatedID(for: place) }
+        // One calculated source, the place's: another's would answer for a place that isn't this one.
+        var next = model.sources.filter { $0.kind == .manual }
         let calculated = TimetableSource.calculated(for: place)
         next.append(calculated)
         let manual = model.source?.kind == .manual
@@ -188,6 +186,11 @@ enum NoorTools {
         })
         ext.tool("follow_shared_place", "Follow Sidefolk's place", "Follows Sidefolk's own place, or stops and keeps it as a fixed one.", input: Schema.object(["on": Schema.boolean("Follow it, or keep what it is as a fixed place")], required: ["on"])) { args in
             let on = args.bool("on") ?? false
+            if !on, let kept = model.prefs.place, kept.origin == .shared {
+                try moving(to: try Place(id: kept.id, label: kept.label, region: kept.region, country: kept.country, latitude: kept.latitude, longitude: kept.longitude, zoneID: kept.zoneID))
+                replan()
+                return L("{place} stays as your place.", ["place": kept.label])
+            }
             guard let shared = SharedPlace.current, let zone = shared.timeZone else { throw Problem(L("Sidefolk's place isn't available.")) }
             let place = try Place(id: "p" + String(format: "%.2f_%.2f", shared.latitude, shared.longitude).replacingOccurrences(of: "-", with: "m"), label: shared.city, region: shared.region, country: shared.country, latitude: shared.latitude, longitude: shared.longitude, zoneID: zone, origin: on ? .shared : .manual)
             try moving(to: place)
@@ -196,12 +199,18 @@ enum NoorTools {
         }
     }
 
-    /// The person's own place moved, and they said to follow it: one reconciled plan, nothing else.
+    /// The person's own place moved, and they said to follow it: one reconciled plan, nothing else. If they took back their yes, the place they had stays, as a fixed one, and no more follows.
     static func placeMoved() {
-        guard model.prefs.place?.origin == .shared, let shared = SharedPlace.current, let zone = shared.timeZone else { return }
-        guard let place = try? Place(id: "p" + String(format: "%.2f_%.2f", shared.latitude, shared.longitude).replacingOccurrences(of: "-", with: "m"), label: shared.city, region: shared.region, country: shared.country, latitude: shared.latitude, longitude: shared.longitude, zoneID: zone, origin: .shared),
-              place != model.prefs.place else { return }
+        guard let kept = model.prefs.place, kept.origin == .shared else { return }
+        guard SharedPlace.shared else {
+            if let fixed = try? Place(id: kept.id, label: kept.label, region: kept.region, country: kept.country, latitude: kept.latitude, longitude: kept.longitude, zoneID: kept.zoneID) { try? moving(to: fixed) }
+            return
+        }
+        guard let shared = SharedPlace.current, let zone = shared.timeZone,
+              let place = try? Place(id: "p" + String(format: "%.2f_%.2f", shared.latitude, shared.longitude).replacingOccurrences(of: "-", with: "m"), label: shared.city, region: shared.region, country: shared.country, latitude: shared.latitude, longitude: shared.longitude, zoneID: zone, origin: .shared),
+              place != kept else { return }
         try? moving(to: place)
+        replan()
     }
 
     // MARK: Sources
@@ -212,7 +221,7 @@ enum NoorTools {
             let chosen = args.int("method").flatMap { $0 >= 0 ? $0 : nil } ?? model.prefs.convention?.method
             guard let chosen else { throw Problem(L("Choose a method first: there is no one right one.")) }
             let convention = try PrayerConvention(method: chosen, school: model.prefs.convention?.school ?? 0, latitudeAdjustment: model.prefs.convention?.latitudeAdjustment, tune: model.prefs.convention?.tune ?? [:])
-            var next = model.sources.filter { $0.id != TimetableSource.calculatedID(for: place) }
+            var next = model.sources.filter { $0.kind == .manual }
             let source = TimetableSource.calculated(for: place)
             next.append(source)
             try model.commit(place: place, sourceID: source.id, sources: next) { $0.convention = convention }
@@ -323,17 +332,33 @@ enum NoorTools {
             let prayer = try prayerArg(args.string("prayer"))
             let minutes = args.int("minutes") ?? 10
             return ToolReply(L("Here's a reminder {minutes} minutes before {prayer}. It isn't saved until you say so.", ["minutes": Format.integer(minutes), "prayer": Words.prayer(prayer)]))
-                .opening(page: "noor", state: ["sheet": "prefs", "section": "reminders", "rm_master": true, "rm_\(prayer.rawValue)_before": "\(minutes)"])
+                .opening(page: "noor", state: ["sheet": "prefs", "section": "reminders", "rm_master": true, "rm_\(prayer.rawValue)_before": "\(minutes)"], push: true)
         })
         ext.tool("pause_reminders", "Pause Noor's reminders", "Pauses reminders until the given moment, in the timetable's own zone.", input: Schema.object(["until": Schema.string("tomorrow, or an ISO 8601 time")]), reply: { args in
             let zone = model.source?.zone ?? model.prefs.place?.zone ?? .current
+            guard model.prefs.reminders.master else { return ToolReply(L("Reminders are off, so there's nothing to pause.")) }
             let today = CivilDate(model.now, in: zone)
             let until: Date
-            if let text = args.string("until"), let parsed = ISO8601DateFormatter().date(from: text) { until = parsed } else { until = CivilClock.startOfDay(today.next, in: zone) }
+            switch args.string("until") {
+            case nil, "tomorrow": until = CivilClock.startOfDay(today.next, in: zone)
+            case let text?:
+                // A pause has an end people can see coming: within a month, and not already over.
+                guard let parsed = ISO8601DateFormatter().date(from: text), parsed > model.now, parsed.timeIntervalSince(model.now) <= 31 * 86400 else { throw Problem(L("A pause ends within the next month. Say tomorrow, or a time like 2026-11-05T09:00:00+09:00.")) }
+                until = parsed
+            }
             try model.save { $0.reminders.pausedUntil = until }
             replan()
             return ToolReply(L("Paused until {when}.", ["when": "\(Words.date(CivilDate(until, in: zone), weekday: true, year: false)) \(Words.time(until, zone: zone))"]))
         })
+        ext.tool("reminders_off", "Turn off Noor's reminders", "Turns off all of Noor's reminders. What was chosen is kept for when they are turned on again.") { _ in
+            try model.save { p in
+                p.reminders.master = false
+                p.reminders.ramadan.enabled = false
+                p.reminders.pausedUntil = nil
+            }
+            replan()
+            return L("Noor's reminders are off.")
+        }
         ext.tool("resume_reminders", "Resume Noor's reminders", "Ends a pause.") { _ in
             try model.save { $0.reminders.pausedUntil = nil }
             replan()
@@ -352,13 +377,10 @@ enum NoorTools {
             let on = args.bool("enabled") ?? false
             let suhoor = args.int("suhoor") ?? -1
             let days = (args.values["days"] as? [NSNumber])?.map(\.intValue) ?? []
-            if on, !Occurrences.allowed { return ToolReply(L("Sidefolk needs your yes first: choose Allow Noor's reminders in Preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "reminders"]) }
+            if on, !Occurrences.allowed { return ToolReply(L("Sidefolk needs your yes first: choose Allow Noor's reminders in Preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "reminders"], push: true) }
             try model.save { p in
                 p.reminders.ramadan = on ? Reminders.Ramadan(enabled: true, days: Set(days), suhoorMinutesBeforeFajr: Reminders.suhoorBounds.contains(suhoor) ? suhoor : nil, iftar: args.bool("iftar") ?? false) : Reminders.Ramadan()
-                if on {
-                    p.reminders.master = true
-                    if !p.reminders.route.companion && !p.reminders.route.systemFallback { p.reminders.route.companion = true }
-                }
+                if on, !p.reminders.route.companion, !p.reminders.route.systemFallback { p.reminders.route.companion = true }
             }
             replan()
             return ToolReply(on ? L("Ramadan reminders saved. They come within 35 days of their day.") : L("Ramadan reminders are off."))
@@ -375,6 +397,12 @@ enum NoorTools {
         ext.tool("clear_data", "Clear Noor's data", "Clears downloaded answers, or all of Noor's data, which cancels its reminders.", input: Schema.object(["scope": Schema.string("cache or all", oneOf: ["cache", "all"])], required: ["scope"]), reply: { args in
             let all = args.string("scope") == "all"
             try model.clear(all ? .all : .cache)
+            if all {
+                ImportHolding.clear()
+                model.review = nil
+                model.placeResults = []
+            }
+            // Everything is gone, so "nothing" is the whole truth; clearing downloads changes no reminder, and its plan waits for the days to come back.
             if all { Occurrences.replace(OccurrencePlan(revision: Occurrences.revision + 1, occurrences: [])) } else { replan() }
             return ToolReply(all ? L("Noor's data is gone, and its reminders are cancelled.") : L("Downloaded data cleared.")).opening(page: "noor", state: ["confirm_clear": NSNull(), "setup": NSNull(), "sheet": all ? NSNull() : "prefs"])
         })

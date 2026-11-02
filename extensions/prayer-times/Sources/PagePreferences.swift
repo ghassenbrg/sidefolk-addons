@@ -7,7 +7,7 @@ enum PreferencesPage {
     static func sections(_ ctx: Context) -> [Section] {
         let section = ctx.state.string("section") ?? "place"
         let tabs: [(String, String, String)] = [("place", L("Place"), "mappin"), ("sources", L("Sources"), "tray.full"), ("calculation", L("Calculation"), "function"), ("calendar", L("Calendar"), "calendar"), ("reminders", L("Reminders"), "bell"), ("data", L("Data"), "externaldrive")]
-        var out: [Section] = [Section(nil, [.draftChoice(L("Preferences"), options: tabs.map { Option($0.0, $0.1, symbol: $0.2) }, selected: section, key: "section")], wide: true)]
+        var out: [Section] = [Section(nil, [strip(ctx, tabs, section: section)], wide: true)]
         switch section {
         case "sources": out += sources(ctx)
         case "calculation": out += calculation(ctx)
@@ -17,6 +17,29 @@ enum PreferencesPage {
         default: out += place(ctx)
         }
         return out
+    }
+
+    /// Its six sections side by side, wrapping onto a second line where the window is narrow.
+    private static func strip(_ ctx: Context, _ tabs: [(String, String, String)], section: String) -> Block {
+        let w = ctx.width
+        let perRow = ctx.narrow ? 3 : 6
+        let cell = (w - Double(perRow - 1) * 8) / Double(perRow), h = 40.0
+        let rows = Int(ceil(Double(tabs.count) / Double(perRow)))
+        var acts: [String: PageAct] = [:]
+        for tab in tabs { acts["s\(tab.0)"] = .go(Go(set: ["section": tab.0])) }
+        let scene = Scene(width: w, height: Double(rows) * h + Double(rows - 1) * 8) {
+            for (i, tab) in tabs.enumerated() {
+                let on = tab.0 == section
+                Node.group {
+                    Node.rect(fill: on ? Noor.chosen : Noor.surface, stroke: on ? Noor.chosen : Noor.hairline, lineWidth: 1, corner: 10).size(cell, h)
+                    Node.symbol(tab.2, color: on ? Noor.onChosen : Noor.text).size(16, 16).at(12, 12)
+                    Node.say(tab.1, 34, 0, cell - 40, h, size: 13, weight: on ? "semibold" : "medium", color: on ? Noor.onChosen : Noor.text)
+                }
+                .size(cell, h).at(Double(i % perRow) * (cell + 8), Double(i / perRow) * (h + 8))
+                .area("s\(tab.0)", label: tab.1, hover: .init(scale: 1.0), selected: on)
+            }
+        }
+        return .scene(PageSceneBlock(scene, acts: acts))
     }
 
     // MARK: Place
@@ -72,9 +95,9 @@ enum PreferencesPage {
     /// The same date under both, each in its own zone. Reminders you chose stay chosen; a missing iqamah is called out rather than borrowed.
     private static func comparison(_ ctx: Context, to next: TimetableSource) -> [Block] {
         guard let today = ctx.snapshot.localDate, let current = ctx.model.source else { return [] }
+        // The proposed source's own day. A calculated one isn't asked for until it is chosen, so it has none yet: better a dash than the current times under its name.
         var nextDay: PrayerDay?
         if case .ok(let table) = ctx.model.store.timetable(sourceID: next.id), case .success(let day) = table.day(on: CivilDate(ctx.snapshot.now, in: next.zone)) { nextDay = day }
-        if next.kind == .calculated { nextDay = ctx.model.day(today) }
         let old = ctx.model.day(today)
         var rows: [(String, String)] = []
         for id in PrayerID.allCases {
@@ -83,6 +106,7 @@ enum PreferencesPage {
         }
         let missing = ctx.model.prefs.reminders.prayers.contains { $0.value.iqamahMinutes != nil } && (nextDay?.iqamah.isEmpty ?? true)
         var out: [Block] = [.facts(L("{old} → {new}", ["old": current.name, "new": next.name]), rows)]
+        if next.kind == .calculated { out.append(.note(L("Calculated times come from the provider once you switch, then replace what is planned. Your reminder choices stay."), tone: .info)) }
         if missing { out.append(.note(L("This source has no iqamah times, so your iqamah reminders won't come from it. Your choices are kept."), tone: .warn)) }
         out.append(.action(Action(L("Use {name}", ["name": next.name]), tool: "choose_source", input: ["id": next.id], style: .primary, symbol: "checkmark")))
         out.append(.action(Action(L("Cancel"), act: .go(Go(set: ["compare": NSNull()])))))
@@ -92,12 +116,12 @@ enum PreferencesPage {
     // MARK: Calculation
 
     /// Methods as the provider lists them, in its order. None is marked as recommended, on purpose.
-    static func methodChoice(_ ctx: Context, selected: String) -> [Block] {
+    static func methodChoice(_ ctx: Context, selected: String, list: Bool = false) -> [Block] {
         guard !ctx.model.prayerMethods.isEmpty else {
             return [.note(ctx.model.load == .loading ? L("Loading the methods…") : (Words.problem(ctx.model.problem).isEmpty ? L("The list of methods isn't here yet.") : Words.problem(ctx.model.problem)), tone: .neutral),
                     .action(Action(L("Try again"), tool: "refresh", symbol: "arrow.clockwise"))]
         }
-        return [.draftChoice(L("Calculation method"), detail: L("From the provider's list, in its order."), options: ctx.model.prayerMethods.filter { $0.id != 99 }.prefix(24).map { Option("\($0.id)", $0.name) }, selected: selected, key: "d_method", style: .rows)]
+        return [.draftChoice(L("Calculation method"), detail: L("From the provider's list, in its order."), options: ctx.model.prayerMethods.filter { $0.id != 99 }.prefix(24).map { Option("\($0.id)", $0.name) }, selected: selected, key: "d_method", style: list ? .rows : nil)]
     }
 
     private static func calculation(_ ctx: Context) -> [Section] {
@@ -129,7 +153,7 @@ enum PreferencesPage {
             Section(nil, [
                 .note(changed ? L("Not saved. Saving recalculates times and replaces planned reminders.") : L("Saved."), tone: changed ? .info : .good),
                 .action(Action(L("Save calculation"), tool: "save_calculation", input: ["method": Int(method) ?? -1, "school": Int(school) ?? 0, "latitude": Int(latitude) ?? 0, "tune": tune], style: .primary, symbol: "checkmark", detail: badTune ? L("Minutes must be from −30 to +30.") : nil, disabled: !changed || method.isEmpty || badTune)),
-                .action(Action(L("Cancel"), act: .go(Go(set: ["d_method": NSNull(), "d_school": NSNull(), "d_lat": NSNull()])), disabled: !changed)),
+                .action(Action(L("Cancel"), act: .go(Go(set: state.values.keys.filter { $0.hasPrefix("d_") }.reduce(into: [String: Any]()) { $0[$1] = NSNull() })), disabled: !changed)),
             ], wide: true),
         ]
     }
@@ -197,13 +221,14 @@ enum PreferencesPage {
         case .on: status.append(.note(L("Reminders are on, with {count} planned.", ["count": Format.integer(Occurrences.pending)]), tone: .good))
         case .paused(let until): status.append(.note(L("Paused until {time}.", ["time": "\(Words.date(CivilDate(until, in: zone), weekday: false, year: false)) \(Words.time(until, zone: zone))"]), tone: .warn))
         }
-        if !allowed { status.append(.note(L("Sidefolk hasn't been told it may send Noor's reminders. It will ask when you save."), tone: .info)) }
+        if !allowed, draft.master { status.append(.note(L("Sidefolk needs your yes before it sends Noor's reminders. It asks you first; nothing is saved by that."), tone: .info)) }
         if case .paused = ctx.snapshot.reminderStatus { status.append(.action(Action(L("Resume reminders"), tool: "resume_reminders", symbol: "play"))) } else if saved.master {
             status.append(.action(Action(L("Pause until tomorrow"), tool: "pause_reminders", input: ["until": "tomorrow"], symbol: "pause")))
         }
+        if saved.master || saved.ramadan.enabled { status.append(.action(Action(L("Turn off all reminders"), tool: "reminders_off", style: .plain, symbol: "bell.slash"))) }
         var delivery: [Block] = [
             .draftToggle(L("Remind me through the companion"), detail: L("Through your Attention settings: Focus and Quiet apply, and there is no adhan audio."), on: draft.route.companion, key: "rm_companion"),
-            .draftToggle(L("Also ask macOS to notify me"), detail: L("While Sidefolk is quit, and while you are away from the Mac. Never during Quiet."), on: draft.route.systemFallback, key: "rm_system"),
+            .draftToggle(L("Also ask macOS to notify me"), detail: L("While you are away from the Mac, and at a normal quit for up to 20 reminders in the next 7 days. Never during Quiet."), on: draft.route.systemFallback, key: "rm_system"),
         ]
         if draft.route.systemFallback, Occurrences.notifications == .denied {
             delivery.append(.note(L("macOS isn't allowing Sidefolk's notifications, so only the companion can remind you."), tone: .warn))
@@ -287,7 +312,7 @@ enum SourcePage {
             (L("With iqamah"), Format.integer(review.rows.filter { $0.iqamah != nil }.count)),
         ])]
         for line in problems { blocks.append(.note(line, tone: .bad)) }
-        if review.canSave { blocks.append(.note(L("It will be labelled Manual. Check the times against your mosque's own timetable."), tone: .info)) }
+        if review.canSave { blocks.append(.note(L("Adding it makes it your timetable, labelled Manual. Your reminder choices stay, and planned reminders move to its times. Check the times against your mosque's own timetable."), tone: .info)) }
         var sample: [Row] = []
         for row in review.rows.prefix(6) {
             sample.append(Row("\(row.date.iso)  \(slotName(row.slot))", detail: L("Starts {start} · Iqamah {iqamah}", ["start": row.start.text, "iqamah": row.iqamah?.text ?? "—"])))

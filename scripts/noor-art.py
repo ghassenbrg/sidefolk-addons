@@ -159,7 +159,7 @@ def main():
     rosette(512, "#E3C98D", "#F7E7B8", glow="#F7E7B8").save(OUT / "rosette-dark.png", optimize=True)
     rosette(512, "#293C86", "#C9AB72").save(OUT / "rosette-light.png", optimize=True)
     skyline(2000, 300, "#262B62", "#191C44").save(OUT / "skyline-dark.png", optimize=True)
-    skyline(2000, 300, "#C4BBE8", "#9D91D6").save(OUT / "skyline-light.png", optimize=True)
+    skyline(2000, 300, "#E4DEF4", "#D3CAEE").save(OUT / "skyline-light.png", optimize=True)
     for f in sorted(OUT.iterdir()):
         print(f.name, f.stat().st_size // 1024, "KB")
 

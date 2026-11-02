@@ -9,13 +9,17 @@ NoorTools.install(on: ext)
 
 ext.page("noor") { args in
     ImportHolding.restore(into: NoorModel.shared)
+    NoorTools.placeMoved()
     return await NoorPage.render(args)
 }
 
 ext.planOccurrences { _ in
     let model = NoorModel.shared
+    NoorTools.placeMoved()
     model.freshen()
     await model.settle(ms: 15_000)
+    // No plan is better than a plan without today's days: Sidefolk keeps the one it has when this says it can't make one.
+    guard model.planIsReady else { throw Problem("The days a plan needs aren't here yet.") }
     return PlanWords.plan(model: model)
 }
 

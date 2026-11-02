@@ -267,7 +267,7 @@
     },
     "import_csv": {
       "title": "Read a timetable file",
-      "mutates": false,
+      "mutates": true,
       "ai": false,
       "category": "files",
       "paths": {
@@ -380,6 +380,22 @@
       "ai": false,
       "category": "system",
       "summary": "Clear Noor's {scope} data"
+    },
+    "reminders_off": {
+      "title": "Turn off Noor's reminders",
+      "mutates": true,
+      "category": "time",
+      "commands": [
+        {
+          "name": "off",
+          "say": [
+            "turn off noor's reminders",
+            "turn noor's reminders off",
+            "stop noor's reminders"
+          ]
+        }
+      ],
+      "summary": "Turn off Noor's reminders"
     }
   },
   "pages": {
