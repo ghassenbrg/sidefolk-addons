@@ -127,7 +127,7 @@ enum TossSurface {
         let height = y - 6 + pad
         var scene = Scene(width: width, height: height) { nodes }
             .announcing([toss.result, line].compactMap { $0 }.joined(separator: " "))
-            .animating([.from("toss.chip", [["t": 0, "scale": 0.85, "opacity": 0], ["t": 1, "scale": 1, "opacity": 1]], ms: 220, ease: "spring")])
+            .animating([.keys("toss.chip", [["t": 0, "scale": 0.85, "opacity": 0], ["t": 1, "scale": 1, "opacity": 1]], ms: 220, ease: "spring")])
             .closing(afterMs: 5000)
         if move != nil || effect != nil { scene = scene.react(Reaction(move: move, effect: effect)) }
         return scene
@@ -236,7 +236,7 @@ enum TossParts {
         let trayY = height - trayH
         var anims: [Anim] = []
         var nodes: [Node] = [TossArt.tray(w: trayW, h: trayH).at(65, trayY)]
-        if playing { anims.append(.from("toss.tray", [["t": 0, "opacity": 0], ["t": 0.3, "opacity": 0], ["t": 1, "opacity": 1]], ms: time.launch)) }
+        if playing { anims.append(.keys("toss.tray", [["t": 0, "opacity": 0], ["t": 0.3, "opacity": 0], ["t": 1, "opacity": 1]], ms: time.launch)) }
         // Bottom-up, as the rows are stacked over the tray's lower edge.
         let total = Double(rows.count) * size + Double(rows.count - 1) * 8
         let firstY = height - 13 - total
@@ -293,10 +293,10 @@ enum TossParts {
                     let t = Double(frame) / Double(count), end = min(Double(frame + 1) / Double(count), 1)
                     return [["t": t, "opacity": 1], ["t": end - 0.0001, "opacity": 1], ["t": end, "opacity": 0]]
                 }
-                anims.append(.from(number, [["t": 0, "opacity": 0]] + on + [["t": 1, "opacity": 0]], ms: time.flight, ease: "linear").delay(ms: time.launch))
+                anims.append(.keys(number, [["t": 0, "opacity": 0]] + on + [["t": 1, "opacity": 0]], ms: time.flight, ease: "linear").delay(ms: time.launch))
                 numbers.append(TossArt.dieNumber(tumbling(n), sides: sides, side: size).id(number).opacity(0))
             }
-            anims.append(.from("\(id).final", [["t": 0, "opacity": 0], ["t": 0.999, "opacity": 0], ["t": 1, "opacity": 1]], ms: time.launch + time.flight, ease: "linear"))
+            anims.append(.keys("\(id).final", [["t": 0, "opacity": 0], ["t": 0.999, "opacity": 0], ["t": 1, "opacity": 1]], ms: time.launch + time.flight, ease: "linear"))
         }
         return .box(id, w: size, h: size) {
             TossArt.padded("art/poly-\(TossArt.polyhedron(sides)).png", side: size, exported: 44)

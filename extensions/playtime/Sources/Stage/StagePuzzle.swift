@@ -276,13 +276,3 @@ enum PuzzleColors {
     static let plots = ["#2FA36B", "#3E7BFA", "#8B5CF6", "#E8691C", "#0E9384", "#5AC8D8", "#7342E0", "#4F9128", "#1D8AD8", "#F2B21B", "#6B7BFF", "#9C45AC"]
     static func plot(_ i: Int) -> String { plots[i % plots.count] }
 }
-
-extension BoardDrawing {
-    /// A part whose group hasn't moved it: says so on a plain card rather than drawing nothing. Goes when the last part has moved.
-    func unmoved(_ name: String) -> PartBlock {
-        PartBlock(.box("unmoved.\(name)", w: Self.inner, h: 60) {
-            Node.gameCard(w: Self.inner, h: 60)
-            Node.words(name, size: 13, align: "center", w: Self.inner, h: 60)
-        }, height: 60)
-    }
-}

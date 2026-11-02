@@ -126,12 +126,12 @@ extension BoardDrawing {
 
     private func appear(_ id: String) {
         guard ctx.fresh, !wasEnded else { return }
-        anims.append(.from(id, [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 400, ease: "spring"))
+        anims.append(.keys(id, [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 400, ease: "spring"))
     }
 
     private func popMark() {
         guard ctx.fresh, !wasEnded else { return }
-        anims.append(.from("end.mark", [["t": 0, "scale": 0.6], ["t": 1, "scale": 1]], ms: 400, ease: "spring"))
+        anims.append(.keys("end.mark", [["t": 0, "scale": 0.6], ["t": 1, "scale": 1]], ms: 400, ease: "spring"))
     }
 
     private var wasEnded: Bool { ctx.previous?.resultPart != nil }

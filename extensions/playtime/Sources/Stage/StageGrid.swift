@@ -162,7 +162,7 @@ extension BoardDrawing {
         case "flip": frames = [["t": 0, "sx": 0.02, "opacity": 0.2], ["t": 1, "sx": 1, "opacity": 1]]
         default: frames = [["t": 0, "opacity": 0.2], ["t": 1, "opacity": 1]]
         }
-        anims.append(.from(target, frames, ms: 320, ease: "spring"))
+        anims.append(.keys(target, frames, ms: 320, ease: "spring"))
     }
 
     /// A card's face for the SF Symbol a board names: the object itself, in colour.

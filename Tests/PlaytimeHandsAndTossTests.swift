@@ -198,7 +198,7 @@ struct PlaytimeHandsAndTossTests {
             let runs = drawing.anims.map(\.json)
             let thrown = try #require(runs.first { $0["target"] as? String == "reveal.you.throw" && ($0["keys"] as? [[String: Double]])?.first?["opacity"] == 0 })
             let keys = try #require(thrown["keys"] as? [[String: Double]])
-            #expect(keys[1]["t"]! < 0.01 && keys[1]["opacity"] == 0, "hidden from the first moment")
+            #expect(keys[0]["t"] == 0 && keys[0]["opacity"] == 0, "hidden from the first moment")
             #expect(keys.first { $0["t"]! >= 0.45 }?["opacity"] == 1)
             #expect(drawing.handsVerdict("rock", "scissors") == .win && drawing.handsVerdict("rock", "paper") == .loss && drawing.handsVerdict("rock", "rock") == .draw)
         }

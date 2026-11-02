@@ -22,7 +22,7 @@ extension BoardDrawing {
         for case .play(.meter(let old, _, _, _)) in ctx.previous?.parts ?? [] { before = old }
         if ctx.fresh, let before, before != value {
             let from = max(14, tube * min(max(before, 0), 1)) / fill
-            anims.append(.from("meter.fill", [["t": 0, "sx": from], ["t": 1, "sx": 1]], ms: 500, ease: "spring"))
+            anims.append(.keys("meter.fill", [["t": 0, "sx": from], ["t": 1, "sx": 1]], ms: 500, ease: "spring"))
         }
         return PartBlock(.box("meter", w: width, h: height) {
             Node.gameCard(corner: 16, alpha: 0.94, w: width, h: height).id("meter.card")

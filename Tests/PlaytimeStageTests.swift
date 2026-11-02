@@ -137,12 +137,6 @@ struct PlaytimeStageTests {
         #expect(ids(Cell("symbol", value: "moon.fill")).contains("cell.0.0.mark.symbol"))
     }
 
-    /// What doesn't start at its resting place says its first value twice, so it starts there on a Sidefolk that skips a key at t 0, and on one that doesn't.
-    @Test func aPathStartsAtItsFirstKey() throws {
-        let anim = Anim.from("a", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 100).json
-        let keys = try #require(anim["keys"] as? [[String: Double]])
-        #expect(keys.count == 3 && keys[0]["opacity"] == 0 && keys[1]["opacity"] == 0 && keys[1]["t"]! > 0)
-    }
 
     @Test func aLongLanguageAndOneThatReadsTheOtherWayFit() throws {
         for language in ["de", "ar", "ja"] {

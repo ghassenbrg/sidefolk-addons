@@ -259,12 +259,13 @@ public struct ChoiceOption {
     var json: [String: Any] { drop(["value": value, "label": label, "detail": detail, "symbol": symbol]) }
 }
 
-/// How the companion reacts, every value from Sidefolk's fixed lists (anything else is dropped):
+/// How the companion reacts. A scene's reaction takes `move`, `effect`, `prop` and `look` (D99: Sidefolk's fixed lists); `line` and `sound` are
+/// Playtime's own moments, which the stage reads for what to show and play (the companion says nothing outside the panel):
 /// - `move`: think, cheer, celebrate, sulk, bow, nod, shrug, giggle, wince, gasp, tease, sweat, dizzy, ready, shuffle, hop,
 ///   spin, wave, dance, accent:wave, accent:hop, accent:spin, accent:bow
 /// - `effect`: confetti, sparkles, hearts, question, exclaim, sweat, stars, frost, flame
 /// - `prop`: balloons(1)…balloons(9), hat, crown, magnifier, cards, sealed_card, gem, none
-/// - `line`: a key, never text (Sidefolk says its own words, in the person's language and tone): hello, your_turn,
+/// - `line`: a key: hello, your_turn,
 ///   my_turn, thinking, close_one, you_win, i_win, draw, record, streak, encourage, tease, caught_cheating, hint_intro, bye
 /// - `sound`: tap, flip, rattle, pop, ding, boop, tick, whoosh, stamp, shuffle, snap, cork, fanfare, trombone
 /// - `look`: panel, you, away, or a cell `[row, column]`

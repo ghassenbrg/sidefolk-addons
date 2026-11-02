@@ -65,15 +65,6 @@ extension Node {
     }
 }
 
-extension Anim {
-    /// Keys that really start at their first value. A Sidefolk from before snapshot B starts a run from a node's resting value and skips a key at t 0, so anything that doesn't
-    /// start where it rests (a mark stamped in, a hand hidden until it opens) says its first value again at once, and starts there on any Sidefolk.
-    static func from(_ target: String, _ frames: [[String: Double]], ms: Double, ease: String = "linear") -> Anim {
-        guard let first = frames.first, first["t"] == 0 else { return .keys(target, frames, ms: ms, ease: ease) }
-        return .keys(target, [first, first.merging(["t": 0.0001]) { _, new in new }] + frames.dropFirst(), ms: ms, ease: ease)
-    }
-}
-
 /// `M`/`Q`/`C` paths the board's shapes need. A rounded rectangle keeps to the same radius as a `rect`.
 enum ShapePath {
     static func rounded(x: Double, y: Double, w: Double, h: Double, r: Double) -> String {

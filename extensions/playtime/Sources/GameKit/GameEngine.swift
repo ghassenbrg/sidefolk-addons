@@ -1,12 +1,12 @@
 import Foundation
 import SidefolkExtensionKit
 
-// Playtime's games are built in two halves (Sidefolk D75):
+// Playtime's games are built in two halves:
 // - an engine: the rules as pure logic over a Codable state, no I/O and no words, its chance a `Games.Random` passed
 //   in (fresh from the system in play, seeded in tests); the ten new games wrap the `Games.*` engines (Sources/Games/),
 //   trivia is its own (Sources/Trivia/);
 // - a screen: the engine's state as a Sidefolk board in the person's words (`L`, strings/), and the board's moves as
-//   the engine's actions. `GameTable` joins them to the game channel and keeps each session's state in the data
+//   the engine's actions. `GameTable` joins them to the surface and `PlayTable` keeps each session's state in the data
 //   folder, so a game left open survives Playtime being stopped while idle. What happened (`Games.Event`) becomes the
 //   companion's reaction through one table (`EventCues`).
 
@@ -93,7 +93,7 @@ struct GameOptions: Codable, Equatable {
 protocol GameScreen {
     associatedtype Engine: GameEngine
 
-    /// Its name in the manifest (`games.<id>`).
+    /// Its name: what its menu card and commands say.
     static var id: String { get }
     static func action(for move: Move, in state: Engine.State) -> Engine.Action?
     /// The board now, in the person's language (the request's, through `L`), and the companion's reaction to what
