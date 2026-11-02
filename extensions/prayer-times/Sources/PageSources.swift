@@ -25,12 +25,24 @@ enum SourcePage {
         return two(ctx, right: { w, h, ox, oy, r, wiring in check(ctx, w: w, h: h, ox: ox, oy: oy, r: r, wiring: &wiring) }, foot: fileButtons(ctx, first: false), rightFirst: true)
     }
 
-    /// Choosing a file hangs on a button that says so: a scene's area may only move around the page or run a tool (host D105).
+    /// Choosing a file, a button that says so.
+    private static func importButton(first: Bool) -> Block {
+        .action(Action(first ? L("Import a CSV file") : L("Choose another file"), act: .file(tool: "import_csv", param: "path", types: ["csv", "txt"]), symbol: first ? "square.and.arrow.down" : "doc"))
+    }
+
+    private static func mosqueChosen(_ ctx: Context) -> Bool {
+        let manual = ctx.model.source?.kind == .manual || ctx.model.review != nil || ctx.state.string("sheet") == "import"
+        return (ctx.state.string("src_kind") ?? (manual ? "mosque" : "calculated")) == "mosque"
+    }
+
+    /// Under the panels: what they have no slot for.
     private static func fileButtons(_ ctx: Context, first: Bool) -> Section {
-        Section(nil, [
-            .action(Action(first ? L("Import a CSV file") : L("Choose another file"), act: .file(tool: "import_csv", param: "path", types: ["csv", "txt"]), symbol: first ? "square.and.arrow.down" : "doc")),
-            .action(Action(L("Copy a CSV template"), act: .copy(CSVImport.template), style: .plain, symbol: "doc.on.doc")),
-        ], wide: true)
+        var blocks: [Block] = [.action(Action(L("Copy a CSV template"), act: .copy(CSVImport.template), style: .plain, symbol: "doc.on.doc"))]
+        if first {
+            blocks.insert(.action(Action(L("Enter by hand"), act: .go(Go(set: ["sheet": "manual"], push: true)), symbol: "pencil")), at: 0)
+            if !mosqueChosen(ctx) { blocks.insert(importButton(first: true), at: 0) }
+        }
+        return Section(nil, blocks, wide: true)
     }
 
     private typealias Panel = (_ w: Double, _ h: Double?, _ ox: Double, _ oy: Double, _ r: Ruler, _ wiring: inout SceneWiring) -> (node: Node, height: Double)
@@ -115,8 +127,9 @@ enum SourcePage {
             if let picked { wiring.tools["use"] = ("choose_source", ["id": picked.id]) }
             let mainW = inner * 0.56
             nodes.append(Node.ctaPill("use", label: L("Use selected timetable"), x: x, y: foot, w: mainW, h: buttonH, symbol: "chevron.forward", disabled: picked == nil || current, size: r.f(17, min: 12)))
-            wiring.acts["manual"] = .go(Go(set: ["sheet": "manual"], push: true))
-            nodes.append(Node.ctaPill("manual", label: L("Enter by hand"), x: x + mainW + r.u(14), y: foot, w: inner - mainW - r.u(14), h: buttonH, symbol: nil, leading: "pencil", filled: false, size: r.f(17, min: 12)))
+            // Choosing a file is a button that says so, laid over this pill: a scene's area may only move around the page or run a tool (host D105, D109).
+            nodes.append(Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(inner - mainW - r.u(14), buttonH).at(x + mainW + r.u(14), foot))
+            wiring.inlays.append(PageInlay(x: ox + x + mainW + r.u(14), y: oy + foot, w: inner - mainW - r.u(14), h: buttonH, importButton(first: true)))
         } else {
             let method = ctx.state.string("d_method") ?? ctx.model.prefs.convention.map { "\($0.method)" } ?? ""
             let ready = !method.isEmpty && ctx.model.prefs.place != nil
@@ -441,7 +454,10 @@ enum SourcePage {
         let buttonH = r.u(50)
         let height = max(y + buttonH + r.u(30), r.u(650)), finalH = h ?? height
         wiring.tools["add"] = ("save_import", ["name": typed])
-        nodes.append(Node.ctaPill("add", label: L("Add timetable"), x: x, y: finalH - buttonH - r.u(22), w: inner, h: buttonH, symbol: "checkmark", disabled: !review.canSave, size: r.f(17, min: 12)))
+        let addW = inner * 0.6, buttonY = finalH - buttonH - r.u(22)
+        nodes.append(Node.ctaPill("add", label: L("Add timetable"), x: x, y: buttonY, w: addW, h: buttonH, symbol: "checkmark", disabled: !review.canSave, size: r.f(17, min: 12)))
+        nodes.append(Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(inner - addW - r.u(14), buttonH).at(x + addW + r.u(14), buttonY))
+        wiring.inlays.append(PageInlay(x: ox + x + addW + r.u(14), y: oy + buttonY, w: inner - addW - r.u(14), h: buttonH, importButton(first: false)))
         return (Node.group {
             panelChrome(w, finalH, r: r)
             nodes
