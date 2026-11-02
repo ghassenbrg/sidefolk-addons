@@ -9,6 +9,7 @@ extension BoardDrawing {
 
     /// The pose for the board's cue: a mood from the fixed list read as one of the states every companion is drawn in.
     var pose: String {
+        if playing { return "thinking" }
         if board.over, let result = board.resultPart {
             switch Verdict(tone: result.tone) {
             case .loss: return "celebrating"
@@ -76,6 +77,7 @@ extension BoardDrawing {
         }
         if let button = board.companionButton {
             group = group.area("button", value: button.move, label: button.label, hover: AreaLook(scale: 1.02), press: AreaLook(scale: 0.95), always: true, sound: "sounds/tap.wav")
+            if let key = button.key { keys.append(StageKey(key: key, id: "companion_key", area: "button", value: button.move, always: true)) }
         }
         return group
     }
