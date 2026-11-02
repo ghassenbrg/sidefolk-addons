@@ -50,7 +50,8 @@ extension BoardDrawing {
         let primary = b.style == .primary
         let fill: Color = primary ? .accent : Paint.card
         let ink: Color = primary ? .onAccent : .ink
-        let symbolW = b.symbol == nil ? 0 : m.size * 1.2
+        // A wide symbol would shrink to fit a square box.
+        let symbolW = b.symbol == nil ? 0 : m.size * (b.symbol == "eye.slash" ? 1.45 : 1.2)
         let textRoom = w - m.hPad * 2 - (b.symbol == nil ? 0 : 6 + symbolW)
         let textW = min(TextFit.width(b.label, size: m.size, weight: m.weight), max(textRoom, 10))
         let startX = (w - textW - (b.symbol == nil ? 0 : 6 + symbolW)) / 2
@@ -63,7 +64,7 @@ extension BoardDrawing {
             }
             Node.words(b.label, size: m.size, weight: m.weight, color: ink, align: "center", minScale: 0.65, x: startX, w: textW, h: m.height)
             if let symbol = b.symbol {
-                Node.symbol(symbol, color: ink).symbolLook(weight: m.weight).at(startX + textW + 6, (m.height - symbolW) / 2).size(symbolW, symbolW)
+                Node.symbol(symbol, color: ink).symbolLook(weight: m.weight).at(startX + textW + 6, (m.height - m.size * 1.2) / 2).size(symbolW, m.size * 1.2)
             }
         }
         face = face.area("button", value: b.move, label: b.label, disabled: b.disabled, hover: nil, press: AreaLook(scale: flat ? 0.97 : 1, dy: flat ? 0 : m.depth - 1), sound: "sounds/tap.wav")
@@ -77,18 +78,18 @@ extension BoardDrawing {
 
     /// A lightbulb, a seal or a mark, the words on the sun's tint.
     func note(_ text: String, title: String?, tone: Tone) -> PartBlock {
-        let room = Self.inner - 24 - 28
+        let room = Self.inner - 24 - 25
         let symbol = tone == .info || tone == .neutral ? "lightbulb.fill" : tone == .good ? "checkmark.seal.fill" : "exclamationmark.circle.fill"
         let titleH = title == nil ? 0 : TextFit.lineHeight(11.5, "semibold") + 2
-        let textH = TextFit.height(text, size: 13, width: room)
+        let textH = TextFit.height(text, size: 14, width: room)
         let height = 24 + titleH + textH
         return PartBlock(.box("note", w: Self.inner, h: height) {
             Node.rect(fill: Paint.card(0.96), stroke: Paint.edge, lineWidth: 1, corner: 14).id("note.card").size(Self.inner, height)
             Node.rect(fill: Paint.clear("#FFC93C", 0.14), corner: 14).id("note.tint").size(Self.inner, height)
             // Two-coloured, as the panel's: its mark in the card's colour, cut out of the sun's.
-            Node.symbol(symbol, color: symbol.hasSuffix("circle.fill") ? Paint.card : Paint.sun).symbolLook(secondary: symbol.hasSuffix("circle.fill") ? Paint.sun : nil).at(12, 12).size(18, 18)
-            if let title { Node.words(title, size: 11.5, weight: "semibold", design: "default", x: 40, y: 12, w: room, h: titleH) }
-            Node.words(text, size: 13, weight: "regular", valign: "top", lines: 40, design: "default", x: 40, y: 12 + titleH, w: room, h: textH)
+            Node.symbol(symbol, color: symbol.hasSuffix("circle.fill") ? Paint.card : Paint.sun).symbolLook(secondary: symbol.hasSuffix("circle.fill") ? Paint.sun : nil).at(12, 12).size(17, 17)
+            if let title { Node.words(title, size: 11.5, weight: "semibold", design: "default", x: 37, y: 12, w: room, h: titleH) }
+            Node.words(text, size: 14, weight: "regular", valign: "top", lines: 40, design: "default", x: 37, y: 12 + titleH, w: room, h: textH)
         }, height: height)
     }
 

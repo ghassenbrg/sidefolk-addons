@@ -137,7 +137,8 @@ enum StageMoves {
         if let g = board.gridPart, let c = local.cursor, c >= g.rows * g.columns { local.cursor = nil }
         if board.gridPart == nil, !board.hasPuzzle, !board.hasCups { local.cursor = nil }
         BoardDrawing.puzzleSettle(board, local: &local)
-        local.page = 0
+        // A keyboard keeps its page from word to word; a new one starts on the first.
+        if !board.hasKeys { local.page = 0 }
         Playback.settle(board, local: &local)
         if !board.hasPads { local.lit = nil }
     }

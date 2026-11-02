@@ -68,7 +68,7 @@ final class BoardDrawing {
     var timers: [(id: String, ms: Double)] = []
     /// A part asks for the next scene by itself (`untilPlayed`).
     var partAfterMs: Int?
-    /// Named looks for what a large board repeats (`Scene.style`).
+    /// What many nodes share, said once: a 9 × 9 board or a played-out word on a kana keyboard runs past the 64 KB a scene may be otherwise.
     var styles: [String: [String: Any]] = [:]
     var look: Look { ctx.entry.look }
 
@@ -80,6 +80,12 @@ final class BoardDrawing {
     /// The end card stands in for the play area: the last move was seen in its build-up, and the board under the card would
     /// push the panel past a small screen. What isn't play (notes, facts, a level to pick, buttons) stays.
     var ended: Bool { board.over && board.resultPart != nil }
+
+    /// A node every use of `name` starts from; the first use says what it is.
+    func styled(_ name: String, _ node: @autoclosure () -> Node) -> Node {
+        if styles[name] == nil { styles[name] = node().json }
+        return Node(["style": name])
+    }
 
     private func isPlay(_ part: BoardPart) -> Bool {
         switch part {
@@ -120,7 +126,7 @@ final class BoardDrawing {
 
         var scene = Scene(width: Self.width, height: height) {
             SceneBackdrop.nodes(look, width: Self.width, height: height)
-            content
+            content.map(\.rounded)
         }
         .title(ctx.entry.title)
         .withBack()

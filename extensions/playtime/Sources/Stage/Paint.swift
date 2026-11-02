@@ -15,6 +15,7 @@ enum Paint {
     static let lostSoft = Color.adaptive(light: "#F3E4D6", dark: "#4A3A2F")
     static let lostEdge = Color.adaptive(light: "#B07A5299", dark: "#D9A98299")
     static let sun = Color.hex("#FFC93C")
+    static let sunLip = Color.hex("#DBA610")
     static let coral = Color.hex("#FF7B6B")
     static let navy = Color.hex("#0F2D5B")
     static let white = Color.hex("#FFFFFF")
