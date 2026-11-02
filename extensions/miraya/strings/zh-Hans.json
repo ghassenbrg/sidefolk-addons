@@ -340,5 +340,11 @@
     "{tv}: not seen now, paired": "{tv}：目前未发现，已配对",
     "{tv}: on, not paired yet": "{tv}：已开机，尚未配对",
     "{tv}: on, paired": "{tv}：已开机，已配对"
+  },
+  "drops": {
+    "play_on_tv": {
+      "title": "在电视上播放",
+      "detail": "用 Miraya 在电视上播放视频。"
+    }
   }
 }

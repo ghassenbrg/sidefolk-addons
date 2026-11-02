@@ -324,5 +324,17 @@
       "title": "Sharing to the TV ended",
       "description": "Tells you when sharing or a video on the TV ends without you stopping it: the TV's Back button, the network, the TV turned off."
     }
-  }
+  },
+  "drops": [
+    {
+      "id": "play_on_tv",
+      "title": "Play on TV",
+      "detail": "Plays the video on your TV with Miraya.",
+      "symbol": "tv",
+      "kinds": ["link"],
+      "patterns": ["https://*.mp4", "https://*.m4v", "https://*.mov", "https://*.mkv", "https://*.webm", "https://*.m3u8", "https://*.ts", "https://*.avi"],
+      "tool": "play_on_tv",
+      "input": { "url": "{value}" }
+    }
+  ]
 }

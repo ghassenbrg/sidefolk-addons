@@ -340,5 +340,11 @@
     "{tv}: not seen now, paired": "{tv}: 지금 보이지 않음, 페어링됨",
     "{tv}: on, not paired yet": "{tv}: 켜짐, 아직 페어링 안 됨",
     "{tv}: on, paired": "{tv}: 켜짐, 페어링됨"
+  },
+  "drops": {
+    "play_on_tv": {
+      "title": "TV에서 재생",
+      "detail": "Miraya로 TV에서 동영상을 재생해요."
+    }
   }
 }
