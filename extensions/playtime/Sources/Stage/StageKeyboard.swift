@@ -19,6 +19,8 @@ extension BoardDrawing {
         let keyH = (pages.map(\.rows.count).max() ?? 0) > 3 ? 26.0 : 30.0
         let page = max(min(ctx.local.page, pages.count - 1), 0)
         let width = Self.inner
+        // Only a whole word is a move, and only a move sounds.
+        let wordReady = mode == "spell" && ctx.local.draft.count == length
         var y = 0.0
         var nodes: [Node] = []
         if pages.count > 1 {
@@ -40,22 +42,26 @@ extension BoardDrawing {
             let keyW = (width - 4 * (Double(row.count - 1) + extra) - extra * 40) / Double(max(row.count, 1))
             var x = 0.0
             if specials {
-                nodes.append(special("return", symbol: "return", label: L("Try this word"), x: x, y: y, h: keyH, locked: locked))
+                nodes.append(special("return", symbol: "return", label: L("Try this word"), x: x, y: y, h: keyH, locked: locked, sounds: wordReady))
                 x += 44
             }
             for k in row {
                 nodes.append(keyCapButton(k.key, mark: k.mark, script: script, mode: mode, x: x, y: y, w: keyW, h: keyH, locked: locked))
                 x += keyW + 4
             }
-            if specials { nodes.append(special("delete", symbol: "delete.left", label: L("Delete"), x: x, y: y, h: keyH, locked: locked)) }
+            if specials { nodes.append(special("delete", symbol: "delete.left", label: L("Delete"), x: x, y: y, h: keyH, locked: locked, sounds: false)) }
             y += keyH + 5
         }
         let height = y - 5
         if !locked {
+            // A letter that is a move sounds as its key would; one already used, or on another page, still goes to the game, which says so.
+            if mode == "letter" {
+                for (i, k) in shown.rows.joined().enumerated() where k.mark == "none" { keys.append(StageKey(key: k.key, id: "key_\(i)", area: "key", value: k.key)) }
+            }
             keys.append(StageKey(key: "letter", id: "letter"))
             if mode == "spell" {
                 keys.append(StageKey(key: "delete", id: "draft_delete"))
-                keys.append(StageKey(key: "return", id: "draft_return"))
+                keys.append(wordReady ? StageKey(key: "return", id: "draft_return", area: "draft", value: "return") : StageKey(key: "return", id: "draft_return"))
             }
         }
         var group = Node.box("keys", w: width, h: height) { nodes }
@@ -88,13 +94,13 @@ extension BoardDrawing {
         }
     }
 
-    private func special(_ name: String, symbol: String, label: String, x: Double, y: Double, h: Double, locked: Bool) -> Node {
+    private func special(_ name: String, symbol: String, label: String, x: Double, y: Double, h: Double, locked: Bool, sounds: Bool) -> Node {
         Node.box("key.\(name)", x: x, y: y, w: 40, h: h) {
             Node.rect(fill: .line, corner: 6).at(0, 2).size(40, h - 2)
             Node.rect(fill: .surfaceRaised, stroke: .line, lineWidth: 1, corner: 6).size(40, h - 2)
             // Sized by height: a wide symbol would shrink to fit a square box.
             Node.symbol(symbol, color: .ink).symbolLook().at(9, (h - 16) / 2 - 1).size(22, 16)
-        }.area("draft", value: name, label: label, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: name == "return" ? "sounds/tap.wav" : nil)
+        }.area("draft", value: name, label: label, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: sounds ? "sounds/tap.wav" : nil)
     }
 
     /// A text field: `word` sends `.word`, `text` sends `.text`; Return or its button sends it, and the app's field takes the input method.
@@ -108,20 +114,22 @@ extension BoardDrawing {
             y += h + 6
         }
         let words = button ?? L("OK")
-        let buttonW = TextFit.width(words, size: 16, weight: "heavy") + 32
-        let fieldW = room - buttonW - 8, fieldH = 40.0
-        nodes.append(Node.rect(fill: .surfaceSunken, stroke: .line, lineWidth: 1, corner: 10).id("entry.well").at(10, y).size(fieldW, fieldH))
+        let buttonW = TextFit.width(words, size: 16, weight: "heavy") + 28
+        // The button sets the row's height, with the field in its middle; the panel's plain field stood 38.
+        let fieldW = room - buttonW - 8, fieldH = 38.0, rowH = 50.0
+        let fieldY = y + (rowH - fieldH) / 2
+        nodes.append(Node.rect(fill: .surfaceSunken, stroke: .line, lineWidth: 1, corner: 10).id("entry.well").at(10, fieldY).size(fieldW, fieldH))
+        // An AppKit field insets its words 2 more than the panel's did.
         nodes.append(Node.entry(name: name, placeholder: placeholder, max: max, locked: locked, size: 17).fieldLook(focus: true, plain: true, weight: "semibold", design: "rounded")
-            .id("entry.\(name)").at(10 + 12, y + 8).size(fieldW - 24, fieldH - 16))
-        nodes.append(.box("entry.send", x: 10 + fieldW + 8, y: y - 3, w: buttonW, h: 46 + 4) {
+            .id("entry.\(name)").at(10 + 10, fieldY + 8).size(fieldW - 20, fieldH - 16))
+        // The whole button is the area: Sidefolk dims it while the field is empty, lip and all.
+        nodes.append(.box("entry.send", x: 10 + fieldW + 8, y: y, w: buttonW, h: rowH) {
             Node.rect(fill: Color.accent.tuned(brightness: -0.14), corner: 16).at(0, 4).size(buttonW, 46)
-            Node.box("entry.send.face", w: buttonW, h: 46) {
-                Node.rect(fill: .accent, corner: 16).size(buttonW, 46)
-                Node.rect(corner: 16).gradient([Paint.clear("#FFFFFF", 0.25), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(buttonW, 46)
-                Node.words(words, size: 16, weight: "heavy", color: .onAccent, align: "center", minScale: 0.65, x: 8, w: buttonW - 16, h: 46)
-            }.area("entry_send", label: words, disabled: locked, hover: nil, press: AreaLook(dy: 3), submits: name, sound: "sounds/tap.wav")
-        })
-        y += 46 + 10
+            Node.rect(fill: .accent, corner: 16).size(buttonW, 46)
+            Node.rect(corner: 16).gradient([Paint.clear("#FFFFFF", 0.25), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(buttonW, 46)
+            Node.words(words, size: 16, weight: "heavy", color: .onAccent, align: "center", minScale: 0.65, x: 8, w: buttonW - 16, h: 46)
+        }.area("entry_send", label: words, disabled: locked, hover: nil, press: AreaLook(scale: 0.97), submits: name, sound: "sounds/tap.wav"))
+        y += rowH + 10
         return PartBlock(.box("entrycard.\(name)", w: width, h: y) {
             Node.gameCard(corner: 16, alpha: 0.95, w: width, h: y).id("entry.card")
             nodes

@@ -127,7 +127,7 @@ extension BoardDrawing {
                         else if k == "return" { Node.symbol("return", color: .onAccent).symbolLook().at(13, 4).size(18, 18) }
                         else { Node.words(k, size: 14, weight: "semibold", align: "center", w: 44, h: 26) }
                     }
-                    .area("digit", value: k, label: k == "delete" ? L("Delete") : k == "return" ? L("Your guess") : k, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: "sounds/tap.wav")
+                    .area("digit", value: k, label: k == "delete" ? L("Delete") : k == "return" ? L("Your guess") : k, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: k == "return" && !ctx.local.draft.isEmpty ? "sounds/tap.wav" : nil)
                     .opacity(locked ? 0.5 : 1)
                 }
             }

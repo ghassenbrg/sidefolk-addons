@@ -7,7 +7,7 @@ extension BoardDrawing {
     /// The letter on each tile's key cap: R, P and S for hands, A to D otherwise.
     static func keyCaps(_ tiles: [Tile]) -> [String] {
         tiles.enumerated().map { i, tile in
-            if let key = tile.key { return key }
+            if let key = tile.key { return key.uppercased() }
             switch tile.art {
             case "rock": return "R"
             case "paper": return "P"
