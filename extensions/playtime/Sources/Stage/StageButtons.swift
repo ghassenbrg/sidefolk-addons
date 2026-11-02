@@ -30,13 +30,14 @@ extension BoardDrawing {
             nodes.append(button(b, id: "\(id).\(i)", x: x, w: w, flat: flat))
             height = max(height, m.height + m.depth)
             x += w + gap
-            // Return presses the main button; a letter its own.
+            // Return presses the main button; a letter its own. A key's id is a plain token.
+            let keyId = "\(id)_\(i)".replacingOccurrences(of: ".", with: "_")
             if !b.disabled {
                 if b.style == .primary {
-                    keys.append(StageKey(key: "return", id: "\(id).\(i).return", area: "button", value: b.move))
-                    keys.append(StageKey(key: "space", id: "\(id).\(i).space", area: "button", value: b.move))
+                    keys.append(StageKey(key: "return", id: keyId + "_return", area: "button", value: b.move))
+                    keys.append(StageKey(key: "space", id: keyId + "_space", area: "button", value: b.move))
                 }
-                if let key = b.key { keys.append(StageKey(key: key, id: "\(id).\(i).key", area: "button", value: b.move)) }
+                if let key = b.key { keys.append(StageKey(key: key, id: keyId + "_key", area: "button", value: b.move)) }
             }
         }
         return PartBlock(.box(id, w: width, h: height) { nodes }, height: height)

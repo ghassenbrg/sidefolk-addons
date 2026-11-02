@@ -93,8 +93,8 @@ extension BoardDrawing {
         }
         if !locked {
             keys.append(StageKey(key: "digit", id: "digit"))
-            keys.append(StageKey(key: "delete", id: "draft.delete"))
-            keys.append(StageKey(key: "return", id: "draft.return"))
+            keys.append(StageKey(key: "delete", id: "draft_delete"))
+            keys.append(StageKey(key: "return", id: "draft_return"))
         }
         return PartBlock(.box("field", w: width, h: y) {
             Node.gameCard(corner: 16, alpha: 0.92, w: width, h: y).id("field.card")

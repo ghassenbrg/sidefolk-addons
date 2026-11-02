@@ -530,7 +530,11 @@
     "{title} has no level “{level}”.": "{title}에는 “{level}” 단계가 없어요.",
     "{title} has no levels.": "{title}에는 단계가 없어요.",
     "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
-    "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요."
+    "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
+    "Play {title}": "{title} 하기",
+    "Put the game away": "게임 넣어 두기",
+    "Show the Game Center": "게임 센터 보기",
+    "Show the games": "게임 보기"
   },
   "examples": [
     "퀴즈 하자"

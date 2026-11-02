@@ -11,8 +11,8 @@ extension BoardDrawing {
     func timerBar(id: String, seconds: Double, width: Double) -> Node {
         let ms = seconds * 1000, warmAt = max(ms - 5000, 0)
         // Named: the next scene with the same clock carries on rather than starting again. Essential: time doesn't stop for Reduce Motion.
-        anims.append(Anim.to("timer.fill", ["sx": 0], ms: ms, ease: "linear").essential().named("timer.\(id)"))
-        anims.append(Anim.sequence([.wait(ms: warmAt), .to("timer.warm", ["opacity": 1], ms: 200, ease: "linear")]).essential().named("timer.\(id).warm"))
+        anims.append(Anim.to("timer.fill", ["sx": 0], ms: ms, ease: "linear").essential().named("timer_\(id)"))
+        anims.append(Anim.sequence([.wait(ms: warmAt), .to("timer.warm", ["opacity": 1], ms: 200, ease: "linear")]).essential().named("timer_\(id)_warm"))
         return Node.box("timer", w: width, h: 5) {
             Node.capsule(fill: .surfaceSunken).id("timer.track").size(width, 5)
             Node.box("timer.fill", w: width, h: 5) {

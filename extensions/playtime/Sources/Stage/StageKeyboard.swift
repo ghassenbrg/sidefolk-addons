@@ -29,7 +29,7 @@ extension BoardDrawing {
                 nodes.append(.box("keys.tab.\(i)", x: 3 + Double(i) * (segW + 4), y: 3, w: segW, h: h - 6) {
                     Node.capsule(fill: i == page ? Color.accent : Color.clear).size(segW, h - 6)
                     Node.words(p.label, size: 11.5, weight: "semibold", color: i == page ? .onAccent : .ink, align: "center", design: "default", w: segW, h: h - 6)
-                }.area("keys.page", value: "\(i)", label: p.label, hover: nil, press: AreaLook(scale: 0.97), selected: i == page))
+                }.area("keys_page", value: "\(i)", label: p.label, hover: nil, press: AreaLook(scale: 0.97), selected: i == page))
             }
             y += h + 5
         }
@@ -54,8 +54,8 @@ extension BoardDrawing {
         if !locked {
             keys.append(StageKey(key: "letter", id: "letter"))
             if mode == "spell" {
-                keys.append(StageKey(key: "delete", id: "draft.delete"))
-                keys.append(StageKey(key: "return", id: "draft.return"))
+                keys.append(StageKey(key: "delete", id: "draft_delete"))
+                keys.append(StageKey(key: "return", id: "draft_return"))
             }
         }
         var group = Node.box("keys", w: width, h: height) { nodes }
@@ -116,7 +116,7 @@ extension BoardDrawing {
                 Node.rect(fill: .accent, corner: 16).size(buttonW, 46)
                 Node.rect(corner: 16).gradient([Paint.clear("#FFFFFF", 0.25), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(buttonW, 46)
                 Node.words(words, size: 16, weight: "heavy", color: .onAccent, align: "center", minScale: 0.65, x: 8, w: buttonW - 16, h: 46)
-            }.area("entry.send", label: words, disabled: locked, hover: nil, press: AreaLook(dy: 3), submits: name, sound: "sounds/tap.wav")
+            }.area("entry_send", label: words, disabled: locked, hover: nil, press: AreaLook(dy: 3), submits: name, sound: "sounds/tap.wav")
         })
         y += 46 + 10
         return PartBlock(.box("entrycard.\(name)", w: width, h: y) {

@@ -530,7 +530,11 @@
     "{title} has no level “{level}”.": "{title}にはレベル「{level}」がありません。",
     "{title} has no levels.": "{title}にはレベルがありません。",
     "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
-    "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。"
+    "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
+    "Play {title}": "{title}で遊ぶ",
+    "Put the game away": "ゲームをしまう",
+    "Show the Game Center": "ゲームセンターを表示",
+    "Show the games": "ゲームを見る"
   },
   "examples": [
     "クイズをしよう"

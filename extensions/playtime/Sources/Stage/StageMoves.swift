@@ -44,7 +44,7 @@ enum StageMoves {
             }
         case "draft": return value == "delete" ? delete(&local) : submit(board: board, local: local)
         case "key": return type(value, board: board, local: &local)
-        case "keys.page":
+        case "keys_page":
             local.page = Int(value) ?? 0
             return .redraw
         default: return .ignore
@@ -57,11 +57,11 @@ enum StageMoves {
             guard let d = character?.first?.wholeNumberValue else { return .ignore }
             return typeDigit(String(d), board: board, local: &local)
         case "letter": return character.map { type($0, board: board, local: &local) } ?? .ignore
-        case "draft.delete": return delete(&local)
-        case "draft.return": return submit(board: board, local: local)
-        case "back.delete": return .back
-        case "arrow.left", "arrow.right", "arrow.up", "arrow.down": return arrow(id, board: board, local: &local)
-        case "cursor.return", "cursor.space":
+        case "draft_delete": return delete(&local)
+        case "draft_return": return submit(board: board, local: local)
+        case "back_delete": return .back
+        case "arrow_left", "arrow_right", "arrow_up", "arrow_down": return arrow(id, board: board, local: &local)
+        case "cursor_return", "cursor_space":
             guard let c = local.cursor, let g = board.gridPart else { return .ignore }
             return .play(.cell(row: c / g.columns, column: c % g.columns))
         default: return .ignore
@@ -84,9 +84,9 @@ enum StageMoves {
 
     static func move(_ id: String, cursor: Int?, columns: Int, count: Int, rtl: Bool) -> Int {
         let raw = switch id {
-        case "arrow.left": -1
-        case "arrow.right": 1
-        case "arrow.up": -columns
+        case "arrow_left": -1
+        case "arrow_right": 1
+        case "arrow_up": -columns
         default: columns
         }
         let step = rtl && abs(raw) == 1 ? -raw : raw

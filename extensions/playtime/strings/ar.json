@@ -610,7 +610,11 @@
     "{title} has no level “{level}”.": "لا توجد في {title} درجة «{level}».",
     "{title} has no levels.": "لا توجد درجات في {title}.",
     "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
-    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل."
+    "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
+    "Play {title}": "لعب {title}",
+    "Put the game away": "إبعاد اللعبة",
+    "Show the Game Center": "عرض مركز الألعاب",
+    "Show the games": "اعرض الألعاب"
   },
   "examples": [
     "هيا نلعب مسابقة أسئلة"

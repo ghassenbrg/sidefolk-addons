@@ -530,7 +530,11 @@
     "{title} has no level “{level}”.": "{title} 没有“{level}”难度。",
     "{title} has no levels.": "{title} 没有难度。",
     "{title} is already at its easiest.": "{title} 已经是最简单的了。",
-    "{title} is already at its hardest.": "{title} 已经是最难的了。"
+    "{title} is already at its hardest.": "{title} 已经是最难的了。",
+    "Play {title}": "玩{title}",
+    "Put the game away": "收起游戏",
+    "Show the Game Center": "显示游戏中心",
+    "Show the games": "查看游戏"
   },
   "examples": [
     "我们来玩问答吧"

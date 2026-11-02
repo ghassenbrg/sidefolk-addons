@@ -41,8 +41,8 @@ extension BoardDrawing {
         let height = y - gapY
         if !locked {
             for (i, cap) in caps.enumerated() where tiles[i].state != .faded {
-                keys.append(StageKey(key: cap.lowercased(), id: "answer.\(i)", area: "answer", value: "\(i)"))
-                keys.append(StageKey(key: "\(i + 1)", id: "answer.d\(i)", area: "answer", value: "\(i)"))
+                keys.append(StageKey(key: cap.lowercased(), id: "answer_\(i)", area: "answer", value: "\(i)"))
+                keys.append(StageKey(key: "\(i + 1)", id: "answer_d\(i)", area: "answer", value: "\(i)"))
             }
         }
         return PartBlock(.box("answers", w: Self.inner, h: height) { nodes }, height: height)

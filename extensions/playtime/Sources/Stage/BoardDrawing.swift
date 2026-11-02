@@ -229,9 +229,9 @@ final class BoardDrawing {
     /// half, so the companion peeks over it.
     private func onTable(_ inner: PartBlock) -> PartBlock {
         let height = inner.height + 10
-        return PartBlock(.box("table", x: -Self.pad, w: Self.width, h: height) {
-            SceneBackdrop.table(look, y: -6, width: Self.width, height: height + 14)
-            inner.node.at(Self.pad, 6)
+        return PartBlock(.box("table", w: Self.inner, h: height) {
+            SceneBackdrop.table(look, x: -Self.pad, y: -6, width: Self.width, height: height + 14)
+            inner.node.at(0, 6)
         }, height: height)
     }
 }
@@ -247,7 +247,8 @@ enum SceneBackdrop {
         let wide = tall / aspect
         var out: [Node] = [
             Node.rect(fill: .surface).id("bg.base").size(width, height),
-            Node.image(look.scene, dark: look.sceneAtNight, fit: "fill").id("bg.scene").at((width - wide) / 2, height - tall).size(wide, tall),
+            // Named by the panel's height: it stands on the bottom edge at once when the panel grows, rather than easing up from under it.
+            Node.image(look.scene, dark: look.sceneAtNight, fit: "fill").id("bg.scene.\(Int(height))").at((width - wide) / 2, height - tall).size(wide, tall),
         ]
         // A night painting is already calm: a touch darker in dark mode, as the panel drew it.
         if !look.night { out.append(Node.rect(fill: .adaptive(light: "#00000000", dark: "#00000029")).id("bg.dim").size(width, height)) }
@@ -257,9 +258,9 @@ enum SceneBackdrop {
     }
 
     /// The wooden table at the bottom of a game's scene: the same picture's last part, stretched as the panel stretched it.
-    static func table(_ look: Look, y: Double, width: Double, height: Double) -> Node {
+    static func table(_ look: Look, x: Double, y: Double, width: Double, height: Double) -> Node {
         let whole = height / 0.28
-        return Node.box("table.strip", y: y, w: width, h: height) {
+        return Node.box("table.strip", x: x, y: y, w: width, h: height) {
             Node.image(look.scene, dark: look.sceneAtNight, fit: "fill").at(0, height - whole).size(width, whole)
             Node.rect(fill: .adaptive(light: "#00000000", dark: "#0000001F")).size(width, height)
             // Its back edge softened, so the companion behind it sinks into the table rather than being cut.

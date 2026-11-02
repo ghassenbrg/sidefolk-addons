@@ -30,7 +30,7 @@ enum PlaytimeTools {
                  ])) { args in try open(args) }
         ext.tool("put_away", "Put the game away",
                  "Puts the game on the panel away, to resume later from the menu, the Game Center or \"resume\".", input: Schema.none) { _ in
-            ToolReply("Put away. It waits ten minutes.").closingSurface("play")
+            ToolReply(L("Put the game away")).closingSurface("play")
         }
         ext.tool("game_settings", "Change game settings",
                  """
@@ -52,11 +52,10 @@ enum PlaytimeTools {
         let person = a.bool("person") == true
         switch a.string("game") ?? "menu" {
         case "menu":
-            let titles = GameCatalog.all.map(\.title).joined(separator: ", ")
-            return ToolReply("Opened the menu of games beside the companion: \(titles). The user picks one there. Say it in a few words; don't list them.")
+            return ToolReply(L("Show the games"))
                 .opening(surface: "play", arguments: ["view": "menu"])
         case "center":
-            return ToolReply("Opened the Game Center in Home: the user's scores, records, badges and game settings. Say it in a few words.").opening(page: "playtime")
+            return ToolReply(L("Show the Game Center")).opening(page: "playtime")
         case "random":
             let others = GameCatalog.all.filter { $0.id != PlaytimeRecords.load().lastOpened?.game }
             guard let pick = others.randomElement() else { return try open(Arguments(["game": "menu"])) }
@@ -110,7 +109,7 @@ enum PlaytimeTools {
         }
         // Two people only where two can play (D96): not the puzzles, not Guess My Animal.
         if a.int("players") == 2, TwoPlayers.games.contains(entry.id) { arguments["players"] = 2 }
-        return ToolReply("Opened \(entry.title)\(level.map { " (\($0.rawValue))" } ?? "") beside the companion; the user plays it there. Say it in a few words.")
+        return ToolReply(L("Play {title}", ["title": entry.title]))
             .opening(surface: "play", arguments: arguments)
     }
 

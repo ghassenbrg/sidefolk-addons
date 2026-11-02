@@ -546,7 +546,11 @@
     "{title} has no level “{level}”.": "{title} no tiene el nivel «{level}».",
     "{title} has no levels.": "{title} no tiene niveles.",
     "{title} is already at its easiest.": "{title} ya está en lo más fácil.",
-    "{title} is already at its hardest.": "{title} ya está en lo más difícil."
+    "{title} is already at its hardest.": "{title} ya está en lo más difícil.",
+    "Play {title}": "Jugar a {title}",
+    "Put the game away": "Guardar el juego",
+    "Show the Game Center": "Mostrar el centro de juegos",
+    "Show the games": "Ver los juegos"
   },
   "examples": [
     "juguemos al trivial"

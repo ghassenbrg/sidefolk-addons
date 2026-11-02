@@ -26,21 +26,21 @@ extension BoardDrawing {
                 for n in 1...9 {
                     let at = (2 - (n - 1) / 3) * 3 + (n - 1) % 3
                     if at < cells.count, cells[at].mark == "empty", cells[at].state != "disabled" {
-                        keys.append(StageKey(key: "\(n)", id: "numpad.\(n)", area: "cell", value: "\(at / 3),\(at % 3)"))
+                        keys.append(StageKey(key: "\(n)", id: "numpad_\(n)", area: "cell", value: "\(at / 3),\(at % 3)"))
                     }
                 }
             }
             arrowKeys()
             if ctx.local.cursor != nil {
-                keys.append(StageKey(key: "return", id: "cursor.return"))
-                keys.append(StageKey(key: "space", id: "cursor.space"))
+                keys.append(StageKey(key: "return", id: "cursor_return"))
+                keys.append(StageKey(key: "space", id: "cursor_space"))
             }
         }
         return PartBlock(.box("grid", w: Self.inner, h: h) { nodes }, height: h)
     }
 
     func arrowKeys() {
-        for arrow in ["left", "right", "up", "down"] { keys.append(StageKey(key: arrow, id: "arrow.\(arrow)")) }
+        for arrow in ["left", "right", "up", "down"] { keys.append(StageKey(key: arrow, id: "arrow_\(arrow)")) }
     }
 
     private func cell(_ cell: Cell, r: Int, c: Int, index: Int, side: Double, locked: Bool, numpad: Bool, columns: Int) -> Node {

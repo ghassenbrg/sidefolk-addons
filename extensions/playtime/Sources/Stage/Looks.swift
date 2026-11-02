@@ -54,8 +54,17 @@ struct GameEntry {
 }
 
 enum GameCatalog {
-    /// The menu's order: games against the companion by their looks' order, then the puzzles.
+    nonisolated(unsafe) private static var made: [String: [GameEntry]] = [:]
+
+    /// The menu's order: games against the companion by their looks' order, then the puzzles. Made once per language: a board asks often.
     static var all: [GameEntry] {
+        if let known = made[Language.code] { return known }
+        let list = catalog
+        made[Language.code] = list
+        return list
+    }
+
+    private static var catalog: [GameEntry] {
         [GameEntry(id: WhichCupScreen.id, title: L("Which Cup?"), tagline: L("Keep your eye on the gem"), symbol: "cup.and.saucer.fill", look: .cups),
          GameEntry(id: CopyMeScreen.id, title: L("Copy Me"), tagline: L("Watch the moves, then copy them"), symbol: "figure.dance", look: .dance),
          GameEntry(id: QuickPawsScreen.id, title: L("Quick Paws"), tagline: L("Boop the moment it says Boop!"), symbol: "bolt.fill", look: .arcade),

@@ -14,9 +14,9 @@ enum PlayMenu {
     /// Arrows move through the two columns.
     static func step(_ key: String, from: Int, count: Int, rtl: Bool) -> Int {
         switch key {
-        case "arrow.left": min(max(from + (rtl ? 1 : -1), 0), count - 1)
-        case "arrow.right": min(max(from + (rtl ? -1 : 1), 0), count - 1)
-        case "arrow.up": max(0, from - 2)
+        case "arrow_left": min(max(from + (rtl ? 1 : -1), 0), count - 1)
+        case "arrow_right": min(max(from + (rtl ? -1 : 1), 0), count - 1)
+        case "arrow_up": max(0, from - 2)
         default: min(count - 1, from + 2)
         }
     }
@@ -52,8 +52,8 @@ enum PlayMenu {
             nodes
         }
         .title(L("Playtime"))
-        for arrow in ["left", "right", "up", "down"] { scene = scene.key(arrow, id: "arrow.\(arrow)") }
-        return scene.key("return", id: "menu.return").key("space", id: "menu.space")
+        for arrow in ["left", "right", "up", "down"] { scene = scene.key(arrow, id: "arrow_\(arrow)") }
+        return scene.key("return", id: "menu_return").key("space", id: "menu_space")
     }
 
     /// Wins, the current run of wins, and games played, on one card.

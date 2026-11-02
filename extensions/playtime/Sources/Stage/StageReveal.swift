@@ -28,7 +28,7 @@ extension BoardDrawing {
         let id = prefix + ".coin", side = 64.0
         // Fourteen half turns land on heads, fifteen on tails.
         let turns = heads ? 14.0 : 15.0
-        if playing { anims.append(Anim.flip(id, turns, ms: Self.revealMs, ease: "linear").named(id)) }
+        if playing { anims.append(Anim.flip(id, turns, ms: Self.revealMs, ease: "linear").named(id.replacingOccurrences(of: ".", with: "_"))) }
         return [Node.flip(front: Node.image("art/coin-heads.png").size(side, side), back: Node.image("art/coin-tails.png").size(side, side),
                           showing: !playing && !heads ? "back" : "front", axis: "x").id(id).at((width - side) / 2, (height - side) / 2).size(side, side)]
     }
@@ -43,7 +43,7 @@ extension BoardDrawing {
             if sides == 6 {
                 if playing {
                     let faces = (0..<18).map { f in "art/die-\((f * 7 + i * 3) % 6 + 1).png" } + ["art/die-\(value).png"]
-                    anims.append(Anim.frames(id, faces, stepMs: Self.revealMs / 19).named(id + ".f"))
+                    anims.append(Anim.frames(id, faces, stepMs: Self.revealMs / 19).named(id.replacingOccurrences(of: ".", with: "_") + "_f"))
                 }
                 out.append(Node.image("art/die-\(playing ? 1 : value).png").id(id).at(x, (height - side) / 2).size(side, side))
             } else {

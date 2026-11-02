@@ -21,7 +21,7 @@ enum PlayTable {
         var played = false
         var recorded = false
         var over = false
-        /// A set of words the table says about itself.
+        /// When it was put away.
         var keptAt = Date()
     }
 
@@ -45,6 +45,7 @@ enum PlayTable {
             if session.game == game, args.bool("fresh") != true, !slots, session.state != nil, !session.over {
                 session.menu = false
             } else {
+                finishRow(&session)
                 begin(game, level: args.string("level").flatMap(GameLevel.init(rawValue:)), args: args, session: &session, id: id)
             }
         }
@@ -69,10 +70,11 @@ enum PlayTable {
         shown[id] = nil
         guard var session = load(id) else { return }
         try? FileManager.default.removeItem(atPath: path(id))
-        finishRow(&session)
         if request.reason == "closed", session.game != nil, !session.over {
             session.keptAt = Date()
             if let data = try? JSONEncoder().encode(session) { FileManager.default.createFile(atPath: keptFile, contents: data) }
+        } else {
+            finishRow(&session)
         }
     }
 
@@ -97,9 +99,9 @@ enum PlayTable {
         switch move {
         case .click("open", let game?, _):
             return openFromMenu(game, session: &session, id: id)
-        case .key(let key, _, _) where key.hasPrefix("arrow."):
+        case .key(let key, _, _) where key.hasPrefix("arrow_"):
             session.selected = PlayMenu.step(key, from: session.selected, count: order.count, rtl: Language.code == "ar")
-        case .key("menu.return", _, _), .key("menu.space", _, _):
+        case .key("menu_return", _, _), .key("menu_space", _, _):
             if order.indices.contains(session.selected) { return openFromMenu(order[session.selected].id, session: &session, id: id) }
         default: break
         }
@@ -176,7 +178,7 @@ enum PlayTable {
     private static func draw(_ board: Board, entry: GameEntry, session: Session, previous: Board?, fresh: Bool, id: String) -> Scene {
         shown[id] = board
         var scene = BoardDrawing(board, context(entry, session: session, previous: previous, fresh: fresh)).scene()
-        if !board.typesWithDelete { scene = scene.key("delete", id: "back.delete") }
+        if !board.typesWithDelete { scene = scene.key("delete", id: "back_delete") }
         return scene
     }
 
