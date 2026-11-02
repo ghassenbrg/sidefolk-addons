@@ -66,7 +66,7 @@ extension BoardDrawing {
                     // A hand not shown yet: a closed token with a "?", neither rock, paper nor scissors.
                     Node.box(id + ".sealed", x: 3, y: 3, w: 52, h: 52) {
                         Node.rect(fill: .surfaceSunken, stroke: .line, lineWidth: 1, corner: 14).size(52, 52).shadow(Paint.clear("#000000", 0.12), radius: 2, dx: 0, dy: 1)
-                        Node.symbol("questionmark", color: .inkMuted).symbolLook(weight: "heavy").at(13, 13).size(26, 26)
+                        Node.symbol("questionmark", color: .inkMuted).symbolLook(weight: "heavy", mono: true).at(13, 13).size(26, 26)
                     }.opacity(0)
                 }
             }
@@ -77,7 +77,7 @@ extension BoardDrawing {
             let w = text + 16 + (crown == nil ? 0 : 15), h = 18.0
             return .box(x: mid + sign * home - w / 2, y: 106 - h / 2, w: w, h: h) {
                 Node.capsule(fill: Color.surface.tuned(alpha: 0.9)).size(w, h)
-                if let crown { Node.symbol("crown.fill", color: crown).symbolLook().at(8, 3).size(12, 12) }
+                if let crown { Node.symbol("crown.fill", color: crown).symbolLook(mono: true).at(8, 3).size(12, 12) }
                 Node.words(words, size: 11.5, weight: "semibold", color: crown == nil ? .inkMuted : .ink, align: "center", design: "default", x: crown == nil ? 8 : 23, w: text, h: h)
             }
         }
@@ -101,7 +101,7 @@ extension BoardDrawing {
             // The clash itself: a burst, or an equals sign for a draw.
             let mark = "\(prefix).burst", side = verdict == .draw ? 22.0 : 30.0, fade = beat.acts + (1 - beat.acts) * 0.7
             anims.append(.keys(mark, [["t": 0, "opacity": 0, "scale": 0.6], ["t": beat.acts, "opacity": 0, "scale": 0.6], ["t": beat.acts + 0.001, "opacity": 1, "scale": 0.6], ["t": fade, "opacity": 0, "scale": 1.3], ["t": 1, "opacity": 0, "scale": 1.3]], ms: beat.ms))
-            burst.append(Node.symbol(verdict == .draw ? "equal" : "burst.fill", color: Color.inkMuted.tuned(alpha: 0.8)).symbolLook(weight: "bold").id(mark).at(mid - side / 2, 52 - side / 2).size(side, side).opacity(0))
+            burst.append(Node.symbol(verdict == .draw ? "equal" : "burst.fill", color: Color.inkMuted.tuned(alpha: 0.8)).symbolLook(weight: "bold", mono: true).id(mark).at(mid - side / 2, 52 - side / 2).size(side, side).opacity(0))
         }
         return words + [
             side("you", hand: you, sign: -1, won: verdict == .win, lost: verdict == .loss, mirrored: false),

@@ -44,7 +44,7 @@ extension BoardDrawing {
             let words = Format.integer(streak), pill = TextFit.width(words, size: 12, weight: "heavy") + 14 + 14
             extras.append(.box(id + ".streak", x: w - 7 - pill, y: (h - 22) / 2, w: pill, h: 22) {
                 Node.capsule(fill: .successSoft).size(pill, 22)
-                Node.symbol("flame.fill", color: .win).symbolLook(weight: "heavy").at(6, 5).size(12, 12)
+                Node.symbol("flame.fill", color: .win).symbolLook(weight: "heavy", mono: true).at(6, 5).size(12, 12)
                 Node.words(words, size: 12, weight: "heavy", x: 20, w: pill - 24, h: 22).textLook(tabular: true)
             }.label(L("{n} in a row", ["n": streak])))
             trailing += pill + 4

@@ -61,7 +61,7 @@ extension BoardDrawing {
             }
             Node.words(b.label, size: m.size, weight: m.weight, color: ink, align: "center", minScale: 0.65, x: startX, w: textW, h: m.height)
             if let symbol = b.symbol {
-                Node.symbol(symbol, color: ink).symbolLook(weight: m.weight).at(startX + textW + 6, (m.height - symbolW) / 2).size(symbolW, symbolW)
+                Node.symbol(symbol, color: ink).symbolLook(weight: m.weight, mono: true).at(startX + textW + 6, (m.height - symbolW) / 2).size(symbolW, symbolW)
             }
         }
         face = face.area("button", value: b.move, label: b.label, disabled: b.disabled, hover: nil, press: AreaLook(scale: flat ? 0.97 : 1, dy: flat ? 0 : m.depth - 1), sound: "sounds/tap.wav")
@@ -83,7 +83,7 @@ extension BoardDrawing {
         return PartBlock(.box("note", w: Self.inner, h: height) {
             Node.rect(fill: Paint.card(0.96), stroke: Paint.edge, lineWidth: 1, corner: 14).id("note.card").size(Self.inner, height)
             Node.rect(fill: Paint.clear("#FFC93C", 0.14), corner: 14).id("note.tint").size(Self.inner, height)
-            Node.symbol(symbol, color: Paint.sun).symbolLook().at(12, 12).size(18, 18)
+            Node.symbol(symbol, color: Paint.sun).symbolLook(mono: true).at(12, 12).size(18, 18)
             if let title { Node.words(title, size: 11.5, weight: "semibold", design: "default", x: 40, y: 12, w: room, h: titleH) }
             Node.words(text, size: 13, weight: "regular", valign: "top", lines: 0, design: "default", x: 40, y: 12 + titleH, w: room, h: textH)
         }, height: height)
@@ -181,7 +181,7 @@ extension BoardDrawing {
             cursor += 36
         } else if let symbol = o.symbol {
             inner.append(Node.ellipse(fill: selected ? .accent : .accentSoft).at((w - 38) / 2, cursor).size(38, 38))
-            inner.append(Node.symbol(symbol, color: selected ? .onAccent : .ink).symbolLook().at((w - 24) / 2, cursor + 7).size(24, 24))
+            inner.append(Node.symbol(symbol, color: selected ? .onAccent : .ink).symbolLook(mono: true).at((w - 24) / 2, cursor + 7).size(24, 24))
             cursor += 42
         }
         // A long name wraps a little smaller rather than being cut mid-word.

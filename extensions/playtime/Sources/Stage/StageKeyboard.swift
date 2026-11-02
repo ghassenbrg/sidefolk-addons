@@ -90,7 +90,7 @@ extension BoardDrawing {
         Node.box("key.\(name)", x: x, y: y, w: 40, h: h + 2) {
             Node.rect(fill: .line, corner: 6).at(0, 2).size(40, h)
             Node.rect(fill: .surfaceRaised, stroke: .line, lineWidth: 1, corner: 6).size(40, h)
-            Node.symbol(symbol, color: .ink).symbolLook().at(12, (h - 16) / 2).size(16, 16)
+            Node.symbol(symbol, color: .ink).symbolLook(mono: true).at(12, (h - 16) / 2).size(16, 16)
         }.area("draft", value: name, label: label, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: "sounds/tap.wav")
     }
 

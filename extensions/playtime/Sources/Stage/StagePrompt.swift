@@ -68,7 +68,7 @@ extension BoardDrawing {
                 // A small badge with the button's symbol on its shoulder says it can be clicked.
                 Node.ellipse(fill: .surface, stroke: Color.accent.tuned(alpha: 0.5), lineWidth: 1).id("companion.badge").at(w - 24, 0).size(24, 24)
                     .shadow(Paint.black15, radius: 2, dx: 0, dy: 1)
-                Node.symbol(button.symbol ?? "hand.tap.fill", color: .accent).symbolLook(weight: "bold").at(w - 19, 5).size(14, 14)
+                Node.symbol(button.symbol ?? "hand.tap.fill", color: .accent).symbolLook(weight: "bold", mono: true).at(w - 19, 5).size(14, 14)
             }
         }
         if ctx.fresh {

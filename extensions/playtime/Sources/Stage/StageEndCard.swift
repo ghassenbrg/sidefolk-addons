@@ -14,7 +14,7 @@ extension BoardDrawing {
             let w = TextFit.width(ribbon, size: 11.5, weight: "semibold") + 24 + 16
             nodes.append(.box("end.ribbon", x: (width - w) / 2, y: y, w: w, h: 24) {
                 Node.capsule(fill: Paint.clear("#FFC93C", 0.18), stroke: Paint.clear("#FFC93C", 0.45), lineWidth: 1).size(w, 24)
-                Node.symbol("star.fill", color: Paint.sun).symbolLook().at(12, 6).size(12, 12)
+                Node.symbol("star.fill", color: Paint.sun).symbolLook(mono: true).at(12, 6).size(12, 12)
                 Node.words(ribbon, size: 11.5, weight: "semibold", design: "default", x: 28, w: w - 40, h: 24)
             })
             y += 24 + 8
@@ -64,7 +64,7 @@ extension BoardDrawing {
         let s = 22.0
         return Node.box("end.back", x: x, y: y, w: w, h: 42) {
             Node.rect(fill: Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 14).size(w, 42)
-            Node.symbol(back.symbol ?? "", color: .ink).symbolLook(weight: "bold").at((w - s) / 2, (42 - s) / 2).size(s, s)
+            Node.symbol(back.symbol ?? "", color: .ink).symbolLook(weight: "bold", mono: true).at((w - s) / 2, (42 - s) / 2).size(s, s)
         }.area("button", value: back.move, label: back.label, hover: nil, press: AreaLook(scale: 0.97), sound: "sounds/tap.wav")
     }
 
@@ -114,11 +114,11 @@ extension BoardDrawing {
             if verdict == .win {
                 Node.art("art/game-trophy.png", x: 8, y: 8, w: 42, h: 42)
                 Node.ellipse(fill: Paint.card).at(38, 3).size(16, 16)
-                Node.symbol("crown.fill", color: .win).symbolLook(weight: "bold").at(40.5, 5.5).size(11, 11)
+                Node.symbol("crown.fill", color: .win).symbolLook(weight: "bold", mono: true).at(40.5, 5.5).size(11, 11)
             } else if tone == .info {
-                Node.symbol("trophy.fill", color: .ink).symbolLook(weight: "bold").at(14, 14).size(30, 30)
+                Node.symbol("trophy.fill", color: .ink).symbolLook(weight: "bold", mono: true).at(14, 14).size(30, 30)
             } else {
-                Node.symbol(symbol, color: verdict.color).symbolLook(weight: "bold").at(14, 14).size(30, 30)
+                Node.symbol(symbol, color: verdict.color).symbolLook(weight: "bold", mono: true).at(14, 14).size(30, 30)
             }
         }
     }

@@ -40,13 +40,13 @@ extension BoardDrawing {
                 .shadow(Paint.clear(Self.tintHex(value), 0.5), radius: 4, dx: 0, dy: 0)
             Node.box("meter.words", x: 10, y: 10 + 26 + 4, w: room, h: labelH) {
                 if let low {
-                    Node.symbol("snowflake", color: .inkMuted).symbolLook(weight: "regular").at(0, (labelH - 12) / 2).size(12, 12)
+                    Node.symbol("snowflake", color: .inkMuted).symbolLook(weight: "regular", mono: true).at(0, (labelH - 12) / 2).size(12, 12)
                     Node.words(low, size: 11.5, weight: "regular", color: .inkMuted, design: "default", x: 16, w: room / 3 - 16, h: labelH)
                 }
                 if let label { Node.words(label, size: 13, weight: "semibold", align: "center", design: "default", x: room / 3, w: room / 3, h: labelH) }
                 if let high {
                     Node.words(high, size: 11.5, weight: "regular", color: .inkMuted, align: "trailing", design: "default", x: room * 2 / 3, w: room / 3 - 16, h: labelH)
-                    Node.symbol("flame.fill", color: .inkMuted).symbolLook(weight: "regular").at(room - 12, (labelH - 12) / 2).size(12, 12)
+                    Node.symbol("flame.fill", color: .inkMuted).symbolLook(weight: "regular", mono: true).at(room - 12, (labelH - 12) / 2).size(12, 12)
                 }
             }
         }.label(label ?? "\(Int(value * 100))%"), height: height)
@@ -111,7 +111,7 @@ extension BoardDrawing {
         return (Node.box(w: w, h: 20) {
             Node.capsule(fill: right ? .win : .surfaceSunken).size(w, 20)
             Node.words(words, size: 11.5, weight: "semibold", color: ink, align: "trailing", design: "default", x: 7, w: w - 14 - 14, h: 20).textLook(tabular: true)
-            Node.symbol(symbol, color: ink).symbolLook().at(w - 7 - 12, 4).size(12, 12)
+            Node.symbol(symbol, color: ink).symbolLook(mono: true).at(w - 7 - 12, 4).size(12, 12)
         }.leftToRight(), w)
     }
 
@@ -123,8 +123,8 @@ extension BoardDrawing {
                 for (c, k) in row.enumerated() {
                     Node.box("pad.\(k)", x: Double(c) * 48, y: Double(r) * 30, w: 44, h: 26) {
                         Node.rect(fill: k == "return" ? .accent : .surfaceSunken, corner: 6).size(44, 26)
-                        if k == "delete" { Node.symbol("delete.left", color: .ink).symbolLook().at(13, 4).size(18, 18) }
-                        else if k == "return" { Node.symbol("return", color: .onAccent).symbolLook().at(13, 4).size(18, 18) }
+                        if k == "delete" { Node.symbol("delete.left", color: .ink).symbolLook(mono: true).at(13, 4).size(18, 18) }
+                        else if k == "return" { Node.symbol("return", color: .onAccent).symbolLook(mono: true).at(13, 4).size(18, 18) }
                         else { Node.words(k, size: 14, weight: "semibold", align: "center", w: 44, h: 26) }
                     }
                     .area("digit", value: k, label: k == "delete" ? L("Delete") : k == "return" ? L("Your guess") : k, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: "sounds/tap.wav")
@@ -147,7 +147,7 @@ extension BoardDrawing {
                     Node.image("art/game-balloon.webp", tint: kept ? hue[i % 5] : .inkFaint).id("life.\(i)").at(Double(i) * (side + gap), 0).size(side, side)
                         .anchor(0.5, 1).scale(kept ? 1 : 0.6).rotate(kept ? Double(i % 3 - 1) * 5 : 0).opacity(kept ? 1 : 0.3)
                 } else {
-                    Node.symbol(kept ? "heart.fill" : "heart", color: kept ? hue[i % 5] : Color.inkFaint.tuned(alpha: 0.5)).symbolLook(weight: "regular")
+                    Node.symbol(kept ? "heart.fill" : "heart", color: kept ? hue[i % 5] : Color.inkFaint.tuned(alpha: 0.5)).symbolLook(weight: "regular", mono: true)
                         .id("life.\(i)").at(Double(i) * (side + gap), 0).size(side, side).scale(kept ? 1 : 0.8)
                 }
             }

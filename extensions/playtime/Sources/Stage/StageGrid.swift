@@ -25,9 +25,10 @@ extension BoardDrawing {
             if numpad {
                 for n in 1...9 {
                     let at = (2 - (n - 1) / 3) * 3 + (n - 1) % 3
-                    if at < cells.count, cells[at].mark == "empty", cells[at].state != "disabled" {
-                        keys.append(StageKey(key: "\(n)", id: "numpad_\(n)", area: "cell", value: "\(at / 3),\(at % 3)"))
-                    }
+                    guard at < cells.count, cells[at].state != "disabled" else { continue }
+                    // A digit on a taken cell still goes to the game, which says it's taken.
+                    let open = cells[at].mark == "empty"
+                    keys.append(StageKey(key: "\(n)", id: "numpad_\(n)", area: open ? "cell" : nil, value: open ? "\(at / 3),\(at % 3)" : nil))
                 }
             }
             arrowKeys()
@@ -84,13 +85,11 @@ extension BoardDrawing {
         let color: Color = cell.companion ? .accent : .ink
         let target = id + ".mark"
         switch cell.mark {
-        // Chunky marks with a small drop shadow: pieces on a board rather than strokes.
+        // Chunky marks lit from above, with a small drop shadow: pieces on a board rather than strokes.
         case "x":
-            let s = side * 0.45 * 1.3
-            return Node.symbol("xmark", color: color).symbolLook(weight: "black", mono: true).id(target).at((side - s) / 2, (side - s) / 2).size(s, s).shadow(shade(color), radius: 0, dx: 0, dy: 3)
+            return Node.path(Self.crossPath(side), fill: color).gradient([lit(color, 0.75), color]).id(target).size(side, side).shadow(shade(color), radius: 0, dx: 0, dy: 3)
         case "o":
-            let inset = side * 0.22, lw = side * 0.11
-            return Node.ellipse(stroke: color, lineWidth: lw).id(target).at(inset + lw / 2, inset + lw / 2).size(side - 2 * inset - lw, side - 2 * inset - lw).shadow(shade(color), radius: 0, dx: 0, dy: 3)
+            return Node.path(Self.ringPath(side), fill: color).gradient([lit(color, 0.7), color]).id(target).size(side, side).shadow(shade(color), radius: 0, dx: 0, dy: 3)
         case "disc":
             let inset = side * 0.14
             return Node.ellipse(fill: cell.value.map(Color.hex) ?? color).id(target).at(inset, inset).size(side - 2 * inset, side - 2 * inset)
@@ -106,7 +105,7 @@ extension BoardDrawing {
                 }
             }
             let s = side * 0.4 * 1.3
-            return Node.symbol(cell.value ?? "questionmark", color: color).symbolLook().id(target).at((side - s) / 2, (side - s) / 2).size(s, s)
+            return Node.symbol(cell.value ?? "questionmark", color: color).symbolLook(mono: true).id(target).at((side - s) / 2, (side - s) / 2).size(s, s)
         case "card_back":
             let s = side * 0.98
             return Node.image("art/game-card-back.webp").id(target).at((side - s) / 2, (side - s) / 2).size(s, s).shadow(Paint.clear("#000000", 0.18), radius: 2, dx: 0, dy: 2)
@@ -120,7 +119,31 @@ extension BoardDrawing {
         }
     }
 
-    private func shade(_ color: Color) -> Color { (color.json as? String) == "accent" ? Color.accent.tuned(alpha: 0.35) : Color.ink.tuned(alpha: 0.35) }
+    private func shade(_ color: Color) -> Color { lit(color, 0.35) }
+    private func lit(_ color: Color, _ alpha: Double) -> Color { (color.json as? String) == "accent" ? Color.accent.tuned(alpha: alpha) : Color.ink.tuned(alpha: alpha) }
+
+    /// The X as the panel's heaviest xmark drew it: two round-ended bars, 0.38 of the cell across and a tenth of it thick. A path, so it can be lit from above.
+    static func crossPath(_ side: Double) -> String {
+        let c = side / 2, r = side * 0.049, l = (side * 0.19 - r) * 2.0.squareRoot(), k = r * 0.5523, turn = 0.5.squareRoot()
+        func bar(_ sign: Double) -> String {
+            // A capsule along the bar (u) and across it (v), turned 45° one way or the other.
+            func p(_ u: Double, _ v: Double) -> String { "\(c + (u - sign * v) * turn) \(c + (sign * u + v) * turn)" }
+            return "M \(p(-l, -r)) L \(p(l, -r)) C \(p(l + k, -r)) \(p(l + r, -k)) \(p(l + r, 0)) C \(p(l + r, k)) \(p(l + k, r)) \(p(l, r)) "
+                + "L \(p(-l, r)) C \(p(-l - k, r)) \(p(-l - r, k)) \(p(-l - r, 0)) C \(p(-l - r, -k)) \(p(-l - k, -r)) \(p(-l, -r)) Z "
+        }
+        return bar(1) + bar(-1)
+    }
+
+    /// The O: a ring whose outer edge stands 0.22 of the cell in, 0.11 of it thick, the inner circle wound the other way so it stays a hole.
+    static func ringPath(_ side: Double) -> String {
+        let c = side / 2, outer = side * 0.28, inner = outer - side * 0.11
+        func circle(_ r: Double, clockwise: Bool) -> String {
+            let k = r * 0.5523, s = clockwise ? 1.0 : -1.0
+            return "M \(c) \(c - r) C \(c + s * k) \(c - r) \(c + s * r) \(c - k) \(c + s * r) \(c) C \(c + s * r) \(c + k) \(c + s * k) \(c + r) \(c) \(c + r) "
+                + "C \(c - s * k) \(c + r) \(c - s * r) \(c + k) \(c - s * r) \(c) C \(c - s * r) \(c - k) \(c - s * k) \(c - r) \(c) \(c - r) Z "
+        }
+        return circle(outer, clockwise: true) + circle(inner, clockwise: false)
+    }
 
     /// How a mark arrives, when what the cell shows changes: stamped, flipped, dropped or popped in. Spring, 320 ms.
     private func arrival(_ cell: Cell, r: Int, c: Int, target: String, index: Int) {

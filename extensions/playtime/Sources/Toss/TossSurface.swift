@@ -264,7 +264,7 @@ enum TossParts {
         }
         // A natural 20 glints gold.
         if !playing, sides == 20, rolls.count == 1, rolls[0] == 20 {
-            nodes.append(Node.symbol("sparkle", color: Paint.sun).symbolLook(weight: "bold").at((width + size) / 2 - 7, firstY - 7).size(16, 16))
+            nodes.append(Node.symbol("sparkle", color: Paint.sun).symbolLook(weight: "bold", mono: true).at((width + size) / 2 - 7, firstY - 7).size(16, 16))
         }
         return Part(node: .box("toss.dice", w: width, h: height) { nodes }.leftToRight().label(L("{n} dice", ["n": rolls.count])), width: width, height: height, anims: anims)
     }
@@ -356,7 +356,7 @@ enum TossParts {
         let w = textW + 14 + 6 + 24, h = 26.0
         return Part(node: .box("toss.again", w: w, h: h) {
             Node.capsule(fill: .accent).size(w, h)
-            Node.symbol("arrow.clockwise", color: .onAccent).symbolLook(weight: "semibold").at(12, 6).size(14, 14)
+            Node.symbol("arrow.clockwise", color: .onAccent).symbolLook(weight: "semibold", mono: true).at(12, 6).size(14, 14)
             Node.words(words, size: 11.5, weight: "semibold", color: .onAccent, design: "default", x: 32, w: textW, h: h)
         }.area("again", label: words, hover: AreaLook(scale: 1.03), press: AreaLook(scale: 0.97), sound: "sounds/tap.wav"), width: w, height: h)
     }

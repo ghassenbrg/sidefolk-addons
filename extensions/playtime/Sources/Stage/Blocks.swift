@@ -35,7 +35,7 @@ extension Node {
 
     /// An SF Symbol in a box the size of its point size, centred at (cx, cy) of its parent.
     static func glyph(_ name: String, size: Double, color: Color = .ink, weight: String = "semibold", x: Double, y: Double) -> Node {
-        Node.symbol(name, color: color).symbolLook(weight: weight).at(x, y).size(size * 1.25, size * 1.25)
+        Node.symbol(name, color: color).symbolLook(weight: weight, mono: true).at(x, y).size(size * 1.25, size * 1.25)
     }
 
     /// A raised tile: its lip, its face. The face is the part that sinks when pressed, so the lip stays out of its area.
