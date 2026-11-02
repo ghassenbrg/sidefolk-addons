@@ -130,7 +130,7 @@ enum PlayTable {
             session.menu = true
             return PlayMenu.scene(selected: PlayMenu.index(of: entry.id).map { session.selected = $0; return $0 } ?? session.selected, kept: session.game)
         case .redraw, .ignore:
-            return draw(board, entry: entry, session: session, previous: board, fresh: false, id: id)
+            return draw(board.clocked(from: session.held == nil && board.hasPuzzle ? driver.board(data, [], session.options) : nil), entry: entry, session: session, previous: board, fresh: false, id: id)
         case .play(let m):
             // The build-up's moment is over: the verdict the move already holds.
             if m == .next, let held = session.held {
@@ -195,7 +195,8 @@ enum PlayTable {
         let held = session.held ?? []
         session.held = nil
         session.pick = nil
-        let board = shown[id] ?? driver.board(data, held, session.options) ?? Board([])
+        let fresher = driver.board(data, held, session.options)
+        let board = shown[id]?.clocked(from: fresher) ?? fresher ?? Board([])
         return draw(board, entry: entry, session: session, previous: nil, fresh: fresh, id: id)
     }
 

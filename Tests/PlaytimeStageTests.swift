@@ -65,6 +65,10 @@ struct PlaytimeStageTests {
         try playAll(LastStickScreen.self)
         try playAll(MemoryPairsScreen.self)
         try playAll(DailyWordScreen.self)
+        try playAll(PuzzleScreen<GardenPlotsKind>.self)
+        try playAll(PuzzleScreen<SeesawKind>.self)
+        try playAll(PuzzleScreen<SudokuKind>.self)
+        try playAll(PuzzleScreen<BlossomsKind>.self)
     }
 
     @Test func aLongLanguageAndOneThatReadsTheOtherWayFit() throws {

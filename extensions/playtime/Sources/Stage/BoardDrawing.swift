@@ -14,6 +14,8 @@ struct LocalParts: Codable, Equatable {
     var page = 0
     /// A plot stretched with the arrow keys: the cell it started on.
     var dragFrom: Int?
+    /// A plot was just planted: heard as the board comes back.
+    var plantSound = false
     /// Rows and guesses on the last board, so a new one (a word or number accepted) clears the draft.
     var rowsSeen = 0
     var guessesSeen: Int?
@@ -58,6 +60,8 @@ final class BoardDrawing {
     var anims: [Anim] = []
     var keys: [StageKey] = []
     var timers: [(id: String, ms: Double)] = []
+    /// Named looks for what a large board repeats (`Scene.style`).
+    var styles: [String: [String: Any]] = [:]
     var look: Look { ctx.entry.look }
 
     init(_ board: Board, _ ctx: StageContext) {
@@ -115,6 +119,7 @@ final class BoardDrawing {
         .animating(anims)
         if ctx.fresh { scene = cued(scene) }
         for (id, ms) in timers { scene = scene.timer(id, ms: ms) }
+        for (name, values) in styles { scene = scene.style(name, values) }
         for k in keys { scene = scene.key(k.key, id: k.id, area: k.area, value: k.value, seat: k.seat, timedFromMs: k.timedFromMs, always: k.always) }
         if let after = board.afterMs ?? ctx.afterMs { scene = scene.after(ms: after) }
         if ctx.fresh, let words = spoken { scene = scene.announcing(words) }

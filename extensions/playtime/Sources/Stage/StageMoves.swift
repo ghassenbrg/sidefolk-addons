@@ -132,6 +132,7 @@ enum StageMoves {
         local.guessesSeen = board.numberPart?.history.count
         if let g = board.gridPart, let c = local.cursor, c >= g.rows * g.columns { local.cursor = nil }
         if board.gridPart == nil, !board.hasPuzzle, !board.hasCups { local.cursor = nil }
+        BoardDrawing.puzzleSettle(board, local: &local)
         local.page = 0
     }
 }
