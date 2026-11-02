@@ -1,0 +1,9 @@
+{
+  "code": 200,
+  "status": "OK",
+  "data": {
+    "latitude": 35.6762,
+    "longitude": 139.6503,
+    "direction": 292.9987128092997
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "code": 200,
+  "status": "OK",
+  "data": {
+    "hijri": {
+      "date": "22-05-1448",
+      "format": "DD-MM-YYYY",
+      "day": "22",
+      "weekday": {
+        "en": "Al Athnayn",
+        "ar": "الاثنين"
+      },
+      "month": {
+        "number": 5,
+        "en": "Jumādá al-ūlá",
+        "ar": "جُمادى الأولى",
+        "days": 30
+      },
+      "year": "1448",
+      "designation": {
+        "abbreviated": "AH",
+        "expanded": "Anno Hegirae"
+      },
+      "holidays": [],
+      "adjustedHolidays": [],
+      "method": "UAQ"
+    },
+    "gregorian": {
+      "date": "02-11-2026",
+      "format": "DD-MM-YYYY",
+      "day": "02",
+      "weekday": {
+        "en": "Monday"
+      },
+      "month": {
+        "number": 11,
+        "en": "November"
+      },
+      "year": "2026",
+      "designation": {
+        "abbreviated": "AD",
+        "expanded": "Anno Domini"
+      },
+      "lunarSighting": false
+    }
+  }
+}

@@ -1,0 +1,413 @@
+{
+  "id": "dev.sidefolk.prayer-times",
+  "name": "Noor",
+  "version": "1.0.0",
+  "sidefolk": ">=0.1",
+  "tagline": "Prayer, calendar, Qibla and the Names",
+  "description": "An Islamic companion: prayer times calculated for your place or from your mosque's own timetable, the Hijri calendar, the Qibla bearing, the 99 Names and a Ramadan planner. Reminders start off.",
+  "folk": "nova",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": {
+    "command": "bin/ext-prayer-times"
+  },
+  "assets": "assets",
+  "permissions": {
+    "network": true,
+    "network_purpose": "to ask AlAdhan for prayer times, dates, the Qibla bearing and the Names",
+    "place": {
+      "purpose": "to show prayer times and the Qibla bearing for your place"
+    },
+    "schedule": {
+      "purpose": "to remind you of the prayer times you choose"
+    }
+  },
+  "services": [
+    {
+      "name": "AlAdhan",
+      "hosts": [
+        "api.aladhan.com"
+      ]
+    }
+  ],
+  "examples": [
+    "when is maghrib?",
+    "which direction is qibla",
+    "what is today's hijri date"
+  ],
+  "words": {
+    "prayer": [
+      "fajr",
+      "dhuhr",
+      "asr",
+      "maghrib",
+      "isha"
+    ]
+  },
+  "tools": {
+    "next_prayer": {
+      "title": "What is next",
+      "mutates": false,
+      "category": "time",
+      "commands": [
+        {
+          "name": "next",
+          "say": [
+            "what is next",
+            "what's next",
+            "next prayer",
+            "when is the next prayer"
+          ]
+        }
+      ],
+      "summary": "Tell what is next"
+    },
+    "prayer_time": {
+      "title": "When is a prayer",
+      "mutates": false,
+      "category": "time",
+      "commands": [
+        {
+          "name": "when",
+          "say": [
+            "when is {prayer:prayer}",
+            "what time is {prayer:prayer}",
+            "{prayer:prayer} time"
+          ]
+        }
+      ],
+      "summary": "Tell when {prayer} is"
+    },
+    "hijri_today": {
+      "title": "Today's Hijri date",
+      "mutates": false,
+      "category": "time",
+      "commands": [
+        {
+          "name": "hijri",
+          "say": [
+            "what is today's hijri date",
+            "today's hijri date",
+            "hijri date today"
+          ]
+        }
+      ],
+      "summary": "Tell today's Hijri date"
+    },
+    "qibla": {
+      "title": "Qibla bearing",
+      "mutates": false,
+      "category": "web",
+      "commands": [
+        {
+          "name": "qibla",
+          "say": [
+            "which direction is qibla",
+            "where is qibla",
+            "qibla direction"
+          ]
+        }
+      ],
+      "summary": "Tell the Qibla bearing"
+    },
+    "convert_date": {
+      "title": "Convert a date",
+      "mutates": false,
+      "category": "time",
+      "commands": [
+        {
+          "name": "convert",
+          "say": [
+            "convert the date {date:word} to hijri",
+            "what is {date:word} in hijri"
+          ],
+          "input": {
+            "direction": "g2h",
+            "date": "{date}"
+          }
+        },
+        {
+          "name": "convert_back",
+          "say": [
+            "convert the hijri date {date:word}",
+            "hijri date {date:word} in gregorian"
+          ],
+          "input": {
+            "direction": "h2g",
+            "date": "{date}"
+          }
+        }
+      ],
+      "summary": "Convert {date}"
+    },
+    "open_noor": {
+      "title": "Open Noor",
+      "mutates": false,
+      "category": "system",
+      "commands": [
+        {
+          "name": "ramadan",
+          "say": [
+            "show ramadan",
+            "open the ramadan planner",
+            "ramadan planner"
+          ],
+          "input": {
+            "what": "ramadan"
+          }
+        },
+        {
+          "name": "open",
+          "say": [
+            "open noor",
+            "show noor"
+          ],
+          "input": {
+            "what": "overview"
+          }
+        },
+        {
+          "name": "names",
+          "say": [
+            "show the names",
+            "open the names"
+          ],
+          "input": {
+            "what": "names"
+          }
+        }
+      ],
+      "summary": "Open Noor"
+    },
+    "set_display": {
+      "title": "Change Noor's display",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Change how Noor shows things"
+    },
+    "set_calendar_method": {
+      "title": "Change Noor's calendar method",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Change Noor's calendar method to {value}"
+    },
+    "save_name": {
+      "title": "Save a Name",
+      "mutates": true,
+      "category": "notes",
+      "commands": [
+        {
+          "name": "save_name",
+          "say": [
+            "save name {number:integer}"
+          ],
+          "input": {
+            "number": "{number}",
+            "saved": true
+          }
+        }
+      ],
+      "summary": "Save or remove Name {number}"
+    },
+    "show_name": {
+      "title": "Show a Name",
+      "mutates": false,
+      "category": "notes",
+      "commands": [
+        {
+          "name": "show_name",
+          "say": [
+            "show name {name}",
+            "show the name {name}"
+          ]
+        }
+      ],
+      "summary": "Show the Name {name}"
+    },
+    "search_places": {
+      "title": "Find a place",
+      "mutates": false,
+      "ai": false,
+      "category": "web",
+      "commands": [
+        {
+          "name": "use_place",
+          "say": [
+            "use {query:place} for noor",
+            "noor use {query:place}",
+            "change noor's place to {query:place}"
+          ]
+        }
+      ],
+      "summary": "Look up “{query}”"
+    },
+    "choose_place": {
+      "title": "Use this place",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Use {label} as Noor's place"
+    },
+    "follow_shared_place": {
+      "title": "Follow Sidefolk's place",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Change whether Noor follows Sidefolk's place"
+    },
+    "use_calculated": {
+      "title": "Use calculated times",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Use calculated times"
+    },
+    "save_calculation": {
+      "title": "Save calculation settings",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Save Noor's calculation settings"
+    },
+    "choose_source": {
+      "title": "Use a saved timetable",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Change Noor's timetable"
+    },
+    "remove_source": {
+      "title": "Remove a timetable",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Remove a saved timetable"
+    },
+    "import_csv": {
+      "title": "Read a timetable file",
+      "mutates": false,
+      "ai": false,
+      "category": "files",
+      "paths": {
+        "path": "read"
+      },
+      "summary": "Read the timetable file {path}"
+    },
+    "save_import": {
+      "title": "Add the imported timetable",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Add the timetable {name}"
+    },
+    "discard_import": {
+      "title": "Discard the import",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Discard the file being reviewed"
+    },
+    "save_manual": {
+      "title": "Save a timetable",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Save the timetable {name}"
+    },
+    "save_reminders": {
+      "title": "Save reminders",
+      "mutates": true,
+      "ai": false,
+      "category": "time",
+      "summary": "Save Noor's reminders"
+    },
+    "prepare_reminder": {
+      "title": "Prepare a reminder",
+      "mutates": false,
+      "category": "time",
+      "commands": [
+        {
+          "name": "remind",
+          "say": [
+            "noor remind me {minutes:integer} minutes before {prayer:prayer}",
+            "remind me {minutes:integer} minutes before {prayer:prayer} prayer",
+            "set a {minutes:integer} minute reminder before {prayer:prayer}"
+          ]
+        }
+      ],
+      "summary": "Show a reminder {minutes} minutes before {prayer}"
+    },
+    "pause_reminders": {
+      "title": "Pause Noor's reminders",
+      "mutates": true,
+      "category": "time",
+      "commands": [
+        {
+          "name": "pause",
+          "say": [
+            "pause noor until tomorrow",
+            "pause noor"
+          ],
+          "input": {
+            "until": "tomorrow"
+          }
+        }
+      ],
+      "summary": "Pause Noor's reminders"
+    },
+    "resume_reminders": {
+      "title": "Resume Noor's reminders",
+      "mutates": true,
+      "category": "time",
+      "commands": [
+        {
+          "name": "resume",
+          "say": [
+            "resume noor",
+            "turn noor's reminders back on"
+          ]
+        }
+      ],
+      "summary": "Resume Noor's reminders"
+    },
+    "select_occasion": {
+      "title": "Remind me of an occasion",
+      "mutates": true,
+      "ai": false,
+      "category": "time",
+      "summary": "Change a listed occasion's reminder"
+    },
+    "save_ramadan": {
+      "title": "Save Ramadan reminders",
+      "mutates": true,
+      "ai": false,
+      "category": "time",
+      "summary": "Save Noor's Ramadan reminders"
+    },
+    "refresh": {
+      "title": "Check for new times",
+      "mutates": false,
+      "ai": false,
+      "category": "web",
+      "summary": "Ask the provider again"
+    },
+    "clear_data": {
+      "title": "Clear Noor's data",
+      "risk": "high",
+      "mutates": true,
+      "ai": false,
+      "category": "system",
+      "summary": "Clear Noor's {scope} data"
+    }
+  },
+  "pages": {
+    "noor": {
+      "title": "Noor",
+      "symbol": "moon.stars",
+      "refresh": 20,
+      "widget": true
+    }
+  }
+}
