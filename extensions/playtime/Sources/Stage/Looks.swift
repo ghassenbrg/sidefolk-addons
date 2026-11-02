@@ -75,6 +75,7 @@ enum GameCatalog {
          GameEntry(id: GuessAnimalScreen.id, title: L("Guess My Animal"), tagline: L("Yes or no, until one guesses"), symbol: "pawprint.fill", look: .animals, levels: false),
          GameEntry(id: BalloonWordsScreen.id, title: L("Balloon Words"), tagline: L("Find the word before the balloons go"), symbol: "balloon.2.fill", look: .balloons),
          GameEntry(id: MemoryPairsScreen.id, title: L("Memory Pairs"), tagline: L("Turn two cards, find the pairs"), symbol: "square.grid.2x2.fill", look: .cards),
+         GameEntry(id: RockPaperScissorsScreen.id, title: L("Rock, Paper, Scissors"), tagline: L("Best of three, no peeking"), symbol: "hand.raised.fill", look: .hands, levels: false),
          GameEntry(id: DailyWordScreen.id, title: L("Daily Word"), tagline: L("One new word to find every day"), symbol: "textformat.abc", look: .words, solo: true, levels: false),
          GameEntry(id: GardenPlotsKind.id, title: L("Garden Plots"), tagline: L("Split the garden into plots by their numbers"), symbol: "square.split.2x2.fill", look: .plots, solo: true),
          GameEntry(id: SeesawKind.id, title: L("Seesaw"), tagline: L("Balance hearts and stars in every line"), symbol: "heart.circle.fill", look: .seesaw, solo: true),

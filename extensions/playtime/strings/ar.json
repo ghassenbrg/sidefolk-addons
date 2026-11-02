@@ -22,6 +22,10 @@
     "game_settings": {
       "title": "تغيير إعدادات الألعاب",
       "summary": "تغيير إعدادات الألعاب"
+    },
+    "toss": {
+      "title": "رمي عملة أو رمي النرد أو لعب حجرة ورقة مقص",
+      "summary": "رمي عملة أو رمي النرد أو لعب حجرة ورقة مقص"
     }
   },
   "pages": {
@@ -617,7 +621,65 @@
     "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
     "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
     "Trivia questions": "أسئلة المسابقة",
-    "Trivia about {topic}": "مسابقة عن {topic}"
+    "Trivia about {topic}": "مسابقة عن {topic}",
+    "Rock": "حجرة",
+    "Paper": "ورقة",
+    "Scissors": "مقص",
+    "heads": "صورة",
+    "tails": "كتابة",
+    "Again": "مجددًا",
+    "Best of three, no peeking": "الأفضل من ثلاث، بلا غش",
+    "Both {hand}: a draw.": "كلاكما {hand}: تعادل.",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "يتراوح عدد أوجه النرد بين 2 و100، ولا يزيد العدد المضاف على 100.",
+    "Doubles!": "زوج!",
+    "Flip a coin": "رمي عملة",
+    "Flip between 1 and {n} coins at a time.": "ارمِ من 1 إلى {n} من العملات في المرة الواحدة.",
+    "Flip {n} coins": "رمي {n} عملة",
+    "Heads or tails…": "صورة أم كتابة…",
+    "Heads!": "صورة!",
+    "I'm going paper…": "سأختار ورقة…",
+    "I'm going rock…": "سأختار حجرة…",
+    "I'm going scissors…": "سأختار مقصًا…",
+    "It's {n}!": "ظهر الرقم {n}!",
+    "Natural 20!": "20 طبيعية!",
+    "Next one's yours.": "المرة القادمة لك.",
+    "Oof.": "أوه.",
+    "Paper beats rock: I win!": "الورقة تغلب الحجرة: الفوز لي!",
+    "Paper beats rock: you win!": "الورقة تغلب الحجرة: الفوز لك!",
+    "Paper…": "ورقة…",
+    "Rematch": "مباراة ثأرية",
+    "Rock beats scissors: I win!": "الحجرة تغلب المقص: الفوز لي!",
+    "Rock beats scissors: you win!": "الحجرة تغلب المقص: الفوز لك!",
+    "Rock, Paper, Scissors": "حجرة ورقة مقص",
+    "Rock, paper or scissors?": "حجرة أم ورقة أم مقص؟",
+    "Rock, paper, scissors": "حجرة ورقة مقص",
+    "Rock…": "حجرة…",
+    "Rock… paper… scissors…": "حجرة… ورقة… مقص…",
+    "Roll a die": "رمي النرد",
+    "Roll between 1 and {n} dice at a time.": "ارمِ من 1 إلى {n} من أحجار النرد في المرة الواحدة.",
+    "Roll {dice}": "رمي {dice}",
+    "Rolling…": "النرد يتدحرج…",
+    "Scissors beat paper: I win!": "المقص يغلب الورقة: الفوز لي!",
+    "Scissors beat paper: you win!": "المقص يغلب الورقة: الفوز لك!",
+    "Scissors…": "مقص…",
+    "Shoot!": "الآن!",
+    "Snake eyes!": "واحد وواحد!",
+    "Tails!": "كتابة!",
+    "Tell me the user's hand: rock, paper or scissors.": "أخبرني ماذا تختار: حجرة أو ورقة أو مقص.",
+    "We both played paper: a draw!": "كلانا اختار الورقة: تعادل!",
+    "We both played rock: a draw!": "كلانا اختار الحجرة: تعادل!",
+    "We both played scissors: a draw!": "كلانا اختار المقص: تعادل!",
+    "You called it!": "توقّعك صحيح!",
+    "You win the match!": "فزت بالمباراة!",
+    "{name} wins the match!": "فاز {name} بالمباراة!",
+    "{name} wins the match.": "فاز {name} بالمباراة.",
+    "{name}, pick your hand.": "{name}، اختر يدك.",
+    "{n} coins": "{n} عملة",
+    "{n} in a row!": "{n} على التوالي!",
+    "{win} beats {lose}: a point for {name}.": "{win} يغلب {lose}: نقطة لـ{name}.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "يجب أن تكون قيمة «kind» إحدى القيم coin أو dice أو rock_paper_scissors.",
+    "A coin": "عملة",
+    "{n} dice": "{n} نرد"
   },
   "examples": [
     "هيا نلعب مسابقة أسئلة"
@@ -625,6 +687,9 @@
   "surfaces": {
     "play": {
       "title": "وقت اللعب"
+    },
+    "toss": {
+      "title": "عملة ونرد وأيدٍ"
     }
   },
   "commands": {
@@ -838,6 +903,94 @@
       "شغّل أصوات اللعبة",
       "ألغ كتم صوت اللعبة",
       "فعّل أصوات اللعبة"
+    ],
+    "rock_paper_scissors": {
+      "say": [
+        "حجرة ورقة مقص",
+        "حجر ورقة مقص",
+        "لنلعب حجرة ورقة مقص",
+        "لنلعب حجر ورقة مقص",
+        "حجرة، ورقة، مقص"
+      ],
+      "names": [
+        "حجرة ورقة مقص",
+        "حجر ورقة مقص"
+      ]
+    },
+    "toss_coin": [
+      "ارم عملة",
+      "ارمِ عملة",
+      "اقلب عملة",
+      "صورة أم كتابة",
+      "صورة أو كتابة",
+      "ارم عملة لي"
+    ],
+    "toss_coin_call": [
+      "ارم عملة، {call:call}",
+      "صورة أم كتابة، {call:call}",
+      "صورة أم كتابة: {call:call}",
+      "ارم عملة، أختار {call:call}",
+      "صورة أم كتابة، أختار {call:call}"
+    ],
+    "toss_coins": [
+      "ارم {count:integer:1-5} عملات"
+    ],
+    "toss_coins_many": [
+      "ارم {many:coins_many} عملات"
+    ],
+    "toss_die": [
+      "ارم نرد",
+      "ارم النرد",
+      "ارم حجر النرد",
+      "دحرج النرد",
+      "ارم نردا"
+    ],
+    "toss_two_dice": [
+      "ارم نردين",
+      "دحرج نردين"
+    ],
+    "toss_dice": [
+      "ارم {count:integer:1-10} نرد",
+      "دحرج {count:integer:1-10} نرد"
+    ],
+    "toss_dice_many": [
+      "ارم {many:dice_many} نرد",
+      "دحرج {many:dice_many} نرد"
+    ],
+    "toss_d": [
+      "ارم d{sides:integer:2-100}",
+      "ارم نرد {sides:integer:2-100} وجه"
+    ],
+    "toss_nd": [
+      "ارم {count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_plus": [
+      "ارم {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "ارم d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_nd_minus": [
+      "ارم {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_minus": [
+      "ارم d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_hand": [
+      "أختار {hand:hand}",
+      "ألعب {hand:hand}",
+      "حجرة ورقة مقص، {hand:hand}",
+      "حجرة ورقة مقص: {hand:hand}"
+    ],
+    "toss_rock": [
+      "حجرة",
+      "حجر"
+    ],
+    "toss_paper": [
+      "ورقة"
+    ],
+    "toss_scissors": [
+      "مقص"
     ]
   },
   "ai_purpose": "لكتابة أسئلة مسابقة عن موضوع تختاره",
@@ -889,6 +1042,69 @@
         "صعبة",
         "الصعب"
       ]
+    },
+    "call": {
+      "heads": [
+        "صورة"
+      ],
+      "tails": [
+        "كتابة"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "حجرة",
+        "حجر"
+      ],
+      "paper": [
+        "ورقة"
+      ],
+      "scissors": [
+        "مقص"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "اثنين"
+      ],
+      "n3": [
+        "ثلاثة"
+      ],
+      "n4": [
+        "أربعة"
+      ],
+      "n5": [
+        "خمسة"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "اثنين"
+      ],
+      "n3": [
+        "ثلاثة"
+      ],
+      "n4": [
+        "أربعة"
+      ],
+      "n5": [
+        "خمسة"
+      ],
+      "n6": [
+        "ستة"
+      ],
+      "n7": [
+        "سبعة"
+      ],
+      "n8": [
+        "ثمانية"
+      ],
+      "n9": [
+        "تسعة"
+      ],
+      "n10": [
+        "عشرة"
+      ]
     }
   },
   "carry": {
@@ -937,7 +1153,17 @@
     "play_plots": "قطع الحديقة",
     "play_seesaw": "الميزان",
     "play_sudoku": "سودوكو",
-    "play_blossoms": "أزهار"
+    "play_blossoms": "أزهار",
+    "play_rock_paper_scissors": "حجرة ورقة مقص",
+    "flip_coin": "رمي عملة",
+    "call_heads": "توقّع صورة",
+    "call_tails": "توقّع كتابة",
+    "just_flip": "رمي فقط",
+    "roll_die": "رمي النرد",
+    "quick_throw": "رمية سريعة",
+    "throw_rock": "حجرة",
+    "throw_paper": "ورقة",
+    "throw_scissors": "مقص"
   },
   "settings": {
     "tone": {
@@ -1109,6 +1335,9 @@
         "fair": "متوسط",
         "hard": "صعب"
       }
+    },
+    "sound_rock_paper_scissors": {
+      "title": "حجرة ورقة مقص"
     }
   }
 }

@@ -308,6 +308,34 @@
           }
         },
         {
+          "name": "rock_paper_scissors",
+          "say": [
+            "rock paper scissors",
+            "rock, paper, scissors",
+            "rock paper and scissors",
+            "rock, paper and scissors",
+            "rock paper or scissors",
+            "rock, paper or scissors",
+            "rps",
+            "let's play rock paper scissors",
+            "let's play rock, paper, scissors",
+            "i want to play rock paper scissors",
+            "rock paper scissors with me",
+            "play rps"
+          ],
+          "names": [
+            "rock paper scissors",
+            "rps"
+          ],
+          "with": [
+            "friend"
+          ],
+          "input": {
+            "game": "rock_paper_scissors",
+            "person": true
+          }
+        },
+        {
           "name": "plots",
           "say": [
             "garden plots",
@@ -624,6 +652,330 @@
           }
         }
       ]
+    },
+    "toss": {
+      "title": "Flip a coin, roll dice or play a hand",
+      "summary": "Flip a coin, roll dice or play a hand",
+      "risk": "low",
+      "category": "system",
+      "mutates": false,
+      "commands": [
+        {
+          "name": "toss_coin",
+          "say": [
+            "flip a coin",
+            "toss a coin",
+            "flip the coin",
+            "toss the coin",
+            "flip one coin",
+            "toss one coin",
+            "let's flip a coin",
+            "let's toss a coin",
+            "flip a coin for me",
+            "toss a coin for me",
+            "flip a coin again",
+            "toss a coin again",
+            "coin flip",
+            "coin toss",
+            "do a coin flip",
+            "do a coin toss",
+            "heads or tails",
+            "coin flip for me",
+            "coin toss for me"
+          ],
+          "input": {
+            "kind": "coin"
+          }
+        },
+        {
+          "name": "toss_coin_call",
+          "say": [
+            "flip a coin, {call:call}",
+            "flip a coin: {call:call}",
+            "flip a coin {call:call}",
+            "flip a coin, i call {call:call}",
+            "flip a coin and i call {call:call}",
+            "flip a coin, i say {call:call}",
+            "flip a coin, i pick {call:call}",
+            "flip a coin, i choose {call:call}",
+            "flip a coin, i go with {call:call}",
+            "flip a coin, i bet on {call:call}",
+            "toss a coin, {call:call}",
+            "toss a coin {call:call}",
+            "toss a coin, i call {call:call}",
+            "heads or tails, {call:call}",
+            "heads or tails: {call:call}",
+            "heads or tails {call:call}",
+            "heads or tails, i call {call:call}",
+            "heads or tails? {call:call}",
+            "coin flip, {call:call}",
+            "coin flip, i call {call:call}"
+          ],
+          "input": {
+            "kind": "coin",
+            "call": "{call}"
+          }
+        },
+        {
+          "name": "toss_coins",
+          "say": [
+            "flip {count:integer:1-5} coins",
+            "toss {count:integer:1-5} coins",
+            "flip {count:integer:1-5} coins for me",
+            "toss {count:integer:1-5} coins for me"
+          ],
+          "input": {
+            "kind": "coin",
+            "count": "{count}"
+          }
+        },
+        {
+          "name": "toss_coins_many",
+          "say": [
+            "flip {many:coins_many} coins",
+            "toss {many:coins_many} coins",
+            "flip {many:coins_many} coins for me",
+            "toss {many:coins_many} coins for me"
+          ],
+          "input": {
+            "kind": "coin",
+            "many": "{many}"
+          }
+        },
+        {
+          "name": "toss_die",
+          "say": [
+            "roll a die",
+            "roll a dice",
+            "roll the die",
+            "roll one die",
+            "roll one dice",
+            "roll a d6",
+            "roll one d6",
+            "roll the d6",
+            "throw a die",
+            "throw a dice",
+            "throw the die",
+            "let's roll a die",
+            "let's roll a dice",
+            "roll a die for me",
+            "roll a dice for me",
+            "roll a die again",
+            "roll the die for me"
+          ],
+          "input": {
+            "kind": "dice"
+          }
+        },
+        {
+          "name": "toss_two_dice",
+          "say": [
+            "roll the dice",
+            "roll dice",
+            "throw the dice",
+            "throw dice",
+            "let's roll the dice",
+            "let's roll dice",
+            "roll the dice for me",
+            "roll dice for me",
+            "roll the dice again"
+          ],
+          "input": {
+            "kind": "dice",
+            "count": 2
+          }
+        },
+        {
+          "name": "toss_dice",
+          "say": [
+            "roll {count:integer:1-10} dice",
+            "throw {count:integer:1-10} dice",
+            "roll {count:integer:1-10} dice for me"
+          ],
+          "input": {
+            "kind": "dice",
+            "count": "{count}"
+          }
+        },
+        {
+          "name": "toss_dice_many",
+          "say": [
+            "roll {many:dice_many} dice",
+            "throw {many:dice_many} dice",
+            "roll {many:dice_many} dice for me"
+          ],
+          "input": {
+            "kind": "dice",
+            "many": "{many}"
+          }
+        },
+        {
+          "name": "toss_nd",
+          "say": [
+            "roll {count:integer:1-10} d{sides:integer:2-100}s",
+            "roll {count:integer:1-10} d{sides:integer:2-100}",
+            "throw {count:integer:1-10} d{sides:integer:2-100}s",
+            "roll {count:integer:1-10}d{sides:integer:2-100}",
+            "throw {count:integer:1-10}d{sides:integer:2-100}",
+            "roll {count:integer:1-10}d{sides:integer:2-100} for me"
+          ],
+          "input": {
+            "kind": "dice",
+            "count": "{count}",
+            "sides": "{sides}"
+          }
+        },
+        {
+          "name": "toss_many_d",
+          "say": [
+            "roll {many:dice_many} d{sides:integer:2-100}s",
+            "roll {many:dice_many} d{sides:integer:2-100}",
+            "throw {many:dice_many} d{sides:integer:2-100}s"
+          ],
+          "input": {
+            "kind": "dice",
+            "many": "{many}",
+            "sides": "{sides}"
+          }
+        },
+        {
+          "name": "toss_d",
+          "say": [
+            "roll d{sides:integer:2-100}",
+            "roll a d{sides:integer:2-100}",
+            "roll one d{sides:integer:2-100}",
+            "throw a d{sides:integer:2-100}",
+            "throw d{sides:integer:2-100}",
+            "roll a {sides:integer:2-100}-sided die",
+            "roll a {sides:integer:2-100} sided die",
+            "roll an {sides:integer:2-100}-sided die",
+            "roll an {sides:integer:2-100} sided die",
+            "roll one {sides:integer:2-100}-sided die",
+            "roll a {sides:integer:2-100}-sided dice",
+            "throw a {sides:integer:2-100}-sided die",
+            "roll d{sides:integer:2-100} for me",
+            "roll a d{sides:integer:2-100} for me"
+          ],
+          "input": {
+            "kind": "dice",
+            "sides": "{sides}"
+          }
+        },
+        {
+          "name": "toss_nd_plus",
+          "say": [
+            "roll {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}",
+            "roll {count:integer:1-10}d{sides:integer:2-100} + {modifier:integer:1-100}",
+            "throw {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
+          ],
+          "input": {
+            "kind": "dice",
+            "count": "{count}",
+            "sides": "{sides}",
+            "modifier": "{modifier}"
+          }
+        },
+        {
+          "name": "toss_d_plus",
+          "say": [
+            "roll d{sides:integer:2-100}+{modifier:integer:1-100}",
+            "roll a d{sides:integer:2-100}+{modifier:integer:1-100}",
+            "roll d{sides:integer:2-100} + {modifier:integer:1-100}"
+          ],
+          "input": {
+            "kind": "dice",
+            "sides": "{sides}",
+            "modifier": "{modifier}"
+          }
+        },
+        {
+          "name": "toss_nd_minus",
+          "say": [
+            "roll {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}",
+            "roll {count:integer:1-10}d{sides:integer:2-100} - {minus:integer:1-100}",
+            "throw {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+          ],
+          "input": {
+            "kind": "dice",
+            "count": "{count}",
+            "sides": "{sides}",
+            "minus": "{minus}"
+          }
+        },
+        {
+          "name": "toss_d_minus",
+          "say": [
+            "roll d{sides:integer:2-100}-{minus:integer:1-100}",
+            "roll a d{sides:integer:2-100}-{minus:integer:1-100}",
+            "roll d{sides:integer:2-100} - {minus:integer:1-100}"
+          ],
+          "input": {
+            "kind": "dice",
+            "sides": "{sides}",
+            "minus": "{minus}"
+          }
+        },
+        {
+          "name": "toss_rock",
+          "say": [
+            "rock"
+          ],
+          "input": {
+            "kind": "rock_paper_scissors",
+            "hand": "rock"
+          }
+        },
+        {
+          "name": "toss_paper",
+          "say": [
+            "paper"
+          ],
+          "input": {
+            "kind": "rock_paper_scissors",
+            "hand": "paper"
+          }
+        },
+        {
+          "name": "toss_scissors",
+          "say": [
+            "scissors"
+          ],
+          "input": {
+            "kind": "rock_paper_scissors",
+            "hand": "scissors"
+          }
+        },
+        {
+          "name": "toss_hand",
+          "say": [
+            "i choose {hand:hand}",
+            "i pick {hand:hand}",
+            "i play {hand:hand}",
+            "i throw {hand:hand}",
+            "i go with {hand:hand}",
+            "i'll play {hand:hand}",
+            "i'll pick {hand:hand}",
+            "i'll throw {hand:hand}",
+            "i'll go with {hand:hand}",
+            "my hand is {hand:hand}",
+            "rock paper scissors, {hand:hand}",
+            "rock paper scissors: {hand:hand}",
+            "rock paper scissors {hand:hand}",
+            "rock, paper, scissors: {hand:hand}",
+            "rock, paper, scissors, {hand:hand}",
+            "rock paper scissors, i choose {hand:hand}",
+            "rock paper scissors, i pick {hand:hand}",
+            "let's play rock paper scissors: {hand:hand}",
+            "let's play rock paper scissors, {hand:hand}",
+            "rps {hand:hand}",
+            "rps: {hand:hand}"
+          ],
+          "input": {
+            "kind": "rock_paper_scissors",
+            "hand": "{hand}"
+          }
+        }
+      ]
     }
   },
   "assets": "assets",
@@ -647,6 +999,7 @@
           "memory_pairs",
           "plots",
           "quick_paws",
+          "rock_paper_scissors",
           "seesaw",
           "sudoku",
           "tictactoe",
@@ -665,6 +1018,15 @@
           "true"
         ]
       }
+    },
+    "toss": {
+      "title": "Coin, dice and hands",
+      "symbol": "dice.fill",
+      "kind": "overlay",
+      "width": 460,
+      "height": 420,
+      "ai": true,
+      "activity": false
     }
   },
   "settings": [
@@ -981,6 +1343,13 @@
       "listed": false
     },
     {
+      "key": "sound_rock_paper_scissors",
+      "type": "switch",
+      "title": "Rock, Paper, Scissors",
+      "default": false,
+      "listed": false
+    },
+    {
       "key": "sound_plots",
       "type": "switch",
       "title": "Garden Plots",
@@ -1113,6 +1482,10 @@
   "carries": {
     "history": [
       "games.play"
+    ],
+    "store": [
+      "companion.handsScore",
+      "companion.handsDuels"
     ]
   },
   "choices": {
@@ -1130,6 +1503,68 @@
         "hard",
         "difficult",
         "expert"
+      ]
+    },
+    "call": {
+      "heads": [
+        "heads"
+      ],
+      "tails": [
+        "tails"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "rock"
+      ],
+      "paper": [
+        "paper"
+      ],
+      "scissors": [
+        "scissors"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "two"
+      ],
+      "n3": [
+        "three"
+      ],
+      "n4": [
+        "four"
+      ],
+      "n5": [
+        "five"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "two"
+      ],
+      "n3": [
+        "three"
+      ],
+      "n4": [
+        "four"
+      ],
+      "n5": [
+        "five"
+      ],
+      "n6": [
+        "six"
+      ],
+      "n7": [
+        "seven"
+      ],
+      "n8": [
+        "eight"
+      ],
+      "n9": [
+        "nine"
+      ],
+      "n10": [
+        "ten"
       ]
     }
   },
@@ -1379,6 +1814,15 @@
           }
         },
         {
+          "id": "play_rock_paper_scissors",
+          "title": "Rock, Paper, Scissors",
+          "tool": "open",
+          "input": {
+            "game": "rock_paper_scissors",
+            "person": true
+          }
+        },
+        {
           "id": "play_daily_word",
           "title": "Daily Word",
           "tool": "open",
@@ -1422,6 +1866,79 @@
             "game": "blossoms",
             "person": true
           }
+        },
+        {
+          "id": "flip_coin",
+          "title": "Flip a Coin",
+          "items": [
+            {
+              "id": "call_heads",
+              "title": "Call Heads",
+              "tool": "toss",
+              "input": {
+                "kind": "coin",
+                "call": "heads"
+              }
+            },
+            {
+              "id": "call_tails",
+              "title": "Call Tails",
+              "tool": "toss",
+              "input": {
+                "kind": "coin",
+                "call": "tails"
+              }
+            },
+            {
+              "id": "just_flip",
+              "title": "Just Flip",
+              "tool": "toss",
+              "input": {
+                "kind": "coin"
+              }
+            }
+          ]
+        },
+        {
+          "id": "roll_die",
+          "title": "Roll a Die",
+          "tool": "toss",
+          "input": {
+            "kind": "dice"
+          }
+        },
+        {
+          "id": "quick_throw",
+          "title": "Quick Throw",
+          "items": [
+            {
+              "id": "throw_rock",
+              "title": "Rock",
+              "tool": "toss",
+              "input": {
+                "kind": "rock_paper_scissors",
+                "hand": "rock"
+              }
+            },
+            {
+              "id": "throw_paper",
+              "title": "Paper",
+              "tool": "toss",
+              "input": {
+                "kind": "rock_paper_scissors",
+                "hand": "paper"
+              }
+            },
+            {
+              "id": "throw_scissors",
+              "title": "Scissors",
+              "tool": "toss",
+              "input": {
+                "kind": "rock_paper_scissors",
+                "hand": "scissors"
+              }
+            }
+          ]
         }
       ]
     }

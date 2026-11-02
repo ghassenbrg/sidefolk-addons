@@ -22,12 +22,27 @@ enum PlaytimeCarry {
             settings[GameSoundSetting.key(game)] = speakers[owner + game] as? Bool ?? sounds
             if let level = levels[owner + game] as? String, GameLevel(rawValue: level) != nil { settings[GameSoundSetting.levelKey(game)] = level }
         }
+        // Rock, paper, scissors was the app's own game until it moved here.
+        settings[GameSoundSetting.key(RockPaperScissorsScreen.id)] = speakers["sidefolk/" + RockPaperScissorsScreen.id] as? Bool ?? sounds
         let rows = (history["games.play"] ?? []).compactMap(play)
+        let tally = (store["companion.handsScore"] as? [String: Any]).map(Arguments.init)
+        let duels = store["companion.handsDuels"] as? [String: Any] ?? [:]
         PlaytimeRecords.update { r in
             r.soundsSeen = sounds
             let names = values.strings("players")
             if r.players == nil, names.count == 2 { r.players = names }
             if r.plays == nil { r.plays = Array(rows.prefix(1000)) }
+            if r.hands == nil, let tally {
+                r.hands = PlaytimeRecords.HandsTally(person: tally.int("person") ?? 0, companion: tally.int("companion") ?? 0, draws: tally.int("draws") ?? 0)
+            }
+            if r.duels?[RockPaperScissorsScreen.id] == nil, !duels.isEmpty {
+                var pairs: [String: PlaytimeRecords.Duel] = [:]
+                for (pair, value) in duels {
+                    guard let wins = (value as? [String: Any])?["wins"] as? [String: Any] else { continue }
+                    pairs[pair] = PlaytimeRecords.Duel(wins: wins.compactMapValues { ($0 as? NSNumber)?.intValue })
+                }
+                r.duels = (r.duels ?? [:]).merging([RockPaperScissorsScreen.id: pairs]) { own, _ in own }
+            }
             r.carried = true
         }
         var reply: [String: Any] = ["settings": settings]

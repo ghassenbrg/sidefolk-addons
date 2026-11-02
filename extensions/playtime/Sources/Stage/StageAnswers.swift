@@ -80,12 +80,12 @@ extension BoardDrawing {
             Node.rect(stroke: tuned(ink, 0.35), lineWidth: 1, corner: 5).id(id + ".cap").at(10, 10).size(20, 20)
             Node.words(cap, size: 11, weight: "bold", color: tuned(ink, 0.8), align: "center", x: 10, y: 10, w: 20, h: 20)
             if let art = tile.art {
-                Node.art("art/hand-\(art).png", x: (w - 52) / 2, y: 36, w: 52, h: 52)
+                TossArt.padded("art/hand-\(art).png", side: 52, exported: 58, x: (w - 52) / 2, y: 36)
             }
             Node.words(tile.label, size: tile.art == nil ? 15 : 13, weight: "semibold", color: ink, align: "center", lines: 3, minScale: 0.8,
                        x: 10, y: tile.art == nil ? 36 : 92, w: w - 20, h: h - (tile.art == nil ? 46 : 100))
             if tile.companion {
-                Node.faceDisc(x: w - 10 - (verdict == nil ? 22 : 44 + 4 - 18), y: 10, side: 22)
+                Node.faceDisc(x: w - 10 - (verdict == nil ? 22 : 48), y: 10, side: 22).shadow(Paint.clear("#000000", 0.2), radius: 2, dx: 0, dy: 1)
             }
             if let verdict {
                 Node.symbol(verdict.symbol, color: verdict == .win ? Paint.white : verdict.color).symbolLook(weight: "bold").at(w - 10 - 22, 10).size(22, 22)

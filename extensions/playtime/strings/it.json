@@ -22,6 +22,10 @@
     "game_settings": {
       "title": "Cambia le impostazioni dei giochi",
       "summary": "Cambia le impostazioni dei giochi"
+    },
+    "toss": {
+      "title": "Lancia una moneta, tira i dadi o gioca a sasso, carta, forbici",
+      "summary": "Lancia una moneta, tira i dadi o gioca a sasso, carta, forbici"
     }
   },
   "pages": {
@@ -553,7 +557,65 @@
     "{title} is already at its easiest.": "{title} è già al più facile.",
     "{title} is already at its hardest.": "{title} è già al più difficile.",
     "Trivia questions": "Domande di quiz",
-    "Trivia about {topic}": "Quiz su {topic}"
+    "Trivia about {topic}": "Quiz su {topic}",
+    "Rock": "Sasso",
+    "Paper": "Carta",
+    "Scissors": "Forbici",
+    "heads": "testa",
+    "tails": "croce",
+    "Again": "Ancora",
+    "Best of three, no peeking": "Al meglio di tre, senza sbirciare",
+    "Both {hand}: a draw.": "Entrambi {hand}: pareggio.",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "I dadi hanno da 2 a 100 facce, e il numero aggiunto è al massimo 100.",
+    "Doubles!": "Doppio!",
+    "Flip a coin": "Lancia una moneta",
+    "Flip between 1 and {n} coins at a time.": "Lancia da 1 a {n} monete alla volta.",
+    "Flip {n} coins": "Lancia {n} monete",
+    "Heads or tails…": "Testa o croce…",
+    "Heads!": "Testa!",
+    "I'm going paper…": "Faccio carta…",
+    "I'm going rock…": "Faccio sasso…",
+    "I'm going scissors…": "Faccio forbici…",
+    "It's {n}!": "È uscito {n}!",
+    "Natural 20!": "20 naturale!",
+    "Next one's yours.": "La prossima è tua.",
+    "Oof.": "Ahi.",
+    "Paper beats rock: I win!": "La carta batte il sasso: vinco io!",
+    "Paper beats rock: you win!": "La carta batte il sasso: vinci tu!",
+    "Paper…": "Carta…",
+    "Rematch": "Rivincita",
+    "Rock beats scissors: I win!": "Il sasso batte le forbici: vinco io!",
+    "Rock beats scissors: you win!": "Il sasso batte le forbici: vinci tu!",
+    "Rock, Paper, Scissors": "Sasso, carta, forbici",
+    "Rock, paper or scissors?": "Sasso, carta o forbici?",
+    "Rock, paper, scissors": "Sasso, carta, forbici",
+    "Rock…": "Sasso…",
+    "Rock… paper… scissors…": "Sasso… carta… forbici…",
+    "Roll a die": "Tira un dado",
+    "Roll between 1 and {n} dice at a time.": "Tira da 1 a {n} dadi alla volta.",
+    "Roll {dice}": "Tira {dice}",
+    "Rolling…": "Tiro…",
+    "Scissors beat paper: I win!": "Le forbici battono la carta: vinco io!",
+    "Scissors beat paper: you win!": "Le forbici battono la carta: vinci tu!",
+    "Scissors…": "Forbici…",
+    "Shoot!": "Via!",
+    "Snake eyes!": "Doppio uno!",
+    "Tails!": "Croce!",
+    "Tell me the user's hand: rock, paper or scissors.": "Dimmi cosa scegli: sasso, carta o forbici.",
+    "We both played paper: a draw!": "Abbiamo giocato entrambi carta: pareggio!",
+    "We both played rock: a draw!": "Abbiamo giocato entrambi sasso: pareggio!",
+    "We both played scissors: a draw!": "Abbiamo giocato entrambi forbici: pareggio!",
+    "You called it!": "Indovinato!",
+    "You win the match!": "Vinci la partita!",
+    "{name} wins the match!": "{name} vince la partita!",
+    "{name} wins the match.": "{name} vince la partita.",
+    "{name}, pick your hand.": "{name}, scegli la tua mano.",
+    "{n} coins": "{n} monete",
+    "{n} in a row!": "{n} di fila!",
+    "{win} beats {lose}: a point for {name}.": "{win} batte {lose}: un punto a {name}.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind” deve essere coin, dice o rock_paper_scissors.",
+    "A coin": "Una moneta",
+    "{n} dice": "{n} dadi"
   },
   "examples": [
     "giochiamo a un quiz"
@@ -561,6 +623,9 @@
   "surfaces": {
     "play": {
       "title": "Svago"
+    },
+    "toss": {
+      "title": "Moneta, dadi e mani"
     }
   },
   "commands": {
@@ -771,6 +836,101 @@
       "riattiva l'audio del gioco",
       "suoni del gioco attivati",
       "attiva i suoni dei giochi"
+    ],
+    "rock_paper_scissors": {
+      "say": [
+        "sasso carta forbici",
+        "sasso, carta, forbici",
+        "carta sasso forbici",
+        "giochiamo a sasso carta forbici",
+        "morra cinese"
+      ],
+      "names": [
+        "sasso carta forbici",
+        "morra cinese"
+      ]
+    },
+    "toss_coin": [
+      "lancia una moneta",
+      "lancia la moneta",
+      "testa o croce",
+      "tira una moneta",
+      "lancia una moneta per me",
+      "facciamo testa o croce"
+    ],
+    "toss_coin_call": [
+      "lancia una moneta, {call:call}",
+      "testa o croce, {call:call}",
+      "testa o croce: {call:call}",
+      "lancia una moneta, dico {call:call}",
+      "testa o croce, dico {call:call}",
+      "testa o croce, scelgo {call:call}"
+    ],
+    "toss_coins": [
+      "lancia {count:integer:1-5} monete",
+      "tira {count:integer:1-5} monete"
+    ],
+    "toss_coins_many": [
+      "lancia {many:coins_many} monete",
+      "tira {many:coins_many} monete"
+    ],
+    "toss_die": [
+      "lancia un dado",
+      "tira un dado",
+      "lancia il dado",
+      "tira il dado",
+      "lancia un dado per me"
+    ],
+    "toss_two_dice": [
+      "lancia i dadi",
+      "tira i dadi"
+    ],
+    "toss_dice": [
+      "lancia {count:integer:1-10} dadi",
+      "tira {count:integer:1-10} dadi"
+    ],
+    "toss_dice_many": [
+      "lancia {many:dice_many} dadi",
+      "tira {many:dice_many} dadi"
+    ],
+    "toss_d": [
+      "lancia un d{sides:integer:2-100}",
+      "tira un d{sides:integer:2-100}",
+      "lancia un dado a {sides:integer:2-100} facce"
+    ],
+    "toss_nd": [
+      "lancia {count:integer:1-10}d{sides:integer:2-100}",
+      "tira {count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_plus": [
+      "lancia {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}",
+      "tira {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "lancia un d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_nd_minus": [
+      "lancia {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}",
+      "tira {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_minus": [
+      "lancia un d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_hand": [
+      "scelgo {hand:hand}",
+      "gioco {hand:hand}",
+      "butto {hand:hand}",
+      "sasso carta forbici, {hand:hand}",
+      "sasso carta forbici: {hand:hand}"
+    ],
+    "toss_rock": [
+      "sasso"
+    ],
+    "toss_paper": [
+      "carta"
+    ],
+    "toss_scissors": [
+      "forbici"
     ]
   },
   "ai_purpose": "per scrivere domande di quiz su un argomento che scegli tu",
@@ -815,6 +975,68 @@
     "level": {
       "fair": [
         "normale"
+      ]
+    },
+    "call": {
+      "heads": [
+        "testa"
+      ],
+      "tails": [
+        "croce"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "sasso"
+      ],
+      "paper": [
+        "carta"
+      ],
+      "scissors": [
+        "forbici"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "due"
+      ],
+      "n3": [
+        "tre"
+      ],
+      "n4": [
+        "quattro"
+      ],
+      "n5": [
+        "cinque"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "due"
+      ],
+      "n3": [
+        "tre"
+      ],
+      "n4": [
+        "quattro"
+      ],
+      "n5": [
+        "cinque"
+      ],
+      "n6": [
+        "sei"
+      ],
+      "n7": [
+        "sette"
+      ],
+      "n8": [
+        "otto"
+      ],
+      "n9": [
+        "nove"
+      ],
+      "n10": [
+        "dieci"
       ]
     }
   },
@@ -872,7 +1094,17 @@
     "play_plots": "Lotti dell'orto",
     "play_seesaw": "Altalena",
     "play_sudoku": "Sudoku",
-    "play_blossoms": "Fiori"
+    "play_blossoms": "Fiori",
+    "play_rock_paper_scissors": "Sasso, carta, forbici",
+    "flip_coin": "Lancia una moneta",
+    "call_heads": "Scegli testa",
+    "call_tails": "Scegli croce",
+    "just_flip": "Lancia e basta",
+    "roll_die": "Tira un dado",
+    "quick_throw": "Lancio rapido",
+    "throw_rock": "Sasso",
+    "throw_paper": "Carta",
+    "throw_scissors": "Forbici"
   },
   "settings": {
     "tone": {
@@ -1044,6 +1276,9 @@
         "fair": "Normale",
         "hard": "Difficile"
       }
+    },
+    "sound_rock_paper_scissors": {
+      "title": "Sasso, carta, forbici"
     }
   }
 }

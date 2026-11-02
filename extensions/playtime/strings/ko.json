@@ -22,6 +22,10 @@
     "game_settings": {
       "title": "게임 설정 변경",
       "summary": "게임 설정 변경"
+    },
+    "toss": {
+      "title": "동전 던지기, 주사위 굴리기, 가위바위보 하기",
+      "summary": "동전 던지기, 주사위 굴리기, 가위바위보 하기"
     }
   },
   "pages": {
@@ -537,7 +541,65 @@
     "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
     "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
     "Trivia questions": "퀴즈 문제",
-    "Trivia about {topic}": "{topic} 퀴즈"
+    "Trivia about {topic}": "{topic} 퀴즈",
+    "Rock": "바위",
+    "Paper": "보",
+    "Scissors": "가위",
+    "heads": "앞면",
+    "tails": "뒷면",
+    "Again": "한 번 더",
+    "Best of three, no peeking": "3판 2선승, 훔쳐보기 없기",
+    "Both {hand}: a draw.": "둘 다 {hand}: 무승부.",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "주사위의 면은 2~100개이고, 더하는 수는 최대 100이에요.",
+    "Doubles!": "더블!",
+    "Flip a coin": "동전 던지기",
+    "Flip between 1 and {n} coins at a time.": "동전은 한 번에 1~{n}개까지 던질 수 있어요.",
+    "Flip {n} coins": "동전 {n}개 던지기",
+    "Heads or tails…": "앞면일까, 뒷면일까…",
+    "Heads!": "앞면!",
+    "I'm going paper…": "보 낼 거예요…",
+    "I'm going rock…": "바위 낼 거예요…",
+    "I'm going scissors…": "가위 낼 거예요…",
+    "It's {n}!": "{n} 나왔어요!",
+    "Natural 20!": "내추럴 20!",
+    "Next one's yours.": "다음엔 맞힐 거예요.",
+    "Oof.": "아이고.",
+    "Paper beats rock: I win!": "보가 바위를 이겨요. 제가 이겼어요!",
+    "Paper beats rock: you win!": "보가 바위를 이겨요. 제가 졌어요!",
+    "Paper…": "보…",
+    "Rematch": "재대결",
+    "Rock beats scissors: I win!": "바위가 가위를 이겨요. 제가 이겼어요!",
+    "Rock beats scissors: you win!": "바위가 가위를 이겨요. 제가 졌어요!",
+    "Rock, Paper, Scissors": "가위바위보",
+    "Rock, paper or scissors?": "가위, 바위, 보?",
+    "Rock, paper, scissors": "가위바위보",
+    "Rock…": "바위…",
+    "Rock… paper… scissors…": "가위… 바위… 보…",
+    "Roll a die": "주사위 굴리기",
+    "Roll between 1 and {n} dice at a time.": "주사위는 한 번에 1~{n}개까지 굴릴 수 있어요.",
+    "Roll {dice}": "{dice} 굴리기",
+    "Rolling…": "데굴데굴…",
+    "Scissors beat paper: I win!": "가위가 보를 이겨요. 제가 이겼어요!",
+    "Scissors beat paper: you win!": "가위가 보를 이겨요. 제가 졌어요!",
+    "Scissors…": "가위…",
+    "Shoot!": "보!",
+    "Snake eyes!": "1 더블!",
+    "Tails!": "뒷면!",
+    "Tell me the user's hand: rock, paper or scissors.": "낼 손을 알려 주세요: 가위, 바위, 보 중 하나예요.",
+    "We both played paper: a draw!": "둘 다 보를 냈어요. 비겼어요!",
+    "We both played rock: a draw!": "둘 다 바위를 냈어요. 비겼어요!",
+    "We both played scissors: a draw!": "둘 다 가위를 냈어요. 비겼어요!",
+    "You called it!": "맞혔어요!",
+    "You win the match!": "승리했어요!",
+    "{name} wins the match!": "{name} 승리!",
+    "{name} wins the match.": "{name} 승리예요.",
+    "{name}, pick your hand.": "{name}, 손을 고르세요.",
+    "{n} coins": "동전 {n}개",
+    "{n} in a row!": "{n}연속!",
+    "{win} beats {lose}: a point for {name}.": "{win}이(가) {lose}을(를) 이겨요: {name}에게 1점.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind”는 coin, dice, rock_paper_scissors 중 하나여야 해요.",
+    "A coin": "동전",
+    "{n} dice": "주사위 {n}개"
   },
   "examples": [
     "퀴즈 하자"
@@ -545,6 +607,9 @@
   "surfaces": {
     "play": {
       "title": "놀이 시간"
+    },
+    "toss": {
+      "title": "동전, 주사위, 가위바위보"
     }
   },
   "commands": {
@@ -753,6 +818,95 @@
       "게임 소리 켜기",
       "게임 소리 켜",
       "게임 음소거 해제"
+    ],
+    "rock_paper_scissors": {
+      "say": [
+        "가위바위보",
+        "가위 바위 보",
+        "가위바위보 하자",
+        "가위바위보 할래",
+        "가위바위보 해"
+      ],
+      "names": [
+        "가위바위보",
+        "가위 바위 보"
+      ]
+    },
+    "toss_coin": [
+      "동전 던져",
+      "동전 던져줘",
+      "동전 던지기",
+      "동전을 던져줘",
+      "앞면 뒷면",
+      "앞이냐 뒤냐"
+    ],
+    "toss_coin_call": [
+      "동전 던져, {call:call}",
+      "동전 던져줘, {call:call}",
+      "동전 던지기, {call:call}",
+      "{call:call}으로 동전 던져줘",
+      "{call:call} 걸고 동전 던져줘"
+    ],
+    "toss_coins": [
+      "동전 {count:integer:1-5}개 던져줘"
+    ],
+    "toss_coins_many": [
+      "동전 {many:coins_many} 개 던져줘"
+    ],
+    "toss_die": [
+      "주사위 굴려",
+      "주사위 굴려줘",
+      "주사위 던져줘",
+      "주사위를 굴려줘",
+      "주사위 하나 굴려줘"
+    ],
+    "toss_two_dice": [
+      "주사위 두 개 굴려줘",
+      "주사위 두개 굴려줘"
+    ],
+    "toss_dice": [
+      "주사위 {count:integer:1-10}개 굴려줘",
+      "주사위 {count:integer:1-10}개 던져줘"
+    ],
+    "toss_dice_many": [
+      "주사위 {many:dice_many} 개 굴려줘"
+    ],
+    "toss_d": [
+      "d{sides:integer:2-100} 굴려줘",
+      "{sides:integer:2-100}면체 주사위 굴려줘"
+    ],
+    "toss_nd": [
+      "{count:integer:1-10}d{sides:integer:2-100} 굴려줘"
+    ],
+    "toss_nd_plus": [
+      "{count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100} 굴려줘"
+    ],
+    "toss_d_plus": [
+      "d{sides:integer:2-100}+{modifier:integer:1-100} 굴려줘"
+    ],
+    "toss_nd_minus": [
+      "{count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100} 굴려줘"
+    ],
+    "toss_d_minus": [
+      "d{sides:integer:2-100}-{minus:integer:1-100} 굴려줘"
+    ],
+    "toss_hand": [
+      "{hand:hand} 낼게",
+      "{hand:hand} 낸다",
+      "{hand:hand} 선택",
+      "가위바위보, {hand:hand}",
+      "가위바위보 {hand:hand}"
+    ],
+    "toss_rock": [
+      "바위",
+      "주먹"
+    ],
+    "toss_paper": [
+      "보자기",
+      "보 낼게"
+    ],
+    "toss_scissors": [
+      "가위"
     ]
   },
   "ai_purpose": "원하는 주제의 퀴즈 문제를 만들기 위해",
@@ -800,6 +954,72 @@
         "어려움",
         "어려운",
         "어렵게"
+      ]
+    },
+    "call": {
+      "heads": [
+        "앞면",
+        "앞"
+      ],
+      "tails": [
+        "뒷면",
+        "뒤"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "바위",
+        "주먹"
+      ],
+      "paper": [
+        "보",
+        "보자기"
+      ],
+      "scissors": [
+        "가위"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "두"
+      ],
+      "n3": [
+        "세"
+      ],
+      "n4": [
+        "네"
+      ],
+      "n5": [
+        "다섯"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "두"
+      ],
+      "n3": [
+        "세"
+      ],
+      "n4": [
+        "네"
+      ],
+      "n5": [
+        "다섯"
+      ],
+      "n6": [
+        "여섯"
+      ],
+      "n7": [
+        "일곱"
+      ],
+      "n8": [
+        "여덟"
+      ],
+      "n9": [
+        "아홉"
+      ],
+      "n10": [
+        "열"
       ]
     }
   },
@@ -852,7 +1072,17 @@
     "play_plots": "텃밭 나누기",
     "play_seesaw": "시소",
     "play_sudoku": "스도쿠",
-    "play_blossoms": "꽃밭"
+    "play_blossoms": "꽃밭",
+    "play_rock_paper_scissors": "가위바위보",
+    "flip_coin": "동전 던지기",
+    "call_heads": "앞면 예상",
+    "call_tails": "뒷면 예상",
+    "just_flip": "그냥 던지기",
+    "roll_die": "주사위 굴리기",
+    "quick_throw": "한 판 승부",
+    "throw_rock": "바위",
+    "throw_paper": "보",
+    "throw_scissors": "가위"
   },
   "settings": {
     "tone": {
@@ -1024,6 +1254,9 @@
         "fair": "보통",
         "hard": "어려움"
       }
+    },
+    "sound_rock_paper_scissors": {
+      "title": "가위바위보"
     }
   }
 }

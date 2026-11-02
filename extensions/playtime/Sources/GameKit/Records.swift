@@ -75,6 +75,27 @@ struct PlaytimeRecords: Codable, Equatable {
         var last: Date?
     }
 
+    /// Rock, paper, scissors over time, a round at a time, on the desktop and in the match: what the companion's quick throw tells the AI.
+    struct HandsTally: Codable, Equatable {
+        var person = 0
+        var companion = 0
+        var draws = 0
+    }
+    var hands: HandsTally?
+
+    /// One more throw in that tally, and the tally after it.
+    @discardableResult
+    static func addThrow(person: Games.Hand, companion: Games.Hand) -> HandsTally {
+        var after = HandsTally()
+        update { r in
+            var tally = r.hands ?? HandsTally()
+            if person == companion { tally.draws += 1 } else if person.beats == companion { tally.person += 1 } else { tally.companion += 1 }
+            r.hands = tally
+            after = tally
+        }
+        return after
+    }
+
     static var file: String { Paths.data + "/records.json" }
     static var animalsFile: String { Paths.data + "/animals.json" }
 

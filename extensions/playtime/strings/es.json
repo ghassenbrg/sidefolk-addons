@@ -22,6 +22,10 @@
     "game_settings": {
       "title": "Cambiar los ajustes de juegos",
       "summary": "Cambiar los ajustes de juegos"
+    },
+    "toss": {
+      "title": "Lanzar una moneda, tirar dados o jugar a piedra, papel o tijera",
+      "summary": "Lanzar una moneda, tirar dados o jugar a piedra, papel o tijera"
     }
   },
   "pages": {
@@ -553,7 +557,65 @@
     "{title} is already at its easiest.": "{title} ya está en lo más fácil.",
     "{title} is already at its hardest.": "{title} ya está en lo más difícil.",
     "Trivia questions": "Preguntas de trivia",
-    "Trivia about {topic}": "Trivia sobre {topic}"
+    "Trivia about {topic}": "Trivia sobre {topic}",
+    "Rock": "Piedra",
+    "Paper": "Papel",
+    "Scissors": "Tijera",
+    "heads": "cara",
+    "tails": "cruz",
+    "Again": "Otra vez",
+    "Best of three, no peeking": "Al mejor de tres, sin mirar",
+    "Both {hand}: a draw.": "Los dos sacaron {hand}: empate.",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "Los dados tienen de 2 a 100 caras, y el número que se suma es como máximo 100.",
+    "Doubles!": "¡Dobles!",
+    "Flip a coin": "Lanzar una moneda",
+    "Flip between 1 and {n} coins at a time.": "Lanza entre 1 y {n} monedas a la vez.",
+    "Flip {n} coins": "Lanzar {n} monedas",
+    "Heads or tails…": "Cara o cruz…",
+    "Heads!": "¡Cara!",
+    "I'm going paper…": "Voy a sacar papel…",
+    "I'm going rock…": "Voy a sacar piedra…",
+    "I'm going scissors…": "Voy a sacar tijera…",
+    "It's {n}!": "¡Salió el {n}!",
+    "Natural 20!": "¡20 natural!",
+    "Next one's yours.": "La próxima es tuya.",
+    "Oof.": "Uf.",
+    "Paper beats rock: I win!": "El papel gana a la piedra: ¡gano yo!",
+    "Paper beats rock: you win!": "El papel gana a la piedra: ¡ganas tú!",
+    "Paper…": "Papel…",
+    "Rematch": "Revancha",
+    "Rock beats scissors: I win!": "La piedra gana a la tijera: ¡gano yo!",
+    "Rock beats scissors: you win!": "La piedra gana a la tijera: ¡ganas tú!",
+    "Rock, Paper, Scissors": "Piedra, papel o tijera",
+    "Rock, paper or scissors?": "¿Piedra, papel o tijera?",
+    "Rock, paper, scissors": "Piedra, papel o tijera",
+    "Rock…": "Piedra…",
+    "Rock… paper… scissors…": "Piedra… papel… tijera…",
+    "Roll a die": "Tirar un dado",
+    "Roll between 1 and {n} dice at a time.": "Tira entre 1 y {n} dados a la vez.",
+    "Roll {dice}": "Tirar {dice}",
+    "Rolling…": "Tirando…",
+    "Scissors beat paper: I win!": "La tijera gana al papel: ¡gano yo!",
+    "Scissors beat paper: you win!": "La tijera gana al papel: ¡ganas tú!",
+    "Scissors…": "Tijera…",
+    "Shoot!": "¡Ya!",
+    "Snake eyes!": "¡Doble uno!",
+    "Tails!": "¡Cruz!",
+    "Tell me the user's hand: rock, paper or scissors.": "Dime qué eliges: piedra, papel o tijera.",
+    "We both played paper: a draw!": "Los dos hemos sacado papel: ¡empate!",
+    "We both played rock: a draw!": "Los dos hemos sacado piedra: ¡empate!",
+    "We both played scissors: a draw!": "Los dos hemos sacado tijera: ¡empate!",
+    "You called it!": "¡Acertaste!",
+    "You win the match!": "¡Ganas la partida!",
+    "{name} wins the match!": "¡{name} gana la partida!",
+    "{name} wins the match.": "{name} gana la partida.",
+    "{name}, pick your hand.": "{name}, elige tu mano.",
+    "{n} coins": "{n} monedas",
+    "{n} in a row!": "¡{n} seguidas!",
+    "{win} beats {lose}: a point for {name}.": "{win} gana a {lose}: un punto para {name}.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind” debe ser coin, dice o rock_paper_scissors.",
+    "A coin": "Una moneda",
+    "{n} dice": "{n} dados"
   },
   "examples": [
     "juguemos al trivial"
@@ -561,6 +623,9 @@
   "surfaces": {
     "play": {
       "title": "Ratos libres"
+    },
+    "toss": {
+      "title": "Moneda, dados y manos"
     }
   },
   "commands": {
@@ -781,6 +846,107 @@
       "enciende los sonidos del juego",
       "pon el sonido del juego",
       "sonidos del juego activados"
+    ],
+    "rock_paper_scissors": {
+      "say": [
+        "piedra papel o tijera",
+        "piedra, papel o tijera",
+        "piedra papel tijera",
+        "juguemos a piedra papel o tijera",
+        "vamos a jugar a piedra papel o tijera"
+      ],
+      "names": [
+        "piedra papel o tijera",
+        "piedra papel tijera"
+      ]
+    },
+    "toss_coin": [
+      "lanza una moneda",
+      "tira una moneda",
+      "lanza la moneda",
+      "tira la moneda",
+      "cara o cruz",
+      "cara o sello",
+      "lanza una moneda por mí"
+    ],
+    "toss_coin_call": [
+      "lanza una moneda, {call:call}",
+      "tira una moneda, {call:call}",
+      "cara o cruz, {call:call}",
+      "cara o cruz: {call:call}",
+      "lanza una moneda, elijo {call:call}",
+      "cara o cruz, elijo {call:call}",
+      "cara o cruz, digo {call:call}"
+    ],
+    "toss_coins": [
+      "lanza {count:integer:1-5} monedas",
+      "tira {count:integer:1-5} monedas"
+    ],
+    "toss_coins_many": [
+      "lanza {many:coins_many} monedas",
+      "tira {many:coins_many} monedas"
+    ],
+    "toss_die": [
+      "lanza un dado",
+      "tira un dado",
+      "lanza el dado",
+      "tira el dado",
+      "tira un dado por mí"
+    ],
+    "toss_two_dice": [
+      "lanza los dados",
+      "tira los dados",
+      "lanza dados",
+      "tira dados"
+    ],
+    "toss_dice": [
+      "lanza {count:integer:1-10} dados",
+      "tira {count:integer:1-10} dados"
+    ],
+    "toss_dice_many": [
+      "lanza {many:dice_many} dados",
+      "tira {many:dice_many} dados"
+    ],
+    "toss_d": [
+      "lanza un d{sides:integer:2-100}",
+      "tira un d{sides:integer:2-100}",
+      "lanza un dado de {sides:integer:2-100} caras",
+      "tira un dado de {sides:integer:2-100} caras"
+    ],
+    "toss_nd": [
+      "tira {count:integer:1-10}d{sides:integer:2-100}",
+      "lanza {count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_plus": [
+      "tira {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}",
+      "lanza {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "tira un d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_nd_minus": [
+      "tira {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}",
+      "lanza {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_minus": [
+      "tira un d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_hand": [
+      "elijo {hand:hand}",
+      "juego {hand:hand}",
+      "saco {hand:hand}",
+      "piedra papel o tijera, {hand:hand}",
+      "piedra papel o tijera: {hand:hand}"
+    ],
+    "toss_rock": [
+      "piedra"
+    ],
+    "toss_paper": [
+      "papel"
+    ],
+    "toss_scissors": [
+      "tijera",
+      "tijeras"
     ]
   },
   "ai_purpose": "para escribir preguntas de trivia sobre un tema que elijas",
@@ -830,6 +996,70 @@
       ],
       "hard": [
         "difícil"
+      ]
+    },
+    "call": {
+      "heads": [
+        "cara"
+      ],
+      "tails": [
+        "cruz",
+        "sello"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "piedra"
+      ],
+      "paper": [
+        "papel"
+      ],
+      "scissors": [
+        "tijera",
+        "tijeras"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "dos"
+      ],
+      "n3": [
+        "tres"
+      ],
+      "n4": [
+        "cuatro"
+      ],
+      "n5": [
+        "cinco"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "dos"
+      ],
+      "n3": [
+        "tres"
+      ],
+      "n4": [
+        "cuatro"
+      ],
+      "n5": [
+        "cinco"
+      ],
+      "n6": [
+        "seis"
+      ],
+      "n7": [
+        "siete"
+      ],
+      "n8": [
+        "ocho"
+      ],
+      "n9": [
+        "nueve"
+      ],
+      "n10": [
+        "diez"
       ]
     }
   },
@@ -885,7 +1115,17 @@
     "play_plots": "Parcelas del huerto",
     "play_seesaw": "Balancín",
     "play_sudoku": "Sudoku",
-    "play_blossoms": "Flores"
+    "play_blossoms": "Flores",
+    "play_rock_paper_scissors": "Piedra, papel o tijera",
+    "flip_coin": "Lanzar una moneda",
+    "call_heads": "Pedir cara",
+    "call_tails": "Pedir cruz",
+    "just_flip": "Solo lanzar",
+    "roll_die": "Tirar un dado",
+    "quick_throw": "Tirada rápida",
+    "throw_rock": "Piedra",
+    "throw_paper": "Papel",
+    "throw_scissors": "Tijera"
   },
   "settings": {
     "tone": {
@@ -1057,6 +1297,9 @@
         "fair": "Normal",
         "hard": "Difícil"
       }
+    },
+    "sound_rock_paper_scissors": {
+      "title": "Piedra, papel o tijera"
     }
   }
 }

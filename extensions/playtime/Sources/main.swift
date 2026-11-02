@@ -44,6 +44,8 @@ TriviaAI.send = { id, prompt, label in
     }
 }
 PlaytimeTools.install(on: ext)
+TossTool.install(on: ext)
+TossSurface.install(on: ext)
 PlaytimeCarry.install(on: ext)
 
 ext.page("playtime") { _ in PlaytimePage.render() }

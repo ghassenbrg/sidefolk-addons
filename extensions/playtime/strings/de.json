@@ -22,6 +22,10 @@
     "game_settings": {
       "title": "Spieleinstellungen ändern",
       "summary": "Spieleinstellungen ändern"
+    },
+    "toss": {
+      "title": "Münze werfen, würfeln oder Schere, Stein, Papier spielen",
+      "summary": "Münze werfen, würfeln oder Schere, Stein, Papier spielen"
     }
   },
   "pages": {
@@ -553,7 +557,65 @@
     "{title} is already at its easiest.": "{title} ist schon am leichtesten.",
     "{title} is already at its hardest.": "{title} ist schon am schwersten.",
     "Trivia questions": "Quizfragen",
-    "Trivia about {topic}": "Quiz über {topic}"
+    "Trivia about {topic}": "Quiz über {topic}",
+    "Rock": "Stein",
+    "Paper": "Papier",
+    "Scissors": "Schere",
+    "heads": "Kopf",
+    "tails": "Zahl",
+    "Again": "Noch mal",
+    "Best of three, no peeking": "Best of three, ohne Schummeln",
+    "Both {hand}: a draw.": "Beide {hand}: unentschieden.",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "Würfel haben 2 bis 100 Seiten, und die addierte Zahl beträgt höchstens 100.",
+    "Doubles!": "Pasch!",
+    "Flip a coin": "Münze werfen",
+    "Flip between 1 and {n} coins at a time.": "Wirf zwischen 1 und {n} Münzen auf einmal.",
+    "Flip {n} coins": "{n} Münzen werfen",
+    "Heads or tails…": "Kopf oder Zahl …",
+    "Heads!": "Kopf!",
+    "I'm going paper…": "Ich nehme Papier …",
+    "I'm going rock…": "Ich nehme Stein …",
+    "I'm going scissors…": "Ich nehme Schere …",
+    "It's {n}!": "Eine {n}!",
+    "Natural 20!": "Natürliche 20!",
+    "Next one's yours.": "Die nächste gehört dir.",
+    "Oof.": "Autsch.",
+    "Paper beats rock: I win!": "Papier schlägt Stein: Ich gewinne!",
+    "Paper beats rock: you win!": "Papier schlägt Stein: Du gewinnst!",
+    "Paper…": "Papier …",
+    "Rematch": "Revanche",
+    "Rock beats scissors: I win!": "Stein schlägt Schere: Ich gewinne!",
+    "Rock beats scissors: you win!": "Stein schlägt Schere: Du gewinnst!",
+    "Rock, Paper, Scissors": "Schere, Stein, Papier",
+    "Rock, paper or scissors?": "Schere, Stein oder Papier?",
+    "Rock, paper, scissors": "Schere, Stein, Papier",
+    "Rock…": "Stein …",
+    "Rock… paper… scissors…": "Schere … Stein … Papier …",
+    "Roll a die": "Würfeln",
+    "Roll between 1 and {n} dice at a time.": "Wirf zwischen 1 und {n} Würfel auf einmal.",
+    "Roll {dice}": "{dice} würfeln",
+    "Rolling…": "Ich würfle …",
+    "Scissors beat paper: I win!": "Schere schlägt Papier: Ich gewinne!",
+    "Scissors beat paper: you win!": "Schere schlägt Papier: Du gewinnst!",
+    "Scissors…": "Schere …",
+    "Shoot!": "Los!",
+    "Snake eyes!": "Doppel-Eins!",
+    "Tails!": "Zahl!",
+    "Tell me the user's hand: rock, paper or scissors.": "Sag mir deine Wahl: Schere, Stein oder Papier.",
+    "We both played paper: a draw!": "Wir haben beide Papier gespielt: Unentschieden!",
+    "We both played rock: a draw!": "Wir haben beide Stein gespielt: Unentschieden!",
+    "We both played scissors: a draw!": "Wir haben beide Schere gespielt: Unentschieden!",
+    "You called it!": "Richtig angesagt!",
+    "You win the match!": "Du gewinnst das Spiel!",
+    "{name} wins the match!": "{name} gewinnt das Match!",
+    "{name} wins the match.": "{name} gewinnt das Spiel.",
+    "{name}, pick your hand.": "{name}, wähl deine Hand.",
+    "{n} coins": "{n} Münzen",
+    "{n} in a row!": "{n} in Folge!",
+    "{win} beats {lose}: a point for {name}.": "{win} schlägt {lose}: ein Punkt für {name}.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "„kind“ muss coin, dice oder rock_paper_scissors sein.",
+    "A coin": "Eine Münze",
+    "{n} dice": "{n} Würfel"
   },
   "examples": [
     "lass uns ein Quiz spielen"
@@ -561,6 +623,9 @@
   "surfaces": {
     "play": {
       "title": "Spielzeit"
+    },
+    "toss": {
+      "title": "Münze, Würfel und Hände"
     }
   },
   "commands": {
@@ -782,6 +847,99 @@
       "schalte die spielgeräusche an",
       "spielton an",
       "spielton einschalten"
+    ],
+    "rock_paper_scissors": {
+      "say": [
+        "schere stein papier",
+        "schere, stein, papier",
+        "stein schere papier",
+        "lass uns schere stein papier spielen",
+        "schnick schnack schnuck"
+      ],
+      "names": [
+        "schere stein papier",
+        "schnick schnack schnuck"
+      ]
+    },
+    "toss_coin": [
+      "wirf eine münze",
+      "wirf die münze",
+      "münzwurf",
+      "kopf oder zahl",
+      "wirf eine münze für mich",
+      "lass uns eine münze werfen"
+    ],
+    "toss_coin_call": [
+      "wirf eine münze, {call:call}",
+      "kopf oder zahl, {call:call}",
+      "kopf oder zahl: {call:call}",
+      "wirf eine münze, ich sage {call:call}",
+      "kopf oder zahl, ich sage {call:call}",
+      "kopf oder zahl, ich nehme {call:call}"
+    ],
+    "toss_coins": [
+      "wirf {count:integer:1-5} münzen"
+    ],
+    "toss_coins_many": [
+      "wirf {many:coins_many} münzen"
+    ],
+    "toss_die": [
+      "wirf einen würfel",
+      "würfle",
+      "würfeln",
+      "wirf den würfel",
+      "wirf einen würfel für mich"
+    ],
+    "toss_two_dice": [
+      "wirf die würfel",
+      "würfle mit zwei würfeln"
+    ],
+    "toss_dice": [
+      "wirf {count:integer:1-10} würfel",
+      "würfle mit {count:integer:1-10} würfeln"
+    ],
+    "toss_dice_many": [
+      "wirf {many:dice_many} würfel",
+      "würfle mit {many:dice_many} würfeln"
+    ],
+    "toss_d": [
+      "wirf einen w{sides:integer:2-100}",
+      "wirf einen d{sides:integer:2-100}",
+      "wirf einen {sides:integer:2-100}-seitigen würfel"
+    ],
+    "toss_nd": [
+      "wirf {count:integer:1-10}w{sides:integer:2-100}",
+      "wirf {count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_plus": [
+      "wirf {count:integer:1-10}w{sides:integer:2-100}+{modifier:integer:1-100}",
+      "wirf {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "wirf einen w{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_nd_minus": [
+      "wirf {count:integer:1-10}w{sides:integer:2-100}-{minus:integer:1-100}",
+      "wirf {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_minus": [
+      "wirf einen w{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_hand": [
+      "ich nehme {hand:hand}",
+      "ich wähle {hand:hand}",
+      "ich spiele {hand:hand}",
+      "schere stein papier, {hand:hand}",
+      "schere stein papier: {hand:hand}"
+    ],
+    "toss_rock": [
+      "stein"
+    ],
+    "toss_paper": [
+      "papier"
+    ],
+    "toss_scissors": [
+      "schere"
     ]
   },
   "ai_purpose": "um Quizfragen zu einem Thema deiner Wahl zu schreiben",
@@ -832,6 +990,68 @@
       "hard": [
         "schwer",
         "schwierig"
+      ]
+    },
+    "call": {
+      "heads": [
+        "kopf"
+      ],
+      "tails": [
+        "zahl"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "stein"
+      ],
+      "paper": [
+        "papier"
+      ],
+      "scissors": [
+        "schere"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "zwei"
+      ],
+      "n3": [
+        "drei"
+      ],
+      "n4": [
+        "vier"
+      ],
+      "n5": [
+        "fünf"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "zwei"
+      ],
+      "n3": [
+        "drei"
+      ],
+      "n4": [
+        "vier"
+      ],
+      "n5": [
+        "fünf"
+      ],
+      "n6": [
+        "sechs"
+      ],
+      "n7": [
+        "sieben"
+      ],
+      "n8": [
+        "acht"
+      ],
+      "n9": [
+        "neun"
+      ],
+      "n10": [
+        "zehn"
       ]
     }
   },
@@ -898,7 +1118,17 @@
     "play_plots": "Gartenparzellen",
     "play_seesaw": "Wippe",
     "play_sudoku": "Sudoku",
-    "play_blossoms": "Blüten"
+    "play_blossoms": "Blüten",
+    "play_rock_paper_scissors": "Schere, Stein, Papier",
+    "flip_coin": "Münze werfen",
+    "call_heads": "Kopf ansagen",
+    "call_tails": "Zahl ansagen",
+    "just_flip": "Nur werfen",
+    "roll_die": "Würfeln",
+    "quick_throw": "Schneller Wurf",
+    "throw_rock": "Stein",
+    "throw_paper": "Papier",
+    "throw_scissors": "Schere"
   },
   "settings": {
     "tone": {
@@ -1070,6 +1300,9 @@
         "fair": "Normal",
         "hard": "Schwer"
       }
+    },
+    "sound_rock_paper_scissors": {
+      "title": "Schere, Stein, Papier"
     }
   }
 }

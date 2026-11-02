@@ -37,6 +37,7 @@ enum GameTable {
     nonisolated(unsafe) static let drivers: [String: Driver] = Dictionary(uniqueKeysWithValues: [
         driver(TriviaScreen.self), driver(TicTacToeScreen.self), driver(CopyMeScreen.self), driver(QuickPawsScreen.self), driver(WhichCupScreen.self),
         driver(HigherLowerScreen.self), driver(GuessAnimalScreen.self), driver(BalloonWordsScreen.self), driver(LastStickScreen.self), driver(MemoryPairsScreen.self),
+        driver(RockPaperScissorsScreen.self),
         driver(DailyWordScreen.self), driver(PuzzleScreen<GardenPlotsKind>.self), driver(PuzzleScreen<SeesawKind>.self), driver(PuzzleScreen<SudokuKind>.self),
         driver(PuzzleScreen<BlossomsKind>.self),
     ].map { ($0.id, $0) })

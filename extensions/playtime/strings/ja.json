@@ -22,6 +22,10 @@
     "game_settings": {
       "title": "ゲームの設定を変更",
       "summary": "ゲームの設定を変更"
+    },
+    "toss": {
+      "title": "コインを投げる、サイコロを振る、じゃんけんをする",
+      "summary": "コインを投げる、サイコロを振る、じゃんけんをする"
     }
   },
   "pages": {
@@ -537,7 +541,65 @@
     "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
     "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
     "Trivia questions": "クイズの問題",
-    "Trivia about {topic}": "{topic}のクイズ"
+    "Trivia about {topic}": "{topic}のクイズ",
+    "Rock": "グー",
+    "Paper": "パー",
+    "Scissors": "チョキ",
+    "heads": "表",
+    "tails": "裏",
+    "Again": "もう一度",
+    "Best of three, no peeking": "3本勝負、のぞき見なし",
+    "Both {hand}: a draw.": "どちらも{hand}：あいこ。",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "サイコロの面は2〜100個で、足せる数は100までです。",
+    "Doubles!": "ゾロ目！",
+    "Flip a coin": "コインを投げる",
+    "Flip between 1 and {n} coins at a time.": "コインは一度に1〜{n}枚まで投げられます。",
+    "Flip {n} coins": "コインを{n}枚投げる",
+    "Heads or tails…": "表か裏か…",
+    "Heads!": "表！",
+    "I'm going paper…": "パーを出そうかな…",
+    "I'm going rock…": "グーを出そうかな…",
+    "I'm going scissors…": "チョキを出そうかな…",
+    "It's {n}!": "{n}が出ました！",
+    "Natural 20!": "ナチュラル20！",
+    "Next one's yours.": "次はきっと当たります。",
+    "Oof.": "あちゃー。",
+    "Paper beats rock: I win!": "パーはグーに勝ちます。こちらの勝ち！",
+    "Paper beats rock: you win!": "パーはグーに勝ちます。そちらの勝ち！",
+    "Paper…": "パー…",
+    "Rematch": "再戦",
+    "Rock beats scissors: I win!": "グーはチョキに勝ちます。こちらの勝ち！",
+    "Rock beats scissors: you win!": "グーはチョキに勝ちます。そちらの勝ち！",
+    "Rock, Paper, Scissors": "じゃんけん",
+    "Rock, paper or scissors?": "グー、チョキ、パー？",
+    "Rock, paper, scissors": "じゃんけん",
+    "Rock…": "グー…",
+    "Rock… paper… scissors…": "じゃん…けん…ぽん…",
+    "Roll a die": "サイコロを振る",
+    "Roll between 1 and {n} dice at a time.": "サイコロは一度に1〜{n}個まで振れます。",
+    "Roll {dice}": "{dice}を振る",
+    "Rolling…": "ころころ…",
+    "Scissors beat paper: I win!": "チョキはパーに勝ちます。こちらの勝ち！",
+    "Scissors beat paper: you win!": "チョキはパーに勝ちます。そちらの勝ち！",
+    "Scissors…": "チョキ…",
+    "Shoot!": "ぽん！",
+    "Snake eyes!": "ピンゾロ！",
+    "Tails!": "裏！",
+    "Tell me the user's hand: rock, paper or scissors.": "出す手を教えてください：グー、チョキ、パーのどれかです。",
+    "We both played paper: a draw!": "どちらもパーで、あいこです！",
+    "We both played rock: a draw!": "どちらもグーで、あいこです！",
+    "We both played scissors: a draw!": "どちらもチョキで、あいこです！",
+    "You called it!": "予想どおり！",
+    "You win the match!": "勝ちましたね！",
+    "{name} wins the match!": "{name}の勝ち！",
+    "{name} wins the match.": "{name}の勝ちです。",
+    "{name}, pick your hand.": "{name}、手を選んでね。",
+    "{n} coins": "コイン{n}枚",
+    "{n} in a row!": "{n}連続！",
+    "{win} beats {lose}: a point for {name}.": "{win}は{lose}に勝つ：{name}に1点。",
+    "“kind” must be coin, dice or rock_paper_scissors.": "「kind」はcoin、dice、rock_paper_scissorsのいずれかにしてください。",
+    "A coin": "コイン",
+    "{n} dice": "サイコロ{n}個"
   },
   "examples": [
     "クイズをしよう"
@@ -545,6 +607,9 @@
   "surfaces": {
     "play": {
       "title": "あそびタイム"
+    },
+    "toss": {
+      "title": "コイン、サイコロ、じゃんけん"
     }
   },
   "commands": {
@@ -764,6 +829,94 @@
       "ゲームの音をオン",
       "ゲームの音をオンにして",
       "ゲームのミュートを解除"
+    ],
+    "rock_paper_scissors": {
+      "say": [
+        "じゃんけん",
+        "じゃんけんしよう",
+        "じゃんけんをしよう",
+        "ジャンケン",
+        "ジャンケンしよう"
+      ],
+      "names": [
+        "じゃんけん",
+        "ジャンケン"
+      ]
+    },
+    "toss_coin": [
+      "コインを投げて",
+      "コイントス",
+      "コイントスして",
+      "コインを投げよう",
+      "表か裏か",
+      "表か裏"
+    ],
+    "toss_coin_call": [
+      "コインを投げて、{call:call}",
+      "コイントス、{call:call}",
+      "表か裏か、{call:call}",
+      "コイントス、{call:call}にする",
+      "{call:call}に賭けてコイントス"
+    ],
+    "toss_coins": [
+      "コインを{count:integer:1-5}枚投げて"
+    ],
+    "toss_coins_many": [
+      "コインを{many:coins_many}枚投げて"
+    ],
+    "toss_die": [
+      "サイコロを振って",
+      "サイコロ振って",
+      "サイコロを一つ振って",
+      "サイコロ"
+    ],
+    "toss_two_dice": [
+      "サイコロを二つ振って",
+      "サイコロ二つ振って"
+    ],
+    "toss_dice": [
+      "サイコロを{count:integer:1-10}個振って",
+      "サイコロ{count:integer:1-10}個振って"
+    ],
+    "toss_dice_many": [
+      "サイコロを{many:dice_many}つ振って"
+    ],
+    "toss_d": [
+      "d{sides:integer:2-100}を振って",
+      "{sides:integer:2-100}面サイコロを振って"
+    ],
+    "toss_nd": [
+      "{count:integer:1-10}d{sides:integer:2-100}を振って"
+    ],
+    "toss_nd_plus": [
+      "{count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}を振って"
+    ],
+    "toss_d_plus": [
+      "d{sides:integer:2-100}+{modifier:integer:1-100}を振って"
+    ],
+    "toss_nd_minus": [
+      "{count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}を振って"
+    ],
+    "toss_d_minus": [
+      "d{sides:integer:2-100}-{minus:integer:1-100}を振って"
+    ],
+    "toss_hand": [
+      "{hand:hand}を出す",
+      "{hand:hand}にする",
+      "じゃんけん、{hand:hand}",
+      "じゃんけん{hand:hand}"
+    ],
+    "toss_rock": [
+      "グー",
+      "ぐー"
+    ],
+    "toss_paper": [
+      "パー",
+      "ぱー"
+    ],
+    "toss_scissors": [
+      "チョキ",
+      "ちょき"
     ]
   },
   "ai_purpose": "あなたが選んだテーマのクイズ問題を作るため",
@@ -811,6 +964,71 @@
       "hard": [
         "むずかしい",
         "難しい"
+      ]
+    },
+    "call": {
+      "heads": [
+        "表"
+      ],
+      "tails": [
+        "裏"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "グー",
+        "ぐー"
+      ],
+      "paper": [
+        "パー",
+        "ぱー"
+      ],
+      "scissors": [
+        "チョキ",
+        "ちょき"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "二"
+      ],
+      "n3": [
+        "三"
+      ],
+      "n4": [
+        "四"
+      ],
+      "n5": [
+        "五"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "二"
+      ],
+      "n3": [
+        "三"
+      ],
+      "n4": [
+        "四"
+      ],
+      "n5": [
+        "五"
+      ],
+      "n6": [
+        "六"
+      ],
+      "n7": [
+        "七"
+      ],
+      "n8": [
+        "八"
+      ],
+      "n9": [
+        "九"
+      ],
+      "n10": [
+        "十"
       ]
     }
   },
@@ -866,7 +1084,17 @@
     "play_plots": "畑わけ",
     "play_seesaw": "シーソー",
     "play_sudoku": "数独",
-    "play_blossoms": "花ばたけ"
+    "play_blossoms": "花ばたけ",
+    "play_rock_paper_scissors": "じゃんけん",
+    "flip_coin": "コインを投げる",
+    "call_heads": "表を予想",
+    "call_tails": "裏を予想",
+    "just_flip": "予想せずに投げる",
+    "roll_die": "サイコロを振る",
+    "quick_throw": "一回勝負",
+    "throw_rock": "グー",
+    "throw_paper": "パー",
+    "throw_scissors": "チョキ"
   },
   "settings": {
     "tone": {
@@ -1038,6 +1266,9 @@
         "fair": "ふつう",
         "hard": "むずかしい"
       }
+    },
+    "sound_rock_paper_scissors": {
+      "title": "じゃんけん"
     }
   }
 }

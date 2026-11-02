@@ -22,6 +22,10 @@
     "game_settings": {
       "title": "Modifier les réglages des jeux",
       "summary": "Modifier les réglages des jeux"
+    },
+    "toss": {
+      "title": "Lancer une pièce, des dés ou jouer à pierre-feuille-ciseaux",
+      "summary": "Lancer une pièce, des dés ou jouer à pierre-feuille-ciseaux"
     }
   },
   "pages": {
@@ -553,7 +557,65 @@
     "{title} is already at its easiest.": "{title} est déjà au plus facile.",
     "{title} is already at its hardest.": "{title} est déjà au plus difficile.",
     "Trivia questions": "Questions de quiz",
-    "Trivia about {topic}": "Quiz sur {topic}"
+    "Trivia about {topic}": "Quiz sur {topic}",
+    "Rock": "Pierre",
+    "Paper": "Feuille",
+    "Scissors": "Ciseaux",
+    "heads": "face",
+    "tails": "pile",
+    "Again": "Encore",
+    "Best of three, no peeking": "Au meilleur des trois, sans tricher",
+    "Both {hand}: a draw.": "Les deux ont fait {hand} : égalité.",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "Les dés ont de 2 à 100 faces, et le nombre ajouté ne dépasse pas 100.",
+    "Doubles!": "Un double !",
+    "Flip a coin": "Lancer une pièce",
+    "Flip between 1 and {n} coins at a time.": "Lancez entre 1 et {n} pièces à la fois.",
+    "Flip {n} coins": "Lancer {n} pièces",
+    "Heads or tails…": "Pile ou face…",
+    "Heads!": "Face !",
+    "I'm going paper…": "Je joue feuille…",
+    "I'm going rock…": "Je joue pierre…",
+    "I'm going scissors…": "Je joue ciseaux…",
+    "It's {n}!": "C’est un {n} !",
+    "Natural 20!": "20 naturel !",
+    "Next one's yours.": "La prochaine est pour vous.",
+    "Oof.": "Aïe.",
+    "Paper beats rock: I win!": "La feuille bat la pierre : je gagne !",
+    "Paper beats rock: you win!": "La feuille bat la pierre : vous gagnez !",
+    "Paper…": "Feuille…",
+    "Rematch": "Revanche",
+    "Rock beats scissors: I win!": "La pierre bat les ciseaux : je gagne !",
+    "Rock beats scissors: you win!": "La pierre bat les ciseaux : vous gagnez !",
+    "Rock, Paper, Scissors": "Pierre-feuille-ciseaux",
+    "Rock, paper or scissors?": "Pierre, feuille ou ciseaux ?",
+    "Rock, paper, scissors": "Pierre-feuille-ciseaux",
+    "Rock…": "Pierre…",
+    "Rock… paper… scissors…": "Pierre… feuille… ciseaux…",
+    "Roll a die": "Lancer un dé",
+    "Roll between 1 and {n} dice at a time.": "Lancez entre 1 et {n} dés à la fois.",
+    "Roll {dice}": "Lancer {dice}",
+    "Rolling…": "Je lance…",
+    "Scissors beat paper: I win!": "Les ciseaux battent la feuille : je gagne !",
+    "Scissors beat paper: you win!": "Les ciseaux battent la feuille : vous gagnez !",
+    "Scissors…": "Ciseaux…",
+    "Shoot!": "Chi-fou-mi !",
+    "Snake eyes!": "Double un !",
+    "Tails!": "Pile !",
+    "Tell me the user's hand: rock, paper or scissors.": "Dites-moi votre choix : pierre, feuille ou ciseaux.",
+    "We both played paper: a draw!": "Nous avons joué feuille tous les deux : égalité !",
+    "We both played rock: a draw!": "Nous avons joué pierre tous les deux : égalité !",
+    "We both played scissors: a draw!": "Nous avons joué ciseaux tous les deux : égalité !",
+    "You called it!": "Bien annoncé !",
+    "You win the match!": "Vous gagnez la partie !",
+    "{name} wins the match!": "{name} gagne le match !",
+    "{name} wins the match.": "{name} gagne la partie.",
+    "{name}, pick your hand.": "{name}, choisissez votre main.",
+    "{n} coins": "{n} pièces",
+    "{n} in a row!": "{n} d'affilée !",
+    "{win} beats {lose}: a point for {name}.": "{win} bat {lose} : un point pour {name}.",
+    "“kind” must be coin, dice or rock_paper_scissors.": "« kind » doit valoir coin, dice ou rock_paper_scissors.",
+    "A coin": "Une pièce",
+    "{n} dice": "{n} dés"
   },
   "examples": [
     "on joue au quiz"
@@ -561,6 +623,9 @@
   "surfaces": {
     "play": {
       "title": "Récré"
+    },
+    "toss": {
+      "title": "Pièce, dés et mains"
     }
   },
   "commands": {
@@ -781,6 +846,103 @@
       "sons du jeu activés",
       "active le son des jeux",
       "rallume le son du jeu"
+    ],
+    "rock_paper_scissors": {
+      "say": [
+        "pierre feuille ciseaux",
+        "pierre-feuille-ciseaux",
+        "pierre, feuille, ciseaux",
+        "chifoumi",
+        "jouons à pierre feuille ciseaux",
+        "jouons à chifoumi"
+      ],
+      "names": [
+        "pierre feuille ciseaux",
+        "chifoumi"
+      ]
+    },
+    "toss_coin": [
+      "lance une pièce",
+      "lance la pièce",
+      "jette une pièce",
+      "pile ou face",
+      "tire à pile ou face",
+      "jouons à pile ou face",
+      "lance une pièce pour moi"
+    ],
+    "toss_coin_call": [
+      "lance une pièce, {call:call}",
+      "pile ou face, {call:call}",
+      "pile ou face : {call:call}",
+      "lance une pièce, je dis {call:call}",
+      "pile ou face, je dis {call:call}",
+      "pile ou face, je choisis {call:call}"
+    ],
+    "toss_coins": [
+      "lance {count:integer:1-5} pièces",
+      "jette {count:integer:1-5} pièces"
+    ],
+    "toss_coins_many": [
+      "lance {many:coins_many} pièces",
+      "jette {many:coins_many} pièces"
+    ],
+    "toss_die": [
+      "lance un dé",
+      "lance le dé",
+      "jette un dé",
+      "jette le dé",
+      "lance un dé pour moi"
+    ],
+    "toss_two_dice": [
+      "lance les dés",
+      "jette les dés",
+      "lance des dés"
+    ],
+    "toss_dice": [
+      "lance {count:integer:1-10} dés",
+      "jette {count:integer:1-10} dés"
+    ],
+    "toss_dice_many": [
+      "lance {many:dice_many} dés",
+      "jette {many:dice_many} dés"
+    ],
+    "toss_d": [
+      "lance un d{sides:integer:2-100}",
+      "jette un d{sides:integer:2-100}",
+      "lance un dé à {sides:integer:2-100} faces",
+      "jette un dé à {sides:integer:2-100} faces"
+    ],
+    "toss_nd": [
+      "lance {count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_plus": [
+      "lance {count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "lance un d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_nd_minus": [
+      "lance {count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_minus": [
+      "lance un d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_hand": [
+      "je choisis {hand:hand}",
+      "je joue {hand:hand}",
+      "je prends {hand:hand}",
+      "pierre feuille ciseaux, {hand:hand}",
+      "pierre feuille ciseaux : {hand:hand}",
+      "chifoumi, {hand:hand}"
+    ],
+    "toss_rock": [
+      "pierre"
+    ],
+    "toss_paper": [
+      "feuille"
+    ],
+    "toss_scissors": [
+      "ciseaux"
     ]
   },
   "ai_purpose": "pour écrire des questions de quiz sur un sujet que vous choisissez",
@@ -831,6 +993,68 @@
       "hard": [
         "difficile",
         "dur"
+      ]
+    },
+    "call": {
+      "heads": [
+        "face"
+      ],
+      "tails": [
+        "pile"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "pierre"
+      ],
+      "paper": [
+        "feuille"
+      ],
+      "scissors": [
+        "ciseaux"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "deux"
+      ],
+      "n3": [
+        "trois"
+      ],
+      "n4": [
+        "quatre"
+      ],
+      "n5": [
+        "cinq"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "deux"
+      ],
+      "n3": [
+        "trois"
+      ],
+      "n4": [
+        "quatre"
+      ],
+      "n5": [
+        "cinq"
+      ],
+      "n6": [
+        "six"
+      ],
+      "n7": [
+        "sept"
+      ],
+      "n8": [
+        "huit"
+      ],
+      "n9": [
+        "neuf"
+      ],
+      "n10": [
+        "dix"
       ]
     }
   },
@@ -896,7 +1120,17 @@
     "play_plots": "Parcelles du jardin",
     "play_seesaw": "Bascule",
     "play_sudoku": "Sudoku",
-    "play_blossoms": "Fleurettes"
+    "play_blossoms": "Fleurettes",
+    "play_rock_paper_scissors": "Pierre-feuille-ciseaux",
+    "flip_coin": "Lancer une pièce",
+    "call_heads": "Annoncer face",
+    "call_tails": "Annoncer pile",
+    "just_flip": "Lancer sans annoncer",
+    "roll_die": "Lancer un dé",
+    "quick_throw": "Coup rapide",
+    "throw_rock": "Pierre",
+    "throw_paper": "Feuille",
+    "throw_scissors": "Ciseaux"
   },
   "settings": {
     "tone": {
@@ -1068,6 +1302,9 @@
         "fair": "Normal",
         "hard": "Difficile"
       }
+    },
+    "sound_rock_paper_scissors": {
+      "title": "Pierre-feuille-ciseaux"
     }
   }
 }

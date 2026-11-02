@@ -22,6 +22,10 @@
     "game_settings": {
       "title": "更改游戏设置",
       "summary": "更改游戏设置"
+    },
+    "toss": {
+      "title": "抛硬币、掷骰子或玩石头剪刀布",
+      "summary": "抛硬币、掷骰子或玩石头剪刀布"
     }
   },
   "pages": {
@@ -537,7 +541,65 @@
     "{title} is already at its easiest.": "{title} 已经是最简单的了。",
     "{title} is already at its hardest.": "{title} 已经是最难的了。",
     "Trivia questions": "问答题",
-    "Trivia about {topic}": "关于{topic}的问答"
+    "Trivia about {topic}": "关于{topic}的问答",
+    "Rock": "石头",
+    "Paper": "布",
+    "Scissors": "剪刀",
+    "heads": "正面",
+    "tails": "反面",
+    "Again": "再来",
+    "Best of three, no peeking": "三局两胜，不许偷看",
+    "Both {hand}: a draw.": "都出了{hand}：平局。",
+    "Dice have 2 to 100 sides, and the number added is at most 100.": "骰子有 2 到 100 个面，加上的数字最大为 100。",
+    "Doubles!": "对子！",
+    "Flip a coin": "抛硬币",
+    "Flip between 1 and {n} coins at a time.": "一次可以抛 1 到 {n} 枚硬币。",
+    "Flip {n} coins": "抛 {n} 枚硬币",
+    "Heads or tails…": "正面还是反面……",
+    "Heads!": "正面！",
+    "I'm going paper…": "我要出布…",
+    "I'm going rock…": "我要出石头…",
+    "I'm going scissors…": "我要出剪刀…",
+    "It's {n}!": "{n} 点！",
+    "Natural 20!": "天然 20！",
+    "Next one's yours.": "下次一定猜中。",
+    "Oof.": "哎呀。",
+    "Paper beats rock: I win!": "布赢石头：我赢了！",
+    "Paper beats rock: you win!": "布赢石头：你赢了！",
+    "Paper…": "布…",
+    "Rematch": "再来一局",
+    "Rock beats scissors: I win!": "石头赢剪刀：我赢了！",
+    "Rock beats scissors: you win!": "石头赢剪刀：你赢了！",
+    "Rock, Paper, Scissors": "石头剪刀布",
+    "Rock, paper or scissors?": "石头、剪刀还是布？",
+    "Rock, paper, scissors": "石头剪刀布",
+    "Rock…": "石头…",
+    "Rock… paper… scissors…": "石头……剪刀……布……",
+    "Roll a die": "掷骰子",
+    "Roll between 1 and {n} dice at a time.": "一次可以掷 1 到 {n} 个骰子。",
+    "Roll {dice}": "掷 {dice}",
+    "Rolling…": "骰子滚动中……",
+    "Scissors beat paper: I win!": "剪刀赢布：我赢了！",
+    "Scissors beat paper: you win!": "剪刀赢布：你赢了！",
+    "Scissors…": "剪刀…",
+    "Shoot!": "出！",
+    "Snake eyes!": "双一！",
+    "Tails!": "反面！",
+    "Tell me the user's hand: rock, paper or scissors.": "告诉我你出什么：石头、剪刀还是布。",
+    "We both played paper: a draw!": "我们都出了布：平局！",
+    "We both played rock: a draw!": "我们都出了石头：平局！",
+    "We both played scissors: a draw!": "我们都出了剪刀：平局！",
+    "You called it!": "猜中了！",
+    "You win the match!": "你赢了这局！",
+    "{name} wins the match!": "{name}赢得比赛！",
+    "{name} wins the match.": "{name}赢了这局。",
+    "{name}, pick your hand.": "{name}，选你的手势。",
+    "{n} coins": "{n} 枚硬币",
+    "{n} in a row!": "连续 {n} 次！",
+    "{win} beats {lose}: a point for {name}.": "{win}胜{lose}：{name}得一分。",
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind”必须是 coin、dice 或 rock_paper_scissors。",
+    "A coin": "一枚硬币",
+    "{n} dice": "{n}个骰子"
   },
   "examples": [
     "我们来玩问答吧"
@@ -545,6 +607,9 @@
   "surfaces": {
     "play": {
       "title": "游戏时间"
+    },
+    "toss": {
+      "title": "硬币、骰子和猜拳"
     }
   },
   "commands": {
@@ -755,6 +820,102 @@
       "开启游戏声音",
       "打开游戏音效",
       "取消游戏静音"
+    ],
+    "rock_paper_scissors": {
+      "say": [
+        "石头剪刀布",
+        "剪刀石头布",
+        "猜拳",
+        "来猜拳",
+        "玩石头剪刀布",
+        "来玩石头剪刀布"
+      ],
+      "names": [
+        "石头剪刀布",
+        "剪刀石头布",
+        "猜拳"
+      ]
+    },
+    "toss_coin": [
+      "抛硬币",
+      "扔硬币",
+      "掷硬币",
+      "抛个硬币",
+      "抛一枚硬币",
+      "正面还是反面",
+      "帮我抛硬币"
+    ],
+    "toss_coin_call": [
+      "抛硬币，{call:call}",
+      "抛硬币，我选{call:call}",
+      "正面还是反面，{call:call}",
+      "正面还是反面，我选{call:call}",
+      "我猜{call:call}，抛硬币"
+    ],
+    "toss_coins": [
+      "抛{count:integer:1-5}枚硬币",
+      "扔{count:integer:1-5}枚硬币"
+    ],
+    "toss_coins_many": [
+      "抛{many:coins_many}枚硬币",
+      "扔{many:coins_many}枚硬币"
+    ],
+    "toss_die": [
+      "掷骰子",
+      "扔骰子",
+      "摇骰子",
+      "掷个骰子",
+      "掷一个骰子",
+      "帮我掷骰子"
+    ],
+    "toss_two_dice": [
+      "掷两个骰子",
+      "扔两个骰子",
+      "摇两个骰子"
+    ],
+    "toss_dice": [
+      "掷{count:integer:1-10}个骰子",
+      "扔{count:integer:1-10}个骰子"
+    ],
+    "toss_dice_many": [
+      "掷{many:dice_many}个骰子",
+      "扔{many:dice_many}个骰子"
+    ],
+    "toss_d": [
+      "掷骰子d{sides:integer:2-100}",
+      "掷一个{sides:integer:2-100}面骰子"
+    ],
+    "toss_nd": [
+      "掷骰子{count:integer:1-10}d{sides:integer:2-100}"
+    ],
+    "toss_nd_plus": [
+      "掷骰子{count:integer:1-10}d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_d_plus": [
+      "掷骰子d{sides:integer:2-100}+{modifier:integer:1-100}"
+    ],
+    "toss_nd_minus": [
+      "掷骰子{count:integer:1-10}d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_d_minus": [
+      "掷骰子d{sides:integer:2-100}-{minus:integer:1-100}"
+    ],
+    "toss_hand": [
+      "我出{hand:hand}",
+      "我选{hand:hand}",
+      "石头剪刀布，{hand:hand}",
+      "猜拳，{hand:hand}"
+    ],
+    "toss_rock": [
+      "石头",
+      "出石头"
+    ],
+    "toss_paper": [
+      "出布"
+    ],
+    "toss_scissors": [
+      "剪刀",
+      "出剪刀"
     ]
   },
   "ai_purpose": "用于根据你指定的主题编写问答题",
@@ -802,6 +963,70 @@
       "hard": [
         "困难",
         "难"
+      ]
+    },
+    "call": {
+      "heads": [
+        "正面",
+        "正"
+      ],
+      "tails": [
+        "反面",
+        "反"
+      ]
+    },
+    "hand": {
+      "rock": [
+        "石头"
+      ],
+      "paper": [
+        "布"
+      ],
+      "scissors": [
+        "剪刀"
+      ]
+    },
+    "coins_many": {
+      "n2": [
+        "两"
+      ],
+      "n3": [
+        "三"
+      ],
+      "n4": [
+        "四"
+      ],
+      "n5": [
+        "五"
+      ]
+    },
+    "dice_many": {
+      "n2": [
+        "两"
+      ],
+      "n3": [
+        "三"
+      ],
+      "n4": [
+        "四"
+      ],
+      "n5": [
+        "五"
+      ],
+      "n6": [
+        "六"
+      ],
+      "n7": [
+        "七"
+      ],
+      "n8": [
+        "八"
+      ],
+      "n9": [
+        "九"
+      ],
+      "n10": [
+        "十"
       ]
     }
   },
@@ -852,7 +1077,17 @@
     "play_plots": "菜园分地",
     "play_seesaw": "跷跷板",
     "play_sudoku": "数独",
-    "play_blossoms": "花开"
+    "play_blossoms": "花开",
+    "play_rock_paper_scissors": "石头剪刀布",
+    "flip_coin": "抛硬币",
+    "call_heads": "猜正面",
+    "call_tails": "猜反面",
+    "just_flip": "直接抛",
+    "roll_die": "掷骰子",
+    "quick_throw": "单次出拳",
+    "throw_rock": "石头",
+    "throw_paper": "布",
+    "throw_scissors": "剪刀"
   },
   "settings": {
     "tone": {
@@ -1024,6 +1259,9 @@
         "fair": "普通",
         "hard": "困难"
       }
+    },
+    "sound_rock_paper_scissors": {
+      "title": "石头剪刀布"
     }
   }
 }

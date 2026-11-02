@@ -10,7 +10,7 @@ enum TwoPlayers {
     /// The games two people can play: everything played against the companion except Guess My Animal, where the
     /// companion is the one guessing and learning, so it has no second player to be.
     static let games: Set<String> = [TicTacToeScreen.id, LastStickScreen.id, MemoryPairsScreen.id, CopyMeScreen.id, TriviaScreen.id,
-                                     QuickPawsScreen.id, WhichCupScreen.id, HigherLowerScreen.id, BalloonWordsScreen.id]
+                                     QuickPawsScreen.id, WhichCupScreen.id, HigherLowerScreen.id, BalloonWordsScreen.id, RockPaperScissorsScreen.id]
     static let longestName = 24
 
     /// Who plays: the companion (`on` false), or two people under `names`.
@@ -89,11 +89,11 @@ enum TwoPlayers {
     }
 
     /// The names board: who's playing, one name typed at a time, and Start to keep them.
-    static func namesBoard(_ d: Duo, companion: String, title: String) -> Board {
+    static func namesBoard(_ d: Duo, companion: String, title: String, eyebrow: String? = nil, rounds: Int? = nil) -> Board {
         let i = d.naming ?? 0
         return Board([
-            score(d, 0, 0),
-            .prompt(L("Who's playing?"), eyebrow: title + " · " + L("2 players")),
+            score(d, 0, 0, rounds: rounds),
+            .prompt(L("Who's playing?"), eyebrow: eyebrow ?? title + " · " + L("2 players")),
             .facts([(L("Player 1"), d.names[0]), (L("Player 2"), d.names[1])]),
             .play(.entry(name: "player\(i + 1)", label: i == 0 ? L("Player 1's name") : L("Player 2's name"), placeholder: d.names[i],
                          button: i == 0 ? L("Next") : L("Start"), max: longestName)),
