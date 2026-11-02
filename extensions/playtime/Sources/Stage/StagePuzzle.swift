@@ -297,7 +297,8 @@ extension BoardDrawing {
             if let text {
                 Node.words(text, size: 17, weight: "heavy", color: .ink, align: "center", w: w, h: h)
             } else {
-                Node.symbol("delete.backward", color: .ink).symbolLook(weight: "heavy").at((w - 25) / 2, (h - 25) / 2).size(25, 25)
+                // Left in every language: the pad is the same picture, and `delete.backward` would turn around in Arabic.
+                Node.symbol("delete.left", color: .ink).symbolLook(weight: "heavy").at((w - 25) / 2, (h - 25) / 2).size(25, 25)
             }
         }
         .area("pad", value: "\(value)", label: text ?? L("Clear the cell"), disabled: off, hover: nil, press: AreaLook(dy: 2), sound: given ? nil : "sounds/tap.wav")

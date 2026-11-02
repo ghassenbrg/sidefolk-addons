@@ -21,11 +21,13 @@ extension BoardDrawing {
         let fixed = buttons.filter { $0.style == .plain }.reduce(0) { $0 + buttonWidth($1, flat: flat) }
         let wide = buttons.filter { $0.style != .plain }.count
         let share = wide > 0 ? max((width - fixed - gap * Double(buttons.count - 1)) / Double(wide), 40) : 0
+        // Long words beside each other (German's Undo and Start over) share the row rather than run past the panel's edge; their words shrink to fit.
+        let fits = fixed > 0 ? min(1, (width - gap * Double(buttons.count - 1) - 40 * Double(wide)) / fixed) : 1
         var x = 0.0
         var nodes: [Node] = []
         var height = 0.0
         for (i, b) in buttons.enumerated() {
-            let w = b.style == .plain ? min(buttonWidth(b, flat: flat), width) : share
+            let w = b.style == .plain ? min(buttonWidth(b, flat: flat) * fits, width) : share
             let m = metrics(b, flat: flat)
             nodes.append(button(b, id: "\(id).\(i)", x: x, w: w, flat: flat))
             height = max(height, m.height + m.depth)
