@@ -29,32 +29,30 @@ enum NoorTools {
     // MARK: Questions
 
     private static func reading(_ ext: Extension) {
-        ext.tool("next_prayer", "What is next", "The next prayer time or iqamah, with its countdown and source.", reply: { _ in
+        // One tool for what is only read, so one "Always" covers every question: a Noor with internet access asks before its first call of each.
+        ext.tool("ask_noor", "Ask Noor", "Answers from what Noor already has: the next prayer or iqamah with its countdown and source (next), when one prayer starts with its iqamah separately (prayer), today's Hijri date (hijri), or the Qibla bearing clockwise from true north (qibla).",
+                 input: Schema.object(["question": Schema.string("next, prayer, hijri or qibla", oneOf: ["next", "prayer", "hijri", "qibla"]), "prayer": Schema.string("For prayer: fajr, dhuhr, asr, maghrib or isha", oneOf: PrayerID.allCases.map(\.rawValue))], required: ["question"]), reply: { args in
             let s = model.snapshot()
-            guard let focus = DialScene.focus(s) else { return noTimes(s) }
-            let text = L("{title} at {time}, {countdown}. {source}.", ["title": focus.title, "time": focus.time, "countdown": focus.countdown.lowercased(), "source": Words.provenance(s)])
-            return ToolReply(text).opening(page: "noor", state: ["tab": "overview"])
-        })
-        ext.tool("prayer_time", "When is a prayer", "When a prayer starts today, with its iqamah separately if the source gives one.",
-                 input: Schema.object(["prayer": Schema.string("fajr, dhuhr, asr, maghrib or isha", oneOf: PrayerID.allCases.map(\.rawValue))], required: ["prayer"]), reply: { args in
-            let s = model.snapshot()
-            let prayer = try prayerArg(args.string("prayer"))
-            guard let day = s.today else { return noTimes(s) }
-            let when = day.whenIs(prayer)
-            let zone = day.zone
-            var text = L("{prayer} starts at {time} on {date} ({zone}, {source}).", ["prayer": Words.prayer(prayer), "time": Words.time(when.start, zone: zone), "date": Words.date(when.date, weekday: false), "zone": when.zoneID, "source": Words.provenance(s)])
-            if let iqamah = when.iqamah { text += " " + L("Iqamah is at {time}.", ["time": Words.time(iqamah, zone: zone)]) }
-            return ToolReply(text).opening(page: "noor", state: ["tab": "prayer", "select": prayer.rawValue])
-        })
-        ext.tool("hijri_today", "Today's Hijri date", "Today's Hijri date under the selected calendar method.", reply: { _ in
-            let s = model.snapshot()
-            guard let day = s.calendar else { return ToolReply(L("Today's Hijri date isn't here yet. Try again in a moment.")).opening(page: "noor", state: ["tab": "calendar"]) }
-            return ToolReply(L("{date}, by {method}. Local announcements may differ.", ["date": Words.hijri(day.hijri), "method": Words.calendarMethodName(day.method)])).opening(page: "noor", state: ["tab": "calendar"])
-        })
-        ext.tool("qibla", "Qibla bearing", "The Qibla bearing from the chosen place, in degrees clockwise from true north.", reply: { _ in
-            let s = model.snapshot()
-            guard let bearing = s.qibla, let place = s.place else { return ToolReply(L("Choose a place first: the bearing is from where you are.")).opening(page: "noor", state: ["tab": "qibla"]) }
-            return ToolReply(L("From {place}, Qibla is {degrees}° clockwise from true north. This Mac can't sense which way you are facing.", ["place": place.label, "degrees": "\(bearing.rounded)"])).opening(page: "noor", state: ["tab": "qibla"])
+            switch args.string("question") {
+            case "prayer":
+                let prayer = try prayerArg(args.string("prayer"))
+                guard let day = s.today else { return noTimes(s) }
+                let when = day.whenIs(prayer)
+                let zone = day.zone
+                var text = L("{prayer} starts at {time} on {date} ({zone}, {source}).", ["prayer": Words.prayer(prayer), "time": Words.time(when.start, zone: zone), "date": Words.date(when.date, weekday: false), "zone": when.zoneID, "source": Words.provenance(s)])
+                if let iqamah = when.iqamah { text += " " + L("Iqamah is at {time}.", ["time": Words.time(iqamah, zone: zone)]) }
+                return ToolReply(text).opening(page: "noor", state: ["tab": "prayer", "select": prayer.rawValue, "sheet": NSNull()])
+            case "hijri":
+                guard let day = s.calendar else { return ToolReply(L("Today's Hijri date isn't here yet. Try again in a moment.")).opening(page: "noor", state: ["tab": "calendar", "sheet": NSNull()]) }
+                return ToolReply(L("{date}, by {method}. Local announcements may differ.", ["date": Words.hijri(day.hijri), "method": Words.calendarMethodName(day.method)])).opening(page: "noor", state: ["tab": "calendar", "sheet": NSNull()])
+            case "qibla":
+                guard let bearing = s.qibla, let place = s.place else { return ToolReply(L("Choose a place first: the bearing is from where you are.")).opening(page: "noor", state: ["tab": "qibla", "sheet": NSNull()]) }
+                return ToolReply(L("From {place}, Qibla is {degrees}° clockwise from true north. This Mac can't sense which way you are facing.", ["place": place.label, "degrees": "\(bearing.rounded)"])).opening(page: "noor", state: ["tab": "qibla", "sheet": NSNull()])
+            default:
+                guard let focus = DialScene.focus(s) else { return noTimes(s) }
+                let text = L("{title} at {time}, {countdown}. {source}.", ["title": focus.title, "time": focus.time, "countdown": focus.countdown.lowercased(), "source": Words.provenance(s)])
+                return ToolReply(text).opening(page: "noor", state: ["tab": "overview", "sheet": NSNull()])
+            }
         })
         ext.tool("convert_date", "Convert a date", "Converts a date between Gregorian and Hijri under the selected calendar method.",
                  input: Schema.object(["direction": Schema.string("g2h or h2g", oneOf: ["g2h", "h2g"]), "date": Schema.string("YYYY-MM-DD")], required: ["date"]), reply: { args in
@@ -396,8 +394,17 @@ enum ImportHolding {
         try JSONEncoder().encode(Held(name: name, data: data)).write(to: url, options: .atomic)
     }
 
+    /// What was read last, as the file says: another process read it, so this one's memory is only good while the file is the same.
+    @MainActor private static var seen: Data?
+
     @MainActor static func restore(into model: NoorModel) {
-        guard model.review == nil, let raw = try? Data(contentsOf: url), let held = try? JSONDecoder().decode(Held.self, from: raw) else { return }
+        guard let raw = try? Data(contentsOf: url), let held = try? JSONDecoder().decode(Held.self, from: raw) else {
+            seen = nil
+            model.review = nil
+            return
+        }
+        guard raw != seen else { return }
+        seen = raw
         model.review = (held.name, CSVImport.parse(data: held.data, name: held.name))
     }
 

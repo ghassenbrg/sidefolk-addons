@@ -201,14 +201,10 @@ final class NoorModel {
 
     /// Waits a moment for what is on its way, so opening a page with a good cache doesn't flash its loading state.
     func settle(ms: Int = 700) async {
-        guard let running = freshening else { return }
-        let waited = Task { await running.value }
-        let timer = Task { try? await Task.sleep(for: .milliseconds(ms)) }
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { await waited.value }
-            group.addTask { await timer.value }
-            _ = await group.next()
-            group.cancelAll()
+        var left = ms
+        while freshening != nil, left > 0 {
+            try? await Task.sleep(for: .milliseconds(40))
+            left -= 40
         }
     }
 
@@ -354,6 +350,7 @@ enum NoorDebug {
             let mode = (try? String(contentsOf: control, encoding: .utf8))?.trimmingCharacters(in: .whitespacesAndNewlines)
             switch mode {
             case "offline": throw URLError(.notConnectedToInternet)
+            case "slow": try await Task.sleep(for: .seconds(40))
             case "429": return (429, Data())
             case "malformed": return (200, Data("{\"code\":200,\"data\":{}}".utf8))
             default: break

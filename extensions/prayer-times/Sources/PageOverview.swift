@@ -48,7 +48,7 @@ enum OverviewPage {
         let gap = 14.0
         let dialH = min(w * 1.1, 470)
         let name = ctx.snapshot.name
-        let heights = [dialH, 190, 210, 112, 150, 104]
+        let heights = [dialH, 214, 214, 112, 128, 104]
         var y = 0.0
         var at: [Double] = []
         for h in heights { at.append(y); y += h + gap }
@@ -189,7 +189,7 @@ enum OverviewPage {
             Node.say(L("A name to explore"), 48, 10, w * 0.5, 20, size: 13, color: Noor.muted)
             if let name {
                 let saved = ctx.model.bookmarks.contains(name.number)
-                let narrow = w < 560
+                let narrow = w < 720
                 Node.say(name.transliteration, 48, 34, narrow ? w * 0.42 : w * 0.28, 44, size: narrow ? 21 : 27, weight: "semibold")
                 Node.say(name.arabic, narrow ? w * 0.44 : w * 0.30 + 40, 26, w * 0.28, 58, size: narrow ? 28 : 34, align: "center").leftToRight()
                 if !narrow {

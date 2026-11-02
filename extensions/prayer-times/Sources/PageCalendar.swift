@@ -38,7 +38,7 @@ enum CalendarPage {
         let gap = 16.0
         let gridW = ctx.narrow ? w : (w - gap) * 0.64
         let weeks = Int(ceil(Double(data.leadingBlanks(firstWeekday: firstWeekday) + data.dayCount) / 7))
-        let cell = min((gridW - 40) / 7, ctx.narrow ? 54 : 88)
+        let cell = min((gridW - 40) / 7, 88)
         let rowH = ctx.narrow ? 54.0 : 84.0
         let gridH = 150 + 34 + Double(weeks) * rowH + 18
         let sideW = ctx.narrow ? w : w - gridW - gap

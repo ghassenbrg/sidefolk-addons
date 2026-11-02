@@ -36,8 +36,8 @@
     "what is today's hijri date"
   ],
   "tools": {
-    "next_prayer": {
-      "title": "What is next",
+    "ask_noor": {
+      "title": "Ask Noor",
       "mutates": false,
       "category": "time",
       "commands": [
@@ -48,58 +48,47 @@
             "what's next",
             "next prayer",
             "when is the next prayer"
-          ]
-        }
-      ],
-      "summary": "Tell what is next"
-    },
-    "prayer_time": {
-      "title": "When is a prayer",
-      "mutates": false,
-      "category": "time",
-      "commands": [
+          ],
+          "input": {
+            "question": "next"
+          }
+        },
         {
           "name": "when",
           "say": [
-            "when is {prayer:enum}",
-            "what time is {prayer:enum}",
-            "{prayer:enum} time"
-          ]
-        }
-      ],
-      "summary": "Tell when {prayer} is"
-    },
-    "hijri_today": {
-      "title": "Today's Hijri date",
-      "mutates": false,
-      "category": "time",
-      "commands": [
+            "when is {prayer:prayer}",
+            "what time is {prayer:prayer}",
+            "{prayer:prayer} time"
+          ],
+          "input": {
+            "question": "prayer",
+            "prayer": "{prayer}"
+          }
+        },
         {
           "name": "hijri",
           "say": [
             "what is today's hijri date",
             "today's hijri date",
             "hijri date today"
-          ]
-        }
-      ],
-      "summary": "Tell today's Hijri date"
-    },
-    "qibla": {
-      "title": "Qibla bearing",
-      "mutates": false,
-      "category": "web",
-      "commands": [
+          ],
+          "input": {
+            "question": "hijri"
+          }
+        },
         {
           "name": "qibla",
           "say": [
             "which direction is qibla",
             "where is qibla",
             "qibla direction"
-          ]
+          ],
+          "input": {
+            "question": "qibla"
+          }
         }
       ],
-      "summary": "Tell the Qibla bearing"
+      "summary": "Answer from what Noor has"
     },
     "convert_date": {
       "title": "Convert a date",
@@ -322,9 +311,9 @@
         {
           "name": "remind",
           "say": [
-            "noor remind me {minutes:integer} minutes before {prayer:enum}",
-            "remind me {minutes:integer} minutes before {prayer:enum} prayer",
-            "set a {minutes:integer} minute reminder before {prayer:enum}"
+            "noor remind me {minutes:integer} minutes before {prayer:prayer}",
+            "remind me {minutes:integer} minutes before {prayer:prayer} prayer",
+            "set a {minutes:integer} minute reminder before {prayer:prayer}"
           ]
         }
       ],
