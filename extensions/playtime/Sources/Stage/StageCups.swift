@@ -21,12 +21,16 @@ extension BoardDrawing {
         var lift: Double { cupH * 0.78 }
         func centre(_ at: Double) -> Double { 6 + slot * (at + 0.5) }
         func cupX(_ at: Double) -> Double { centre(at) - cupW / 2 }
+        /// The gem stands well inside the cup: a cup's rim is rounded, so it comes down lower in the middle than at its sides, and a gem too low or too wide would show under it.
+        var gemW: Double { Swift.min(cupW * 0.5, 44) }
+        var gemH: Double { gemW * 187 / 200 }
+        var gemY: Double { floor - 8 - gemH }
         var shadowW: Double { cupW * 0.86 }
         func shadowX(_ at: Double) -> Double { centre(at) - shadowW / 2 }
     }
 
     /// The gem's moment before a shuffle: the cups settle, one lifts to show the gem, it stays a moment, it comes down.
-    private static let settleMs = 300.0, showLiftMs = 350.0, showMs = 850.0, lowerMs = 400.0
+    private static let settleMs = 300.0, showLiftMs = 350.0, showMs = 900.0, lowerMs = 620.0
     static let cupsOpenMs = Int(settleMs + showLiftMs + showMs + lowerMs)
     /// A breath between two swaps, so each one reads as its own.
     static let swapRestMs = 80
@@ -84,9 +88,10 @@ extension BoardDrawing {
         for place in 0..<count { nodes.append(cupPlate(place, table: table, picked: picked == place)) }
         // The gem on the mat: under the cup that shows it first, or where the round left it.
         if let at = shows ? gem : shuffling ? hide : nil {
-            let hidden = !revealed
-            nodes.append(Node.image("art/game-gem.png").id("cups.gem").at(table.centre(Double(at)) - 24, table.floor - 40).size(48, 45)
-                .shadow(Paint.clear("#FFC93C", 0.75), radius: 10, dx: 0, dy: 0).opacity(hidden ? 0 : 1))
+            // It is really there: under a cup that hasn't lifted it can't be seen, and the cup uncovers it. Only while the cups shuffle is it taken away, once it can't be seen.
+            let glowW = table.gemW + 22, c = table.centre(Double(at))
+            nodes.append(Node.ellipse(fill: Paint.clear("#FFC93C", 0.5)).id("cups.glow").at(c - glowW / 2, table.floor - 8 - 12).size(glowW, 18).opacity(shows ? 1 : 0))
+            nodes.append(Node.image("art/game-gem.png").id("cups.gem").at(c - table.gemW / 2, table.gemY).size(table.gemW, table.gemH).anchor(0.5, 1).opacity(shows ? 1 : 0))
         }
         // In a group of their own, so a cup passing behind another goes behind it alone, not behind the table's shadows.
         nodes.append(.box("cups.row", w: Self.inner, h: playRoom) {
@@ -145,7 +150,7 @@ extension BoardDrawing {
             })
         }
         let gemShows: [Anim] = gem == nil ? [] : [
-            .keys("cups.gem", [["t": 0, "opacity": 0, "scale": 0.7], ["t": 0.5, "opacity": 1, "scale": 1.14], ["t": 1, "opacity": 1, "scale": 1]], ms: 420, ease: "out").delay(ms: 160),
+            .keys("cups.gem", [["t": 0, "scale": 1], ["t": 0.5, "scale": 1.14], ["t": 1, "scale": 1]], ms: 380, ease: "out").delay(ms: 260),
             .stagger(["cups.spark.0", "cups.spark.1", "cups.spark.2"], stepMs: 70, ["opacity": 1], ms: 160, ease: "out").delay(ms: 260),
             .stagger(["cups.spark.0", "cups.spark.1", "cups.spark.2"], stepMs: 70, ["opacity": 0], ms: 260, ease: "in").delay(ms: 620),
         ]
@@ -166,7 +171,7 @@ extension BoardDrawing {
         anims.append(.sequence(steps))
         partAfterStillMs = 900
         guard let gem else { return [] }
-        let c = table.centre(Double(gem)), y = table.floor - 22
+        let c = table.centre(Double(gem)), y = table.gemY + table.gemH / 2
         let places: [(Double, Double, Double)] = [(-34, -26, 16), (32, -32, 12), (36, 6, 10)]
         return places.enumerated().map { i, p in
             Node.symbol("sparkle", color: Paint.sun).symbolLook(mono: true).id("cups.spark.\(i)").at(c + p.0 - p.2 / 2, y + p.1 - p.2 / 2).size(p.2, p.2).opacity(0)
@@ -181,11 +186,20 @@ extension BoardDrawing {
             [.to("cup.\(ends[cup])", ["y": table.restY], ms: Self.settleMs), .to("cup.\(ends[cup]).shadow", ["sx": 1, "opacity": 1], ms: Self.settleMs)]
         }))
         if let hide {
-            steps.append(.together([.to("cup.\(ends[hide])", ["y": table.restY - table.lift], ms: Self.showLiftMs, ease: "out"),
-                                    .to("cup.\(ends[hide]).shadow", ["sx": 0.7, "opacity": 0.4], ms: Self.showLiftMs, ease: "out"),
-                                    .to("cups.gem", ["opacity": 1], ms: 180, ease: "out").delay(ms: 120)]))
-            steps.append(.wait(ms: Self.showMs))
-            steps.append(.together([.to("cup.\(ends[hide])", ["y": table.restY], ms: Self.lowerMs), .to("cup.\(ends[hide]).shadow", ["sx": 1, "opacity": 1], ms: Self.lowerMs)]))
+            let cup = "cup.\(ends[hide])", up = table.restY - table.lift, rest = table.restY
+            // The gem is put on the mat while every cup is down, so the cup uncovers it: nothing fades in.
+            steps.append(.together([.to("cups.gem", ["opacity": 1], ms: 1, ease: "linear"), .to("cups.glow", ["opacity": 1], ms: 1, ease: "linear")]))
+            steps.append(.together([.to(cup, ["y": up], ms: Self.showLiftMs, ease: "out"),
+                                    .to(cup + ".shadow", ["sx": 0.7, "opacity": 0.4], ms: Self.showLiftMs, ease: "out")]))
+            steps.append(.keys("cups.gem", [["t": 0, "scale": 1], ["t": 0.5, "scale": 1.1], ["t": 1, "scale": 1]], ms: 420, ease: "in_out"))
+            steps.append(.wait(ms: Self.showMs - 420))
+            // Coming down: it hangs a moment, drops over the gem, and lands with a little give, all of it covering the gem before the gem is taken away.
+            steps.append(.together([
+                .keys(cup, [["t": 0, "y": up, "sx": 1, "sy": 1], ["t": 0.22, "y": up - 5, "sx": 1, "sy": 1], ["t": 0.74, "y": rest, "sx": 1, "sy": 1], ["t": 0.84, "y": rest, "sx": 1.035, "sy": 0.96], ["t": 1, "y": rest, "sx": 1, "sy": 1]], ms: Self.lowerMs, ease: "in_out"),
+                .keys(cup + ".shadow", [["t": 0, "sx": 0.7, "opacity": 0.4], ["t": 0.22, "sx": 0.7, "opacity": 0.4], ["t": 0.74, "sx": 1, "opacity": 1], ["t": 1, "sx": 1, "opacity": 1]], ms: Self.lowerMs, ease: "in_out"),
+                .keys("cups.glow", [["t": 0, "opacity": 1], ["t": 0.5, "opacity": 0.6], ["t": 0.72, "opacity": 0], ["t": 1, "opacity": 0]], ms: Self.lowerMs),
+                .sequence([.wait(ms: Self.lowerMs * 0.74), .sound("sounds/tick.wav")]),
+            ]))
             steps.append(.to("cups.gem", ["opacity": 0], ms: 1, ease: "linear"))
         } else {
             steps.append(.wait(ms: Self.showLiftMs + Self.showMs + Self.lowerMs))
