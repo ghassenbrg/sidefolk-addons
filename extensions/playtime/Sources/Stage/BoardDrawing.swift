@@ -174,7 +174,7 @@ final class BoardDrawing {
         if let still = partAfterStillMs { scene = scene.afterStill(ms: still) }
         if ctx.fresh, let words = spoken { scene = scene.announcing(words) }
         // A card comes in under a hand that may still be clicking what was there: its buttons wait until it can be seen.
-        if ctx.fresh, ended, ctx.previous?.resultPart == nil { scene = scene.inputAfter(ms: Self.cardHoldMs) }
+        if ctx.fresh, ended, !board.plainCard, ctx.previous?.resultPart == nil { scene = scene.inputAfter(ms: Self.cardHoldMs) }
         if board.over, let result = board.resultPart {
             let two = board.scorePart?.players != nil
             scene = scene.over(outcome: two ? nil : Verdict(tone: result.tone).rawValue)

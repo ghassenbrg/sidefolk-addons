@@ -107,6 +107,8 @@ enum BalloonWordsScreen: GameScreen {
         })
     }
 
+    static func level(of s: Engine.State) -> GameLevel? { BalloonWordsEngine.level(of: s) }
+
     static func board(_ s: BalloonWordsEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
         if s.duo.on { return BalloonWordsDuel.board(s, events: events, options: o) }
         let g = s.game

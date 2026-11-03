@@ -17,7 +17,7 @@ enum DailyWordEngine: GameEngine {
         var isPractice: Bool { practice == true }
     }
 
-    enum Action: Equatable { case word(String), hint, practice }
+    enum Action: Equatable { case word(String), hint, practice, practiceNow, today }
 
     /// The date it is for the person; tests set another.
     nonisolated(unsafe) static var now: () -> Date = { Date() }
@@ -29,9 +29,14 @@ enum DailyWordEngine: GameEngine {
     }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
-        let day = today(), language = options.gamesLanguage
-        if let kept = PlaytimeRecords.load().dailyGame, kept.day == day, kept.language == language { return State(game: kept) }
-        return State(game: Games.DailyWord(language: language, day: day))
+        State(game: todays(language: options.gamesLanguage))
+    }
+
+    /// Today's word, as far as it was played.
+    static func todays(language: Games.Language) -> Games.DailyWord {
+        let day = today()
+        if let kept = PlaytimeRecords.load().dailyGame, kept.day == day, kept.language == language { return kept }
+        return Games.DailyWord(language: language, day: day)
     }
 
     static func play(_ action: Action, on s: inout State, random: inout Games.Random) throws -> [Games.Event] {
@@ -42,9 +47,12 @@ enum DailyWordEngine: GameEngine {
             let (place, shown, e) = try s.game.hint()
             (s.hintPlace, s.hintShown) = (place, shown)
             events = e
-        case .practice:
-            // Only after a word is over: the day's is played first.
-            guard s.game.over else { throw Games.Refusal("not_now") }
+        case .today:
+            s = State(game: todays(language: s.game.language))
+            return [.turn(.you)]
+        case .practice, .practiceNow:
+            // From the end card only after a word is over. From the pause card at any time: the day's word stays as far as it was played, in the records.
+            guard action == .practiceNow || s.game.over else { throw Games.Refusal("not_now") }
             let language = s.game.language, day = today()
             let (word, played) = Games.DailyWord.practiceWord(language: language, day: day,
                                                               played: PlaytimeRecords.load().practiceWords?[language.key] ?? [], using: &random)
@@ -87,6 +95,8 @@ enum DailyWordScreen: GameScreen {
         case .word(let w): .word(w)
         case .button("hint"): .hint
         case .button("practice"): .practice
+        case .button(PauseMoves.today): .today
+        case .choice(PauseMoves.fresh, _): .practiceNow
         default: nil
         }
     }
@@ -142,7 +152,9 @@ enum DailyWordScreen: GameScreen {
         if played, !g.over, let greens = g.rows.last?.marks.filter({ $0 == .right }).count {
             cue = greens >= 4 ? Cue(move: "gasp", effect: "exclaim", line: "close_one") : greens >= 2 ? Cue(move: "cheer", line: "encourage") : Cue(move: "nod")
         }
-        return Board(parts, companion: cue, over: g.over, refused: refused != nil)
+        var out = Board(parts, companion: cue, over: g.over, refused: refused != nil)
+        out.todayWaits = s.isPractice && !DailyWordEngine.todays(language: language).over
+        return out
     }
 
     /// The Today tile's lines: not played yet, solved in 4, missed, and the streak while it's alive.

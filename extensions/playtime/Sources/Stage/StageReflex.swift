@@ -7,11 +7,12 @@ import SidefolkExtensionKit
 extension BoardDrawing {
     /// The machine's pieces, read off its art at this size.
     private enum Machine {
-        static let bodyW = 264.0, bodyH = 300.0, lampW = 50.0, lampH = 44.0, top = 58.0
+        static let bodyW = 240.0, bodyH = 312.0, lampW = 50.0, lampH = 44.0, top = 52.0
         /// To the right of the mat, as 05 draws it: the companion stands beside it.
-        static let bodyX = 116.0
-        static let plate = (x: bodyX + 48, y: top + 32, w: 174.0, h: 67.0)
-        static let dome = (x: bodyX + 134, y: top + 178, side: 149.0)
+        static let bodyX = 136.0
+        static let plate = (x: bodyX + 41, y: top + 26, w: 154.0, h: 54.0)
+        /// Its middle and size: a wide round button, seen a little from above as the concept's is.
+        static let dome = (x: bodyX + 119, y: top + 157, w: 156.0, h: 141.0)
         static let lampX = bodyX + (bodyW - lampW) / 2
         /// The mat, wider and deeper than the machine's foot.
         static let matY = 270.0, matH = 158.0
@@ -29,7 +30,7 @@ extension BoardDrawing {
         let sunk = ctx.local.boopPressed || tooSoon
         let c = (x: Machine.dome.x, y: Machine.dome.y), hit = 178.0
         var press = Node.box("reflex.press", x: c.x - hit / 2, y: c.y - hit / 2, w: hit, h: hit) {
-            Node.art("art/boop-dome.webp", x: (hit - Machine.dome.side) / 2, y: (hit - Machine.dome.side) / 2 + (sunk ? Self.domeSink : 0), w: Machine.dome.side, h: Machine.dome.side)
+            Node.art("art/boop-dome.webp", x: (hit - Machine.dome.w) / 2, y: (hit - Machine.dome.h) / 2 + (sunk ? Self.domeSink : 0), w: Machine.dome.w, h: Machine.dome.h)
                 .id("reflex.dome").anchor(0.5, 0.5).scale(sunk ? 0.97 : 1).opacity(sunk && !tooSoon ? 1 : Self.domeDim)
         }
         if let afterMs, armed {
@@ -72,9 +73,12 @@ extension BoardDrawing {
     private func signalUnder(id: String, opacity: Double) -> Node {
         let c = (x: Machine.dome.x, y: Machine.dome.y)
         return Node.box(id, w: Self.inner, h: playRoom) {
-            Node.ellipse(fill: Paint.clear("#FFD65C", 0.82)).at(c.x - 89, c.y - 89).size(178, 178).shadow(Paint.clear("#FFC93C", 0.9), radius: 24, dx: 0, dy: 0)
-            Node.ellipse(stroke: Paint.clear("#FFF4C2", 0.9), lineWidth: 4).at(c.x - 104, c.y - 104).size(208, 208)
-            Node.ellipse(stroke: Paint.clear("#FFC93C", 0.55), lineWidth: 5).at(c.x - 119, c.y - 119).size(238, 238)
+            for (grow, look) in [(12.0, 0), (28.0, 1), (44.0, 2)] {
+                let w = Machine.dome.w + grow, h = Machine.dome.h + grow * 0.9
+                let ring = look == 0 ? Node.ellipse(fill: Paint.clear("#FFD65C", 0.82)).shadow(Paint.clear("#FFC93C", 0.9), radius: 24, dx: 0, dy: 0)
+                    : look == 1 ? Node.ellipse(stroke: Paint.clear("#FFF4C2", 0.9), lineWidth: 4) : Node.ellipse(stroke: Paint.clear("#FFC93C", 0.55), lineWidth: 5)
+                ring.at(c.x - w / 2, c.y - h / 2).size(w, h)
+            }
         }.opacity(opacity)
     }
 

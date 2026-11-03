@@ -99,4 +99,10 @@ protocol GameScreen {
     /// The board now, in the person's language (the request's, through `L`), and the companion's reaction to what
     /// just happened.
     static func board(_ state: Engine.State, events: [Games.Event], options: GameOptions) -> Board
+    /// The level it is played at, for a game that picks one on its end card and pause card. Others choose in their set-up.
+    static func level(of state: Engine.State) -> GameLevel?
+}
+
+extension GameScreen {
+    static func level(of state: Engine.State) -> GameLevel? { nil }
 }

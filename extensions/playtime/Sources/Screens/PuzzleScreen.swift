@@ -34,7 +34,7 @@ enum PuzzleEngine<K: PuzzleKind>: GameEngine {
         var newBest = false
     }
 
-    enum Action { case move(K.Rules.Move), hint, doHint, undo, clear, another(GameLevel?) }
+    enum Action { case move(K.Rules.Move), hint, doHint, undo, clear, another(GameLevel?), practice(GameLevel), today, stopClock, startClock }
 
     /// Now, on the clock Daily Word reads (tests set another).
     static var seconds: Double { DailyWordEngine.now().timeIntervalSince1970 }
@@ -82,6 +82,19 @@ enum PuzzleEngine<K: PuzzleKind>: GameEngine {
         case .clear:
             events = try s.game.clear(at: t)
             (s.hint, s.fresh) = (nil, nil)
+        case .practice(let level):
+            // Today's board was kept at its last move, and its streak and the level last picked don't change.
+            s = State(game: Games.PuzzleGame(K.Rules.generate(level: level, using: &random), at: t))
+            return [.turn(.you)]
+        case .today:
+            s = State(game: deal(s.game.level, random: &random, at: t))
+            return [.turn(.you)]
+        case .stopClock:
+            s.game.pause(at: t)
+            return []
+        case .startClock:
+            s.game.resume(at: t)
+            return []
         case .another(let picked):
             guard s.game.solved || picked != nil else { throw Games.Refusal("not_now") }
             let level = picked ?? s.game.level
@@ -122,10 +135,16 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
         case .button("undo"): .undo
         case .button("clear"): .clear
         case .button("another"): .another(nil)
+        case .button(PauseMoves.today): .today
+        case .button(PauseMoves.stopClock): .stopClock
+        case .button(PauseMoves.startClock): .startClock
+        case .choice(PauseMoves.fresh, let l): GameLevel(rawValue: l).map { .practice($0) }
         case .choice("level", let l): GameLevel(rawValue: l).map { .another($0) }
         default: K.move(move, in: s.game).map { .move($0) }
         }
     }
+
+    static func level(of s: Engine.State) -> GameLevel? { s.game.level }
 
     static func board(_ s: Engine.State, events: [Games.Event], options o: GameOptions) -> Board {
         let g = s.game, t = Engine.seconds
@@ -159,6 +178,7 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
         }
         var board = Board(parts, companion: cue(events, s), over: g.solved)
         board.calm = K.rules(g)
+        board.todayWaits = g.day == nil && !PlaytimeRecords.puzzle(K.id).solved(g.level, day: DailyWordEngine.today())
         return board
     }
 

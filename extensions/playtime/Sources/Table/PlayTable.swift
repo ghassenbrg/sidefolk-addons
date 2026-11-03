@@ -24,6 +24,9 @@ enum PlayTable {
         var played = false
         var recorded = false
         var over = false
+        /// The pause card is up, and the level it has picked for a new game.
+        var paused: Bool?
+        var pickedLevel: GameLevel?
         /// When it was put away.
         var keptAt = Date()
     }
@@ -171,6 +174,7 @@ enum PlayTable {
             session.menu = true
             return PlayMenu.scene(selected: session.selected, kept: nil)
         }
+        if session.paused == true { return pausedMove(move, board: board, entry: entry, driver: driver, data: data, session: &session, id: id) }
         if session.held != nil, let build = building[id], case .key(let key, let character, _) = move, key == "letter" || key == "draft_delete" {
             return typedDuring(build, key: key, character: character, board: board, entry: entry, session: &session)
         }
@@ -178,6 +182,12 @@ enum PlayTable {
         case .back:
             session.menu = true
             return PlayMenu.scene(selected: PlayMenu.index(of: entry.id).map { session.selected = $0; return $0 } ?? session.selected, kept: session.game)
+        case .pause:
+            session.paused = true
+            session.pickedLevel = nil
+            // A puzzle's clock doesn't run behind the card.
+            if board.hasPuzzle, !session.over, let stopped = driver.move(.button(PauseMoves.stopClock), data, session.options) { session.state = stopped.state }
+            return pauseCard(entry: entry, driver: driver, session: session, id: id)
         case .redraw, .ignore:
             return draw(board.clocked(from: session.held == nil && board.hasPuzzle ? driver.board(data, [], session.options) : nil), entry: entry, session: session, previous: board, fresh: false, id: id)
         case .settled:
@@ -220,6 +230,66 @@ enum PlayTable {
             }
             return verdict(result.board, previous: board, entry: entry, session: &session, id: id)
         }
+    }
+
+    /// The pause card: its own moves, and the game stays exactly as it was until one of them changes it.
+    private static func pauseCard(entry: GameEntry, driver: GameTable.Driver, session: Session, id: String) -> Scene {
+        guard let data = session.state, let board = driver.board(data, [], session.options) else { return PlayMenu.scene(selected: session.selected, kept: session.game) }
+        let level = session.pickedLevel ?? driver.level(data)
+        let card = PauseCard.board(entry: entry, board: board, level: level, away: board.todayWaits)
+        return BoardDrawing(card, context(entry, session: session, previous: nil, fresh: true)).scene()
+    }
+
+    private static func pausedMove(_ move: SurfaceMove, board: Board, entry: GameEntry, driver: GameTable.Driver, data: Data, session: inout Session, id: String) -> Scene {
+        let card = PauseCard.board(entry: entry, board: board, level: session.pickedLevel ?? driver.level(data), away: board.todayWaits)
+        switch StageMoves.action(move, board: card, local: &session.local) {
+        case .back:
+            session.paused = nil
+            session.menu = true
+            return PlayMenu.scene(selected: PlayMenu.index(of: entry.id).map { session.selected = $0; return $0 } ?? session.selected, kept: session.game)
+        case .play(.choice(name: "level", value: let value)):
+            session.pickedLevel = GameLevel(rawValue: value)
+            return pauseCard(entry: entry, driver: driver, session: session, id: id)
+        case .play(.button(PauseMoves.resume)):
+            session.paused = nil
+            if board.hasPuzzle, !session.over, let going = driver.move(.button(PauseMoves.startClock), data, session.options) { session.state = going.state }
+            return current(&session, id: id, fresh: true)
+        case .play(.button(PauseMoves.newGame)):
+            return newGame(entry: entry, driver: driver, data: data, board: board, session: &session, id: id)
+        case .play(.button(PauseMoves.today)):
+            guard let back = driver.move(.button(PauseMoves.today), data, session.options) else { return pauseCard(entry: entry, driver: driver, session: session, id: id) }
+            return dealt(back.state, back.board, entry: entry, session: &session, id: id)
+        default:
+            return pauseCard(entry: entry, driver: driver, session: session, id: id)
+        }
+    }
+
+    /// Fresh from the pause card. A match starts over at the level picked, and what was unfinished counts for nothing. A daily stays where it was: this is a practice board or word.
+    private static func newGame(entry: GameEntry, driver: GameTable.Driver, data: Data, board: Board, session: inout Session, id: String) -> Scene {
+        let level = session.pickedLevel ?? driver.level(data)
+        if board.hasPuzzle || entry.id == DailyWordScreen.id, let fresh = driver.move(.choice(name: PauseMoves.fresh, value: (level ?? .fair).rawValue), data, session.options) {
+            return dealt(fresh.state, fresh.board, entry: entry, session: &session, id: id)
+        }
+        finishRow(&session)
+        session.paused = nil
+        session.pickedLevel = nil
+        begin(entry.id, level: level, args: Arguments([:]), session: &session, id: id)
+        return current(&session, id: id, fresh: true)
+    }
+
+    /// Another board or word on the table, in the same game.
+    private static func dealt(_ state: Data, _ board: Board, entry: GameEntry, session: inout Session, id: String) -> Scene {
+        session.paused = nil
+        session.pickedLevel = nil
+        session.state = state
+        session.local = LocalParts()
+        session.held = nil
+        session.pick = nil
+        session.played = false
+        session.recorded = false
+        session.over = false
+        StageMoves.settle(board, local: &session.local)
+        return draw(board, entry: entry, session: session, previous: nil, fresh: true, id: id)
     }
 
     /// A letter typed while a played row turns: kept for the next row, and the turning carries on, ending when it would have.
@@ -267,6 +337,7 @@ enum PlayTable {
 
     /// What is on the table: the menu, the game as it stands (its verdict, if the build-up was left), or nothing.
     private static func current(_ session: inout Session, id: String, fresh: Bool) -> Scene {
+        session.paused = nil
         guard !session.menu, let game = session.game, let entry = GameCatalog.entry(game), let driver = GameTable.drivers[game], let data = session.state else {
             session.menu = true
             return PlayMenu.scene(selected: session.selected, kept: session.game)

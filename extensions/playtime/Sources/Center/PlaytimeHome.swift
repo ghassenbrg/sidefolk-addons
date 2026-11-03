@@ -124,7 +124,7 @@ enum PlaytimeHome {
         let id = "tile.random", words = L("Surprise me")
         return Node.box(id, x: x, y: y, w: w, h: h) {
             Node.rect(fill: Paint.lilac, corner: 16).id(id + ".back").size(w, h).shadow(Paint.clear("#7A5A3A", 0.14), radius: 3, dx: 0, dy: 2)
-            Node.symbol("dice.fill", color: Paint.lilacDeep).symbolLook(weight: "bold").id(id + ".icon").at((w - 44) / 2, 18).size(44, 44)
+            Node.image("art/game-icon-surprise.webp").id(id + ".icon").at((w - 64) / 2, 4).size(64, 64)
             label(words, id: id, w: w, h: h)
         }.area(area, label: words, hover: AreaLook(dy: -2), press: AreaLook(scale: 0.97), looks: [id + ".icon": AreaLook(scale: 1.07)], sound: nil)
     }

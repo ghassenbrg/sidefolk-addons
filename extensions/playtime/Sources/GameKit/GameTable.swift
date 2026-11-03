@@ -13,6 +13,7 @@ enum GameTable {
         let move: (_ move: Move, _ state: Data, _ options: GameOptions) -> (state: Data, events: [Games.Event], board: Board)?
         /// The board for a state, with what just happened: a verdict held back during its build-up, or a game coming back.
         let board: (_ state: Data, _ events: [Games.Event], _ options: GameOptions) -> Board?
+        let level: (_ state: Data) -> GameLevel?
     }
 
     static func driver<S: GameScreen>(_ screen: S.Type) -> Driver {
@@ -30,6 +31,8 @@ enum GameTable {
             return (write(state), events, S.board(state, events: events, options: options))
         }, board: { data, events, options in
             read(data).map { S.board($0, events: events, options: options) }
+        }, level: { data in
+            read(data).flatMap { S.level(of: $0) }
         })
     }
 

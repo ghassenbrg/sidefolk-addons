@@ -158,13 +158,12 @@ enum PlayMenu {
         }
     }
 
-    private static func base(_ id: String, selected: Bool, w: Double, h: Double, tile: Color, icon: String?, symbol: String? = nil) -> [Node] {
+    private static func base(_ id: String, selected: Bool, w: Double, h: Double, tile: Color, icon: String?) -> [Node] {
         var out: [Node] = [
             Node.rect(fill: Paint.card, corner: 13).id(id + ".face").size(w, h).shadow(Paint.clear("#7A5A3A", 0.13), radius: 3, dx: 0, dy: 2),
             Node.rect(fill: tile, corner: 13).id(id + ".tile").size(58, h),
         ]
         if let icon { out.append(Node.image(icon).id(id + ".icon").at(58 / 2 - 18, (h - 36) / 2).size(36, 36)) }
-        if let symbol { out.append(Node.symbol(symbol, color: Paint.ink).symbolLook(weight: "bold").id(id + ".icon").at(58 / 2 - 11, (h - 22) / 2).size(22, 22)) }
         out.append(Node.rect(stroke: selected ? Paint.action : Paint.edge, lineWidth: selected ? 2.5 : 1, corner: 13).id(id + ".edge").size(w, h))
         return out
     }
@@ -189,7 +188,7 @@ enum PlayMenu {
     private static func surpriseCard(selected: Bool, x: Double, y: Double, w: Double, h: Double) -> Node {
         let id = "card.random", words = L("Surprise me")
         return Node.box(id, x: x, y: y, w: w, h: h) {
-            base(id, selected: selected, w: w, h: h, tile: Paint.lilac, icon: nil, symbol: "dice.fill")
+            base(id, selected: selected, w: w, h: h, tile: Paint.lilac, icon: "art/game-icon-surprise.webp")
             Node.words(words, size: 13.5, weight: "heavy", lines: 2, minScale: 0.7, x: 58 + 9, w: w - 58 - 16, h: h)
         }.area("open", value: surprise, label: words, hover: AreaLook(dy: -1), press: AreaLook(scale: 0.97), looks: [id + ".icon": hoverIcon], selected: selected, sound: "sounds/tap.wav")
     }

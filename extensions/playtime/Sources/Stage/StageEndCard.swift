@@ -26,10 +26,12 @@ extension BoardDrawing {
         var inCard: [Node] = []
         inCard.append(Node.words(title, size: 38, weight: "black", align: "center", minScale: 0.5, x: 20, y: cy, w: width - 40, h: 46).id("end.title"))
         cy += 48
-        let figureW = Swift.min(TextFit.width(figure, size: 22, weight: "black") + 40, room)
-        inCard.append(Node.capsule(fill: chipFill(verdict, friendly: friendly)).id("end.chip").at((width - figureW) / 2, cy).size(figureW, 34))
-        inCard.append(Node.words(Self.isolated(figure, rtl: ctx.rtl), size: 22, weight: "black", color: chipInk(verdict, friendly: friendly), align: "center", minScale: 0.6, x: (width - figureW) / 2 + 8, y: cy, w: figureW - 16, h: 34).textLook(tabular: true).id("end.figure"))
-        cy += 40
+        if !figure.isEmpty {
+            let figureW = Swift.min(TextFit.width(figure, size: 22, weight: "black") + 40, room)
+            inCard.append(Node.capsule(fill: chipFill(verdict, friendly: friendly)).id("end.chip").at((width - figureW) / 2, cy).size(figureW, 34))
+            inCard.append(Node.words(Self.isolated(figure, rtl: ctx.rtl), size: 22, weight: "black", color: chipInk(verdict, friendly: friendly), align: "center", minScale: 0.6, x: (width - figureW) / 2 + 8, y: cy, w: figureW - 16, h: 34).textLook(tabular: true).id("end.figure"))
+            cy += 40
+        }
         if let ribbon {
             let w = TextFit.width(ribbon, size: 12, weight: "bold") + 24
             inCard.append(Node.capsule(fill: Paint.lilac).id("end.ribbon").at((width - w) / 2, cy).size(w, 22))
@@ -71,15 +73,15 @@ extension BoardDrawing {
             Node.felt("end.mat", x: -6, y: figureRow + 30, w: width + 12, h: cardH - 14, corner: 26, stitch: false),
             Node.rect(fill: Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 22).id("end.card").at(14, figureRow).size(width - 28, cardH).shadow(Paint.black8, radius: 6, dx: 0, dy: 3),
             Node.rect(stroke: Paint.clear("#8E72B5", 0.5), lineWidth: 1.25, corner: 18, dash: [5, 4]).id("end.stitch").at(19, figureRow + 5).size(width - 38, cardH - 10),
-            markArt(verdict: verdict, tone: tone, friendly: friendly, side: markSide).at((width - markSide) / 2 + 14, figureRow - markSide + 4),
             Node.companion(pose: friendly ? "success" : pose).figure(bottom: true).id("end.companion").anchor(0.5, 1).at(8, 0).size(figureW2, figureH),
         ]
+        if !board.plainCard { nodes.insert(markArt(verdict: verdict, tone: tone, friendly: friendly, side: markSide).at((width - markSide) / 2 + 14, figureRow - markSide + 4), at: nodes.count - 1) }
         nodes.append(.box("end.words", y: figureRow, w: width, h: cardH) { inCard })
         let top = figureRow + cardH + 14
         nodes.append(.box("end.next", y: top, w: width, h: y) { next })
         y += top
         appear("end.words")
-        popMark()
+        if !board.plainCard { popMark() }
         return PartBlock(.box("end", w: width, h: y) { nodes }, height: y)
     }
 
