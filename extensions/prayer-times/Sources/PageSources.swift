@@ -77,10 +77,12 @@ enum SourcePage {
             Node.image("art/lattice-l.jpg", dark: "art/panel-lattice-d.jpg", fit: "cover").size(w, h).corner(corner).clip().opacity(0.75)
             Node.rect(fill: Color.adaptive(light: "#FFFFFF", dark: "#0B1640"), stroke: Color.adaptive(light: "#C9AB72", dark: "#B55A4E"), lineWidth: 1, corner: r.u(13)).size(w - rim * 2, h - rim * 2).at(rim, rim)
             Node.group {
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(0, 0).scale(x: -1, y: 1)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(low, low).at(w - low, h - low).scale(x: 1, y: -1)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(low, low).at(0, h - low).scale(x: -1, y: -1)
+                // A picture isn't turned with its place: right to left, the side that stands free of a flip swaps, or each corner's straight edge stands in the panel, across its title.
+                let far: Double = Language.rightToLeft ? -1 : 1
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0).scale(x: far, y: 1)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(0, 0).scale(x: -far, y: 1)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(low, low).at(w - low, h - low).scale(x: far, y: -1)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(low, low).at(0, h - low).scale(x: -far, y: -1)
             }
             .size(w, h).corner(corner).clip().opacity(0.85)
             Node.rect(stroke: Color.adaptive(light: "#C9AB72", dark: "#C47F6A"), lineWidth: 1.2, corner: corner).size(w, h)
@@ -96,7 +98,7 @@ enum SourcePage {
             Node.ellipse(fill: Noor.quiet, stroke: NoorLine.soft, lineWidth: 1).size(d, d).at(0, 0)
             Node.symbol("chevron.backward", color: Noor.text).size(glyphW, glyphH).at((d - glyphW) / 2 - r.u(1), (d - glyphH) / 2)
         }
-        .size(d, d).at(r.u(14), r.u(26))
+        .size(d, d).at(r.u(12), r.u(26))
         .area("back", label: L("Back"), hover: .init(scale: 1.05))
     }
 
@@ -131,7 +133,9 @@ enum SourcePage {
             let picked = pick(ctx)
             let current = picked?.id == ctx.model.prefs.sourceID
             if let picked { wiring.tools["use"] = ("choose_source", ["id": picked.id]) }
-            let mainW = inner * 0.56
+            // Shared as their words need it. The file's button is a native one, its type 36% of its height.
+            let mainWants = wordsWidth(L("Use selected timetable"), size: r.f(17, min: 12), em: 0.56) + buttonH, fileWants = wordsWidth(L("Import a CSV file"), size: buttonH * 0.36) + buttonH * 0.36 + 34
+            let mainW = (inner - r.u(14)) * mainWants / (mainWants + fileWants)
             nodes.append(Node.ctaPill("use", label: L("Use selected timetable"), x: x, y: foot, w: mainW, h: buttonH, symbol: "chevron.forward", disabled: picked == nil || current, size: r.f(17, min: 12)))
             nodes.append(slot(importButton(first: true), x: x + mainW + r.u(14), y: foot, w: inner - mainW - r.u(14), h: buttonH, ox: ox, oy: oy, wiring: &wiring))
         } else {
@@ -157,7 +161,7 @@ enum SourcePage {
             Node.radio(cx: r.u(26), cy: r.u(30), d: r.u(21), on: on)
             Node.icon(symbol, color: Noor.text, side: glyph).at(r.u(50), r.u(14))
             Node.say(title, r.u(92), r.u(16), w - r.u(100), r.u(30), size: r.f(16.5, min: 11.5), weight: "medium")
-            Node.say(detail, r.u(92), r.u(46), w - r.u(104), r.u(66), size: r.f(14, min: 10.5), color: Noor.muted, lines: 3)
+            Node.say(detail, r.u(92), r.u(46), w - r.u(104), r.u(66), size: r.f(14, min: 11), color: Noor.muted, lines: 3)
         }
         .size(w, h).at(x, y)
         .area(id, label: title, hover: .init(scale: 1.008), selected: on)
@@ -203,8 +207,8 @@ enum SourcePage {
                 Node.radio(cx: r.u(29), cy: rowH / 2, d: r.u(23), on: on)
                 Node.archIcon(side: r.f(24, min: 15), color: Noor.text).at(r.u(62), (rowH - r.f(24, min: 15)) / 2)
                 Node.say(source.name, r.u(106), r.u(7), wordsW, r.u(26), size: r.f(16, min: 11.5))
-                Node.say(detail.joined(separator: " · "), r.u(106), r.u(31), wordsW, r.u(24), size: r.f(13.5, min: 10.5), color: Noor.muted)
-                if inUse { Node.chip(L("In use"), x: w - r.u(56) - chipW, y: (rowH - r.u(30)) / 2, w: chipW, h: r.u(30), size: r.f(13, min: 10.5)) }
+                Node.say(detail.joined(separator: " · "), r.u(106), r.u(31), wordsW, r.u(24), size: r.f(13.5, min: 11), color: Noor.muted)
+                if inUse { Node.chip(L("In use"), x: w - r.u(56) - chipW, y: (rowH - r.u(30)) / 2, w: chipW, h: r.u(30), size: r.f(13, min: 11)) }
             }
             .size(w, rowH).at(x, y)
             .area("src-\(i)", label: inUse ? L("{name}, in use", ["name": source.name]) : source.name, hover: .init(scale: 1.005), selected: on))
@@ -220,9 +224,9 @@ enum SourcePage {
                 let bandH = r.u(84), yesW = r.u(100), noW = r.u(78), wordsW = w - yesW - noW - r.u(50)
                 nodes.append(Node.rect(fill: Noor.quiet, stroke: NoorLine.danger, lineWidth: 1, corner: r.u(12)).size(w, bandH).at(x, y))
                 nodes.append(Node.say(L("Remove {name}?", ["name": source.name]), x + r.u(16), y + r.u(8), wordsW, r.u(26), size: r.f(15, min: 11.5), weight: "medium"))
-                nodes.append(Node.say(inUse ? L("Removes its saved times. Noor goes back to calculated times if a method is set.") : L("Removes its saved times."), x + r.u(16), y + r.u(32), wordsW, r.u(46), size: r.f(13.5, min: 10.5), color: Noor.muted, lines: 2))
-                nodes.append(dangerPill("remove-yes", label: L("Remove"), spoken: L("Remove {name}", ["name": source.name]), x: x + w - yesW - noW - r.u(22), y: y + (bandH - r.u(36)) / 2, w: yesW, h: r.u(36), size: r.f(13.5, min: 10.5)))
-                nodes.append(Node.pill("remove-no", label: L("Keep"), x: x + w - noW - r.u(12), y: y + (bandH - r.u(36)) / 2, w: noW, h: r.u(36), size: r.f(13.5, min: 10.5)))
+                nodes.append(Node.say(inUse ? L("Removes its saved times. Noor goes back to calculated times if a method is set.") : L("Removes its saved times."), x + r.u(16), y + r.u(32), wordsW, r.u(46), size: r.f(13.5, min: 11), color: Noor.muted, lines: 2))
+                nodes.append(dangerPill("remove-yes", label: L("Remove"), spoken: L("Remove {name}", ["name": source.name]), x: x + w - yesW - noW - r.u(22), y: y + (bandH - r.u(36)) / 2, w: yesW, h: r.u(36), size: r.f(13.5, min: 11)))
+                nodes.append(Node.pill("remove-no", label: L("Keep"), x: x + w - noW - r.u(12), y: y + (bandH - r.u(36)) / 2, w: noW, h: r.u(36), size: r.f(13.5, min: 11)))
                 y += bandH + r.u(6)
             }
         }
@@ -284,20 +288,20 @@ enum SourcePage {
         return Node.group {
             Node.well(w, boxH, corner: r.u(12), fill: Noor.quiet)
             Node.say(title, r.u(18), r.u(8), w * 0.6, r.u(26), size: r.f(16.5, min: 12), weight: "medium")
-            Node.say(detail, r.u(18), r.u(32), w * 0.66, r.u(22), size: r.f(13.5, min: 10.5), color: Noor.muted)
-            if let chip { Node.chip(chip.words, symbol: chip.symbol, x: w - r.u(130), y: r.u(12), w: r.u(116), h: r.u(32), size: r.f(13, min: 10.5)) }
+            Node.say(detail, r.u(18), r.u(32), w * 0.66, r.u(22), size: r.f(13.5, min: 11), color: Noor.muted)
+            if let chip { Node.chip(chip.words, symbol: chip.symbol, x: w - r.u(130), y: r.u(12), w: r.u(116), h: r.u(32), size: r.f(13, min: 11)) }
             Node.rect(fill: Noor.surface, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(8)).size(tw, head + row * Double(rows.count)).at(tx, top)
             for i in 0..<rows.count { Node.rect(fill: NoorLine.soft).size(tw, 1).at(tx, top + head + row * Double(i)) }
             for i in 0..<PrayerID.allCases.count { Node.rect(fill: NoorLine.soft).size(1, head + row * Double(rows.count)).at(tx + first + Double(i) * col, top) }
-            Node.say(corner, tx + r.u(14), top, first - r.u(18), head, size: r.f(13.5, min: 10.5), color: Noor.muted)
+            Node.say(corner, tx + r.u(14), top, first - r.u(18), head, size: r.f(13.5, min: 11), color: Noor.muted)
             for (i, id) in PrayerID.allCases.enumerated() {
-                Node.say(Words.prayer(id), tx + first + Double(i) * col, top, col, head, size: r.f(13.5, min: 10), color: Noor.muted, align: "center")
+                Node.say(Words.prayer(id), tx + first + Double(i) * col, top, col, head, size: r.f(13.5, min: 11), color: Noor.muted, align: "center")
             }
             for (n, line) in rows.enumerated() {
                 let ry = top + head + row * Double(n)
-                Node.say(line.label, tx + r.u(14), ry, first - r.u(18), row, size: r.f(14, min: 10.5))
+                Node.say(line.label, tx + r.u(14), ry, first - r.u(18), row, size: r.f(14, min: 11))
                 for (i, id) in PrayerID.allCases.enumerated() {
-                    Node.say(line.day?.starts[id].map { Words.time($0, zone: line.zone) } ?? "—", tx + first + Double(i) * col, ry, col, row, size: r.f(14, min: 10.5), align: "center", tabular: true)
+                    Node.say(line.day?.starts[id].map { Words.time($0, zone: line.zone) } ?? "—", tx + first + Double(i) * col, ry, col, row, size: r.f(14, min: 11), align: "center", tabular: true)
                 }
             }
         }
@@ -315,7 +319,7 @@ enum SourcePage {
             nodes.append(Node.well(w, wellH, corner: r.u(10), fill: Noor.quiet).at(x, y))
             nodes.append(Node.say(words, x + r.u(18), y, w - r.u(170), wellH, size: r.f(15, min: 11.5), color: Noor.muted, lines: 2))
             wiring.tools["methods-retry"] = ("refresh", [:])
-            nodes.append(Node.pill("methods-retry", label: L("Try again"), x: x + w - r.u(142), y: y + r.u(8), w: r.u(130), h: r.u(36), symbol: "arrow.clockwise", size: r.f(13.5, min: 10.5)))
+            nodes.append(Node.pill("methods-retry", label: L("Try again"), x: x + w - r.u(142), y: y + r.u(8), w: r.u(130), h: r.u(36), symbol: "arrow.clockwise", size: r.f(13.5, min: 11)))
         } else {
             let name = methods.first { "\($0.id)" == method }?.name
             nodes.append(Node.well(w, wellH, corner: r.u(10), fill: Noor.quiet).at(x, y))
@@ -354,7 +358,7 @@ enum SourcePage {
             Node.rect(fill: Noor.quiet, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(12), dash: [3, 4]).size(w, boxH)
             Node.symbol("clock", color: Noor.muted).size(glyph, glyph).at(r.u(20), (boxH - glyph) / 2)
             Node.say(L("Source preview"), r.u(60), r.u(18), w - r.u(76), r.u(28), size: r.f(16.5, min: 12), weight: "medium")
-            Node.say(words, r.u(60), r.u(48), w - r.u(76), r.u(44), size: r.f(14, min: 10.5), color: Noor.muted, lines: 2)
+            Node.say(words, r.u(60), r.u(48), w - r.u(76), r.u(44), size: r.f(14, min: 11), color: Noor.muted, lines: 2)
         }
         .size(w, boxH).at(x, y))
         y += boxH + r.u(12)
@@ -392,7 +396,7 @@ enum SourcePage {
             nodes.append(Node.group {
                 Node.well(inner, tableH, corner: r.u(12), fill: Noor.quiet)
                 for (i, line) in lines.enumerated() {
-                    Node.text(line, size: r.f(13.5, min: 9.5), design: "monospaced", color: i == 0 ? Noor.text : Noor.muted, align: "leading", lines: 1).size(inner - r.u(36), lineH).at(r.u(18), r.u(9) + Double(i) * lineH)
+                    Node.text(line, size: r.f(13.5, min: 11), design: "monospaced", color: i == 0 ? Noor.text : Noor.muted, align: "leading", lines: 1).size(inner - r.u(36), lineH).at(r.u(18), r.u(9) + Double(i) * lineH)
                 }
             }
             .size(inner, tableH).at(x, y).leftToRight())
@@ -400,10 +404,10 @@ enum SourcePage {
             nodes.append(Node.say(L("One row per date and prayer. Leave iqamah empty where the mosque gives none."), x + r.u(4), y, inner - r.u(8), r.u(50), size: r.f(14.5, min: 11), color: Noor.muted, lines: 2))
             y += r.u(56)
         } else {
-            footH = r.u(158)
+            footH = addHeight(w: inner, r: r)
             let place = ctx.model.prefs.place
             var rows: [(String, String, String)] = [
-                ("mappin.and.ellipse", L("Place"), place.map(PlaceParts.title) ?? "—"),
+                (Node.Glyph.pin, L("Place"), place.map(PlaceParts.title) ?? "—"),
                 ("clock", L("Time zone"), place.map { SetupPage.zoneLine($0.zoneID, now: ctx.snapshot.now) } ?? "—"),
                 ("function", L("Calculated by"), TimetableSource.calculatedAttribution),
             ]
@@ -415,7 +419,7 @@ enum SourcePage {
             for row in rows {
                 nodes.append(Node.group {
                     Node.well(inner, rowH, corner: r.u(14), fill: Noor.quiet)
-                    Node.symbol(row.0, color: Noor.text).size(r.f(26, min: 16), r.f(26, min: 16)).at(r.u(22), (rowH - r.f(26, min: 16)) / 2)
+                    Node.icon(row.0, color: Noor.text, side: r.f(26, min: 16)).at(r.u(22), (rowH - r.f(26, min: 16)) / 2)
                     Node.say(row.1, r.u(70), r.u(8), inner - r.u(84), r.u(24), size: r.f(14.5, min: 11), color: Noor.muted)
                     Node.say(row.2, r.u(70), r.u(32), inner - r.u(84), r.u(30), size: r.f(17, min: 12.5))
                 }
@@ -450,16 +454,32 @@ enum SourcePage {
     }
 
     /// A mosque's timetable can still be added from here, without leaving calculated times.
+    private static func addHeight(w: Double, r: Ruler) -> Double { r.u(158) + (addWants(r).reduce(0, +) > addRoom(w: w, r: r) ? r.u(50) : 0) }
+
+    /// The three buttons' needs: the two native ones carry a symbol, and their type is 36% of their height.
+    private static func addWants(_ r: Ruler) -> [Double] {
+        let type = r.u(42) * 0.36
+        return [wordsWidth(L("Import a CSV file"), size: type) + type + 34, wordsWidth(L("Enter by hand"), size: r.f(14, min: 11)) + 30, wordsWidth(L("Copy a CSV template"), size: type) + type + 34]
+    }
+
+    private static func addRoom(w: Double, r: Ruler) -> Double { w - r.u(16) * 2 - r.u(10) * 2 }
+
     private static func addWell(x: Double, y: Double, w: Double, h: Double, ox: Double, oy: Double, r: Ruler, wiring: inout SceneWiring) -> Node {
         let pad = r.u(16), gap = r.u(10), buttonH = r.u(42), buttonY = h - buttonH - r.u(14)
-        let room = w - pad * 2 - gap * 2, importW = room * 0.33, handW = room * 0.26, copyW = room - importW - handW
+        // Shared as their words need it; where the three can't share a line, copying takes one of its own.
+        let wants = addWants(r), room = addRoom(w: w, r: r), twoRows = wants.reduce(0, +) > room
+        let firstRoom = twoRows ? w - pad * 2 - gap : room
+        let share = firstRoom / (twoRows ? wants[0] + wants[1] : wants.reduce(0, +))
+        let importW = wants[0] * share, handW = wants[1] * share
+        let copyW = twoRows ? w - pad * 2 : room - importW - handW
+        let firstY = twoRows ? buttonY - buttonH - r.u(8) : buttonY
         return Node.group {
             Node.well(w, h, corner: r.u(14), fill: Noor.quiet)
             Node.say(L("Add a mosque's timetable"), pad, r.u(10), w - pad * 2, r.u(26), size: r.f(16.5, min: 12), weight: "medium")
-            Node.say(L("A source you enter is labelled Manual. An imported file is checked before anything is saved."), pad, r.u(36), w - pad * 2, r.u(46), size: r.f(14, min: 10.5), color: Noor.muted, lines: 2)
-            slot(importButton(first: true), x: pad, y: buttonY, w: importW, h: buttonH, ox: ox + x, oy: oy + y, wiring: &wiring)
-            Node.ctaPill("by-hand", label: L("Enter by hand"), x: pad + importW + gap, y: buttonY, w: handW, h: buttonH, symbol: nil, filled: false, size: r.f(14, min: 11))
-            slot(copyButton, x: pad + importW + handW + gap * 2, y: buttonY, w: copyW, h: buttonH, ox: ox + x, oy: oy + y, wiring: &wiring)
+            Node.say(L("A source you enter is labelled Manual. An imported file is checked before anything is saved."), pad, r.u(36), w - pad * 2, r.u(46), size: r.f(14, min: 11), color: Noor.muted, lines: 2)
+            slot(importButton(first: true), x: pad, y: firstY, w: importW, h: buttonH, ox: ox + x, oy: oy + y, wiring: &wiring)
+            Node.ctaPill("by-hand", label: L("Enter by hand"), x: pad + importW + gap, y: firstY, w: handW, h: buttonH, symbol: nil, filled: false, size: r.f(14, min: 11))
+            slot(copyButton, x: twoRows ? pad : pad + importW + handW + gap * 2, y: buttonY, w: copyW, h: buttonH, ox: ox + x, oy: oy + y, wiring: &wiring)
         }
         .size(w, h).at(x, y)
     }
@@ -471,7 +491,7 @@ enum SourcePage {
         nodes.append(timesBox(L("Source-change preview"), L("{old} → {new}", ["old": current.name, "new": next.name]), chip: nil, corner: "", rows: [(current.name, ctx.model.day(today), current.zone), (next.name, nextDay, next.zone)], w: w, r: r).at(x, y))
         y += timesHeight(rows: 2, r: r) + r.u(8)
         if ctx.model.prefs.reminders.prayers.contains(where: { $0.value.iqamahMinutes != nil }), nextDay?.iqamah.isEmpty ?? true {
-            nodes.append(Node.say(L("This source has no iqamah times, so your iqamah reminders won't come from it. Your choices are kept."), x + r.u(4), y, w - r.u(8), r.u(44), size: r.f(14, min: 10.5), color: Noor.warm, lines: 2))
+            nodes.append(Node.say(L("This source has no iqamah times, so your iqamah reminders won't come from it. Your choices are kept."), x + r.u(4), y, w - r.u(8), r.u(44), size: r.f(14, min: 11), color: Noor.warm, lines: 2))
             y += r.u(46)
         }
         y += r.u(10)
@@ -496,7 +516,7 @@ enum SourcePage {
             Node.well(inner, cardH, corner: r.u(14), fill: Noor.quiet)
             Node.symbol("doc.text", color: Noor.text).size(glyph, glyph).at(r.u(20), (cardH - glyph) / 2)
             Node.say(name, r.u(76), r.u(10), inner - r.u(220), r.u(36), size: r.f(21, min: 13.5), weight: "medium")
-            Node.say((review.canSave ? L("Checked") : L("Needs fixing")) + " · " + tally, r.u(76), r.u(44), inner - r.u(220), r.u(28), size: r.f(14.5, min: 10.5), color: review.canSave ? Noor.muted : NoorLine.danger)
+            Node.say((review.canSave ? L("Checked") : L("Needs fixing")) + " · " + tally, r.u(76), r.u(44), inner - r.u(220), r.u(28), size: r.f(14.5, min: 11), color: review.canSave ? Noor.muted : NoorLine.danger)
             Node.pill("cancel", label: L("Cancel"), x: inner - r.u(136), y: r.u(21), w: r.u(120), h: r.u(44), size: r.f(15.5, min: 11.5))
         }
         .size(inner, cardH).at(x, y))
@@ -505,13 +525,13 @@ enum SourcePage {
         // Where and when.
         let gap = r.u(13), factW = (inner - gap) / 2, factH = r.u(75)
         let span = review.coverage.map { L("{from} to {to}", ["from": Words.date($0.lowerBound, weekday: false, year: false), "to": Words.date($0.upperBound, weekday: false)]) } ?? "—"
-        let facts: [(String, String, String)] = [("mappin.and.ellipse", L("Time zone"), review.zone ?? "—"), ("calendar", L("Dates"), span)]
+        let facts: [(String, String, String)] = [("clock", L("Time zone"), review.zone ?? "—"), ("calendar", L("Dates"), span)]
         for (i, fact) in facts.enumerated() {
             nodes.append(Node.group {
                 Node.well(factW, factH, corner: r.u(12), fill: Noor.quiet)
                 Node.symbol(fact.0, color: Noor.text).size(r.f(26, min: 15), r.f(26, min: 15)).at(r.u(18), (factH - r.f(26, min: 15)) / 2)
-                Node.say(fact.1, r.u(62), r.u(12), factW - r.u(72), r.u(24), size: r.f(14.5, min: 10.5), color: Noor.muted)
-                Node.say(fact.2, r.u(62), r.u(32), factW - r.u(70), r.u(38), size: r.f(14.5, min: 10.5), lines: 2)
+                Node.say(fact.1, r.u(62), r.u(12), factW - r.u(72), r.u(24), size: r.f(14.5, min: 11), color: Noor.muted)
+                Node.say(fact.2, r.u(62), r.u(32), factW - r.u(70), r.u(38), size: r.f(14.5, min: 11), lines: 2)
             }
             .size(factW, factH).at(x + Double(i) * (factW + gap), y))
         }
@@ -546,7 +566,7 @@ enum SourcePage {
             nodes.append(Node.group {
                 Node.rect(fill: Noor.quiet, stroke: NoorLine.chosen, lineWidth: 1, corner: r.u(12)).size(inner, boxH)
                 Node.symbol("checkmark.circle", color: Noor.text).size(r.f(24, min: 15), r.f(24, min: 15)).at(r.u(20), (boxH - r.f(24, min: 15)) / 2)
-                Node.say(L("Adding it makes it your timetable, labelled Manual. Your reminder choices stay, and planned reminders move to its times. Check the times against your mosque's own timetable."), r.u(60), 0, inner - r.u(76), boxH, size: r.f(14, min: 10.5), color: Noor.muted, lines: 3)
+                Node.say(L("Adding it makes it your timetable, labelled Manual. Your reminder choices stay, and planned reminders move to its times. Check the times against your mosque's own timetable."), r.u(60), 0, inner - r.u(76), boxH, size: r.f(14, min: 11), color: Noor.muted, lines: 3)
             }
             .size(inner, boxH).at(x, y))
             y += boxH + r.u(12)
@@ -555,7 +575,7 @@ enum SourcePage {
             nodes.append(Node.group {
                 Node.rect(fill: Color.adaptive(light: "#FFF7EA", dark: "#2A2030"), stroke: NoorLine.caution, lineWidth: 1, corner: r.u(10)).size(inner, bannerH)
                 Node.symbol("exclamationmark.triangle.fill", color: NoorLine.caution).size(r.f(24, min: 15), r.f(24, min: 15)).at(r.u(18), (bannerH - r.f(24, min: 15)) / 2)
-                Node.say(L(one: "{count} thing to fix · Choose the file again after", other: "{count} things to fix · Choose the file again after", count: problems.count), r.u(58), 0, inner - r.u(70), bannerH, size: r.f(16, min: 11.5), color: Noor.warm)
+                Node.say(L(one: "{count} thing to fix. Fix the file, then choose it again.", other: "{count} things to fix. Fix the file, then choose it again.", count: problems.count), r.u(58), 0, inner - r.u(70), bannerH, size: r.f(16, min: 11.5), color: Noor.warm)
             }
             .size(inner, bannerH).at(x, y))
             y += bannerH + r.u(10)
@@ -563,7 +583,7 @@ enum SourcePage {
             nodes.append(Node.group {
                 Node.well(inner, boxH, corner: r.u(12), fill: Noor.quiet)
                 for (i, line) in problems.enumerated() {
-                    Node.say(line, r.u(20), r.u(8) + Double(i) * lineH, inner - r.u(36), lineH, size: r.f(14, min: 10.5), color: Noor.text)
+                    Node.say(line, r.u(20), r.u(8) + Double(i) * lineH, inner - r.u(36), lineH, size: r.f(14, min: 11), color: Noor.text)
                 }
             }
             .size(inner, boxH).at(x, y))
@@ -583,15 +603,15 @@ enum SourcePage {
             nodes.append(Node.group {
                 Node.well(inner, tableH, corner: r.u(10), fill: Noor.quiet)
                 for (i, title) in titles.enumerated() {
-                    Node.say(title, cols[i] + r.u(16), 0, inner * 0.3, row, size: r.f(14.5, min: 10.5), color: Noor.muted)
+                    Node.say(title, cols[i] + r.u(16), 0, inner * 0.3, row, size: r.f(14.5, min: 11), color: Noor.muted)
                 }
                 for (n, line) in sample.enumerated() {
                     let ry = row * Double(n + 1)
                     Node.rect(fill: NoorLine.soft).size(inner, 1).at(0, ry)
-                    Node.say(Words.dateShort(line.date, year: true), cols[0] + r.u(16), ry, cols[1] - r.u(20), row, size: r.f(14.5, min: 10.5))
-                    Node.say(slotName(line.slot), cols[1] + r.u(16), ry, cols[2] - cols[1] - r.u(20), row, size: r.f(14.5, min: 10.5))
-                    Node.say(line.start.text, cols[2] + r.u(16), ry, cols[3] - cols[2] - r.u(20), row, size: r.f(14.5, min: 10.5), tabular: true)
-                    Node.say(line.iqamah?.text ?? "—", cols[3] + r.u(16), ry, inner - cols[3] - r.u(20), row, size: r.f(14.5, min: 10.5), tabular: true)
+                    Node.say(Words.dateShort(line.date, year: true), cols[0] + r.u(16), ry, cols[1] - r.u(20), row, size: r.f(14.5, min: 11))
+                    Node.say(slotName(line.slot), cols[1] + r.u(16), ry, cols[2] - cols[1] - r.u(20), row, size: r.f(14.5, min: 11))
+                    Node.say(line.start.text, cols[2] + r.u(16), ry, cols[3] - cols[2] - r.u(20), row, size: r.f(14.5, min: 11), tabular: true)
+                    Node.say(line.iqamah?.text ?? "—", cols[3] + r.u(16), ry, inner - cols[3] - r.u(20), row, size: r.f(14.5, min: 11), tabular: true)
                 }
             }
             .size(inner, tableH).at(x, y))
@@ -601,7 +621,7 @@ enum SourcePage {
         let buttonH = r.u(50)
         let height = max(y + buttonH + r.u(30), ctx.narrow ? 0 : r.u(650)), finalH = h ?? height
         wiring.tools["add"] = ("save_import", ["name": typed])
-        let addW = inner * 0.6, buttonY = finalH - buttonH - r.u(22)
+        let addW = inner - r.u(14) - min(inner * 0.5, max(inner * 0.4 - r.u(14), wordsWidth(L("Choose another file"), size: buttonH * 0.36) + buttonH * 0.36 + 34)), buttonY = finalH - buttonH - r.u(22)
         nodes.append(Node.ctaPill("add", label: L("Add timetable"), x: x, y: buttonY, w: addW, h: buttonH, symbol: "checkmark", disabled: !review.canSave, size: r.f(17, min: 12)))
         nodes.append(slot(importButton(first: false), x: x + addW + r.u(14), y: buttonY, w: inner - addW - r.u(14), h: buttonH, ox: ox, oy: oy, wiring: &wiring))
         return (Node.group {
@@ -684,7 +704,7 @@ enum SourcePage {
                 y += r.u(58)
             }
             if let problem {
-                nodes.append(Node.say(problem, x + r.u(4), y + r.u(2), inner - r.u(8), r.u(48), size: r.f(14, min: 10.5), color: NoorLine.caution, lines: 2))
+                nodes.append(Node.say(problem, x + r.u(4), y + r.u(2), inner - r.u(8), r.u(48), size: r.f(14, min: 11), color: NoorLine.caution, lines: 2))
             }
             y += r.u(52)
             let height = max(y + r.u(80), ctx.narrow ? 0 : r.u(640)), finalH = h ?? height

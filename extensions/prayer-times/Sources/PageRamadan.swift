@@ -110,7 +110,7 @@ enum RamadanPage {
         let scene = rowStyles(Scene(width: w, height: outerY + outerH + 10 * k) {
             Node.panel(outerW, outerH, corner: 18 * k, fill: .adaptive(light: "#FBF9FDC0", dark: "#11153AB0")).at(outerX, outerY)
             crumb(ctx, r: r).at(52 * k, 20 * k)
-            Node.say(sentence(ctx, year: year, month: month), 420 * k, 20 * k, w - 420 * k - 50 * k, 26 * k, size: r.f(13, min: 10.5), color: Noor.muted, align: "trailing")
+            Node.say(sentence(ctx, year: year, month: month), 420 * k, 20 * k, w - 420 * k - 50 * k, 26 * k, size: r.f(13, min: 11), color: Noor.muted, align: "trailing")
             Node.say(L("Ramadan planner"), 51 * k, 52 * k, yearX - 60 * k, 52 * k, size: r.f(40, min: 24), weight: "bold")
             dropdown("moon.fill", L("Ramadan {year}", ["year": "\(year)"]), w: yearW, h: pillH, r: r, tint: .hex("#F1C25B")).at(yearX, pillY)
             dropdown(Node.Glyph.pin, place, w: placeW, h: pillH, r: r).at(placeX, pillY)
@@ -158,7 +158,7 @@ enum RamadanPage {
     private static func crumb(_ ctx: Context, r: Ruler) -> Node {
         let size = r.f(16, min: 13)
         let parent = Words.tab(ctx.tab)
-        let parentW = Double(parent.count) * size * 0.58 + 4
+        let parentW = wordsWidth(parent, size: size, em: 0.58) + 4
         return Node.group {
             Node.say(parent, 0, 0, parentW, r.u(26), size: size)
                 .area("back", label: L("Back to {place}", ["place": parent]), hover: .init(scale: 1.02))
@@ -310,8 +310,8 @@ enum RamadanPage {
             Node.panel(w, h, corner: r.u(14))
             Node.runs([(L("Ramadan {year}: daily times", ["year": "\(month.hijriYear)"]), Noor.text, "semibold"), (" (\(place))", Noor.muted, "regular")], size: r.f(20, min: 14), color: Noor.text, align: "leading").size(w - r.u(490), r.u(50)).at(r.u(20), r.u(4))
             let planning = L("Planning dates may differ from local announcements.")
-            Node.symbol("info.circle", color: periwinkle).size(r.f(18, min: 13), r.f(18, min: 13)).at(w - r.u(14) - min(r.u(420), Double(planning.count) * r.f(13.5, min: 10.5) * 0.5) - r.u(28), (r.u(55) - r.f(18, min: 13)) / 2)
-            Node.say(planning, w - r.u(434), r.u(4), r.u(420), r.u(50), size: r.f(13.5, min: 10.5), color: periwinkle, align: "trailing", lines: 2)
+            Node.symbol("info.circle", color: periwinkle).size(r.f(18, min: 13), r.f(18, min: 13)).at(w - r.u(14) - min(r.u(420), wordsWidth(planning, size: r.f(13.5), em: 0.56)) - r.u(28), (r.u(55) - r.f(18, min: 13)) / 2)
+            Node.say(planning, w - r.u(434), r.u(4), r.u(420), r.u(50), size: r.f(13.5, min: 11), color: periwinkle, align: "trailing", lines: 2)
             Node.rect(fill: Noor.hairline).size(w, 1).at(0, headY)
             Node.rect(fill: Noor.hairline).size(w, 1).at(0, bodyY)
             for x in lines { Node.rect(fill: Noor.hairline).size(1, headH).at(x, headY) }
@@ -387,10 +387,10 @@ enum RamadanPage {
             offY = buttonY + buttonH + r.u(10)
             noteY = draft.saved.enabled ? offY + max(r.u(42), 30) + r.u(12) : buttonY + buttonH + r.u(14)
             let size = r.f(14.5, min: 11.5)
-            let perLine = (w - r.u(94)) / (size * 0.5)
-            let statusLines = ceil(Double(RamadanPage.status(draft).count) / perLine)
+            let lineW = w - r.u(94)
+            let statusLines = Double(lineCount(RamadanPage.status(draft), width: lineW, size: size))
             statusH = (statusLines + 0.3) * size * 1.3
-            noteH = statusH + (ceil(Double(draft.preview.count) / perLine) + 0.3) * size * 1.3 + r.u(32)
+            noteH = statusH + (Double(lineCount(draft.preview, width: lineW, size: size)) + 0.3) * size * 1.3 + r.u(32)
         }
     }
 

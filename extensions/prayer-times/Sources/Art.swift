@@ -111,8 +111,8 @@ extension Node {
 
     /// A word on one line in a box: the same call everywhere, so type stays Noor's. Text that doesn't fit shrinks a little, then ends in dots.
     static func say(_ words: String, _ x: Double, _ y: Double, _ w: Double, _ h: Double, size: Double = 14, weight: String = "regular", color: Color = Noor.text,
-                    align: String = "leading", lines: Int = 1, tabular: Bool = false) -> Node {
-        var node = Node.text(words, size: size, weight: weight, color: color, align: align, lines: lines).size(w, h).at(x, y)
+                    align: String = "leading", valign: String = "center", lines: Int = 1, tabular: Bool = false) -> Node {
+        var node = Node.text(words, size: size, weight: weight, color: color, align: align, valign: valign, lines: lines).size(w, h).at(x, y)
         if tabular { node = node.textLook(tabular: true) }
         return node
     }
@@ -153,6 +153,19 @@ extension Node {
             Node.path(archPath(w, h, lift: lift), stroke: Noor.inlay, lineWidth: 2).size(w, h).at(0, 0)
         }
         .size(w, h)
+    }
+}
+
+/// About how wide words stand in this language, for the guesses a scene has to make: about 1 em a Chinese, Japanese or Korean character, about 0.55 em any other. The host shrinks what is given too little room, so a count of characters alone cuts Japanese to half its size. `em` is for a face known to run narrower or wider.
+func wordsWidth(_ words: String, size: Double, em: Double = 0.55) -> Double {
+    words.reduce(0.0) { sum, character in sum + (character.unicodeScalars.first.map(isFullWidth) == true ? 1.0 : em) } * size
+}
+
+/// Hangul, kana, Han and their full-width punctuation.
+private func isFullWidth(_ scalar: Unicode.Scalar) -> Bool {
+    switch scalar.value {
+    case 0x1100...0x11FF, 0x2E80...0x303E, 0x3041...0x33FF, 0x3400...0x4DBF, 0x4E00...0x9FFF, 0xA960...0xA97F, 0xAC00...0xD7FF, 0xF900...0xFAFF, 0xFE30...0xFE4F, 0xFF01...0xFF60, 0xFFE0...0xFFE6, 0x20000...0x3FFFF: true
+    default: false
     }
 }
 

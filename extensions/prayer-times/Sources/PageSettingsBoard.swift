@@ -21,11 +21,12 @@ enum SettingsBoard {
         let r = stack ? Ruler(width: 1150) : ctx.ruler
         var s = Sketch()
         let margin = stack ? 10 : r.u(21)
-        s.add(Node.say(L("Preferences"), margin + r.u(6), r.u(4), r.u(205), r.u(44), size: r.f(35, min: 24), weight: "bold"))
+        let titleSize = r.f(35, min: 24), titleW = max(r.u(205), wordsWidth(L("Preferences"), size: titleSize, em: 0.6) + 4), wordsX = max(r.u(242), margin + r.u(6) + titleW + r.u(10))
+        s.add(Node.say(L("Preferences"), margin + r.u(6), r.u(4), titleW, r.u(44), size: titleSize, weight: "bold"))
         if stack {
             s.add(Node.say(L("Configure how Noor calculates, displays and stores your data."), margin + r.u(6), r.u(48), w - margin * 2, r.u(24), size: r.f(14, min: 12), color: Noor.muted))
         } else {
-            s.add(Node.say(L("Configure how Noor calculates, displays and stores your data."), r.u(242), r.u(14), w - r.u(242) - r.u(190), r.u(30), size: r.f(16, min: 12.5), color: Noor.muted))
+            s.add(Node.say(L("Configure how Noor calculates, displays and stores your data."), wordsX, r.u(14), w - wordsX - r.u(190), r.u(30), size: r.f(16, min: 12.5), color: Noor.muted))
         }
         s.acts["sreminders"] = .go(Go(set: ["section": "reminders"]))
         let pillW = r.u(150), pillH = r.u(34)
@@ -92,8 +93,10 @@ enum SettingsBoard {
         } else {
             s.add(Node.symbol(symbol, color: tint).size(glyph * 0.86, glyph).at(x + r.u(40), y + (head - glyph) / 2))
         }
-        s.add(Node.say(title, x + r.u(92), y + r.u(8), plate - r.u(150), r.u(32), size: r.f(23, min: 16), weight: "semibold"))
-        s.add(Node.say(detail, x + r.u(92), y + r.u(37), plate - r.u(130), r.u(24), size: r.f(15.5, min: 11.5), color: Noor.muted))
+        // Words that take two lines lift the title a little: the plate's height holds.
+        let long = lineCount(detail, width: plate - r.u(130), size: r.f(15.5, min: 11.5), em: 0.5) > 1
+        s.add(Node.say(title, x + r.u(92), y + r.u(long ? 2 : 8), plate - r.u(150), r.u(32), size: r.f(23, min: 16), weight: "semibold"))
+        s.add(Node.say(detail, x + r.u(92), y + r.u(long ? 32 : 37), plate - r.u(130), r.u(long ? 36 : 24), size: long ? r.f(14, min: 11) : r.f(15.5, min: 11.5), color: Noor.muted, valign: long ? "top" : "center", lines: long ? 2 : 1))
         // The medallion: a pointed quatrefoil in gold.
         let m = r.u(34), cx = w - r.u(66), cy = head / 2 + r.u(2)
         func foil(_ a: Double) -> String {
@@ -116,8 +119,10 @@ enum SettingsBoard {
         let stacked = labelW > w * 0.6
         let labelH = max(r.u(22), 18)
         let pillX = stacked ? x : x + labelW, pillW = stacked ? w : w - labelW, pillY = stacked ? y + labelH + 1 : y
-        s.add(Node.say(label, x, stacked ? y : (caption == nil ? y : y - r.u(5)), stacked ? w : labelW - r.u(8), stacked || caption == nil ? (stacked ? labelH : h) : r.u(24), size: r.f(16, min: 12.5)))
-        if let caption, !stacked { s.add(Node.say(caption, x, y + r.u(17), labelW - r.u(8), r.u(18), size: r.f(11.5), color: Noor.faint)) }
+        // A caption that takes two lines lifts its label a little, so it still ends above the next row's.
+        let tall = caption.map { lineCount($0, width: labelW - r.u(8), size: r.f(11.5), em: 0.5) > 1 } ?? false
+        s.add(Node.say(label, x, stacked ? y : (caption == nil ? y : y - r.u(tall ? 9 : 5)), stacked ? w : labelW - r.u(8), stacked || caption == nil ? (stacked ? labelH : h) : r.u(24), size: r.f(16, min: 12.5)))
+        if let caption, !stacked { s.add(Node.say(caption, x, y + r.u(tall ? 12 : 17), labelW - r.u(8), tall ? max(r.u(28), 27) : r.u(18), size: tall ? 11 : r.f(11.5), color: Noor.faint, valign: "top", lines: tall ? 2 : 1)) }
         s.add(Node.menuPill(words, x: pillX, y: pillY, w: pillW, h: h, size: r.f(15.5, min: 12.5), fill: Noor.well, line: Noor.edge, ink: Noor.text, corner: r.u(8)))
         s.inlay(pillX, pillY, pillW, h, part)
         return stacked ? labelH + 1 + h : h

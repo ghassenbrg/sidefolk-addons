@@ -52,7 +52,7 @@ extension NoorPage {
             y += r.u(34)
         }
         if !part.detail.isEmpty {
-            let lines = max(1, min(3, Int((Double(part.detail.count) * r.f(18.5, min: 12) * 0.5 / columnW).rounded(.up))))
+            let lines = min(3, lineCount(part.detail, width: columnW, size: r.f(18.5, min: 12)))
             nodes.append(Node.say(part.detail, columnX, y, columnW, r.u(29) * Double(lines) + r.u(4), size: r.f(18.5, min: 12), color: Noor.muted, align: "center", lines: lines))
             y += r.u(29) * Double(lines) + r.u(22)
         }

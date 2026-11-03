@@ -104,10 +104,10 @@ enum NamesPage {
         let saved = ctx.state.string("filter") == "saved"
         let query = ctx.state.string("q") ?? ""
         let h = r.u(46)
-        let countW = r.u(112), savedW = r.u(96), allW = r.u(92), gap = r.u(15)
+        let countW = r.u(112), savedW = max(r.u(96), wordsWidth(L("Saved"), size: r.f(18, min: 12.5)) + 14), allW = r.u(92), gap = r.u(15)
         let countX = right - countW - r.u(10), savedX = countX - savedW - r.u(6), allX = savedX - allW - gap
         let wide = searchRow == nil
-        let fieldX = wide ? allX - gap - r.u(404) : r.u(20), fieldW = wide ? r.u(404) : right - r.u(40), fieldY = searchRow ?? y
+        let fieldW = wide ? r.u(404) - (savedW - r.u(96)) : right - r.u(40), fieldX = wide ? allX - gap - fieldW : r.u(20), fieldY = searchRow ?? y
         let glyph = r.f(20, min: 14)
         let nodes: [Node] = [
             Node.rect(fill: Noor.well.tuned(alpha: 0.65), stroke: Noor.edge.tuned(alpha: 0.7), lineWidth: 1, corner: r.u(14)).size(fieldW, h).at(fieldX, fieldY),
@@ -116,7 +116,7 @@ enum NamesPage {
             Node.group {
                 Node.rect(fill: saved ? Noor.quiet : Noor.picked, stroke: saved ? Noor.edge : Noor.pickedEdge, lineWidth: 1.1, corner: r.u(14)).size(allW, h)
                 Node.say(L("All"), r.u(12), 0, allW - r.u(44), h, size: r.f(18, min: 12.5), color: saved ? Noor.text : Noor.onChosen, align: "center")
-                Node.symbol("chevron.down", color: saved ? Noor.text : Noor.onChosen).size(r.f(13, min: 10), r.f(13, min: 10)).at(allW - r.u(30), (h - r.f(13, min: 10)) / 2)
+                Node.symbol("chevron.down", color: saved ? Noor.text : Noor.onChosen).size(r.f(13, min: 11), r.f(13, min: 11)).at(allW - r.u(30), (h - r.f(13, min: 11)) / 2)
             }
             .size(allW, h).at(allX, y),
             Node.group {
@@ -129,7 +129,7 @@ enum NamesPage {
         ]
         let inlays = [
             PageInlay(x: originX + fieldX + r.u(16) + glyph + r.u(10), y: originY + fieldY, w: fieldW - r.u(16) - glyph - r.u(20), h: h,
-                      .draftField(L("Search the Names"), placeholder: fieldW < 300 ? L("Search names") : L("Search Arabic, transliteration or meaning"), button: L("Clear"), key: "q", value: query.isEmpty ? nil : query, live: true, set: ["shelf": NSNull(), "name": NSNull()])),
+                      .draftField(L("Search the Names"), placeholder: wordsWidth(L("Search Arabic, transliteration or meaning"), size: 13, em: 0.5) > fieldW - r.u(36) - glyph - 24 ? L("Search names") : L("Search Arabic, transliteration or meaning"), button: L("Clear"), key: "q", value: query.isEmpty ? nil : query, live: true, set: ["shelf": NSNull(), "name": NSNull()])),
             PageInlay(x: originX + allX, y: originY + y, w: allW, h: h,
                       .draftChoice(L("Show"), options: [Option("all", L("All {count}", ["count": "99"])), Option("saved", L("Saved ({count})", ["count": "\(ctx.model.bookmarks.count)"]))], selected: saved ? "saved" : "all", key: "filter")),
         ]
@@ -174,7 +174,7 @@ enum NamesPage {
             Node.say(name.meaning, textX, h * 0.53, textW, h * 0.36, size: r.f(fitted(name.meaning, textW / r.s, 20, 0.47), min: 11), color: selected ? ink.tuned(alpha: 0.85) : Noor.muted)
             arabicLine(name, arabicX, arabicW, h, size: r.f(fitted(arabic: name.arabic, arabicW / r.s, 42), min: 16))
             if ctx.model.bookmarks.contains(name.number) {
-                Node.symbol("bookmark.fill", color: Noor.warm).size(r.f(13, min: 10), r.f(16, min: 12)).at(w - r.u(50), r.u(10)).label(L("Saved"))
+                Node.symbol("bookmark.fill", color: Noor.warm).size(r.f(13, min: 11), r.f(16, min: 12)).at(w - r.u(50), r.u(10)).label(L("Saved"))
             }
             if pushes { Node.symbol("chevron.forward", color: Noor.text).size(r.f(11, min: 8), r.f(19, min: 13)).at(w - r.u(39), (h - r.f(19, min: 13)) / 2) }
         }
@@ -234,10 +234,11 @@ enum NamesPage {
             Node.rect(stroke: Noor.inlay, lineWidth: 1.2, corner: r.u(16)).size(w, h)
             let count = L("Name {number} of 99", ["number": Format.integer(name.number)]), countSize = r.f(18, min: 12)
             // The two circles stand either side of the words, however long they run in this language.
-            let reach = Double(count.count) * countSize * 0.27 + r.u(8), countX = cx - r.u(11)
-            Node.say(count, countX - reach, navY, reach * 2, circle, size: countSize, color: Noor.muted, align: "center")
-            if beside.before != nil { round("previous", L("Previous"), "chevron.backward", x: countX - reach - circle, y: navY, d: circle, r: r) }
-            if beside.after != nil { round("following", L("Next"), "chevron.forward", x: countX + reach, y: navY, d: circle, r: r) }
+            let reach = wordsWidth(count, size: countSize, em: 0.54) / 2 + r.u(8), countX = cx - r.u(11)
+            let countY = navY + (reach > r.u(96) ? r.u(12) : 0)
+            Node.say(count, countX - reach, countY, reach * 2, circle, size: countSize, color: Noor.muted, align: "center")
+            if beside.before != nil { round("previous", L("Previous"), "chevron.backward", x: countX - reach - circle, y: countY, d: circle, r: r) }
+            if beside.after != nil { round("following", L("Next"), "chevron.forward", x: countX + reach, y: countY, d: circle, r: r) }
             // Reading text in the source's own Unicode, drawn by the system so it shapes properly.
             Node.gilded(name.arabic, (w - inner) / 2, r.u(122), inner, r.u(178), size: r.f(fitted(arabic: name.arabic, inner * 0.92 / r.s, 96), min: 30), weight: "medium").leftToRight()
                 .area("read", label: L("Open {name}", ["name": name.transliteration]), hover: .init(scale: 1.0))
@@ -333,17 +334,19 @@ enum NamesPage {
             Node.image("art/names-arch-l.jpg", dark: "art/names-arch-d.jpg", fit: "fill").size(w, archH).corner(r.u(16)).clip()
             Node.rect(fill: Noor.surface, stroke: Noor.hairline, lineWidth: 1, corner: r.u(10)).size(w - r.u(12), h - lower - r.u(10)).at(r.u(6), lower)
             Node.rect(stroke: Noor.inlay, lineWidth: 1.2, corner: r.u(16)).size(w, h)
+            let backW = max(r.u(160), r.u(46) + wordsWidth(L("Back to names"), size: r.f(15.5, min: 11.5)))
             Node.group {
-                Node.capsule(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1).size(r.u(160), chipH)
-                Node.symbol("arrow.backward", color: Noor.text).size(r.f(15, min: 11), r.f(13, min: 10)).at(r.u(14), (chipH - r.f(13, min: 10)) / 2)
-                Node.say(L("Back to names"), r.u(40), 0, r.u(114), chipH, size: r.f(15.5, min: 11.5))
+                Node.capsule(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1).size(backW, chipH)
+                Node.symbol("arrow.backward", color: Noor.text).size(r.f(15, min: 11), r.f(13, min: 11)).at(r.u(14), (chipH - r.f(13, min: 11)) / 2)
+                Node.say(L("Back to names"), r.u(40), 0, backW - r.u(46), chipH, size: r.f(15.5, min: 11.5))
             }
-            .size(r.u(160), chipH).at(r.u(16), r.u(16)).area("back", label: L("Back to names"), hover: .init(scale: 1.02))
+            .size(backW, chipH).at(r.u(16), r.u(16)).area("back", label: L("Back to names"), hover: .init(scale: 1.02))
+            let countLine = L("Name {number} of 99", ["number": Format.integer(name.number)]), countW = max(r.u(132), wordsWidth(countLine, size: r.f(15.5, min: 11.5)) + 14)
             Node.group {
-                Node.capsule(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1).size(r.u(132), chipH)
-                Node.say(L("Name {number} of 99", ["number": Format.integer(name.number)]), 4, 0, r.u(124), chipH, size: r.f(15.5, min: 11.5), align: "center")
+                Node.capsule(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1).size(countW, chipH)
+                Node.say(countLine, 4, 0, countW - 8, chipH, size: r.f(15.5, min: 11.5), align: "center")
             }
-            .size(r.u(132), chipH).at(w - r.u(148), r.u(16))
+            .size(countW, chipH).at(w - r.u(16) - countW, r.u(16))
             Node.gilded(name.arabic, (w - inner) / 2, r.u(128), inner, r.u(190), size: r.f(fitted(arabic: name.arabic, inner * 0.92 / r.s, 112), min: 30), weight: "medium").leftToRight()
             Node.say(name.transliteration, (w - inner) / 2, r.u(310), inner, r.u(62), size: r.f(fitted(name.transliteration, inner / r.s, 46, 0.54), min: 18), weight: "semibold", align: "center")
             Node.say(name.meaning, (w - inner) / 2, r.u(368), inner, r.u(46), size: r.f(fitted(name.meaning, inner / r.s, 32, 0.47), min: 14), color: Self.lilac, align: "center")
@@ -352,11 +355,12 @@ enum NamesPage {
             // Copy's face: the system's button lies over it (`copyInlay`).
             Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.1).size(r.u(116), r.u(34)).at(cx - r.u(58), r.u(525))
             step("previous", heading: L("Previous"), under: before?.transliteration ?? L("(no previous)"), symbol: "chevron.backward", x: r.u(16), y: lower + r.u(13), w: r.u(170), r: r, disabled: before == nil)
+            let placeLine = L("{number} of 99", ["number": Format.integer(name.number)]), placeW = max(r.u(106), wordsWidth(placeLine, size: r.f(16.5, min: 11.5)) + 14)
             Node.group {
-                Node.capsule(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1).size(r.u(106), r.u(36))
-                Node.say(L("{number} of 99", ["number": Format.integer(name.number)]), 4, 0, r.u(98), r.u(36), size: r.f(16.5, min: 11.5), align: "center")
+                Node.capsule(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1).size(placeW, r.u(36))
+                Node.say(placeLine, 4, 0, placeW - 8, r.u(36), size: r.f(16.5, min: 11.5), align: "center")
             }
-            .size(r.u(106), r.u(36)).at(cx - r.u(53), lower + r.u(29))
+            .size(placeW, r.u(36)).at(cx - placeW / 2, lower + r.u(29))
             step("following", heading: L("Next"), under: after?.transliteration ?? L("(no next)"), symbol: "chevron.forward", x: w - r.u(181), y: lower + r.u(13), w: r.u(165), r: r, disabled: after == nil)
             saveStrip(ctx, name, saved: saved, w: w - r.u(36), r: r).at(r.u(18), lower + r.u(107))
         }
@@ -390,7 +394,7 @@ enum NamesPage {
         return Node.group {
             Node.rect(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.1, corner: r.u(20)).size(w, h)
             // The chevron stays against its word, whichever word it is.
-            let word = Double(heading.count) * r.f(19, min: 12.5) * 0.5, gap = r.u(12)
+            let word = wordsWidth(heading, size: r.f(19, min: 12.5), em: 0.5), gap = r.u(12)
             let start = (w - word - gap - glyph * 0.62) / 2
             Node.say(heading, forward ? start : start + glyph * 0.62 + gap, r.u(8), word + r.u(6), r.u(32), size: r.f(19, min: 12.5), color: disabled ? Noor.muted : Noor.text, align: "center")
             Node.say(under, r.u(8), r.u(40), w - r.u(16), r.u(24), size: r.f(14, min: 11), color: Noor.muted, align: "center")
@@ -408,7 +412,7 @@ enum NamesPage {
                 Node.symbol("bookmark.fill", color: .adaptive(light: "#B48A3E", dark: "#F3C877")).size(r.f(22, min: 15), r.f(28, min: 18)).at(r.u(30), (h - r.f(28, min: 18)) / 2)
                 Node.say(L("Saved to your names"), r.u(78), 0, w - r.u(250), h, size: size)
                 Node.pill("save", label: L("Undo"), spoken: L("Remove {name} from saved names", ["name": name.transliteration]), x: w - r.u(157), y: (h - r.u(44)) / 2, w: r.u(97), h: r.u(44), size: r.f(18, min: 12.5))
-                Node.group { Node.symbol("xmark", color: Noor.text).size(r.f(13, min: 10), r.f(13, min: 10)).at(r.u(12), r.u(12)) }
+                Node.group { Node.symbol("xmark", color: Noor.text).size(r.f(13, min: 11), r.f(13, min: 11)).at(r.u(12), r.u(12)) }
                     .size(r.u(38), r.u(38)).at(w - r.u(50), (h - r.u(38)) / 2).area("note-away", label: L("Close"))
             } else {
                 savePill(saved: saved, name: name, x: (w - r.u(240)) / 2, y: (h - r.u(58)) / 2, w: r.u(240), h: r.u(58), size: size)
@@ -447,8 +451,8 @@ enum NamesPage {
             Node.symbol("laptopcomputer", color: Noor.text).size(r.f(28, min: 18), r.f(20, min: 13)).at(r.u(22), h - footH + (footH - r.f(20, min: 13)) / 2)
             Node.say(L("Saved on this Mac · {count}", ["count": countWords(count)]), r.u(64), h - footH, w * 0.6, footH, size: r.f(16, min: 11), color: Noor.muted)
             if saved.all.count > shelfSize {
-                Node.pill("saved-back", label: "", spoken: L("Earlier"), x: w - r.u(112), y: h - footH + r.u(12), w: r.u(44), h: r.u(36), symbol: "chevron.backward", disabled: saved.start == 0, size: r.f(13, min: 10))
-                Node.pill("saved-on", label: "", spoken: L("Later"), x: w - r.u(60), y: h - footH + r.u(12), w: r.u(44), h: r.u(36), symbol: "chevron.forward", disabled: saved.start + shelfSize >= saved.all.count, size: r.f(13, min: 10))
+                Node.pill("saved-back", label: "", spoken: L("Earlier"), x: w - r.u(112), y: h - footH + r.u(12), w: r.u(44), h: r.u(36), symbol: "chevron.backward", disabled: saved.start == 0, size: r.f(13, min: 11))
+                Node.pill("saved-on", label: "", spoken: L("Later"), x: w - r.u(60), y: h - footH + r.u(12), w: r.u(44), h: r.u(36), symbol: "chevron.forward", disabled: saved.start + shelfSize >= saved.all.count, size: r.f(13, min: 11))
             }
         }
         .size(w, h)

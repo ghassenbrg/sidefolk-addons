@@ -119,7 +119,7 @@ enum PrayerPage {
         let cx = w / 2, cy = r.u(297)
         let ground = Color.adaptive(light: "#FBF9FD", dark: "#0C0F2C")
         let place = s.place?.label ?? s.source?.name ?? ""
-        let pillSize = r.f(15), pillW = min(r.u(190), Double(place.count) * pillSize * 0.58 + pillSize * 3.6)
+        let pillSize = r.f(15), pillW = min(r.u(190), wordsWidth(place, size: pillSize, em: 0.58) + pillSize * 3.6)
         // A mosque's focus can always be come back to, from where its pill led.
         let canFocus = ctx.state.bool("full") == true && isToday && day.flatMap { MosqueFocus.hold(s, day: $0) } != nil
         return Node.group {
@@ -187,12 +187,12 @@ enum PrayerPage {
             Node.group { Node.symbol("chevron.forward", color: Noor.text).size(r.u(11), r.u(17)).at(r.u(14), r.u(12)) }.size(r.u(40), r.u(42)).at(w - r.u(44), r.u(21)).area("next", label: L("Next day"))
             Node.rect(fill: .clear, stroke: Noor.hairline, lineWidth: 1, corner: r.u(12)).size(w - r.u(24), r.u(62)).at(r.u(12), r.u(101))
             Node.say(L("Prayer"), r.u(30), r.u(101), r.u(150), r.u(62), size: r.f(17.5, min: 12), weight: "medium")
-            Node.say(L("Starts"), r.u(203), r.u(101), r.u(130), r.u(62), size: r.f(17.5, min: 12), weight: "medium")
+            Node.say(L("Starts"), r.u(203) + nameRoom(r), r.u(101), r.u(130), r.u(62), size: r.f(17.5, min: 12), weight: "medium")
             Node.rect(fill: Noor.hairline).size(1, r.u(44)).at(lineX, r.u(110))
             Node.group {
                 Node.say(L("Iqamah"), 0, 0, r.u(70), r.u(24), size: r.f(17.5, min: 12), weight: "medium")
                 Node.symbol("info.circle", color: Noor.text).size(r.f(17, min: 12), r.f(17, min: 12)).at(r.u(76), r.u(3))
-                Node.say(calculated ? L("Not supplied by calculated times") : L("From this timetable"), 0, r.u(25), w - lineX - r.u(30), r.u(22), size: r.f(13.5, min: 10.5), color: Noor.muted)
+                Node.say(calculated ? L("Not supplied by calculated times") : L("From this timetable"), 0, r.u(24), w - lineX - r.u(30), r.u(30), size: r.f(13.5, min: 11), color: Noor.muted, valign: "top", lines: 2)
             }
             .size(w - lineX - r.u(22), r.u(48)).at(lineX + r.u(16), r.u(108))
             .area("source", label: calculated ? L("Iqamah is not supplied by calculated times. Open sources.") : L("Iqamah comes from this timetable. Open sources."), hover: .init(scale: 1.0))
@@ -234,8 +234,8 @@ enum PrayerPage {
                         Node.rect(fill: Noor.hairline).size(w - r.u(46), 1).at(r.u(23), 0)
                     }
                     Node.symbol(row.symbol.0, color: row.symbol.1).size(glyph, glyph).at(r.u(41) - glyph / 2, (rowH - glyph) / 2)
-                    Node.say(row.name, r.u(76), 0, r.u(118), rowH, size: r.f(20, min: 13), weight: next ? "semibold" : "regular", color: ink)
-                    Node.say(row.start.map(ctx.t) ?? "—", r.u(200), 0, r.u(120), rowH, size: r.f(22, min: 14), weight: next ? "semibold" : "regular", color: ink, tabular: true)
+                    Node.say(row.name, r.u(76), 0, r.u(118) + nameRoom(r), rowH, size: r.f(20, min: 13), weight: next ? "semibold" : "regular", color: ink)
+                    Node.say(row.start.map(ctx.t) ?? "—", r.u(200) + nameRoom(r), 0, r.u(120), rowH, size: r.f(22, min: 14), weight: next ? "semibold" : "regular", color: ink, tabular: true)
                     Node.rect(fill: Noor.hairline).size(1, r.u(34)).at(lineX, (rowH - r.u(34)) / 2)
                     // A missing iqamah is a dash: nothing is worked out from the start.
                     Node.say(row.iqamah.map(ctx.t) ?? "—", lineX + r.u(19), 0, bellLineX - lineX - r.u(24), rowH, size: r.f(21, min: 13.5), color: row.iqamah == nil ? Noor.muted : ink, tabular: true)
@@ -260,6 +260,12 @@ enum PrayerPage {
             }
         }
         .size(w, rowH * 6).at(0, y)
+    }
+
+    /// What the ledger's name column needs past the board's width, for the longest word in this language: its times move over by that, up to where they still clear the iqamah's line.
+    private static func nameRoom(_ r: Ruler) -> Double {
+        let longest = (PrayerID.allCases.map { Words.prayer($0) } + [Words.solar(.sunrise)]).map { wordsWidth($0, size: r.f(20, min: 13), em: 0.52) }.max() ?? 0
+        return min(r.u(40), max(0, longest - r.u(118)))
     }
 
     private static func rowSpoken(_ ctx: Context, _ name: String, _ start: Date?, _ iqamah: Date?, next: Bool, past: Bool) -> String {
@@ -356,7 +362,9 @@ enum PrayerPage {
                 let sun = item.event == .imsak
                 Node.glow(sun ? .hex("#F6B45C") : .hex("#8C7AE6"), cx: x, cy: r.u(77), r: glyph * 1.1)
                 Node.symbol(sun ? "sun.max.fill" : "moon.fill", color: sun ? .hex("#F6C04C") : .adaptive(light: "#7A5AB8", dark: "#D6C6F2")).size(glyph, glyph).at(x - glyph / 2, r.u(77) - glyph / 2)
-                Node.say(item.name, x - r.u(100), r.u(102), r.u(200), r.u(26), size: r.f(18, min: 12), color: sun ? nightWarm : Noor.text, align: "center")
+                // A long name takes two lines upward, its time staying on the row.
+                let wraps = wordsWidth(item.name, size: r.f(18, min: 12), em: 0.5) > r.u(214)
+                Node.say(item.name, x - r.u(107), wraps ? r.u(89) : r.u(102), r.u(214), wraps ? r.u(39) : r.u(26), size: wraps ? r.f(15.5, min: 12) : r.f(18, min: 12), color: sun ? nightWarm : Noor.text, align: "center", lines: wraps ? 2 : 1)
                 Node.say(ctx.t(item.at), x - r.u(100), r.u(127), r.u(200), r.u(30), size: r.f(21, min: 13), color: sun ? nightWarm : Noor.text, align: "center", tabular: true)
             }
             if times.isEmpty {
@@ -651,7 +659,7 @@ enum MosqueFocus {
             Node.group {
                 Node.symbol("calendar", color: Noor.text).size(f(19, 14), f(19, 14)).at(0, u(6))
                 Node.say(line.kind, u(28), 0, w * 0.46 - u(58), u(24), size: f(15, 11.5))
-                Node.symbol("info.circle", color: Noor.text).size(f(15, 11.5), f(15, 11.5)).at(min(u(28) + Double(line.kind.count) * f(15, 11.5) * 0.5 + u(8), w * 0.46 - u(22)), u(5))
+                Node.symbol("info.circle", color: Noor.text).size(f(15, 11.5), f(15, 11.5)).at(min(u(28) + wordsWidth(line.kind, size: f(15, 11.5), em: 0.5) + u(8), w * 0.46 - u(22)), u(5))
                 if let valid = line.valid { Node.say(valid, u(28), u(22), w * 0.46 - u(58), u(22), size: f(15, 11.5), color: Noor.muted) }
             }
             .size(w * 0.46, u(46)).at(w - u(250), u(6))
@@ -745,7 +753,7 @@ enum MosqueFocus {
             Node.glow(.hex("#8C7AE6"), cx: box / 2, cy: dot, r: dot * 1.2)
             Node.ellipse(fill: .hex("#7354E0"), stroke: .hex("#FFFFFF"), lineWidth: 2).size(dot, dot).at(box / 2 - dot / 2, dot / 2)
             Node.say(name, 0, dot * 1.7, box, u(22), size: f(15.5, 11.5), align: "center")
-            Node.say(kind, 0, dot * 1.7 + u(19), box, u(20), size: f(14, 10.5), color: Noor.muted, align: "center")
+            Node.say(kind, 0, dot * 1.7 + u(19), box, u(20), size: f(14, 11), color: Noor.muted, align: "center")
             Node.say(time, 0, dot * 1.7 + u(37), box, u(22), size: f(16, 12), align: "center", tabular: true)
         }
         .size(box, u(84)).at(x - box / 2, y - dot)

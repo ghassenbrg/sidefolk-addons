@@ -54,8 +54,8 @@ extension Node {
             if feet {
                 // The flourish turned into the two lower corners, over the window's feet.
                 let c = r.u(96)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(c, c).at(w - c - side * 0.3, h - c - side * 0.3).rotate(90)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(c, c).at(side * 0.3, h - c - side * 0.3).rotate(180)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(c, c).at(w - c - side * 0.3, h - c - side * 0.3).turned(90)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(c, c).at(side * 0.3, h - c - side * 0.3).turned(180)
             }
             Node.rect(stroke: Color.adaptive(light: "#C9AB72", dark: "#C47F6A"), lineWidth: 1.2, corner: r.u(18)).size(w, h)
         }
@@ -115,7 +115,7 @@ extension Node {
     static func ctaPill(_ id: String, label: String, x: Double, y: Double, w: Double, h: Double, symbol: String? = "arrow.forward", leading: String? = nil, filled: Bool = true, disabled: Bool = false, size: Double) -> Node {
         let ink = filled ? Noor.onChosen : Noor.text
         let glyph = size * 1.05
-        let words = Double(label.count) * size * 0.5
+        let words = wordsWidth(label, size: size, em: 0.56)
         let lead = leading == nil ? 0 : glyph + size * 0.6, trail = symbol == nil ? 0 : glyph + size * 0.7
         let start = max(h * 0.3, (w - words - lead - trail) / 2)
         return Node.group {
@@ -125,7 +125,7 @@ extension Node {
                 Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(w, h).at(0, 0)
             }
             if let leading { Node.symbol(leading, color: ink).size(glyph, glyph).at(start, (h - glyph) / 2) }
-            Node.say(label, start + lead, 0, max(words + size, w - start - lead - trail - h * 0.2), h, size: size, weight: "medium", color: ink)
+            Node.say(label, start + lead, 0, w - start - lead - trail - h * 0.2, h, size: size, weight: "medium", color: ink)
             if let symbol { Node.symbol(symbol, color: ink).size(glyph, glyph).at(min(start + lead + words + size * 0.7, w - glyph - h * 0.3), (h - glyph) / 2) }
         }
         .size(w, h).at(x, y).opacity(disabled ? 0.45 : 1)
