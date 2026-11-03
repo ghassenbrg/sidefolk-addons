@@ -1,0 +1,11 @@
+{
+  "id": "dev.sidefolk.theme.marshmallow",
+  "kind": "theme",
+  "name": "Marshmallow",
+  "tagline": "Candy colours over cotton-candy clouds",
+  "description": "Candy colours over cotton-candy clouds, round faces and a raspberry accent. The playful one, in light and dark.",
+  "author": "Sidefolk",
+  "version": "2.0.0",
+  "license": "Proprietary",
+  "minimum_sidefolk": "0.1.0"
+}

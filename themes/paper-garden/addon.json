@@ -1,0 +1,11 @@
+{
+  "id": "dev.sidefolk.theme.paper-garden",
+  "kind": "theme",
+  "name": "Paper Garden",
+  "tagline": "Warm paper, hinoki wood and bamboo shadows",
+  "description": "Warm paper, a hinoki-wood sidebar, sage and an editorial serif, with light through a paper screen and bamboo shadows on every page. A slower, kinder Sidefolk, in light and dark.",
+  "author": "Sidefolk",
+  "version": "2.0.0",
+  "license": "Proprietary",
+  "minimum_sidefolk": "0.1.0"
+}
