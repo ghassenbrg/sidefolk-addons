@@ -19,6 +19,7 @@ dist/stage/<name>/ with each pack's files as Sidefolk installs them (for `sidefo
 A pack is a bundle, `<name>.sidefolkaddon/Contents/{Info.plist, Resources/…}`, signed as a whole (codesign seals
 every file under Resources), zipped. Its identifier is the add-on's id, which Sidefolk checks against the catalog.
 """
+import functools
 import hashlib
 import json
 import os
@@ -95,9 +96,11 @@ def pairs_digest(pairs):
     return h.hexdigest()
 
 
+@functools.lru_cache(maxsize=1)
 def kit_versions():
     """Kit/ as it was at each commit that changed it, newest first, as (relative path, bytes) pairs."""
-    revs = run("git", "log", "--format=%H", "--", "Kit", cwd=ROOT, capture_output=True).stdout.split()
+    # --full-history: a merge that keeps one side's Kit would otherwise hide the Kit the other side's packs were built with.
+    revs = run("git", "log", "--full-history", "--format=%H", "--", "Kit", cwd=ROOT, capture_output=True).stdout.split()
     out = []
     for rev in revs:
         names = run("git", "ls-tree", "-r", "--name-only", rev, "--", "Kit", cwd=ROOT, capture_output=True).stdout.split("\n")
