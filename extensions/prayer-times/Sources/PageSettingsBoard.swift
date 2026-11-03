@@ -117,7 +117,7 @@ enum SettingsBoard {
         let labelH = max(r.u(22), 18)
         let pillX = stacked ? x : x + labelW, pillW = stacked ? w : w - labelW, pillY = stacked ? y + labelH + 1 : y
         s.add(Node.say(label, x, stacked ? y : (caption == nil ? y : y - r.u(5)), stacked ? w : labelW - r.u(8), stacked || caption == nil ? (stacked ? labelH : h) : r.u(24), size: r.f(16, min: 12.5)))
-        if let caption, !stacked { s.add(Node.say(caption, x, y + r.u(17), labelW - r.u(8), r.u(18), size: r.f(11.5, min: 10), color: Noor.faint)) }
+        if let caption, !stacked { s.add(Node.say(caption, x, y + r.u(17), labelW - r.u(8), r.u(18), size: r.f(11.5), color: Noor.faint)) }
         s.add(Node.menuPill(words, x: pillX, y: pillY, w: pillW, h: h, size: r.f(15.5, min: 12.5), fill: Noor.well, line: Noor.edge, ink: Noor.text, corner: r.u(8)))
         s.inlay(pillX, pillY, pillW, h, part)
         return stacked ? labelH + 1 + h : h
@@ -134,6 +134,12 @@ enum SettingsBoard {
         s.add(Node.say(detail, x, y + max(r.u(20), 17), w - r.u(64) - 6, wrap ? 30 : max(r.u(20), 15), size: r.f(13, min: 11), color: Noor.muted, lines: wrap ? 2 : 1))
         if on { onTrack(&s, cx: x + w - r.u(28), cy: y + r.u(19)) }
         s.inlay(x + w - r.u(56), y + r.u(4), r.u(56), r.u(30), part)
+    }
+
+    /// What a native button stands on: the same pill as `smallButton`, and the host says its words.
+    private static func nativeButton(_ s: inout Sketch, _ action: Action, x: Double, y: Double, w: Double, h: Double, r: Ruler) {
+        s.add(Node.rect(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2, corner: r.u(11)).size(w, h).at(x, y))
+        s.button(action, x: x, y: y, w: w, h: h, size: r.f(15, min: 12))
     }
 
     private static func smallButton(_ s: inout Sketch, _ id: String, _ word: String, x: Double, y: Double, w: Double, h: Double, destructive: Bool = false, disabled: Bool = false, filled: Bool = false, r: Ruler) {
@@ -205,19 +211,17 @@ enum SettingsBoard {
             }
         }()
         s.add(Node.say(L("Use Sidefolk's place"), left + r.u(38), ry, inner - r.u(38) - controlW - r.u(6), r.f(24, min: 18), size: r.f(15.5, min: 12.5)))
-        let sharedLines = lineCount(shared.words, width: inner - r.u(38), size: r.f(12.5, min: 10.5))
-        s.add(Node.text(shared.words, size: r.f(12.5, min: 10.5), color: shared.warn ? Noor.warm : Noor.muted, align: "leading", valign: "top", lines: sharedLines, minScale: 0.9).size(inner - r.u(38), Double(sharedLines) * 14 + 2).at(left + r.u(38), ry + max(r.u(25), 20)))
+        let sharedLines = lineCount(shared.words, width: inner - r.u(38), size: r.f(12.5))
+        s.add(Node.text(shared.words, size: r.f(12.5), color: shared.warn ? Noor.warm : Noor.muted, align: "leading", valign: "top", lines: sharedLines, minScale: 11 / r.f(12.5)).size(inner - r.u(38), Double(sharedLines) * 14 + 2).at(left + r.u(38), ry + max(r.u(25), 20)))
         let buttonX = narrow ? left + r.u(38) : left + inner - controlW, buttonY = narrow ? ry + max(r.u(25), 20) + Double(sharedLines) * 14 + 6 : ry - r.u(5), buttonSpan = narrow ? inner - r.u(38) : controlW
         switch shared.control {
         case .toggle(let on):
             if on { onTrack(&s, cx: left + inner - r.u(28), cy: ry + r.u(11)) }
             s.inlay(left + inner - r.u(56), ry - r.u(4), r.u(56), r.u(30), .toggle(L("Use Sidefolk's place"), on: on, tool: "follow_shared_place"))
         case .allow:
-            s.acts["shareplace"] = .allow("place")
-            smallButton(&s, "shareplace", L("Share Sidefolk's place"), x: buttonX, y: buttonY, w: buttonSpan, h: max(r.u(30), 26), r: r)
+            nativeButton(&s, Action(L("Share Sidefolk's place"), act: .allow("place")), x: buttonX, y: buttonY, w: buttonSpan, h: max(r.u(30), 26), r: r)
         case .settings:
-            s.acts["placesettings"] = .settings("place")
-            smallButton(&s, "placesettings", L("Open Sidefolk's place settings"), x: buttonX, y: buttonY, w: buttonSpan, h: max(r.u(30), 26), r: r)
+            nativeButton(&s, Action(L("Open Sidefolk's place settings"), act: .settings("place")), x: buttonX, y: buttonY, w: buttonSpan, h: max(r.u(30), 26), r: r)
         case .none:
             break
         }
@@ -237,8 +241,8 @@ enum SettingsBoard {
         cy += used + 5
         s.acts["ssources"] = .go(Go(set: ["section": "sources"]))
         let provider = shown?.kind == .manual ? L("A source you entered is labelled Manual.") : L("Prayer times provided by AlAdhan.")
-        let linkW = max(r.u(146), 120)
-        s.add(Node.say(provider, narrow ? left : left + r.u(170), cy, inner - linkW - (narrow ? 0 : r.u(170)), max(r.u(24), 20), size: r.f(13.5, min: 10.5), color: Noor.muted, lines: narrow ? 2 : 1))
+        let linkW = max(r.u(130), 112)
+        s.add(Node.say(provider, narrow ? left : left + r.u(170), cy - 4, inner - linkW - (narrow ? 0 : r.u(170)), 30, size: r.f(13.5), color: Noor.muted, lines: 2))
         link(&s, "ssources", L("Manage timetables"), x: left + inner - linkW, y: cy + 1, w: linkW, r: r)
         return cy + max(r.u(26), 30) - y
     }
@@ -327,7 +331,7 @@ enum SettingsBoard {
         s.acts["cancelcalc"] = .go(Go(set: state.values.keys.filter { $0.hasPrefix("d_") }.reduce(into: [String: Any]()) { $0[$1] = NSNull() }))
         let textW = narrow ? inner : inner - saveW - cancelW - r.u(16)
         s.add(Node.symbol("info.circle", color: changed ? Noor.warm : Noor.muted).size(r.f(15, min: 13), r.f(15, min: 13)).at(left, cy + r.u(10)))
-        s.add(Node.say(note, left + r.u(22), cy, textW - r.u(22), narrow ? 30 : buttonH, size: r.f(12, min: 10.5), color: changed ? Noor.warm : Noor.muted, lines: 2))
+        s.add(Node.say(note, left + r.u(22), cy, textW - r.u(22), narrow ? 30 : buttonH, size: r.f(12), color: changed ? Noor.warm : Noor.muted, lines: 2))
         let by = narrow ? cy + 34 : cy
         smallButton(&s, "cancelcalc", L("Cancel"), x: left + inner - saveW - cancelW - r.u(8), y: by, w: cancelW, h: buttonH, disabled: !changed, r: r)
         smallButton(&s, "savecalc", L("Save calculation"), x: left + inner - saveW, y: by, w: saveW, h: buttonH, disabled: !changed || method.isEmpty || badTune, filled: true, r: r)
@@ -351,7 +355,7 @@ enum SettingsBoard {
         cy += narrow ? 52 : max(r.u(46), 38)
         line(&s, x: left - r.u(4), y: cy, w: inner + r.u(8))
         s.add(Node.symbol("info.circle", color: Noor.muted).size(r.f(16, min: 13), r.f(16, min: 13)).at(left, cy + r.u(9)))
-        s.add(Node.text(L("Separate from the prayer method. Dates are provided by this method, and local announcements may differ."), size: r.f(12.5, min: 10.5), color: Noor.muted, align: "leading", valign: "top", lines: narrow ? 3 : 2, minScale: 0.9).size(inner - r.u(30), narrow ? 44 : max(r.u(36), 28)).at(left + r.u(28), cy + r.u(5)))
+        s.add(Node.text(L("Separate from the prayer method. Dates are provided by this method, and local announcements may differ."), size: r.f(12.5), color: Noor.muted, align: "leading", valign: "top", lines: narrow ? 3 : 2, minScale: 11 / r.f(12.5)).size(inner - r.u(30), narrow ? 44 : max(r.u(36), 28)).at(left + r.u(28), cy + r.u(5)))
         return cy + (narrow ? 50 : max(r.u(42), 34)) - y
     }
 
@@ -360,8 +364,10 @@ enum SettingsBoard {
     private static func dataBody(_ ctx: Context, _ s: inout Sketch, x: Double, y: Double, w: Double, r: Ruler) -> Double {
         let pad = r.u(22), inner = w - pad * 2, left = x + pad
         let narrow = inner < 400
-        let exported = (try? ctx.model.store.export(.all)).flatMap { String(data: $0, encoding: .utf8) } ?? ""
-        let settings = exported.count <= 2000 ? exported : nil
+        // What is set and nothing fetched: downloaded answers would pass what one click may copy, and the button would go.
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let settings = (try? encoder.encode(ctx.model.prefs)).flatMap { String(data: $0, encoding: .utf8) }.flatMap { $0.count <= 2000 ? $0 : nil }
         let fetched = ctx.model.fetchedAt.map { Format.dateTime($0, timeZone: ctx.zone) }
         let facts: [(String, String)] = [
             (L("Last successful fetch"), fetched ?? "—"),
@@ -383,22 +389,21 @@ enum SettingsBoard {
         let sideH = max(r.u(36), 28)
         smallButton(&s, "refreshdata", L("Check for new times"), x: sideX, y: sideY, w: narrow ? inner : side, h: sideH, r: r)
         if let settings {
-            s.acts["copysettings"] = .copy(settings)
-            smallButton(&s, "copysettings", L("Copy my settings"), x: sideX, y: sideY + sideH + 6, w: narrow ? inner : side, h: sideH, r: r)
+            nativeButton(&s, Action(L("Copy my settings"), act: .copy(settings)), x: sideX, y: sideY + sideH + 6, w: narrow ? inner : side, h: sideH, r: r)
         }
         cy = narrow ? sideY + (sideH + 6) * (settings == nil ? 1 : 2) : cy + factH * 4 + r.u(6)
         let confirm = ctx.state.bool("confirm_clear") ?? false
         let red = Color.adaptive(light: "#B3261E", dark: "#FF8A80")
         let noteWords = confirm ? L("This removes your place, timetables, saved names and settings from Noor, and cancels its reminders. Sidefolk's own place isn't touched.") : L("Your choices stay here. AlAdhan receives the coordinates, date and conventions needed for an answer; Sidefolk's place search receives what you type. Noor's internet access isn't limited to these by the sandbox: it can reach any address, the local network too.")
-        let noteSize = r.f(11.5, min: 10), noteLines = lineCount(noteWords, width: inner, size: noteSize)
-        s.add(Node.text(noteWords, size: noteSize, color: confirm ? red : Noor.muted, align: "leading", valign: "top", lines: noteLines, minScale: 0.85).size(inner, Double(noteLines) * noteSize * 1.27 + 3).at(left, cy))
+        let noteSize = r.f(11.5), noteLines = lineCount(noteWords, width: inner, size: noteSize)
+        s.add(Node.text(noteWords, size: noteSize, color: confirm ? red : Noor.muted, align: "leading", valign: "top", lines: noteLines, minScale: 11 / noteSize).size(inner, Double(noteLines) * noteSize * 1.27 + 3).at(left, cy))
         cy += Double(noteLines) * noteSize * 1.27 + max(r.u(10), 7)
 
         let gap = r.u(12), half = narrow ? inner : (inner - gap) / 2, buttonH = max(r.u(36), 28)
         let firstY = cy, secondX = narrow ? left : left + half + gap, secondY = narrow ? cy + buttonH + 34 : cy
         s.tools["clearcache"] = ("clear_data", ["scope": "cache"])
         smallButton(&s, "clearcache", L("Clear downloaded data"), x: left, y: firstY, w: half, h: buttonH, r: r)
-        s.add(Node.say(L("Removes saved answers. They come back when next needed."), left, firstY + buttonH + 2, half, 28, size: r.f(11.5, min: 10), color: Noor.muted, align: "center", lines: 2))
+        s.add(Node.say(L("Removes saved answers. They come back when next needed."), left, firstY + buttonH + 2, half, 28, size: r.f(11.5), color: Noor.muted, align: "center", lines: 2))
         if confirm {
             s.tools["deleteall"] = ("clear_data", ["scope": "all"])
             s.acts["keepall"] = .go(Go(set: ["confirm_clear": NSNull()]))
@@ -408,7 +413,7 @@ enum SettingsBoard {
         } else {
             s.acts["confirmall"] = .go(Go(set: ["confirm_clear": true]))
             smallButton(&s, "confirmall", L("Delete Noor's data…"), x: secondX, y: secondY, w: half, h: buttonH, destructive: true, r: r)
-            s.add(Node.say(L("Requires confirmation."), secondX, secondY + buttonH + 2, half, 28, size: r.f(11.5, min: 10), color: Noor.muted, align: "center"))
+            s.add(Node.say(L("Requires confirmation."), secondX, secondY + buttonH + 2, half, 28, size: r.f(11.5), color: Noor.muted, align: "center"))
         }
         return secondY + buttonH + 30 - y
     }
@@ -439,7 +444,7 @@ enum SettingsBoard {
             if missing { noteBody += " " + L("This source has no iqamah times, so your iqamah reminders won't come from it. Your choices are kept.") }
         }
         let noteW = stack ? w - r.u(28) : w - r.u(836) - r.u(13)
-        let noteSize = r.f(11.5, min: 10), textW = noteW - r.u(70)
+        let noteSize = r.f(11.5), textW = noteW - r.u(70)
         let noteLines = lineCount(noteBody, width: textW, size: noteSize)
         let buttonsH = next == nil ? 0 : max(r.u(32), 28) + 8
         let noteH = max(r.u(24), 20) + Double(noteLines) * noteSize * 1.27 + buttonsH + 8
@@ -455,20 +460,20 @@ enum SettingsBoard {
         s.add(Node.symbol("chart.bar.fill", color: Noor.accent).size(r.f(30, min: 22), r.f(30, min: 22)).at(x + r.u(44), y + r.u(24)))
         let wordsW = stack ? w - r.u(110) : r.u(250)
         s.add(Node.say(L("Source-change preview"), x + r.u(97), y + r.u(8), wordsW, max(r.u(26), 20), size: r.f(17.5, min: 13.5), weight: "semibold"))
-        s.add(Node.text(L("{prayer} on the same date, each timetable in its own zone.", ["prayer": Words.prayer(prayer)]), size: r.f(13.5, min: 11.5), color: Noor.muted, align: "leading", valign: "top", lines: 3, minScale: 0.9).size(wordsW, h - max(r.u(36), 28) - 4).at(x + r.u(97), y + max(r.u(36), 28)))
+        s.add(Node.text(L("{prayer} on the same date, each timetable in its own zone.", ["prayer": Words.prayer(prayer)]), size: r.f(13.5, min: 11.5), color: Noor.muted, align: "leading", valign: "top", lines: 3, minScale: 11 / r.f(13.5, min: 11.5)).size(wordsW, h - max(r.u(36), 28) - 4).at(x + r.u(97), y + max(r.u(36), 28)))
 
         // The two times.
         let boxX = stack ? x + r.u(14) : x + r.u(353), boxY = stack ? y + r.u(88) : y + r.u(10), boxW = stack ? w - r.u(28) : r.u(465), boxH = stack ? boxTall : h - r.u(20)
         s.add(Node.rect(fill: Noor.surface, stroke: Noor.hairline, lineWidth: 1, corner: r.u(11)).size(boxW, boxH).at(boxX, boxY))
         let half = boxW * 0.40, time = r.f(29, min: 20), capH = max(r.u(18), 15), timeH = max(r.u(34), 26), capY = boxY + (boxH - capH * 2 - timeH) / 2
-        s.add(Node.say(L("Current · {kind}", ["kind": current?.name ?? Words.sourceKind(current)]), boxX + r.u(24), capY, half, capH, size: r.f(12.5, min: 10.5), color: Noor.muted))
+        s.add(Node.say(L("Current · {kind}", ["kind": current?.name ?? Words.sourceKind(current)]), boxX + r.u(24), capY, half, capH, size: r.f(12.5), color: Noor.muted))
         s.add(Node.say(oldTime, boxX + r.u(24), capY + capH, half, timeH, size: time, weight: "medium", tabular: true))
         s.add(Node.symbol("arrow.forward", color: Noor.text).size(r.f(22, min: 16), r.f(18, min: 14)).at(boxX + boxW * 0.47, capY + capH + (timeH - r.f(18, min: 14)) / 2))
         let rightX = boxX + boxW * 0.58, rightW = boxW * 0.40
-        s.add(Node.say(next.map { L("New · {kind}", ["kind": $0.name]) } ?? L("New · choose above"), rightX, capY, rightW, capH, size: r.f(12.5, min: 10.5), color: Noor.muted))
+        s.add(Node.say(next.map { L("New · {kind}", ["kind": $0.name]) } ?? L("New · choose above"), rightX, capY, rightW, capH, size: r.f(12.5), color: Noor.muted))
         s.add(Node.say(newTime, rightX, capY + capH, rightW, timeH, size: time, weight: "medium", color: Noor.accent, tabular: true))
         if let today {
-            s.add(Node.say(Words.date(today, weekday: true, year: true), rightX, capY + capH + timeH, rightW, capH, size: r.f(12.5, min: 10.5), color: Noor.muted))
+            s.add(Node.say(Words.date(today, weekday: true, year: true), rightX, capY + capH + timeH, rightW, capH, size: r.f(12.5), color: Noor.muted))
         }
 
         let noteX = stack ? x + r.u(14) : x + r.u(836), noteY = stack ? boxY + boxH + 10 : y + (h - min(h - r.u(16), max(noteH, h - r.u(16)))) / 2, boxNoteH = stack ? noteH : h - r.u(16)
@@ -477,7 +482,7 @@ enum SettingsBoard {
         s.add(Node.symbol("info.circle", color: amber).size(r.f(28, min: 20), r.f(28, min: 20)).at(noteX + r.u(18), noteY + r.u(14)))
         let textX = noteX + r.u(60)
         s.add(Node.say(noteHead, textX, noteY + 3, textW, max(r.u(20), 17), size: r.f(12.5, min: 11), weight: "semibold", color: amber))
-        s.add(Node.text(noteBody, size: noteSize, color: Noor.muted, align: "leading", valign: "top", lines: noteLines, minScale: 0.85).size(textW, Double(noteLines) * noteSize * 1.27 + 3).at(textX, noteY + 3 + max(r.u(20), 17)))
+        s.add(Node.text(noteBody, size: noteSize, color: Noor.muted, align: "leading", valign: "top", lines: noteLines, minScale: 11 / noteSize).size(textW, Double(noteLines) * noteSize * 1.27 + 3).at(textX, noteY + 3 + max(r.u(20), 17)))
         if let next {
             let useW = textW * 0.66, bh = max(r.u(32), 28), by = noteY + boxNoteH - bh - 6
             s.tools["usesource"] = ("choose_source", ["id": next.id])
@@ -546,7 +551,7 @@ enum SettingsBoard {
             let reminders = ctx.model.planned().count
             let base = L("{place} is at {zone}. Saving sends its coordinates to AlAdhan, and times, the bearing and any reminders move to it.", ["place": found.label, "zone": found.zoneID])
             let words = reminders > 0 ? base + " " + L(one: "{count} planned reminder is replaced.", other: "{count} planned reminders are replaced.", count: reminders) : base
-            s.add(Node.text(words, size: r.f(13.5, min: 11.5), color: Noor.muted, align: "leading", valign: "top", lines: 3, minScale: 0.9).size(inner, r.u(56)).at(left, y + r.u(4)))
+            s.add(Node.text(words, size: r.f(13.5, min: 11.5), color: Noor.muted, align: "leading", valign: "top", lines: 3, minScale: 11 / r.f(13.5, min: 11.5)).size(inner, r.u(56)).at(left, y + r.u(4)))
             y += r.u(60)
             s.tools["saveplace"] = ("choose_place", PlaceParts.input(found))
             s.acts["cancelplace"] = .go(Go(set: ["place_pick": NSNull()]))

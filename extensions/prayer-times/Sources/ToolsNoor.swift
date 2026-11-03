@@ -377,7 +377,7 @@ enum NoorTools {
             let on = args.bool("enabled") ?? false
             let suhoor = args.int("suhoor") ?? -1
             let days = (args.values["days"] as? [NSNumber])?.map(\.intValue) ?? []
-            if on, !Occurrences.allowed { return ToolReply(L("Sidefolk needs your yes first: choose Allow Noor's reminders in Preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "reminders"], push: true) }
+            if on, !Occurrences.allowed { return ToolReply(L("Sidefolk needs your yes first: choose Allow Noor's reminders in Preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "reminders", "rm_ask": true], push: true) }
             try model.save { p in
                 p.reminders.ramadan = on ? Reminders.Ramadan(enabled: true, days: Set(days), suhoorMinutesBeforeFajr: Reminders.suhoorBounds.contains(suhoor) ? suhoor : nil, iftar: args.bool("iftar") ?? false) : Reminders.Ramadan()
                 if on, !p.reminders.route.companion, !p.reminders.route.systemFallback { p.reminders.route.companion = true }

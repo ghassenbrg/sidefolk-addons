@@ -396,6 +396,16 @@ enum SourcePage {
         problems += review.conflicts.prefix(4).map { L("Line {line} contradicts line {first}.", ["line": "\($0.line)", "first": "\($0.firstLine)"]) }
         problems += review.missingDates.prefix(4).map { L("{date} is missing from this file.", ["date": Words.date($0, weekday: false)]) }
         problems += review.missingRows.prefix(4).map { L("{prayer} is missing on {date}.", ["prayer": Words.prayer($0.prayer), "date": Words.date($0.date, weekday: false)]) }
+        if problems.isEmpty, let twin = twin(ctx, of: review) {
+            let bannerH = r.u(64)
+            nodes.append(Node.group {
+                Node.rect(fill: Color.adaptive(light: "#FFF7EA", dark: "#2A2030"), stroke: NoorLine.caution, lineWidth: 1, corner: r.u(10)).size(inner, bannerH)
+                Node.symbol("exclamationmark.triangle.fill", color: NoorLine.caution).size(r.f(24, min: 15), r.f(24, min: 15)).at(r.u(18), (bannerH - r.f(24, min: 15)) / 2)
+                Node.say(L("You already have these same times, as {name}. Adding this makes a second copy.", ["name": twin]), r.u(58), 0, inner - r.u(70), bannerH, size: r.f(14, min: 11), color: Noor.warm, lines: 2)
+            }
+            .size(inner, bannerH).at(x, y))
+            y += bannerH + r.u(10)
+        }
         if problems.isEmpty {
             let boxH = r.u(92)
             nodes.append(Node.group {
@@ -463,6 +473,15 @@ enum SourcePage {
             nodes
         }
         .size(w, finalH), height)
+    }
+
+    /// The saved timetable with exactly these times, if there is one: a warning, as a second copy may be meant.
+    private static func twin(_ ctx: Context, of review: ImportReview) -> String? {
+        guard let table = review.timetable(id: "manual.check", attribution: review.name) else { return nil }
+        return ctx.model.sources.first { source in
+            guard source.kind == .manual, case .ok(let saved) = ctx.model.store.timetable(sourceID: source.id) else { return false }
+            return saved.sameTimes(as: table)
+        }?.name
     }
 
     private static func slotName(_ slot: TimetableSlot) -> String {

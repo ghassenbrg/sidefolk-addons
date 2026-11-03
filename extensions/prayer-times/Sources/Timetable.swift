@@ -11,6 +11,11 @@ struct ManualTimetable: Hashable, Sendable, Codable {
         if let coverage = source.coverage, date > coverage.upperBound { return .failure(.expired) }
         return .failure(.noCoverage)
     }
+
+    /// The same dates and times, whatever each is called: choosing one file twice would otherwise make two identical sources.
+    func sameTimes(as other: ManualTimetable) -> Bool {
+        days.count == other.days.count && zip(days, other.days).allSatisfy { ($0.date, $0.zoneID, $0.starts, $0.iqamah, $0.friday) == ($1.date, $1.zoneID, $1.starts, $1.iqamah, $1.friday) }
+    }
 }
 
 /// What a timetable row fills: one of the five prayers or a named Friday session like `friday-1`.

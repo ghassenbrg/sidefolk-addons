@@ -32,7 +32,7 @@ enum HeadScene {
             Node.say(L("Islamic companion"), wordsX, r.u(50), wordsW, r.u(26), size: r.f(19, min: 12.5))
             Node.group {
                 Node.say(subtitle, 0, 0, wordsW - 20, r.u(24), size: r.f(15.5), color: Noor.muted)
-                Node.symbol("chevron.down", color: Noor.muted).size(r.f(11, min: 9), r.f(11, min: 9)).at(wordsW - 16, (r.u(24) - r.f(11, min: 9)) / 2)
+                Node.symbol("chevron.down", color: Noor.muted).size(r.f(11, min: 9), r.f(11, min: 9)).at(min(wordsW - 16, Double(subtitle.count) * r.f(15.5) * 0.5 + 6), (r.u(24) - r.f(11, min: 9)) / 2)
             }
             .size(wordsW, r.u(24)).at(wordsX, r.u(76))
             .area("source", label: L("Where the times come from: {source}. Open.", ["source": subtitle]), hover: .init(scale: 1.0))

@@ -26,11 +26,11 @@ enum RemindersSheet {
         var lines: [Line] = []
         var input: [String: Any] = [:]
         let hasIqamah: Bool
-        /// Against what the page starts from: with reminders off the companion route is only ticked for them, and looking changes nothing.
+        /// Against what the page starts from: with reminders off the companion route is only ticked for them, and looking changes nothing. A prayer with nothing chosen and one that isn't saved at all are the same.
         var changed: Bool {
             var start = saved
             start.route.companion = saved.route.companion || !saved.master
-            return draft != start
+            return draft.withoutEmptyPrayers != start.withoutEmptyPrayers
         }
         @MainActor var allowed: Bool { Occurrences.allowed }
     }
@@ -109,7 +109,7 @@ enum RemindersSheet {
         let hasPills = d.saved.master || d.saved.ramadan.enabled
         heading(&body, ctx, d, x: x, w: width, y: r.u(72), r: r, stack: tight)
         var y = max(r.u(134), r.u(72) + (tight && hasPills ? 94 : 58))
-        y += table(&body, ctx, d, x: x, y: y, w: width, r: r, stack: false, menusOnly: tight) + r.u(12)
+        y += table(&body, ctx, d, x: x, y: y, w: width, r: r, stack: false, menusOnly: tight || overBudget(ctx, d)) + r.u(12)
         y += delivery(&body, d, x: x, y: y, w: width, r: r, stack: false) + r.u(7)
         if deniedRow(d) {
             let h = max(r.u(38), tight ? 46 : 36)
@@ -172,7 +172,7 @@ enum RemindersSheet {
             deniedStrip(&body, x: x, y: y, w: width, h: 58, r: r)
             y += 66
         }
-        let focusH = focusHeight(w: width, r: r) + 26
+        let focusH = focusHeight(w: width, r: r)
         focusRow(&body, x: x, y: y, w: width, h: focusH, r: r)
         y += focusH + 8
         y += others(&body, ctx, d, x: x, y: y, w: width, r: r) + 12
@@ -184,6 +184,18 @@ enum RemindersSheet {
         sheet(&lower, x: sheetX, y: 0, w: w - sheetX * 2, h: tall, r: r)
         lower.take(column)
         return [s.block(w, y + 8), lower.block(w, tall + 8)]
+    }
+
+    /// A scene holds 24 native controls and drops the rest, and the last laid are the buttons. With every iqamah on, one menu a row keeps them all.
+    private static func overBudget(_ ctx: Context, _ d: Draft) -> Bool {
+        guard d.hasIqamah else { return false }
+        let buttons = 1 + (needsYes(ctx, d) ? 1 : 0) + (deniedRow(d) ? 1 : 0)
+        return 2 + 10 + 5 + d.lines.filter { $0.iqamah != "off" }.count + buttons > 24
+    }
+
+    /// Whether the next step is Sidefolk's question: reminders are being turned on, or Ramadan's Enable sent the person here for it, and no one has said yes yet.
+    private static func needsYes(_ ctx: Context, _ d: Draft) -> Bool {
+        !d.allowed && (d.draft.master || ctx.state.bool("rm_ask") == true)
     }
 
     // MARK: Parts
@@ -266,10 +278,12 @@ enum RemindersSheet {
         let state = status(ctx)
         s.add(Node.say(state.words, x + r.u(16), y + r.u(6) + 19, w * (stack ? 0.56 : 0.54), head - r.u(6) - 21, size: r.f(13, min: 11), color: state.color, lines: stack || w < 470 ? 2 : 1))
         // Which timetable these come from, and the way to change it.
-        let chipW = min(r.u(240), w * 0.40), chipH = max(r.u(36), 28)
+        let chipH = max(r.u(36), 28)
         let source = ctx.model.source
         s.acts["chip"] = .go(Go(set: ["section": "sources"]))
         let chipWords = [source?.name, Words.sourceKind(source)].compactMap { $0 }.reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }.joined(separator: " · ")
+        // As wide as its words, so the chevron comes straight after them.
+        let chipW = min(r.u(240), w * 0.40, r.u(58) + Double(chipWords.count) * r.f(12.5) * 0.56)
         s.add(Node.group {
             Node.rect(fill: Pearl.band, stroke: Pearl.edge, lineWidth: 1, corner: r.u(10)).size(chipW, chipH)
             Node.symbol(source?.kind == .manual ? "building.columns.fill" : "function", color: Pearl.purple).size(r.f(18, min: 13), r.f(18, min: 13)).at(r.u(10), (chipH - r.f(18, min: 13)) / 2)
@@ -318,7 +332,7 @@ enum RemindersSheet {
                     s.inlay(iqX - r.u(2), cy - r.u(15), r.u(50), r.u(30), .draftToggle(L("{prayer}, iqamah", ["prayer": name]), on: on, key: "rm_\(line.id.rawValue)_iq"))
                     if on {
                         let menuX = iqX + r.u(52), menuW = x + w - menuX - r.u(6)
-                        s.add(Node.menuPill(word(line.iqamah), x: menuX, y: cy - pillH / 2, w: menuW, h: pillH, size: r.f(11.5, min: 10.5), fill: Pearl.card, line: Pearl.edge, ink: Pearl.ink, corner: r.u(8)))
+                        s.add(Node.menuPill(word(line.iqamah), x: menuX, y: cy - pillH / 2, w: menuW, h: pillH, size: r.f(11.5), fill: Pearl.card, line: Pearl.edge, ink: Pearl.ink, corner: r.u(8)))
                         s.inlay(menuX, cy - pillH / 2, menuW, pillH, .draftChoice(L("{prayer}, iqamah", ["prayer": name]), options: options, selected: line.iqamah, key: "rm_\(line.id.rawValue)_iq"))
                     }
                 }
@@ -329,7 +343,7 @@ enum RemindersSheet {
         }
         if !d.hasIqamah {
             s.add(Node.rect(fill: Pearl.line).size(w - r.u(32), 1).at(firstX, rowY))
-            s.add(Node.say(L("This source has no iqamah times, so there's nothing to remind you of. Add a mosque's timetable to set those."), firstX, rowY + 1, w - r.u(32), foot - 1, size: r.f(12, min: 10.5), color: Pearl.muted, lines: noteLines))
+            s.add(Node.say(L("This source has no iqamah times, so there's nothing to remind you of. Add a mosque's timetable to set those."), firstX, rowY + 1, w - r.u(32), foot - 1, size: r.f(12), color: Pearl.muted, lines: noteLines))
         }
         return h
     }
@@ -342,7 +356,7 @@ enum RemindersSheet {
         let cardY = y + max(r.u(47), 38), gap = r.u(8)
         let cardW = stack ? w : (w - gap) / 2
         let box = r.f(19, min: 16), glyph = r.f(24, min: 18), textX = r.u(14) + box + r.u(8) + glyph + r.u(10)
-        let small = r.f(11.5, min: 10.5)
+        let small = r.f(11.5)
         let room = cardW - textX - r.u(8)
         let longest = lineCount(L("While you are away from the Mac, and at a normal quit for up to 20 reminders in the next 7 days. Never during Quiet."), width: room, size: small)
         // Its title may need two lines too where the window is small.
@@ -360,7 +374,7 @@ enum RemindersSheet {
                 }
                 Node.symbol(symbol, color: on ? Pearl.purple : Pearl.muted).size(glyph, glyph).at(r.u(14) + box + r.u(8), r.u(11))
                 Node.say(title, textX, r.u(6), room, titleH, size: r.f(14, min: 12), weight: "semibold", color: Pearl.ink, lines: titleLines)
-                Node.text(detail, size: small, color: Pearl.muted, align: "leading", valign: "top", lines: longest, minScale: 0.9).size(room, cardH - r.u(6) - titleH).at(textX, r.u(6) + titleH)
+                Node.text(detail, size: small, color: Pearl.muted, align: "leading", valign: "top", lines: longest, minScale: 11 / small).size(room, cardH - r.u(6) - titleH).at(textX, r.u(6) + titleH)
             }
             .size(cardW, cardH).at(at.0, at.1)
             .area(id, label: "\(title). \(detail)", hover: .init(scale: 1.0), selected: on))
@@ -374,40 +388,37 @@ enum RemindersSheet {
 
     /// macOS has said no: what that leaves, and the way to its settings.
     private static func deniedStrip(_ s: inout Sketch, x: Double, y: Double, w: Double, h: Double, r: Ruler) {
-        let buttonW = min(r.u(214), w * 0.46)
-        s.acts["notifications"] = .settings("notifications")
+        let buttonW = min(r.u(214), w * 0.46), buttonH = min(h - r.u(10), max(r.u(30), 28)), buttonY = y + (h - buttonH) / 2
         s.add(Node.rect(fill: Pearl.warnSoft, stroke: .hex("#D9B878"), lineWidth: 1, corner: r.u(9)).size(w, h).at(x, y))
         s.add(Node.symbol("exclamationmark.triangle", color: Pearl.warn).size(r.f(16, min: 13), r.f(16, min: 13)).at(x + r.u(12), y + (h - r.f(16, min: 13)) / 2))
         s.add(Node.say(L("macOS isn't allowing Sidefolk's notifications, so only the companion can remind you."), x + r.u(36), y, w - buttonW - r.u(52), h, size: r.f(12.5, min: 11), color: Pearl.warn, lines: 2))
-        s.add(Node.group {
-            Node.capsule(fill: Pearl.card, stroke: Pearl.warn, lineWidth: 1).size(buttonW, h - r.u(10))
-            Node.say(L("Open notification settings"), 8, 0, buttonW - 16, h - r.u(10), size: r.f(12.5, min: 11), weight: "medium", color: Pearl.ink, align: "center")
-        }
-        .size(buttonW, h - r.u(10)).at(x + w - buttonW - r.u(6), y + r.u(5))
-        .area("notifications", label: L("Open notification settings")))
+        // A native button: only it may open settings. It keeps white words on the fill, as the sheet stays pearl in the dark, where the host's plain ink is light.
+        s.add(Node.capsule(fill: Pearl.warn).size(buttonW, buttonH).at(x + w - buttonW - r.u(6), buttonY))
+        s.button(Action(L("Open notification settings"), act: .settings("notifications"), style: .primary), x: x + w - buttonW - r.u(6) + 6, y: buttonY, w: buttonW - 12, h: buttonH, size: r.f(12.5))
     }
 
     private static var limits: String { L("Sidefolk can't remind you while it is quit or the Mac is asleep, unless macOS was asked to. A reminder up to two minutes late still comes; older ones are skipped.") }
 
     private static func focusHeight(w: Double, r: Ruler) -> Double {
-        let size = r.f(11.5, min: 10.5)
-        return max(r.u(58), max(r.u(27), 24) + Double(lineCount(limits, width: w - r.u(72), size: size)) * size * 1.27 + 6)
+        let size = r.f(11.5)
+        return max(r.u(58), max(r.u(27), 24) + Double(lineCount(limits, width: w - r.u(72), size: size)) * size * 1.27 + 6) + (w < 360 ? 28 : 0)
     }
 
     /// What the host holds to: Focus, Quiet and what can't be promised. Its way to Attention settings.
     private static func focusRow(_ s: inout Sketch, x: Double, y: Double, w: Double, h: Double, r: Ruler) {
-        s.acts["attention"] = .settings("attention")
-        let linkW = max(r.u(150), 124), stack = w < 460
+        let linkW = max(r.u(158), 132), linkH = max(r.u(24), 22), stack = w < 360
         s.add(Node.rect(fill: Pearl.band, stroke: Pearl.line, lineWidth: 1, corner: r.u(11)).size(w, h).at(x, y))
         s.add(Node.symbol("moon.fill", color: Pearl.purple).size(r.f(26, min: 20), r.f(26, min: 20)).at(x + r.u(18), y + (stack ? r.u(12) : (h - r.f(26, min: 20)) / 2)))
         s.add(Node.say(L("Follows Focus and Quiet"), x + r.u(58), y + r.u(4), w - r.u(58) - linkW, max(r.u(22), 20), size: r.f(14.5, min: 13), weight: "semibold", color: Pearl.ink))
-        s.add(Node.text(limits, size: r.f(11.5, min: 10.5), color: Pearl.muted, align: "leading", valign: "top", lines: 6, minScale: 0.9).size(w - r.u(72), h - max(r.u(27), 24)).at(x + r.u(58), y + max(r.u(27), 24)))
+        s.add(Node.text(limits, size: r.f(11.5), color: Pearl.muted, align: "leading", valign: "top", lines: 6, minScale: 11 / r.f(11.5)).size(w - r.u(72), h - max(r.u(27), 24)).at(x + r.u(58), y + max(r.u(27), 24)))
+        // A native button: only it may open settings. White on the fill, as the sheet stays pearl in the dark, where the host's plain ink is light. Its arrow is the scene's, after the words as on the board's link.
+        let linkX = x + w - linkW - r.u(12), linkY = stack ? y + h - 26 : y + r.u(3)
         s.add(Node.group {
-            Node.say(L("Attention settings"), 0, 0, linkW - 16, 22, size: r.f(13, min: 11.5), color: Pearl.link, align: "trailing")
-            Node.symbol("arrow.up.right", color: Pearl.link).size(9, 9).at(linkW - 12, 6.5)
+            Node.capsule(fill: Pearl.purple).size(linkW, linkH)
+            Node.symbol("arrow.up.right", color: .hex("#FFFFFF")).symbolLook(weight: "semibold").size(9, 9).at(linkW - 19, (linkH - 9) / 2)
         }
-        .size(linkW, 22).at(x + w - linkW - r.u(12), stack ? y + h - 26 : y + r.u(3))
-        .area("attention", label: L("Attention settings"), hover: .init(scale: 1.0)))
+        .size(linkW, linkH).at(linkX, linkY))
+        s.button(Action(L("Attention settings"), act: .settings("attention"), style: .primary), x: linkX + 6, y: linkY, w: linkW - 26, h: linkH, size: r.f(12.5))
     }
 
     /// Ramadan and occasions each have their own place with their own choices, so these open them and say how they stand. The Name's switch is real and a draft here.
@@ -427,7 +438,7 @@ enum RemindersSheet {
                 Node.rect(fill: Pearl.card, stroke: Pearl.line, lineWidth: 1, corner: r.u(10)).size(w, h)
                 Node.symbol(row.symbol, color: Pearl.ink).size(glyph, glyph).at(r.u(16), (h - glyph) / 2)
                 Node.say(row.title, r.u(56), h * 0.07, w - r.u(190), h * 0.48, size: r.f(14, min: 12.5), weight: "medium", color: Pearl.ink)
-                Node.say(row.detail, r.u(56), h * 0.5, w - r.u(190), h * 0.42, size: r.f(12, min: 10.5), color: Pearl.muted)
+                Node.say(row.detail, r.u(56), h * 0.5, w - r.u(190), h * 0.42, size: r.f(12), color: Pearl.muted)
                 if let state = row.state {
                     Node.say(state, w - r.u(130), 0, r.u(90), h, size: r.f(13, min: 11.5), color: Pearl.muted, align: "trailing")
                     Node.symbol("chevron.forward", color: Pearl.ink).size(r.u(8), r.u(13)).at(w - r.u(28), (h - r.u(13)) / 2)
@@ -456,9 +467,11 @@ enum RemindersSheet {
         let sampled = sample(ctx, d)
         let infoY = artY + artH + r.u(15), infoH = max(r.u(92), w < 280 ? 106 : 84)
         let buttonsY = infoY + infoH + r.u(12), buttonH = max(r.u(43), 32)
-        let foot = buttonsY + buttonH + r.u(6)
+        let needsYes = needsYes(ctx, d)
+        // Its words are the longest here, and in a small window they have a line to themselves, Cancel under them.
+        let oneAbove = needsYes && artW < 260
+        let foot = buttonsY + buttonH + r.u(6) + (oneAbove ? buttonH + 6 : 0)
         let line = previewLine(ctx, d)
-        let needsYes = !d.allowed && d.draft.master
         let height = h ?? (foot - y + max(r.u(needsYes ? 70 : 28), needsYes ? 62 : 24))
         s.add(Node.rect(fill: Pearl.card, stroke: Pearl.line, lineWidth: 1, corner: r.u(14)).size(w, height).at(x, y))
         s.add(Node.say(L("Preview"), x + inset, y + r.u(12), w - inset * 2, max(r.u(32), 24), size: r.f(22, min: 18), weight: "semibold", color: Pearl.ink))
@@ -470,34 +483,38 @@ enum RemindersSheet {
         s.add(Node.say(L("This is a preview only."), x + inset + r.u(44), infoY + r.u(5), artW - r.u(52), max(r.u(22), 18), size: r.f(14, min: 12), weight: "semibold", color: Pearl.ink))
         // The picture is the same either way, so the words say what it stands for: what would come first, or only what the next prayer's would say.
         let detail = !sampled.chosen ? line + " " + L("This shows what the next prayer's reminder would say.") : d.draft.master ? line : line + " " + L("Turn reminders on and save, and this would come first.")
-        s.add(Node.text(detail, size: r.f(11.5, min: 10.5), color: Pearl.muted, align: "leading", valign: "top", lines: 6, minScale: 0.85).size(artW - r.u(52), infoH - max(r.u(27), 22) - 2).at(x + inset + r.u(44), infoY + max(r.u(27), 22)))
+        s.add(Node.text(detail, size: r.f(11.5), color: Pearl.muted, align: "leading", valign: "top", lines: 6, minScale: 11 / r.f(11.5)).size(artW - r.u(52), infoH - max(r.u(27), 22) - 2).at(x + inset + r.u(44), infoY + max(r.u(27), 22)))
 
         // The main action is always the next step: asking first where Sidefolk hasn't been told yes yet, and saving after that.
-        let cancelW = artW * 0.41, saveW = artW - cancelW - r.u(13)
+        let cancelW = oneAbove ? artW : artW * 0.41, saveW = oneAbove ? artW : artW - cancelW - r.u(13)
         let cancelKeys = ctx.state.values.keys.filter { $0.hasPrefix("rm_") }.reduce(into: [String: Any]()) { $0[$1] = NSNull() }
         s.acts["cancel"] = .go(Go(set: cancelKeys))
+        // Sent here by Ramadan's Enable there may be nothing changed, and Cancel still leaves the question.
+        let canCancel = d.changed || ctx.state.bool("rm_ask") == true
         s.add(Node.group {
             Node.capsule(fill: Pearl.card, stroke: Pearl.edge, lineWidth: 1.2).size(cancelW, buttonH)
             Node.say(L("Cancel"), 8, 0, cancelW - 16, buttonH, size: r.f(15, min: 13), weight: "medium", color: Pearl.ink, align: "center")
         }
-        .size(cancelW, buttonH).at(x + inset, buttonsY).opacity(d.changed ? 1 : 0.5)
-        .area("cancel", label: L("Cancel"), disabled: !d.changed))
-        let saveWord = needsYes ? L("Allow Noor's reminders") : L("Save reminders")
+        .size(cancelW, buttonH).at(x + inset, oneAbove ? buttonsY + buttonH + 6 : buttonsY).opacity(canCancel ? 1 : 0.5)
+        .area("cancel", label: L("Cancel"), disabled: !canCancel))
+        let mainX = oneAbove ? x + inset : x + inset + cancelW + r.u(13)
+        let main = Node.capsule(stroke: .hex("#A58DE6"), lineWidth: 1).gradient([.hex("#7D5CCC"), .hex("#5B3FA6")]).size(saveW, buttonH)
         if needsYes {
-            s.acts["save"] = .allow("schedule")
+            // A native button, as only it may ask: Sidefolk's own question follows, in Sidefolk's words, and answering it saves nothing.
+            s.add(main.at(mainX, buttonsY))
+            s.button(Action(L("Allow Noor's reminders"), act: .allow("schedule"), style: .primary), x: mainX + 8, y: buttonsY, w: saveW - 16, h: buttonH, size: r.f(15, min: 13))
         } else {
             s.tools["save"] = ("save_reminders", ["master": d.draft.master, "companion": d.draft.route.companion, "system": d.draft.route.systemFallback, "prayers": d.input, "name": d.draft.nameOfDay.enabled])
+            s.add(Node.group {
+                main
+                Node.say(L("Save reminders"), 8, 0, saveW - 16, buttonH, size: r.f(15, min: 13), weight: "medium", color: .hex("#FFFFFF"), align: "center")
+            }
+            .size(saveW, buttonH).at(mainX, buttonsY).opacity(d.changed ? 1 : 0.5)
+            .area("save", label: L("Save reminders"), disabled: !d.changed))
         }
-        let disabled = !needsYes && !d.changed
-        s.add(Node.group {
-            Node.capsule(stroke: .hex("#A58DE6"), lineWidth: 1).gradient([.hex("#7D5CCC"), .hex("#5B3FA6")]).size(saveW, buttonH)
-            Node.say(saveWord, 8, 0, saveW - 16, buttonH, size: r.f(15, min: 13), weight: "medium", color: .hex("#FFFFFF"), align: "center")
-        }
-        .size(saveW, buttonH).at(x + inset + cancelW + r.u(13), buttonsY).opacity(disabled ? 0.5 : 1)
-        .area("save", label: saveWord, disabled: disabled))
         s.add(Node.say(d.changed ? L("Changes not saved.") : L("Saved."), x + inset, foot, artW, max(r.u(20), 16), size: r.f(13, min: 11.5), color: d.changed ? Pearl.warn : Pearl.good, align: "center"))
         if needsYes {
-            s.add(Node.text(L("Sidefolk needs your yes before it sends Noor's reminders. It asks you first; nothing is saved by that."), size: r.f(11.5, min: 10.5), color: Pearl.muted, align: "center", valign: "top", lines: 3, minScale: 0.9).size(artW, max(r.u(42), 44)).at(x + inset, foot + max(r.u(20), 17)))
+            s.add(Node.text(L("Sidefolk needs your yes before it sends Noor's reminders. It asks you first; nothing is saved by that."), size: r.f(11.5), color: Pearl.muted, align: "center", valign: "top", lines: 3, minScale: 11 / r.f(11.5)).size(artW, max(r.u(42), 44)).at(x + inset, foot + max(r.u(20), 17)))
         }
         return height
     }
@@ -524,7 +541,7 @@ enum RemindersSheet {
                 row("clock", L("Starts"), times.start ?? "", y: r.u(204) * k, w: w, r: r, k: k, light: light)
                 if let iqamah = times.iqamah { row("building.columns", L("Iqamah"), iqamah, y: r.u(241) * k, w: w, r: r, k: k, light: light) }
             } else if let occurrence, let body = PlanWords.body(occurrence, model: ctx.model) {
-                Node.text(body, size: r.f(14, min: 12) * k, color: light, align: "center", valign: "top", lines: 4).size(w - r.u(70) * k, r.u(90) * k).at(r.u(35) * k, r.u(196) * k)
+                Node.text(body, size: max(r.f(14, min: 12) * k, 11), color: light, align: "center", valign: "top", lines: 4).size(w - r.u(70) * k, r.u(90) * k).at(r.u(35) * k, r.u(196) * k)
             }
         }
         .size(w, h).corner(r.u(14)).clip().label(L("A preview of a reminder: {what}", ["what": title]))
@@ -534,9 +551,26 @@ enum RemindersSheet {
         let glyph = r.f(22, min: 16) * k, h = r.u(32) * k
         return Node.group {
             Node.symbol(symbol, color: light).size(glyph, glyph).at(r.u(49) * k, (h - glyph) / 2)
-            Node.say(word, r.u(86) * k, 0, r.u(120) * k, h, size: r.f(16, min: 13) * k, color: light)
-            Node.say(time, w - r.u(180) * k, 0, r.u(130) * k, h, size: r.f(19, min: 14) * k, color: light, align: "trailing", tabular: true)
+            Node.say(word, r.u(86) * k, 0, r.u(120) * k, h, size: max(r.f(16, min: 13) * k, 11), color: light)
+            Node.say(time, w - r.u(180) * k, 0, r.u(130) * k, h, size: max(r.f(19, min: 14) * k, 11), color: light, align: "trailing", tabular: true)
         }
         .size(w, h).at(0, y)
+    }
+}
+
+extension Reminders {
+    /// A prayer with nothing chosen is the same as one that isn't there, so comparing these says whether a choice really differs.
+    var withoutEmptyPrayers: Reminders {
+        var out = self
+        out.prayers = prayers.filter { $0.value != Prayer() }
+        return out
+    }
+}
+
+extension Sketch {
+    /// A native button over a pill already drawn: only one may ask, open settings or copy, as a scene's area can't (host D105, D109). It says its own words, at 0.36 of its height, so where those should be bigger it stands a little taller than its pill.
+    mutating func button(_ action: Action, x: Double, y: Double, w: Double, h: Double, size: Double) {
+        let tall = max(h, size / 0.36)
+        inlay(x, y - (tall - h) / 2, w, tall, .action(action))
     }
 }
