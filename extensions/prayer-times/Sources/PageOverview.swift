@@ -199,12 +199,15 @@ enum OverviewPage {
         let first = r.u(140), step = min(r.u(203), (w - r.u(180)) / 3)
         let arcY = r.u(62), lift = r.u(24)
         let last = first + step * Double(max(0, items.count - 1))
-        let wordsW = max(r.u(112), 88.0)
-        let arc = "M \(n(first - r.u(58))) \(n(arcY + lift * 0.9)) C \(n(first + step * 0.4)) \(n(arcY - lift)) \(n(last - step * 0.4)) \(n(arcY - lift)) \(n(last + r.u(20))) \(n(arcY + lift * 0.3))"
+        let wordsW = max(r.u(112), 88.0, wordsWidth(L("Set a reminder"), size: r.f(14.5)) + 2)
+        // One arc in two colours, as P01's: evening up to midnight, the night after it. In the dark it is one line.
+        let topX = first + step, topY = arcY - lift * 0.82
+        let dusk = "M \(n(first - r.u(58))) \(n(arcY + lift * 0.9)) C \(n(first + step * 0.1)) \(n(arcY - lift * 0.3)) \(n(topX - step * 0.45)) \(n(topY)) \(n(topX)) \(n(topY))"
+        let night = "M \(n(topX)) \(n(topY)) C \(n(topX + step * 0.45)) \(n(topY)) \(n(last - step * 0.1)) \(n(arcY - lift * 0.3)) \(n(last + r.u(20))) \(n(arcY + lift * 0.3))"
         return Node.group {
             Node.panel(w, h, corner: r.u(16))
-            // The night's hills along the strip's foot, dim enough for words, with the mosque showing under Qibla.
-            PrayerPage.nightArt(w: w, h: h, mosqueAt: 0.72, footY: h - r.u(2), across: w * 1.2, corner: r.u(16))
+            // The night's hills along the strip's foot, with the mosque showing under Qibla's panel: P01's picture, with no words of its own.
+            Node.image("art/overview-tonight-l.jpg", dark: "art/overview-tonight-d.jpg", fit: "cover").size(w, h).corner(r.u(16)).clip()
             Node.rect(stroke: Noor.hairline, lineWidth: 1, corner: r.u(16)).size(w, h)
             Node.say(L("Tonight"), r.u(22), r.u(10), r.u(200), r.u(32), size: r.f(20, min: 14), weight: "semibold")
             Node.group {
@@ -213,15 +216,26 @@ enum OverviewPage {
                 Node.say(L("Set a reminder"), r.u(30), 0, wordsW, r.u(30), size: r.f(14.5))
                 Node.symbol("chevron.forward", color: Noor.text).size(r.u(8), r.u(13)).at(r.u(30) + wordsW + 6, r.u(9))
             }
-            .size(r.u(46) + wordsW, r.u(30)).at(r.u(490), r.u(10))
+            // Its far end stays where the board has it, short of Qibla's panel, however long the words.
+            .size(r.u(46) + wordsW, r.u(30)).at(r.u(648) - r.u(46) - wordsW, r.u(10))
             .area("reminders", label: L("Set a reminder"))
-            Node.path(arc, stroke: .adaptive(light: "#7A5AB8", dark: "#D6C6F2"), lineWidth: 1.2, dash: [1.5, 5]).size(w, h).at(0, 0)
+            if items.isEmpty {
+                // A mosque's timetable: Prayer says the same, so the strip isn't a blank to wonder about.
+                Node.say(L("This timetable lists prayers only, so it has no night times."), r.u(22), r.u(46), min(w - r.u(44), r.u(620)), r.u(52), size: r.f(16, min: 12), color: Noor.muted, lines: 2)
+            } else {
+                Node.path(dusk, stroke: .adaptive(light: "#E8923A", dark: "#D6C6F2"), lineWidth: 1.5, dash: [1.5, 5]).size(w, h).at(0, 0)
+                Node.path(night, stroke: .adaptive(light: "#4F3FA8", dark: "#D6C6F2"), lineWidth: 1.5, dash: [1.5, 5]).size(w, h).at(0, 0)
+            }
             for (i, event) in items.enumerated() {
                 let x = first + step * Double(i), glyph = r.f(30, min: 18)
                 let sun = event == .sunset
                 let y = arcY - lift * (i == 1 ? 0.55 : 0.05)
                 Node.glow(sun ? .hex("#F6B45C") : .hex("#8C7AE6"), cx: x, cy: y, r: glyph * 0.9)
-                Node.symbol(sun ? "sun.max.fill" : "moon.fill", color: sun ? .hex("#F6B45C") : .adaptive(light: "#FFFFFF", dark: "#D6C6F2")).size(glyph * 0.8, glyph * 0.8).at(x - glyph * 0.4, y - glyph * 0.4)
+                // On pearl the moon stands on its own dark disc, as P01's; the night needs none.
+                if !sun { Node.ellipse(fill: .adaptive(light: "#4A3C9E", dark: "#00000000")).size(glyph * 0.86, glyph * 0.86).at(x - glyph * 0.43, y - glyph * 0.43) }
+                Node.symbol(sun ? "sun.max.fill" : "moon.fill", color: sun ? .adaptive(light: "#F59A1E", dark: "#F6B45C") : .adaptive(light: "#FFFFFF", dark: "#D6C6F2")).size(glyph * (sun ? 0.8 : 0.56), glyph * (sun ? 0.8 : 0.56)).at(x - glyph * (sun ? 0.4 : 0.28), y - glyph * (sun ? 0.4 : 0.28))
+                // Quiet ground for the words, over the hills.
+                Node.image("art/glow.png", fit: "fill", tint: .adaptive(light: "#EFE9FA", dark: "#0E1234")).size(r.u(176), r.u(70)).at(x - r.u(88), r.u(70)).opacity(0.75)
                 Node.say(Words.solar(event), x - r.u(84), r.u(80), r.u(168), r.u(24), size: r.f(14.5), color: sun ? PrayerPage.nightWarm : Noor.text, align: "center")
                 Node.say(ctx.t(solar[event]!), x - r.u(84), r.u(100), r.u(168), r.u(26), size: r.f(17, min: 12.5), weight: "medium", color: sun ? PrayerPage.nightWarm : Noor.text, align: "center", tabular: true)
             }
@@ -239,12 +253,16 @@ enum OverviewPage {
             if let name {
                 let saved = ctx.model.bookmarks.contains(name.number)
                 let textW = w * 0.27
+                let saveWords = saved ? L("Saved") : L("Save"), saveSize = r.f(15.5), saveH = r.u(44)
+                let saveW = max(r.u(116), wordsWidth(saveWords, size: saveSize) + saveH * 0.84 + saveSize * 1.15 + 12), meaningX = tab + r.u(28) + textW + w * 0.20
+                let meaningW = w - meaningX - max(r.u(150), saveW + r.u(30))
                 Node.say(name.transliteration, tab + r.u(28), r.u(44), textW, r.u(58), size: r.f(33, min: 19), weight: "medium")
                 Node.say(name.arabic, tab + r.u(28) + textW, r.u(34), w * 0.19, r.u(76), size: r.f(40, min: 24), weight: "medium", color: Noor.warm, align: "center").leftToRight()
-                Node.say(name.meaning, tab + r.u(28) + textW + w * 0.20, r.u(52), w - tab - r.u(28) - textW - w * 0.20 - r.u(150), r.u(26), size: r.f(18, min: 12.5))
-                Node.say(L("English meaning"), tab + r.u(28) + textW + w * 0.20, r.u(78), w - tab - r.u(28) - textW - w * 0.20 - r.u(150), r.u(24), size: r.f(14.5), color: Noor.muted)
-                Node.say(L("Name {number} of 99", ["number": Format.integer(name.number)]), w - r.u(136), r.u(32), r.u(120), r.u(22), size: r.f(14), color: Noor.muted, align: "center")
-                Node.pill("save", label: saved ? L("Saved") : L("Save"), spoken: saved ? L("Remove {name} from saved names", ["name": name.transliteration]) : L("Save {name}", ["name": name.transliteration]), x: w - r.u(134), y: r.u(62), w: r.u(116), h: r.u(44), symbol: saved ? "bookmark.fill" : "bookmark", size: r.f(15.5))
+                Node.say(name.meaning, meaningX, r.u(52), meaningW, r.u(26), size: r.f(18, min: 12.5))
+                Node.say(L("English meaning"), meaningX, r.u(78), meaningW, r.u(24), size: r.f(14.5), color: Noor.muted)
+                let countWords = L("Name {number} of 99", ["number": Format.integer(name.number)]), countW = max(saveW + r.u(4), wordsWidth(countWords, size: r.f(14)) + 4)
+                Node.say(countWords, w - r.u(16) - countW, r.u(32), countW, r.u(22), size: r.f(14), color: Noor.muted, align: "center")
+                Node.pill("save", label: saveWords, spoken: saved ? L("Remove {name} from saved names", ["name": name.transliteration]) : L("Save {name}", ["name": name.transliteration]), x: w - r.u(18) - saveW, y: r.u(62), w: saveW, h: saveH, symbol: saved ? "bookmark.fill" : "bookmark", size: saveSize)
                 Node.rect(fill: .hex("#00000000"), corner: 12).size(w - r.u(160), h - 8).at(tab, 4).z(-1).area("names", label: L("Open {name} in Names", ["name": name.transliteration]), hover: .init(scale: 1.0))
             } else {
                 Node.say(ctx.model.load == .loading ? L("Loading the Names…") : L("The Names aren't here yet. They need one connection."), tab + r.u(28), r.u(46), w - tab - r.u(60), r.u(60), size: r.f(16), color: Noor.muted, lines: 2)

@@ -85,7 +85,7 @@ enum QiblaPage {
             Node.rect(fill: Noor.hairline).size(w - r.u(44), 1).at(r.u(22), r.u(135))
 
             Node.gilded("\(bearing.rounded)°", 0, r.u(156), blockW, r.u(128), size: r.f(100, min: 54), weight: "semibold", tabular: true).leftToRight()
-            Node.say(L("From true north"), 0, r.u(272), blockW, r.u(38), size: r.f(25, min: 14), color: Noor.warm, align: "center")
+            Node.say(L("From true north"), r.u(14), r.u(268), blockW - r.u(22), r.u(60), size: r.f(25, min: 14), color: Noor.warm, align: "center", lines: 2)
             // Copy bearing's words and press are Sidefolk's own, an inlay over this pill: a scene's area can't copy (D105).
             Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(r.u(186), r.u(42)).at(r.u(27), r.u(332))
             Node.group {

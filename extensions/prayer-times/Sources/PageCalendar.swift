@@ -165,8 +165,10 @@ enum CalendarPage {
         let gridX = tight ? 12 : r.u(27), gridY = tight ? 118 : r.u(155), gridW = w - gridX * 2, headH = tight ? 32 : r.u(43)
         let gridH = h - gridY - (tight ? 16 : r.u(39)), cell = gridW / 7, rowH = (gridH - headH) / Double(max(weeks, 1))
         let numberSize = tight ? max(r.f(27), 15) : r.f(27, min: 15)
-        let quietSize = tight ? 10.5 : r.f(13, min: 10.5)
-        let segment = tight ? (x: 16.0, y: 64.0, w: (w - 40) * 0.5, h: 36.0) : (x: r.u(407), y: r.u(93), w: r.u(196), h: r.u(42))
+        let quietSize = tight ? 11 : r.f(13, min: 11)
+        // Its far end holds; a language whose two words run longer takes room to the side the title leaves empty.
+        let segmentW = max(r.u(196), wordsWidth(L("Hijri"), size: r.f(15.5, min: 12), em: 0.58) + wordsWidth(L("Gregorian"), size: r.f(15.5, min: 12), em: 0.58) + 28)
+        let segment = tight ? (x: 16.0, y: 64.0, w: (w - 40) * 0.5, h: 36.0) : (x: r.u(603) - segmentW, y: r.u(93), w: segmentW, h: r.u(42))
         let method = monthMethodRect(w, r: r)
         let nav = tight ? 36.0 : r.u(46), todayW = tight ? 64.0 : r.u(91), navY = tight ? 16.0 : r.u(25), navGap = tight ? 6.0 : r.u(14)
         let nextX = w - (tight ? 16 : r.u(35)) - nav, todayX = nextX - navGap - todayW, prevX = todayX - navGap - nav
@@ -201,8 +203,10 @@ enum CalendarPage {
             button("today", L("Today"), x: todayX, width: todayW, word: L("Today"))
             button("next", L("Next month"), x: nextX, width: nav, symbol: "chevron.forward")
             Node.rect(fill: pearlDeep, stroke: Color.hex("#D4CAE2"), lineWidth: 1, corner: segment.h * 0.3).size(segment.w, segment.h).at(segment.x, segment.y)
-            side("hijri", L("Hijri"), x: segment.x + 4, width: segment.w * 0.42, on: isHijri)
-            side("gregorian", L("Gregorian"), x: segment.x + 4 + segment.w * 0.42, width: segment.w * 0.58 - 8, on: !isHijri)
+            // Shared as their words need it: "Gregorianisch" is three of "Hidschri"'s syllables longer.
+            let hijriShare = min(0.5, max(0.3, (wordsWidth(L("Hijri"), size: 15) + 10) / (wordsWidth(L("Hijri"), size: 15) + wordsWidth(L("Gregorian"), size: 15) + 20)))
+            side("hijri", L("Hijri"), x: segment.x + 4, width: segment.w * hijriShare, on: isHijri)
+            side("gregorian", L("Gregorian"), x: segment.x + 4 + segment.w * hijriShare, width: segment.w * (1 - hijriShare) - 8, on: !isHijri)
             Node.group {
                 Node.rect(fill: pearlDeep, stroke: Color.hex("#C8BEDA"), lineWidth: 1, corner: method.h * 0.3).size(method.w, method.h)
                 Node.say(Words.calendarMethodName(ctx.model.prefs.calendarMethod), method.h * 0.3, 0, method.w - method.h * 0.3 - method.h * 0.62, method.h, size: tight ? 12.5 : r.f(15.5, min: 12), weight: "medium", color: ink)
@@ -288,7 +292,7 @@ enum CalendarPage {
                 Node.rect(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2, corner: r.u(12)).size(w, h)
             }
             Node.symbol(symbol, color: filled ? Noor.onChosen : Noor.text).size(glyph, glyph).at(r.u(22), (h - glyph) / 2)
-            Node.say(label, r.u(22) + glyph + r.u(20), 0, w - r.u(22) - glyph - r.u(20) - r.u(40), h, size: r.f(17.5, min: 13), weight: "medium", color: filled ? Noor.onChosen : Noor.text)
+            Node.say(label, r.u(22) + glyph + r.u(20), 0, w - r.u(22) - glyph - r.u(20) - r.u(40), h, size: r.f(17.5, min: 13), weight: "medium", color: filled ? Noor.onChosen : Noor.text, lines: 2)
             Node.symbol("chevron.forward", color: filled ? Noor.onChosen : Noor.text).size(r.u(9), r.u(15)).at(w - r.u(30), (h - r.u(15)) / 2)
         }
         .size(w, h).at(x, y).area(id, label: label, hover: .init(scale: 1.015))
@@ -664,7 +668,7 @@ enum CalendarPage {
                 self.w = w; self.r = r
                 searchX = r.u(17); barY = r.u(155); barH = r.u(42)
                 rowX = r.u(17); rowW = w - rowX * 2; rowH = r.u(62)
-                dropW = min(r.u(179), w * 0.36); dropX = w - rowX - dropW
+                dropW = min(r.u(205), w * 0.40); dropX = w - rowX - dropW
                 searchW = w - rowX * 2 - dropW - r.u(150)
                 toggleX = w - r.u(137)
             }
@@ -691,12 +695,13 @@ enum CalendarPage {
                 Node.say(L("No occasion matches “{query}”.", ["query": list.typed]), m.rowX, m.rowY(1), m.rowW, r.u(62), size: r.f(16), color: Noor.muted, align: "center", lines: 2)
             }
             // What a switch does, and the rest of the list.
-            Node.say(L("A switch asks for a reminder. Reminders still need turning on in Preferences."), m.rowX + r.u(6), footY, m.rowW - r.u(150), r.u(46), size: r.f(13.5, min: 11), color: Noor.muted, lines: 2)
+            let pageWords = L("{page} of {pages}", ["page": "\(list.page + 1)", "pages": "\(list.pages)"]), pageW = max(r.u(66), wordsWidth(pageWords, size: r.f(14, min: 11)) + 8)
+            Node.say(L("A switch asks for a reminder. Reminders still need turning on in Preferences."), m.rowX + r.u(6), footY, m.rowW - r.u(84) - pageW, r.u(46), size: r.f(13.5, min: 11), color: Noor.muted, lines: 2)
             if list.pages > 1 {
-                let bx = w - m.rowX - r.u(138)
+                let bx = w - m.rowX - r.u(72) - pageW
                 arrow("occ-prev", "chevron.backward", L("Earlier occasions"), x: bx, y: footY + r.u(5), disabled: list.page == 0, r: r)
-                Node.say(L("{page} of {pages}", ["page": "\(list.page + 1)", "pages": "\(list.pages)"]), bx + r.u(36), footY + r.u(5), r.u(66), r.u(34), size: r.f(14, min: 11), color: Noor.muted, align: "center", tabular: true)
-                arrow("occ-next", "chevron.forward", L("Later occasions"), x: bx + r.u(102), y: footY + r.u(5), disabled: list.page >= list.pages - 1, r: r)
+                Node.say(pageWords, bx + r.u(36), footY + r.u(5), pageW, r.u(34), size: r.f(14, min: 11), color: Noor.muted, align: "center", tabular: true)
+                arrow("occ-next", "chevron.forward", L("Later occasions"), x: bx + r.u(36) + pageW, y: footY + r.u(5), disabled: list.page >= list.pages - 1, r: r)
             }
             if let open = list.open { occasionDetail(open, method: method, x: r.u(14), y: r.u(601), w: w - r.u(28), h: r.u(176), r: r) }
         }

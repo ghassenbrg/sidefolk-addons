@@ -135,9 +135,10 @@ enum RemindersSheet {
         sheet(&s, x: sheetX, y: sheetY, w: sheetW, h: sheetH, r: r)
         // In the sheet's margin, beside its title: what the host's Back would do, on a page where it has no button.
         s.backButton(x: sheetX + r.u(4), y: r.u(23), side: max(r.u(25), 22), fill: Pearl.card, line: Pearl.edge, ink: Pearl.ink)
-        let subtitleX = r.u(48) + max(r.u(217), 160)
-        s.add(Node.say(L("Noor Preferences"), r.u(48), r.u(18), r.u(214), r.u(36), size: r.f(25, min: 17), weight: "semibold", color: Pearl.ink))
-        s.add(Node.say(L("Customise reminders, calculations and display to suit your practice."), subtitleX, r.u(22), w - subtitleX - r.u(30), r.u(28), size: r.f(15, min: 11.5), color: Pearl.muted))
+        let titleSize = r.f(25, min: 17), titleW = max(r.u(214), wordsWidth(L("Noor Preferences"), size: titleSize, em: 0.56) + 2)
+        let subtitleX = r.u(48) + max(titleW + r.u(3), 160)
+        s.add(Node.say(L("Noor Preferences"), r.u(48), r.u(18), titleW, r.u(36), size: titleSize, weight: "semibold", color: Pearl.ink))
+        s.add(Node.say(L("Customise reminders, calculations and display to suit your practice."), subtitleX, r.u(12), w - subtitleX - r.u(30), r.u(48), size: r.f(15, min: 11.5), color: Pearl.muted, lines: 2))
 
         // The left list and the choices are one card; the list keeps its arch at its foot.
         s.add(Node.rect(fill: Pearl.card, stroke: Pearl.line, lineWidth: 1, corner: r.u(14)).size(cardW, bodyBottom - bodyY).at(cardX, bodyY))
@@ -282,7 +283,7 @@ enum RemindersSheet {
     private static func table(_ s: inout Sketch, _ ctx: Context, _ d: Draft, x: Double, y: Double, w: Double, r: Ruler, stack: Bool, menusOnly: Bool) -> Double {
         let head = stack ? r.u(64) : max(r.u(64), 50), band = max(r.u(38), 26)
         let step = max(d.hasIqamah ? r.u(39.6) : r.u(36), 31)
-        let noteLines = menusOnly ? (w < 460 ? 3 : 2) : 1
+        let noteLines = lineCount(L("This source has no iqamah times, so there's nothing to remind you of. Add a mosque's timetable to set those."), width: w - r.u(32), size: r.f(12))
         let foot = d.hasIqamah ? r.u(6) : max(r.u(26), Double(noteLines) * 14 + 6)
         let h = head + band + step * 5 + foot
         s.add(Node.rect(fill: Pearl.card, stroke: Pearl.line, lineWidth: 1, corner: r.u(12)).size(w, h).at(x, y))
@@ -295,7 +296,7 @@ enum RemindersSheet {
         s.acts["chip"] = .go(Go(set: ["section": "sources"]))
         let chipWords = [source?.name, Words.sourceKind(source)].compactMap { $0 }.reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }.joined(separator: " · ")
         // As wide as its words, so the chevron comes straight after them.
-        let chipW = min(r.u(240), w * 0.40, r.u(58) + Double(chipWords.count) * r.f(12.5) * 0.56)
+        let chipW = min(r.u(240), w * 0.40, r.u(58) + wordsWidth(chipWords, size: r.f(12.5), em: 0.56))
         s.add(Node.group {
             Node.rect(fill: Pearl.band, stroke: Pearl.edge, lineWidth: 1, corner: r.u(10)).size(chipW, chipH)
             Node.icon(source?.kind == .manual ? Node.Glyph.arch : "function", color: Pearl.purple, side: r.f(18, min: 13)).at(r.u(10), (chipH - r.f(18, min: 13)) / 2)
@@ -358,7 +359,7 @@ enum RemindersSheet {
         }
         if !d.hasIqamah {
             s.add(Node.rect(fill: Pearl.line).size(w - r.u(32), 1).at(firstX, rowY))
-            s.add(Node.say(L("This source has no iqamah times, so there's nothing to remind you of. Add a mosque's timetable to set those."), firstX, rowY + 1, w - r.u(32), foot - 1, size: r.f(12), color: Pearl.muted, lines: noteLines))
+            s.add(Node.say(L("This source has no iqamah times, so there's nothing to remind you of. Add a mosque's timetable to set those."), firstX, rowY + 1, w - r.u(32), foot - 1, size: r.f(12), color: Pearl.muted, lines: max(2, noteLines)))
         }
         return h
     }
@@ -367,15 +368,16 @@ enum RemindersSheet {
     @discardableResult
     private static func delivery(_ s: inout Sketch, _ d: Draft, x: Double, y: Double, w: Double, r: Ruler, stack: Bool) -> Double {
         s.add(Node.say(L("Notification delivery"), x + r.u(2), y, r.u(400), r.u(24), size: r.f(17, min: 14), weight: "semibold", color: Pearl.ink))
-        s.add(Node.say(L("How would you like to be notified?"), x + r.u(2), y + r.u(23), r.u(400), r.u(20), size: r.f(14, min: 12), color: Pearl.muted))
+        s.add(Node.say(L("How would you like to be notified?"), x + r.u(2), y + r.u(25), r.u(400), r.u(20), size: r.f(14, min: 12), color: Pearl.muted))
         let cardY = y + max(r.u(47), 38), gap = r.u(8)
         let cardW = stack ? w : (w - gap) / 2
         let box = r.f(19, min: 16), glyph = r.f(24, min: 18), textX = r.u(14) + box + r.u(8) + glyph + r.u(10)
         let small = r.f(11.5)
         let room = cardW - textX - r.u(8)
-        let longest = lineCount(L("While you are away from the Mac, and at a normal quit for up to 20 reminders in the next 7 days. Never during Quiet."), width: room, size: small)
-        // Its title may need two lines too where the window is small.
-        let titleLines = room < 165 ? 2 : 1, titleH = Double(titleLines) * max(r.u(19), 15) + 3
+        let longest = max(lineCount(L("While you are away from the Mac, and at a normal quit for up to 20 reminders in the next 7 days. Never during Quiet."), width: room, size: small, em: 0.56), lineCount(L("Through your Attention settings: Focus and Quiet apply, and there is no adhan audio."), width: room, size: small, em: 0.56))
+        // Its title may need two lines too, where the window is small or the language long.
+        let titleSize = r.f(14, min: 12)
+        let titleLines = max(lineCount(L("Remind me through the companion"), width: room, size: titleSize, em: 0.5), lineCount(L("Also ask macOS to notify me"), width: room, size: titleSize, em: 0.5)), titleH = Double(titleLines) * max(r.u(19), 15) + 3
         let cardH = max(r.u(74), r.u(6) + titleH + Double(longest) * small * 1.27 + 6)
         func card(_ id: String, title: String, detail: String, symbol: String, on: Bool, key: String, at: (Double, Double), _ s: inout Sketch) {
             s.acts[id] = .go(Go(set: [key: !on]))
@@ -421,10 +423,10 @@ enum RemindersSheet {
 
     /// What the host holds to: Focus, Quiet and what can't be promised. Its way to Attention settings.
     private static func focusRow(_ s: inout Sketch, x: Double, y: Double, w: Double, h: Double, r: Ruler) {
-        let linkW = max(r.u(158), 132), linkH = max(r.u(24), 22), stack = w < 360
+        let linkW = max(r.u(158), 132, wordsWidth(L("Attention settings"), size: 11, em: 0.52) + 34), linkH = max(r.u(24), 22), stack = w < 360
         s.add(Node.rect(fill: Pearl.band, stroke: Pearl.line, lineWidth: 1, corner: r.u(11)).size(w, h).at(x, y))
         s.add(Node.symbol("moon.fill", color: Pearl.purple).size(r.f(26, min: 20), r.f(26, min: 20)).at(x + r.u(18), y + (stack ? r.u(12) : (h - r.f(26, min: 20)) / 2)))
-        s.add(Node.say(L("Follows Focus and Quiet"), x + r.u(58), y + r.u(4), w - r.u(58) - linkW, max(r.u(22), 20), size: r.f(14.5, min: 13), weight: "semibold", color: Pearl.ink))
+        s.add(Node.say(L("Follows Focus and Quiet"), x + r.u(58), y + r.u(4), w - r.u(58) - linkW - r.u(16), max(r.u(22), 20), size: r.f(14.5, min: 13), weight: "semibold", color: Pearl.ink))
         s.add(Node.text(limits, size: r.f(11.5), color: Pearl.muted, align: "leading", valign: "top", lines: 6, minScale: 11 / r.f(11.5)).size(w - r.u(72), h - max(r.u(27), 24)).at(x + r.u(58), y + max(r.u(27), 24)))
         // A native button: only it may open settings. White on the fill, as the sheet stays pearl in the dark, where the host's plain ink is light. Its arrow is the scene's, after the words as on the board's link.
         let linkX = x + w - linkW - r.u(12), linkY = stack ? y + h - 26 : y + r.u(3)
@@ -488,7 +490,8 @@ enum RemindersSheet {
         let canFinish = !needsYes && waiting != nil
         let explains = needsYes || canFinish
         // Its words are the longest here, and in a small window they have a line to themselves, Cancel under them.
-        let oneAbove = explains && artW < 260
+        // Two buttons on a line, unless the main one's words need the whole of it.
+        let oneAbove = (explains && artW < 260) || wordsWidth(needsYes ? L("Allow Noor's reminders") : canFinish ? L("Finish Ramadan reminders") : L("Save reminders"), size: r.f(15, min: 13), em: 0.56) + 16 > artW * 0.59 - r.u(13)
         let foot = buttonsY + buttonH + r.u(6) + (oneAbove ? buttonH + 6 : 0)
         let line = previewLine(ctx, d)
         let height = h ?? (foot - y + max(r.u(explains ? 70 : 28), explains ? 62 : 24))

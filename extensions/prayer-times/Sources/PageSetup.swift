@@ -21,7 +21,7 @@ enum SetupPage {
         let leftW = (w - margin * 2 - gap) * 0.477, rightW = w - margin * 2 - gap - leftW, rightX = margin + leftW + gap
         let h = placeHeight(ctx, r: r)
         var wiring = SceneWiring()
-        let left = welcomePanel(ctx, w: leftW, h: h, r: r, wiring: &wiring)
+        let left = welcomePanel(ctx, w: leftW, h: h, r: r, handedOver: step == "place", wiring: &wiring)
         let right = placePanel(ctx, w: rightW, h: h, ox: rightX, oy: 0, r: r, step: step, wiring: &wiring)
         let scene = Scene(width: w, height: h + r.u(16)) {
             left.at(margin, 0)
@@ -47,7 +47,8 @@ enum SetupPage {
 
     // MARK: Welcome
 
-    private static func welcomePanel(_ ctx: Context, w: Double, h: Double, r: Ruler, wiring: inout SceneWiring) -> Node {
+    /// `handedOver`: the two arches stand side by side and Choose a place has been pressed. The button then says where the work went, as what lights up beside it does.
+    private static func welcomePanel(_ ctx: Context, w: Double, h: Double, r: Ruler, handedOver: Bool = false, wiring: inout SceneWiring) -> Node {
         let items: [(String, String, String, Double)] = [
             (Node.Glyph.arch, L("Prayer"), L("Times for your place, or your mosque's own timetable."), 400),
             ("calendar", L("Calendar"), L("Hijri and Gregorian dates, with the method always named."), 476),
@@ -56,6 +57,9 @@ enum SetupPage {
         ]
         wiring.acts["place"] = .go(Go(set: ["setup": "place"], push: true))
         let cx = w / 2, textW = w - r.u(170)
+        // The names' column is as wide as its longest word in this language, and what they mean starts after it.
+        let nameSize = r.f(20.5, min: 12.5), nameW = max(r.u(94), (items.map { wordsWidth($0.1, size: nameSize, em: 0.58) }.max() ?? 0) + 2)
+        let meaningX = r.u(148) + nameW + r.u(4)
         let stars: [(Double, Double, Double)] = [(143, 126, 7), (109, 160, 5), (188, 97, 4), (166, 156, 4), (443, 125, 7), (408, 96, 4), (483, 168, 5), (419, 174, 4), (70, 236, 4), (517, 212, 4), (228, 66, 4), (360, 64, 3.5), (92, 200, 3), (500, 150, 3)]
         return Node.group {
             Node.archPanel(w, h, r: r, dusk: true)
@@ -66,10 +70,10 @@ enum SetupPage {
             Node.say(L("Noor brings together prayer times, a calendar, Qibla and the Beautiful Names, designed for everyday life."), (w - textW) / 2, r.u(280), textW, r.u(84), size: r.f(18.5, min: 12), color: Noor.muted, align: "center", lines: 3)
             for item in items {
                 Node.medallion(item.0, cx: r.u(103), cy: r.u(item.3), d: r.u(54), ink: Noor.text)
-                Node.say(item.1, r.u(148), r.u(item.3 - 26), r.u(94), r.u(52), size: r.f(20.5, min: 12.5), weight: "semibold", lines: 2)
-                Node.say(item.2, r.u(246), r.u(item.3 - 28), w - r.u(246) - r.u(40), r.u(56), size: r.f(15.5, min: 11), color: Noor.muted, lines: 2)
+                Node.say(item.1, r.u(148), r.u(item.3 - 26), nameW, r.u(52), size: nameSize, weight: "semibold")
+                Node.say(item.2, meaningX, r.u(item.3 - 30), w - meaningX - r.u(40), r.u(60), size: r.f(15.5, min: 11), color: Noor.muted, lines: 3)
             }
-            Node.ctaPill("place", label: L("Choose a place"), x: cx - r.u(214), y: h - r.u(114), w: r.u(428), h: r.u(54), size: r.f(19.5, min: 13.5))
+            Node.ctaPill("place", label: handedOver ? L("Now set your place") : L("Choose a place"), x: cx - r.u(214), y: h - r.u(114), w: r.u(428), h: r.u(54), filled: !handedOver, size: r.f(19.5, min: 13.5))
             Node.group {
                 Node.symbol("bell", color: Noor.muted).size(r.f(17, min: 12), r.f(17, min: 12)).at(0, (r.u(28) - r.f(17, min: 12)) / 2)
                 Node.say(L("Reminders start off."), r.f(17, min: 12) + r.u(10), 0, r.u(240), r.u(28), size: r.f(15.5, min: 11), color: Noor.muted)
@@ -139,7 +143,7 @@ enum SetupPage {
             }
             Node.ctaPill("back", label: L("Back"), x: x, y: lower + r.u(0), w: r.u(186), h: r.u(47), symbol: nil, leading: "arrow.backward", filled: false, disabled: !draft, size: r.f(17, min: 12.5))
             Node.ctaPill("continue", label: L("Continue"), x: x + r.u(201), y: lower, w: inner - r.u(201), h: r.u(47), disabled: !canContinue, size: r.f(17.5, min: 13))
-            Node.say(L("It stays until you change it, also when you travel."), x, h - r.u(52), inner, r.u(24), size: r.f(13.5, min: 10.5), color: Noor.muted, align: "center")
+            Node.say(L("It stays until you change it, also when you travel."), x, h - r.u(52), inner, r.u(24), size: r.f(13.5, min: 11), color: Noor.muted, align: "center")
         }
         .size(w, h)
     }
@@ -168,7 +172,10 @@ enum SetupPage {
         var out: [Node] = []
         out.append(Node.say(L("Search for a city or place"), x, r.u(205), w, r.u(26), size: r.f(16, min: 11.5)))
         let wellY = r.u(236), wellH = r.u(43), glyph = r.f(19, min: 13)
+        // Choose a place has just been pressed: this is where to go, so it lights up.
+        let waiting = ctx.state.string("setup") == "place" && ctx.model.placeResults.isEmpty && ctx.model.placeProblem == nil
         out.append(Node.well(w, wellH, corner: r.u(10), line: ctx.state.string("setup") == "place" && ctx.model.placeResults.isEmpty ? NoorLine.chosen : NoorLine.soft).at(x, wellY))
+        if waiting { out.append(Node.rect(stroke: NoorLine.chosen, lineWidth: 2.2, corner: r.u(10)).size(w, wellH).at(x, wellY)) }
         out.append(Node.symbol("magnifyingglass", color: Noor.muted).size(glyph, glyph).at(x + r.u(18), wellY + (wellH - glyph) / 2))
         out.append(Node.symbol("return", color: Noor.faint).size(glyph * 0.8, glyph * 0.8).at(x + w - r.u(34), wellY + (wellH - glyph * 0.8) / 2))
         wiring.inlays.append(PageInlay(x: ox + x + r.u(52), y: oy + wellY, w: w - r.u(96), h: wellH,
@@ -182,9 +189,9 @@ enum SetupPage {
             let boxH = r.u(133)
             out.append(Node.rect(fill: Noor.quiet, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(12), dash: [3, 4]).size(w, boxH).at(x, y))
             out.append(Node.medallion(problem == nil ? Node.Glyph.pin : "magnifyingglass", cx: x + r.u(46), cy: y + boxH / 2, d: r.u(50), ink: problem == nil ? Noor.text : NoorLine.caution, ring: problem == nil ? NoorLine.soft : NoorLine.caution))
-            let title = problem == nil ? L("No place chosen yet") : L("Nothing to choose from")
-            out.append(Node.say(title, x + r.u(86), y + boxH / 2 - r.u(38), w - r.u(104), r.u(28), size: r.f(17, min: 12.5), weight: "medium"))
-            out.append(Node.say(problem ?? L("Type a city and press Return. Your words go to Sidefolk's place search and nothing else does."), x + r.u(86), y + boxH / 2 - r.u(10), w - r.u(104), r.u(50), size: r.f(14.5, min: 11), color: Noor.muted, lines: 2))
+            let title = problem != nil ? L("Nothing to choose from") : waiting ? L("Type a city and press Return") : L("No place chosen yet")
+            out.append(Node.say(title, x + r.u(86), y + boxH / 2 - r.u(38), w - r.u(104), r.u(28), size: r.f(17, min: 12.5), weight: "medium", color: waiting ? Noor.accent : Noor.text))
+            out.append(Node.say(problem ?? (waiting ? L("Then pick it from the list, and Continue.") : L("Type a city and press Return. Your words go to Sidefolk's place search and nothing else does.")), x + r.u(86), y + boxH / 2 - r.u(10), w - r.u(104), r.u(58), size: r.f(14.5, min: 11), color: Noor.muted, valign: "top", lines: 3))
             y += step * 2
         } else {
             for (i, place) in results.enumerated() {
@@ -231,7 +238,7 @@ enum SetupPage {
         out.append(Node.well(w, boxH, corner: r.u(12)).at(x, y))
         out.append(Node.group {
             Node.say(L("Advanced"), r.u(18), 0, w - r.u(60), headH, size: r.f(16, min: 11.5), weight: "medium")
-            Node.symbol(open ? "chevron.up" : "chevron.down", color: Noor.text).size(r.f(13, min: 10), r.f(13, min: 10)).at(w - r.u(32), (headH - r.f(13, min: 10)) / 2)
+            Node.symbol(open ? "chevron.up" : "chevron.down", color: Noor.text).size(r.f(13, min: 11), r.f(13, min: 11)).at(w - r.u(32), (headH - r.f(13, min: 11)) / 2)
         }
         .size(w, headH).at(x, y)
         .area("advanced", label: open ? L("Hide coordinates") : L("Enter coordinates instead"), hover: .init(scale: 1.0)))
@@ -248,7 +255,7 @@ enum SetupPage {
         let iy = y + boxH + r.u(10), glyph = r.f(16, min: 12)
         out.append(Node.symbol("info.circle", color: Noor.muted).size(glyph, glyph).at(x + r.u(4), iy + (r.u(26) - glyph) / 2))
         let line = found == nil ? L("Your words go to Sidefolk's place search and nothing else does.") : L("Saving sends these coordinates to AlAdhan to calculate times and the bearing.")
-        out.append(Node.say(line, x + r.u(4) + glyph + r.u(10), iy, w - r.u(40), r.u(26), size: r.f(14, min: 10.5), color: Noor.muted))
+        out.append(Node.say(line, x + r.u(4) + glyph + r.u(10), iy - r.u(4), w - r.u(40), r.u(34), size: r.f(14, min: 11), color: Noor.muted, lines: 2))
         out += consentRow(ctx, x: x, y: iy + r.u(34), w: w, ox: ox, oy: oy, r: r, wiring: &wiring)
         return out
     }
@@ -267,7 +274,7 @@ enum SetupPage {
         var out: [Node] = [Node.rect(fill: NoorLine.soft).size(w - r.u(36), 1).at(x + r.u(18), y)]
         for (i, field) in fields.enumerated() {
             let cx = x + pad + Double(i % 2) * (cellW + pad), cy = y + r.u(8) + Double(i / 2) * cellH
-            out.append(Node.say(field.0, cx, cy, cellW, r.u(22), size: r.f(13.5, min: 10.5), color: Noor.muted))
+            out.append(Node.say(field.0, cx, cy, cellW, r.u(22), size: r.f(13.5, min: 11), color: Noor.muted))
             out.append(Node.well(cellW, wellH, corner: r.u(8), fill: Noor.quiet).at(cx, cy + r.u(22)))
             wiring.inlays.append(PageInlay(x: ox + cx + r.u(10), y: oy + cy + r.u(22), w: cellW - r.u(16), h: wellH,
                                            .draftField(field.0, placeholder: field.1, button: L("Clear"), key: field.2, value: field.3.isEmpty ? nil : field.3, live: true)))
@@ -284,7 +291,7 @@ enum SetupPage {
             Node.well(w, h, corner: r.u(12)).at(x, y),
             Node.medallion("location", cx: x + r.u(37), cy: y + r.u(43), d: r.u(40), ink: Noor.text),
             Node.say(L("Use Sidefolk's place (optional)"), x + r.u(75), y + r.u(8), w - r.u(160), r.u(26), size: r.f(16, min: 11.5), weight: "medium"),
-            Node.say(words, x + r.u(75), y + r.u(33), w - (control == nil ? r.u(90) : r.u(160)), r.u(50), size: r.f(13.5, min: 10.5), color: Noor.muted, lines: 2),
+            Node.say(words, x + r.u(75), y + r.u(33), w - (control == nil ? r.u(90) : r.u(160)), h - r.u(35) - (sidefolkKnowsNoPlace ? r.u(settingsRoom) : 0), size: r.f(13.5, min: 11), color: Noor.muted, valign: "top", lines: 3),
         ]
         if let control {
             wiring.inlays.append(PageInlay(x: ox + x + w - r.u(72), y: oy + y + (h - r.u(32)) / 2, w: r.u(56), h: r.u(32), control))
@@ -358,7 +365,7 @@ enum PlaceParts {
         var blocks: [Block] = [.field(L("Search for a city or place"), detail: L("Your words go to Sidefolk's place search and nothing else does."), placeholder: L("Search for a city or place"), button: L("Search"), tool: "search_places", key: "query")]
         if let problem = ctx.model.placeProblem { blocks.append(.note(problem, tone: .warn)) }
         if !ctx.model.placeResults.isEmpty {
-            blocks.append(.draftChoice(L("Results"), options: ctx.model.placeResults.prefix(10).map { Option($0.id, title($0), detail: $0.zoneID, symbol: "mappin.and.ellipse") }, selected: picked ?? "", key: "place_pick", style: .rows))
+            blocks.append(.draftChoice(L("Results"), options: ctx.model.placeResults.prefix(10).map { Option($0.id, title($0), detail: $0.zoneID, symbol: "mappin") }, selected: picked ?? "", key: "place_pick", style: .rows))
         }
         return blocks
     }
@@ -373,7 +380,7 @@ enum PlaceParts {
             .draftField(L("Latitude"), placeholder: "35.6762", button: L("Clear"), key: "c_lat", value: lat.isEmpty ? nil : lat),
             .draftField(L("Longitude"), placeholder: "139.6503", button: L("Clear"), key: "c_lon", value: lon.isEmpty ? nil : lon),
             .draftField(L("Time zone"), detail: L("A zone name, like Asia/Tokyo."), placeholder: "Asia/Tokyo", button: L("Clear"), key: "c_zone", value: zone.isEmpty ? nil : zone),
-            .action(Action(L("Use these coordinates"), tool: "choose_place", input: ["label": label, "latitude": number(lat) ?? 999, "longitude": number(lon) ?? 999, "zone": zone], symbol: "mappin.and.ellipse", detail: ready ? nil : L("Fill in all four, with a real time zone."), disabled: !ready)),
+            .action(Action(L("Use these coordinates"), tool: "choose_place", input: ["label": label, "latitude": number(lat) ?? 999, "longitude": number(lon) ?? 999, "zone": zone], symbol: "mappin", detail: ready ? nil : L("Fill in all four, with a real time zone."), disabled: !ready)),
         ]
     }
 

@@ -34,9 +34,32 @@ enum PreferencesPage {
     }
 }
 
-/// About how many lines words take in a width: enough to give them the room, which matters more than a point or two spare.
-func lineCount(_ words: String, width: Double, size: Double) -> Int {
-    max(1, Int(ceil(Double(words.count) * size * 0.5 / max(width, 40))))
+/// About how many lines words take in a width, broken as text breaks: long German words leave a line's end empty, Chinese and Japanese break anywhere. Enough to give them the room, which matters more than a point or two spare.
+func lineCount(_ words: String, width: Double, size: Double, em: Double = 0.52) -> Int {
+    let room = max(width, 40)
+    var lines = 1, used = 0.0, word = ""
+    func place(_ wide: Double) {
+        if used > 0, used + wide > room {
+            lines += 1
+            used = 0
+        }
+        // A word longer than a line takes the lines it needs.
+        while wide > room, used == 0, wide - Double(lines) * room > room { lines += 1 }
+        used += wide
+    }
+    for character in words + " " {
+        if character == " " || character == "\n" {
+            place(wordsWidth(word, size: size, em: em))
+            word = ""
+            used += size * 0.28
+        } else if wordsWidth(String(character), size: 1, em: 0) == 1 {
+            if !word.isEmpty { place(wordsWidth(word, size: size, em: em)); word = "" }
+            place(size)
+        } else {
+            word.append(character)
+        }
+    }
+    return lines
 }
 
 /// A scene being put together in the page's own numbers: what it draws, the native controls laid into it, and what its areas do.

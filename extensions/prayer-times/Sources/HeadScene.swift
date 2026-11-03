@@ -41,7 +41,11 @@ enum HeadScene {
             Node.group {
                 Node.say(subtitle, 0, 0, lineRoom - mark - 8, lineH, size: lineSize, color: Noor.muted, lines: wraps ? 2 : 1)
                 // Just after the words, as the board has it.
-                Node.symbol("chevron.down", color: Noor.muted).size(mark, mark).at(wraps ? lineRoom - mark : min(lineLong + 7, lineRoom - mark), (lineH - mark) / 2)
+                if wraps {
+                    Node.symbol("chevron.down", color: Noor.muted).size(mark, mark).at(min(lastLine(subtitle, room: lineRoom - mark - 8, size: lineSize) + 7, lineRoom - mark), oneLine + (oneLine - mark) / 2)
+                } else {
+                    Node.symbol("chevron.down", color: Noor.muted).size(mark, mark).at(min(lineLong + 7, lineRoom - mark), (lineH - mark) / 2)
+                }
             }
             .size(lineRoom, lineH).at(wordsX, r.u(76))
             .area("source", label: L("Where the times come from: {source}. Open.", ["source": subtitle]), hover: .init(scale: 1.0))
@@ -50,7 +54,7 @@ enum HeadScene {
             } else {
                 // Measured back from its divider, so the word keeps the board's gap where type has stopped shrinking.
                 let word = L("Preferences"), size = r.f(19, min: 13), gear = r.f(26, min: 17), dividerX = w - r.u(95)
-                let wordW = Double(word.count) * size * 0.5 + 4, buttonW = gear + r.u(17) + wordW
+                let wordW = wordsWidth(word, size: size) + 4, buttonW = gear + r.u(17) + wordW
                 Node.group {
                     Node.symbol("gearshape", color: Noor.text).size(gear, gear).at(0, (r.u(40) - gear) / 2)
                     Node.say(word, gear + r.u(17), 0, wordW, r.u(40), size: size)
@@ -72,10 +76,21 @@ enum HeadScene {
     /// About how wide words stand: enough to put a mark just after them, which a count of letters alone isn't, as a line of narrow dots and spaces shows.
     private static func wordsWide(_ words: String, size: Double) -> Double {
         words.reduce(0) { sum, c in
+            if wordsWidth(String(c), size: 1, em: 0) == 1 { return sum + 1 }
             if " ·.,:;'ijltfrI".contains(c) { return sum + 0.29 }
             if "mwMW".contains(c) { return sum + 0.82 }
             return sum + (c.isUppercase ? 0.66 : 0.54)
         } * size * 1.03
+    }
+
+    /// How far the second line of words wrapped in `room` runs, so the mark can stand at its end and not out in the air.
+    private static func lastLine(_ words: String, room: Double, size: Double) -> Double {
+        var used = 0.0
+        for word in words.split(separator: " ", omittingEmptySubsequences: false) {
+            let wide = wordsWide(String(word), size: size), space = wordsWide(" ", size: size)
+            used = used + wide > room ? wide + space : used + wide + space
+        }
+        return max(0, used - wordsWide(" ", size: size))
     }
 
     /// The five places. They fit by shrinking, and where they can't, only the chosen one keeps its word.
@@ -83,7 +98,7 @@ enum HeadScene {
         let r = ctx.ruler, h = r.u(50), size = r.f(16, min: 12.5), glyph = r.f(24, min: 15)
         let words = NoorTab.allCases.map { Words.tab($0) }
         let room = ctx.width - r.u(60)
-        let wanted = words.map { Double($0.count) * size * 0.56 + glyph + r.u(48) }
+        let wanted = words.map { wordsWidth($0, size: size, em: 0.56) + glyph + r.u(48) }
         let tight = wanted.reduce(0, +) > room
         // Preferences stands over the tabs and is none of them, except where the times come from: that is Prayer's, as F02 has it.
         let sheet = ctx.state.string("sheet")
@@ -92,7 +107,7 @@ enum HeadScene {
         var x = r.u(30)
         for (tab, word) in zip(NoorTab.allCases, words) {
             let chosen = tab == place
-            let width = tight && !chosen ? glyph + r.u(28) : Double(word.count) * size * 0.56 + glyph + r.u(48)
+            let width = tight && !chosen ? glyph + r.u(28) : wordsWidth(word, size: size, em: 0.56) + glyph + r.u(48)
             let ink = chosen ? Color.hex("#FFFFFF") : Noor.text
             out.append(Node.group {
                 if chosen { Node.rect(fill: Noor.picked, stroke: Noor.pickedEdge, lineWidth: 1, corner: r.u(12)).size(width, h) }
