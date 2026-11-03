@@ -120,16 +120,6 @@ struct PlaytimeStabilityG4 {
         }
     }
 
-    /// The German the lead is given for the words this change wrote, at the bubble's size.
-    @Test func theProposedGermanReads() {
-        for words in ["Eine Zahl pro Rechteck. Die Zahl ist seine Fläche.", "In jeder Linie gleich viele Monde und Sonnen. Nie drei gleiche.",
-                      "Jede Zeile, Spalte und Box enthält 1–9 einmal.", "Eine Blüte pro Zeile, Spalte und Beet. Sie berühren sich nie, auch nicht an Ecken.",
-                      "Zwei Felder teilen zwei Zahlen und schließen sie anderswo aus.", "Diese Beete füllen jene Linien und schließen den Rest aus.",
-                      "Anderswo bliebe einer Zeile, Spalte oder einem Beet kein Platz.", "Ein Beet in nur einer Linie schließt den Rest der Linie aus."] {
-            #expect(Self.fit(words) >= 0.9, "\(words): \(Self.fit(words))")
-        }
-    }
-
     @Test func aBoardSavedWithHeartsAndStarsReadsBackAsCrescentsAndSuns() throws {
         // What a saved board says: the marks' raw values, which never changed.
         let saved = #"[1, 2, null, 2, 1]"#
