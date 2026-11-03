@@ -1,11 +1,11 @@
 {
   "name": "通貨",
-  "tagline": "30通貨の金額を今日のレートで",
-  "description": "欧州中央銀行の毎日の参照レートで、ユーロと主要30通貨の間で金額を換算し、レートが設定した値を超えたら知らせます。あなたに関する情報は送信されません。",
+  "tagline": "約160の通貨を今日のレートで",
+  "description": "約160の通貨の間で金額を換算します。うち30通貨は欧州中央銀行の毎日の参照レート、それ以外はExchange Rate APIの毎日の表を使います。レートが指定した値を超えたときにもお知らせします。あなたに関する情報は送信されません。",
   "tools": {
     "convert_currency": {
       "title": "通貨を換算",
-      "summary": "欧州中央銀行のレートで{amount} {from}を{to}に換算"
+      "summary": "{amount} {from}を今日のレートで{to}に換算"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "{day}の日次レートです(ECBの公式レートではありません)。",
     "ECB reference rates of {day}.": "{day}のECB参照レート。",
     "ECB, {day}": "ECB、{day}",
+    "Exchange Rate API, {day}": "Exchange Rate API、{day}",
     "Give “above” or “below”: the rate to watch for.": "「above」か「below」で、見張るレートを指定してください。",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "ECBは「{currency}」のレートを公表していません。対象は EUR と {codes} です。",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "「{currency}」のレートはありません。USDやTNDのような3文字のコードを使ってください。",
     "The ECB's rates file had no date.": "ECBのレートファイルに日付がありませんでした。",
     "The ECB's rates file had no rates.": "ECBのレートファイルにレートがありませんでした。",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "追加のレート提供元が数日間更新されていないため、引用しません。",
+    "The wider rates source sent something I couldn't read.": "追加のレート提供元から読み取れないデータが届きました。",
     "{rate}, above {line}.": "{rate}、{line}を上回りました。",
     "{rate}, below {line}.": "{rate}、{line}を下回りました。",
     "“{key}” must be a number.": "「{key}」は数値でなければなりません。"

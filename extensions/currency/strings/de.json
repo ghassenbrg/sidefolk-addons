@@ -1,11 +1,11 @@
 {
   "name": "Währungen",
-  "tagline": "Geld in 30 Währungen zum Tageskurs",
-  "description": "Rechnet Geld zwischen dem Euro und 30 wichtigen Währungen zu den täglichen Referenzkursen der Europäischen Zentralbank um und sagt dir, wenn ein Kurs eine Grenze überschreitet. Nichts über dich wird gesendet.",
+  "tagline": "Geld in rund 160 Währungen zum heutigen Kurs",
+  "description": "Rechnet Geld zwischen rund 160 Währungen um, mit den täglichen Referenzkursen der Europäischen Zentralbank für 30 davon und der täglichen Tabelle von Exchange Rate API für die übrigen, und sagt Bescheid, wenn ein Kurs eine Marke überschreitet. Nichts über dich wird gesendet.",
   "tools": {
     "convert_currency": {
       "title": "Geld umrechnen",
-      "summary": "{amount} {from} zu den Kursen der Europäischen Zentralbank in {to} umrechnen"
+      "summary": "{amount} {from} zum heutigen Kurs in {to} umrechnen"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "Tageskurse vom {day}, nicht die offiziellen der EZB.",
     "ECB reference rates of {day}.": "EZB-Referenzkurse vom {day}.",
     "ECB, {day}": "EZB, {day}",
+    "Exchange Rate API, {day}": "Exchange Rate API, {day}",
     "Give “above” or “below”: the rate to watch for.": "Gib „above“ oder „below“ an: den Kurs, auf den du achtest.",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "Die EZB veröffentlicht keinen Kurs für „{currency}“. Sie deckt EUR und {codes} ab.",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "Für „{currency}“ habe ich keinen Kurs. Nimm einen dreistelligen Code wie USD oder TND.",
     "The ECB's rates file had no date.": "Die Kursdatei der EZB hatte kein Datum.",
     "The ECB's rates file had no rates.": "Die Kursdatei der EZB hatte keine Kurse.",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "Die erweiterte Kursquelle wurde seit Tagen nicht aktualisiert, deshalb nenne ich sie nicht.",
+    "The wider rates source sent something I couldn't read.": "Die erweiterte Kursquelle hat etwas geschickt, das ich nicht lesen konnte.",
     "{rate}, above {line}.": "{rate}, über {line}.",
     "{rate}, below {line}.": "{rate}, unter {line}.",
     "“{key}” must be a number.": "„{key}“ muss eine Zahl sein."

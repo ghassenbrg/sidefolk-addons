@@ -1,11 +1,15 @@
 {
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "Daily rates of {day}, not the ECB's official ones.",
     "ECB reference rates of {day}.": "ECB reference rates of {day}.",
     "ECB, {day}": "ECB, {day}",
+    "Exchange Rate API, {day}": "Exchange Rate API, {day}",
     "Give “above” or “below”: the rate to watch for.": "Give “above” or “below”: the rate to watch for.",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.",
     "The ECB's rates file had no date.": "The ECB's rates file had no date.",
     "The ECB's rates file had no rates.": "The ECB's rates file had no rates.",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "The wider rates source hasn't updated for days, so I won't quote it.",
+    "The wider rates source sent something I couldn't read.": "The wider rates source sent something I couldn't read.",
     "{rate}, above {line}.": "{rate}, above {line}.",
     "{rate}, below {line}.": "{rate}, below {line}.",
     "“{key}” must be a number.": "“{key}” must be a number."

@@ -22,6 +22,40 @@ struct ExtensionLogicTests {
         #expect(Rates.rateText(0.896861) == "0.8969")
         #expect(throws: (any Error).self) { try Rates.parse("<html>maintenance</html>") }
     }
+    @Test func currencyReadsTheWiderTableAndRefusesAStaleOne() throws {
+        let updated = 1_793_664_000.0 // 2026-11-03
+        let now = Date(timeIntervalSince1970: updated + 3600)
+        let body = """
+            {"result":"success","time_last_update_unix":\(Int(updated)),"base_code":"EUR","rates":{"EUR":1,"TND":3.364,"JPY":175,"XX":2,"BAD":0}}
+            """
+        let table = try Rates.parseWorld(body, now: now)
+        #expect(table.day == "2026-11-03")
+        // A number with no decimals still reads; a bad code and a zero don't get in.
+        #expect(table.perEuro == ["EUR": 1, "TND": 3.364, "JPY": 175])
+        #expect(Rates.credit(table, world: true).contains("Rates By Exchange Rate API (www.exchangerate-api.com)."))
+        #expect(Rates.credit(table, world: true).contains(Rates.day("2026-11-03")))
+        #expect(!Rates.credit(table, world: false).contains("Exchange Rate API"))
+        // Days old is a table that stopped: refused, never quoted as today's.
+        #expect(throws: (any Error).self) { try Rates.parseWorld(body, now: now.addingTimeInterval(4 * 86400)) }
+        for broken in ["<html>maintenance</html>", #"{"result":"error"}"#, body.replacingOccurrences(of: #""EUR","rates""#, with: #""USD","rates""#),
+                       #"{"result":"success","time_last_update_unix":\#(Int(updated)),"base_code":"EUR","rates":{}}"#] {
+            #expect(throws: (any Error).self) { try Rates.parseWorld(broken, now: now) }
+        }
+        #expect(Rates.wanted(" Tunisian Dinar ") == "TND")
+        #expect(Rates.wanted("tnd") == "TND")
+    }
+    @Test func currencyWatchDoesntTellWhenOnlyItsTableChanged() {
+        // Past the line on the ECB's: told once.
+        #expect(Rates.crossing(true, source: "ecb", state: [:]) == (true, true))
+        #expect(Rates.crossing(true, source: "ecb", state: ["past": true, "source": "ecb"]) == (true, false))
+        // The ECB's file fails and the wider table sits just under the line, then the ECB's is back: nothing to tell.
+        #expect(Rates.crossing(false, source: "world", state: ["past": true, "source": "ecb"]) == (true, false))
+        #expect(Rates.crossing(true, source: "ecb", state: ["past": true, "source": "world"]) == (true, false))
+        // Crossing as the table changes waits one check, then tells; a watch from before this has no source and carries on.
+        #expect(Rates.crossing(true, source: "world", state: ["past": false, "source": "ecb"]) == (false, false))
+        #expect(Rates.crossing(true, source: "world", state: ["past": false, "source": "world"]) == (true, true))
+        #expect(Rates.crossing(false, source: "ecb", state: ["past": true]) == (false, false))
+    }
     @Test func feedsReadRSSAtomAndFindTheFeedOfASite() throws {
         let rss = Parser.parse(Data("""
             <rss version="2.0"><channel><title>Tea Blog</title>

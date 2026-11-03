@@ -1,0 +1,53 @@
+{
+  "id": "dev.sidefolk.companions.noor",
+  "kind": "companion",
+  "name": "Noor",
+  "tagline": "A baby moth who carries his own light",
+  "description": "A chubby baby moth in 3D, in soft lapis fur with a pearl face and a wide cream ruff. Other moths go looking for light; this one keeps a small star on his chest, so he stays calm and close, the way a lamp does. Now and then his wings give a little shiver and the star flares.",
+  "author": "Sidefolk",
+  "version": "1.0.0",
+  "license": "Proprietary",
+  "companion": "noor",
+  "engine": 1,
+  "minimum_sidefolk": "0.1.0-snapshot.779",
+  "body": "biped",
+  "published": "2026-11-03",
+  "localized": {
+    "fr": {
+      "tagline": "Un bébé papillon de nuit qui porte sa propre lumière",
+      "description": "Un petit papillon de nuit tout rond en 3D, à la fourrure lapis, au visage nacré et à la large collerette crème. Les autres papillons cherchent la lumière ; lui garde une petite étoile sur la poitrine, alors il reste calme et tout près, comme une lampe. De temps en temps, ses ailes frémissent et l'étoile s'illumine."
+    },
+    "es": {
+      "tagline": "Una polilla bebé que lleva su propia luz",
+      "description": "Una polilla bebé regordeta en 3D, de suave pelaje lapislázuli, cara de perla y una amplia gorguera color crema. Otras polillas van en busca de la luz; esta guarda una pequeña estrella en el pecho, así que se queda tranquila y cerca, como una lámpara. De vez en cuando sus alas tiemblan un poco y la estrella brilla más."
+    },
+    "de": {
+      "tagline": "Ein Mottenbaby, das sein eigenes Licht trägt",
+      "description": "Ein rundliches Mottenbaby in 3D, mit weichem lapisblauem Fell, Perlengesicht und breiter cremefarbener Halskrause. Andere Motten suchen das Licht; dieses trägt einen kleinen Stern auf der Brust und bleibt deshalb ruhig und nah, wie eine Lampe. Hin und wieder zittern seine Flügel kurz, und der Stern leuchtet auf."
+    },
+    "it": {
+      "tagline": "Una falena bambina che porta con sé la sua luce",
+      "description": "Una falena bambina paffuta in 3D, con morbida pelliccia lapislazzuli, viso di perla e un ampio collare color crema. Le altre falene vanno in cerca della luce; questa tiene una piccola stella sul petto, così resta calma e vicina, come una lampada. Ogni tanto le ali le tremano un po' e la stella si accende di più."
+    },
+    "pt-BR": {
+      "tagline": "Uma mariposa bebê que carrega a própria luz",
+      "description": "Uma mariposa bebê gordinha em 3D, com pelo macio cor de lápis-lazúli, rosto de pérola e uma larga gola creme. As outras mariposas vão atrás da luz; esta guarda uma estrelinha no peito, então fica calma e por perto, como uma luminária. De vez em quando as asas dão um tremidinho e a estrela brilha mais forte."
+    },
+    "ja": {
+      "tagline": "自分の光を持ち歩く、蛾の赤ちゃん",
+      "description": "ふわふわのラピス色の毛に真珠色の顔、幅広いクリーム色のえりをつけた、まるい蛾の赤ちゃんの3Dキャラクター。ほかの蛾は光を探しに行きますが、この子は胸に小さな星を持っているので、ランプのように穏やかにそばにいてくれます。ときどき羽がふるえて、星がぱっと明るくなります。"
+    },
+    "ko": {
+      "tagline": "자기만의 빛을 품고 다니는 아기 나방",
+      "description": "부드러운 청금색 털, 진주빛 얼굴, 넓은 크림색 깃을 지닌 통통한 3D 아기 나방이에요. 다른 나방은 빛을 찾아다니지만 이 아이는 가슴에 작은 별을 품고 있어서, 등불처럼 차분하게 곁에 머물러요. 가끔 날개를 살짝 떨면 별이 환하게 빛나요."
+    },
+    "zh-Hans": {
+      "tagline": "自带光芒的小飞蛾",
+      "description": "一只圆滚滚的 3D 小飞蛾，有柔软的青金色绒毛、珍珠色的脸和宽宽的奶油色毛领。别的飞蛾四处寻找光，它却把一颗小星星带在胸前，所以总是安安静静地陪在你身边，像一盏灯。偶尔它的翅膀轻轻一颤，星星就亮了一下。"
+    },
+    "ar": {
+      "tagline": "فراشة ليل صغيرة تحمل نورها معها",
+      "description": "فراشة ليل صغيرة ممتلئة بتقنية ثلاثية الأبعاد، بفرو ناعم بلون اللازورد ووجه لؤلؤي وطوق عريض بلون الكريم. تبحث الفراشات الأخرى عن النور، أما هذه فتحمل نجمة صغيرة على صدرها، فتبقى هادئة وقريبة منك كالمصباح. وبين حين وآخر يرتعش جناحاها قليلًا فيتوهّج النجم."
+    }
+  }
+}

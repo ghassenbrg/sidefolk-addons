@@ -1,11 +1,11 @@
 {
   "name": "Divisas",
-  "tagline": "Dinero en 30 monedas al cambio de hoy",
-  "description": "Convierte dinero entre el euro y 30 monedas principales con los tipos de referencia diarios del Banco Central Europeo, y te avisa cuando un tipo cruza un límite. No se envía nada sobre ti.",
+  "tagline": "Dinero en unas 160 divisas al tipo de hoy",
+  "description": "Convierte dinero entre unas 160 divisas, con los tipos de referencia diarios del Banco Central Europeo para 30 de ellas y la tabla diaria de Exchange Rate API para el resto, y te avisa cuando un tipo cruza un límite. No se envía nada sobre ti.",
   "tools": {
     "convert_currency": {
       "title": "Convertir dinero",
-      "summary": "Convertir {amount} {from} a {to} con los tipos del Banco Central Europeo"
+      "summary": "Convertir {amount} {from} a {to} al tipo de hoy"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "Tipos diarios del {day}, no los oficiales del BCE.",
     "ECB reference rates of {day}.": "Tipos de referencia del BCE del {day}.",
     "ECB, {day}": "BCE, {day}",
+    "Exchange Rate API, {day}": "Exchange Rate API, {day}",
     "Give “above” or “below”: the rate to watch for.": "Indica «above» o «below»: el tipo que vigilar.",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "El BCE no publica un tipo para «{currency}». Cubre EUR y {codes}.",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "No tengo un tipo para «{currency}». Usa un código de tres letras como USD o TND.",
     "The ECB's rates file had no date.": "El archivo de tipos del BCE no tenía fecha.",
     "The ECB's rates file had no rates.": "El archivo de tipos del BCE no tenía tipos.",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "La fuente ampliada de tipos lleva días sin actualizarse, así que no la cito.",
+    "The wider rates source sent something I couldn't read.": "La fuente ampliada de tipos envió algo que no pude leer.",
     "{rate}, above {line}.": "{rate}, por encima de {line}.",
     "{rate}, below {line}.": "{rate}, por debajo de {line}.",
     "“{key}” must be a number.": "«{key}» debe ser un número."

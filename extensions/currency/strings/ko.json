@@ -1,11 +1,11 @@
 {
   "name": "통화",
-  "tagline": "30개 통화를 오늘 환율로 환산",
-  "description": "유럽중앙은행의 일일 기준 환율로 유로와 주요 30개 통화 사이의 금액을 환산하고, 환율이 정한 선을 넘으면 알려 줘요. 나에 관한 정보는 보내지 않아요.",
+  "tagline": "약 160개 통화를 오늘 환율로",
+  "description": "약 160개 통화 사이에서 금액을 환산합니다. 그중 30개는 유럽중앙은행의 일일 기준 환율을, 나머지는 Exchange Rate API의 일일 표를 사용하며, 환율이 기준선을 넘으면 알려 줍니다. 사용자에 관한 정보는 전송되지 않습니다.",
   "tools": {
     "convert_currency": {
       "title": "돈 환산",
-      "summary": "유럽중앙은행 환율로 {amount} {from}을(를) {to}(으)로 환산"
+      "summary": "{amount} {from}을(를) 오늘 환율로 {to}(으)로 환산"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "{day} 일일 환율이며 ECB 공식 환율은 아닙니다.",
     "ECB reference rates of {day}.": "{day} ECB 기준 환율.",
     "ECB, {day}": "ECB, {day}",
+    "Exchange Rate API, {day}": "Exchange Rate API, {day}",
     "Give “above” or “below”: the rate to watch for.": "‘above’ 또는 ‘below’로 지켜볼 환율을 정하세요.",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "ECB는 ‘{currency}’ 환율을 발표하지 않습니다. EUR와 {codes}를 다룹니다.",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "“{currency}”의 환율이 없습니다. USD나 TND 같은 세 글자 코드를 사용하세요.",
     "The ECB's rates file had no date.": "ECB 환율 파일에 날짜가 없었습니다.",
     "The ECB's rates file had no rates.": "ECB 환율 파일에 환율이 없었습니다.",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "추가 환율 출처가 며칠째 업데이트되지 않아 인용하지 않습니다.",
+    "The wider rates source sent something I couldn't read.": "추가 환율 출처에서 읽을 수 없는 내용을 보냈습니다.",
     "{rate}, above {line}.": "{rate}, {line} 초과.",
     "{rate}, below {line}.": "{rate}, {line} 미만.",
     "“{key}” must be a number.": "‘{key}’은(는) 숫자여야 합니다."

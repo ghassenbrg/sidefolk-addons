@@ -1,11 +1,11 @@
 {
   "name": "货币",
-  "tagline": "30 种货币按今日汇率换算",
-  "description": "按欧洲中央银行每日的参考汇率，在欧元和 30 种主要货币之间换算金额，并在汇率越过设定值时提醒你。不会发送任何关于你的信息。",
+  "tagline": "约 160 种货币,按今日汇率换算",
+  "description": "在约 160 种货币之间换算金额:其中 30 种使用欧洲央行每日参考汇率,其余使用 Exchange Rate API 的每日汇率表;汇率越过设定的线时也会告诉你。不会发送任何关于你的信息。",
   "tools": {
     "convert_currency": {
       "title": "换算货币",
-      "summary": "按欧洲中央银行的汇率将 {amount} {from} 换算为 {to}"
+      "summary": "按今日汇率将 {amount} {from} 换算为 {to}"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "{day} 的每日汇率,不是欧洲央行的官方汇率。",
     "ECB reference rates of {day}.": "欧洲央行 {day} 的参考汇率。",
     "ECB, {day}": "欧洲央行，{day}",
+    "Exchange Rate API, {day}": "Exchange Rate API,{day}",
     "Give “above” or “below”: the rate to watch for.": "请给出“above”或“below”：要关注的汇率。",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "欧洲央行不公布“{currency}”的汇率。它涵盖 EUR 以及 {codes}。",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "我没有“{currency}”的汇率。请使用三个字母的代码,例如 USD 或 TND。",
     "The ECB's rates file had no date.": "欧洲央行的汇率文件没有日期。",
     "The ECB's rates file had no rates.": "欧洲央行的汇率文件没有汇率。",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "扩展汇率来源已有数天没有更新,所以我不引用它。",
+    "The wider rates source sent something I couldn't read.": "扩展汇率来源发送了我无法读取的内容。",
     "{rate}, above {line}.": "{rate}，高于 {line}。",
     "{rate}, below {line}.": "{rate}，低于 {line}。",
     "“{key}” must be a number.": "“{key}”必须是数字。"
