@@ -62,7 +62,9 @@ extension Node {
     /// The lattice flourish in a card's top right corner, `side` across, cut by the card's own corner. A group the card's size holds it.
     static func flourish(_ w: Double, _ h: Double, side: Double, corner: Double = 16) -> Node {
         Node.group {
-            Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0)
+            // A picture isn't turned with its place: in a language that runs right to left it has to be, or its straight side stands in the card.
+            let art = Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side)
+            (Language.rightToLeft ? art.scale(x: -1, y: 1) : art).at(w - side, 0)
         }
         .size(w, h).corner(corner).clip()
     }
@@ -78,6 +80,33 @@ extension Node {
         let shoulder = lift * 0.46
         return "M 0 \(n(h)) L 0 \(n(lift)) C 0 \(n(lift * 0.54)) \(n(w * 0.20)) \(n(lift * 0.42)) \(n(w * 0.34)) \(n(shoulder)) C \(n(w * 0.42)) \(n(lift * 0.32)) \(n(w * 0.47)) \(n(lift * 0.12)) \(n(s)) 0 "
             + "C \(n(w * 0.53)) \(n(lift * 0.12)) \(n(w * 0.58)) \(n(lift * 0.32)) \(n(w * 0.66)) \(n(shoulder)) C \(n(w * 0.80)) \(n(lift * 0.42)) \(n(w)) \(n(lift * 0.54)) \(n(w)) \(n(lift)) L \(n(w)) \(n(h)) Z"
+    }
+
+    /// The boards' icons where a system symbol reads as something else: the mosque arch (a bank's columns) and the pin (an anchor, at this size). Pass these for a `symbol`, wherever a scene draws one through `icon`.
+    enum Glyph {
+        static let arch = "noor.arch", pin = "noor.pin"
+    }
+
+    /// A symbol at `side` square, or one of Noor's own drawn ones.
+    static func icon(_ symbol: String, color: Color, side: Double) -> Node {
+        switch symbol {
+        case Glyph.arch: return archIcon(side: side, color: color)
+        case Glyph.pin:
+            let w = side * 0.74
+            return Node.group { pin(size: side, ink: color).at((side - w) / 2, 0) }.size(side, side)
+        default: return Node.symbol(symbol, color: color).size(side, side)
+        }
+    }
+
+    /// C02's Prayer icon: an ogee arch on its step with a finial, and the door inside it. One line, at the weight the system's symbols have at this size.
+    static func archIcon(side: Double, color: Color) -> Node {
+        let k = side / 24
+        func p(_ x: Double, _ y: Double) -> String { "\(n(x * k)) \(n(y * k))" }
+        let outer = "M \(p(4.5, 21.5)) L \(p(4.5, 12.2)) C \(p(4.5, 8.4)) \(p(9, 7.4)) \(p(12, 3.2)) C \(p(15, 7.4)) \(p(19.5, 8.4)) \(p(19.5, 12.2)) L \(p(19.5, 21.5)) "
+        let finial = "M \(p(12, 3.2)) L \(p(12, 0.8)) "
+        let step = "M \(p(2.2, 21.5)) L \(p(21.8, 21.5)) "
+        let door = "M \(p(9, 21.5)) L \(p(9, 16.4)) C \(p(9, 14.7)) \(p(10.9, 14.2)) \(p(12, 12.6)) C \(p(13.1, 14.2)) \(p(15, 14.7)) \(p(15, 16.4)) L \(p(15, 21.5))"
+        return Node.path(outer + finial + step + door, stroke: color, lineWidth: max(1.1, side * 0.062)).size(side, side)
     }
 
     /// A word on one line in a box: the same call everywhere, so type stays Noor's. Text that doesn't fit shrinks a little, then ends in dots.
@@ -103,7 +132,7 @@ extension Node {
                 Node.say(label, h * 0.4, 0, w - h * 1.2, h, size: size, weight: "medium", color: ink, align: "center")
                 Node.symbol("chevron.forward", color: ink).size(glyph * 0.62, glyph).at(w - h * 0.66, (h - glyph) / 2)
             } else if let symbol {
-                Node.symbol(symbol, color: ink).size(glyph, glyph).at(h * 0.42, (h - glyph) / 2)
+                Node.icon(symbol, color: ink, side: glyph).at(h * 0.42, (h - glyph) / 2)
                 Node.say(label, h * 0.42 + glyph + 8, 0, w - h * 0.84 - glyph - 8, h, size: size, weight: "medium", color: ink, align: "leading")
             } else {
                 Node.say(label, 12, 0, w - 24, h, size: size, weight: "medium", color: ink, align: "center")

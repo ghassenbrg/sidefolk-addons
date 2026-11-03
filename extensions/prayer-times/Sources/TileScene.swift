@@ -12,7 +12,9 @@ enum TileScene {
         let source = Words.tileSource(snapshot)
         let cardW = second == nil ? 300.0 : 226.0, cardH = h - 44, x0 = 134.0
         return Scene(width: w, height: h) {
-            Node.lattice(w, h, corner: 16)
+            // The frame all but silent, as the board's: its pattern a whisper on the card's own ground, so what is next is what's read.
+            Node.rect(fill: Noor.surface, corner: 16).size(w, h)
+            Node.lattice(w, h, corner: 16).opacity(0.18)
             Node.image("art/glow.png", tint: .adaptive(light: "#FBF9FD", dark: "#0C0F2C")).size(420, 420).at(-110, -106)
             Node.rect(stroke: Noor.inlay, lineWidth: 1, corner: 16).size(w, h)
             Node.image("art/rosette-l.png", dark: "art/rosette-d.png").size(86, 86).at(26, (h - 86) / 2).leftToRight()
@@ -49,10 +51,11 @@ enum TileScene {
     private static func card(_ e: Event, source: String, w: Double, h: Double, big: Bool) -> Node {
         Node.group {
             Node.rect(fill: Noor.surface, stroke: Noor.hairline, lineWidth: 1, corner: 14).size(w, h)
-            Node.say(e.title, 16, 10, w - 28, 28, size: 18, weight: "medium", color: big ? Noor.accent : Noor.text)
-            Node.say(e.time, 16, 36, w - 28, 54, size: big ? 44 : 38, weight: "regular", tabular: true)
-            Node.say(e.countdown, 16, 88, w - 28, 28, size: 18, color: Noor.warm)
-            Node.say(source, 16, h - 34, w - 28, 22, size: 12.5, color: Noor.muted)
+            // Today shows this at about half its size, so these are large for what they read as.
+            Node.say(e.title, 16, 8, w - 28, 32, size: 24, weight: "medium", color: big ? Noor.accent : Noor.text)
+            Node.say(e.time, 16, 39, w - 28, 54, size: big ? 46 : 40, weight: "regular", tabular: true)
+            Node.say(e.countdown, 16, 92, w - 28, 30, size: 23, color: Noor.warm)
+            Node.say(source, 16, h - 38, w - 28, 28, size: 18, color: Noor.muted)
         }
         .size(w, h)
     }

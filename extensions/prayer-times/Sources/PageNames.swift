@@ -278,7 +278,7 @@ enum NamesPage {
                 reading(ctx, name, w: inner, h: leftH, r: r).at(margin, 4)
                 savedPanel(ctx, saved, w: inner, h: rightH, r: r).at(margin, leftH + 16)
             }
-            inlays = savedInlays(ctx, saved, x: margin, y: leftH + 16, w: inner, r: r)
+            inlays = [copyInlay(name, x: margin, y: 4, w: inner, r: r)] + savedInlays(ctx, saved, x: margin, y: leftH + 16, w: inner, r: r)
         } else {
             let r = ctx.ruler, w = ctx.width, h = r.u(796)
             let rightX = r.u(686), rightW = w - rightX - r.u(21)
@@ -286,21 +286,22 @@ enum NamesPage {
                 reading(ctx, name, w: r.u(638), h: h, r: r).at(r.u(25), r.u(6))
                 savedPanel(ctx, saved, w: rightW, h: h, r: r).at(rightX, r.u(6))
             }
-            inlays = savedInlays(ctx, saved, x: rightX, y: r.u(6), w: rightW, r: r)
+            inlays = [copyInlay(name, x: r.u(25), y: r.u(6), w: r.u(638), r: r)] + savedInlays(ctx, saved, x: rightX, y: r.u(6), w: rightW, r: r)
         }
         var doing = tools(ctx, name)
+        // Saving here also tells this page it was just now, for the strip that can undo it.
+        doing["save"]?.input["on_page"] = true
         for one in saved.shelf { doing["remove-\(one.number)"] = ("save_name", ["number": one.number, "saved": false]) }
         var moves = acts(ctx, name, list: [], start: 0, pushes: false)
         // Back to where it says, whichever way they came: the Names, with this one in the arch.
-        moves["back"] = .go(Go(set: ["sheet": NSNull(), "filter": NSNull(), "q": NSNull(), "shelf": NSNull()]))
+        moves["back"] = .go(Go(set: ["sheet": NSNull(), "filter": NSNull(), "q": NSNull(), "shelf": NSNull(), "just_saved": NSNull()]))
         moves["browse"] = moves["back"]
-        moves["note-away"] = .go(Go(set: ["noted": name.number]))
+        moves["note-away"] = .go(Go(set: ["just_saved": NSNull()]))
         moves["saved-clear"] = .go(Go(set: ["sq": NSNull(), "sshelf": NSNull()]))
         if saved.start > 0 { moves["saved-back"] = .go(Go(set: ["sshelf": max(0, saved.start - shelfSize)])) }
         if saved.start + shelfSize < saved.all.count { moves["saved-on"] = .go(Go(set: ["sshelf": saved.start + shelfSize])) }
-        for one in saved.shelf { moves["saved-\(one.number)"] = .go(Go(set: ["name": one.number])) }
-        return [Section(nil, [.scene(PageSceneBlock(scene, actions: doing, acts: moves, inlays: inlays))], wide: true),
-                Section(nil, [.action(copy(name))], wide: true)]
+        for one in saved.shelf { moves["saved-\(one.number)"] = .go(Go(set: ["name": one.number, "just_saved": NSNull()])) }
+        return [Section(nil, [.scene(PageSceneBlock(scene, actions: doing, acts: moves, inlays: inlays))], wide: true)]
     }
 
     private struct SavedList {
@@ -346,8 +347,10 @@ enum NamesPage {
             Node.gilded(name.arabic, (w - inner) / 2, r.u(128), inner, r.u(190), size: r.f(fitted(arabic: name.arabic, inner * 0.92 / r.s, 112), min: 30), weight: "medium").leftToRight()
             Node.say(name.transliteration, (w - inner) / 2, r.u(310), inner, r.u(62), size: r.f(fitted(name.transliteration, inner / r.s, 46, 0.54), min: 18), weight: "semibold", align: "center")
             Node.say(name.meaning, (w - inner) / 2, r.u(368), inner, r.u(46), size: r.f(fitted(name.meaning, inner / r.s, 32, 0.47), min: 14), color: Self.lilac, align: "center")
-            Node.ornament(cx: cx, cy: r.u(441), rule: r.u(88), rosette: r.u(26), color: Noor.warm)
-            sourceRow(name, cx: cx, y: r.u(466), r: r)
+            Node.ornament(cx: cx, cy: r.u(437), rule: r.u(88), rosette: r.u(26), color: Noor.warm)
+            sourceRow(name, cx: cx, y: r.u(460), r: r)
+            // Copy's face: the system's button lies over it (`copyInlay`).
+            Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.1).size(r.u(116), r.u(34)).at(cx - r.u(58), r.u(525))
             step("previous", heading: L("Previous"), under: before?.transliteration ?? L("(no previous)"), symbol: "chevron.backward", x: r.u(16), y: lower + r.u(13), w: r.u(170), r: r, disabled: before == nil)
             Node.group {
                 Node.capsule(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1).size(r.u(106), r.u(36))
@@ -396,11 +399,11 @@ enum NamesPage {
         .size(w, h).at(x, y).area(id, label: heading + ", " + under, disabled: disabled)
     }
 
-    /// Save it, or the gold strip that says it is: Undo really takes it out again, and the cross only closes the strip.
+    /// Save it, or if they just did, the gold strip that says so: Undo really takes it out again, and the cross only closes the strip. A Name saved earlier just says Saved.
     private static func saveStrip(_ ctx: Context, _ name: NameEntry, saved: Bool, w: Double, r: Ruler) -> Node {
         let h = r.u(88), size = r.f(19, min: 12.5)
         return Node.group {
-            if saved && ctx.state.int("noted") != name.number {
+            if saved && ctx.state.int("just_saved") == name.number {
                 Node.rect(stroke: .adaptive(light: "#B48A3E", dark: "#EFC77E"), lineWidth: 1.8, corner: r.u(20)).gradient([.adaptive(light: "#F8EEDC", dark: "#2B2348"), .adaptive(light: "#FBF9FD", dark: "#191D4C")], from: (0, 0.5), to: (1, 0.5)).size(w, h).shadow(.hex("#EFC77E44"), radius: r.u(10), dx: 0, dy: 0)
                 Node.symbol("bookmark.fill", color: .adaptive(light: "#B48A3E", dark: "#F3C877")).size(r.f(22, min: 15), r.f(28, min: 18)).at(r.u(30), (h - r.f(28, min: 18)) / 2)
                 Node.say(L("Saved to your names"), r.u(78), 0, w - r.u(250), h, size: size)
@@ -479,8 +482,10 @@ enum NamesPage {
 
     // MARK: What they do
 
-    private static func copy(_ name: NameEntry) -> Action {
-        Action(L("Copy"), act: .copy("\(name.arabic) · \(name.transliteration) · \(name.meaning)"), symbol: "doc.on.doc")
+    /// Copy, a system button at the foot of the arch, under what it copies.
+    private static func copyInlay(_ name: NameEntry, x: Double, y: Double, w: Double, r: Ruler) -> PageInlay {
+        let width = r.u(116)
+        return PageInlay(x: x + (w - width) / 2, y: y + r.u(525), w: width, h: r.u(34), .action(Action(L("Copy"), act: .copy("\(name.arabic) · \(name.transliteration) · \(name.meaning)"), symbol: "doc.on.doc")))
     }
 
     private static func tools(_ ctx: Context, _ name: NameEntry) -> [String: (tool: String, input: [String: Any])] {
@@ -502,17 +507,17 @@ enum NamesPage {
             "saved-filter": .go(Go(set: ["filter": isSaved ? NSNull() : "saved", "shelf": NSNull(), "name": NSNull()])),
             "browse": .go(Go(set: ["filter": NSNull(), "shelf": NSNull()])),
             "clear": .go(Go(set: ["q": NSNull(), "shelf": NSNull()])),
-            "read": .go(Go(set: ["name": selected.number, "sheet": "name"], push: true)),
+            "read": .go(Go(set: ["name": selected.number, "sheet": "name", "just_saved": NSNull()], push: true)),
         ]
         if start > 0 { out["shelf-back"] = .go(Go(set: ["shelf": max(0, start - shelfSize)])) }
         if start + shelfSize < list.count { out["shelf-on"] = .go(Go(set: ["shelf": start + shelfSize])) }
         for name in list[min(start, list.count)..<min(start + shelfSize, list.count)] {
-            out["name-\(name.number)"] = pushes ? .go(Go(set: ["name": name.number, "sheet": "name"], push: true)) : .go(Go(set: ["name": name.number]))
-            out["open-\(name.number)"] = .go(Go(set: ["name": name.number, "sheet": "name"], push: true))
+            out["name-\(name.number)"] = pushes ? .go(Go(set: ["name": name.number, "sheet": "name", "just_saved": NSNull()], push: true)) : .go(Go(set: ["name": name.number]))
+            out["open-\(name.number)"] = .go(Go(set: ["name": name.number, "sheet": "name", "just_saved": NSNull()], push: true))
         }
         let beside = neighbours(ctx, selected, list: list)
-        if let before = beside.before { out["previous"] = .go(Go(set: ["name": before.number, "shelf": NSNull()])) }
-        if let after = beside.after { out["following"] = .go(Go(set: ["name": after.number, "shelf": NSNull()])) }
+        if let before = beside.before { out["previous"] = .go(Go(set: ["name": before.number, "shelf": NSNull(), "just_saved": NSNull()])) }
+        if let after = beside.after { out["following"] = .go(Go(set: ["name": after.number, "shelf": NSNull(), "just_saved": NSNull()])) }
         return out
     }
 

@@ -113,7 +113,7 @@ enum RamadanPage {
             Node.say(sentence(ctx, year: year, month: month), 420 * k, 20 * k, w - 420 * k - 50 * k, 26 * k, size: r.f(13, min: 10.5), color: Noor.muted, align: "trailing")
             Node.say(L("Ramadan planner"), 51 * k, 52 * k, yearX - 60 * k, 52 * k, size: r.f(40, min: 24), weight: "bold")
             dropdown("moon.fill", L("Ramadan {year}", ["year": "\(year)"]), w: yearW, h: pillH, r: r, tint: .hex("#F1C25B")).at(yearX, pillY)
-            dropdown("mappin", place, w: placeW, h: pillH, r: r).at(placeX, pillY)
+            dropdown(Node.Glyph.pin, place, w: placeW, h: pillH, r: r).at(placeX, pillY)
                 .area("place", label: L("Place: {place}. Open.", ["place": place]), hover: .init(scale: 1.01))
             methodChip(ctx, month: month, w: chipW, h: pillH, r: r).at(chipX, pillY)
             hero(ctx, picked, month: month, w: leftW, h: heroH).at(leftX, heroY)
@@ -140,7 +140,7 @@ enum RamadanPage {
             crumb(ctx, r: r).at(margin, 8)
             Node.say(L("Ramadan planner"), margin, 34, inner, 40, size: 26, weight: "bold")
             dropdown("moon.fill", L("Ramadan {year}", ["year": "\(year)"]), w: halfW, h: pillH, r: r, tint: .hex("#F1C25B")).at(margin, pillsY)
-            dropdown("mappin", place, w: halfW, h: pillH, r: r).at(margin + halfW + gap, pillsY)
+            dropdown(Node.Glyph.pin, place, w: halfW, h: pillH, r: r).at(margin + halfW + gap, pillsY)
                 .area("place", label: L("Place: {place}. Open.", ["place": place]), hover: .init(scale: 1.01))
             methodChip(ctx, month: month, w: inner, h: pillH, r: r).at(margin, chipY)
             Node.say(sentence(ctx, year: year, month: month), margin, sentenceY, inner, sentenceH, size: 12, color: Noor.muted, lines: 2)
@@ -177,7 +177,7 @@ enum RamadanPage {
         let glyph = r.f(22, min: 14), size = r.f(19, min: 12.5)
         return Node.group {
             Node.rect(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2, corner: h * 0.4).size(w, h)
-            Node.symbol(symbol, color: tint).size(glyph, glyph).at(h * 0.4, (h - glyph) / 2)
+            Node.icon(symbol, color: tint, side: glyph).at(h * 0.4, (h - glyph) / 2)
             Node.say(label, h * 0.4 + glyph + r.u(14), 0, w - h * 0.8 - glyph - r.u(30), h, size: size)
             Node.symbol("chevron.down", color: Noor.text).size(r.f(13, min: 11), r.f(9, min: 7)).at(w - h * 0.4 - r.f(13, min: 11), (h - r.f(9, min: 7)) / 2)
         }

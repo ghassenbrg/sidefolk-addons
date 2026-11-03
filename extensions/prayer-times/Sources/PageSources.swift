@@ -110,8 +110,8 @@ enum SourcePage {
         let x = r.u(21), inner = w - x * 2
         var nodes = heading(L("Choose your timetable"), L("Select where your prayer times come from."), r: r, w: w)
         let gap = r.u(12), cardW = (inner - gap) / 2, cardH = r.u(120), cardY = r.u(101)
-        nodes.append(kindCard("kind-calculated", symbol: "mappin.and.ellipse", title: L("Calculated for my place"), detail: L("Times calculated for your place by AlAdhan, with a method you choose."), on: !mosque, x: x, y: cardY, w: cardW, h: cardH, r: r))
-        nodes.append(kindCard("kind-mosque", symbol: "building.columns", title: L("My mosque's timetable"), detail: L("A timetable from your own mosque, entered by you or from a file."), on: mosque, x: x + cardW + gap, y: cardY, w: cardW, h: cardH, r: r))
+        nodes.append(kindCard("kind-calculated", symbol: Node.Glyph.pin, title: L("Calculated for my place"), detail: L("Times calculated for your place by AlAdhan, with a method you choose."), on: !mosque, x: x, y: cardY, w: cardW, h: cardH, r: r))
+        nodes.append(kindCard("kind-mosque", symbol: Node.Glyph.arch, title: L("My mosque's timetable"), detail: L("A timetable from your own mosque, entered by you or from a file."), on: mosque, x: x + cardW + gap, y: cardY, w: cardW, h: cardH, r: r))
         var y = cardY + cardH + r.u(20)
         if mosque {
             mosquePart(ctx, x: x, w: inner, y: &y, r: r, nodes: &nodes, wiring: &wiring)
@@ -149,7 +149,7 @@ enum SourcePage {
         return Node.group {
             Node.rect(fill: on ? Color.adaptive(light: "#F3EEFA", dark: "#23206A") : Noor.quiet, stroke: on ? NoorLine.chosen : NoorLine.soft, lineWidth: on ? 1.6 : 1, corner: r.u(14)).size(w, h)
             Node.radio(cx: r.u(26), cy: r.u(30), d: r.u(21), on: on)
-            Node.symbol(symbol, color: Noor.text).size(glyph, glyph).at(r.u(50), r.u(14))
+            Node.icon(symbol, color: Noor.text, side: glyph).at(r.u(50), r.u(14))
             Node.say(title, r.u(92), r.u(16), w - r.u(100), r.u(30), size: r.f(16.5, min: 11.5), weight: "medium")
             Node.say(detail, r.u(92), r.u(46), w - r.u(104), r.u(66), size: r.f(14, min: 10.5), color: Noor.muted, lines: 3)
         }
@@ -185,7 +185,7 @@ enum SourcePage {
             nodes.append(Node.group {
                 Node.rect(fill: on ? Color.adaptive(light: "#F3EEFA", dark: "#23206A") : Noor.quiet, stroke: on ? NoorLine.chosen : NoorLine.soft, lineWidth: 1, corner: r.u(12)).size(w, rowH)
                 Node.radio(cx: r.u(29), cy: rowH / 2, d: r.u(23), on: on)
-                Node.symbol("building.columns", color: Noor.text).size(r.f(24, min: 15), r.f(24, min: 15)).at(r.u(62), (rowH - r.f(24, min: 15)) / 2)
+                Node.archIcon(side: r.f(24, min: 15), color: Noor.text).at(r.u(62), (rowH - r.f(24, min: 15)) / 2)
                 Node.say(source.name + (source.id == ctx.model.prefs.sourceID ? " ✓" : ""), r.u(106), r.u(7), w - r.u(190), r.u(26), size: r.f(16, min: 11.5))
                 Node.say(detail.joined(separator: " · "), r.u(106), r.u(31), w - r.u(190), r.u(24), size: r.f(13.5, min: 10.5), color: Noor.muted)
             }
