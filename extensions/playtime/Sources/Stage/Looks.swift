@@ -16,13 +16,15 @@ struct Look {
     var room: String?
     /// The soft tile its icon stands on in the menu and on the page.
     var tile: Color {
-        switch name {
-        case "grid", "arcade", "words", "sudoku": Paint.butter
-        case "cups", "numbers", "seesaw", "hands": Paint.apricot
-        case "animals", "balloons", "blossoms": Paint.powder
-        case "sticks": Paint.rose
-        default: Paint.lilac
+        // By day each has its soft colour; at night they all stand on the same slate, and the art carries the colour.
+        let day = switch name {
+        case "grid", "arcade", "words", "sudoku": "#F8DE94"
+        case "cups", "numbers", "seesaw", "hands": "#FBD9B8"
+        case "animals", "balloons", "blossoms": "#BFDCF2"
+        case "sticks": "#F6CFCB"
+        default: "#E6DAF1"
         }
+        return Paint.both(day, "#2C3556")
     }
 
     var levelChip: Color { chip ?? bottom }

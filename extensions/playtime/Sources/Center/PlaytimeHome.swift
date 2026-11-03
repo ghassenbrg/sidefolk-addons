@@ -87,8 +87,8 @@ enum PlaytimeHome {
             for (i, letter) in tiles.enumerated() {
                 let last = i == tiles.count - 1
                 Node.box("hero.tile.\(i)", x: trayX + 8 + Double(i) * (side + gap), y: 100, w: side, h: side) {
-                    Node.rect(fill: last ? Paint.lilac : Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 9).size(side, side).shadow(Paint.clear("#5A3A1A", 0.22), radius: 2, dx: 0, dy: 2)
-                    Node.words(letter, size: 23, weight: "black", align: "center", minScale: 0.6, w: side, h: side)
+                    Node.rect(fill: last ? Color.hex("#CDB9E6") : Paint.ivory, stroke: Paint.clear("#7A5A3A", 0.2), lineWidth: 1, corner: 9).size(side, side).shadow(Paint.clear("#5A3A1A", 0.22), radius: 2, dx: 0, dy: 2)
+                    Node.words(letter, size: 23, weight: "black", color: Paint.navy2, align: "center", minScale: 0.6, w: side, h: side)
                 }
             }
             Node.box("hero.action", x: w - buttonW - 22, y: 104, w: buttonW, h: 44) {
@@ -104,7 +104,6 @@ enum PlaytimeHome {
         let id = "tile." + area, art = Swift.min(h - 34, w - 24)
         return Node.box(id, x: x, y: y, w: w, h: h) {
             Node.rect(fill: color, corner: 16).id(id + ".back").size(w, h).shadow(Paint.clear("#7A5A3A", 0.14), radius: 3, dx: 0, dy: 2)
-            Node.rect(fill: Paint.card(0.25), corner: 16).id(id + ".sheen").size(w, h)
             Node.art(icon, x: (w - art) / 2, y: 4, w: art, h: art).id(id + ".icon")
             label(title, id: id, w: w, h: h)
             if resume {
@@ -116,8 +115,8 @@ enum PlaytimeHome {
 
     private static func label(_ title: String, id: String, w: Double, h: Double) -> Node {
         .box(id + ".label", x: 6, y: h - 31, w: w - 12, h: 26) {
-            Node.capsule(fill: Paint.card).size(w - 12, 26).shadow(Paint.clear("#7A5A3A", 0.12), radius: 2, dx: 0, dy: 1)
-            Node.words(title, size: 13.5, weight: "heavy", align: "center", minScale: 0.55, x: 3, w: w - 18, h: 26)
+            Node.capsule(fill: Paint.ivory).size(w - 12, 26).shadow(Paint.clear("#7A5A3A", 0.12), radius: 2, dx: 0, dy: 1)
+            Node.words(title, size: 13.5, weight: "heavy", color: Paint.navy2, align: "center", minScale: 0.55, x: 3, w: w - 18, h: 26)
         }
     }
 

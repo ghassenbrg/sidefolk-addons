@@ -33,6 +33,9 @@ enum Paint {
     static let apricot = both("#FBD9B8", "#6A4A3A")
     static let butter = both("#F8DE94", "#6B5A2C")
     static let rose = both("#F6CFCB", "#6A3F4A")
+    /// What stays ivory with navy words at night too: a tile's label, a letter on a wooden tile.
+    static let ivory = both("#FFF9F0", "#F6EAD4")
+    static let navy2 = Color.hex("#14275A")
     static let powder = both("#BFDCF2", "#35506E")
     static let lostSoft = Color.adaptive(light: "#F3E4D6", dark: "#4A3A2F")
     static let lostEdge = Color.adaptive(light: "#B07A5299", dark: "#D9A98299")
