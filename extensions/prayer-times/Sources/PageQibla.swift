@@ -14,11 +14,11 @@ enum QiblaPage {
         if let note = NoorPage.offlineNote(ctx) { out.append(Section(nil, [note], wide: true)) }
         let scene = ctx.narrow ? narrow(ctx, bearing, place) : wide(ctx, bearing, place)
         let copy = Block.action(Action(L("Copy bearing"), act: .copy(L("Qibla from {place}: {degrees}° clockwise from true north", ["place": place.label, "degrees": "\(bearing.rounded)"])), symbol: "doc.on.doc"))
-        let r = ctx.ruler
-        // In its place in the panel; on one column it stands under the composition.
-        let inlays = ctx.narrow ? [] : [PageInlay(x: r.u(686) + r.u(27), y: r.u(15) + r.u(332), w: r.u(186), h: r.u(42), copy)]
+        // In its place in the panel, wherever that stands.
+        let inner = ctx.width - 32, r = ctx.narrow ? Ruler(width: inner / 585 * 1290) : ctx.ruler
+        let panelX = ctx.narrow ? 16 : r.u(686), panelY = ctx.narrow ? inner * 776 / 650 + 12 : r.u(15)
+        let inlays = [PageInlay(x: panelX + r.u(27), y: panelY + r.u(332), w: r.u(186), h: r.u(42), copy)]
         out.append(Section(nil, [.scene(PageSceneBlock(scene, actions: ["refresh": ("refresh", [:])], acts: ["place": .go(Go(set: ["sheet": "prefs", "section": "place"], push: true))], inlays: inlays))], wide: true))
-        if ctx.narrow { out.append(Section(nil, [copy], wide: true)) }
         return out
     }
 
@@ -73,6 +73,7 @@ enum QiblaPage {
         let h = r.u(630), pad = r.u(28)
         let placeW = r.u(216), placeX = w - r.u(22) - placeW
         let blockW = r.u(290), ruleX = r.u(297), noteX = r.u(328), noteW = w - noteX - r.u(22)
+        let checking = ctx.model.load == .loading
         return Node.group {
             Node.panel(w, h, corner: r.u(20))
             Node.say(L("Qibla"), pad, r.u(26), placeX - pad, r.u(50), size: r.f(38, min: 20), weight: "semibold")
@@ -91,8 +92,10 @@ enum QiblaPage {
                 Node.ellipse(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(r.u(42), r.u(42))
                 Node.symbol("arrow.clockwise", color: Noor.text).size(r.u(18), r.u(18)).at(r.u(12), r.u(12))
             }
-            .size(r.u(42), r.u(42)).at(r.u(223), r.u(332))
-            .area("refresh", label: L("Check again"))
+            .size(r.u(42), r.u(42)).at(r.u(223), r.u(332)).opacity(checking ? 0.5 : 1)
+            .area("refresh", label: checking ? L("Checking…") : L("Check again"), disabled: checking)
+            // What pressing it did, to the second, beside it: the bearing itself seldom changes.
+            Node.say(checkWords(ctx, bearing), r.u(27), r.u(376), w - r.u(54), max(r.u(22), 16), size: r.f(14.5, min: 11), color: Noor.muted)
             Node.rect(fill: Noor.hairline).size(1, r.u(154)).at(ruleX, r.u(175))
             Node.say(L("North-up direction"), noteX, r.u(172), noteW, r.u(30), size: r.f(21, min: 13), weight: "semibold")
             Node.say(L("The diagram shows a bearing from your selected place."), noteX, r.u(204), noteW, r.u(54), size: r.f(17.5, min: 11.5), color: Noor.muted, lines: 2)
@@ -101,6 +104,17 @@ enum QiblaPage {
             placeCard(ctx, bearing, place, w: w - r.u(22), r: r).at(r.u(11), r.u(397))
         }
         .size(w, h)
+    }
+
+    /// Where the last check stands: running, failed with an older bearing still shown, or done, when.
+    private static func checkWords(_ ctx: Context, _ bearing: QiblaBearing) -> String {
+        let zone = ctx.zone, fetched = bearing.fetched
+        let when = CivilDate(fetched, in: zone) == CivilDate(ctx.snapshot.now, in: zone) ? Words.time(fetched, zone: zone, seconds: true) : Format.dateTime(fetched, timeZone: zone)
+        switch ctx.model.load {
+        case .loading: return L("Checking…")
+        case .failed, .offline: return L("Couldn't check just now. This bearing is from {when}.", ["when": when])
+        default: return L("Last checked {when}.", ["when": when])
+        }
     }
 
     private static func placeCard(_ ctx: Context, _ bearing: QiblaBearing, _ place: Place, w: Double, r: Ruler) -> Node {

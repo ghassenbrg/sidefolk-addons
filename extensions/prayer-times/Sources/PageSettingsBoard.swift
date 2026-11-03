@@ -21,11 +21,13 @@ enum SettingsBoard {
         let r = stack ? Ruler(width: 1150) : ctx.ruler
         var s = Sketch()
         let margin = stack ? 10 : r.u(21)
-        s.add(Node.say(L("Preferences"), margin + r.u(6), r.u(4), r.u(205), r.u(44), size: r.f(35, min: 24), weight: "bold"))
+        let backSide = max(r.u(34), 26), titleX = margin + backSide + r.u(8)
+        s.backButton(x: margin, y: r.u(9), side: backSide, fill: Noor.quiet, line: Noor.edge, ink: Noor.text)
+        s.add(Node.say(L("Preferences"), titleX, r.u(4), r.u(205), r.u(44), size: r.f(35, min: 24), weight: "bold"))
         if stack {
             s.add(Node.say(L("Configure how Noor calculates, displays and stores your data."), margin + r.u(6), r.u(48), w - margin * 2, r.u(24), size: r.f(14, min: 12), color: Noor.muted))
         } else {
-            s.add(Node.say(L("Configure how Noor calculates, displays and stores your data."), r.u(242), r.u(14), w - r.u(242) - r.u(190), r.u(30), size: r.f(16, min: 12.5), color: Noor.muted))
+            s.add(Node.say(L("Configure how Noor calculates, displays and stores your data."), titleX + r.u(208), r.u(14), w - titleX - r.u(208) - r.u(190), r.u(30), size: r.f(16, min: 12.5), color: Noor.muted))
         }
         s.acts["sreminders"] = .go(Go(set: ["section": "reminders"]))
         let pillW = r.u(150), pillH = r.u(34)

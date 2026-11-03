@@ -86,7 +86,7 @@ enum NoorTools {
             let what = args.string("what") ?? "overview"
             switch what {
             case "ramadan": return ToolReply(L("Here is the Ramadan planner. No reminder starts until you enable it.")).opening(page: "noor", state: ["sheet": "ramadan"])
-            case "preferences": return ToolReply(L("Here are Noor's preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "place"])
+            case "preferences": return ToolReply(L("Here are Noor's preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "place"], push: true)
             default: return ToolReply(L("Here it is.")).opening(page: "noor", state: ["tab": what, "sheet": NSNull()])
             }
         })
@@ -379,13 +379,18 @@ enum NoorTools {
             let on = args.bool("enabled") ?? false
             let suhoor = args.int("suhoor") ?? -1
             let days = (args.values["days"] as? [NSNumber])?.map(\.intValue) ?? []
-            if on, !Occurrences.allowed { return ToolReply(L("Sidefolk needs your yes first: choose Allow Noor's reminders in Preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "reminders", "rm_ask": true], push: true) }
+            // What they chose waits in the page's state, saved by nobody yet: Preferences asks, and then offers to finish it.
+            if on, !Occurrences.allowed {
+                let waiting: [String: Any] = ["enabled": true, "suhoor": suhoor, "iftar": args.bool("iftar") ?? false, "days": days]
+                return ToolReply(L("Sidefolk needs your yes first: choose Allow Noor's reminders in Preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "reminders", "rm_ask": true, "rm_ramadan": waiting], push: true)
+            }
             try model.save { p in
                 p.reminders.ramadan = on ? Reminders.Ramadan(enabled: true, days: Set(days), suhoorMinutesBeforeFajr: Reminders.suhoorBounds.contains(suhoor) ? suhoor : nil, iftar: args.bool("iftar") ?? false) : Reminders.Ramadan()
                 if on, !p.reminders.route.companion, !p.reminders.route.systemFallback { p.reminders.route.companion = true }
             }
             replan()
-            return ToolReply(on ? L("Ramadan reminders saved. They come within 35 days of their day.") : L("Ramadan reminders are off."))
+            // Only a person's press reaches this (`ai: false`): from the planner, or from Preferences finishing what it started, and either way the planner says how it stands.
+            return ToolReply(on ? L("Ramadan reminders saved. They come within 35 days of their day.") : L("Ramadan reminders are off.")).opening(page: "noor", state: ["sheet": "ramadan", "rm_ask": NSNull(), "rm_ramadan": NSNull()])
         })
     }
 

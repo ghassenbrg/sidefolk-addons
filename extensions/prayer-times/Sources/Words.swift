@@ -45,11 +45,11 @@ enum Words {
     /// Latin digits in every language: a time is read the same way round on a dial in Arabic too.
     private static var digits: Locale { Locale(identifier: Language.code + "@numbers=latn") }
 
-    @MainActor static func time(_ date: Date, zone: TimeZone) -> String {
+    @MainActor static func time(_ date: Date, zone: TimeZone, seconds: Bool = false) -> String {
         let f = DateFormatter()
         f.locale = digits
         f.timeZone = zone
-        f.setLocalizedDateFormatFromTemplate(uses24Hours(NoorModel.shared.prefs) ? "HHmm" : "hmma")
+        f.setLocalizedDateFormatFromTemplate(uses24Hours(NoorModel.shared.prefs) ? (seconds ? "HHmmss" : "HHmm") : (seconds ? "hmmssa" : "hmma"))
         return f.string(from: date)
     }
 

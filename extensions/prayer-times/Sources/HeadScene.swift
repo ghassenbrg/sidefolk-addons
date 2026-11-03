@@ -7,9 +7,10 @@ enum HeadScene {
     static func block(_ ctx: Context, subtitle: String, reminders: NoorSnapshot.ReminderStatus, tabs: Bool = true) -> Block {
         let w = ctx.width, r = ctx.ruler
         let tabsH = tabs ? r.u(62) : r.u(12)
+        let ramadan = ctx.model.prefs.reminders.ramadan.enabled
         let spoken: String
         switch reminders {
-        case .off: spoken = L("Reminders are off. Open reminder settings.")
+        case .off: spoken = ramadan ? L("Prayer reminders are off and Ramadan reminders are on. Open reminder settings.") : L("Reminders are off. Open reminder settings.")
         case .on: spoken = L("Reminders are on. Open reminder settings.")
         case .paused: spoken = L("Reminders are paused. Open reminder settings.")
         }
@@ -26,9 +27,9 @@ enum HeadScene {
         var acts: [String: PageAct] = [
             "source": .go(Go(set: ["sheet": "prefs", "section": "sources"], push: true)),
             "preferences": .go(Go(set: ["sheet": "prefs", "section": "place"], push: true)),
-            "reminders": .go(Go(set: ["sheet": "prefs", "section": "reminders"], push: true)),
+            "reminders": .go(Go(set: ["sheet": "prefs", "section": "reminders", "focus_prayer": NSNull()], push: true)),
         ]
-        for tab in NoorTab.allCases { acts["tab-\(tab.rawValue)"] = .go(Go(set: ["tab": tab.rawValue, "sheet": NSNull(), "setup": NSNull()])) }
+        for tab in NoorTab.allCases { acts["tab-\(tab.rawValue)"] = .go(Go(set: ["tab": tab.rawValue, "sheet": NSNull(), "setup": NSNull(), "focus_prayer": NSNull()])) }
         let scene = Scene(width: w, height: bandH + tabsH) {
             if !compact {
                 Node.image("art/pendant-l.png", dark: "art/pendant-d.png", fit: "fill").size(pendantW, r.u(122)).at(pendantX, 0)
@@ -59,7 +60,7 @@ enum HeadScene {
                 Node.rect(fill: Noor.hairline).size(1, r.u(34)).at(dividerX, r.u(32))
             }
             Node.group {
-                Node.symbol(reminders == .off ? "bell" : "bell.badge", color: Noor.text).size(r.f(26, min: 18), r.f(26, min: 18)).at(6, 6)
+                Node.symbol(reminders == .off && !ramadan ? "bell" : "bell.badge", color: Noor.text).size(r.f(26, min: 18), r.f(26, min: 18)).at(6, 6)
             }
             .size(r.f(26, min: 18) + 12, r.f(26, min: 18) + 12).at(w - r.u(32) - r.f(26, min: 18), r.u(31))
             .area("reminders", label: spoken)

@@ -25,7 +25,12 @@ enum CalendarPage {
 
     private static func month(_ ctx: Context) -> (axis: String, year: Int, month: Int, data: CalendarMonth?)? {
         guard let at = where_(ctx.state, model: ctx.model) else { return nil }
-        return (at.axis, at.year, at.month, at.axis == "h" ? ctx.model.hijriMonth(at.year, at.month) : ctx.model.gregorianMonth(at.year, at.month))
+        let data = at.axis == "h" ? ctx.model.hijriMonth(at.year, at.month) : ctx.model.gregorianMonth(at.year, at.month)
+        // Unable to ask, with no Hijri month saved: the Gregorian month around today always is, so the page opens on that rather than on "isn't here yet".
+        if data == nil, ctx.state.string("month") == nil, ctx.model.load == .offline || ctx.model.load == .failed, let today = ctx.snapshot.localDate, let saved = ctx.model.gregorianMonth(today.year, today.month) {
+            return ("g", today.year, today.month, saved)
+        }
+        return (at.axis, at.year, at.month, data)
     }
 
     static func sections(_ ctx: Context) -> [Section] {
@@ -73,7 +78,10 @@ enum CalendarPage {
             }
             inlay = methodInlay(ctx, at: monthMethodRect(cardW, r: r), dx: cardX, dy: cardY)
         }
-        return [Section(nil, [.scene(PageSceneBlock(scene, acts: acts, inlays: [inlay]))], wide: true)]
+        var out: [Section] = []
+        if let note = NoorPage.offlineNote(ctx) { out.append(Section(nil, [note], wide: true)) }
+        out.append(Section(nil, [.scene(PageSceneBlock(scene, acts: acts, inlays: [inlay]))], wide: true))
+        return out
     }
 
     static var firstWeekday: Int { Calendar.current.firstWeekday }
@@ -401,14 +409,15 @@ enum CalendarPage {
         init(_ ctx: Context) {
             toHijri = (ctx.state.string("direction") ?? "g2h") == "g2h"
             let today = ctx.snapshot.calendar
-            // Untouched, the field holds today: the snapshot has its pair already, from the same provider and method, with no call.
-            input = ctx.state.string("convert_date") ?? (toHijri ? today?.gregorian.iso : today.map { Conversion.iso($0.hijri) }) ?? ""
+            // Untouched, the field holds today: the snapshot has its pair already, from the same provider and method, with no call. Emptied, it stays empty: `string()` would read "" as untouched, and today would come straight back over the field.
+            let held = (ctx.state.values["convert_date"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            input = held ?? (toHijri ? today?.gregorian.iso : today.map { Conversion.iso($0.hijri) }) ?? ""
             let method = ctx.model.prefs.calendarMethod, typed = input, forward = toHijri
             result = [ctx.model.conversion, today].compactMap { $0 }.first { day in
                 guard day.method == method else { return false }
                 return forward ? day.gregorian.iso == typed : Conversion.iso(day.hijri) == Conversion.tidy(typed)
             }
-            problem = result == nil ? ctx.model.conversionProblem : nil
+            problem = result == nil && !input.isEmpty ? ctx.model.conversionProblem : nil
         }
 
         static func iso(_ hijri: HijriDate) -> String { String(format: "%04d-%02d-%02d", hijri.year, hijri.month, hijri.day) }

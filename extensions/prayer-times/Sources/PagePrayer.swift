@@ -44,7 +44,8 @@ enum PrayerPage {
             "focus": .go(Go(set: ["full": NSNull(), "day": NSNull(), "select": NSNull()])),
         ]
         for prayer in PrayerID.allCases {
-            acts["row-\(prayer.rawValue)"] = .go(Go(set: ["select": prayer.rawValue]))
+            // Pressed again, it lets go.
+            acts["row-\(prayer.rawValue)"] = .go(Go(set: ["select": selected(ctx) == prayer ? NSNull() : prayer.rawValue]))
             acts["bell-\(prayer.rawValue)"] = .go(Go(set: ["sheet": "prefs", "section": "reminders", "focus_prayer": prayer.rawValue], push: true))
         }
         if ctx.narrow {
@@ -113,7 +114,10 @@ enum PrayerPage {
         let s = ctx.snapshot
         let r = Ruler(width: w * 1290 / 634)
         let isToday = date == today
-        let focus = isToday ? DialScene.focus(s) : nil
+        // A picked row takes the dial's middle, in view beside it: its time, how that stands from now, and its reminder.
+        let picked = selected(ctx).flatMap { id in day?.starts[id].map { (id: id, at: $0) } }
+        let focus = picked.map { pickedFocus(ctx, $0.id, at: $0.at, date: date, isToday: isToday) } ?? (isToday ? DialScene.focus(s) : nil)
+        // The ring stays on what really comes next: its arc runs from now to that.
         let focusAt = isToday ? OverviewPage.focusAt(s) : nil
         let radius = r.u(188)
         let cx = w / 2, cy = r.u(297)
@@ -121,7 +125,7 @@ enum PrayerPage {
         let place = s.place?.label ?? s.source?.name ?? ""
         let pillSize = r.f(15), pillW = min(r.u(190), Double(place.count) * pillSize * 0.58 + pillSize * 3.6)
         // A mosque's focus can always be come back to, from where its pill led.
-        let canFocus = ctx.state.bool("full") == true && isToday && day.flatMap { MosqueFocus.hold(s, day: $0) } != nil
+        let canFocus = isToday && (picked != nil || ctx.state.bool("full") == true && day.flatMap { MosqueFocus.hold(s, day: $0) } != nil)
         return Node.group {
             Node.frame(.dial, w, h, corner: r.u(16))
             Node.rect(stroke: Noor.inlay, lineWidth: 1.2, corner: r.u(16)).size(w, h)
@@ -142,7 +146,7 @@ enum PrayerPage {
                 Node.group {
                     Node.group { DialScene.nodes(cx: cx, cy: cy, radius: radius, labelRadius: radius + r.f(18, min: 13) * 2.05, snapshot: s, day: day, focusAt: focusAt, big: w > 420, label: r.f(18, min: 12.5)) }.size(w, h)
                     Node.group {
-                        if isToday {
+                        if isToday || picked != nil {
                             DialScene.middle(cx: cx, cy: cy, radius: radius * 0.97, focus: focus)
                         } else {
                             Node.say(Words.date(date, weekday: true, year: false), cx - radius * 0.72, cy - r.u(30), radius * 1.44, r.u(60), size: r.f(22, min: 14), weight: "medium", align: "center", lines: 2)
@@ -150,7 +154,7 @@ enum PrayerPage {
                     }
                     .size(w, h)
                 }
-                .size(w, h).leftToRight().label(isToday ? DialScene.spoken(s, focus: focus) : L("Prayer dial for {date}.", ["date": Words.date(date)]))
+                .size(w, h).leftToRight().label(isToday || picked != nil ? DialScene.spoken(s, focus: focus) : L("Prayer dial for {date}.", ["date": Words.date(date)]))
             } else {
                 Node.say(ctx.model.load == .loading ? L("Loading timetable") : L("No times for this date."), w * 0.15, h / 2 - 24, w * 0.7, 48, size: 16, color: Noor.muted, align: "center", lines: 2)
             }
@@ -159,6 +163,13 @@ enum PrayerPage {
             }
         }
         .size(w, h)
+    }
+
+    private static func pickedFocus(_ ctx: Context, _ id: PrayerID, at: Date, date: CivilDate, isToday: Bool) -> DialScene.Focus {
+        let reminders = ctx.model.prefs.reminders
+        let reminder = reminders.master ? reminders.prayers[id].map { Reminder.words($0) } ?? L("Off") : L("Off")
+        return DialScene.Focus(eyebrow: isToday ? L("Selected prayer") : Words.date(date, weekday: false, year: false), title: Words.prayer(id), time: ctx.t(at),
+                               countdown: at > ctx.snapshot.now ? Words.countdown(to: at, from: ctx.snapshot.now) : L("Passed"), below: L("Reminder: {state}", ["state": reminder]))
     }
 
     private static func ledger(_ ctx: Context, w: Double, h: Double, date: CivilDate, today: CivilDate, day: PrayerDay?) -> Node {

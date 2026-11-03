@@ -51,11 +51,14 @@ enum RamadanPage {
         let choice: Set<Int>
         let preview: String
         let canEnable: Bool
+        /// With prayer reminders off, everything Sidefolk holds is Ramadan's.
+        let planned: Int
         var saving: [String: Any] { ["enabled": true, "suhoor": suhoor == "off" ? -1 : (Int(suhoor) ?? -1), "iftar": iftar, "days": Array(choice).sorted()] }
 
         @MainActor init(_ ctx: Context, month: RamadanMonth) {
             let saved = ctx.model.prefs.reminders.ramadan
             let state = ctx.state
+            planned = ctx.model.prefs.reminders.master ? 0 : Occurrences.pending
             let suhoor = state.string("r_suhoor") ?? saved.suhoorMinutesBeforeFajr.map { "\($0)" } ?? "off"
             let iftar = state.bool("r_iftar") ?? saved.iftar
             let days = state.string("r_days") ?? (saved.days.isEmpty || saved.days.count == month.dayCount ? "all" : "picked")
@@ -395,7 +398,7 @@ enum RamadanPage {
     }
 
     private static func status(_ draft: Draft) -> String {
-        draft.saved.enabled ? L("Ramadan reminders are on.") : L("Ramadan reminders are not enabled. Nothing starts by itself when the month begins.")
+        draft.saved.enabled && draft.planned > 0 ? L("Ramadan reminders are on, with {count} planned.", ["count": Format.integer(draft.planned)]) : draft.saved.enabled ? L("Ramadan reminders are on.") : L("Ramadan reminders are not enabled. Nothing starts by itself when the month begins.")
     }
 
     private static func remindersPanel(_ ctx: Context, month: RamadanMonth, draft: Draft, w: Double, h: Double, r: Ruler) -> Node {

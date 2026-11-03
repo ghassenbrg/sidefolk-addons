@@ -206,6 +206,76 @@ import Testing
         expectClean(report)
     }
 
+    // MARK: What a page says
+
+    /// Every dictionary and string anywhere in a page's JSON.
+    private static func walk(_ json: Any, objects: ([String: Any]) -> Void = { _ in }, strings: (String) -> Void = { _ in }) {
+        if let text = json as? String { strings(text) }
+        if let list = json as? [Any] { for item in list { walk(item, objects: objects, strings: strings) } }
+        if let object = json as? [String: Any] {
+            objects(object)
+            for value in object.values { walk(value, objects: objects, strings: strings) }
+        }
+    }
+
+    private func read(_ model: NoorModel, _ state: [String: Any]) async -> (json: Any, words: Set<String>) {
+        let args = Arguments(["state": state, "width": 1054.0])
+        _ = await NoorPage.render(args, model: model)
+        let json = await NoorPage.render(args, model: model).json
+        var words: Set<String> = []
+        Self.walk(json, strings: { words.insert($0) })
+        return (json, words)
+    }
+
+    private func hasField(_ json: Any, key: String) -> Bool {
+        var found = false
+        Self.walk(json, objects: { if $0["type"] as? String == "field", $0["key"] as? String == key { found = true } })
+        return found
+    }
+
+    /// An emptied Convert field is one to type in: `string()` reads "" as nothing, which would bring today's result back over it.
+    @Test func anEmptiedConversionShowsItsField() async throws {
+        let model = try calculated(folder())
+        #expect(!hasField(await read(model, ["sheet": "convert"]).json, key: "convert_date"), "untouched, the well holds today's result")
+        let emptied = await read(model, ["sheet": "convert", "convert_date": ""])
+        #expect(hasField(emptied.json, key: "convert_date"))
+        #expect(emptied.words.contains("Enter a date first."))
+        #expect(hasField(await read(model, ["sheet": "convert", "convert_date": "2026-12-01"]).json, key: "convert_date"), "typed, not yet converted")
+    }
+
+    /// Ramadan's Enable, sent to Preferences for Sidefolk's yes: nothing there says "Saved." of what isn't, and once allowed the next step saves what was chosen.
+    @Test func ramadansEnableIsFinishedAfterTheYes() async throws {
+        defer { Occurrences.use(["occurrences": ["allowed": false]]) }
+        let model = try calculated(folder())
+        let chosen: [String: Any] = ["enabled": true, "suhoor": 20, "iftar": true, "days": [1, 2, 3]]
+        let sent: [String: Any] = ["sheet": "prefs", "section": "reminders", "rm_ask": true, "rm_ramadan": chosen]
+
+        Occurrences.use(["occurrences": ["allowed": false]])
+        let asking = await read(model, sent)
+        #expect(asking.words.contains("Allow Noor's reminders"))
+        #expect(asking.words.contains("Ramadan reminders aren't saved yet."))
+        #expect(!asking.words.contains("Saved."))
+        #expect(!asking.words.contains("Finish Ramadan reminders"))
+
+        Occurrences.use(["occurrences": ["allowed": true]])
+        let allowed = await read(model, sent)
+        #expect(allowed.words.contains("Finish Ramadan reminders"))
+        #expect(!allowed.words.contains("Saved."))
+        #expect(!allowed.words.contains("Allow Noor's reminders"))
+        var saving: [String: Any]?
+        Self.walk(allowed.json, objects: { if let save = $0["save"] as? [String: Any], save["tool"] as? String == "save_ramadan" { saving = save["input"] as? [String: Any] } })
+        #expect(saving?["suhoor"] as? Int == 20)
+        #expect(saving?["iftar"] as? Bool == true)
+        #expect(saving?["days"] as? [Int] == [1, 2, 3])
+    }
+
+    @Test func savedIsOnlySaidOfWhatWasSaved() async throws {
+        let model = try calculated(folder())
+        #expect(!(await read(model, ["sheet": "prefs", "section": "reminders"]).words.contains("Saved.")), "nothing has ever been saved")
+        try model.save { $0.reminders.prayers[.fajr] = Reminders.Prayer(atStart: true) }
+        #expect(await read(model, ["sheet": "prefs", "section": "reminders"]).words.contains("Saved."))
+    }
+
     /// So a green run means something: what the host drops is seen.
     @Test func theReadingSeesWhatTheHostDrops() {
         let scene = Scene(width: 100, height: 100) {

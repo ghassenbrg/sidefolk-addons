@@ -56,6 +56,16 @@ struct Sketch {
         acts.merge(other.acts) { $1 }
     }
 
+    /// The way back from a sheet: a bleed page has no button for the host's own. Everything that opens one lets Back return from it.
+    mutating func backButton(x: Double, y: Double, side: Double, fill: Color, line: Color, ink: Color) {
+        acts["back"] = .go(.backward)
+        add(Node.group {
+            Node.ellipse(fill: fill, stroke: line, lineWidth: 1).size(side, side)
+            Node.symbol("chevron.backward", color: ink).symbolLook(weight: "semibold").size(side * 0.3, side * 0.48).at(side * 0.33, side * 0.26)
+        }
+        .size(side, side).at(x, y).area("back", label: L("Back"), hover: .init(scale: 1.05)))
+    }
+
     func block(_ w: Double, _ h: Double) -> Block {
         let all = nodes
         return .scene(PageSceneBlock(Scene(width: w, height: h) { all }, actions: tools, acts: acts, inlays: inlays))

@@ -84,7 +84,13 @@ enum RemindersSheet {
     private static func status(_ ctx: Context) -> (words: String, color: Color) {
         let zone = ctx.zone
         switch ctx.snapshot.reminderStatus {
-        case .off: return (L("Reminders are off. All of this is a draft until you save."), Pearl.muted)
+        case .off:
+            // Ramadan's have a switch of their own, and run with these off.
+            if ctx.model.prefs.reminders.ramadan.enabled {
+                let planned = Occurrences.pending
+                return (planned > 0 ? L("Prayer reminders are off. Ramadan reminders are on, with {count} planned.", ["count": Format.integer(planned)]) : L("Prayer reminders are off. Ramadan reminders are on."), Pearl.good)
+            }
+            return (L("Reminders are off. All of this is a draft until you save."), Pearl.muted)
         case .on: return (L("Reminders are on, with {count} planned.", ["count": Format.integer(Occurrences.pending)]), Pearl.good)
         case .paused(let until): return (L("Paused until {time}.", ["time": "\(Words.date(CivilDate(until, in: zone), weekday: false, year: false)) \(Words.time(until, zone: zone))"]), Pearl.warn)
         }
@@ -127,6 +133,8 @@ enum RemindersSheet {
 
         var s = Sketch()
         sheet(&s, x: sheetX, y: sheetY, w: sheetW, h: sheetH, r: r)
+        // In the sheet's margin, beside its title: what the host's Back would do, on a page where it has no button.
+        s.backButton(x: sheetX + r.u(4), y: r.u(23), side: max(r.u(25), 22), fill: Pearl.card, line: Pearl.edge, ink: Pearl.ink)
         let subtitleX = r.u(48) + max(r.u(217), 160)
         s.add(Node.say(L("Noor Preferences"), r.u(48), r.u(18), r.u(214), r.u(36), size: r.f(25, min: 17), weight: "semibold", color: Pearl.ink))
         s.add(Node.say(L("Customise reminders, calculations and display to suit your practice."), subtitleX, r.u(22), w - subtitleX - r.u(30), r.u(28), size: r.f(15, min: 11.5), color: Pearl.muted))
@@ -155,7 +163,8 @@ enum RemindersSheet {
         let sheetX = 8.0, x = 20.0, width = w - x * 2
         var y = 12.0
         var body = Sketch()
-        body.add(Node.say(L("Noor Preferences"), x, y, width, 32, size: 22, weight: "semibold", color: Pearl.ink))
+        body.backButton(x: x, y: y + 2, side: 28, fill: Pearl.card, line: Pearl.edge, ink: Pearl.ink)
+        body.add(Node.say(L("Noor Preferences"), x + 36, y, width - 36, 32, size: 22, weight: "semibold", color: Pearl.ink))
         y += 32
         body.add(Node.say(L("Customise reminders, calculations and display to suit your practice."), x, y, width, 36, size: 13, color: Pearl.muted, lines: 2))
         y += 44
@@ -193,6 +202,9 @@ enum RemindersSheet {
         return 2 + 10 + 5 + d.lines.filter { $0.iqamah != "off" }.count + buttons > 24
     }
 
+    /// What Ramadan's Enable chose before it was sent here for Sidefolk's yes: nothing has saved it yet.
+    private static func ramadanWaiting(_ ctx: Context) -> [String: Any]? { ctx.state.values["rm_ramadan"] as? [String: Any] }
+
     /// Whether the next step is Sidefolk's question: reminders are being turned on, or Ramadan's Enable sent the person here for it, and no one has said yes yet.
     private static func needsYes(_ ctx: Context, _ d: Draft) -> Bool {
         !d.allowed && (d.draft.master || ctx.state.bool("rm_ask") == true)
@@ -218,7 +230,7 @@ enum RemindersSheet {
         let on = tab.id == "reminders"
         let glyph = compact ? 15 : r.f(22, min: 16), ink = on ? Pearl.card : Pearl.ink
         let inset = compact ? 8 : r.u(16), gap = compact ? 6 : r.u(14)
-        s.acts["s\(tab.id)"] = .go(Go(set: ["section": tab.id]))
+        s.acts["s\(tab.id)"] = .go(Go(set: ["section": tab.id, "focus_prayer": NSNull()]))
         s.add(Node.group {
             if on { Node.rect(stroke: .hex("#A58DE6"), lineWidth: 1, corner: r.u(12)).gradient([.hex("#8467C8"), .hex("#6B4BB4")]).size(w, h) }
             if tab.id == "place" {
@@ -304,10 +316,13 @@ enum RemindersSheet {
         s.add(Node.say(L("At start"), atX, bandY, r.u(120), band, size: caption, color: Pearl.muted))
         s.add(Node.say(L("Iqamah"), iqX, bandY, r.u(120), band, size: caption, color: Pearl.muted))
         var rowY = bandY + band
+        // The prayer whose bell led here, so the row to change is the one that stands out.
+        let marked = ctx.state.string("focus_prayer").flatMap(PrayerID.init(rawValue:))
         for (i, line) in d.lines.enumerated() {
-            let cy = rowY + step / 2, name = Words.prayer(line.id)
+            let cy = rowY + step / 2, name = Words.prayer(line.id), isMarked = line.id == marked
             if i > 0 { s.add(Node.rect(fill: Pearl.line).size(w - r.u(32), 1).at(firstX, rowY)) }
-            s.add(Node.say(name, firstX, rowY, beforeX - firstX - 4, step, size: r.f(15, min: 13), weight: "medium", color: Pearl.ink))
+            if isMarked { s.add(Node.rect(fill: Pearl.lilac, stroke: Pearl.purple, lineWidth: 1.5, corner: r.u(8)).size(w - r.u(12), step - 1).at(x + r.u(6), rowY)) }
+            s.add(Node.say(name, firstX, rowY, beforeX - firstX - 4, step, size: r.f(15, min: 13), weight: isMarked ? "bold" : "medium", color: isMarked ? Pearl.purple : Pearl.ink).label(isMarked ? L("{prayer}, the reminder you came to set", ["prayer": name]) : name))
             // Before start
             let minutes = { (n: String) in Option(n, L("{minutes} min", ["minutes": n])) }
             var beforeOptions = [Option("off", L("Off")), minutes("5"), minutes("10"), minutes("15"), minutes("30")]
@@ -427,7 +442,7 @@ enum RemindersSheet {
         let h = max(r.u(44), 38), gap = r.u(4)
         let picked = d.saved.occasions.selected.count
         let rows: [(id: String, symbol: String, title: String, detail: String, state: String?, sheet: String?)] = [
-            ("ramadan", "moon", L("Ramadan reminders"), L("Set in the Ramadan planner."), d.saved.ramadan.enabled ? L("On") : L("Off"), "ramadan"),
+            ("ramadan", "moon", L("Ramadan reminders"), L("Set in the Ramadan planner."), d.saved.ramadan.enabled ? L("On") : ramadanWaiting(ctx) != nil ? L("Not saved yet") : L("Off"), "ramadan"),
             ("occasions", "calendar", L("Calendar occasions"), L("Set in Calendar's listed occasions."), picked > 0 ? L("{count} chosen", ["count": Format.integer(picked)]) : L("Off"), "occasions"),
             ("name", "star", L("Name of the day"), L("At {time}, with its supplied English meaning.", ["time": "09:00"]), nil, nil),
         ]
@@ -468,11 +483,15 @@ enum RemindersSheet {
         let infoY = artY + artH + r.u(15), infoH = max(r.u(92), w < 280 ? 106 : 84)
         let buttonsY = infoY + infoH + r.u(12), buttonH = max(r.u(43), 32)
         let needsYes = needsYes(ctx, d)
+        let waiting = ramadanWaiting(ctx)
+        // Sidefolk has said yes, and what sent the person here can be finished now.
+        let canFinish = !needsYes && waiting != nil
+        let explains = needsYes || canFinish
         // Its words are the longest here, and in a small window they have a line to themselves, Cancel under them.
-        let oneAbove = needsYes && artW < 260
+        let oneAbove = explains && artW < 260
         let foot = buttonsY + buttonH + r.u(6) + (oneAbove ? buttonH + 6 : 0)
         let line = previewLine(ctx, d)
-        let height = h ?? (foot - y + max(r.u(needsYes ? 70 : 28), needsYes ? 62 : 24))
+        let height = h ?? (foot - y + max(r.u(explains ? 70 : 28), explains ? 62 : 24))
         s.add(Node.rect(fill: Pearl.card, stroke: Pearl.line, lineWidth: 1, corner: r.u(14)).size(w, height).at(x, y))
         s.add(Node.say(L("Preview"), x + inset, y + r.u(12), w - inset * 2, max(r.u(32), 24), size: r.f(22, min: 18), weight: "semibold", color: Pearl.ink))
         s.add(Node.say(L("Sample notification using your current settings."), x + inset, y + max(r.u(43), 36), w - inset * 2, tightWords ? 36 : max(r.u(24), 20), size: r.f(14, min: 12), color: Pearl.muted, lines: tightWords ? 2 : 1))
@@ -482,7 +501,7 @@ enum RemindersSheet {
         s.add(Node.symbol("info.circle", color: Pearl.ink).size(r.f(19, min: 15), r.f(19, min: 15)).at(x + inset + r.u(13), infoY + r.u(9)))
         s.add(Node.say(L("This is a preview only."), x + inset + r.u(44), infoY + r.u(5), artW - r.u(52), max(r.u(22), 18), size: r.f(14, min: 12), weight: "semibold", color: Pearl.ink))
         // The picture is the same either way, so the words say what it stands for: what would come first, or only what the next prayer's would say.
-        let detail = !sampled.chosen ? line + " " + L("This shows what the next prayer's reminder would say.") : d.draft.master ? line : line + " " + L("Turn reminders on and save, and this would come first.")
+        let detail = !sampled.chosen ? line + " " + L("This shows what the next prayer's reminder would say.") : d.draft.master || d.draft.ramadan.enabled ? line : line + " " + L("Turn reminders on and save, and this would come first.")
         s.add(Node.text(detail, size: r.f(11.5), color: Pearl.muted, align: "leading", valign: "top", lines: 6, minScale: 11 / r.f(11.5)).size(artW - r.u(52), infoH - max(r.u(27), 22) - 2).at(x + inset + r.u(44), infoY + max(r.u(27), 22)))
 
         // The main action is always the next step: asking first where Sidefolk hasn't been told yes yet, and saving after that.
@@ -503,6 +522,15 @@ enum RemindersSheet {
             // A native button, as only it may ask: Sidefolk's own question follows, in Sidefolk's words, and answering it saves nothing.
             s.add(main.at(mainX, buttonsY))
             s.button(Action(L("Allow Noor's reminders"), act: .allow("schedule"), style: .primary), x: mainX + 8, y: buttonsY, w: saveW - 16, h: buttonH, size: r.f(15, min: 13))
+        } else if canFinish, let waiting {
+            // The person's own press: Sidefolk's yes alone saves nothing.
+            s.tools["save"] = ("save_ramadan", waiting)
+            s.add(Node.group {
+                main
+                Node.say(L("Finish Ramadan reminders"), 8, 0, saveW - 16, buttonH, size: r.f(15, min: 13), weight: "medium", color: .hex("#FFFFFF"), align: "center")
+            }
+            .size(saveW, buttonH).at(mainX, buttonsY)
+            .area("save", label: L("Finish Ramadan reminders")))
         } else {
             s.tools["save"] = ("save_reminders", ["master": d.draft.master, "companion": d.draft.route.companion, "system": d.draft.route.systemFallback, "prayers": d.input, "name": d.draft.nameOfDay.enabled])
             s.add(Node.group {
@@ -512,9 +540,14 @@ enum RemindersSheet {
             .size(saveW, buttonH).at(mainX, buttonsY).opacity(d.changed ? 1 : 0.5)
             .area("save", label: L("Save reminders"), disabled: !d.changed))
         }
-        s.add(Node.say(d.changed ? L("Changes not saved.") : L("Saved."), x + inset, foot, artW, max(r.u(20), 16), size: r.f(13, min: 11.5), color: d.changed ? Pearl.warn : Pearl.good, align: "center"))
-        if needsYes {
-            s.add(Node.text(L("Sidefolk needs your yes before it sends Noor's reminders. It asks you first; nothing is saved by that."), size: r.f(11.5), color: Pearl.muted, align: "center", valign: "top", lines: 3, minScale: 11 / r.f(11.5)).size(artW, max(r.u(42), 44)).at(x + inset, foot + max(r.u(20), 17)))
+        // "Saved." is only said of something saved: not what still waits for a yes, and not a page nobody has ever saved.
+        let everSaved = d.saved.withoutEmptyPrayers != Reminders()
+        let standing: (words: String, color: Color)? = waiting != nil ? (L("Ramadan reminders aren't saved yet."), Pearl.warn) : d.changed ? (L("Changes not saved."), Pearl.warn) : needsYes || !everSaved ? nil : (L("Saved."), Pearl.good)
+        if let standing {
+            s.add(Node.say(standing.words, x + inset, foot, artW, max(r.u(20), 16), size: r.f(13, min: 11.5), color: standing.color, align: "center"))
+        }
+        if explains {
+            s.add(Node.text(canFinish ? L("Sidefolk has your yes. Finish to save the Ramadan reminders you chose; they come within 35 days of their day.") : L("Sidefolk needs your yes before it sends Noor's reminders. It asks you first; nothing is saved by that."), size: r.f(11.5), color: Pearl.muted, align: "center", valign: "top", lines: 3, minScale: 11 / r.f(11.5)).size(artW, max(r.u(42), 44)).at(x + inset, foot + max(r.u(20), 17)))
         }
         return height
     }
