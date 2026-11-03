@@ -1,0 +1,83 @@
+{
+  "name": "Formatic",
+  "tagline": "どんなファイルも、必要な形式に",
+  "description": "ファイルを必要な形式に、Mac の上でそのまま変換します。コンパニオンにファイルをドロップして、ほしいものを選ぶだけ。新しいファイルは元のファイルの隣にできて、元のファイルは変更されません。",
+  "tools": {
+    "convert": {
+      "title": "ファイルを変換"
+    },
+    "clear_recent": {
+      "title": "最近のファイルの一覧を消去"
+    }
+  },
+  "pages": {
+    "main": {
+      "title": "Formatic"
+    }
+  },
+  "settings": {
+    "remove_location": {
+      "title": "小さくした写真から位置情報を削除"
+    }
+  },
+  "drops": {
+    "photo_any": {
+      "title": "どこでも開ける",
+      "detail": "JPEG。透明な部分は白になります。"
+    },
+    "photo_small": {
+      "title": "メールで送れるサイズに",
+      "detail": "JPEG。幅は最大2,000ピクセル。"
+    },
+    "pdf_pages": {
+      "title": "ページごとの画像",
+      "detail": "PNG。ページごとに1ファイル。"
+    },
+    "audio_any": {
+      "title": "どこでも再生できる",
+      "detail": "M4Aファイル（AAC）。"
+    },
+    "data": {
+      "title": "表計算シート",
+      "detail": "CSV。項目の一覧から作ります。"
+    },
+    "archive": {
+      "title": "どこでも開けるZIP",
+      "detail": "同じファイルをZIPにまとめます。"
+    }
+  },
+  "text": {
+    "A page couldn't be read.": "読み取れないページがありました。",
+    "Any file, in the form you need.": "どんなファイルも、必要な形式に。",
+    "Choose a file first.": "先にファイルを選んでください。",
+    "Choose a file…": "ファイルを選択…",
+    "Clear this list": "この一覧を消去",
+    "Cleared.": "消去しました。",
+    "Defaults": "初期設定",
+    "Drop files on your companion from anywhere. Originals are never changed, and Formatic sends nothing anywhere.": "どこからでも、コンパニオンにファイルをドロップできます。元のファイルは変更されず、Formaticがどこかへ送信することはありません。",
+    "Formatic can't make that kind of archive.": "Formaticでは、その種類のアーカイブは作れません。",
+    "Formatic can't make that kind of file.": "Formaticでは、その種類のファイルは作れません。",
+    "Formatic can't make that kind of picture.": "Formaticでは、その種類の画像は作れません。",
+    "Formatic can't make that kind of sound file.": "Formaticでは、その種類の音声ファイルは作れません。",
+    "Lately": "最近",
+    "Originals are never changed.": "元のファイルは変更されません。",
+    "Ready when you are": "いつでもどうぞ",
+    "That archive couldn't be made.": "アーカイブを作成できませんでした。",
+    "That has {count} pages. Formatic does at most 64 at a time.": "{count}ページあります。Formaticが一度に扱えるのは64ページまでです。",
+    "This Mac can't make that kind of picture.": "このMacでは、その種類の画像は作れません。",
+    "This Mac can't make that kind of sound file.": "このMacでは、その種類の音声ファイルは作れません。",
+    "{count} files made lately": {
+      "other": "最近作ったファイル {count}件"
+    },
+    "{file} couldn't be converted, so it was left as it is.": "{file}を変換できなかったので、そのままにしてあります。",
+    "{file} couldn't be read, so it was left as it is.": "{file}を読み取れなかったので、そのままにしてあります。",
+    "{file} holds several pictures, and this is the first.": "{file}には複数の画像があり、これは最初の1枚です。",
+    "{file} is already small enough, so it was left as it is.": "{file}はすでに十分小さいので、そのままにしてあります。",
+    "{file} is already that kind of file.": "{file}はすでにその種類のファイルです。",
+    "{file} is too large to open here.": "{file}は大きすぎて、ここでは開けません。",
+    "{file} isn't a kind of file Formatic knows.": "{file}は、Formaticが知らない種類のファイルです。",
+    "{file} isn't a list of records, so it was left as it is.": "{file}は項目の一覧ではないので、そのままにしてあります。",
+    "{from} to {to}": "{from}から{to}へ",
+    "{percent}% smaller": "{percent}%小さくなりました"
+  }
+}

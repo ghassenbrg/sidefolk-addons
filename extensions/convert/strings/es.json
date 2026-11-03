@@ -1,0 +1,84 @@
+{
+  "name": "Formatic",
+  "tagline": "Convierte cualquier archivo al formato que necesites",
+  "description": "Convierte un archivo al formato que necesitas, directamente en tu Mac. Suelta archivos sobre tu compañero y elige lo que necesitas. Los archivos nuevos aparecen junto a los originales, que nunca se modifican.",
+  "tools": {
+    "convert": {
+      "title": "Convertir archivos"
+    },
+    "clear_recent": {
+      "title": "Borrar la lista de archivos recientes"
+    }
+  },
+  "pages": {
+    "main": {
+      "title": "Formatic"
+    }
+  },
+  "settings": {
+    "remove_location": {
+      "title": "Quitar la ubicación de las fotos que reduzco"
+    }
+  },
+  "drops": {
+    "photo_any": {
+      "title": "Abre en todas partes",
+      "detail": "JPEG. Toda transparencia se vuelve blanca."
+    },
+    "photo_small": {
+      "title": "Lista para enviar por correo",
+      "detail": "JPEG, de 2000 píxeles de ancho como máximo."
+    },
+    "pdf_pages": {
+      "title": "Una imagen de cada página",
+      "detail": "PNG, un archivo por página."
+    },
+    "audio_any": {
+      "title": "Suena en todas partes",
+      "detail": "AAC en un archivo M4A."
+    },
+    "data": {
+      "title": "Una hoja de cálculo",
+      "detail": "CSV, a partir de una lista de registros."
+    },
+    "archive": {
+      "title": "Un ZIP universal",
+      "detail": "Los mismos archivos en un ZIP."
+    }
+  },
+  "text": {
+    "A page couldn't be read.": "No se pudo leer una página.",
+    "Any file, in the form you need.": "Cualquier archivo, en la forma que necesites.",
+    "Choose a file first.": "Elige primero un archivo.",
+    "Choose a file…": "Elegir un archivo…",
+    "Clear this list": "Borrar esta lista",
+    "Cleared.": "Lista borrada.",
+    "Defaults": "Predeterminados",
+    "Drop files on your companion from anywhere. Originals are never changed, and Formatic sends nothing anywhere.": "Suelta archivos sobre tu compañero desde donde sea. Los originales nunca se modifican y Formatic no envía nada a ninguna parte.",
+    "Formatic can't make that kind of archive.": "Formatic no puede crear ese tipo de archivo comprimido.",
+    "Formatic can't make that kind of file.": "Formatic no puede crear ese tipo de archivo.",
+    "Formatic can't make that kind of picture.": "Formatic no puede crear ese tipo de imagen.",
+    "Formatic can't make that kind of sound file.": "Formatic no puede crear ese tipo de archivo de sonido.",
+    "Lately": "Recientes",
+    "Originals are never changed.": "Los originales nunca se modifican.",
+    "Ready when you are": "Listo cuando tú lo estés",
+    "That archive couldn't be made.": "No se pudo crear ese archivo comprimido.",
+    "That has {count} pages. Formatic does at most 64 at a time.": "Tiene {count} páginas. Formatic admite 64 como máximo a la vez.",
+    "This Mac can't make that kind of picture.": "Este Mac no puede crear ese tipo de imagen.",
+    "This Mac can't make that kind of sound file.": "Este Mac no puede crear ese tipo de archivo de sonido.",
+    "{count} files made lately": {
+      "one": "{count} archivo creado hace poco",
+      "other": "{count} archivos creados hace poco"
+    },
+    "{file} couldn't be converted, so it was left as it is.": "No se pudo convertir {file}, así que se dejó como estaba.",
+    "{file} couldn't be read, so it was left as it is.": "No se pudo leer {file}, así que se dejó como estaba.",
+    "{file} holds several pictures, and this is the first.": "{file} contiene varias imágenes, y esta es la primera.",
+    "{file} is already small enough, so it was left as it is.": "{file} ya es lo bastante pequeño, así que se dejó como estaba.",
+    "{file} is already that kind of file.": "{file} ya es de ese tipo.",
+    "{file} is too large to open here.": "{file} es demasiado grande para abrirlo aquí.",
+    "{file} isn't a kind of file Formatic knows.": "{file} no es un tipo de archivo que Formatic conozca.",
+    "{file} isn't a list of records, so it was left as it is.": "{file} no es una lista de registros, así que se dejó como estaba.",
+    "{from} to {to}": "{from} a {to}",
+    "{percent}% smaller": "{percent} % más pequeño"
+  }
+}

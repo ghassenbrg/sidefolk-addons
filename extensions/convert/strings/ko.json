@@ -1,0 +1,83 @@
+{
+  "name": "Formatic",
+  "tagline": "어떤 파일이든 필요한 형식으로",
+  "description": "파일을 필요한 형식으로 바꿔 줘요. 내 Mac에서 바로 처리해요. 컴패니언에 파일을 끌어다 놓고 원하는 걸 고르세요. 새 파일은 원본 옆에 만들어지고, 원본은 절대 바뀌지 않아요.",
+  "tools": {
+    "convert": {
+      "title": "파일 변환"
+    },
+    "clear_recent": {
+      "title": "최근 파일 목록 지우기"
+    }
+  },
+  "pages": {
+    "main": {
+      "title": "Formatic"
+    }
+  },
+  "settings": {
+    "remove_location": {
+      "title": "작게 만든 사진에서 위치 정보 지우기"
+    }
+  },
+  "drops": {
+    "photo_any": {
+      "title": "어디서나 열려요",
+      "detail": "JPEG. 투명한 부분은 흰색이 돼요."
+    },
+    "photo_small": {
+      "title": "이메일로 보내기 좋게",
+      "detail": "JPEG, 가로 최대 2,000픽셀."
+    },
+    "pdf_pages": {
+      "title": "페이지마다 이미지 한 장",
+      "detail": "PNG, 페이지마다 파일 하나."
+    },
+    "audio_any": {
+      "title": "어디서나 재생돼요",
+      "detail": "M4A 파일에 담긴 AAC."
+    },
+    "data": {
+      "title": "스프레드시트",
+      "detail": "CSV, 항목 목록으로 만들어요."
+    },
+    "archive": {
+      "title": "어디서나 열리는 ZIP",
+      "detail": "같은 파일을 ZIP으로 묶어요."
+    }
+  },
+  "text": {
+    "A page couldn't be read.": "읽을 수 없는 페이지가 있어요.",
+    "Any file, in the form you need.": "어떤 파일이든 필요한 형식으로.",
+    "Choose a file first.": "먼저 파일을 골라 주세요.",
+    "Choose a file…": "파일 선택…",
+    "Clear this list": "이 목록 지우기",
+    "Cleared.": "지웠어요.",
+    "Defaults": "기본값",
+    "Drop files on your companion from anywhere. Originals are never changed, and Formatic sends nothing anywhere.": "어디서든 컴패니언에 파일을 끌어다 놓으세요. 원본은 절대 바뀌지 않고, Formatic은 아무것도 어디로도 보내지 않아요.",
+    "Formatic can't make that kind of archive.": "Formatic은 그런 종류의 압축 파일은 만들 수 없어요.",
+    "Formatic can't make that kind of file.": "Formatic은 그런 종류의 파일은 만들 수 없어요.",
+    "Formatic can't make that kind of picture.": "Formatic은 그런 종류의 이미지는 만들 수 없어요.",
+    "Formatic can't make that kind of sound file.": "Formatic은 그런 종류의 오디오 파일은 만들 수 없어요.",
+    "Lately": "최근",
+    "Originals are never changed.": "원본은 절대 바뀌지 않아요.",
+    "Ready when you are": "준비됐어요",
+    "That archive couldn't be made.": "압축 파일을 만들지 못했어요.",
+    "That has {count} pages. Formatic does at most 64 at a time.": "{count}페이지예요. Formatic은 한 번에 최대 64페이지까지 할 수 있어요.",
+    "This Mac can't make that kind of picture.": "이 Mac에서는 그런 종류의 이미지를 만들 수 없어요.",
+    "This Mac can't make that kind of sound file.": "이 Mac에서는 그런 종류의 오디오 파일을 만들 수 없어요.",
+    "{count} files made lately": {
+      "other": "최근 만든 파일 {count}개"
+    },
+    "{file} couldn't be converted, so it was left as it is.": "{file}을(를) 변환하지 못해서 그대로 두었어요.",
+    "{file} couldn't be read, so it was left as it is.": "{file}을(를) 읽지 못해서 그대로 두었어요.",
+    "{file} holds several pictures, and this is the first.": "{file}에는 이미지가 여러 개 있어서 첫 번째만 사용했어요.",
+    "{file} is already small enough, so it was left as it is.": "{file}은(는) 이미 충분히 작아서 그대로 두었어요.",
+    "{file} is already that kind of file.": "{file}은(는) 이미 그 종류의 파일이에요.",
+    "{file} is too large to open here.": "{file}은(는) 너무 커서 여기서 열 수 없어요.",
+    "{file} isn't a kind of file Formatic knows.": "{file}은(는) Formatic이 모르는 종류의 파일이에요.",
+    "{file} isn't a list of records, so it was left as it is.": "{file}은(는) 항목 목록이 아니라서 그대로 두었어요.",
+    "{from} to {to}": "{from}에서 {to}로",
+    "{percent}% smaller": "{percent}% 더 작아졌어요"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "text": {
+    "A page couldn't be read.": "A page couldn't be read.",
+    "Any file, in the form you need.": "Any file, in the form you need.",
+    "Choose a file first.": "Choose a file first.",
+    "Choose a file…": "Choose a file…",
+    "Clear this list": "Clear this list",
+    "Cleared.": "Cleared.",
+    "Defaults": "Defaults",
+    "Drop files on your companion from anywhere. Originals are never changed, and Formatic sends nothing anywhere.": "Drop files on your companion from anywhere. Originals are never changed, and Formatic sends nothing anywhere.",
+    "Formatic can't make that kind of archive.": "Formatic can't make that kind of archive.",
+    "Formatic can't make that kind of file.": "Formatic can't make that kind of file.",
+    "Formatic can't make that kind of picture.": "Formatic can't make that kind of picture.",
+    "Formatic can't make that kind of sound file.": "Formatic can't make that kind of sound file.",
+    "Lately": "Lately",
+    "Originals are never changed.": "Originals are never changed.",
+    "Ready when you are": "Ready when you are",
+    "That archive couldn't be made.": "That archive couldn't be made.",
+    "That has {count} pages. Formatic does at most 64 at a time.": "That has {count} pages. Formatic does at most 64 at a time.",
+    "This Mac can't make that kind of picture.": "This Mac can't make that kind of picture.",
+    "This Mac can't make that kind of sound file.": "This Mac can't make that kind of sound file.",
+    "{count} files made lately": {
+      "one": "{count} file made lately",
+      "other": "{count} files made lately"
+    },
+    "{file} couldn't be converted, so it was left as it is.": "{file} couldn't be converted, so it was left as it is.",
+    "{file} couldn't be read, so it was left as it is.": "{file} couldn't be read, so it was left as it is.",
+    "{file} holds several pictures, and this is the first.": "{file} holds several pictures, and this is the first.",
+    "{file} is already small enough, so it was left as it is.": "{file} is already small enough, so it was left as it is.",
+    "{file} is already that kind of file.": "{file} is already that kind of file.",
+    "{file} is too large to open here.": "{file} is too large to open here.",
+    "{file} isn't a kind of file Formatic knows.": "{file} isn't a kind of file Formatic knows.",
+    "{file} isn't a list of records, so it was left as it is.": "{file} isn't a list of records, so it was left as it is.",
+    "{from} to {to}": "{from} to {to}",
+    "{percent}% smaller": "{percent}% smaller"
+  }
+}

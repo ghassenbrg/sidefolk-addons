@@ -1,0 +1,59 @@
+{
+  "id": "dev.sidefolk.convert",
+  "name": "Formatic",
+  "version": "1.0.0",
+  "sidefolk": ">=0.1",
+  "description": "Turns a file into the format you need, right on your Mac. Drop files on your companion and pick what you need. New files appear beside the originals, which are never changed.",
+  "tagline": "Turn any file into the format you need",
+  "folk": "melody",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "assets": "assets",
+  "run": { "command": "bin/ext-convert" },
+  "permissions": { "media": true, "exec": ["/usr/bin/bsdtar"] },
+  "tools": {
+    "convert": {
+      "title": "Convert files",
+      "risk": "medium",
+      "category": "files",
+      "mutates": true,
+      "ai": false,
+      "timeout": 300,
+      "file_lists": { "files": "read" },
+      "paths": { "path": "read" },
+      "outputs": ["jpg", "png", "heic", "avif", "tiff", "gif", "pdf", "m4a", "flac", "wav", "aiff", "caf", "csv", "tsv", "json", "plist", "zip", "7z", "tar", "gz"]
+    },
+    "clear_recent": { "title": "Clear the list of recent files", "risk": "low", "category": "files", "mutates": true, "ai": false }
+  },
+  "pages": {
+    "main": { "title": "Formatic", "symbol": "doc.on.doc", "refresh": 10 }
+  },
+  "settings": [
+    { "key": "remove_location", "type": "switch", "title": "Remove location from photos I make smaller", "default": true }
+  ],
+  "drops": [
+    { "id": "photo_any", "title": "Opens anywhere", "detail": "JPEG. Any transparency becomes white.", "symbol": "photo",
+      "kinds": ["file"], "patterns": ["*.heic", "*.heif", "*.png", "*.tif", "*.tiff", "*.webp", "*.avif", "*.bmp", "*.gif", "*.dng", "*.cr2", "*.nef", "*.arw"],
+      "tool": "convert", "input": { "files": "{values}", "target": "jpg" } },
+    { "id": "photo_small", "title": "Small enough to email", "detail": "JPEG, at most 2,000 pixels wide.", "symbol": "envelope",
+      "kinds": ["file"], "patterns": ["*.jpg", "*.jpeg", "*.heic", "*.heif", "*.png", "*.tif", "*.tiff", "*.webp", "*.avif", "*.bmp", "*.gif", "*.dng", "*.cr2", "*.nef", "*.arw"],
+      "tool": "convert", "input": { "files": "{values}", "target": "jpg", "small": true },
+      "menu": [ { "title": "PNG", "input": { "target": "png", "small": false } }, { "title": "HEIC", "input": { "target": "heic", "small": false } },
+                { "title": "AVIF", "input": { "target": "avif", "small": false } }, { "title": "TIFF", "input": { "target": "tiff", "small": false } },
+                { "title": "GIF", "input": { "target": "gif", "small": false } }, { "title": "PDF", "input": { "target": "pdf", "small": false } } ] },
+    { "id": "pdf_pages", "title": "A picture of each page", "detail": "PNG, one file for each page.", "symbol": "doc.richtext",
+      "kinds": ["file"], "patterns": ["*.pdf"], "tool": "convert", "input": { "files": "{values}", "target": "png" },
+      "menu": [ { "title": "JPEG", "input": { "target": "jpg" } }, { "title": "TIFF", "input": { "target": "tiff" } } ] },
+    { "id": "audio_any", "title": "Plays anywhere", "detail": "AAC in an M4A file.", "symbol": "waveform",
+      "kinds": ["file"], "patterns": ["*.mp3", "*.m4a", "*.aac", "*.wav", "*.aif", "*.aiff", "*.flac", "*.caf", "*.opus", "*.ogg"],
+      "tool": "convert", "input": { "files": "{values}", "target": "m4a" },
+      "menu": [ { "title": "FLAC", "input": { "target": "flac" } }, { "title": "WAV", "input": { "target": "wav" } }, { "title": "AIFF", "input": { "target": "aiff" } },
+                { "title": "Apple Lossless", "input": { "target": "alac" } }, { "title": "Opus", "input": { "target": "opus" } } ] },
+    { "id": "data", "title": "A spreadsheet", "detail": "CSV, from a list of records.", "symbol": "tablecells",
+      "kinds": ["file"], "patterns": ["*.json", "*.tsv", "*.plist", "*.csv"], "tool": "convert", "input": { "files": "{values}", "target": "csv" },
+      "menu": [ { "title": "JSON", "input": { "target": "json" } }, { "title": "TSV", "input": { "target": "tsv" } }, { "title": "PLIST", "input": { "target": "plist" } } ] },
+    { "id": "archive", "title": "A ZIP that opens anywhere", "detail": "The same files in a ZIP.", "symbol": "archivebox",
+      "kinds": ["file"], "patterns": ["*.7z", "*.rar", "*.tar", "*.tgz", "*.tar.gz", "*.tar.xz", "*.tar.bz2", "*.iso", "*.zip"], "tool": "convert", "input": { "files": "{values}", "target": "zip" },
+      "menu": [ { "title": "7Z", "input": { "target": "7z" } }, { "title": "TAR", "input": { "target": "tar" } }, { "title": "TAR.GZ", "input": { "target": "tar.gz" } } ] }
+  ]
+}

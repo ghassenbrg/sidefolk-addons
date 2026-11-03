@@ -1,0 +1,88 @@
+{
+  "name": "Formatic",
+  "tagline": "حوّل أي ملف إلى الصيغة التي تحتاجها",
+  "description": "يحوّل الملف إلى الصيغة التي تحتاجها، مباشرةً على جهاز Mac. أفلت الملفات على رفيقك واختر ما تحتاجه. تظهر الملفات الجديدة بجانب الأصلية، ولا تتغيّر الأصلية أبدًا.",
+  "tools": {
+    "convert": {
+      "title": "تحويل الملفات"
+    },
+    "clear_recent": {
+      "title": "مسح قائمة الملفات الأخيرة"
+    }
+  },
+  "pages": {
+    "main": {
+      "title": "Formatic"
+    }
+  },
+  "settings": {
+    "remove_location": {
+      "title": "إزالة الموقع من الصور التي أصغّرها"
+    }
+  },
+  "drops": {
+    "photo_any": {
+      "title": "يُفتح في أي مكان",
+      "detail": "JPEG. أي شفافية تصبح بيضاء."
+    },
+    "photo_small": {
+      "title": "صغير بما يكفي للبريد",
+      "detail": "JPEG، بعرض 2000 بكسل كحد أقصى."
+    },
+    "pdf_pages": {
+      "title": "صورة لكل صفحة",
+      "detail": "PNG، ملف لكل صفحة."
+    },
+    "audio_any": {
+      "title": "يُشغَّل في أي مكان",
+      "detail": "AAC داخل ملف M4A."
+    },
+    "data": {
+      "title": "جدول بيانات",
+      "detail": "CSV، من قائمة سجلات."
+    },
+    "archive": {
+      "title": "ملف ZIP يُفتح في أي مكان",
+      "detail": "الملفات نفسها داخل ZIP."
+    }
+  },
+  "text": {
+    "A page couldn't be read.": "تعذّرت قراءة إحدى الصفحات.",
+    "Any file, in the form you need.": "أي ملف، بالصيغة التي تحتاجها.",
+    "Choose a file first.": "اختر ملفًا أولًا.",
+    "Choose a file…": "اختر ملفًا…",
+    "Clear this list": "مسح هذه القائمة",
+    "Cleared.": "تم المسح.",
+    "Defaults": "الإعدادات الافتراضية",
+    "Drop files on your companion from anywhere. Originals are never changed, and Formatic sends nothing anywhere.": "أفلت الملفات على رفيقك من أي مكان. لا تتغيّر الملفات الأصلية أبدًا، ولا يرسل Formatic شيئًا إلى أي مكان.",
+    "Formatic can't make that kind of archive.": "لا يستطيع Formatic إنشاء هذا النوع من الأرشيفات.",
+    "Formatic can't make that kind of file.": "لا يستطيع Formatic إنشاء هذا النوع من الملفات.",
+    "Formatic can't make that kind of picture.": "لا يستطيع Formatic إنشاء هذا النوع من الصور.",
+    "Formatic can't make that kind of sound file.": "لا يستطيع Formatic إنشاء هذا النوع من ملفات الصوت.",
+    "Lately": "مؤخرًا",
+    "Originals are never changed.": "لا تتغيّر الملفات الأصلية أبدًا.",
+    "Ready when you are": "جاهز متى شئت",
+    "That archive couldn't be made.": "تعذّر إنشاء هذا الأرشيف.",
+    "That has {count} pages. Formatic does at most 64 at a time.": "يحتوي هذا على {count} صفحة. يتعامل Formatic مع 64 صفحة كحد أقصى في المرة الواحدة.",
+    "This Mac can't make that kind of picture.": "لا يستطيع هذا الـMac إنشاء هذا النوع من الصور.",
+    "This Mac can't make that kind of sound file.": "لا يستطيع هذا الـMac إنشاء هذا النوع من ملفات الصوت.",
+    "{count} files made lately": {
+      "zero": "لم يُنشأ أي ملف مؤخرًا",
+      "one": "أُنشئ ملف واحد مؤخرًا",
+      "two": "أُنشئ ملفان مؤخرًا",
+      "few": "أُنشئت {count} ملفات مؤخرًا",
+      "many": "أُنشئ {count} ملفًا مؤخرًا",
+      "other": "أُنشئ {count} ملف مؤخرًا"
+    },
+    "{file} couldn't be converted, so it was left as it is.": "تعذّر تحويل {file}، لذا تُرك كما هو.",
+    "{file} couldn't be read, so it was left as it is.": "تعذّرت قراءة {file}، لذا تُرك كما هو.",
+    "{file} holds several pictures, and this is the first.": "يحتوي {file} على عدة صور، وهذه هي الأولى.",
+    "{file} is already small enough, so it was left as it is.": "{file} صغير بما يكفي أصلًا، لذا تُرك كما هو.",
+    "{file} is already that kind of file.": "{file} من هذا النوع أصلًا.",
+    "{file} is too large to open here.": "{file} كبير جدًا بحيث لا يُفتح هنا.",
+    "{file} isn't a kind of file Formatic knows.": "{file} ليس نوع ملف يعرفه Formatic.",
+    "{file} isn't a list of records, so it was left as it is.": "{file} ليس قائمة سجلات، لذا تُرك كما هو.",
+    "{from} to {to}": "{from} إلى {to}",
+    "{percent}% smaller": "أصغر بنسبة {percent}%"
+  }
+}

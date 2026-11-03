@@ -1,0 +1,84 @@
+{
+  "name": "Formatic",
+  "tagline": "Transforme qualquer arquivo no formato que você precisa",
+  "description": "Transforma um arquivo no formato que você precisa, direto no seu Mac. Solte arquivos no seu companheiro e escolha o que precisa. Os arquivos novos aparecem ao lado dos originais, que nunca são alterados.",
+  "tools": {
+    "convert": {
+      "title": "Converter arquivos"
+    },
+    "clear_recent": {
+      "title": "Limpar a lista de arquivos recentes"
+    }
+  },
+  "pages": {
+    "main": {
+      "title": "Formatic"
+    }
+  },
+  "settings": {
+    "remove_location": {
+      "title": "Remover a localização das fotos que eu reduzir"
+    }
+  },
+  "drops": {
+    "photo_any": {
+      "title": "Abre em todo lugar",
+      "detail": "JPEG. Qualquer transparência vira branco."
+    },
+    "photo_small": {
+      "title": "Leve para mandar por e-mail",
+      "detail": "JPEG, com no máximo 2.000 pixels de largura."
+    },
+    "pdf_pages": {
+      "title": "Uma imagem de cada página",
+      "detail": "PNG, um arquivo para cada página."
+    },
+    "audio_any": {
+      "title": "Toca em todo lugar",
+      "detail": "AAC em um arquivo M4A."
+    },
+    "data": {
+      "title": "Uma planilha",
+      "detail": "CSV, a partir de uma lista de registros."
+    },
+    "archive": {
+      "title": "Um ZIP que abre em qualquer lugar",
+      "detail": "Os mesmos arquivos em um ZIP."
+    }
+  },
+  "text": {
+    "A page couldn't be read.": "Não foi possível ler uma página.",
+    "Any file, in the form you need.": "Qualquer arquivo, na forma que você precisa.",
+    "Choose a file first.": "Escolha um arquivo primeiro.",
+    "Choose a file…": "Escolher um arquivo…",
+    "Clear this list": "Limpar esta lista",
+    "Cleared.": "Limpo.",
+    "Defaults": "Padrões",
+    "Drop files on your companion from anywhere. Originals are never changed, and Formatic sends nothing anywhere.": "Solte arquivos no seu companheiro, de onde estiver. Os originais nunca são alterados, e o Formatic não envia nada para lugar nenhum.",
+    "Formatic can't make that kind of archive.": "O Formatic não consegue criar esse tipo de arquivo compactado.",
+    "Formatic can't make that kind of file.": "O Formatic não consegue criar esse tipo de arquivo.",
+    "Formatic can't make that kind of picture.": "O Formatic não consegue criar esse tipo de imagem.",
+    "Formatic can't make that kind of sound file.": "O Formatic não consegue criar esse tipo de arquivo de áudio.",
+    "Lately": "Recentes",
+    "Originals are never changed.": "Os originais nunca são alterados.",
+    "Ready when you are": "Pronto quando você estiver",
+    "That archive couldn't be made.": "Não foi possível criar esse arquivo compactado.",
+    "That has {count} pages. Formatic does at most 64 at a time.": "Isso tem {count} páginas. O Formatic faz no máximo 64 por vez.",
+    "This Mac can't make that kind of picture.": "Este Mac não consegue criar esse tipo de imagem.",
+    "This Mac can't make that kind of sound file.": "Este Mac não consegue criar esse tipo de arquivo de áudio.",
+    "{count} files made lately": {
+      "one": "{count} arquivo feito recentemente",
+      "other": "{count} arquivos feitos recentemente"
+    },
+    "{file} couldn't be converted, so it was left as it is.": "Não foi possível converter {file}, então ele ficou como estava.",
+    "{file} couldn't be read, so it was left as it is.": "Não foi possível ler {file}, então ele ficou como estava.",
+    "{file} holds several pictures, and this is the first.": "{file} tem várias imagens, e esta é a primeira.",
+    "{file} is already small enough, so it was left as it is.": "{file} já é pequeno o bastante, então ficou como estava.",
+    "{file} is already that kind of file.": "{file} já é desse tipo.",
+    "{file} is too large to open here.": "{file} é grande demais para abrir aqui.",
+    "{file} isn't a kind of file Formatic knows.": "{file} não é um tipo de arquivo que o Formatic conhece.",
+    "{file} isn't a list of records, so it was left as it is.": "{file} não é uma lista de registros, então ficou como estava.",
+    "{from} to {to}": "{from} para {to}",
+    "{percent}% smaller": "{percent}% menor"
+  }
+}
