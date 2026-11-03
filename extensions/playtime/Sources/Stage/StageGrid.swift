@@ -31,15 +31,16 @@ extension BoardDrawing {
     }
 
     /// A step held at its first values until its moment, then played. One path from the start, so nothing shows its end early.
-    func heldKeys(_ target: String, _ frames: [[String: Double]], delayMs: Double, ms: Double, ease: String = "out") {
+    func heldKeys(_ target: String, _ frames: [[String: Double]], delayMs: Double, ms: Double, ease: String = "out", named name: String? = nil) {
+        func run(_ anim: Anim) { anims.append(name.map { anim.named($0) } ?? anim) }
         guard delayMs > 0, let first = frames.first else {
-            anims.append(.keys(target, frames, ms: ms, ease: ease))
+            run(.keys(target, frames, ms: ms, ease: ease))
             return
         }
         let total = delayMs + ms
         var keys = [first.merging(["t": 0]) { $1 }, first.merging(["t": delayMs / total]) { $1 }]
         for frame in frames.dropFirst() { keys.append(frame.merging(["t": (delayMs + (frame["t"] ?? 1) * ms) / total]) { $1 }) }
-        anims.append(.keys(target, keys, ms: total, ease: ease))
+        run(.keys(target, keys, ms: total, ease: ease))
     }
 
     // MARK: Marks

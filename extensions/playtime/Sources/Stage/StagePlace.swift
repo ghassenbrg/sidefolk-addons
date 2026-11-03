@@ -36,7 +36,10 @@ extension BoardDrawing {
             return FigurePlace(x: 6, feet: 492, w: 122, h: 156, bubble: (8, 238, 128, 90), tail: .down(x: 62), lines: 4, boardTop: 102)
         // 04: stands on the floor before the felt wall, between metronome and drum.
         case CopyMeScreen.id:
-            return FigurePlace(x: 62, feet: 244, w: 106, h: 150, bubble: (172, 112, 214, 56), boardTop: 252)
+            // The scene doesn't mirror, so in a right-to-left language the figure and bubble make room to stay clear of the drum.
+            return Language.rightToLeft
+                ? FigurePlace(x: 92, feet: 244, w: 106, h: 150, bubble: (192, 112, 194, 56), boardTop: 252)
+                : FigurePlace(x: 62, feet: 244, w: 106, h: 150, bubble: (172, 112, 214, 56), boardTop: 252)
         // 06, 12: on the rim of the tray, the top of the mat.
         case LastStickScreen.id, MemoryPairsScreen.id:
             return FigurePlace(x: 12, feet: 190, w: 92, h: 112, bubble: (108, 116, 278, 56))

@@ -7,6 +7,7 @@ enum StageAction {
     /// A click-through cell has rested: what it breaks is said now.
     case settled
     case back
+    case pause
     case ignore
 }
 
@@ -34,7 +35,7 @@ enum StageMoves {
         case "cell":
             let n = value.split(separator: ",").compactMap { Int($0) }
             return n.count == 2 ? .play(.cell(row: n[0], column: n[1])) : .ignore
-        case "button": return value == BoardDrawing.backMove ? .back : .play(.button(value))
+        case "button": return value == BoardDrawing.backMove ? .back : value == PauseMoves.pause ? .pause : .play(.button(value))
         case "choice":
             let bits = value.split(separator: "|", maxSplits: 1).map(String.init)
             return bits.count == 2 ? .play(.choice(name: bits[0], value: bits[1])) : .ignore

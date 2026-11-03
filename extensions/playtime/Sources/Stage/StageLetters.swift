@@ -39,7 +39,7 @@ extension BoardDrawing {
             for r in 0..<count {
                 let row = letterRow(r, rows: rows, length: length, draft: draft, script: script)
                 self.letterRowNode(row.tiles, id: "letters.\(r)", y: Self.trayPad + Double(r) * (tileH + Self.rowGap), w: tileW, h: tileH, side: side, hangul: hangul, typing: row.typing,
-                                   flipping: ctx.buildUp && ctx.fresh && flip == r, width: width)
+                                   flipping: ctx.buildUp && (ctx.fresh || ctx.buildingOn) && flip == r, width: width)
             }
             legend(width: width, y: height - Self.trayPad - Self.legendRoom + 4)
         }, height: height)
@@ -82,12 +82,17 @@ extension BoardDrawing {
         return node
     }
 
+    /// A name an animation may carry: node ids have dots, names don't.
+    private static func animName(_ kind: String, _ id: String) -> String { kind + "_" + id.replacingOccurrences(of: ".", with: "_") }
+
+    private var typingNow: String { ctx.buildUp ? ctx.local.typedAhead ?? "" : ctx.local.draft }
+
     /// A played row, the row being typed, or an empty one.
     private func letterRow(_ r: Int, rows: [[LetterTile]], length: Int, draft: Bool, script: String) -> (tiles: [LetterTile], typing: Bool) {
         if rows.indices.contains(r) { return (rows[r], false) }
-        // A word just played is its row now, turning: what was typed isn't in the next one any more.
-        guard draft, r == rows.count, !ctx.buildUp else { return ((0..<length).map { LetterTile("", group: $0) }, false) }
-        let typed = Hangul.split(ctx.local.draft, script: script)
+        // A word just played is its row now, turning: what was typed isn't in the next one any more, only what has been typed since.
+        guard draft, r == rows.count, !ctx.buildUp || ctx.local.typedAhead?.isEmpty == false else { return ((0..<length).map { LetterTile("", group: $0) }, false) }
+        let typed = Hangul.split(typingNow, script: script)
         return ((0..<length).map { i in
             i < typed.count ? LetterTile(typed[i].text, group: typed[i].group) : LetterTile("", group: typed.last.map { $0.group + 1 + i - typed.count } ?? i)
         }, true)
@@ -102,7 +107,7 @@ extension BoardDrawing {
         let widths = groups.map { Double($0.count) * w + Double($0.count - 1) * inner }
         var x = (width - widths.reduce(0, +) - Double(max(groups.count - 1, 0)) * outer) / 2
         var nodes: [Node] = []
-        let typedCount = Hangul.split(ctx.local.draft, script: "").count
+        let typedCount = Hangul.split(typingNow, script: "").count
         for (g, members) in groups.enumerated() {
             // The pad reaches into the gaps around its syllable: two pads stay apart by a hair.
             if hangul, members.count > 1 {
@@ -119,7 +124,7 @@ extension BoardDrawing {
         // A whole row all right, once its last tile has turned, stands up one tile after another.
         if flipping, row.allSatisfy({ $0.mark == "right" }) {
             for i in row.indices {
-                heldKeys("\(id).\(i)", [["t": 0, "y": 0], ["t": 0.45, "y": -9], ["t": 1, "y": 0]], delayMs: Double(row.count) * 220 + 80 + Double(i) * 60, ms: 260, ease: "in_out")
+                heldKeys("\(id).\(i)", [["t": 0, "y": 0], ["t": 0.45, "y": -9], ["t": 1, "y": 0]], delayMs: Double(row.count) * 220 + 80 + Double(i) * 60, ms: 260, ease: "in_out", named: Self.animName("hop", "\(id).\(i)"))
             }
         }
         // A word refused gives a small shake: it stays typed, to be fixed.
@@ -169,8 +174,8 @@ extension BoardDrawing {
             let half = 110.0, total = flipAt + 250
             var turn: [[String: Double]] = [["t": 0, "sy": 1]]
             if flipAt > 0 { turn.append(["t": flipAt / total, "sy": 1]) }
-            anims.append(.keys(id, turn + [["t": (flipAt + half) / total, "sy": 0.02], ["t": 1, "sy": 1]], ms: total, ease: "in_out"))
-            anims.append(.keys(shut, [["t": 0, "opacity": 1], ["t": (flipAt + half) / total, "opacity": 1], ["t": (flipAt + half + 1) / total, "opacity": 0], ["t": 1, "opacity": 0]], ms: total, ease: "linear"))
+            anims.append(Anim.keys(id, turn + [["t": (flipAt + half) / total, "sy": 0.02], ["t": 1, "sy": 1]], ms: total, ease: "in_out").named(Self.animName("turn", id)))
+            anims.append(Anim.keys(shut, [["t": 0, "opacity": 1], ["t": (flipAt + half) / total, "opacity": 1], ["t": (flipAt + half + 1) / total, "opacity": 0], ["t": 1, "opacity": 0]], ms: total, ease: "linear").named(Self.animName("turn", shut)))
         }
         if landed { anims.append(.keys(id, [["t": 0, "scale": 1.2, "y": -4], ["t": 1, "scale": 1, "y": 0]], ms: 150, ease: "out")) }
         var words = tile.text.isEmpty ? L("blank") : tile.text

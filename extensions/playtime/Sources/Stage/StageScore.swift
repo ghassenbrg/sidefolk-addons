@@ -9,6 +9,7 @@ extension BoardDrawing {
         var y = 0.0
         var nodes: [Node] = [titleRow(ctx.entry.title, icon: look.icon, width: width)]
         if let toggle = twoPlayersToggle(width: width) { nodes.append(toggle) }
+        if let control = pauseControl { nodes.append(control) }
         y += 36
         if board.scorePart != nil {
             nodes.append(scoreRow(width: width).at(0, y))
@@ -41,6 +42,16 @@ extension BoardDrawing {
             Node.capsule(fill: on ? Paint.action : Paint.card(0.85), stroke: on ? nil : Paint.edge, lineWidth: 1).id("who.back").size(w, h)
             Node.symbol("person.2.fill", color: on ? Paint.onAction : Paint.inkSoft).symbolLook(weight: "bold").id("who.mark").at((w - 20) / 2, (h - 15) / 2).size(20, 15)
         }.area("choice", value: "opponent|\(other.value)", label: other.label, hover: AreaLook(scale: 1.06), press: AreaLook(scale: 0.94), selected: on, always: playing, sound: "sounds/tap.wav")
+    }
+
+    /// Stop, start again, another level, or leave: a small quiet button at the head of the title, the same place all game long.
+    private var pauseControl: Node? {
+        guard !ended else { return nil }
+        let w = 36.0, h = 26.0
+        return Node.box("pause", x: 0, y: 4, w: w, h: h) {
+            Node.capsule(fill: Paint.card(0.85), stroke: Paint.edge, lineWidth: 1).id("pause.back").size(w, h)
+            Node.symbol("pause.fill", color: Paint.inkSoft).symbolLook(weight: "bold").id("pause.mark").at((w - 14) / 2, (h - 14) / 2).size(14, 14)
+        }.area("button", value: PauseMoves.pause, label: L("Pause"), hover: AreaLook(scale: 1.06), press: AreaLook(scale: 0.94), always: true, sound: "sounds/tap.wav")
     }
 
     /// The game's one icon beside its name, centred together.

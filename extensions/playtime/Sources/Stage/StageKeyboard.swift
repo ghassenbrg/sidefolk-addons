@@ -69,6 +69,11 @@ extension BoardDrawing {
             y += keyH + Self.keyGap
         }
         let height = Self.keyboardHeight(pages: pages, stall: stall)
+        if locked, ctx.buildUp, mode == "spell" {
+            // A row is turning: the next word can be typed already, on the Mac's keyboard.
+            keys.append(StageKey(key: "letter", id: "letter"))
+            keys.append(StageKey(key: "delete", id: "draft_delete"))
+        }
         if !locked {
             // A letter pressed on the Mac's keyboard presses its key here. One already used, or on another page, still goes to the game, which says so.
             for (i, k) in shown.rows.joined().enumerated() where k.mark == "none" || mode == "spell" { keys.append(StageKey(key: k.key, id: "key_\(i)", area: "key", value: k.key)) }

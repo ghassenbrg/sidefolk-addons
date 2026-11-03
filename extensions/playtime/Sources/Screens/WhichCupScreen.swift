@@ -106,6 +106,8 @@ enum WhichCupScreen: GameScreen {
         }
     }
 
+    static func level(of s: Engine.State) -> GameLevel? { s.game.level }
+
     static func board(_ s: WhichCupEngine.State, events: [Games.Event], options o: GameOptions) -> Board {
         if s.duo.on { return duoBoard(s, events: events, options: o) }
         let g = s.game

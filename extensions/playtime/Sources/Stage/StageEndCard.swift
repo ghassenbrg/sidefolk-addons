@@ -26,10 +26,12 @@ extension BoardDrawing {
         var inCard: [Node] = []
         inCard.append(Node.words(title, size: 38, weight: "black", align: "center", minScale: 0.5, x: 20, y: cy, w: width - 40, h: 46).id("end.title"))
         cy += 48
-        let figureW = Swift.min(TextFit.width(figure, size: 22, weight: "black") + 40, room)
-        inCard.append(Node.capsule(fill: chipFill(verdict, friendly: friendly)).id("end.chip").at((width - figureW) / 2, cy).size(figureW, 34))
-        inCard.append(Node.words(Self.isolated(figure, rtl: ctx.rtl), size: 22, weight: "black", color: chipInk(verdict, friendly: friendly), align: "center", minScale: 0.6, x: (width - figureW) / 2 + 8, y: cy, w: figureW - 16, h: 34).textLook(tabular: true).id("end.figure"))
-        cy += 40
+        if !figure.isEmpty {
+            let figureW = Swift.min(TextFit.width(figure, size: 22, weight: "black") + 40, room)
+            inCard.append(Node.capsule(fill: chipFill(verdict, friendly: friendly)).id("end.chip").at((width - figureW) / 2, cy).size(figureW, 34))
+            inCard.append(Node.words(Self.isolated(figure, rtl: ctx.rtl), size: 22, weight: "black", color: chipInk(verdict, friendly: friendly), align: "center", minScale: 0.6, x: (width - figureW) / 2 + 8, y: cy, w: figureW - 16, h: 34).textLook(tabular: true).id("end.figure"))
+            cy += 40
+        }
         if let ribbon {
             let w = TextFit.width(ribbon, size: 12, weight: "bold") + 24
             inCard.append(Node.capsule(fill: Paint.lilac).id("end.ribbon").at((width - w) / 2, cy).size(w, 22))
@@ -71,15 +73,15 @@ extension BoardDrawing {
             Node.felt("end.mat", x: -6, y: figureRow + 30, w: width + 12, h: cardH - 14, corner: 26, stitch: false),
             Node.rect(fill: Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 22).id("end.card").at(14, figureRow).size(width - 28, cardH).shadow(Paint.black8, radius: 6, dx: 0, dy: 3),
             Node.rect(stroke: Paint.clear("#8E72B5", 0.5), lineWidth: 1.25, corner: 18, dash: [5, 4]).id("end.stitch").at(19, figureRow + 5).size(width - 38, cardH - 10),
-            markArt(verdict: verdict, tone: tone, friendly: friendly, side: markSide).at((width - markSide) / 2 + 14, figureRow - markSide + 4),
             Node.companion(pose: friendly ? "success" : pose).figure(bottom: true).id("end.companion").anchor(0.5, 1).at(8, 0).size(figureW2, figureH),
         ]
+        if !board.plainCard { nodes.insert(markArt(verdict: verdict, tone: tone, friendly: friendly, side: markSide).at((width - markSide) / 2 + 14, figureRow - markSide + 4), at: nodes.count - 1) }
         nodes.append(.box("end.words", y: figureRow, w: width, h: cardH) { inCard })
         let top = figureRow + cardH + 14
         nodes.append(.box("end.next", y: top, w: width, h: y) { next })
         y += top
         appear("end.words")
-        popMark()
+        if !board.plainCard { popMark() }
         return PartBlock(.box("end", w: width, h: y) { nodes }, height: y)
     }
 
@@ -93,7 +95,9 @@ extension BoardDrawing {
 
     /// A puzzle solved: a sheet from the notebook, with the companion delighted beside the time, how it went, the board as it was finished, and what next. Nothing but the true numbers.
     private func puzzleSheet(time: String, ribbon: String?, facts: [(String, String)], actions: [GameButton]) -> PartBlock {
-        let width = Self.inner, height = playRoom, pad = 22.0
+        // A little below the title, so its clip hangs under the name rather than over it.
+        let drop = 10.0
+        let width = Self.inner, height = playRoom - drop, pad = 22.0
         let right = 126.0, room = width - right - 16
         // The time is the headline, so the rest of what's known goes in one line under it.
         let how = facts.dropFirst().map { "\($0.0) \($0.1)" }.joined(separator: " · ")
@@ -148,7 +152,7 @@ extension BoardDrawing {
             chips
             if let primary { buttonRow([primary], id: "end.action.0", width: (width - 2 * pad - 10) * 0.54).node.at(pad, height - pad + 4 - 44) }
             buttonRow([back], id: "end.back.row", width: (width - 2 * pad - 10) * 0.46, flat: true).node.at(pad + (width - 2 * pad - 10) * 0.54 + 10, height - pad + 4 - 43)
-        }, height: height)
+        }.at(0, drop), height: playRoom)
     }
 
     /// What the frame's Back does, as a link under the actions.
@@ -157,6 +161,8 @@ extension BoardDrawing {
     private func backLink(y: Double, width: Double) -> Node {
         let words = L("Back to games"), w = TextFit.width(words, size: 13, weight: "bold") + 8
         return Node.box("end.back", x: (width - w) / 2, y: y, w: w, h: 22) {
+            // It may stand on any scene, so it brings its own ground.
+            Node.capsule(fill: Paint.card(0.82)).id("end.back.ground").at(-8, -2).size(w + 16, 25)
             Node.words(words, size: 13, weight: "bold", align: "center", w: w, h: 20)
             Node.rect(fill: Paint.ink).at(4, 19).size(w - 8, 1)
         }.area("button", value: Self.backMove, label: words, hover: nil, press: AreaLook(opacity: 0.6), sound: "sounds/tap.wav")

@@ -140,7 +140,7 @@ extension BoardDrawing {
         // A mark and the disc on the line beside it never meet: the disc reaches half its width into a cell, and every mark leaves that much and a little.
         let art = skin.kind == .seesaw ? side - Self.discSide(side) - 2 : side * 0.72, dot = side * 0.16
         for (name, file) in [("ph", "crescent"), ("ps", "sun"), ("pf", "blossom")] {
-            styles[name] = Node.art("art/game-face-\(file).webp", x: (side - art) / 2, y: (side - art) / 2, w: art, h: art).json
+            styles[name] = Node.image("art/game-face-\(file).webp", dark: file == "crescent" ? "art/game-face-crescent-night.webp" : nil).at((side - art) / 2, (side - art) / 2).size(art, art).json
         }
         styles["pd"] = Node.ellipse(fill: Paint.ink).at((side - dot) / 2, (side - dot) / 2).size(dot, dot).opacity(0.5).json
         // Pencil notes, each number in its own place, three to a row: readable at 9 × 9's size, never crowding 6 × 6's.
@@ -395,22 +395,22 @@ struct PuzzleSkin {
         }
     }
 
-    /// Behind the cells. Seesaw's stays a lit parchment at night: its crescent is navy clay, which a dark cell would swallow.
+    /// Behind the cells.
     var cell: Color {
         switch kind {
         case .plots: Paint.card
-        case .seesaw: Paint.both("#FFF9F0", "#E4DBCB")
+        case .seesaw: Paint.both("#FFF9F0", "#1E2744")
         case .sudoku: Paint.both("#FFF9F0", "#1E2744")
         case .blossoms: Paint.card
         }
     }
 
     /// A mark that came with the puzzle stands on a slightly deeper cell, where the only sign of it would otherwise be that it doesn't answer.
-    var givenCell: Color { kind == .seesaw ? Paint.both("#F6EADA", "#D3C9B6") : cell }
+    var givenCell: Color { kind == .seesaw ? Paint.both("#F6EADA", "#2C3660") : cell }
     var thin: Color {
         switch kind {
         case .plots: Paint.both("#DDBC96", "#47517C")
-        case .seesaw: Paint.both("#2B336899", "#2B336899")
+        case .seesaw: Paint.both("#2B336899", "#59659F")
         case .sudoku: Paint.both("#E6D8C6", "#3B4468")
         case .blossoms: Paint.both("#14275A22", "#FFFFFF22")
         }
