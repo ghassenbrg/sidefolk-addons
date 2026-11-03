@@ -1,11 +1,11 @@
 {
   "name": "Valute",
-  "tagline": "Denaro in 30 valute ai tassi di oggi",
-  "description": "Converte denaro tra l’euro e 30 valute principali con i tassi di riferimento giornalieri della Banca centrale europea, e ti avvisa quando un tasso supera una soglia. Nulla su di te viene inviato.",
+  "tagline": "Denaro in circa 160 valute al cambio di oggi",
+  "description": "Converte denaro tra circa 160 valute, con i tassi di riferimento giornalieri della Banca centrale europea per 30 di esse e la tabella giornaliera di Exchange Rate API per le altre, e ti avvisa quando un tasso supera una soglia. Non viene inviato nulla su di te.",
   "tools": {
     "convert_currency": {
       "title": "Converti denaro",
-      "summary": "Converti {amount} {from} in {to} con i tassi della Banca centrale europea"
+      "summary": "Converti {amount} {from} in {to} al cambio di oggi"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "Tassi giornalieri del {day}, non quelli ufficiali della BCE.",
     "ECB reference rates of {day}.": "Tassi di riferimento della BCE del {day}.",
     "ECB, {day}": "BCE, {day}",
+    "Exchange Rate API, {day}": "Exchange Rate API, {day}",
     "Give “above” or “below”: the rate to watch for.": "Indica «above» o «below»: il tasso da tenere d’occhio.",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "La BCE non pubblica un tasso per «{currency}». Copre EUR e {codes}.",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "Non ho un tasso per «{currency}». Usa un codice di tre lettere come USD o TND.",
     "The ECB's rates file had no date.": "Il file dei tassi della BCE non aveva una data.",
     "The ECB's rates file had no rates.": "Il file dei tassi della BCE non aveva tassi.",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "La fonte estesa dei tassi non si aggiorna da giorni, quindi non la cito.",
+    "The wider rates source sent something I couldn't read.": "La fonte estesa dei tassi ha inviato qualcosa che non sono riuscito a leggere.",
     "{rate}, above {line}.": "{rate}, sopra {line}.",
     "{rate}, below {line}.": "{rate}, sotto {line}.",
     "“{key}” must be a number.": "«{key}» deve essere un numero."

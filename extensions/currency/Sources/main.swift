@@ -1,11 +1,11 @@
 import SidefolkExtensionKit
 
-// Currency, an extension that ships with Sidefolk: the internet (one public file from the ECB), nothing else.
+// Currency, an extension that ships with Sidefolk: the internet (two public files, the ECB's and a wider daily one), nothing else.
 let ext = Extension(name: "currency")
 
 ext.tool("convert_currency", "Convert money",
-         "Converts an amount between currencies with the European Central Bank's reference rates (EUR and 30 major currencies "
-         + "such as USD, JPY, GBP, CNY, CHF, INR, BRL, CAD, AUD), published each working day.",
+         "Converts an amount between currencies: the European Central Bank's reference rates for EUR and 30 major currencies, "
+         + "published each working day, and a daily public table for about 160 others such as TND, AED, SAR, EGP, NGN and VND. The answer says which and of what day: keep that line, with its link, when you pass a rate on.",
          input: Schema.object([
              "amount": Schema.number("How much (1 for the rate itself)."),
              "from": Schema.string("The currency it is in: a code like USD or a name like yen.", maxLength: 30),

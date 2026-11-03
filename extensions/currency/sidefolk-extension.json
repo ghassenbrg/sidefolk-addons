@@ -3,8 +3,8 @@
   "name": "Currency",
   "version": "1.0.0",
   "sidefolk": ">=0.1",
-  "description": "Converts money between the euro and 30 major currencies with the European Central Bank's daily reference rates, and tells you when a rate crosses a line. Nothing about you is sent.",
-  "tagline": "Money in 30 currencies at today's rates",
+  "description": "Converts money between about 160 currencies, with the European Central Bank's daily reference rates for 30 of them and Exchange Rate API's daily table for the rest, and tells you when a rate crosses a line. Nothing about you is sent.",
+  "tagline": "Money in about 160 currencies at today's rates",
   "folk": "seed",
   "author": "Sidefolk",
   "icon": "icon.pdf",
@@ -15,10 +15,10 @@
     "network": true
   },
   "examples": ["how much is 50 dollars in euros?"],
-  "services": [{ "name": "ecb.europa.eu", "hosts": ["www.ecb.europa.eu"] }],
+  "services": [{ "name": "ecb.europa.eu", "hosts": ["www.ecb.europa.eu"] }, { "name": "open.er-api.com", "hosts": ["open.er-api.com"] }],
   "tools": {
     "convert_currency": {
-      "summary": "Convert {amount} {from} to {to} with the European Central Bank's rates",
+      "summary": "Convert {amount} {from} to {to} at today's rates",
       "title": "Convert money",
       "risk": "low",
       "category": "web",
@@ -92,7 +92,18 @@
       "reais", "canadian dollar", "canadian dollars", "australian dollar", "australian dollars", "new zealand dollar",
       "hong kong dollar", "singapore dollar", "peso", "pesos", "mexican peso", "rand", "lira", "zloty", "krona",
       "kronor", "krone", "kroner", "danish krone", "forint", "koruna", "leu", "lev", "shekel", "shekels", "baht",
-      "ringgit", "rupiah", "philippine peso", "krona iceland"
+      "ringgit", "rupiah", "philippine peso", "krona iceland",
+      "aed", "afn", "amd", "ang", "aoa", "ars", "awg", "azn", "bbd", "bdt", "bhd", "bif", "bmd", "bnd", "bsd", "btn",
+      "bwp", "byn", "bzd", "cdf", "clf", "clp", "cnh", "crc", "cve", "djf", "dop", "dzd", "egp", "ern", "etb", "fjd",
+      "fkp", "ggp", "ghs", "gip", "gmd", "gnf", "gtq", "gyd", "hnl", "hrk", "htg", "iqd", "irr", "jep", "jmd", "jod",
+      "kes", "kgs", "khr", "kmf", "kwd", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "lyd", "mdl", "mga", "mkd",
+      "mmk", "mnt", "mru", "mur", "mvr", "mwk", "mzn", "nad", "ngn", "nio", "npr", "omr", "pab", "pgk", "pkr", "pyg",
+      "qar", "rsd", "rwf", "sar", "sbd", "scr", "sdg", "shp", "sle", "sll", "srd", "ssp", "stn", "syp", "szl", "tjs",
+      "tmt", "tnd", "ttd", "tvd", "twd", "tzs", "uah", "ugx", "uyu", "uzs", "ves", "vnd", "vuv", "wst", "xaf", "xcd",
+      "xcg", "xdr", "xof", "xpf", "yer", "zmw", "zwg", "zwl", "tunisian dinar", "tunisian dinars", "moroccan dirham",
+      "algerian dinar", "egyptian pound", "emirati dirham", "saudi riyal", "qatari riyal", "kuwaiti dinar", "naira",
+      "cedi", "ruble", "rouble", "hryvnia", "dong", "taka", "pakistani rupee", "argentine peso", "chilean peso",
+      "colombian peso", "new taiwan dollar"
     ]
   }
 }

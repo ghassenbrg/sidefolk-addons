@@ -1,11 +1,11 @@
 {
   "name": "Devises",
-  "tagline": "Montants en 30 devises au taux du jour",
-  "description": "Convertit de l’argent entre l’euro et 30 grandes devises aux taux de référence quotidiens de la Banque centrale européenne, et vous prévient quand un taux franchit un seuil. Rien sur vous n’est envoyé.",
+  "tagline": "Montants en environ 160 devises au taux du jour",
+  "description": "Convertit de l’argent entre environ 160 devises, avec les taux de référence quotidiens de la Banque centrale européenne pour 30 d’entre elles et la table quotidienne d’Exchange Rate API pour les autres, et vous prévient quand un taux franchit un seuil. Rien sur vous n’est envoyé.",
   "tools": {
     "convert_currency": {
       "title": "Convertir de l’argent",
-      "summary": "Convertir {amount} {from} en {to} aux taux de la Banque centrale européenne"
+      "summary": "Convertir {amount} {from} en {to} au taux du jour"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "Taux quotidiens du {day}, pas les taux officiels de la BCE.",
     "ECB reference rates of {day}.": "Taux de référence de la BCE du {day}.",
     "ECB, {day}": "BCE, {day}",
+    "Exchange Rate API, {day}": "Exchange Rate API, {day}",
     "Give “above” or “below”: the rate to watch for.": "Indiquez « above » ou « below » : le taux à surveiller.",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "La BCE ne publie pas de taux pour « {currency} ». Elle couvre EUR et {codes}.",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "Je n’ai pas de taux pour « {currency} ». Utilisez un code à trois lettres comme USD ou TND.",
     "The ECB's rates file had no date.": "Le fichier des taux de la BCE n’avait pas de date.",
     "The ECB's rates file had no rates.": "Le fichier des taux de la BCE n’avait aucun taux.",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "La source de taux élargie n’a pas été mise à jour depuis plusieurs jours : je ne la cite donc pas.",
+    "The wider rates source sent something I couldn't read.": "La source de taux élargie a envoyé quelque chose que je n’ai pas pu lire.",
     "{rate}, above {line}.": "{rate}, au-dessus de {line}.",
     "{rate}, below {line}.": "{rate}, en dessous de {line}.",
     "“{key}” must be a number.": "« {key} » doit être un nombre."

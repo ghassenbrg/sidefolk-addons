@@ -1,11 +1,11 @@
 {
   "name": "العملات",
-  "tagline": "المبالغ بـ30 عملة بأسعار صرف اليوم",
-  "description": "يحوّل المبالغ بين اليورو و30 عملة رئيسية بأسعار الصرف المرجعية اليومية للبنك المركزي الأوروبي، ويخبرك حين يتجاوز سعر حدًّا تختاره. لا يُرسل شيء عنك.",
+  "tagline": "المال بنحو 160 عملة بسعر اليوم",
+  "description": "يحوّل المال بين نحو 160 عملة، بأسعار البنك المركزي الأوروبي المرجعية اليومية لثلاثين منها وجدول Exchange Rate API اليومي للباقي، ويخبرك عندما يتجاوز سعرٌ حدًّا معيّنًا. لا يُرسل شيء عنك.",
   "tools": {
     "convert_currency": {
       "title": "تحويل العملات",
-      "summary": "تحويل {amount} {from} إلى {to} بأسعار البنك المركزي الأوروبي"
+      "summary": "تحويل {amount} {from} إلى {to} بسعر اليوم"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "أسعار يومية بتاريخ {day}، وليست أسعار البنك المركزي الأوروبي الرسمية.",
     "ECB reference rates of {day}.": "أسعار البنك المركزي الأوروبي المرجعية في {day}.",
     "ECB, {day}": "البنك المركزي الأوروبي، {day}",
+    "Exchange Rate API, {day}": "Exchange Rate API، {day}",
     "Give “above” or “below”: the rate to watch for.": "حدّد «above» أو «below»: السعر الذي تراقبه.",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "لا ينشر البنك المركزي الأوروبي سعرًا لـ«{currency}». يغطي EUR و{codes}.",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "ليس لدي سعر لـ«{currency}». استخدم رمزًا من ثلاثة أحرف مثل USD أو TND.",
     "The ECB's rates file had no date.": "لم يتضمن ملف أسعار البنك المركزي الأوروبي تاريخًا.",
     "The ECB's rates file had no rates.": "لم يتضمن ملف أسعار البنك المركزي الأوروبي أسعارًا.",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "لم يُحدَّث مصدر الأسعار الموسّع منذ أيام، لذا لن أعتمد عليه.",
+    "The wider rates source sent something I couldn't read.": "أرسل مصدر الأسعار الموسّع شيئًا لم أستطع قراءته.",
     "{rate}, above {line}.": "{rate}، فوق {line}.",
     "{rate}, below {line}.": "{rate}، تحت {line}.",
     "“{key}” must be a number.": "يجب أن يكون «{key}» رقمًا."

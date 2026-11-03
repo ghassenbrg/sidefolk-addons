@@ -1,11 +1,11 @@
 {
   "name": "Moedas",
-  "tagline": "Dinheiro em 30 moedas às taxas de hoje",
-  "description": "Converte dinheiro entre o euro e 30 moedas principais com as taxas de referência diárias do Banco Central Europeu e avisa quando uma taxa passa de um limite. Nada sobre você é enviado.",
+  "tagline": "Dinheiro em cerca de 160 moedas à cotação de hoje",
+  "description": "Converte dinheiro entre cerca de 160 moedas, com as taxas de referência diárias do Banco Central Europeu para 30 delas e a tabela diária da Exchange Rate API para as demais, e avisa quando uma taxa cruza um limite. Nada sobre você é enviado.",
   "tools": {
     "convert_currency": {
       "title": "Converter dinheiro",
-      "summary": "Converter {amount} {from} para {to} com as taxas do Banco Central Europeu"
+      "summary": "Converter {amount} {from} para {to} à cotação de hoje"
     }
   },
   "watchers": {
@@ -15,12 +15,16 @@
     }
   },
   "text": {
+    "Daily rates of {day}, not the ECB's official ones.": "Taxas diárias de {day}, não as oficiais do BCE.",
     "ECB reference rates of {day}.": "Taxas de referência do BCE de {day}.",
     "ECB, {day}": "BCE, {day}",
+    "Exchange Rate API, {day}": "Exchange Rate API, {day}",
     "Give “above” or “below”: the rate to watch for.": "Informe “above” ou “below”: a taxa a vigiar.",
-    "The ECB doesn't publish a rate for “{currency}”. It covers EUR and {codes}.": "O BCE não publica taxa para “{currency}”. Ele cobre EUR e {codes}.",
+    "I don't have a rate for “{currency}”. Use a three-letter code like USD or TND.": "Não tenho uma taxa para “{currency}”. Use um código de três letras como USD ou TND.",
     "The ECB's rates file had no date.": "O arquivo de taxas do BCE não tinha data.",
     "The ECB's rates file had no rates.": "O arquivo de taxas do BCE não tinha taxas.",
+    "The wider rates source hasn't updated for days, so I won't quote it.": "A fonte ampliada de taxas não é atualizada há dias, então não vou citá-la.",
+    "The wider rates source sent something I couldn't read.": "A fonte ampliada de taxas enviou algo que não consegui ler.",
     "{rate}, above {line}.": "{rate}, acima de {line}.",
     "{rate}, below {line}.": "{rate}, abaixo de {line}.",
     "“{key}” must be a number.": "“{key}” deve ser um número."
