@@ -16,14 +16,21 @@ enum OverviewPage {
         return out
     }
 
-    private static let acts: [String: PageAct] = [
-        "dial": .go(Go(set: ["tab": "prayer"])),
-        "calendar": .go(Go(set: ["tab": "calendar"])),
-        "qibla": .go(Go(set: ["tab": "qibla"])),
-        "names": .go(Go(set: ["tab": "names"])),
-        "ramadan": .go(Go(set: ["sheet": "ramadan"], push: true)),
-        "reminders": .go(Go(set: ["sheet": "prefs", "section": "reminders"], push: true)),
-    ]
+    private static func acts(_ ctx: Context) -> [String: PageAct] {
+        var calendar: [String: Any] = ["tab": "calendar", "month": NSNull(), "sel": NSNull()]
+        if let coming = nextMonth(ctx) {
+            calendar["month"] = "h:\(coming.year):\(coming.month)"
+            if let first = coming.first { calendar["sel"] = first.gregorian.iso }
+        }
+        return [
+            "dial": .go(Go(set: ["tab": "prayer"])),
+            "calendar": .go(Go(set: calendar)),
+            "qibla": .go(Go(set: ["tab": "qibla"])),
+            "names": .go(Go(set: ["tab": "names"])),
+            "ramadan": .go(Go(set: ["sheet": "ramadan"], push: true)),
+            "reminders": .go(Go(set: ["sheet": "prefs", "section": "reminders"], push: true)),
+        ]
+    }
 
     /// Places in the board's own numbers (P01 and R01), from the top left of the page below the tabs.
     private static func wide(_ ctx: Context) -> Block {
@@ -42,14 +49,14 @@ enum OverviewPage {
             nameCard(ctx, name, w: full * 0.665, h: rowH, r: r).at(margin - r.u(10), rowY)
             ramadanCard(ctx, w: full * 0.325, h: rowH, r: r).at(margin + full * 0.675, rowY)
         }
-        return .scene(PageSceneBlock(scene, actions: nameActions(name, ctx), acts: acts))
+        return .scene(PageSceneBlock(scene, actions: nameActions(name, ctx), acts: acts(ctx)))
     }
 
     private static func narrow(_ ctx: Context) -> Block {
         let w = ctx.width, r = Ruler(width: 760)
         let margin = 16.0, inner = w - margin * 2, gap = 12.0
         let name = ctx.snapshot.name
-        let heights = [inner * 0.84 + 30, 196, 196, 120, 132, 104]
+        let heights = [inner * 0.84 + 30, 196, 196, 120, 88, 104]
         var y = 0.0
         var at: [Double] = []
         for h in heights { at.append(y); y += h + gap }
@@ -61,7 +68,7 @@ enum OverviewPage {
             nameCard(ctx, name, w: inner, h: heights[4], r: r).at(margin, at[4])
             ramadanCard(ctx, w: inner, h: heights[5], r: r).at(margin, at[5])
         }
-        return .scene(PageSceneBlock(scene, actions: nameActions(name, ctx), acts: acts))
+        return .scene(PageSceneBlock(scene, actions: nameActions(name, ctx), acts: acts(ctx)))
     }
 
     private static func nameActions(_ name: NameEntry?, _ ctx: Context) -> [String: (tool: String, input: [String: Any])] {
@@ -106,6 +113,8 @@ enum OverviewPage {
         let method = Words.calendarMethodName(s.calendarMethod)
         let inX = r.u(18), inY = r.u(68), inW = w - inX * 2, inH = r.u(136)
         let chipW = min(w * 0.42, r.u(192))
+        // The flourish keeps the top of the far corner; the words stop short of it, whichever side a language puts it on.
+        let flourish = inH, wordsW = inW - r.u(152) - flourish * 0.52
         return Node.group {
             Node.panel(w, h, corner: r.u(18))
             Node.say(L("Today"), r.u(20), r.u(14), w * 0.4, r.u(38), size: r.f(28, min: 17), weight: "semibold")
@@ -116,20 +125,21 @@ enum OverviewPage {
             .size(chipW, r.u(34)).at(w - chipW - r.u(20), r.u(18))
             Node.group {
                 Node.rect(fill: Noor.quiet, stroke: Noor.hairline, lineWidth: 1, corner: r.u(16)).size(inW, inH)
-                Node.flourish(inW, inH, side: inH * 1.3, corner: r.u(16))
+                Node.flourish(inW, inH, side: flourish, corner: r.u(16))
                 if let hijri = s.calendar?.hijri, let date = s.localDate {
                     Node.say("\(hijri.day)", r.u(14), 0, r.u(124), inH, size: r.f(84, min: 44), weight: "bold", align: "center", tabular: true)
-                    Node.say("\(Words.hijriMonth(hijri)) \(hijri.year)", r.u(152), inH * 0.20, inW - r.u(210), r.u(46), size: r.f(33, min: 18), weight: "medium", color: Noor.accent)
-                    Node.say(Words.date(date), r.u(152), inH * 0.56, inW - r.u(210), r.u(32), size: r.f(21, min: 12.5), color: Noor.muted)
+                    Node.say("\(Words.hijriMonth(hijri)) \(hijri.year)", r.u(152), inH * 0.20, wordsW, r.u(46), size: r.f(33, min: 18), weight: "medium", color: Noor.accent)
+                    Node.say(Words.date(date), r.u(152), inH * 0.56, inW - r.u(170), r.u(32), size: r.f(21, min: 12.5), color: Noor.muted)
                 } else {
                     Node.say(s.localDate.map { Words.date($0) } ?? "", r.u(20), 0, inW - r.u(80), inH, size: r.f(20), color: Noor.muted)
                 }
             }
             .size(inW, inH).at(inX, inY)
             Node.symbol("calendar", color: Noor.text).size(r.f(28, min: 18), r.f(28, min: 18)).at(r.u(26), h - r.u(62))
-            if let coming = nextOccasion(ctx) {
-                Node.say(coming.0, r.u(76), h - r.u(76), w - r.u(290), r.u(28), size: r.f(16.5))
-                Node.say(coming.1, r.u(76), h - r.u(48), w - r.u(290), r.u(28), size: r.f(14), color: Noor.muted)
+            if let coming = nextMonth(ctx) {
+                let name = coming.first.map { Words.hijriMonth($0.hijri) }
+                Node.say(name.map { L("Next month · {month}", ["month": $0]) } ?? L("Next month"), r.u(76), h - r.u(76), w - r.u(290), r.u(28), size: r.f(16.5))
+                Node.say(name == nil ? L("Not here yet. Opening Calendar asks for it.") : L("Preview using your calendar method"), r.u(76), h - r.u(48), w - r.u(290), r.u(28), size: r.f(14), color: Noor.muted)
             } else {
                 Node.say(L("Paired dates follow the calendar method"), r.u(76), h - r.u(76), w - r.u(290), r.u(56), size: r.f(15.5), color: Noor.muted, lines: 2)
             }
@@ -138,32 +148,36 @@ enum OverviewPage {
         .size(w, h)
     }
 
-    /// The next listed occasion, with its method: calculated, and local observance may differ.
-    private static func nextOccasion(_ ctx: Context) -> (String, String)? {
-        guard let today = ctx.snapshot.localDate, ctx.model.prefs.showOccasions else { return nil }
-        let coming = ctx.model.occasions.values.flatMap { $0 }.filter { $0.gregorian >= today && $0.method == ctx.model.prefs.calendarMethod }.min { $0.gregorian < $1.gregorian }
-        return coming.map { ("\(Words.date($0.gregorian, weekday: false, year: false)) · \($0.title)", L("Listed by {method}; local observance may differ.", ["method": Words.calendarMethodName($0.method)])) }
+    /// The Hijri month after today's, and its first day if the calendar has come as far as it. The two Gregorian months always loaded nearly always hold it; a month opened in Calendar counts too.
+    private static func nextMonth(_ ctx: Context) -> (year: Int, month: Int, first: CalendarDay?)? {
+        guard let hijri = ctx.snapshot.calendar?.hijri else { return nil }
+        let (year, month) = NoorModel.monthAfter(hijri.year, hijri.month)
+        let method = ctx.model.prefs.calendarMethod
+        let days = ctx.model.calendar.values.filter { $0.method == method }.flatMap(\.days).filter { $0.hijri.year == year && $0.hijri.month == month }
+        return (year, month, days.min { $0.gregorian < $1.gregorian })
     }
 
     static func qibla(_ ctx: Context, w: Double, h: Double, r: Ruler) -> Node {
         let s = ctx.snapshot
-        let side = min(h - r.u(20), w * 0.40)
-        let textX = side + r.u(70)
+        let side = min(h - r.u(56), w * 0.37), compassX = r.u(34)
+        let textX = compassX + side + r.u(28)
+        // The lattice runs down the far edge from under where the place is named, and the words stop before it.
+        let curve = r.u(52), strip = r.u(30), edgeY = r.u(58), textW = w - curve - strip - textX - r.u(6)
         return Node.group {
             Node.panel(w, h, corner: r.u(18))
-            // The lattice comes in from the right, under where the place is named.
-            Node.group { Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(h * 0.62, h * 0.62).at(w - h * 0.62, h * 0.40) }.size(w, h).corner(r.u(18)).clip().opacity(0.9)
+            Node.group { Node.latticeEdge(h: h - edgeY, strip: strip, curve: curve, drop: r.u(70)).at(w - curve - strip, edgeY) }.size(w, h).corner(r.u(18)).clip()
             Node.say(L("Qibla"), r.u(20), r.u(14), w * 0.4, r.u(38), size: r.f(28, min: 17), weight: "semibold")
             Node.group {
-                Node.symbol("mappin.and.ellipse", color: Noor.text).size(r.f(20, min: 14), r.f(20, min: 14)).at(0, (r.u(30) - r.f(20, min: 14)) / 2)
+                Node.pin(size: r.f(20, min: 14)).at(0, (r.u(30) - r.f(20, min: 14)) / 2)
                 Node.say(L("From {place}", ["place": s.place?.label ?? ""]), r.u(30), 0, w * 0.32, r.u(30), size: r.f(16.5, min: 12))
             }
             .size(w * 0.38, r.u(30)).at(w * 0.70, r.u(18))
             if let bearing = s.qibla {
-                CompassScene.small(bearing.degrees, side: side).at(r.u(36), (h - side) / 2 + r.u(4))
-                Node.say(L("Qibla · {degrees}°", ["degrees": "\(bearing.rounded)"]), textX, h * 0.30, w - textX - r.u(14), r.u(46), size: r.f(33, min: 18), weight: "medium", color: Noor.warm)
-                Node.say(L("Clockwise from true north"), textX, h * 0.30 + r.u(44), w - textX - r.u(14), r.u(28), size: r.f(18, min: 12), color: Noor.muted)
-                Node.pill("qibla", label: L("Open direction"), x: textX, y: h * 0.30 + r.u(90), w: min(r.u(196), w - textX - r.u(14)), h: r.u(46), symbol: "chevron.forward", size: r.f(16))
+                CompassScene.small(bearing.degrees, side: side).at(compassX, (h - side) / 2 + r.u(4))
+                // The degree sign goes in with its number, or in Arabic it lands on the number's far side.
+                Node.say(L("Qibla · {degrees}°", ["degrees": "\(bearing.rounded)"]).replacingOccurrences(of: "\u{2069}°", with: "°\u{2069}"), textX, h * 0.30, textW, r.u(46), size: r.f(33, min: 18), weight: "medium", color: Noor.warm)
+                Node.text(L("Clockwise from true north"), size: r.f(18, min: 12), color: Noor.muted, align: "leading", valign: "top", lines: 2).size(textW, r.u(46)).at(textX, h * 0.30 + r.u(46))
+                Node.pill("qibla", label: L("Open direction"), x: textX, y: h * 0.30 + r.u(94), w: min(r.u(196), textW), h: r.u(46), symbol: "chevron.forward", size: r.f(16))
             } else {
                 Node.say(ctx.model.load == .loading ? L("Finding the bearing…") : L("No saved bearing for this place."), r.u(20), h * 0.4, w - r.u(40), r.u(30), size: r.f(16), color: Noor.muted, align: "center")
             }
@@ -178,6 +192,7 @@ enum OverviewPage {
         let first = r.u(140), step = min(r.u(203), (w - r.u(180)) / 3)
         let arcY = r.u(62), lift = r.u(24)
         let last = first + step * Double(max(0, items.count - 1))
+        let wordsW = max(r.u(112), 88.0)
         let arc = "M \(n(first - r.u(58))) \(n(arcY + lift * 0.9)) C \(n(first + step * 0.4)) \(n(arcY - lift)) \(n(last - step * 0.4)) \(n(arcY - lift)) \(n(last + r.u(20))) \(n(arcY + lift * 0.3))"
         return Node.group {
             Node.panel(w, h, corner: r.u(16))
@@ -191,10 +206,11 @@ enum OverviewPage {
             Node.say(L("Tonight"), r.u(22), r.u(10), r.u(200), r.u(32), size: r.f(20, min: 14), weight: "semibold")
             Node.group {
                 Node.symbol("bell", color: Noor.text).size(r.f(18, min: 13), r.f(18, min: 13)).at(0, (r.u(30) - r.f(18, min: 13)) / 2)
-                Node.say(L("Set a reminder"), r.u(30), 0, r.u(128), r.u(30), size: r.f(14.5))
-                Node.symbol("chevron.forward", color: Noor.text).size(r.u(8), r.u(13)).at(r.u(150), r.u(9))
+                // The words never shrink past reading, in a small ruler: the chevron goes after whatever room they took.
+                Node.say(L("Set a reminder"), r.u(30), 0, wordsW, r.u(30), size: r.f(14.5))
+                Node.symbol("chevron.forward", color: Noor.text).size(r.u(8), r.u(13)).at(r.u(30) + wordsW + 6, r.u(9))
             }
-            .size(r.u(165), r.u(30)).at(r.u(490), r.u(10))
+            .size(r.u(46) + wordsW, r.u(30)).at(r.u(490), r.u(10))
             .area("reminders", label: L("Set a reminder"))
             Node.path(arc, stroke: .adaptive(light: "#7A5AB8", dark: "#D6C6F2"), lineWidth: 1.2, dash: [1.5, 5]).size(w, h).at(0, 0)
             for (i, event) in items.enumerated() {

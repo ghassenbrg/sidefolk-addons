@@ -534,7 +534,7 @@ enum SettingsBoard {
             s.acts["r\(i)"] = .go(Go(set: ["place_pick": place.id]))
             s.add(Node.group {
                 Node.rect(fill: on ? Noor.picked : Noor.quiet, stroke: on ? Noor.pickedEdge : Noor.hairline, lineWidth: 1, corner: r.u(10)).size(inner, rowH - r.u(5))
-                Node.symbol("mappin", color: on ? Noor.onChosen : Noor.muted).size(r.f(14), r.f(18)).at(r.u(14), (rowH - r.u(5) - r.f(18)) / 2)
+                Node.icon(Node.Glyph.pin, color: on ? Noor.onChosen : Noor.muted, side: r.f(18)).at(r.u(14), (rowH - r.u(5) - r.f(18)) / 2)
                 Node.say(PlaceParts.title(place), r.u(40), 0, inner - r.u(240), rowH - r.u(5), size: r.f(15, min: 12.5), color: on ? Noor.onChosen : Noor.text)
                 Node.say(place.zoneID, inner - r.u(190), 0, r.u(176), rowH - r.u(5), size: r.f(13, min: 11), color: on ? Noor.onChosen : Noor.muted, align: "trailing")
             }

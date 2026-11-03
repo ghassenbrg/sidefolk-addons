@@ -54,7 +54,7 @@ enum SetupPage {
 
     private static func welcomePanel(_ ctx: Context, w: Double, h: Double, r: Ruler, wiring: inout SceneWiring) -> Node {
         let items: [(String, String, String, Double)] = [
-            ("building.columns", L("Prayer"), L("Times for your place, or your mosque's own timetable."), 400),
+            (Node.Glyph.arch, L("Prayer"), L("Times for your place, or your mosque's own timetable."), 400),
             ("calendar", L("Calendar"), L("Hijri and Gregorian dates, with the method always named."), 476),
             ("safari", L("Qibla"), L("The bearing from your place, clockwise from true north."), 550),
             ("book", L("Names"), L("The 99 Names, with their supplied English meanings."), 626),
@@ -147,7 +147,7 @@ enum SetupPage {
 
     private static func segment(_ ctx: Context, shared: Bool, x: Double, y: Double, half: Double, h: Double, r: Ruler) -> [Node] {
         let parts: [(String, String, String, Bool)] = [
-            ("mode-choose", "mappin.and.ellipse", L("A place I choose"), !shared),
+            ("mode-choose", Node.Glyph.pin, L("A place I choose"), !shared),
             ("mode-shared", "location", L("Use Sidefolk's place"), shared),
         ]
         let size = r.f(16.5, min: 11.5), glyph = r.f(20, min: 13)
@@ -182,7 +182,7 @@ enum SetupPage {
             let problem = ctx.model.placeProblem
             let boxH = r.u(133)
             out.append(Node.rect(fill: Noor.quiet, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(12), dash: [3, 4]).size(w, boxH).at(x, y))
-            out.append(Node.medallion(problem == nil ? "mappin.circle.fill" : "magnifyingglass", cx: x + r.u(46), cy: y + boxH / 2, d: r.u(50), ink: problem == nil ? Noor.text : NoorLine.caution, ring: problem == nil ? NoorLine.soft : NoorLine.caution))
+            out.append(Node.medallion(problem == nil ? Node.Glyph.pin : "magnifyingglass", cx: x + r.u(46), cy: y + boxH / 2, d: r.u(50), ink: problem == nil ? Noor.text : NoorLine.caution, ring: problem == nil ? NoorLine.soft : NoorLine.caution))
             let title = problem == nil ? L("No place chosen yet") : L("Nothing to choose from")
             out.append(Node.say(title, x + r.u(86), y + boxH / 2 - r.u(38), w - r.u(104), r.u(28), size: r.f(17, min: 12.5), weight: "medium"))
             out.append(Node.say(problem ?? L("Type a city and press Return. Your words go to Sidefolk's place search and nothing else does."), x + r.u(86), y + boxH / 2 - r.u(10), w - r.u(104), r.u(50), size: r.f(14.5, min: 11), color: Noor.muted, lines: 2))
@@ -273,7 +273,7 @@ enum SetupPage {
             wiring.inlays.append(PageInlay(x: ox + cx + r.u(10), y: oy + cy + r.u(22), w: cellW - r.u(16), h: wellH,
                                            .draftField(field.0, placeholder: field.1, button: L("Clear"), key: field.2, value: field.3.isEmpty ? nil : field.3, live: true)))
         }
-        out.append(Node.pill("use-coordinates", label: L("Use these coordinates"), x: x + pad, y: y + r.u(136), w: w - pad * 2, h: r.u(40), symbol: "mappin", disabled: !ready, size: r.f(15, min: 11.5)))
+        out.append(Node.pill("use-coordinates", label: L("Use these coordinates"), x: x + pad, y: y + r.u(136), w: w - pad * 2, h: r.u(40), symbol: Node.Glyph.pin, disabled: !ready, size: r.f(15, min: 11.5)))
         return out
     }
 
@@ -344,7 +344,7 @@ enum PlaceParts {
         var blocks: [Block] = [.field(L("Search for a city or place"), detail: L("Your words go to Sidefolk's place search and nothing else does."), placeholder: L("Search for a city or place"), button: L("Search"), tool: "search_places", key: "query")]
         if let problem = ctx.model.placeProblem { blocks.append(.note(problem, tone: .warn)) }
         if !ctx.model.placeResults.isEmpty {
-            blocks.append(.draftChoice(L("Results"), options: ctx.model.placeResults.prefix(10).map { Option($0.id, title($0), detail: $0.zoneID, symbol: "mappin") }, selected: picked ?? "", key: "place_pick", style: .rows))
+            blocks.append(.draftChoice(L("Results"), options: ctx.model.placeResults.prefix(10).map { Option($0.id, title($0), detail: $0.zoneID, symbol: "mappin.and.ellipse") }, selected: picked ?? "", key: "place_pick", style: .rows))
         }
         return blocks
     }
@@ -359,7 +359,7 @@ enum PlaceParts {
             .draftField(L("Latitude"), placeholder: "35.6762", button: L("Clear"), key: "c_lat", value: lat.isEmpty ? nil : lat),
             .draftField(L("Longitude"), placeholder: "139.6503", button: L("Clear"), key: "c_lon", value: lon.isEmpty ? nil : lon),
             .draftField(L("Time zone"), detail: L("A zone name, like Asia/Tokyo."), placeholder: "Asia/Tokyo", button: L("Clear"), key: "c_zone", value: zone.isEmpty ? nil : zone),
-            .action(Action(L("Use these coordinates"), tool: "choose_place", input: ["label": label, "latitude": number(lat) ?? 999, "longitude": number(lon) ?? 999, "zone": zone], symbol: "mappin", detail: ready ? nil : L("Fill in all four, with a real time zone."), disabled: !ready)),
+            .action(Action(L("Use these coordinates"), tool: "choose_place", input: ["label": label, "latitude": number(lat) ?? 999, "longitude": number(lon) ?? 999, "zone": zone], symbol: "mappin.and.ellipse", detail: ready ? nil : L("Fill in all four, with a real time zone."), disabled: !ready)),
         ]
     }
 

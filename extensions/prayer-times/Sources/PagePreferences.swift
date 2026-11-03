@@ -5,7 +5,7 @@ import SidefolkExtensionKit
 /// one board of four framed panels (F06), and `section` says which of them is meant; Sources is its own list.
 @MainActor
 enum PreferencesPage {
-    static let tabs: [(id: String, word: String, symbol: String)] = [("place", L("Place"), "mappin.and.ellipse"), ("sources", L("Sources"), "cylinder.split.1x2"), ("calculation", L("Calculation"), "square.grid.3x3.square"), ("calendar", L("Calendar"), "calendar"), ("reminders", L("Reminders"), "bell"), ("data", L("Data"), "square.and.arrow.down")]
+    static let tabs: [(id: String, word: String, symbol: String)] = [("place", L("Place"), Node.Glyph.pin), ("sources", L("Sources"), "cylinder.split.1x2"), ("calculation", L("Calculation"), "square.grid.3x3.square"), ("calendar", L("Calendar"), "calendar"), ("reminders", L("Reminders"), "bell"), ("data", L("Data"), "square.and.arrow.down")]
 
     static func sections(_ ctx: Context) -> [Section] {
         let section = ctx.state.string("section") ?? "place"
@@ -29,7 +29,7 @@ enum PreferencesPage {
                 let on = tab.0 == section
                 Node.group {
                     Node.rect(fill: on ? Noor.chosen : Noor.surface, stroke: on ? Noor.chosen : Noor.hairline, lineWidth: 1, corner: 10).size(cell, h)
-                    Node.symbol(tab.2, color: on ? Noor.onChosen : Noor.text).size(16, 16).at(12, 12)
+                    Node.icon(tab.2, color: on ? Noor.onChosen : Noor.text, side: 16).at(12, 12)
                     Node.say(tab.1, 34, 0, cell - 40, h, size: 13, weight: on ? "semibold" : "medium", color: on ? Noor.onChosen : Noor.text)
                 }
                 .size(cell, h).at(margin + Double(i % perRow) * (cell + 8), 12 + Double(i / perRow) * (h + 8))

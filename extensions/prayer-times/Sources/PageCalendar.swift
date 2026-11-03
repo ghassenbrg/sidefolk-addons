@@ -39,7 +39,7 @@ enum CalendarPage {
         var acts: [String: PageAct] = [
             "prev": .go(Go(set: ["month": neighbour(m, by: -1)])), "next": .go(Go(set: ["month": neighbour(m, by: 1)])),
             "today": .go(Go(set: ["month": NSNull(), "sel": NSNull()])),
-            "hijri": .go(Go(set: ["month": axisSwitch(m, to: "h", data: data)])), "gregorian": .go(Go(set: ["month": axisSwitch(m, to: "g", data: data)])),
+            "hijri": .go(Go(set: ["month": axisSwitch(m, to: "h", data: data, selected: selected)])), "gregorian": .go(Go(set: ["month": axisSwitch(m, to: "g", data: data, selected: selected)])),
             "convert": .go(Go(set: ["sheet": "convert"], push: true)),
             "occasions": .go(Go(set: ["sheet": "occasions"], push: true)),
             "ramadan": .go(Go(set: ["sheet": "ramadan"], push: true)),
@@ -83,10 +83,10 @@ enum CalendarPage {
         return "\(m.axis):\(moved.0):\(moved.1)"
     }
 
-    /// The other axis at the same place in time: its first shown day's month there.
-    private static func axisSwitch(_ m: (axis: String, year: Int, month: Int, data: CalendarMonth?), to axis: String, data: CalendarMonth) -> String {
-        guard axis != m.axis, let middle = data.days.dropFirst(data.days.count / 2).first else { return "\(m.axis):\(m.year):\(m.month)" }
-        return axis == "h" ? "h:\(middle.hijri.year):\(middle.hijri.month)" : "g:\(middle.gregorian.year):\(middle.gregorian.month)"
+    /// The other axis at the same place in time: the month there that holds the chosen day, or for a month it isn't in, this month's middle.
+    static func axisSwitch(_ m: (axis: String, year: Int, month: Int, data: CalendarMonth?), to axis: String, data: CalendarMonth, selected: CivilDate) -> String {
+        guard axis != m.axis, let day = data.days.first(where: { $0.gregorian == selected }) ?? data.days.dropFirst(data.days.count / 2).first else { return "\(m.axis):\(m.year):\(m.month)" }
+        return axis == "h" ? "h:\(day.hijri.year):\(day.hijri.month)" : "g:\(day.gregorian.year):\(day.gregorian.month)"
     }
 
     // MARK: The month, on its pearl card
@@ -626,7 +626,8 @@ enum CalendarPage {
         }
 
         func acts(_ acts: inout [String: PageAct]) {
-            for occasion in rows { acts["o-\(occasion.identity)"] = .go(Go(set: ["occ": occasion.identity, "occ_page": page])) }
+            // An area's id is short and plain, and some occasions' identities are neither: a row goes by its place, and what's stored stays the identity.
+            for (i, occasion) in rows.enumerated() { acts["o-\(i)"] = .go(Go(set: ["occ": occasion.identity, "occ_page": page])) }
             acts["occ-prev"] = .go(Go(set: ["occ_page": max(0, page - 1)]))
             acts["occ-next"] = .go(Go(set: ["occ_page": min(pages - 1, page + 1)]))
         }
@@ -673,7 +674,7 @@ enum CalendarPage {
             Node.say(L("Calendar method"), m.searchX + m.searchW + r.u(16), m.barY, m.dropX - m.searchX - m.searchW - r.u(24), m.barH, size: r.f(14.5, min: 11.5))
             methodPill(ctx, x: m.dropX, y: m.barY, w: m.dropW, h: m.barH, r: r)
             for (i, occasion) in list.rows.enumerated() {
-                occasionRow(occasion, open: occasion == list.open, w: m.rowW, h: m.rowH - r.u(3), toggleX: m.toggleX - m.rowX, r: r).at(m.rowX, m.rowY(i))
+                occasionRow(occasion, id: "o-\(i)", open: occasion == list.open, w: m.rowW, h: m.rowH - r.u(3), toggleX: m.toggleX - m.rowX, r: r).at(m.rowX, m.rowY(i))
             }
             if list.all.isEmpty {
                 Node.say(ctx.model.load == .loading ? L("Loading the occasions…") : (Words.problem(ctx.model.problem).isEmpty ? L("No occasions are listed for this year.") : Words.problem(ctx.model.problem)), m.rowX, m.rowY(1), m.rowW, r.u(62), size: r.f(16), color: Noor.muted, align: "center", lines: 2)
@@ -701,7 +702,7 @@ enum CalendarPage {
         .size(r.u(34), r.u(34)).at(x, y).opacity(disabled ? 0.4 : 1).area(id, label: spoken, disabled: disabled)
     }
 
-    private static func occasionRow(_ occasion: Occasion, open: Bool, w: Double, h: Double, toggleX: Double, r: Ruler) -> Node {
+    private static func occasionRow(_ occasion: Occasion, id: String, open: Bool, w: Double, h: Double, toggleX: Double, r: Ruler) -> Node {
         let glyph = r.u(36)
         return Node.group {
             if open {
@@ -720,7 +721,7 @@ enum CalendarPage {
             Node.symbol("chevron.forward", color: Noor.muted).size(r.u(8), r.u(13)).at(w - r.u(32), (h - r.u(13)) / 2)
         }
         .size(w, h)
-        .area("o-\(occasion.identity)", label: L("Open {occasion}, {date}", ["occasion": occasion.title, "date": Words.date(occasion.gregorian)]), hover: .init(scale: 1.0), selected: open)
+        .area(id, label: L("Open {occasion}, {date}", ["occasion": occasion.title, "date": Words.date(occasion.gregorian)]), hover: .init(scale: 1.0), selected: open)
     }
 
     /// The occasion that is open, on a plate like the conversion's: what it is, when, and whose word that is.

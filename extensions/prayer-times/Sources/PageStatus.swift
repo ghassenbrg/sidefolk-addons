@@ -149,10 +149,10 @@ extension NoorPage {
         case .ready, .offlineValid:
             return nil
         case .noPlace:
-            return statusPanel(ctx, StatusPart(symbol: "mappin.circle.fill", tint: Noor.text, title: L("Choose a place"), detail: L("Set your city to show prayer times, the calendar and Qibla direction."), search: true,
+            return statusPanel(ctx, StatusPart(symbol: Node.Glyph.pin, tint: Noor.text, title: L("Choose a place"), detail: L("Set your city to show prayer times, the calendar and Qibla direction."), search: true,
                                                buttons: [("shared", L("Use Sidefolk's place"), false, "location", .go(Go(set: ["setup": "place", "place_mode": "shared"], push: true)))]))
         case .noSource:
-            return statusPanel(ctx, StatusPart(symbol: "building.columns", tint: Noor.text, title: L("Choose your timetable"), detail: L("Calculated for your place, or your mosque's own. There is no one right method: pick what your community follows."),
+            return statusPanel(ctx, StatusPart(symbol: Node.Glyph.arch, tint: Noor.text, title: L("Choose your timetable"), detail: L("Calculated for your place, or your mosque's own. There is no one right method: pick what your community follows."),
                                                buttons: [("source", L("Choose your timetable"), true, "arrow.forward", .go(Go(set: ["setup": "source"], push: true)))]))
         case .loading:
             return statusPanel(ctx, StatusPart(rosette: true, title: L("Loading timetable"), detail: s.place.map { L("Fetching prayer times for {place}…", ["place": $0.label]) } ?? "", skeleton: true))

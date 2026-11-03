@@ -133,7 +133,7 @@ enum PrayerPage {
                 Node.say(L("Now"), r.u(33), r.u(36), r.u(150), r.u(24), size: r.f(16.5))
                 Node.say(ctx.t(s.now), r.u(33), r.u(56), r.u(160), r.u(40), size: r.f(31, min: 17), weight: "medium", tabular: true)
                 Node.say(shortDate(today), r.u(33), r.u(93), r.u(170), r.u(24), size: r.f(16.5))
-                Node.pill("place", label: place, spoken: L("Place: {place}. Open.", ["place": place]), x: r.u(31), y: r.u(122), w: pillW, h: r.u(36), symbol: "mappin", size: pillSize)
+                Node.pill("place", label: place, spoken: L("Place: {place}. Open.", ["place": place]), x: r.u(31), y: r.u(122), w: pillW, h: r.u(36), symbol: Node.Glyph.pin, size: pillSize)
             }
             .size(w, h).leftToRight()
             if let day {

@@ -272,7 +272,7 @@ enum RemindersSheet {
         let chipWords = [source?.name, Words.sourceKind(source)].compactMap { $0 }.reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }.joined(separator: " · ")
         s.add(Node.group {
             Node.rect(fill: Pearl.band, stroke: Pearl.edge, lineWidth: 1, corner: r.u(10)).size(chipW, chipH)
-            Node.symbol(source?.kind == .manual ? "building.columns.fill" : "function", color: Pearl.purple).size(r.f(18, min: 13), r.f(18, min: 13)).at(r.u(10), (chipH - r.f(18, min: 13)) / 2)
+            Node.icon(source?.kind == .manual ? Node.Glyph.arch : "function", color: Pearl.purple, side: r.f(18, min: 13)).at(r.u(10), (chipH - r.f(18, min: 13)) / 2)
             Node.say(chipWords, r.u(36), 0, chipW - r.u(58), chipH, size: r.f(12.5, min: 11), weight: "medium", color: Pearl.ink)
             Node.symbol("chevron.forward", color: Pearl.ink).size(r.u(7), r.u(12)).at(chipW - r.u(16), (chipH - r.u(12)) / 2)
         }
@@ -522,7 +522,7 @@ enum RemindersSheet {
             Node.rect(fill: Color.hex("#F5F0ED55")).size(w * 0.72, 1).at(w * 0.14, r.u(182) * k)
             if let times, times.start != nil {
                 row("clock", L("Starts"), times.start ?? "", y: r.u(204) * k, w: w, r: r, k: k, light: light)
-                if let iqamah = times.iqamah { row("building.columns", L("Iqamah"), iqamah, y: r.u(241) * k, w: w, r: r, k: k, light: light) }
+                if let iqamah = times.iqamah { row(Node.Glyph.arch, L("Iqamah"), iqamah, y: r.u(241) * k, w: w, r: r, k: k, light: light) }
             } else if let occurrence, let body = PlanWords.body(occurrence, model: ctx.model) {
                 Node.text(body, size: r.f(14, min: 12) * k, color: light, align: "center", valign: "top", lines: 4).size(w - r.u(70) * k, r.u(90) * k).at(r.u(35) * k, r.u(196) * k)
             }
@@ -533,7 +533,7 @@ enum RemindersSheet {
     private static func row(_ symbol: String, _ word: String, _ time: String, y: Double, w: Double, r: Ruler, k: Double, light: Color) -> Node {
         let glyph = r.f(22, min: 16) * k, h = r.u(32) * k
         return Node.group {
-            Node.symbol(symbol, color: light).size(glyph, glyph).at(r.u(49) * k, (h - glyph) / 2)
+            Node.icon(symbol, color: light, side: glyph).at(r.u(49) * k, (h - glyph) / 2)
             Node.say(word, r.u(86) * k, 0, r.u(120) * k, h, size: r.f(16, min: 13) * k, color: light)
             Node.say(time, w - r.u(180) * k, 0, r.u(130) * k, h, size: r.f(19, min: 14) * k, color: light, align: "trailing", tabular: true)
         }
