@@ -50,8 +50,8 @@ extension BoardDrawing {
         var body = Node.box(id + ".body", w: w, h: h) {
             Node.rect(fill: solid ? Paint.action : Paint.card, corner: 16).id(id + ".face").size(w, h).shadow(Paint.clear("#4A2E12", 0.16), radius: 4, dx: 0, dy: 2)
             Node.rect(stroke: pending ? Paint.action : solid ? Paint.action : Paint.edge, lineWidth: pending ? 3 : 1, corner: 16).id(id + ".edge").size(w, h)
-            Node.rect(fill: solid ? Paint.card : Paint.lilac, corner: 7).id(id + ".cap").at((w - whole) / 2, top).size(capW, 26)
-            Node.words(cap, size: 14, weight: "black", color: solid ? Paint.onCream : Paint.ink, align: "center", x: (w - whole) / 2, y: top, w: capW, h: 26)
+            Node.rect(fill: solid ? Paint.onAction : Paint.lilac, corner: 7).id(id + ".cap").at((w - whole) / 2, top).size(capW, 26)
+            Node.words(cap, size: 14, weight: "black", color: solid ? Paint.action : Paint.ink, align: "center", x: (w - whole) / 2, y: top, w: capW, h: 26)
             if let symbol { Node.symbol(symbol, color: ink).symbolLook(weight: "bold").at((w - whole) / 2 + capW + 8, top + 3).size(20, 20) }
             Node.words(tile.label, size: 17, weight: "heavy", color: ink, align: "center", minScale: 0.55, x: 8, y: top + 26 + 6, w: w - 16, h: 24).id(id + ".words")
         }.scale(pending ? 0.97 : 1)

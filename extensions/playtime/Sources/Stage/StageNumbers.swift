@@ -210,10 +210,9 @@ extension BoardDrawing {
         let inputH = 44.0, linkH = 26.0
         let padY = inputY + inputH - 12, padH = room - linkH - 2 - padY
         let last = board.counterPart
-        var nodes: [Node] = [
-            counter(last?.words ?? "??", caption: last?.caption, w: counterW).at(width - counterW + 10, -stageRoomAboveBoard + tail - 4),
-            rangePlate(n.label ?? " ", width: 300).at((width - 300) / 2, rangeY),
-        ]
+        // A number being hidden has no counter to show it on, and shows on nothing else but its field.
+        var nodes: [Node] = [rangePlate(n.label ?? " ", width: 300).at((width - 300) / 2, rangeY)]
+        if let last { nodes.append(counter(last.words ?? "??", caption: last.caption, w: counterW).at(width - counterW + 10, -stageRoomAboveBoard + tail - 4)) }
         if let m = board.meterPart, !hiding {
             nodes.append(warmth(m.value, label: m.label, width: 340).at(16, meterY))
         }

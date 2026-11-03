@@ -16,6 +16,8 @@ extension BoardDrawing {
         var middleY = 54.0
         var wordsY = 0.0
         var labelY = 106.0
+        /// Two people's names, for the two hands: then nobody's win is the person's or their loss, so the glow and the crown are neutral.
+        var names: [String]?
     }
 
     func revealCard(_ reveal: Reveal) -> PartBlock {
@@ -52,7 +54,7 @@ extension BoardDrawing {
         }
         if case .hands(let you, let companion) = throwing {
             let box = Swift.min(handH - 20, 146), middle = handY + (handH + 8) / 2
-            let beat = RevealBeat(box: box, home: width * 0.3, meet: box * 0.56, middleY: middle, wordsY: arenaY + 8, labelY: plateY - 16)
+            let beat = RevealBeat(box: box, home: width * 0.3, meet: box * 0.56, middleY: middle, wordsY: arenaY + 8, labelY: plateY - 16, names: board.scorePart?.players)
             if ctx.buildUp { anims.append(.keys("reveal", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 260)) }
             nodes.append(.box("reveal", w: width, h: room) {
                 hands(you: you, companion: companion, width: width, playing: ctx.buildUp, prefix: "reveal", beat: beat)
@@ -166,7 +168,7 @@ extension BoardDrawing {
             return Node.box(id, x: restX, y: y, w: box, h: box) {
                 if won, !playing {
                     // The person's win in success green; the companion's win is the person's loss, in the calm tone.
-                    Node.ellipse(fill: (sign < 0 ? Color.win : Color.loss).tuned(alpha: 0.2)).at(-box * 0.16, -box * 0.16).size(box * 1.32, box * 1.32)
+                    Node.ellipse(fill: (beat.names != nil ? Color.inkMuted : sign < 0 ? Color.win : Color.loss).tuned(alpha: 0.2)).at(-box * 0.16, -box * 0.16).size(box * 1.32, box * 1.32)
                 }
                 Node.box(id + ".throw", w: box, h: box) { thrown }.scale(won ? 1.12 : 1)
                 if playing {
@@ -221,8 +223,8 @@ extension BoardDrawing {
             side("you", hand: you, sign: -1, won: verdict == .win, lost: verdict == .loss, mirrored: false),
             side("them", hand: companion, sign: 1, won: verdict == .loss, lost: verdict == .win, mirrored: true),
         ] + burst + [
-            label(L("You"), sign: -1, crown: verdict == .win && !playing ? .win : nil),
-            label("{companion}", sign: 1, crown: verdict == .loss && !playing ? .loss : nil),
+            label(beat.names?[0] ?? L("You"), sign: -1, crown: verdict == .win && !playing ? (beat.names == nil ? .win : Paint.ink) : nil),
+            label(beat.names?[1] ?? "{companion}", sign: 1, crown: verdict == .loss && !playing ? (beat.names == nil ? .loss : Paint.ink) : nil),
         ]
     }
 

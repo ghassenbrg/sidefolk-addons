@@ -43,7 +43,7 @@ extension BoardDrawing {
     var stageBubbleWidth: Double? {
         switch gameTable {
         case .triviaQuestion: 206
-        case .numbersGuess: 104
+        case .numbersGuess: board.counterPart == nil ? nil : 104
         default: nil
         }
     }

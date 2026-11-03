@@ -49,7 +49,7 @@ extension BoardDrawing {
                 inner
             }
         }
-        let front = face([Node.words(question, size: 20, weight: "heavy", color: Paint.onCream, align: "center", lines: 4, minScale: 0.5, x: insetX, y: insetY, w: w - 2 * insetX, h: h - 2 * insetY).id("plaque.words").label(question)])
+        let front = face([Node.words(question, size: TextFit.wordSize(question, size: 20, weight: "heavy", width: w - 2 * insetX), weight: "heavy", color: Paint.onCream, align: "center", lines: 4, minScale: 0.5, x: insetX, y: insetY, w: w - 2 * insetX, h: h - 2 * insetY).id("plaque.words").label(question)])
         if newQuestion { anims.append(.keys("plaque.words", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 240, ease: "out")) }
         guard let fact else { return Node.box("plaque", w: w, h: h) { front } }
         let titleH = fact.1 == nil ? 0.0 : 16
@@ -108,12 +108,13 @@ extension BoardDrawing {
             } else {
                 Node.words(Format.integer(i + 1), size: 14, weight: "black", color: Paint.onCream, align: "center", x: capX, y: (h - capSide) / 2, w: capSide, h: capSide)
             }
-            Node.words(tile.label, size: 15, weight: "heavy", color: ink, align: "leading", lines: 2, minScale: 0.6, x: capX + capSide + 7, y: 7, w: w - capX - capSide - 7 - (tile.companion ? 36 : 14), h: h - 14).id(id + ".words")
+            Node.words(tile.label, size: TextFit.wordSize(tile.label, size: 15, weight: "heavy", width: w - capX - capSide - 7 - 38), weight: "heavy", color: ink, align: "leading", lines: 2, minScale: 0.6, x: capX + capSide + 7, y: 7, w: w - capX - capSide - 7 - (tile.companion ? 38 : 14), h: h - 14).id(id + ".words")
             if tile.companion {
                 Node.faceDisc(id: id + ".face", x: w - 38, y: (h - 26) / 2, side: 26).shadow(Paint.clear("#000000", 0.2), radius: 2, dx: 0, dy: 1)
             }
         }.scale(pending ? 0.97 : tile.state == .right ? 1.02 : 1)
-        if tile.state == .faded { body = body.opacity(0.35) }
+        // The companion's wrong pick steps back less than the others: it still says whose it was.
+        if tile.state == .faded { body = body.opacity(tile.companion ? 0.7 : 0.35) }
         if ctx.fresh, tile.companion, ctx.previous?.answersPart?.tiles[safe: i]?.companion != true {
             anims.append(Anim.keys(id + ".face", [["t": 0, "scale": 0.2, "opacity": 0], ["t": 1, "scale": 1, "opacity": 1]], ms: 300, ease: "spring").delay(ms: 340))
         }
@@ -175,7 +176,7 @@ extension BoardDrawing {
             } else if let symbol = o.symbol {
                 Node.symbol(symbol, color: Paint.lilacDeep).symbolLook().at((w - 26) / 2, (h - labelH - 26) / 2).size(26, 26)
             }
-            Node.words(o.label, size: 11.5, weight: "heavy", align: "center", lines: 2, minScale: 0.7, x: 3, y: h - labelH - 1, w: w - 6, h: labelH)
+            Node.words(o.label, size: TextFit.wordSize(o.label, size: 11.5, weight: "heavy", width: w - 6), weight: "heavy", align: "center", lines: 2, minScale: 0.7, x: 3, y: h - labelH - 1, w: w - 6, h: labelH)
             if on { Node.rect(stroke: Paint.action, lineWidth: 2.5, corner: 12).id(id + ".edge").at(-1, -1).size(w + 2, h + 2) }
         }.area("choice", value: "topic|\(o.value)", label: o.label, hover: AreaLook(scale: 1.03), press: AreaLook(scale: 0.97), selected: on, sound: "sounds/tap.wav")
     }

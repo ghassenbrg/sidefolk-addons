@@ -30,7 +30,8 @@ enum Suspense {
            let previous, let before = previous.answersPart, !before.locked {
             let parts = previous.parts.compactMap { part -> BoardPart? in
                 switch part {
-                case .answers(let tiles, let layout, _): .answers(pending(tiles, picked), layout: layout, locked: true)
+                // A tile the help took away stays away.
+                case .answers(let tiles, let layout, _): .answers(pending(tiles, picked, keepFaded: true), layout: layout, locked: true)
                 case .button, .timer, .choice: nil
                 default: part
                 }
@@ -111,10 +112,10 @@ enum Suspense {
     }
 
     /// The tiles while the verdict waits: the person's pick pressed, nothing judged, the companion's pick still hidden.
-    static func pending(_ tiles: [Tile], _ picked: Int?) -> [Tile] {
+    static func pending(_ tiles: [Tile], _ picked: Int?, keepFaded: Bool = false) -> [Tile] {
         tiles.enumerated().map { i, tile in
             var t = tile
-            t.state = i == picked ? .picked : .none
+            t.state = i == picked ? .picked : keepFaded && tile.state == .faded ? .faded : .none
             t.companion = false
             return t
         }

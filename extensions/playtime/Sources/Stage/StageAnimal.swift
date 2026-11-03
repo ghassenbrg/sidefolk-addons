@@ -2,7 +2,7 @@ import Foundation
 import SidefolkExtensionKit
 
 // Guess My Animal, in its field journal: the photo of nothing yet, the question on a torn paper card of one size, Yes / No / Not sure as three large key-capped answers that keep
-// their places whatever is asked. A wrong guess turns to the page for a new animal: the fields one under another, each opening as the one before it is filled.
+// their places whatever is asked. The journal stays paper at night, so what is written straight on it stays ink. A wrong guess turns to the page for a new animal: the fields one under another, each opening as the one before it is filled.
 extension BoardDrawing {
     /// A card with a soft torn edge, always the same one: nothing about it depends on what's written.
     private func tornPaper(_ id: String, w: Double, h: Double) -> Node {
@@ -14,7 +14,7 @@ extension BoardDrawing {
         for i in 1...6 { path += "L \(w - 2 + wob[(i + 3) % 12]) \(8 + (h - 16) * Double(i) / 6) " }
         for i in 1...steps { path += "L \(w - 8 - (w - 16) * Double(i) / Double(steps)) \(h - 2 + wob[(i + 5) % 12]) " }
         for i in 1...6 { path += "L \(2 + wob[(i + 7) % 12]) \(h - 8 - (h - 16) * Double(i) / 6) " }
-        return Node.path(path + "Z", fill: Paint.card, stroke: Paint.clear("#A08A70", 0.3), lineWidth: 0.75).id(id).size(w, h).shadow(Paint.clear("#4A2E12", 0.16), radius: 4, dx: 0, dy: 2)
+        return Node.path(path + "Z", fill: Paint.cream, stroke: Paint.clear("#A08A70", 0.3), lineWidth: 0.75).id(id).size(w, h).shadow(Paint.clear("#4A2E12", 0.16), radius: 4, dx: 0, dy: 2)
     }
 
     func animalTable() -> Node {
@@ -29,7 +29,7 @@ extension BoardDrawing {
         var nodes: [Node] = [
             Node.art("art/mystery-photo.webp", w: photoW, h: photoH).id("animal.photo").at((width - photoW) / 2, photoY).label(L("A mystery animal")),
             tornPaper("animal.card", w: cardW, h: cardH).at(cardX, cardY),
-            Node.words(question, size: 19, weight: "heavy", align: "center", lines: 3, minScale: 0.55, x: cardX + 16, y: cardY + 8, w: cardW - 32, h: cardH - 16).id("animal.words").label(question),
+            Node.words(question, size: TextFit.wordSize(question, size: 19, weight: "heavy", width: cardW - 32), weight: "heavy", color: Paint.onCream, align: "center", lines: 3, minScale: 0.55, x: cardX + 16, y: cardY + 8, w: cardW - 32, h: cardH - 16).id("animal.words").label(question),
         ]
         if ctx.fresh, ctx.previous?.promptPart?.text != board.promptPart?.text {
             anims.append(.keys("animal.words", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 220, ease: "out"))
@@ -57,7 +57,7 @@ extension BoardDrawing {
             guard let part else { return }
             let labelW = w
             nodes.append(Node.symbol(symbol, color: Paint.coral).symbolLook(weight: "bold").at(x, y + 1).size(16, 16))
-            nodes.append(Node.words(part.label ?? "", size: 13.5, weight: "heavy", minScale: 0.65, x: x + 21, y: y, w: labelW - 21, h: labelH))
+            nodes.append(Node.words(part.label ?? "", size: 13.5, weight: "heavy", color: Paint.onCream, minScale: 0.65, x: x + 21, y: y, w: labelW - 21, h: labelH))
             y += labelH + 3
             if done {
                 nodes.append(.box("entry.\(name).box", x: x, y: y, w: w, h: fieldH) {
@@ -76,7 +76,7 @@ extension BoardDrawing {
         // The answer for the new animal: Yes or No, navy when picked.
         if let c = page.choicePart("new_answer") {
             nodes.append(Node.symbol("checkmark.circle.fill", color: Paint.coral).symbolLook(weight: "bold").at(x, y + 1).size(16, 16))
-            nodes.append(Node.words(c.label ?? "", size: 13.5, weight: "heavy", minScale: 0.65, x: x + 21, y: y, w: w - 21, h: labelH))
+            nodes.append(Node.words(c.label ?? "", size: 13.5, weight: "heavy", color: Paint.onCream, minScale: 0.65, x: x + 21, y: y, w: w - 21, h: labelH))
             y += labelH + 3
             let open = active == nil && !locked, gap = 10.0, optionW = (w - gap) / 2, optionH = 42.0
             for (i, o) in c.options.enumerated() {
