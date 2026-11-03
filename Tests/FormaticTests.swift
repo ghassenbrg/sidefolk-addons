@@ -4,10 +4,10 @@ import Foundation
 import ImageIO
 import Testing
 import UniformTypeIdentifiers
-@testable import ext_convert
+@testable import ext_formatic
 
 /// Formatic's conversions on real files made here, in a temporary folder.
-@MainActor struct ConvertTests {
+@MainActor struct FormaticTests {
     private func folder() throws -> String {
         let path = NSTemporaryDirectory() + "formatic-" + UUID().uuidString
         try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)

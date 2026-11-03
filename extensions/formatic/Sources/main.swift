@@ -3,7 +3,7 @@ import SidefolkExtensionKit
 
 // Formatic: files into other formats, with what macOS has. The person hands files over by dropping them on the companion or
 // choosing one on the page; Sidefolk saves the results beside them, and the program can't write in that folder.
-let ext = Extension(name: "convert")
+let ext = Extension(name: "formatic")
 
 let targets = ["jpg", "png", "heic", "avif", "tiff", "gif", "pdf", "m4a", "alac", "flac", "wav", "aiff", "opus", "csv", "tsv", "json", "plist", "zip", "7z", "tar", "tar.gz"]
 

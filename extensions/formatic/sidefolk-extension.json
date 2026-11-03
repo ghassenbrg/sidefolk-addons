@@ -1,5 +1,5 @@
 {
-  "id": "dev.sidefolk.convert",
+  "id": "dev.sidefolk.formatic",
   "name": "Formatic",
   "version": "1.0.0",
   "sidefolk": ">=0.1",
@@ -9,7 +9,7 @@
   "author": "Sidefolk",
   "icon": "icon.pdf",
   "assets": "assets",
-  "run": { "command": "bin/ext-convert" },
+  "run": { "command": "bin/ext-formatic" },
   "permissions": { "media": true, "exec": ["/usr/bin/bsdtar"] },
   "tools": {
     "convert": {
