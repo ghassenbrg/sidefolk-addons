@@ -9,6 +9,27 @@ import Testing
 struct PlaytimeStageTests {
     static func entry(_ id: String) -> GameEntry { GameCatalog.entry(id)! }
 
+    /// An animation holds its last values, so a move that ends anywhere but where its node rests leaves the node there until the next board: a Tic-tac-toe piece stood at the top of
+    /// its cell until the next move. A path's end has to be the node's own place.
+    static func landsWhereItRests(_ scene: Scene, _ context: String) {
+        var rest: [String: (x: Double, y: Double)] = [:]
+        func places(_ node: [String: Any]) {
+            if let id = node["id"] as? String { rest[id] = (node["x"] as? Double ?? 0, node["y"] as? Double ?? 0) }
+            for child in node["children"] as? [[String: Any]] ?? [] { places(child) }
+            for key in ["front", "back"] { if let face = node[key] as? [String: Any] { places(face) } }
+        }
+        (scene.json["nodes"] as? [[String: Any]] ?? []).forEach(places)
+        func walk(_ anim: [String: Any]) {
+            for key in ["sequence", "together"] { (anim[key] as? [[String: Any]])?.forEach(walk) }
+            guard let target = anim["target"] as? String, let frames = anim["keys"] as? [[String: Double]], let at = rest[target] else { return }
+            // Cups are named by where they end, and a thing that flies off is gone by its fade.
+            guard !target.hasPrefix("cup."), frames.last?["opacity"] != 0 else { return }
+            if let y = frames.last(where: { $0["y"] != nil })?["y"] { #expect(abs(y - at.y) < 0.6, "\(context): \(target) ends at y \(y), rests at \(at.y)") }
+            if let x = frames.last(where: { $0["x"] != nil })?["x"] { #expect(abs(x - at.x) < 0.6, "\(context): \(target) ends at x \(x), rests at \(at.x)") }
+        }
+        (scene.json["animations"] as? [[String: Any]] ?? []).forEach(walk)
+    }
+
     /// A scene as Sidefolk gets it: within its size and caps, and every key and area id a plain token.
     static func check(_ scene: Scene, _ context: String) throws {
         let data = try JSONSerialization.data(withJSONObject: scene.json)
@@ -38,6 +59,7 @@ struct PlaytimeStageTests {
             for child in node["children"] as? [[String: Any]] ?? [] { visit(child) }
         }
         (scene.json["nodes"] as? [[String: Any]] ?? []).forEach(visit)
+        landsWhereItRests(scene, context)
         for run in scene.json["animations"] as? [[String: Any]] ?? [] {
             if let id = run["id"] as? String { #expect(id.range(of: token, options: .regularExpression) != nil, "\(context): \(id)") }
         }

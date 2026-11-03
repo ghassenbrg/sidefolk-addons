@@ -119,7 +119,7 @@ extension BoardDrawing {
             // Inside the cell: its plate is navy too.
             inner.append(Node.rect(stroke: Paint.action, lineWidth: 3, corner: 11).id(id + ".cursor").at(3, 3).size(side - 6, faceH - 6))
         }
-        markArrives(cell, id: id, index: index)
+        markArrives(cell, id: id, index: index, restsAt: inset)
         if cell.state == "win", ctx.fresh, !ctx.buildUp {
             heldKeys(Self.markId(id, cell), [["t": 0, "scale": 1], ["t": 0.45, "scale": 1.16], ["t": 1, "scale": 1]], delayMs: 200 + Double(index) * 40, ms: 320, ease: "in_out")
         }
@@ -133,11 +133,11 @@ extension BoardDrawing {
 
     /// A piece played: the person's is pressed in at once; the companion's comes down from over the board, after its beat of thought, and lands with a small sound. Once: a
     /// piece that landed in a verdict's build-up is at rest in the verdict.
-    private func markArrives(_ cell: Cell, id: String, index: Int) {
+    private func markArrives(_ cell: Cell, id: String, index: Int, restsAt y: Double) {
         guard ctx.fresh, !ctx.local.builtUp, cell.animate != nil, Self.pieceArt(cell.mark) != nil, ctx.previous?.gridPart?.cells[safe: index]?.mark != cell.mark else { return }
         let target = Self.markId(id, cell)
         if cell.companion {
-            anims.append(.keys(target, [["t": 0, "y": -26, "scale": 1.25, "opacity": 0], ["t": 0.35, "opacity": 1], ["t": 0.72, "y": 0, "scale": 1], ["t": 0.86, "y": -3, "scale": 1.02], ["t": 1, "y": 0, "scale": 1]], ms: 420, ease: "in"))
+            anims.append(.keys(target, [["t": 0, "y": y - 26, "scale": 1.25, "opacity": 0], ["t": 0.35, "opacity": 1], ["t": 0.72, "y": y, "scale": 1], ["t": 0.86, "y": y - 3, "scale": 1.02], ["t": 1, "y": y, "scale": 1]], ms: 420, ease: "in"))
             anims.append(.sequence([.wait(ms: 300), .sound("sounds/stamp.wav")]))
         } else {
             anims.append(.keys(target, [["t": 0, "scale": 1.4, "opacity": 0.2], ["t": 1, "scale": 1, "opacity": 1]], ms: 240, ease: "out"))
