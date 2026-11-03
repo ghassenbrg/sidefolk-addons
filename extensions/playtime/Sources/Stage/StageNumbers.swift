@@ -318,7 +318,7 @@ extension BoardDrawing {
                 }
             }.label(L("{left} of {total} left", ["left": left, "total": total])), height: w)
         }
-        let h = Self.balloonH, w = h * 200 / 305
+        let h = Self.balloonH, w = h * 232 / 305
         let step = min(Self.balloonRailW / Double(max(total, 1)), w + 4)
         let startX = (Self.balloonRailW - step * Double(total)) / 2 + (step - w) / 2
         // A pop plays once: the verdict after a last balloon's build-up shows it gone.

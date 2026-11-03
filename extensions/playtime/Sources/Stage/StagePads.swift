@@ -9,10 +9,10 @@ extension BoardDrawing {
     private static func hues(_ color: String) -> (light: String, dark: String, lipLight: String, lipDark: String) {
         switch color {
         case "green": ("#A9DBBA", "#83B595", "#86BD98", "#638F74")
-        case "yellow": ("#F8D779", "#D9B65A", "#E0BC55", "#B19244")
-        case "red": ("#F8A98A", "#DE8B6E", "#E48C6B", "#B56E55")
-        case "purple": ("#BFA8E4", "#A08BC8", "#A08ACB", "#7E6BA6")
-        default: ("#AFD0EF", "#8BADCF", "#8FB4DA", "#6C8CAD")
+        case "yellow": ("#FFD36E", "#D9B65A", "#E8B84E", "#B19244")
+        case "red": ("#FF9F73", "#DE8B6E", "#E8835A", "#B56E55")
+        case "purple": ("#BC9EE8", "#A08BC8", "#9D80CE", "#7E6BA6")
+        default: ("#A8CDF3", "#8BADCF", "#86AEDA", "#6C8CAD")
         }
     }
 
@@ -114,7 +114,7 @@ extension BoardDrawing {
         let artRoom = h - labelH - 14
         var face = Node.box(id + ".face", w: w, h: h) {
             Node.rect(fill: .adaptive(light: hue.light, dark: hue.dark), corner: corner).size(w, h)
-            Node.rect(corner: corner).gradient([Paint.clear("#FFFFFF", 0.22), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(w, h)
+            Node.rect(corner: corner).gradient([Paint.clear("#FFFFFF", 0.12), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(w, h)
             if let art = Self.picture(pad.art) {
                 Node.art(art, x: 24, y: 14, w: w - 48, h: artRoom - 10).id(id + ".art").shadow(Paint.clear("#3A2A55", 0.25), radius: 1.5, dx: 0, dy: 1.5)
             }

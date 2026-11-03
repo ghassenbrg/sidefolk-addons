@@ -44,15 +44,15 @@ extension BoardDrawing {
 
     // MARK: Marks
 
-    /// The plate round the cells, and the groove between them. Its bottom edge stands on the alcove's floor, whatever the room above it.
-    private static let plateEdge = 5.0, cellGap = 4.0, largestCell = 80.0
+    /// The navy under the cells, seen only in the grooves between them, as in the concept. Its bottom edge stands on the alcove's floor, whatever the room above it.
+    private static let plateInset = 7.0, cellGap = 3.0, largestCell = 76.0
 
     private func marksBoard(rows: Int, columns: Int, cells: [Cell], locked: Bool, numpad: Bool) -> PartBlock {
-        let gap = Self.cellGap, edge = Self.plateEdge
-        let side = min(Self.largestCell, (playRoom - 2 * edge - Double(rows - 1) * gap) / Double(rows))
+        let gap = Self.cellGap, inset = Self.plateInset
+        let side = min(Self.largestCell, (playRoom - Double(rows - 1) * gap) / Double(rows))
         let w = Double(columns) * side + Double(columns - 1) * gap
         let h = Double(rows) * side + Double(rows - 1) * gap
-        let x = (Self.inner - w) / 2, y = playRoom - h - edge - 8
+        let x = (Self.inner - w) / 2, y = playRoom - h - 13
         let filled = !cells.contains { $0.mark == "empty" }
         let line = cells.indices.filter { cells[$0].state == "win" }
         func at(_ i: Int) -> (x: Double, y: Double) { (x + Double(i % columns) * (side + gap), y + Double(i / columns) * (side + gap)) }
@@ -63,7 +63,7 @@ extension BoardDrawing {
         let leaving = ctx.fresh ? cells.indices.filter { cells[$0].mark == "empty" && Self.pieceArt(previous?[safe: $0]?.mark) != nil } : []
         if !leaving.isEmpty { anims.append(Anim.sequence([.wait(ms: Double(leaving.count) * Self.leavingStep + 320)]).blocksInput()) }
         return PartBlock(.box("grid", w: Self.inner, h: playRoom) {
-            Node.rect(fill: Paint.plate, corner: 18).id("grid.plate").at(x - edge, y - edge).size(w + 2 * edge, h + 2 * edge).shadow(Paint.clear("#3A2A55", 0.28), radius: 7, dx: 0, dy: 4)
+            Node.rect(fill: Paint.plate, corner: 4).id("grid.plate").at(x + inset, y + inset).size(w - 2 * inset, h - 2 * inset)
             for i in cells.indices {
                 self.markCell(cells[i], index: i, columns: columns, side: side, locked: locked, numpad: numpad, stepsBack: settled && cells[i].state != "win",
                               leavingAfter: leaving.firstIndex(of: i).map { Double($0) * Self.leavingStep + 80 }, was: previous?[safe: i]?.mark).at(at(i).x, at(i).y)
