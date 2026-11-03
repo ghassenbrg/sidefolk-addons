@@ -7,7 +7,7 @@ protocol PuzzleKind {
 
     static var id: String { get }
     /// The rules in one or two short sentences, said by the companion while there is nothing else to say.
-    static var rules: String { get }
+    static func rules(_ game: Games.PuzzleGame<Rules>) -> String
     static func reason(_ reason: Rules.Reason) -> String
     static func rule(_ rule: Rules.Rule) -> String
     /// The person's move on the board, in the puzzle's terms.
@@ -132,12 +132,13 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
         let time = Int(g.elapsed(at: t).rounded())
         let eyebrow = (g.day != nil ? L("Today's puzzle") : L("Practice")) + " · " + ScreenKit.level(g.level)
         let conflicts = g.conflicts
+        // The bubble says it all, a refusal too: a note would push the board.
         let text: String = if g.solved { L("Solved in {time}!", ["time": PuzzleParts.clock(time)]) }
+            else if let refused = refusal(events) { refused }
             else if let hint = s.hint { K.reason(hint.reason) }
             else if let first = conflicts.first, events.contains(.mistake) || !conflicts.isEmpty { K.rule(first.rule) }
-            else { K.rules }
+            else { K.rules(g) }
         var parts: [BoardPart] = [.prompt(text, eyebrow: eyebrow), K.part(g, hint: s.hint, fresh: s.fresh, now: t)]
-        if let note = refusal(events) { parts.append(note) }
         if g.solved {
             let record = PlaytimeRecords.puzzle(K.id)
             var facts = [(L("Time"), PuzzleParts.clock(time)), (L("Hints"), Format.integer(g.hints))]
@@ -171,12 +172,13 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
         return events.contains { if case .refused = $0 { true } else { false } } ? Cue(move: "shrug") : nil
     }
 
-    static func refusal(_ events: [Games.Event]) -> BoardPart? {
+    static func refusal(_ events: [Games.Event]) -> String? {
         for case .refused(let reason) in events {
             switch reason {
-            case "given": return .note(L("That one is part of the puzzle."), tone: .info)
-            case "nothing_to_undo": return .note(L("Nothing to undo."), tone: .info)
-            default: return ScreenKit.refusal(events)
+            case "given": return L("That one is part of the puzzle.")
+            case "nothing_to_undo": return L("Nothing to undo.")
+            default:
+                if case .note(let words, _, _)? = ScreenKit.refusal(events) { return words }
             }
         }
         return nil

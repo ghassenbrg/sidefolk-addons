@@ -52,20 +52,30 @@ extension BoardDrawing {
             markArt(verdict: verdict, tone: tone).at((width - 80) / 2 + 8, figureRow - 78),
         ]
         nodes.append(.box("end.words", y: figureRow, w: width, h: cardH) { inCard })
-        var y = figureRow + cardH + 12
+        let top = figureRow + cardH + 12
+        var y = 0.0
+        var next: [Node] = []
         // The small choices an end card offers (the level for the next game), first.
         for case .choice(let name, let label, .segmented, let options, let selected) in board.parts {
             let row = choice(name: name, label: label, style: .segmented, options: options, selected: selected, compact: true, width: width - 80)
-            nodes.append(row.node.at(40, y))
+            next.append(row.node.at(40, y))
             y += row.height + 10
         }
         for (i, action) in actions.enumerated() {
             let block = buttonRow([action], id: "end.action.\(i)", width: width - 40, flat: i > 0)
-            nodes.append(block.node.at(20, y))
+            next.append(block.node.at(20, y))
             y += block.height + 8
         }
-        nodes.append(backLink(y: y, width: width))
+        next.append(backLink(y: y, width: width))
         y += 24
+        // A puzzle's solved board goes between the card and what comes next, in what those leave of the zone.
+        var below = top
+        if let mini = solvedBoard(room: playRoom - top - y - 16) {
+            nodes.append(mini.node.at(((width - mini.width) / 2).rounded(), top + 6))
+            below += 6 + mini.height + 10
+        }
+        nodes.append(.box("end.next", y: below, w: width, h: y) { next })
+        y += below
         appear("end.words")
         popMark()
         return PartBlock(.box("end", w: width, h: y) { nodes }, height: y)
