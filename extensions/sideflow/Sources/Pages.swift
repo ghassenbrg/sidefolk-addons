@@ -9,8 +9,8 @@ import SidefolkExtensionKit
     static let line = ["#4FA8F5", "#7C5CFC"]
     /// Numbers aren't something to press: their symbols stay out of the accent's way.
     static let quiet = "#6B7A90"
-    /// The same, deep enough to hold white: filled buttons and what's selected. Everything else stays the theme's.
-    static let accent = ["#2A6FE8", "#6E4BF2"]
+    /// Flat, a shade for each job: violet for the one main action, blue for what's selected. Everything else stays the theme's.
+    static let accent = ["#6E4BF2", "#2A6FE8"]
 
     static func make(_ app: App, state: Arguments, background: Bool) async -> Page {
         // Today and the sidebar read only the summary, once a minute.

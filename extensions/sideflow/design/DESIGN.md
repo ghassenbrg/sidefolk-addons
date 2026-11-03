@@ -81,12 +81,12 @@ Tools for the companion and agents: `flow_guide`, `list_actions`, `list_template
 
 ## Visual identity
 
-The thread runs blue (#4FA8F5) to violet (#7C5CFC), in the icon and on the tree. Filled buttons and what's selected run the same way, deep enough to hold white (`#2A6FE8` to `#6E4BF2`). Violet is an accent, not the page, and each use has a reason (the founder: a designer's choices, not paint):
+The thread runs blue (#4FA8F5) to violet (#7C5CFC), in the icon and on the tree. Violet is an accent, not the page, and each use has a reason (the founder: a designer's choices, not paint):
 
 | Where | What | Why |
 |---|---|---|
-| The one main action on a screen | The full gradient | Rare, so "what do I do here" has one answer |
-| The line a flow took; the selected card's edge | The thread's gradient | It's the product's idea: what happened, and where you are on it |
-| The selected row, a picked day or option | A soft tint with accent words | A state, not an action: it mustn't compete with the button |
+| The one main action on a screen | Flat violet `#6E4BF2` | The founder chose flat over a gradient. Rare, so "what do I do here" has one answer |
+| The line a flow took | The thread's gradient, the only one | It's the product's idea, the same as the icon |
+| The selected row, card edge, a picked day or option | Blue `#2A6FE8`, a soft tint with its words in that colour | A state, not an action: another shade, so it doesn't compete with the button |
 | Filters, secondary buttons, cards, canvas, words | The theme's neutrals | They carry the content; so it follows light, dark and any theme |
 | Done, needs you, a step's kind | Green, amber, its own tile | They mean something else, and violet never stands in for them | The icon is `design/icon/master.png` generated and masked, in `icon.pdf`; `design/icon/alternative-branch.png` is the one not chosen. Tile colours mean the kind of step and nothing about its state: the state is always a mark and a word (D78). `redesign/` is the design the founder approved, `screens/` is the real thing. `concepts/` is what was explored before it.
