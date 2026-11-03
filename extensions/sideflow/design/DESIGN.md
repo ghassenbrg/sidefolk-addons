@@ -11,6 +11,8 @@ with the AI, tell me." You say it to the companion or build it here, and both se
 **For** anyone with small jobs that repeat, non-coders included. **Not** a connector hub: Sidefolk has no account store, and extensions hold no
 secrets. **Not** a node canvas: a canvas makes you think about wires, and these jobs are short lists with the odd "if".
 
+**What it reaches (the founder, 2026-11-03: "every single thing that app can do"):** every extension's tools, MCP servers and programs on a card each time, nearly all of Sidefolk's own, a whole job for the companion under the person's trust settings, other flows, and starting when something happens in the app. Reachable isn't unattended: only what the person read exactly runs by itself.
+
 **What it leads with:** watch it practise, with nothing changed, before it may act alone; then read once what it will do. That is what
 workflow apps don't have, because they don't have a Guard.
 
@@ -18,9 +20,11 @@ workflow apps don't have, because they don't have a Guard.
 
 | Idea | Decision |
 |---|---|
-| Node graph | No. Hard to read at a glance, hard to read aloud, hard for an agent and a person to share |
+| Free-form node graph | No: a canvas you drag about gets messy. The tree that arranges itself is the answer the founder chose (below) |
 | A paragraph with clickable chips (concept B) | The most charming, and breaks on branches and on word order in ten languages. Its idea stays as the sentence on top of the flow |
-| A rail with an inspector (concept A) | Chosen: precise, native, keyboard-friendly, scales to 40 steps |
+| A rail with an inspector (concept A) | Built first, and rejected by the founder on sight: "very simple, very ugly, not clear". Replaced |
+| Pencil to ink, a paper page | Generated and set aside when the founder sent their reference, a tidy builder |
+| A tree of cards with a panel beside it | **Chosen, by the founder (2026-11-03).** Branches read at a glance; a line in colour for the way it went, grey for the way it didn't, dashed for what would happen |
 | Ribbon, tiles, the companion holding the thread (concept C) | Its warmth stays: coloured tiles, a gradient line, a result word on each step, the companion in the hero |
 | "Rehearse", "routine" | "Practice run" is plainer. "Flow" stays: it is in the name, and one word is less confusing than two |
 | Triggers on a drop, on reminders, on agents finishing | Later. A drop needs a file named at run time, which asks each time; the others would leak titles to an extension without a card (D111) |
@@ -77,4 +81,4 @@ Tools for the companion and agents: `flow_guide`, `list_actions`, `list_template
 
 ## Visual identity
 
-The thread: blue (Tempo #5B8DEF) running to deep aqua (#0B7783, Lantern's action colour), through white stops. The icon is that thread, in `scripts/extension-icons.swift` as a vector. Tile colours mean the kind of step and nothing about its state: the state is always a mark and a word (D78). Everything else is Lantern's: `concepts/` is what was explored, `screens/` is the real thing.
+The thread runs blue (#4FA8F5) to violet (#7C5CFC), in the icon and on the tree. Violet is an accent, not the page: filled buttons stay Sidefolk's own action colour, and everything else is the theme's, so it follows light, dark and any theme. The icon is `design/icon/master.png` generated and masked, in `icon.pdf`; `design/icon/alternative-branch.png` is the one not chosen. Tile colours mean the kind of step and nothing about its state: the state is always a mark and a word (D78). `redesign/` is the design the founder approved, `screens/` is the real thing. `concepts/` is what was explored before it.

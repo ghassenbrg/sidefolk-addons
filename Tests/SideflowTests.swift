@@ -12,13 +12,21 @@ import SidefolkExtensionKit
         var planAnswer: Plans.Answer = .allowed(standing: [])
         var plans: [Plan] = []
         var forgotten: [String] = []
+        var forward: [String] = []
         var notices: [(title: String, body: String?, attention: Bool)] = []
         var decision: Actions.Check.Decision = .allow
         /// Held until released: a call in the air, for a stop in the middle.
         var hold: String?
         var written: [String] = []
+        /// What they answer when a stopped run asks the way forward: by default nobody does.
+        var wayForward: String?
 
         func call(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Outcome {
+            // Asking the way forward isn't a step of the flow.
+            if tool == "ask.user", input["options"] as? [String] != nil, (input["question"] as? String)?.contains("{") == false, answers[tool]?.isEmpty != false {
+                forward.append(input["question"] as? String ?? "")
+                return Actions.Outcome(status: .ok, text: wayForward ?? "no answer", summary: "Asked")
+            }
             calls.append((tool, input, plan))
             if tool == hold {
                 try? await Task.sleep(for: .seconds(3600))
@@ -258,7 +266,7 @@ import SidefolkExtensionKit
         #expect(run?.record(of: "b") == nil)
         #expect(!w.engine.isRunning(flow.id), "parked, the flow can be set off again")
         try await Task.sleep(for: .milliseconds(20))
-        #expect(w.host.notices.last?.attention == true)
+        #expect(!w.host.forward.isEmpty, "it asks, where they are, what to do")
         w.engine.proceed(run!.id, .try_again)
         try await Task.sleep(for: .milliseconds(50))
         let done = await w.settled(w.store.run(run!.id))
@@ -294,6 +302,105 @@ import SidefolkExtensionKit
         let changes = try w.flow([["do": "changes.it", "with": ["text": "x"], "on_failure": "retry"]])
         let stopped = await w.settled(w.engine.start(changes, mode: .live, why: "t"))
         #expect(stopped?.status == .failed, "repeating what may have happened never happens by itself")
+    }
+
+    // MARK: The way forward on the page
+
+    /// What Sidefolk would keep of a page: a part it can't read is dropped, and a stopped run with no way forward is a dead end.
+    @Test func aStoppedRunOffersItsWayForwardOnThePage() throws {
+        let w = try World()
+        let app = App(folder: w.folder)
+        let body = try FlowCodec.body(["steps": [["id": "a", "do": "changes.it", "with": ["text": "x"]], ["id": "b", "text": "after"]]])
+        var run = Run(id: "r", flow: "f", flowName: "Tidy", mode: .live, status: .interrupted, why: "t", startedAt: w.now, body: body)
+        run.records = [.init(step: "a", status: .unknown, summary: "Change it", at: w.now)]
+        for status in [Run.Status.interrupted, .needs_you] {
+            run.status = status
+            let page = Pages.runPage(run, app, state: Arguments([:]))
+            let end = page.sections.filter { $0.place == .trailing }
+            let labels: [String] = end.flatMap(\.blocks).compactMap { block in
+                if case .picker(let label, _, _, let options, _, _, _, _, _) = block { return options.count == 3 ? label : nil }
+                return nil
+            }
+            #expect(labels.count == 1)
+            #expect(labels.first?.isEmpty == false, "Sidefolk drops a choice with no label")
+        }
+    }
+
+    // MARK: Reaching further
+
+    @Test func answeringWhereTheyAreGetsAStoppedRunGoing() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .unanswered, text: "")]
+        w.host.wayForward = L("Try again")
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]], ["id": "b", "text": "after"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "test"))
+        for _ in 0..<200 where w.store.run(run!.id)?.status != .done { try await Task.sleep(for: .milliseconds(5)) }
+        #expect(w.store.run(run!.id)?.status == .done)
+    }
+
+    @Test func nobodyAnsweringLeavesItWhereItIs() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .unanswered, text: "")]
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "test"))
+        try await Task.sleep(for: .milliseconds(30))
+        #expect(!w.host.forward.isEmpty)
+        #expect(w.store.run(run!.id)?.status == .needs_you)
+    }
+
+    @Test func somethingHappeningSetsOffTheFlowsWaitingForItWithItsWords() async throws {
+        let w = try World()
+        let any = try w.flow([["id": "a", "text": "{{trigger}}"]], trigger: ["type": "event", "event": "reminder.fired"])
+        let only = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "event", "event": "reminder.fired", "contains": "dentist"])
+        let other = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "event", "event": "note.saved"])
+        w.engine.happened(name: "reminder.fired", title: "Call the bank", detail: nil)
+        try await Task.sleep(for: .milliseconds(50))
+        let ran = w.store.runs(of: any.id).first
+        #expect(ran?.record(of: "a")?.output == "Call the bank")
+        #expect(w.store.runs(of: only.id).isEmpty, "it doesn't mention what this one waits for")
+        #expect(w.store.runs(of: other.id).isEmpty)
+        w.engine.happened(name: "reminder.fired", title: "The DENTIST at three", detail: nil)
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(w.store.runs(of: only.id).count == 1)
+    }
+
+    @Test func aDraftWaitingForSomethingDoesntGo() async throws {
+        let w = try World()
+        let draft = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "event", "event": "mac.woke"], state: .draft)
+        w.engine.happened(name: "mac.woke", title: nil, detail: nil)
+        try await Task.sleep(for: .milliseconds(30))
+        #expect(w.store.runs(of: draft.id).isEmpty)
+    }
+
+    @Test func anEventAndAnotherFlowReadBackExactly() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "event", "event": "note.saved", "contains": "tax"], "steps": [["id": "a", "run_flow": "Other"]]])
+        #expect(body.trigger == .event("note.saved", contains: "tax"))
+        #expect(try FlowCodec.body(FlowCodec.json(body)) == body)
+        #expect(throws: (any Error).self) { try FlowCodec.body(["trigger": ["type": "event", "event": "nonsense"], "steps": []]) }
+    }
+
+    @Test func aFlowSetsOffAnotherButNotOneThatsPaused() async throws {
+        let w = try World()
+        let other = try w.flow([["id": "a", "text": "x"]])
+        var renamed = other
+        renamed.name = "Other"
+        w.store.save(renamed)
+        let caller = try w.flow([["id": "go", "run_flow": "Other"]])
+        let run = await w.settled(w.engine.start(caller, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        try await Task.sleep(for: .milliseconds(30))
+        #expect(w.store.runs(of: other.id).count == 1)
+        renamed.state = .paused
+        w.store.save(renamed)
+        let again = await w.settled(w.engine.start(caller, mode: .live, why: "t"))
+        #expect(again?.status == .failed, "a flow they paused stays paused")
+        #expect(w.store.runs(of: other.id).count == 1)
+    }
+
+    @Test func aPlanSaysWhatElseItSetsOff() throws {
+        let w = try World()
+        let flow = try w.flow([["id": "go", "run_flow": "Other"]])
+        #expect(w.engine.livePlan(flow).when.contains("Other"))
     }
 
     // MARK: After a stop

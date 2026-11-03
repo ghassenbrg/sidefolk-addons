@@ -4,8 +4,9 @@ import SidefolkExtensionKit
 /// Sideflow's screens, one page per state of the program: all flows, one flow and its runs, one run, all runs, the templates. They take the window: places at the start, what's
 /// selected at the end. Sidefolk draws them; the words and what's where are here.
 @MainActor enum Pages {
-    static let tile = ["#5B8DEF", "#0B7783"]
-    static let line = ["#5B8DEF", "#0B7783"]
+    static let tile = ["#4FA8F5", "#7C5CFC"]
+    /// The thread, as on the icon: blue to violet. Filled buttons stay Sidefolk's own.
+    static let line = ["#4FA8F5", "#7C5CFC"]
 
     static func make(_ app: App, state: Arguments, background: Bool) async -> Page {
         // Today and the sidebar read only the summary, once a minute.
@@ -558,18 +559,17 @@ import SidefolkExtensionKit
         var end: [Section] = []
         func choices(_ title: String, _ options: [Option], note: Block? = nil) -> Section {
             var blocks: [Block] = note.map { [$0] } ?? []
-            blocks.append(.picker("", style: .rows, options, selected: "", tool: "ui", input: ui("proceed", id), key: "how"))
-            return Section(title, blocks, place: .trailing)
+            blocks.append(.picker(title, style: .rows, options, selected: "", tool: "ui", input: ui("proceed", id), key: "how"))
+            return Section(nil, blocks, place: .trailing)
         }
         let current = currentStep(run)
         let said = current.flatMap { run.record(of: $0)?.summary } ?? ""
         switch run.status {
         case .interrupted:
             detail = L("Sidefolk stopped in the middle of this: {step}. It may have happened already.", ["step": said])
-            let next = current.flatMap { nextWords(after: $0, run, app) }
             end.append(choices(L("Which is true?"), [
                 Option("try_again", L("It didn't happen: try again"), detail: L("Does it now, then carries on."), symbol: "arrow.clockwise"),
-                Option("carry_on", L("It happened: carry on"), detail: next.map { L("Doesn't do it again. Goes on to {step}.", ["step": $0]) } ?? L("Doesn't do it again."), symbol: "play"),
+                Option("carry_on", L("It happened: carry on"), detail: L("Doesn't do it again."), symbol: "play"),
                 Option("stop", L("Stop here"), detail: L("Nothing else runs."), symbol: "stop"),
             ]))
         case .needs_you, .waiting:
@@ -594,12 +594,6 @@ import SidefolkExtensionKit
             Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail))]),
             Section(nil, [.tree(CardTree(nodes, line: line))], wide: true),
         ], end: end)
-    }
-
-    static func nextWords(after id: String, _ run: Run, _ app: App) -> String? {
-        let all = run.body.allSteps
-        guard let at = all.firstIndex(where: { $0.id == id }), all.indices.contains(at + 1) else { return nil }
-        return Words.label(all[at + 1], catalog: app.catalog)
     }
 
     static func currentStep(_ run: Run) -> String? {

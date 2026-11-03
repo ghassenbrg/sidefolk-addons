@@ -315,7 +315,9 @@ import SidefolkExtensionKit
     private func tell(_ run: Run) async {
         guard run.mode == .live else { return }
         switch run.status {
-        case .needs_you, .failed, .interrupted:
+        case .needs_you, .interrupted:
+            await askTheWayForward(run)
+        case .failed:
             await host?.notify(title: L("{flow} stopped", ["flow": run.flowName]), body: run.problem, attention: true)
         case .done:
             guard ExtensionSettings.string("tell") == "always" else { return }
@@ -324,6 +326,21 @@ import SidefolkExtensionKit
         default:
             break
         }
+    }
+
+    /// Where they are, the question that gets a stopped run going again, answered right there. Nobody answering leaves it where it is, on the page.
+    private func askTheWayForward(_ run: Run) async {
+        let step = run.records.last?.summary ?? ""
+        let question = run.status == .interrupted
+            ? L("{flow} stopped in the middle of this: {step}. Did it happen?", ["flow": run.flowName, "step": step])
+            : L("{flow} needs you. {why}", ["flow": run.flowName, "why": run.problem ?? step])
+        let choices: [(words: String, how: Forward)] = run.status == .interrupted
+            ? [(L("It didn't: try again"), .try_again), (L("It did: carry on"), .carry_on), (L("Stop here"), .stop)]
+            : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
+        guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil), answer.ok,
+              let chosen = choices.first(where: { answer.text.contains($0.words) }),
+              let now = store.run(run.id), now.status == run.status else { return }
+        proceed(run.id, chosen.how)
     }
 
     // MARK: After a stop
