@@ -1,137 +1,312 @@
 import Foundation
 import SidefolkExtensionKit
 
-// The number games' parts: a thermometer, a number field with its digit pad, and lives.
+// The number games' parts: the mechanical counter with numerals on cards, a warmth bar with its marker and word, a big field with a pad on felt, and lives. Higher or Lower's boards
+// are here too, both ways round in one identity: a number from 1 to a top, never comparing next cards. A range up to a million shrinks its numerals, never the counter.
 extension BoardDrawing {
-    private static let cold = "#5AA9FF"
+    private static let counterRatio = 515.0 / 760
+    /// Blue through lilac to orange, never a verdict's colours.
+    private static let warmthColours = ["#8CC4F2", "#A6C8F0", "#BEC8EE", "#CFC6E6", "#E2CCD4", "#F0D0B4", "#F8D098", "#FBC481", "#FAB46C", "#F9A25C"]
 
-    private static func tint(_ v: Double) -> Color { .hex(v < 0.5 ? cold : v < 0.8 ? "#FFC46B" : "#FF8A3D") }
-    private static func tintHex(_ v: Double) -> String { v < 0.5 ? cold : v < 0.8 ? "#FFC46B" : "#FF8A3D" }
-
-    /// Cold to warm, with its words: a thermometer lying down, its bulb in the reading's colour, the tube filling toward Hot, ticks along it.
-    /// Blue to orange, never a verdict's colours.
-    func meter(_ value: Double, label: String?, low: String?, high: String?) -> PartBlock {
-        let width = Self.inner, room = width - 20
-        let labelH = TextFit.lineHeight(13, "semibold")
-        let height = 10 + 26 + 4 + labelH + 10
-        let tube = room - 20
-        let fill = max(14, tube * min(max(value, 0), 1))
-        let tint = Self.tint(value)
-        // It rises from where it was, then rests at its true width.
+    /// The bar: ten soft steps from cold to hot, a marker above where the last guess stands, its word beside it. It keeps its place before there is a reading: no marker, no word.
+    func warmth(_ value: Double, label: String?, width: Double) -> Node {
+        let wordW = 86.0, barW = width - wordW - 6, h = 30.0
+        let step = (barW - 4) / 10
+        let at = 2 + (barW - 4) * Swift.min(Swift.max(value, 0), 1) - 7
         var before: Double?
-        for case .play(.meter(let old, _, _, _)) in ctx.previous?.parts ?? [] { before = old }
-        if ctx.fresh, let before, before != value {
-            let from = max(14, tube * min(max(before, 0), 1)) / fill
-            anims.append(.keys("meter.fill", [["t": 0, "sx": from], ["t": 1, "sx": 1]], ms: 500, ease: "spring"))
+        for case .play(.meter(let old, let oldLabel, _, _)) in ctx.previous?.parts ?? [] where oldLabel != nil { before = old }
+        if ctx.fresh, label != nil, let before, before != value {
+            let from = 2 + (barW - 4) * Swift.min(Swift.max(before, 0), 1) - 7
+            anims.append(.keys("meter.mark", [["t": 0, "x": from], ["t": 1, "x": at]], ms: 460, ease: "spring"))
+        } else if ctx.fresh, label != nil, before == nil {
+            anims.append(.keys("meter.mark", [["t": 0, "opacity": 0, "y": -6], ["t": 1, "opacity": 1, "y": 0]], ms: 260, ease: "out"))
         }
-        return PartBlock(.box("meter", w: width, h: height) {
-            Node.gameCard(corner: 16, alpha: 0.94, w: width, h: height).id("meter.card")
-            Node.box("meter.tube", x: 10 + 20, y: 10 + 6, w: tube, h: 14) {
-                Node.capsule().gradient([.hex(Self.cold), .hex("#B8D8FF"), .hex("#FFC46B"), .hex("#FF8A3D")], from: (0, 0.5), to: (1, 0.5)).id("meter.range").size(tube, 14).opacity(0.3)
-                Node.box("meter.fill", w: fill, h: 14) {
-                    Node.capsule().gradient([.hex(Self.cold), tint], from: (0, 0.5), to: (1, 0.5)).size(fill, 14)
-                    Node.capsule(fill: Paint.clear("#FFFFFF", 0.35)).at(6, 2).size(max(fill - 12, 1), 3)
-                }.anchor(0, 0.5)
-                for i in 1..<10 { Node.rect(fill: Paint.clear("#FFFFFF", 0.6)).at(tube * Double(i) / 10, 4).size(1, 6) }
-                Node.capsule(stroke: Paint.clear("#FFFFFF", 0.8), lineWidth: 1.5).at(0.75, 0.75).size(tube - 1.5, 12.5)
-            }
-            // The bulb, lit from its top corner: a plain gradient, as the frame's shine (D99).
-            Node.ellipse(stroke: Paint.white, lineWidth: 2).gradient([Paint.clear("#FFFFFF", 0.7), tint], from: (0.3, 0.2), to: (0.7, 0.8)).id("meter.bulb").at(11, 11).size(24, 24)
-                .shadow(Paint.clear(Self.tintHex(value), 0.5), radius: 4, dx: 0, dy: 0)
-            Node.box("meter.words", x: 10, y: 10 + 26 + 4, w: room, h: labelH) {
-                if let low {
-                    Node.symbol("snowflake", color: .inkMuted).symbolLook(weight: "regular").at(0, (labelH - 12) / 2).size(12, 12)
-                    Node.words(low, size: 11.5, weight: "regular", color: .inkMuted, design: "default", x: 16, w: room / 3 - 16, h: labelH)
+        return .box("meter", w: width, h: h) {
+            Node.capsule(fill: Paint.card, stroke: Paint.card, lineWidth: 2).id("meter.bar").at(0, 12).size(barW, 16).shadow(Paint.black8, radius: 2, dx: 0, dy: 1)
+            Node.box("meter.steps", x: 2, y: 14, w: barW - 4, h: 12) {
+                for (i, hex) in Self.warmthColours.enumerated() {
+                    Node.rect(fill: .hex(hex)).at(Double(i) * step, 0).size(step + 0.5, 12)
                 }
-                if let label { Node.words(label, size: 13, weight: "semibold", align: "center", design: "default", x: room / 3, w: room / 3, h: labelH) }
-                if let high {
-                    Node.words(high, size: 11.5, weight: "regular", color: .inkMuted, align: "trailing", design: "default", x: room * 2 / 3, w: room / 3 - 16, h: labelH)
-                    Node.symbol("flame.fill", color: .inkMuted).symbolLook(weight: "regular").at(room - 12, (labelH - 12) / 2).size(12, 12)
-                }
+            }.corner(6).clip()
+            if label != nil {
+                Node.path("M 0 0 L 14 0 L 7 9 Z", fill: Paint.ink).id("meter.mark").at(at, 0).size(14, 9)
             }
-        }.label(label ?? "\(Int(value * 100))%"), height: height)
+            if let label {
+                Node.words(label, size: 14, weight: "black", align: "center", minScale: 0.6, x: barW + 6, y: 6, w: wordW, h: 22).id("meter.word")
+            }
+        }.label(label ?? L("No reading yet"))
     }
 
     /// A number as the person's language groups it ("1,000,000", "1 000 000"), in its digits.
     static func grouped(_ n: Int) -> String { Format.integer(n) }
 
-    /// A big number with a digit pad, and the guesses so far with where the answer lies (↑ higher, ↓ lower, ✓).
-    func numberField(min: Int, max: Int, label: String?, history: [(Int, String)], locked: Bool) -> PartBlock {
-        let width = Self.inner, room = width - 20
-        var y = 10.0
-        var nodes: [Node] = []
-        if !history.isEmpty {
-            // Fewer of them on a wide range (up to a million), so the row stays one line.
-            let shown = Array(history.suffix(max >= 100_000 ? 4 : max >= 1000 ? 6 : 8))
-            let chips = shown.map { guessChip($0.0, mark: $0.1) }
-            let total = chips.reduce(-5.0) { $0 + $1.width + 5 }
-            var x = (room - total) / 2 + 10
-            for (i, chip) in chips.enumerated() {
-                nodes.append(chip.node.id("guess.\(history.count - shown.count + i)").at(x, y))
-                x += chip.width + 5
-            }
-            y += 20 + 10
-        }
-        // The field and its pad: left to right in every language, as a phone's pad is.
-        let padW = 3 * 44 + 2 * 4.0, padH = 4 * 26 + 3 * 4.0
-        let draft = ctx.local.draft
-        let words = draft.isEmpty ? "?" : Int(draft).map(Self.grouped) ?? draft
-        let wanted = TextFit.width(words, size: 40, weight: "heavy") + 16
-        let fieldW = Swift.min(Swift.max(110, wanted), room - padW - 12)
-        let startX = (room - fieldW - 12 - padW) / 2 + 10
-        nodes.append(.box("number", x: startX, y: y, w: fieldW + 12 + padW, h: padH) {
-            Node.rect(fill: .surfaceSunken, corner: 14).id("number.well").at(0, (padH - 64) / 2).size(fieldW, 64)
-            Node.words(words, size: 40, weight: "heavy", color: draft.isEmpty ? .inkFaint : .ink, align: "center", minScale: 0.5, x: 8, y: (padH - 64) / 2, w: fieldW - 16, h: 64)
-                .textLook(tabular: true).label(label ?? L("Your guess"))
-            digitPad(locked: locked).at(fieldW + 12, 0)
-        }.leftToRight())
-        y += padH + 10
-        if let label {
-            let h = TextFit.lineHeight(11.5)
-            nodes.append(Node.words(label, size: 11.5, weight: "regular", color: .inkMuted, align: "center", design: "default", x: 10, y: y, w: room, h: h))
-            y += h + 10
-        }
-        if !locked {
-            keys.append(StageKey(key: "digit", id: "digit"))
-            keys.append(StageKey(key: "delete", id: "draft_delete"))
-            keys.append(StageKey(key: "return", id: "draft_return"))
-        }
-        return PartBlock(.box("field", w: width, h: y) {
-            Node.gameCard(corner: 16, alpha: 0.92, w: width, h: y).id("field.card")
-            nodes
-        }, height: y)
+    /// The counter as a part on its own.
+    func counterBlock(_ words: String?, caption: String?) -> PartBlock {
+        let w = 200.0
+        return PartBlock(.box("counter.part", w: Self.inner, h: w * Self.counterRatio) { counter(words, caption: caption, w: w).at((Self.inner - w) / 2, 0) }, height: w * Self.counterRatio)
     }
 
-    private func guessChip(_ value: Int, mark: String) -> (node: Node, width: Double) {
-        let right = mark == "right"
-        let words = Self.grouped(value)
-        let w = TextFit.width(words, size: 11.5, weight: "semibold") + 2 + 12 + 14
-        let symbol = mark == "higher" ? "arrow.up" : mark == "lower" ? "arrow.down" : "checkmark"
-        let ink: Color = right ? Paint.white : .ink
-        return (Node.box(w: w, h: 20) {
-            Node.capsule(fill: right ? .win : .surfaceSunken).size(w, 20)
-            Node.words(words, size: 11.5, weight: "semibold", color: ink, align: "trailing", design: "default", x: 7, w: w - 14 - 14, h: 20).textLook(tabular: true)
-            Node.symbol(symbol, color: ink).symbolLook().at(w - 7 - 12, 4).size(12, 12)
-        }.leftToRight(), w)
-    }
-
-    /// 1–9, then ⌫ 0 ↵.
-    private func digitPad(locked: Bool) -> Node {
-        let rows = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["delete", "0", "return"]]
-        return Node.box("pad", w: 3 * 44 + 2 * 4.0, h: 4 * 26 + 3 * 4.0) {
-            for (r, row) in rows.enumerated() {
-                for (c, k) in row.enumerated() {
-                    Node.box("pad.\(k)", x: Double(c) * 48, y: Double(r) * 30, w: 44, h: 26) {
-                        Node.rect(fill: k == "return" ? .accent : .surfaceSunken, corner: 6).size(44, 26)
-                        if k == "delete" { Node.symbol("delete.left", color: .ink).symbolLook().at(13, 4).size(18, 18) }
-                        else if k == "return" { Node.symbol("return", color: .onAccent).symbolLook().at(13, 4).size(18, 18) }
-                        else { Node.words(k, size: 14, weight: "semibold", align: "center", w: 44, h: 26) }
+    /// The counter from the pack, its window holding live cards: one for each digit, any other sign narrower and bare. A digit that changes turns over, one after another. With no
+    /// number yet its cards show a question mark, and nodding while the companion thinks.
+    func counter(_ words: String?, caption: String?, w: Double) -> Node {
+        let h = w * Self.counterRatio
+        let winX = w * 0.185, winY = h * 0.35, winW = w * 0.515, winH = h * 0.385
+        let shown = Array(words ?? "??")
+        func isCard(_ c: Character) -> Bool { c.wholeNumberValue != nil || c == "?" }
+        let gap = Swift.max(winW * 0.012, 1)
+        func share(_ c: Character) -> Double { isCard(c) ? 1 : c.isWhitespace ? 0.08 : 0.42 }
+        let shares = shown.reduce(0) { $0 + share($1) }
+        let cardW = Swift.min((winW - 6 - gap * Double(shown.count - 1)) / shares, winH * 0.72)
+        let total = shares * cardW + gap * Double(shown.count - 1)
+        let cardH = winH - 6, size = Swift.min(cardH * 0.86, cardW * 1.5)
+        var before: [Character] = []
+        if let old = ctx.previous?.counterPart?.words { before = Array(old) }
+        let turning = ctx.fresh && words != nil && before != shown
+        var x = winX + (winW - total) / 2
+        var cards: [Node] = []
+        for (i, c) in shown.enumerated() {
+            let id = "counter.\(i)"
+            if isCard(c) {
+                let old: Character? = before.count == shown.count && before[i] != c ? before[i] : nil
+                func numeral(_ n: Character, _ suffix: String, opacity: Double) -> Node {
+                    Node.words(String(n), size: size, weight: "black", color: c == "?" ? Paint.lilacDeepFixed : Paint.onCream, align: "center", minScale: 0.5, w: cardW, h: cardH).id(id + suffix).opacity(opacity)
+                }
+                cards.append(Node.box(id, x: x, y: winY + 3, w: cardW, h: cardH) {
+                    Node.rect(fill: Paint.cream, corner: Swift.min(cardW * 0.14, 6)).id(id + ".card").size(cardW, cardH).shadow(Paint.clear("#4A2E12", 0.28), radius: 1.5, dx: 0, dy: 1)
+                    if let old, turning { numeral(old, ".old", opacity: 0) }
+                    numeral(c, ".new", opacity: 1)
+                    Node.rect(fill: Paint.clear("#14275A", 0.14)).id(id + ".seam").at(0, cardH / 2).size(cardW, 1)
+                }.anchor(0.5, 0.5))
+                let changes = before.count != shown.count || before[i] != c
+                if turning, changes {
+                    let delay = Double(i) * 45
+                    anims.append(Anim.keys(id, [["t": 0, "sy": 1], ["t": 0.5, "sy": 0.06], ["t": 1, "sy": 1]], ms: 320, ease: "in_out").delay(ms: delay))
+                    if old != nil {
+                        anims.append(Anim.keys(id + ".old", [["t": 0, "opacity": 1], ["t": 0.5, "opacity": 1], ["t": 0.501, "opacity": 0], ["t": 1, "opacity": 0]], ms: 320).delay(ms: delay))
+                        anims.append(Anim.keys(id + ".new", [["t": 0, "opacity": 0], ["t": 0.5, "opacity": 0], ["t": 0.501, "opacity": 1], ["t": 1, "opacity": 1]], ms: 320).delay(ms: delay))
                     }
-                    .area("digit", value: k, label: k == "delete" ? L("Delete") : k == "return" ? L("Your guess") : k, disabled: locked, hover: nil, press: AreaLook(scale: 0.95), sound: k == "return" && !ctx.local.draft.isEmpty ? "sounds/tap.wav" : nil)
-                    .opacity(locked ? 0.5 : 1)
+                } else if words == nil {
+                    anims.append(Anim.keys(id, [["t": 0, "sy": 1], ["t": 0.5, "sy": 0.55], ["t": 1, "sy": 1]], ms: 420, ease: "in_out").delay(ms: Double(i) * 90).repeating(3))
+                }
+                x += cardW + gap
+            } else {
+                cards.append(Node.words(String(c), size: size * 0.8, weight: "black", color: Paint.onCream, align: "center", minScale: 0.5, x: x, y: winY + 3, w: share(c) * cardW, h: cardH))
+                x += share(c) * cardW + gap
+            }
+        }
+        return .box("counter", w: w, h: h) {
+            Node.art("art/counter-frame.webp", w: w, h: h).id("counter.frame")
+            if let caption {
+                Node.words(caption, size: Swift.max(w * 0.052, 8.5), weight: "heavy", color: Paint.onCream, align: "center", minScale: 0.6, x: w * 0.215, y: h * 0.055, w: w * 0.44, h: h * 0.16).id("counter.caption")
+            }
+            Node.box("counter.window", w: w, h: h) { cards }.leftToRight()
+        }
+    }
+
+    /// The plate under the counter that says where the number still is: one capsule, its words shrinking.
+    private func rangePlate(_ words: String, width: Double, h: Double = 34) -> Node {
+        .box("range", w: width, h: h) {
+            Node.capsule(fill: Paint.card).id("range.back").size(width, h).shadow(Paint.clear("#4A2E12", 0.14), radius: 3, dx: 0, dy: 2)
+            Node.words(words, size: h * 0.56, weight: "black", align: "center", minScale: 0.55, x: 14, w: width - 28, h: h).id("range.words").textLook(tabular: true)
+        }
+    }
+
+    /// The guesses so far, newest last, on a strip that keeps its room from the first move: as many as fit, each with where the answer lies. Direction, not a verdict: all in ink.
+    private func historyRow(_ history: [(Int, String)], width: Double, h: Double = 26) -> Node {
+        var chips: [(words: String, mark: String, w: Double)] = []
+        var used = 0.0
+        for (value, mark) in history.reversed() {
+            let words = Self.grouped(value), w = TextFit.width(words, size: 13, weight: "heavy") + 2 + 16 + 14
+            guard used + w <= width - 14 else { break }
+            chips.insert((words, mark, w), at: 0)
+            used += w
+        }
+        var x = (width - used) / 2
+        return .box("history", w: width, h: h) {
+            Node.capsule(fill: Paint.lilac).id("history.back").size(width, h)
+            for (i, chip) in chips.enumerated() {
+                let id = "guess.\(history.count - chips.count + i)"
+                let symbol = chip.mark == "higher" ? "arrow.up" : chip.mark == "lower" ? "arrow.down" : "checkmark"
+                Node.box(id, x: x, y: 0, w: chip.w, h: h) {
+                    Node.words(chip.words, size: 13, weight: "heavy", align: "trailing", minScale: 0.7, x: 2, w: chip.w - 22, h: h).textLook(tabular: true)
+                    Node.symbol(symbol, color: chip.mark == "right" ? Color.win : Paint.ink).symbolLook(weight: "heavy").at(chip.w - 18, (h - 12) / 2).size(12, 12)
+                    if i > 0 { Node.rect(fill: Paint.clear("#8E72B5", 0.45)).at(0, 6).size(1, h - 12) }
+                }
+                let _ = (x += chip.w)
+            }
+        }.leftToRight().label(L("Your guesses"))
+    }
+
+    /// What is typed, large, in its field. Refused, it shakes.
+    private func numberInput(draft: String, label: String?, y: Double, width: Double, h: Double) -> Node {
+        let words = draft.isEmpty ? "?" : Int(draft).map(Self.grouped) ?? draft
+        let refused = ctx.fresh && board.parts.contains { if case .note(_, _, .warn) = $0 { true } else { false } }
+        if refused { shake("number.field", x: (Self.inner - width) / 2) }
+        return .box("number.field", x: (Self.inner - width) / 2, y: y, w: width, h: h) {
+            Node.capsule(fill: Paint.card, stroke: Paint.action, lineWidth: 2.5).id("number.well").at(1.25, 1.25).size(width - 2.5, h - 2.5).shadow(Paint.clear("#14275A", 0.14), radius: 3, dx: 0, dy: 2)
+            Node.words(words, size: h * 0.68, weight: "black", color: draft.isEmpty ? Paint.inkFaint : Paint.ink, align: "center", minScale: 0.45, x: 20, w: width - 40, h: h)
+                .id("number.words").textLook(tabular: true).label(label ?? L("Your guess"))
+        }.leftToRight()
+    }
+
+    /// 1–9, then ⌫ 0 and Guess, on felt: left to right in every language, as a phone's pad is. Everything takes the same room whether it can be pressed or not.
+    private func numberPad(locked: Bool, width: Double, height: Double, submit: String) -> Node {
+        let inset = 14.0, gap = 7.0, topRoom = 18.0
+        let keyW = (width - 2 * inset - 2 * gap) / 3, keyH = (height - topRoom - inset - 3 * gap) / 4
+        let rows = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["delete", "0", "return"]]
+        let ready = !ctx.local.draft.isEmpty && !locked
+        func key(_ k: String, row: Int, column: Int) -> Node {
+            let id = "pad.\(k)", isReturn = k == "return", isDelete = k == "delete"
+            let node = Node.box(id, x: inset + Double(column) * (keyW + gap), y: topRoom + Double(row) * (keyH + gap), w: keyW, h: keyH) {
+                Node.rect(fill: isReturn ? Paint.action : isDelete ? Paint.lilac : Paint.card, corner: 11).id(id + ".face").size(keyW, keyH).shadow(Paint.clear("#3A2A55", 0.24), radius: 2, dx: 0, dy: 2)
+                if isDelete {
+                    Node.symbol("delete.left", color: Paint.ink).symbolLook(weight: "bold").at((keyW - 24) / 2, (keyH - 20) / 2).size(24, 20)
+                } else if isReturn {
+                    Node.words(submit, size: 16, weight: "black", color: Paint.onAction, align: "center", minScale: 0.6, x: 4, w: keyW - 8, h: keyH)
+                } else {
+                    Node.words(Format.integer(Int(k) ?? 0), size: 20, weight: "black", align: "center", w: keyW, h: keyH)
                 }
             }
+            .area("digit", value: k, label: isDelete ? L("Delete") : isReturn ? submit : k, disabled: locked || (isReturn && !ready), hover: AreaLook(scale: 1.03), press: AreaLook(scale: 0.95, dy: 1), sound: isReturn ? "sounds/tap.wav" : nil)
+            return locked ? node.opacity(0.55) : isReturn && !ready ? node.opacity(0.6) : node
         }
+        return .box("pad.tray", w: width, h: height) {
+            Node.felt("pad.felt", w: width, h: height, corner: 22)
+            Node.box("pad", w: width, h: height) {
+                for (r, row) in rows.enumerated() {
+                    for (c, k) in row.enumerated() { key(k, row: r, column: c) }
+                }
+            }.leftToRight()
+        }
+    }
+
+    /// A number field with its pad, standing alone (a number a person hides for another): the same parts as a guess.
+    func numberField(min: Int, max: Int, label: String?, history: [(Int, String)], locked: Bool) -> PartBlock {
+        if !locked { numberKeys() }
+        let h = 42.0, pad = 220.0
+        return PartBlock(.box("field", w: Self.inner, h: h + pad - 8) {
+            numberPad(locked: locked, width: 340, height: pad, submit: L("Guess")).at(16, h - 8)
+            numberInput(draft: ctx.local.draft, label: label, y: 0, width: 300, h: h)
+        }, height: h + pad - 8)
+    }
+
+    private func numberKeys() {
+        keys.append(StageKey(key: "digit", id: "digit"))
+        keys.append(StageKey(key: "delete", id: "draft_delete"))
+        keys.append(StageKey(key: "return", id: "draft_return"))
+    }
+
+    // MARK: Higher or Lower
+
+    /// You guess (concept 09): the counter beside the bubble with your last guess, the range, the warmth, the guesses, what you're typing, the pad, and the quiet way to swap.
+    func numbersGuessTable() -> Node {
+        let n = board.numberPart!, room = playRoom, width = Self.inner
+        let hiding = board.counterPart == nil
+        if !n.locked { numberKeys() }
+        let counterW = 166.0, counterH = counterW * Self.counterRatio
+        let tail = 14.0
+        let rangeY = counterH - stageRoomAboveBoard + tail
+        let meterY = rangeY + 34 + 3, historyY = meterY + 30 + 4, inputY = historyY + 26 + 5
+        let inputH = 44.0, linkH = 26.0
+        let padY = inputY + inputH - 12, padH = room - linkH - 2 - padY
+        let last = board.counterPart
+        var nodes: [Node] = [
+            counter(last?.words ?? "??", caption: last?.caption, w: counterW).at(width - counterW + 10, -stageRoomAboveBoard + tail - 4),
+            rangePlate(n.label ?? " ", width: 300).at((width - 300) / 2, rangeY),
+        ]
+        if let m = board.meterPart, !hiding {
+            nodes.append(warmth(m.value, label: m.label, width: 340).at(16, meterY))
+        }
+        if !hiding {
+            nodes.append(historyRow(n.history, width: 300).at((width - 300) / 2, historyY))
+        }
+        nodes.append(numberPad(locked: n.locked, width: 340, height: padH, submit: hiding ? L("Hide it") : L("Guess")).at(16, padY))
+        nodes.append(numberInput(draft: ctx.buildUp ? "" : ctx.local.draft, label: n.label, y: inputY, width: 300, h: inputH))
+        if let link = tableButtons.first { nodes.append(quietLink(link, id: "swap", y: room - linkH)) }
+        return .box("guess", w: width, h: room) { nodes }
+    }
+
+    /// How far the stage stands above the board's top.
+    private var stageRoomAboveBoard: Double { (stageTall ?? 78) + 6 }
+
+    /// The companion guesses (concept 22): the big counter with its "Is it…?", where it stands, Higher, Lower and That's it! large with their key caps. Thinking, the cards nod and the answers wait.
+    func numbersAskedTable() -> Node {
+        let a = board.answersPart!, c = board.counterPart!, room = playRoom, width = Self.inner
+        answerKeys(a.tiles, locked: a.locked)
+        let linkH = 26.0, tileH = 86.0, gap = 8.0
+        let tilesY = room - linkH - 8 - tileH
+        let plateY = tilesY - 10 - 36
+        let counterH = plateY - 4 + 16, counterW = counterH / Self.counterRatio
+        let tileW = (width - 2 * gap) / 3
+        var nodes: [Node] = [
+            Node.felt("asked.mat", x: 4, y: counterH * 0.74, w: width - 8, h: plateY + 36 + 6 - counterH * 0.74, corner: 26),
+            counter(c.words, caption: c.caption, w: counterW).at((width - counterW) / 2 + counterW * 0.03, -4),
+            rangePlate(c.range ?? " ", width: 250, h: 36).at((width - 250) / 2, plateY),
+        ]
+        let symbols = ["arrow.up", "arrow.down", "checkmark"]
+        let caps = Self.keyCaps(a.tiles)
+        for (i, tile) in a.tiles.enumerated() {
+            nodes.append(answerCard(tile, index: i, cap: caps[i], locked: a.locked, w: tileW, h: tileH, symbol: symbols[safe: i], primary: i == 2).at(Double(i) * (tileW + gap), tilesY))
+        }
+        if let link = tableButtons.first { nodes.append(quietLink(link, id: "swap", y: room - linkH)) }
+        return .box("asked", w: width, h: room) { nodes }
+    }
+
+    /// The start (concept 21): the counter saying the range, two big ways to play, the range's segments, Start. "Other…" asks for its number in the counter's place, so nothing below it moves.
+    func numbersSetupTable() -> Node {
+        let width = Self.inner, room = playRoom
+        let modes = board.choicePart("mode")!
+        let counterW = 158.0, counterH = counterW * Self.counterRatio
+        let segH = 30.0, gap = 6.0
+        let startY = room - 46
+        let opponentY = startY - gap - segH
+        let topY = opponentY - gap - segH
+        let cardsY = counterH + gap, cardsH = topY - gap - cardsY
+        var nodes: [Node] = []
+        if let e = board.entryPart("top") {
+            nodes.append(entry(name: "top", kind: "text", label: e.label, placeholder: e.placeholder, button: L("Set"), max: e.max, locked: e.locked).node.at(0, Swift.max((counterH - 98) / 2, 0)))
+        } else if let c = board.counterPart {
+            nodes.append(Node.felt("setup.mat", x: 40, y: counterH * 0.66, w: width - 80, h: counterH * 0.34, corner: 20, stitch: false))
+            nodes.append(counter(c.words, caption: c.caption, w: counterW).at((width - counterW) / 2 + 4, 0))
+        }
+        let w = (width - 10) / 2
+        for (i, o) in modes.options.enumerated() {
+            nodes.append(wayCard(o, on: modes.selected == o.value, w: w, h: cardsH).at(Double(i) * (w + 10), cardsY))
+        }
+        choiceArrows(name: "mode", options: modes.options, selected: modes.selected, columns: 2)
+        if let t = board.choicePart("top") {
+            nodes.append(choice(name: "top", label: t.label, style: .segmented, options: t.options, selected: t.selected, compact: true, labelWidth: 62).node.at(0, topY))
+        }
+        if let o = board.choicePart("opponent") {
+            nodes.append(choice(name: "opponent", label: L("Play"), style: .segmented, options: o.options, selected: o.selected, compact: true, labelWidth: 62).node.at(0, opponentY))
+        }
+        nodes.append(buttonRow(tableButtons, id: "dock").node.at(0, startY))
+        return .box("setup", w: width, h: room) { nodes }
+    }
+
+    /// One way to play: its name, its picture, a line. "Guess mine" is the sealed envelope; "I'll guess yours" is the person themselves with a number in a thought.
+    private func wayCard(_ o: ChoiceOption, on: Bool, w: Double, h: Double) -> Node {
+        let id = "way.\(o.value)", titleH = 28.0, lineH = 30.0, picH = h - titleH - lineH - 12
+        let picture: Node
+        if o.value == "mine" {
+            let pw = Swift.min(w - 40, picH * 420 / 289), ph = pw * 289 / 420
+            picture = Node.art("art/envelope-q.webp", w: pw, h: ph).id(id + ".art").at((w - pw) / 2, 8 + titleH + (picH - ph) / 2)
+        } else {
+            let side = Swift.min(picH * 0.74, w * 0.44), cloudW = side * 0.86, cloudH = cloudW * 247 / 300
+            let x = (w - side - cloudW * 0.72) / 2, y = 8 + titleH + picH - side
+            picture = Node.box(id + ".art", w: w, h: h) {
+                Node.person().id(id + ".person").at(x, y).size(side, side).corner(side / 2).clip()
+                Node.art("art/thought-cloud.webp", x: x + side * 0.74, y: 8 + titleH, w: cloudW, h: cloudH)
+                Node.words(Format.integer(42), size: cloudH * 0.36, weight: "black", color: Paint.onCream, align: "center", x: x + side * 0.74, y: 8 + titleH, w: cloudW, h: cloudH * 0.92)
+            }
+        }
+        return Node.box(id, w: w, h: h) {
+            Node.rect(fill: o.value == "mine" ? Paint.card : Paint.lilac, corner: 16).id(id + ".face").size(w, h).shadow(Paint.clear("#4A2E12", 0.14), radius: 4, dx: 0, dy: 2)
+            Node.rect(stroke: on ? Paint.action : Paint.edge, lineWidth: on ? 3 : 1, corner: 16).id(id + ".edge").size(w, h)
+            Node.words(o.label, size: 18, weight: "black", align: "center", minScale: 0.6, x: 8, y: 8, w: w - 16, h: titleH)
+            picture
+            if let detail = o.detail { Node.words(detail, size: 12.5, weight: "semibold", align: "center", lines: 2, minScale: 0.7, x: 8, y: h - lineH - 4, w: w - 16, h: lineH) }
+        }.area("choice", value: "mode|\(o.value)", label: o.label, hover: AreaLook(scale: 1.015), press: AreaLook(scale: 0.98), selected: on, sound: "sounds/tap.wav")
     }
 
     /// Balloons or hearts left. Balloons are the pack's picture as a flat stencil, one colour each, as the panel really drew them (its multiply over a mask

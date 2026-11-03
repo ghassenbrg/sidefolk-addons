@@ -67,7 +67,7 @@ import Testing
         #expect(try TriviaEngine.play(.start, on: &s, random: &random) == [.sealed])
         #expect(s.phase == .question && s.round.count == 5 && Set(s.round).count == 5)
         #expect(s.round.allSatisfy { id in TriviaLibrary.questions(language: "en").first { $0.id == id }?.category == "space" })
-        #expect(TriviaRecords.load().setup == TriviaRecords.Setup(topic: "space", length: 5, quick: false), "the set-up is remembered")
+        #expect(TriviaRecords.load().setup == TriviaRecords.Setup(topic: "space", length: 5, quick: false, level: .fair), "the set-up is remembered")
 
         // The lifeline, once: two tiles fade, and the person can't pick one.
         let hint = try TriviaEngine.play(.hint, on: &s, random: &random)
@@ -140,8 +140,8 @@ import Testing
             var s = TriviaEngine.start(level: .fair, options: options, random: &random)
             let setup = TriviaScreen.board(s, events: [.opened], options: options).json
             let parts = setup["parts"] as! [[String: Any]]
-            #expect(parts.map { $0["type"] as! String } == ["prompt", "choice", "choice", "choice", "button", "choice"])
-            #expect((parts[0]["eyebrow"] as? String)?.seen == "Ein Quiz mit Nori" && parts[4]["label"] as? String == "Starten")
+            #expect(parts.map { $0["type"] as! String } == ["prompt", "choice", "choice", "choice", "choice", "button", "choice"])
+            #expect((parts[0]["eyebrow"] as? String)?.seen == "Ein Quiz mit Nori" && parts[5]["move"] as? String == "start")
             #expect((setup["companion"] as? [String: Any])?["line"] as? String == "hello")
 
             _ = try TriviaEngine.play(.start, on: &s, random: &random)

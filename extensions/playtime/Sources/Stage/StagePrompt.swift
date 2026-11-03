@@ -6,7 +6,7 @@ extension BoardDrawing {
     /// A dense board keeps a smaller companion, for every board of that game alike.
     private var compact: Bool { board.hasPuzzle || board.hasKeys || board.hasLetters }
     /// The stage's one height, whatever is said: one line or three, the board below stays where it is.
-    private var stageHeight: Double { compact ? 60 : 78 }
+    private var stageHeight: Double { stageTall ?? (compact ? 60 : 78) }
 
     /// The pose for the board's cue: a mood from the fixed list read as one of the states every companion is drawn in.
     var pose: String {
@@ -30,9 +30,9 @@ extension BoardDrawing {
     }
 
     func stage(text: String?, chip: String?) -> PartBlock {
-        let inner = Self.inner, h = stageHeight, side = compact ? 58.0 : 80.0
+        let inner = Self.inner, h = stageHeight, side = stageTall ?? (compact ? 58.0 : 80.0)
         let words = stageWords(prompt: text)
-        let bubbleW = inner - side - 8
+        let bubbleW = stageBubbleWidth ?? inner - side - 8
         return PartBlock(Node.box("stage", w: inner, h: h) {
             companionFigure(w: side, h: h + 6, y: 0)
             if let words { speechBubble(words, width: bubbleW, height: Swift.min(h - 6, 64)).node.at(side + 8, (h - Swift.min(h - 6, 64)) / 2) }

@@ -65,18 +65,22 @@ public struct Board {
     /// Sidefolk shows this board so long (100–6000 ms), then asks for the next with `.next`: the companion thinking
     /// before its move, two cards left face up a moment. The game keeps no clock.
     public var afterMs: Int?
+    /// What the companion's bubble says when the board's own words stand elsewhere (a question on its plaque): something short.
+    public var said: String?
 
-    public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil) {
+    public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil, said: String? = nil) {
         self.parts = parts
         self.companion = companion
         self.over = over
         self.afterMs = afterMs
+        self.said = said
     }
 
     public var json: [String: Any] {
         var out: [String: Any] = ["parts": parts.map(\.json), "over": over]
         if let companion { out["companion"] = companion.json }
         if let afterMs { out["after_ms"] = afterMs }
+        if let said { out["said"] = said }
         return out
     }
 }

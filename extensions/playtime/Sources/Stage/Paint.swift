@@ -34,6 +34,13 @@ enum Paint {
     static let butter = both("#F8DE94", "#6B5A2C")
     static let rose = both("#F6CFCB", "#6A3F4A")
     static let powder = both("#BFDCF2", "#35506E")
+    /// Words on the pack's cream props (a plaque, a ticket, a counter's cards), which stay cream at night.
+    static let onCream = Color.hex("#14275A")
+    static let cream = Color.hex("#FFF9F0")
+    static let lilacFixed = Color.hex("#E6DAF1")
+    static let lilacDeepFixed = Color.hex("#6F558F")
+    /// A wrong ticket: the calm tone of a loss, on a prop that stays cream at night.
+    static let lostCream = Color.hex("#EBD6C4")
     static let lostSoft = Color.adaptive(light: "#F3E4D6", dark: "#4A3A2F")
     static let lostEdge = Color.adaptive(light: "#B07A5299", dark: "#D9A98299")
     static let sun = Color.hex("#FFC93C")
@@ -98,6 +105,9 @@ enum Verdict: String {
         case .draw: .inkMuted
         }
     }
+
+    /// A plate on the arena.
+    var tileFill: Color { self == .win ? .win : self == .loss ? Paint.lostSoft : Paint.card }
 
     /// A tile's or a card's fill.
     var fill: Color {

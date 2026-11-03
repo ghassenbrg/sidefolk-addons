@@ -19,6 +19,8 @@ public enum PlayPart {
     case reflex(afterMs: Int?, windowMs: Int = 1500, wait: String, go: String, early: String, shows: String? = nil, keys: [String]? = nil)
     /// A thermometer, 0 cold to 1 warm, with words at either end.
     case meter(Double, label: String? = nil, low: String? = nil, high: String? = nil)
+    /// The big mechanical counter: words on its cards (a guess, "1 – 100"), or nil while it spins for the companion thinking. `caption` on its top plate, `range` on the plate under it.
+    case counter(String?, caption: String? = nil, range: String? = nil)
     /// A number field with a digit pad; Return sends `.number(n)`. `history`: earlier guesses, each `higher`, `lower` or `right`.
     case number(min: Int, max: Int, label: String? = nil, history: [(Int, String)] = [], locked: Bool = false)
     /// Letter tiles: `rows` (Daily Word: up to 8 of up to 24, marks `right`, `elsewhere`, `absent`; the row `flip` turns
@@ -59,6 +61,8 @@ public enum PlayPart {
                          "keys": keys])
         case .meter(let value, let label, let low, let high):
             return drop(["type": "meter", "value": value, "label": label, "low": low, "high": high])
+        case .counter(let words, let caption, let range):
+            return drop(["type": "counter", "words": words, "caption": caption, "range": range])
         case .number(let min, let max, let label, let history, let locked):
             return drop(["type": "number", "min": min, "max": max, "label": label, "history": history.map { ["value": $0.0, "mark": $0.1] },
                          "locked": locked])

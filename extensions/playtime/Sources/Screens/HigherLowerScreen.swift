@@ -198,10 +198,11 @@ enum HigherLowerScreen: GameScreen {
         var cue = EventCues.cue(events)
         var after: Int?
         if s.mode == nil {
-            parts = [.prompt(L("Pick a way to play"), eyebrow: numbers(s)),
+            parts = [.prompt(L("Who's hiding the number?"), eyebrow: numbers(s)),
+                     .play(.counter("\(Format.integer(s.low)) – \(Format.integer(s.high))")),
                      .choice(name: "mode", style: .cards, options: [
-                         ChoiceOption("mine", L("Guess mine"), detail: L("{name} hides one", ["name": o.companion]), symbol: "questionmark.square.fill"),
-                         ChoiceOption("yours", L("I'll guess yours"), detail: L("Think of one"), symbol: "brain.head.profile"),
+                         ChoiceOption("mine", L("Guess mine"), detail: L("{name} hides a number.", ["name": o.companion]), symbol: "questionmark.square.fill"),
+                         ChoiceOption("yours", L("I'll guess yours"), detail: L("Think of one for {name}.", ["name": o.companion]), symbol: "brain.head.profile"),
                      ], selected: (s.chosen ?? .mine).rawValue)]
             parts += tops(s)
             parts.append(.button(GameButton(L("Start"), move: "start", style: .primary, symbol: "play.fill")))
@@ -212,12 +213,12 @@ enum HigherLowerScreen: GameScreen {
             let last = game.guesses.last
             let text: String = if game.found { L("Yes! It was {n}.", ["n": game.shown ?? 0]) }
                 else if let last { last < game.low ? L("Higher than {n}!", ["n": last]) : L("Lower than {n}!", ["n": last]) }
-                else { L("I'm hiding a number from {low} to {high}. Guess it!", ["low": s.low, "high": s.high]) }
+                else { L("Guess my number!") }
             let history = game.guesses.map { g -> (Int, String) in (g, g == game.shown ? "right" : g < game.low ? "higher" : "lower") }
             parts = [.prompt(text, eyebrow: L("Guess {n} · par {par}", ["n": n + (game.found ? 0 : 1), "par": game.par]))]
-            if last != nil, !game.found {
-                parts.append(.play(.meter(game.warmth, label: warmth(game.warmth), low: L("Cold"), high: L("Hot"))))
-            }
+            parts.append(.play(.counter(last.map(Format.integer), caption: L("Your last guess"))))
+            // Its place is kept before the first reading: a bar with nothing on it yet.
+            parts.append(.play(.meter(game.warmth, label: last == nil ? nil : warmth(game.warmth), low: L("Cold"), high: L("Hot"))))
             parts.append(.play(.number(min: s.low, max: s.high, label: L("Between {low} and {high}", ["low": game.low, "high": game.high]),
                                        history: history, locked: game.found)))
             // Far off it shivers in frost; close, it fans itself.
@@ -228,22 +229,31 @@ enum HigherLowerScreen: GameScreen {
             if events.contains(where: { if case .sealed = $0 { true } else { false } }) { cue = Cue(move: "tease", prop: "sealed_card", line: "hello") }
         } else if let game = s.yours {
             let range = L("Between {low} and {high}", ["low": game.low, "high": game.high])
+            let answers = [Tile(L("Higher"), key: "h"), Tile(L("Lower"), key: "l"), Tile(L("That's it!"), key: "y")]
+            let guessing = L("{name} guesses", ["name": o.companion])
             if s.thinking {
-                parts.append(.prompt(L("Hmm… {range}…", ["range": range]), eyebrow: L("Question {n}", ["n": game.asked])))
+                parts.append(.prompt(L("Hmm… {range}…", ["range": range]), eyebrow: guessing + " · " + L("Question {n}", ["n": game.asked])))
+                // The cards nod while it thinks; the answers stay where they are, waiting.
+                parts.append(.play(.counter(nil, range: range)))
+                parts.append(.answers(answers, layout: .row, locked: true))
                 after = events.compactMap { if case .think(let ms) = $0 { ms } else { nil } }.first ?? 900
                 cue = Cue(move: "think", effect: "question", line: "thinking", look: "panel")
             } else if game.found {
                 parts.append(.prompt(L("Got it: {n}!", ["n": game.guess]), eyebrow: L("Found in {n}", ["n": game.asked])))
+                parts.append(.play(.counter(Format.integer(game.guess), range: range)))
+                parts.append(.answers(answers, layout: .row, locked: true))
             } else {
-                parts.append(.prompt(L("Is it… {n}?", ["n": game.guess]), eyebrow: range))
+                parts.append(.prompt(L("Is it… {n}?", ["n": game.guess]), eyebrow: guessing + " · " + L("Question {n}", ["n": game.asked])))
                 if let earlier = game.contradicts {
                     parts.append(.note(L("Hmm, that doesn't fit what you said about {n} before…", ["n": earlier]), tone: .warn))
                 }
-                parts.append(.answers([Tile(L("Higher"), key: "h"), Tile(L("Lower"), key: "l"), Tile(L("That's it!"), key: "y")], layout: .row))
+                parts.append(.play(.counter(Format.integer(game.guess), range: range)))
+                parts.append(.answers(answers, layout: .row))
             }
         }
         if let note = refusal(events, low: s.low, high: s.high) { parts.append(note) }
-        if let mode = s.mode, !s.over, !s.thinking { parts.append(.button(switchButton(from: mode, o))) }
+        // While it thinks the swap waits, in its place.
+        if let mode = s.mode, !s.over { parts.append(.button(switchButton(from: mode, o, disabled: s.thinking))) }
         if let outcome = s.outcome {
             let guesses = s.mine?.guesses.count ?? s.yours?.asked ?? 0
             let par = s.mine?.par ?? Games.HigherLower.par(s.high - s.low + 1)
@@ -269,9 +279,9 @@ enum HigherLowerScreen: GameScreen {
     }
 
     /// The other way round, named by who guesses next: during a game (plain) and on its end card.
-    static func switchButton(from mode: HigherLowerEngine.Mode, _ o: GameOptions) -> GameButton {
-        GameButton(mode == .mine ? L("Switch: {name} guesses", ["name": o.companion]) : L("Switch: you guess"), move: "switch",
-                   style: .plain, symbol: "arrow.left.arrow.right", key: "s")
+    static func switchButton(from mode: HigherLowerEngine.Mode, _ o: GameOptions, disabled: Bool = false) -> GameButton {
+        GameButton(mode == .mine ? L("Let {name} guess instead", ["name": o.companion]) : L("Switch: I'll guess"), move: "switch",
+                   style: .plain, symbol: "arrow.left.arrow.right", key: "s", disabled: disabled)
     }
 
     /// The thermometer's word, in the bands its tube is drawn in (Sidefolk's `MeterView`: blue under half, then
