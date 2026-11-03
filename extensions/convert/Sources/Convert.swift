@@ -50,7 +50,7 @@ enum Convert {
 
     static func make(_ path: String, target: String, small: Bool, removeLocation: Bool) async throws -> [Made] {
         guard let kind = kind(of: path) else { throw Problem(L("{file} isn't a kind of file Formatic knows.", ["file": (path as NSString).lastPathComponent])) }
-        guard !same(path, target, small: small) else { throw Problem(L("{file} is already that kind of file.", ["file": (path as NSString).lastPathComponent])) }
+        guard !same(path, target, small: small) else { throw Problem(L("{file} is already that kind of file. Drop it again and pick another format.", ["file": (path as NSString).lastPathComponent])) }
         let folder = Paths.data + "/" + holding
         try FileManager.default.createDirectory(atPath: folder, withIntermediateDirectories: true)
         let stem = stem(of: path)

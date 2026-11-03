@@ -52,7 +52,7 @@ ext.page("main") { _ in
     let recent = Recent.all()
     var sections = [
         Section(nil, [.hero(Hero(L("Any file, in the form you need."),
-                                 detail: L("Drop files on your companion from anywhere. Originals are never changed, and Formatic sends nothing anywhere."),
+                                 detail: L("Drop files on your companion. Originals never change."),
                                  actions: [Action(L("Choose a file…"), act: .file(tool: "convert", param: "path", types: [], input: [:]), style: .secondary)],
                                  scene: Picture.pack("glass-pair.png")))]),
     ]
