@@ -221,8 +221,9 @@ import SidefolkExtensionKit
         var hero = Hero(L("Teach your companion a routine"), detail: L("Say it once. Watch it practise, with nothing changed. Then it's yours."), symbol: "point.3.connected.trianglepath.dotted")
         hero.figure = .companion(.full)
         hero.says = L("What should I take off your hands?")
-        hero.tile = tile
-        hero.wash = tile
+        // Flat, as the buttons are: the line alone runs from one colour to the other.
+        hero.tile = [accent[0]]
+        hero.wash = [accent[1]]
         var main = [Section(nil, [.hero(hero)], wide: true)]
         if !describing(app).isEmpty { main.append(Section(nil, describing(app), wide: true)) }
         main.append(Section(L("Or start from one of these"), [.cards(size: .small, templateCards(app)), .action(button(L("Start blank"), "new", style: .plain, symbol: "plus"))], wide: true))
@@ -609,7 +610,7 @@ import SidefolkExtensionKit
 
 /// What a step will need, said in advance. Sidefolk holds the rule and enforces it: this only tells the person before the card does.
 @MainActor enum Hints {
-    private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "reminders.create": ["title", "notes"], "notify.user": ["title", "body"], "ask.user": ["question"]]
+    private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "notes.search": ["query"], "reminders.create": ["title", "notes"], "notify.user": ["title", "body"], "ask.user": ["question"]]
 
     static func asksEachTime(_ step: Step, catalog: Catalog? = nil) -> Bool {
         guard case .action(let tool, let input) = step.kind else { return false }
