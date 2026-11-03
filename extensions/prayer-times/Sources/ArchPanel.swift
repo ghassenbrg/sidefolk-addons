@@ -88,7 +88,7 @@ extension Node {
     static func medallion(_ symbol: String, cx: Double, cy: Double, d: Double, ink: Color = Noor.text, ring: Color = Color.adaptive(light: "#7354B8", dark: "#8F93E8"), glyph: Double = 0.48) -> Node {
         Node.group {
             Node.ellipse(fill: Color.adaptive(light: "#EEE8F5", dark: "#20266E"), stroke: ring, lineWidth: 1.4).size(d, d).at(0, 0)
-            Node.symbol(symbol, color: ink).size(d * glyph, d * glyph).at(d * (1 - glyph) / 2, d * (1 - glyph) / 2)
+            Node.icon(symbol, color: ink, side: d * glyph).at(d * (1 - glyph) / 2, d * (1 - glyph) / 2)
         }
         .size(d, d).at(cx - d / 2, cy - d / 2)
     }

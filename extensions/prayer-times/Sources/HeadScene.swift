@@ -95,7 +95,7 @@ enum HeadScene {
             let ink = chosen ? Color.hex("#FFFFFF") : Noor.text
             out.append(Node.group {
                 if chosen { Node.rect(fill: Noor.picked, stroke: Noor.pickedEdge, lineWidth: 1, corner: r.u(12)).size(width, h) }
-                Node.symbol(tab.symbol, color: ink).size(glyph, glyph).at(r.u(16), (h - glyph) / 2)
+                Node.icon(tab.symbol, color: ink, side: glyph).at(r.u(16), (h - glyph) / 2)
                 if !tight || chosen { Node.say(word, r.u(16) + glyph + r.u(12), 0, width - glyph - r.u(30), h, size: size, weight: chosen ? "semibold" : "regular", color: ink) }
             }
             .size(width, h).at(x, y)

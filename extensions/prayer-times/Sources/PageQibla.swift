@@ -78,7 +78,7 @@ enum QiblaPage {
             Node.say(L("Qibla"), pad, r.u(26), placeX - pad, r.u(50), size: r.f(38, min: 20), weight: "semibold")
             Node.say(L("Direction from your location"), pad, r.u(74), placeX - pad - 6, r.u(32), size: r.f(21, min: 12.5), color: Noor.muted)
             // Where it is from. No menu here: the one way to change a place is the button under it.
-            pin(size: r.f(24, min: 15)).at(placeX + r.u(8), r.u(34))
+            Node.pin(size: r.f(24, min: 15)).at(placeX + r.u(8), r.u(34))
             Node.say(placeLine(place), placeX + r.u(38), r.u(30), placeW - r.u(38), r.u(34), size: r.f(19.5, min: 12.5))
             Node.pill("place", label: L("Choose another place"), x: placeX, y: r.u(74), w: placeW, h: r.u(42), size: r.f(16, min: 11.5))
             Node.rect(fill: Noor.hairline).size(w - r.u(44), 1).at(r.u(22), r.u(135))
@@ -110,9 +110,9 @@ enum QiblaPage {
             Node.group { Node.latticeEdge(h: h, strip: r.u(48), curve: r.u(90), drop: r.u(92)).at(w - r.u(138), 0) }
                 .size(w, h).corner(r.u(18)).clip().opacity(0.9)
             Node.rect(stroke: Noor.inlay, lineWidth: 1.2, corner: r.u(18)).size(w, h)
-            pin(size: r.f(32, min: 18), filled: true).at(r.u(32), r.u(28))
+            Node.pin(size: r.f(32, min: 18), filled: true).at(r.u(32), r.u(28))
             Node.say(placeLine(place), textX, r.u(18), textW, r.u(34), size: r.f(20, min: 13), weight: "medium")
-            Node.say(String(format: "%.4f, %.4f", place.latitude, place.longitude), textX, r.u(52), textW, r.u(30), size: r.f(19, min: 12), color: Noor.muted, tabular: true)
+            Node.say(String(format: "\u{2068}%.4f, %.4f\u{2069}", place.latitude, place.longitude), textX, r.u(52), textW, r.u(30), size: r.f(19, min: 12), color: Noor.muted, tabular: true)
             Node.say(L("Source: AlAdhan. Fetched {when}.", ["when": Format.dateTime(bearing.fetched, timeZone: ctx.zone)]), textX, r.u(84), textW, r.u(30), size: r.f(16, min: 11), color: Noor.muted)
             Node.rect(fill: Noor.hairline).size(w - r.u(40), 1).at(0, r.u(129))
             Node.symbol("info.circle", color: Noor.text).size(r.f(30, min: 17), r.f(30, min: 17)).at(r.u(30), r.u(160))
@@ -137,24 +137,9 @@ enum QiblaPage {
     private static func placeLine(_ place: Place) -> String { place.label + (place.country.map { ", \($0)" } ?? "") }
 
     private static func hemisphere(_ value: Double, positive: String, negative: String) -> String {
-        String(format: "%.4f° ", abs(value)) + (value < 0 ? negative : positive)
-    }
-
-    /// The board's pin: a drop with a hole, or its outline.
-    private static func pin(size: Double, filled: Bool = false) -> Node {
-        let w = size * 0.74, ink = filled ? Color.adaptive(light: "#7354B8", dark: "#B8B0F2") : Noor.text
-        let drop = "M \(n(w / 2)) \(n(size)) C \(n(w * 0.2)) \(n(size * 0.72)) 0 \(n(size * 0.52)) 0 \(n(w / 2)) C 0 \(n(w * 0.22)) \(n(w * 0.22)) 0 \(n(w / 2)) 0 C \(n(w * 0.78)) 0 \(n(w)) \(n(w * 0.22)) \(n(w)) \(n(w / 2)) C \(n(w)) \(n(size * 0.52)) \(n(w * 0.8)) \(n(size * 0.72)) \(n(w / 2)) \(n(size)) Z"
-        let hole = w * 0.36
-        return Node.group {
-            if filled {
-                Node.path(drop, fill: ink).size(w, size).at(0, 0)
-                Node.ellipse(fill: Noor.quiet).size(hole, hole).at((w - hole) / 2, w / 2 - hole / 2)
-            } else {
-                Node.path(drop, stroke: ink, lineWidth: 1.5).size(w, size).at(0, 0)
-                Node.ellipse(stroke: ink, lineWidth: 1.5).size(hole, hole).at((w - hole) / 2, w / 2 - hole / 2)
-            }
-        }
-        .size(w, size)
+        // Sidefolk takes every direction mark out of a run, and in a sentence running right to left the sign would end up before the number: written first there, it reads after it.
+        let number = String(format: "%.4f", abs(value))
+        return (Language.rightToLeft ? "°\(number) " : "\(number)° ") + (value < 0 ? negative : positive)
     }
 }
 
@@ -195,6 +180,23 @@ extension Node {
             Node.rect(fill: Noor.inlay).size(1.2, h - drop).at(flipped ? strip : curve, drop)
         }
         .size(curve + strip, h)
+    }
+
+    /// The board's pin: a drop with a hole, or its outline.
+    static func pin(size: Double, filled: Bool = false, ink: Color? = nil) -> Node {
+        let w = size * 0.74, ink = ink ?? (filled ? Color.adaptive(light: "#7354B8", dark: "#B8B0F2") : Noor.text)
+        let drop = "M \(n(w / 2)) \(n(size)) C \(n(w * 0.2)) \(n(size * 0.72)) 0 \(n(size * 0.52)) 0 \(n(w / 2)) C 0 \(n(w * 0.22)) \(n(w * 0.22)) 0 \(n(w / 2)) 0 C \(n(w * 0.78)) 0 \(n(w)) \(n(w * 0.22)) \(n(w)) \(n(w / 2)) C \(n(w)) \(n(size * 0.52)) \(n(w * 0.8)) \(n(size * 0.72)) \(n(w / 2)) \(n(size)) Z"
+        let hole = w * 0.36
+        return Node.group {
+            if filled {
+                Node.path(drop, fill: ink).size(w, size).at(0, 0)
+                Node.ellipse(fill: Noor.quiet).size(hole, hole).at((w - hole) / 2, w / 2 - hole / 2)
+            } else {
+                Node.path(drop, stroke: ink, lineWidth: 1.5).size(w, size).at(0, 0)
+                Node.ellipse(stroke: ink, lineWidth: 1.5).size(hole, hole).at((w - hole) / 2, w / 2 - hole / 2)
+            }
+        }
+        .size(w, size)
     }
 
     /// Small rule, rosette, small rule: the ornament under a Name.

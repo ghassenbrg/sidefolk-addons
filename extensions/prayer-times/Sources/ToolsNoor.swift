@@ -119,19 +119,21 @@ enum NoorTools {
     // MARK: Names
 
     private static func names(_ ext: Extension) {
-        ext.tool("save_name", "Save a Name", "Saves or removes one of the Names on this Mac.", input: Schema.object(["number": Schema.integer("1 to 99", minimum: 1, maximum: 99), "saved": Schema.boolean("Whether it should be saved")], required: ["number"])) { args in
+        ext.tool("save_name", "Save a Name", "Saves or removes one of the Names on this Mac.", input: Schema.object(["number": Schema.integer("1 to 99", minimum: 1, maximum: 99), "saved": Schema.boolean("Whether it should be saved"), "on_page": Schema.boolean("Only from the Name's own page, which then says it was just saved")], required: ["number"]), reply: { args in
             guard let number = args.int("number"), (1...99).contains(number) else { throw Problem(L("There are 99 Names.")) }
             let on = args.bool("saved") ?? true
             try model.setBookmark(number, on)
-            return on ? L("Saved.") : L("Removed.")
-        }
+            let reply = ToolReply(on ? L("Saved.") : L("Removed."))
+            // "Just saved" is the page's to remember, as long as they stay on this Name: the store only knows it is saved.
+            return args.bool("on_page") == true ? reply.opening(page: "noor", state: ["just_saved": on ? number as Any : NSNull()]) : reply
+        })
         ext.tool("show_name", "Show a Name", "Shows one of the Names by its number or transliteration.", input: Schema.object(["name": Schema.string("A transliteration, like Ar Rahmaan, or a number")], required: ["name"]), reply: { args in
             let text = (args.string("name") ?? "").lowercased()
             let flat = { (s: String) in s.lowercased().filter(\.isLetter) }
             guard let found = model.names.first(where: { "\($0.number)" == text || flat($0.transliteration) == flat(text) || $0.arabic == text }) else {
                 return ToolReply(L("I couldn't find “{name}” among the Names.", ["name": text])).opening(page: "noor", state: ["tab": "names", "q": text, "sheet": NSNull(), "filter": NSNull(), "shelf": NSNull()])
             }
-            return ToolReply("\(found.transliteration): \(found.meaning) (\(L("English meaning"))).").opening(page: "noor", state: ["tab": "names", "name": found.number, "sheet": "name", "q": NSNull(), "filter": NSNull(), "shelf": NSNull()], push: true)
+            return ToolReply("\(found.transliteration): \(found.meaning) (\(L("English meaning"))).").opening(page: "noor", state: ["tab": "names", "name": found.number, "just_saved": NSNull(), "sheet": "name", "q": NSNull(), "filter": NSNull(), "shelf": NSNull()], push: true)
         })
     }
 
@@ -377,7 +379,7 @@ enum NoorTools {
             let on = args.bool("enabled") ?? false
             let suhoor = args.int("suhoor") ?? -1
             let days = (args.values["days"] as? [NSNumber])?.map(\.intValue) ?? []
-            if on, !Occurrences.allowed { return ToolReply(L("Sidefolk needs your yes first: choose Allow Noor's reminders in Preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "reminders"], push: true) }
+            if on, !Occurrences.allowed { return ToolReply(L("Sidefolk needs your yes first: choose Allow Noor's reminders in Preferences.")).opening(page: "noor", state: ["sheet": "prefs", "section": "reminders", "rm_ask": true], push: true) }
             try model.save { p in
                 p.reminders.ramadan = on ? Reminders.Ramadan(enabled: true, days: Set(days), suhoorMinutesBeforeFajr: Reminders.suhoorBounds.contains(suhoor) ? suhoor : nil, iftar: args.bool("iftar") ?? false) : Reminders.Ramadan()
                 if on, !p.reminders.route.companion, !p.reminders.route.systemFallback { p.reminders.route.companion = true }

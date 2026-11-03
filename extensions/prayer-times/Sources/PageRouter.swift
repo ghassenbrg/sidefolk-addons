@@ -5,8 +5,7 @@ import SidefolkExtensionKit
 /// what shows is drawn, and reading it never changes anything or schedules anything: what acts is a tool.
 @MainActor
 enum NoorPage {
-    static func render(_ args: Arguments) async -> Page {
-        let model = NoorModel.shared
+    static func render(_ args: Arguments, model: NoorModel = .shared) async -> Page {
         let state = args.pageState
         let summary = summary(model.snapshot())
         // Nobody is looking: Today's tile needs its summary and no more.

@@ -116,8 +116,8 @@ enum SourcePage {
         // First run goes back a step, anywhere else to where this was opened from.
         nodes.append(backMark(ctx.state.string("sheet") == nil ? .go(Go(set: ["setup": "place"])) : .go(.backward), r: r, wiring: &wiring))
         let gap = r.u(12), cardW = (inner - gap) / 2, cardH = r.u(120), cardY = r.u(101)
-        nodes.append(kindCard("kind-calculated", symbol: "mappin.and.ellipse", title: L("Calculated for my place"), detail: L("Times calculated for your place by AlAdhan, with a method you choose."), on: !mosque, x: x, y: cardY, w: cardW, h: cardH, r: r))
-        nodes.append(kindCard("kind-mosque", symbol: "building.columns", title: L("My mosque's timetable"), detail: L("A timetable from your own mosque, entered by you or from a file."), on: mosque, x: x + cardW + gap, y: cardY, w: cardW, h: cardH, r: r))
+        nodes.append(kindCard("kind-calculated", symbol: Node.Glyph.pin, title: L("Calculated for my place"), detail: L("Times calculated for your place by AlAdhan, with a method you choose."), on: !mosque, x: x, y: cardY, w: cardW, h: cardH, r: r))
+        nodes.append(kindCard("kind-mosque", symbol: Node.Glyph.arch, title: L("My mosque's timetable"), detail: L("A timetable from your own mosque, entered by you or from a file."), on: mosque, x: x + cardW + gap, y: cardY, w: cardW, h: cardH, r: r))
         var y = cardY + cardH + r.u(20)
         if mosque {
             mosquePart(ctx, x: x, w: inner, y: &y, ox: ox, oy: oy, r: r, nodes: &nodes, wiring: &wiring)
@@ -155,7 +155,7 @@ enum SourcePage {
         return Node.group {
             Node.rect(fill: on ? Color.adaptive(light: "#F3EEFA", dark: "#23206A") : Noor.quiet, stroke: on ? NoorLine.chosen : NoorLine.soft, lineWidth: on ? 1.6 : 1, corner: r.u(14)).size(w, h)
             Node.radio(cx: r.u(26), cy: r.u(30), d: r.u(21), on: on)
-            Node.symbol(symbol, color: Noor.text).size(glyph, glyph).at(r.u(50), r.u(14))
+            Node.icon(symbol, color: Noor.text, side: glyph).at(r.u(50), r.u(14))
             Node.say(title, r.u(92), r.u(16), w - r.u(100), r.u(30), size: r.f(16.5, min: 11.5), weight: "medium")
             Node.say(detail, r.u(92), r.u(46), w - r.u(104), r.u(66), size: r.f(14, min: 10.5), color: Noor.muted, lines: 3)
         }
@@ -201,7 +201,7 @@ enum SourcePage {
             nodes.append(Node.group {
                 Node.rect(fill: on ? Color.adaptive(light: "#F3EEFA", dark: "#23206A") : Noor.quiet, stroke: on ? NoorLine.chosen : NoorLine.soft, lineWidth: 1, corner: r.u(12)).size(w, rowH)
                 Node.radio(cx: r.u(29), cy: rowH / 2, d: r.u(23), on: on)
-                Node.symbol("building.columns", color: Noor.text).size(r.f(24, min: 15), r.f(24, min: 15)).at(r.u(62), (rowH - r.f(24, min: 15)) / 2)
+                Node.archIcon(side: r.f(24, min: 15), color: Noor.text).at(r.u(62), (rowH - r.f(24, min: 15)) / 2)
                 Node.say(source.name, r.u(106), r.u(7), wordsW, r.u(26), size: r.f(16, min: 11.5))
                 Node.say(detail.joined(separator: " · "), r.u(106), r.u(31), wordsW, r.u(24), size: r.f(13.5, min: 10.5), color: Noor.muted)
                 if inUse { Node.chip(L("In use"), x: w - r.u(56) - chipW, y: (rowH - r.u(30)) / 2, w: chipW, h: r.u(30), size: r.f(13, min: 10.5)) }
@@ -531,6 +531,16 @@ enum SourcePage {
         problems += review.conflicts.prefix(4).map { L("Line {line} contradicts line {first}.", ["line": "\($0.line)", "first": "\($0.firstLine)"]) }
         problems += review.missingDates.prefix(4).map { L("{date} is missing from this file.", ["date": Words.date($0, weekday: false)]) }
         problems += review.missingRows.prefix(4).map { L("{prayer} is missing on {date}.", ["prayer": Words.prayer($0.prayer), "date": Words.date($0.date, weekday: false)]) }
+        if problems.isEmpty, let twin = twin(ctx, of: review) {
+            let bannerH = r.u(64)
+            nodes.append(Node.group {
+                Node.rect(fill: Color.adaptive(light: "#FFF7EA", dark: "#2A2030"), stroke: NoorLine.caution, lineWidth: 1, corner: r.u(10)).size(inner, bannerH)
+                Node.symbol("exclamationmark.triangle.fill", color: NoorLine.caution).size(r.f(24, min: 15), r.f(24, min: 15)).at(r.u(18), (bannerH - r.f(24, min: 15)) / 2)
+                Node.say(L("You already have these same times, as {name}. Adding this makes a second copy.", ["name": twin]), r.u(58), 0, inner - r.u(70), bannerH, size: r.f(14, min: 11), color: Noor.warm, lines: 2)
+            }
+            .size(inner, bannerH).at(x, y))
+            y += bannerH + r.u(10)
+        }
         if problems.isEmpty {
             let boxH = r.u(92)
             nodes.append(Node.group {
@@ -599,6 +609,15 @@ enum SourcePage {
             nodes
         }
         .size(w, finalH), height)
+    }
+
+    /// The saved timetable with exactly these times, if there is one: a warning, as a second copy may be meant.
+    private static func twin(_ ctx: Context, of review: ImportReview) -> String? {
+        guard let table = review.timetable(id: "manual.check", attribution: review.name) else { return nil }
+        return ctx.model.sources.first { source in
+            guard source.kind == .manual, case .ok(let saved) = ctx.model.store.timetable(sourceID: source.id) else { return false }
+            return saved.sameTimes(as: table)
+        }?.name
     }
 
     private static func slotName(_ slot: TimetableSlot) -> String {

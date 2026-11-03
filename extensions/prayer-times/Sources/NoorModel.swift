@@ -382,7 +382,7 @@ final class NoorModel {
 enum NoorDebug {
     /// A file `debug-now.txt` in the data folder holds an ISO 8601 instant.
     @MainActor static func now(_ store: NoorStore) -> Date? {
-        guard let text = try? String(contentsOf: URL(fileURLWithPath: Paths.data).appendingPathComponent("debug-now.txt"), encoding: .utf8) else { return nil }
+        guard let text = try? String(contentsOf: store.folder.appendingPathComponent("debug-now.txt"), encoding: .utf8) else { return nil }
         return ISO8601DateFormatter().date(from: text.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 

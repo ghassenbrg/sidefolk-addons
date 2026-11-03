@@ -188,7 +188,7 @@ enum NoorTab: String, CaseIterable {
     var symbol: String {
         switch self {
         case .overview: "square.grid.2x2"
-        case .prayer: "building.columns"
+        case .prayer: Node.Glyph.arch
         case .calendar: "calendar"
         case .qibla: "safari"
         case .names: "book"

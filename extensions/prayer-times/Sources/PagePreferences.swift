@@ -5,7 +5,7 @@ import SidefolkExtensionKit
 /// one board of four framed panels (F06), and `section` says which of them is meant; Sources is the F02 board, the same one first run has.
 @MainActor
 enum PreferencesPage {
-    static let tabs: [(id: String, word: String, symbol: String)] = [("place", L("Place"), "mappin.and.ellipse"), ("sources", L("Sources"), "cylinder.split.1x2"), ("calculation", L("Calculation"), "square.grid.3x3.square"), ("calendar", L("Calendar"), "calendar"), ("reminders", L("Reminders"), "bell"), ("data", L("Data"), "square.and.arrow.down")]
+    static let tabs: [(id: String, word: String, symbol: String)] = [("place", L("Place"), Node.Glyph.pin), ("sources", L("Sources"), "cylinder.split.1x2"), ("calculation", L("Calculation"), "square.grid.3x3.square"), ("calendar", L("Calendar"), "calendar"), ("reminders", L("Reminders"), "bell"), ("data", L("Data"), "square.and.arrow.down")]
 
     static func sections(_ ctx: Context) -> [Section] {
         let section = ctx.state.string("section") ?? "place"
