@@ -29,7 +29,7 @@ import SidefolkExtensionKit
         case .event: "event"
         }
         var out: [Block] = [.edit(EditField("name", L("Its name"), value: flow.name, tool: "ui", input: base(flow, "rename")))]
-        out.append(.picker(L("Sets it off"), style: .cards, [
+        out.append(.picker(L("Sets it off"), style: .rows, [
             Option("days", L("On a schedule"), detail: L("Days and a time"), symbol: "calendar.badge.clock"),
             Option("every", L("Every so often"), detail: L("Every so many minutes"), symbol: "clock.arrow.2.circlepath"),
             Option("event", L("When something happens"), detail: L("A reminder, a note, a meeting"), symbol: "bolt"),

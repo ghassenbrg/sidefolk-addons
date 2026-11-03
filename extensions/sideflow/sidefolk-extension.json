@@ -44,7 +44,7 @@
       "commands": [{ "say": ["turn on flow {flow}", "start flow {flow}", "turn on the {flow} flow"] }] },
     "pause_flow": { "title": "Pause a flow", "risk": "low", "mutates": true, "category": "extensions", "agents": true,
       "commands": [{ "say": ["pause flow {flow}", "pause the {flow} flow"] }] },
-    "resume_flow": { "title": "Resume a flow", "risk": "low", "mutates": true, "category": "extensions", "agents": true,
+    "resume_flow": { "title": "Resume a flow", "risk": "medium", "mutates": true, "category": "extensions", "agents": true,
       "commands": [{ "say": ["resume flow {flow}", "resume the {flow} flow"] }] },
     "run_flow": { "title": "Run a flow now", "risk": "medium", "mutates": true, "category": "extensions", "agents": true,
       "commands": [{ "say": ["run {flow}", "run flow {flow}", "run the {flow} flow", "run my {flow} flow", "run my {flow}"] }] },

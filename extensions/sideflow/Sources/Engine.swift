@@ -338,7 +338,7 @@ import SidefolkExtensionKit
             ? [(L("It didn't: try again"), .try_again), (L("It did: carry on"), .carry_on), (L("Stop here"), .stop)]
             : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
         guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil), answer.ok,
-              let chosen = choices.first(where: { answer.text.contains($0.words) }),
+              let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status else { return }
         proceed(run.id, chosen.how)
     }

@@ -5,8 +5,12 @@ import SidefolkExtensionKit
 /// selected at the end. Sidefolk draws them; the words and what's where are here.
 @MainActor enum Pages {
     static let tile = ["#4FA8F5", "#7C5CFC"]
-    /// The thread, as on the icon: blue to violet. Filled buttons stay Sidefolk's own.
+    /// The thread, as on the icon: blue to violet.
     static let line = ["#4FA8F5", "#7C5CFC"]
+    /// Numbers aren't something to press: their symbols stay out of the accent's way.
+    static let quiet = "#6B7A90"
+    /// The same, deep enough to hold white: filled buttons and what's selected. Everything else stays the theme's.
+    static let accent = ["#2A6FE8", "#6E4BF2"]
 
     static func make(_ app: App, state: Arguments, background: Bool) async -> Page {
         // Today and the sidebar read only the summary, once a minute.
@@ -66,7 +70,7 @@ import SidefolkExtensionKit
 
     /// Every screen: the places, what's in the middle, and what's selected. The companion stands by.
     static func frame(_ app: App, state: Arguments, here: String?, flow: String? = nil, back: String? = nil, _ main: [Section], end: [Section] = []) -> Page {
-        Page(summary: summary(app), sections: places(app, state: state, here: here, flow: flow) + main + end, back: back, workspace: true, companion: true)
+        Page(summary: summary(app), sections: places(app, state: state, here: here, flow: flow) + main + end, back: back, workspace: true, companion: true, accent: accent)
     }
 
     /// Goes to a place, leaving what the page was showing.
@@ -144,9 +148,9 @@ import SidefolkExtensionKit
         let week = app.store.runs().filter { $0.mode != .practice && $0.startedAt > Date().addingTimeInterval(-7 * 86400) }
         let bad = week.filter { $0.status == .failed || $0.status == .needs_you || $0.status == .interrupted }.count
         body.append(Section(nil, [.stats([
-            StatItem(L("Next run"), nextUp.map { Format.dateTime($0.1) } ?? L("None yet"), symbol: "calendar"),
-            StatItem(L("Flows on"), Format.integer(on.count), symbol: "play"),
-            StatItem(L("Runs this week"), Format.integer(week.count), symbol: "chart.bar", tone: bad > 0 ? .warn : .neutral),
+            StatItem(L("Next run"), nextUp.map { Format.dateTime($0.1) } ?? L("None yet"), symbol: "calendar", color: quiet),
+            StatItem(L("Flows on"), Format.integer(on.count), symbol: "play", color: quiet),
+            StatItem(L("Runs this week"), Format.integer(week.count), symbol: "chart.bar", tone: bad > 0 ? .warn : .neutral, color: bad > 0 ? nil : quiet),
         ])], wide: true))
         body += needsYou(app)
         body.append(Section(nil, [.cards(size: .small, flows.map { card($0, app) })], wide: true))
