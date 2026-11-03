@@ -124,7 +124,8 @@ final class BoardDrawing {
         if height > playRoom {
             content.append(Node.scroll(contentHeight: height) { stacked }.id("board").at(0, top).size(Self.width, playRoom))
         } else {
-            content.append(Node.box("board", y: top, w: Self.width, h: playRoom) { stacked })
+            // The end card has its own room: a game starting after it arrives in place, rather than gliding from where the card stood.
+            content.append(Node.box(ended ? "board.end" : "board", y: top, w: Self.width, h: playRoom) { stacked })
         }
         // Over the board: the companion may lean on what it plays on.
         if let said { content.append(said.node.at(Self.pad, 4 + head.height).z(1)) }

@@ -136,7 +136,7 @@ extension BoardDrawing {
         }
     }
 
-    /// The press, then the pick rising; the gem shows as its cup clears it, with a small sparkle. The gem's cup follows when it is another one. Essential only in that its end shows.
+    /// The press, then the pick rising; the gem shows as its cup clears it, with a small sparkle. The gem's cup follows when it is another one. Under Reduce Motion the end shows at once, and the verdict comes sooner.
     private func cupsLiftRun(count: Int, picked: Int?, gem: Int?, table: CupTable) -> [Node] {
         func rise(_ cups: [Int], ms: Double) -> Anim {
             .together(cups.flatMap { cup -> [Anim] in

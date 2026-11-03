@@ -22,7 +22,7 @@ extension BoardDrawing {
         for (g, members) in groups.enumerated() { for m in members where tints[m] == nil { tints[m] = g } }
         let arriving = ctx.fresh && left == total && before != total
         let leaving = before.map { Array((left..<Swift.max($0, left)).reversed()) } ?? []
-        var nodes: [Node] = [Node.woodFrame("sticks.frame", w: Self.inner, h: tray.height, inset: Tray.frame, inner: Paint.lilacDeep)]
+        var nodes: [Node] = [Node.woodFrame("sticks.frame", w: Self.inner, h: tray.height, inset: Tray.frame, inner: Paint.both("#7C62A3", "#262039"))]
         for r in 0..<Tray.rows {
             nodes.append(Node.felt("sticks.row.\(r)", x: Tray.frame, y: Tray.frame + Double(r) * (tray.rowH + Tray.groove), w: Self.inner - 2 * Tray.frame, h: tray.rowH, corner: 12, stitch: false))
         }
@@ -104,7 +104,7 @@ extension BoardDrawing {
 
     var sticksFooter: String? {
         board.play { part -> String? in
-            if case .sticks(_, let left, let take, _, _, _, _, false) = part { L("1–{n} to take", ["n": Swift.min(take, left)]) } else { nil }
+            if case .sticks(_, let left, let take, _, _, _, _, false) = part { Swift.min(take, left) == 1 ? L("1 to take") : L("1–{n} to take", ["n": Swift.min(take, left)]) } else { nil }
         }
     }
 
