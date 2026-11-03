@@ -143,8 +143,9 @@ import Testing
         // A taken cell is refused in words.
         let refused = GameTable.play(TicTacToeScreen.self, .cell(row: 1, column: 1), on: &s, random: &random)
         #expect(refused == [.refused("taken")])
-        let note = Self.part(TicTacToeScreen.board(s, events: refused, options: Self.options()), "note")
-        #expect(note?["text"] as? String == "That one's taken.")
+        // Said in the bubble: a note would push the board.
+        let said = TicTacToeScreen.board(s, events: refused, options: Self.options())
+        #expect(said.promptPart?.text == "That one's taken." && Self.part(said, "note") == nil)
     }
 
     @Test func copyMeShowsTheSequenceThenTakesPresses() throws {

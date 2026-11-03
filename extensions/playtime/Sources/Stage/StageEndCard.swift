@@ -8,7 +8,8 @@ extension BoardDrawing {
         let width = Self.inner, verdict = Verdict(tone: tone)
         let title: String? = switch verdict {
         case .win: ctx.entry.solo ? L("Solved!") : L("You win!")
-        case .loss: L("{name} wins!", ["name": "{companion}"])
+        // Played alone, nobody beat anyone: the companion only watched.
+        case .loss: board.scorePart == nil ? L("Not this time") : L("{name} wins!", ["name": "{companion}"])
         case .draw: L("A draw")
         }
         let room = width - 56

@@ -13,11 +13,13 @@ extension MemoryPairsScreen {
             let up = g.owner[i] != nil || g.faceUp.contains(i)
             let label = L("Card {n}", ["n": i + 1])
             let who = g.owner[i] ?? (g.faceUp.contains(i) ? g.turn : nil)
-            return up ? Cell("symbol", value: symbols[g.cards[i]], companion: who == .companion,
+            return up ? Cell("symbol", value: symbols[g.cards[i]], companion: who == .companion, state: pairState(s, i, events),
                              label: label + ", " + name(g.cards[i]) + (g.owner[i].map { ", " + d.name($0) } ?? ""), animate: s.fresh == i ? "flip" : nil)
                 : Cell("card_back", label: label)
         }
-        let text: String = if g.over { L("All pairs found.") }
+        let lastPair = events.contains { if case .roundOver = $0 { true } else { false } }
+        let text: String = if let refused = ScreenKit.refused(events) { refused }
+            else if g.over { L("All pairs found.") }
             else if g.waitingToCover { L("Not a pair.") + " " + L("{name} is next.", ["name": d.name(g.turn.other)]) }
             else { L("{name}'s turn: turn two cards.", ["name": d.name(g.turn)]) }
         var parts: [BoardPart] = [
@@ -25,13 +27,14 @@ extension MemoryPairsScreen {
             .prompt(text, eyebrow: L("2 players")),
             .board(rows: 4, columns: 4, cells: cells, locked: g.over || g.waitingToCover),
         ]
-        if g.over {
+        if g.over, !lastPair {
             var facts: [(String, String)] = []
             if let tally = TwoPlayers.tally(id, d) { facts.append(tally) }
             parts.append(TwoPlayers.result(d, winner: g.score.leader, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))",
                                            facts: facts))
         }
         // Two cards that don't match stay up a moment, then the turn passes.
-        return Board(parts, companion: TwoPlayers.cue(events), over: g.over, afterMs: g.waitingToCover ? 1400 : nil)
+        return Board(parts, companion: TwoPlayers.cue(events), over: g.over && !lastPair, afterMs: lastPair ? 1100 : g.waitingToCover ? 1400 : nil,
+                     turn: g.over ? nil : g.turn == .you ? "you" : "companion")
     }
 }

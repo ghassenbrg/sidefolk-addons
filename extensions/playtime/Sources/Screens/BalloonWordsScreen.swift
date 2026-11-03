@@ -111,22 +111,24 @@ enum BalloonWordsScreen: GameScreen {
         if s.duo.on { return BalloonWordsDuel.board(s, events: events, options: o) }
         let g = s.game
         let tiles = tiles(g)
-        let text: String = if g.won { L("You saved the balloons!") }
+        let refused = ScreenKit.refused(events)
+        let text: String = if let refused { refused }
+            else if g.won { L("You saved the balloons!") }
             else if g.lost { L("The word was {word}.", ["word": g.entry.word]) }
             else { L("Guess the word, a letter at a time.") }
         var parts: [BoardPart] = [
             .play(.lives(total: Games.BalloonWords.balloons, left: g.left, symbol: "balloon")),
-            .prompt(text, eyebrow: g.over && g.language == .zh ? g.entry.word : nil, chip: category(g.entry.category)),
+            .prompt(text, eyebrow: g.over && g.language == .zh ? g.entry.word : category(g.entry.category), chip: L(one: "{count} balloon", other: "{count} balloons", count: g.left)),
             .play(.letters(rows: [tiles], length: tiles.count, style: "slots", script: Keyboards.script(g.language))),
         ]
         if let keys = keyboard(g) { parts.append(keys) }
-        if let note = ScreenKit.refusal(events) { parts.append(note) }
         if let outcome = BalloonWordsEngine.outcome(of: s) {
             parts.append(ScreenKit.result(outcome, figure: g.entry.word, line: outcome == .won ? L(one: "{count} balloon left.", other: "{count} balloons left.", count: g.left) : nil,
                                           companion: o.companion))
             parts.append(ScreenKit.levels(BalloonWordsEngine.level(of: s)))
-        } else if !g.hintUsed {
-            parts.append(.button(GameButton(L("Show a letter"), move: "hint", style: .plain, symbol: "lightbulb")))
+        } else if !g.guessed.isEmpty {
+            // Who plays has this place until the first letter; from then on it stays, faded once it is used.
+            parts.append(.button(GameButton(L("Show a letter"), move: "hint", style: .plain, symbol: "lightbulb", disabled: g.hintUsed)))
         }
         if g.guessed.isEmpty { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         var cue = EventCues.cue(events)
@@ -136,6 +138,6 @@ enum BalloonWordsScreen: GameScreen {
         else if cue != nil { cue?.prop = g.lost ? "none" : held }
         if g.won, events.contains(where: { if case .roundOver = $0 { true } else { false } }) { cue?.move = "hop" }
         if g.lost, events.contains(where: { if case .roundOver = $0 { true } else { false } }) { cue?.move = "giggle" }
-        return Board(parts, companion: cue, over: g.over)
+        return Board(parts, companion: cue, over: g.over, refused: refused != nil)
     }
 }

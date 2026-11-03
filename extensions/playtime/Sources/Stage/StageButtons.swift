@@ -17,9 +17,11 @@ extension BoardDrawing {
     /// Buttons share the row equally, so one changing its words ("Hint", "Do it") moves nothing; words shrink to fit (German's Undo and Start over). A disabled one keeps its place.
     func buttonRow(_ buttons: [GameButton], id: String, width: Double = BoardDrawing.inner, flat: Bool = false, leading: (node: Node, width: Double)? = nil) -> PartBlock {
         let gap = 8.0, used = leading.map { $0.width + gap } ?? 0
-        let w = buttons.isEmpty ? 0 : (width - used - gap * Double(buttons.count - 1)) / Double(buttons.count)
+        // A lone quiet button keeps to its words, in the middle of its row.
+        let lone = quietHints && leading == nil && buttons.count == 1 && buttons[0].style == .plain
+        let w = lone ? Swift.min(buttonWidth(buttons[0], flat: flat), width) : buttons.isEmpty ? 0 : (width - used - gap * Double(buttons.count - 1)) / Double(buttons.count)
         let height = buttons.map { metrics($0, flat: flat).height }.max() ?? 36
-        var x = used
+        var x = lone ? (width - w) / 2 : used
         var nodes: [Node] = []
         if let leading { nodes.append(leading.node.at(0, (height - 28) / 2)) }
         for (i, b) in buttons.enumerated() {
@@ -41,7 +43,7 @@ extension BoardDrawing {
     /// A capsule: filled navy for the one thing to do, outlined otherwise. Pressing it sinks it a little.
     func button(_ b: GameButton, id: String, x: Double, y: Double = 0, w: Double, flat: Bool) -> Node {
         let m = metrics(b, flat: flat)
-        let filled = b.style == .primary || b.move == "hint" || b.move == "do_hint"
+        let filled = b.style == .primary || (!quietHints && (b.move == "hint" || b.move == "do_hint"))
         let ink: Color = filled ? Paint.onAction : Paint.ink
         // Words first: a narrow button lets its symbol go rather than cut its label.
         let wanted = TextFit.width(b.label, size: m.size, weight: m.weight) + 2

@@ -151,12 +151,14 @@ enum PlayTable {
             if m == .next, let held = session.held {
                 session.held = nil
                 session.pick = nil
+                session.local.builtUp = true
                 let next = driver.board(data, held, session.options) ?? board
                 return verdict(next, previous: board, entry: entry, session: &session, id: id)
             }
             guard session.held == nil, let result = driver.move(m, data, session.options) else {
                 return draw(board, entry: entry, session: session, previous: board, fresh: false, id: id)
             }
+            session.local.builtUp = false
             session.state = result.state
             if m != .next, m != .timeout { session.played = true }
             var picked: Int?

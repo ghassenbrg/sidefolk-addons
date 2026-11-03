@@ -6,7 +6,7 @@ extension BoardDrawing {
     /// A dense board keeps a smaller companion, for every board of that game alike.
     private var compact: Bool { board.hasPuzzle || board.hasKeys || board.hasLetters }
     /// The stage's one height, whatever is said: one line or three, the board below stays where it is.
-    private var stageHeight: Double { compact ? 60 : 78 }
+    private var stageHeight: Double { isStall ? 60 : compact ? 60 : 78 }
 
     /// The founder's rule: the companion earns its place by reacting. It thinks while it plays or while something is playing, leans in when it's the person's turn, reacts to
     /// what just happened, and shows how the game went. It changes only with the game: no idle movement, and it is always a still of the person's real companion.
@@ -41,12 +41,23 @@ extension BoardDrawing {
     func stage(text: String?, chip: String?) -> PartBlock {
         let inner = Self.inner, h = stageHeight, side = compact ? 58.0 : 80.0
         let words = stageWords(prompt: text)
+        if isStall {
+            // In the stall the companion stands on the counter, with its bubble up beside it over the word's sign.
+            let figureH = 132.0, bubbleX = 96.0
+            return PartBlock(Node.box("stage", w: inner, h: h) {
+                companionFigure(w: 92, h: figureH, y: Self.counterY - Self.stallStageY - figureH).at(2, Self.counterY - Self.stallStageY - figureH)
+                if let words { speechBubble(words, width: inner - bubbleX - 8, height: h - 4).node.at(bubbleX, 0) }
+            }, height: h)
+        }
         let bubbleW = inner - side - 8
         return PartBlock(Node.box("stage", w: inner, h: h) {
             companionFigure(w: side, h: h + 6, y: 0)
             if let words { speechBubble(words, width: bubbleW, height: Swift.min(h - 6, 64)).node.at(side + 8, (h - Swift.min(h - 6, 64)) / 2) }
         }, height: h)
     }
+
+    /// The top of the stall's counter, in its scene.
+    private static let counterY = 346.0
 
     /// While a part plays by itself it says so; a part may carry the words elsewhere (a question on a plaque).
     private func stageWords(prompt: String?) -> String? { partsStageWords ?? stageWordsOverride ?? prompt ?? board.resultPart?.line }

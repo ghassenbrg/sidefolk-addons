@@ -17,8 +17,20 @@ extension BoardDrawing {
             nodes.append(meta.at(0, y))
             y += 22
         }
+        if isStall {
+            // The stall's awning reaches the top of its scene: a cream plate hung on it keeps the words clear. The balloons hang from the rail painted below it, and the companion's
+            // bubble comes after them, so the stage stands in the stall.
+            nodes.insert(Node.rect(fill: Paint.card(0.95), stroke: Paint.edge, lineWidth: 1, corner: 14).id("header.plate").at(26, -2).size(width - 52, y + 2).shadow(Paint.clear("#000000", 0.14), radius: 4, dx: 0, dy: 2), at: 0)
+            if let rail = board.play({ part -> PartBlock? in if case .lives(let total, let left, let symbol) = part { lives(total: total, left: left, symbol: symbol) } else { nil } }) {
+                nodes.append(rail.node.at((width - Self.balloonRailW) / 2, Self.railY - 4))
+            }
+            y = Self.stallStageY - 4
+        }
         return PartBlock(.box("header", w: width, h: y) { nodes }, height: y)
     }
+
+    /// Where the stall's scene paints its rail, and where its stage stands: under the balloons.
+    static let railY = 96.0, stallStageY = 172.0
 
     /// The game's one icon beside its name, centred together.
     func titleRow(_ title: String, icon: String, width: Double) -> Node {
@@ -60,7 +72,12 @@ extension BoardDrawing {
         if ctx.fresh, let before, before != points {
             anims.append(.keys(id + ".points", [["t": 0, "scale": 1.5], ["t": 1, "scale": 1]], ms: 360, ease: "spring"))
         }
+        // Whose turn it is, on the board two sides take turns on: a navy outline round that side, the same place all game, passing across as the turn does.
+        let turnSide = ctx.buildUp ? ctx.previous?.turn : board.turn
         return .box(id, x: x, w: w, h: 32) {
+            if board.gridPart != nil {
+                Node.capsule(fill: Paint.card(0.92), stroke: Paint.action, lineWidth: 1.5).id(id + ".turn").at(start - 5, 0.75).size(whole + 9, 30.5).opacity(turnSide == (trailing ? "you" : "companion") ? 1 : 0)
+            }
             face.at(start, 2)
             Node.words(name, size: 13, weight: "heavy", minScale: 0.75, x: start + 34, w: nameW, h: 32)
             Node.words(digits, size: 20, weight: "black", align: "center", x: start + 34 + nameW + 6, w: pointsW, h: 32).textLook(tabular: true).id(id + ".points")
@@ -68,7 +85,7 @@ extension BoardDrawing {
         }
     }
 
-    private func initial(_ name: String, _ color: Color) -> Node {
+    func initial(_ name: String, _ color: Color) -> Node {
         .box(w: 28, h: 28) {
             Node.ellipse(fill: color).size(28, 28)
             Node.words(name.first.map { String($0).uppercased() } ?? "?", size: 14, weight: "heavy", color: Paint.white, align: "center", w: 28, h: 28)
@@ -86,7 +103,7 @@ extension BoardDrawing {
         let whole = textW + (clock.map { $0.width + 8 } ?? 0)
         let x = (width - whole) / 2, line = Paint.clear("#A08A70", 0.35)
         return .box("meta", w: width, h: 20) {
-            if x > 22 {
+            if x > 22, !isStall {
                 Node.rect(fill: line).id("meta.line.a").at(6, 10).size(x - 16, 1)
                 Node.rect(fill: line).id("meta.line.b").at(x + whole + 10, 10).size(x - 16, 1)
             }

@@ -134,24 +134,65 @@ extension BoardDrawing {
         }
     }
 
-    /// Balloons or hearts left. Balloons are the pack's picture as a flat stencil, one colour each, as the panel really drew them (its multiply over a mask
-    /// came out flat on screen); one lost shrinks to faint grey. A heart keeps its outline.
+    /// Balloons or hearts left. Seven balloons, each its own colour, hang from a rail and keep their places. A wrong letter pops the last of those left where it hangs: it swells, bursts
+    /// into a few scraps of its colour, its neighbours sway, and only its string stays, on the rail, for the rest of the word. A heart keeps its outline.
     func lives(total: Int, left: Int, symbol: String) -> PartBlock {
-        let balloon = symbol == "balloon"
-        let hue = [Paint.coral, Paint.sun, Paint.blue, Paint.green, Paint.purple]
-        let w = balloon ? 30 * 86.0 / 120 : 22.0, h = balloon ? 30.0 : 22.0, gap = balloon ? 2.0 : 4.0
-        return PartBlock(.box("lives", w: Self.inner, h: h) {
-            for i in 0..<total {
-                let kept = i < left
-                if balloon {
-                    Node.image("art/game-balloon.png", tint: kept ? hue[i % 5] : .inkFaint)
-                        .id("life.\(i)").at(Double(i) * (w + gap), 0).size(w, h)
-                        .anchor(0.5, 1).scale(kept ? 1 : 0.6).rotate(kept ? Double(i % 3 - 1) * 5 : 0).opacity(kept ? 1 : 0.3)
-                } else {
-                    Node.symbol(kept ? "heart.fill" : "heart", color: kept ? hue[i % 5] : Paint.inkFaint.tuned(alpha: 0.5)).symbolLook(weight: "regular")
-                        .id("life.\(i)").at(Double(i) * (w + gap), 0).size(w, h).scale(kept ? 1 : 0.8)
+        guard symbol == "balloon" else {
+            let w = 22.0, gap = 4.0
+            return PartBlock(.box("lives", w: Self.inner, h: w) {
+                for i in 0..<total {
+                    let kept = i < left
+                    Node.symbol(kept ? "heart.fill" : "heart", color: kept ? [Paint.coral, Paint.sun, Paint.blue, Paint.green, Paint.purple][i % 5] : Paint.inkFaint)
+                        .symbolLook(weight: "regular").id("life.\(i)").at(Double(i) * (w + gap), 0).size(w, w).scale(kept ? 1 : 0.8)
                 }
+            }.label(L("{left} of {total} left", ["left": left, "total": total])), height: w)
+        }
+        let h = Self.balloonH, w = h * 200 / 305
+        let step = min(Self.balloonRailW / Double(max(total, 1)), w + 4)
+        let startX = (Self.balloonRailW - step * Double(total)) / 2 + (step - w) / 2
+        // A pop plays once: the verdict after a last balloon's build-up shows it gone.
+        let before: Int? = ctx.fresh && !ctx.local.builtUp ? ctx.previous?.play { if case .lives(_, let left, _) = $0 { left } else { nil } } : nil
+        let popping = before.map { $0 > left ? Array(left..<$0) : [] } ?? []
+        var nodes: [Node] = []
+        for i in 0..<total {
+            let x = startX + Double(i) * step, id = "life.\(i)"
+            if i >= left {
+                // Its string, still tied to the rail.
+                nodes.append(Node.capsule(fill: Paint.signInk).id(id + ".string").at(x + w / 2 - 0.75, 0).size(1.5, 11).anchor(0.5, 0).opacity(popping.contains(i) ? 0 : 0.9))
             }
-        }.label(L("{left} of {total} left", ["left": left, "total": total])), height: h)
+            if i < left || popping.contains(i) {
+                nodes.append(Node.image("art/game-balloon-\(i % 7).webp").id(id).at(x, 0).size(w, h).anchor(0.5, 0).rotate(0).opacity(i < left ? 1 : 0))
+            }
+            if popping.contains(i) { nodes += pop(id: id, index: i, x: x, w: w, h: h) }
+            else if !popping.isEmpty, i < left, let first = popping.first {
+                // The air moves: those beside it sway, a little less the further they are.
+                let swing = 5.0 / Double(max(abs(first - i), 1))
+                anims.append(.keys(id, [["t": 0, "rotate": 0], ["t": 0.25, "rotate": swing], ["t": 0.6, "rotate": -swing * 0.6], ["t": 1, "rotate": 0]], ms: 640, ease: "in_out"))
+            }
+        }
+        return PartBlock(.box("lives", w: Self.balloonRailW, h: h) { nodes }.label(L("{left} of {total} left", ["left": left, "total": total])), height: h)
+    }
+
+    static let balloonH = 68.0, balloonRailW = 336.0
+
+    /// The burst, about half a second: it swells and is gone, its scraps fly out and fall, and the string it hung by is what's left, swinging.
+    private func pop(id: String, index: Int, x: Double, w: Double, h: Double) -> [Node] {
+        let hue = [Color.hex("#E2574C"), Color.hex("#F4C63D"), Color.hex("#6FB2E8"), Color.hex("#A06BD6"), Color.hex("#F28A2E"), Color.hex("#EE86B4"), Color.hex("#E0A92E")][index % 7]
+        anims.append(.keys(id, [["t": 0, "sx": 1, "sy": 1, "opacity": 1], ["t": 0.6, "sx": 1.28, "sy": 1.22, "opacity": 1], ["t": 1, "sx": 1.5, "sy": 1.45, "opacity": 0]], ms: 170, ease: "in"))
+        let cx = x + w / 2, cy = h * 0.6
+        var nodes: [Node] = []
+        // A ring of air, for an instant.
+        let ring = id + ".ring"
+        nodes.append(Node.ellipse(stroke: Paint.white, lineWidth: 2.5).id(ring).at(cx - w / 2, cy - w / 2).size(w, w).anchor(0.5, 0.5).opacity(0))
+        heldKeys(ring, [["t": 0, "scale": 0.5, "opacity": 0.9], ["t": 1, "scale": 1.5, "opacity": 0]], delayMs: 110, ms: 260, ease: "out")
+        for k in 0..<10 {
+            let angle = Double(k) / 10 * 2 * .pi + 0.3, reach = 30.0 + Double(k % 3) * 10, side = 7.0 + Double(k % 2) * 3
+            let endX = cx + cos(angle) * reach - side / 2, endY = cy + sin(angle) * reach * 0.8 + 16 - side / 2
+            let bit = "\(id).bit.\(k)"
+            nodes.append(Node.rect(fill: hue, corner: 1.5).id(bit).at(endX, endY).size(side, side * 0.7).opacity(0))
+            heldKeys(bit, [["t": 0, "x": cx - side / 2, "y": cy, "opacity": 1, "rotate": 0], ["t": 0.55, "opacity": 1], ["t": 1, "x": endX, "y": endY, "opacity": 0, "rotate": 150]], delayMs: 120, ms: 520, ease: "out")
+        }
+        heldKeys(id + ".string", [["t": 0, "opacity": 0, "rotate": 0], ["t": 0.05, "opacity": 0.9, "rotate": 14], ["t": 0.4, "opacity": 0.9, "rotate": -9], ["t": 0.7, "opacity": 0.9, "rotate": 5], ["t": 1, "opacity": 0.9, "rotate": 0]], delayMs: 130, ms: 700, ease: "in_out")
+        return nodes
     }
 }
