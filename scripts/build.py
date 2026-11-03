@@ -411,8 +411,10 @@ def check_minimums(build):
             if minimum == MINIMUM_PLACEHOLDER:
                 sys.exit(f"{file.parent.name}: minimum_sidefolk is still the placeholder {minimum}: set the real snapshot (Sidefolk docs/RELEASE.md).")
             # Companions and themes may name a plain version ("0.1.0"), which no snapshot number says anything about.
-            snapshot = re.fullmatch(r"\d+\.\d+\.\d+-snapshot\.(\d+)", minimum)
-            if snapshot and int(snapshot[1]) > build:
+            snapshot = re.fullmatch(r"\d+\.\d+\.\d+(?:-snapshot\.(\d+))?", minimum)
+            if not snapshot:
+                sys.exit(f"{file.parent.name}: minimum_sidefolk {minimum} isn't a version like 0.1.0 or 0.1.0-snapshot.N.")
+            if snapshot[1] and int(snapshot[1]) > build:
                 sys.exit(f"{file.parent.name}: minimum_sidefolk {minimum} is newer than Sidefolk snapshot {build}: no copy could install it.")
 
 
