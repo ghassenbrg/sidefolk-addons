@@ -188,6 +188,21 @@ struct PlaytimeStabilityG2 {
         }
     }
 
+    /// The bluff still says its line, and its box only wiggles, once the row is home: nothing about it says which hand is inside.
+    @Test func aBluffIsWordsAndAWiggle() throws {
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            let entry = PlaytimeStageTests.entry(RockPaperScissorsScreen.id)
+            let tiles = Games.Hand.allCases.map { Tile(RockPaperScissorsScreen.title($0), art: $0.rawValue) }
+            let thrown = Board([.score(you: 1, companion: 0, rounds: 2), .reveal(.hands(you: "rock", companion: "scissors")), .answers(tiles, layout: .row, locked: true)])
+            let next = Board([.score(you: 1, companion: 0, rounds: 2, companionPicked: true), .prompt("I'm going rock…"), .answers(tiles, layout: .row)], companion: Cue(move: "tease", look: "you"))
+            let scene = BoardDrawing(next, StageContext(entry: entry, previous: thrown)).scene()
+            let wiggle = scene.animations.map(\.json).filter { ["box.them", "boxtop.them"].contains($0["target"] as? String) && ($0["keys"] as? [[String: Double]])?.contains { $0["rotate"] != nil } == true }
+            #expect(wiggle.count == 2)
+            let text = String(decoding: try JSONSerialization.data(withJSONObject: scene.json), as: UTF8.self)
+            #expect(text.contains("I'm going rock…"))
+        }
+    }
+
     /// One thing has one track for each value, within what Sidefolk reads: a second would cut the first off from the start (it did: the box under the blow lost its thumps, so it gave
     /// the result away), and points past 32 are dropped. And both boxes thump alike until the lids go.
     @Test func everyThrowPlaysAsItIsWritten() throws {
