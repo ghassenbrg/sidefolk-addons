@@ -148,7 +148,7 @@ import SidefolkExtensionKit
             StatItem(L("Runs this week"), Format.integer(week.count), symbol: "chart.bar", tone: bad > 0 ? .warn : .neutral),
         ])], wide: true))
         body += needsYou(app)
-        body.append(Section(nil, [.cards(size: .large, flows.map { card($0, app) })], wide: true))
+        body.append(Section(nil, [.cards(size: .small, flows.map { card($0, app) })], wide: true))
         body.append(Section(nil, describing(app), wide: true))
         main += body
         return frame(app, state: state, here: "flows", main)
@@ -233,7 +233,7 @@ import SidefolkExtensionKit
     static func templatesPage(_ app: App, state: Arguments) -> Page {
         frame(app, state: state, here: "templates", [
             Section(nil, [.bar(PageBar(L("Templates"), detail: L("Start from one, then make it yours.")))]),
-            Section(nil, [.cards(size: .large, templateCards(app))], wide: true),
+            Section(nil, [.cards(size: .small, templateCards(app))], wide: true),
         ])
     }
 
@@ -611,7 +611,7 @@ import SidefolkExtensionKit
 
 /// What a step will need, said in advance. Sidefolk holds the rule and enforces it: this only tells the person before the card does.
 enum Hints {
-    private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "reminders.create": ["title", "notes"], "notify.user": ["title", "body"], "ask.user": ["question"]]
+    private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "notes.search": ["query"], "reminders.create": ["title", "notes"], "notify.user": ["title", "body"], "ask.user": ["question"]]
 
     static func asksEachTime(_ step: Step) -> Bool {
         guard case .action(let tool, let input) = step.kind else { return false }

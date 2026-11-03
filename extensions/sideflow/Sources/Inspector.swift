@@ -116,7 +116,7 @@ import SidefolkExtensionKit
                 out.append(.note(L("This tool isn't here now: {tool}.", ["tool": name]), tone: .warn))
                 break
             }
-            if !tool.description.isEmpty, tool.fromExtension == nil { out.append(.note(String(tool.description.prefix(200)))) }
+            if name == "companion.job" { out.append(.note(L("Your companion does this with all its tools, under your own trust settings. It uses your AI, and what it does is in History."))) }
             for p in tool.parameters {
                 let current = values[p.name]
                 switch p.kind {
