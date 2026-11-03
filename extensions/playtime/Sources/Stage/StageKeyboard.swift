@@ -116,7 +116,7 @@ extension BoardDrawing {
                 Node.symbol(symbol, color: Paint.onAction).symbolLook().at((w - 22) / 2, (h - 16) / 2 - 1).size(22, 16)
             }
         }.area("draft", value: name, label: label, disabled: locked, hover: AreaLook(scale: 1.03), press: AreaLook(scale: 0.95, dy: 1), sound: sounds ? "sounds/tap.wav" : nil)
-        if !ready || locked { node = node.opacity(0.62) }
+        if !ready || locked { node = node.opacity(0.8) }
         if ready, !locked, name == "return", ctx.local.justTyped, !ctx.fresh { anims.append(.keys("key.return", [["t": 0, "scale": 1], ["t": 0.5, "scale": 1.08], ["t": 1, "scale": 1]], ms: 260, ease: "in_out")) }
         return node
     }

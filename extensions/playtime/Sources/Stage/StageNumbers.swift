@@ -150,7 +150,8 @@ extension BoardDrawing {
         let h = Self.balloonH, w = h * 200 / 305
         let step = min(Self.balloonRailW / Double(max(total, 1)), w + 4)
         let startX = (Self.balloonRailW - step * Double(total)) / 2 + (step - w) / 2
-        let before: Int? = ctx.fresh ? ctx.previous?.play { if case .lives(_, let left, _) = $0 { left } else { nil } } : nil
+        // A pop plays once: the verdict after a last balloon's build-up shows it gone.
+        let before: Int? = ctx.fresh && !ctx.local.builtUp ? ctx.previous?.play { if case .lives(_, let left, _) = $0 { left } else { nil } } : nil
         let popping = before.map { $0 > left ? Array(left..<$0) : [] } ?? []
         var nodes: [Node] = []
         for i in 0..<total {
@@ -180,12 +181,16 @@ extension BoardDrawing {
         anims.append(.keys(id, [["t": 0, "sx": 1, "sy": 1, "opacity": 1], ["t": 0.6, "sx": 1.28, "sy": 1.22, "opacity": 1], ["t": 1, "sx": 1.5, "sy": 1.45, "opacity": 0]], ms: 170, ease: "in"))
         let cx = x + w / 2, cy = h * 0.6
         var nodes: [Node] = []
-        for k in 0..<9 {
-            let angle = Double(k) / 9 * 2 * .pi + 0.3, reach = 26.0 + Double(k % 3) * 8, side = 5.0 + Double(k % 2) * 2
+        // A ring of air, for an instant.
+        let ring = id + ".ring"
+        nodes.append(Node.ellipse(stroke: Paint.white, lineWidth: 2.5).id(ring).at(cx - w / 2, cy - w / 2).size(w, w).anchor(0.5, 0.5).opacity(0))
+        heldKeys(ring, [["t": 0, "scale": 0.5, "opacity": 0.9], ["t": 1, "scale": 1.5, "opacity": 0]], delayMs: 110, ms: 260, ease: "out")
+        for k in 0..<10 {
+            let angle = Double(k) / 10 * 2 * .pi + 0.3, reach = 30.0 + Double(k % 3) * 10, side = 7.0 + Double(k % 2) * 3
             let endX = cx + cos(angle) * reach - side / 2, endY = cy + sin(angle) * reach * 0.8 + 16 - side / 2
             let bit = "\(id).bit.\(k)"
             nodes.append(Node.rect(fill: hue, corner: 1.5).id(bit).at(endX, endY).size(side, side * 0.7).opacity(0))
-            heldKeys(bit, [["t": 0, "x": cx - side / 2, "y": cy, "opacity": 1, "rotate": 0], ["t": 0.55, "opacity": 1], ["t": 1, "x": endX, "y": endY, "opacity": 0, "rotate": 150]], delayMs: 120, ms: 460, ease: "out")
+            heldKeys(bit, [["t": 0, "x": cx - side / 2, "y": cy, "opacity": 1, "rotate": 0], ["t": 0.55, "opacity": 1], ["t": 1, "x": endX, "y": endY, "opacity": 0, "rotate": 150]], delayMs: 120, ms: 520, ease: "out")
         }
         heldKeys(id + ".string", [["t": 0, "opacity": 0, "rotate": 0], ["t": 0.05, "opacity": 0.9, "rotate": 14], ["t": 0.4, "opacity": 0.9, "rotate": -9], ["t": 0.7, "opacity": 0.9, "rotate": 5], ["t": 1, "opacity": 0.9, "rotate": 0]], delayMs: 130, ms: 700, ease: "in_out")
         return nodes

@@ -41,6 +41,8 @@ enum Paint {
     static let coral = Color.hex("#FF7B6B")
     static let navy = Color.hex("#0F2D5B")
     static let white = Color.hex("#FFFFFF")
+    /// The plate Tic-tac-toe's porcelain cells stand on, seen in the grooves between them.
+    static let plate = both("#14275A", "#0D1326")
     /// A pair of Memory cards found: the person's warm, the other side's cool. Whose, never how it went.
     static let pairYours = both("#FFEFC2", "#5A4A1E")
     static let pairTheirs = both("#D6E8F7", "#2E4A68")

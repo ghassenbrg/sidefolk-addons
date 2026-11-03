@@ -63,7 +63,7 @@ extension BoardDrawing {
         let leaving = ctx.fresh ? cells.indices.filter { cells[$0].mark == "empty" && Self.pieceArt(previous?[safe: $0]?.mark) != nil } : []
         if !leaving.isEmpty { anims.append(Anim.sequence([.wait(ms: Double(leaving.count) * Self.leavingStep + 320)]).blocksInput()) }
         return PartBlock(.box("grid", w: Self.inner, h: playRoom) {
-            Node.rect(fill: Paint.navy, corner: 18).id("grid.plate").at(x - edge, y - edge).size(w + 2 * edge, h + 2 * edge).shadow(Paint.clear("#3A2A55", 0.28), radius: 7, dx: 0, dy: 4)
+            Node.rect(fill: Paint.plate, corner: 18).id("grid.plate").at(x - edge, y - edge).size(w + 2 * edge, h + 2 * edge).shadow(Paint.clear("#3A2A55", 0.28), radius: 7, dx: 0, dy: 4)
             for i in cells.indices {
                 self.markCell(cells[i], index: i, columns: columns, side: side, locked: locked, numpad: numpad, stepsBack: settled && cells[i].state != "win",
                               leavingAfter: leaving.firstIndex(of: i).map { Double($0) * Self.leavingStep + 80 }, was: previous?[safe: i]?.mark).at(at(i).x, at(i).y)
@@ -116,7 +116,8 @@ extension BoardDrawing {
             heldKeys(target, [["t": 0, "scale": 1, "opacity": 1], ["t": 0.3, "scale": 1.08, "opacity": 1], ["t": 1, "scale": 0.5, "opacity": 0]], delayMs: leavingAfter, ms: 240, ease: "in")
         }
         if ctx.local.cursor == index, !locked {
-            inner.append(Node.rect(stroke: Paint.action, lineWidth: 3, corner: 14).id(id + ".cursor").size(side, faceH))
+            // Inside the cell: its plate is navy too.
+            inner.append(Node.rect(stroke: Paint.action, lineWidth: 3, corner: 11).id(id + ".cursor").at(3, 3).size(side - 6, faceH - 6))
         }
         markArrives(cell, id: id, index: index)
         if cell.state == "win", ctx.fresh, !ctx.buildUp {
