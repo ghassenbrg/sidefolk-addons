@@ -176,7 +176,7 @@ struct PlaytimeHandsAndTossTests {
                 if case .hands = toss { #expect(!again, "a hand isn't thrown again") } else { #expect(again) }
             }
             // A loss is never red: the calm tone, with its symbol.
-            let chip = Self.text(TossParts.chip(.hands(person: .rock, companion: .paper)).node.json)
+            let chip = Self.text(TossToys.Tag(.hands(person: .rock, companion: .paper), line: nil).node.json)
             #expect(chip.contains("xmark.circle.fill") && chip.contains("loss"))
             // Right to left and a long language fit too.
         }
