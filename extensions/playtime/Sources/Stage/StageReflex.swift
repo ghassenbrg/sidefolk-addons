@@ -117,7 +117,7 @@ extension BoardDrawing {
 
     var reflexFooter: String? {
         board.play { part -> String? in
-            guard case .reflex(let after, _, _, let go, _, let shows, let seats) = part, after != nil, shows == nil else { return nil }
+            guard case .reflex(_, _, _, let go, _, _, let seats) = part else { return nil }
             if let seats, let names = board.scorePart?.players {
                 return L("{a}: {ka} · {b}: {kb}", ["a": names[0], "ka": seats[0].uppercased(), "b": names[1], "kb": seats[1].uppercased()])
             }

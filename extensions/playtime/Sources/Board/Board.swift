@@ -243,6 +243,8 @@ public struct GameButton {
     /// Clicking the companion in the game's scene presses it, and Sidefolk draws no button for it (its key and VoiceOver
     /// still press it). A Sidefolk from before this draws it as a plain button.
     public var companion: Bool
+    /// Off only until the other side has moved: it keeps its look, so it doesn't dim and return every turn.
+    public var waiting = false
 
     public init(_ label: String, move: String, style: ButtonStyle = .secondary, symbol: String? = nil, key: String? = nil, disabled: Bool = false,
                 companion: Bool = false) {

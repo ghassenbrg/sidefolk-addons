@@ -61,7 +61,7 @@ enum Suspense {
     /// card turned with the companion's reaction, the end card.
     static func decides(_ next: Board, after previous: Board) -> Bool {
         // A last line or pair already shown, score and all, was the build-up to the end card.
-        if next.resultPart != nil, previous.resultPart == nil, previous.gridPart?.cells.contains(where: { $0.state == "win" }) != true { return true }
+        if next.resultPart != nil, previous.resultPart == nil, previous.gridPart?.cells.contains(where: { $0.state == "win" }) != true, !previous.reflexShows { return true }
         if let s = next.scorePart, let p = previous.scorePart, s.you > p.you || s.companion > p.companion { return true }
         if let g = next.gridPart, g.cells.contains(where: { $0.state == "win" }), previous.gridPart?.cells.contains(where: { $0.state == "win" }) != true { return true }
         if let g = next.gridPart, next.companion != nil, g.cells.contains(where: { $0.animate == "flip" }) { return true }
@@ -91,10 +91,11 @@ enum Suspense {
         if let before, !parts.contains(where: isPrompt) {
             parts.insert(before, at: parts.firstIndex { !isScore($0) } ?? parts.count)
         }
-        // A puzzle's dock stays through its last beat, nothing to press, so the board above it doesn't move as it is solved.
-        if next.hasPuzzle {
+        // A puzzle's dock stays through its last beat, nothing to press, so the board above it doesn't move as it is solved. Tic-tac-toe's Hint keeps its look through a win's beat too.
+        if next.hasPuzzle || next.gridPart?.numpad == true {
             parts += previous.parts.compactMap { part -> BoardPart? in
                 guard case .button(var button) = part else { return nil }
+                button.waiting = !next.hasPuzzle && !button.disabled || button.waiting
                 button.disabled = true
                 return .button(button)
             }

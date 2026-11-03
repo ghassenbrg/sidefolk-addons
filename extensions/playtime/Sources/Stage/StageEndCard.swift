@@ -104,8 +104,9 @@ extension BoardDrawing {
         let top = 176.0
         let mini = solvedBoard(room: foot - top - 8)
         var chips: [Node] = []
-        for case .choice(let name, let label, .segmented, let options, let selected) in board.parts {
-            chips.append(choice(name: name, label: label, style: .segmented, options: options, selected: selected, compact: true, width: width - 96).node.at(48, foot))
+        // Three pills say what they are, as 24 draws them.
+        for case .choice(let name, _, .segmented, let options, let selected) in board.parts {
+            chips.append(choice(name: name, label: nil, style: .segmented, options: options, selected: selected, compact: true, width: width - 140).node.at(70, foot))
         }
         let primary = actions.first
         let back = GameButton(L("Back to games"), move: Self.backMove, style: .secondary)
@@ -137,7 +138,12 @@ extension BoardDrawing {
                     Node.words(how, size: 13, weight: "bold", align: "center", minScale: 0.7, x: (width - w) / 2, y: 142, w: w, h: 20)
                 }
             }
-            Node.art("art/result-solved.webp", x: width - 74, y: 16, w: 58, h: 58).id("end.mark")
+            Node.art("art/result-solved.webp", x: width - 80, y: 14, w: 66, h: 66).id("end.mark")
+            // The clip that holds the sheet, as 24 draws it.
+            Node.box("sheet.clip", x: width / 2 - 20, y: -14, w: 40, h: 34) {
+                Node.ellipse(stroke: Paint.clear("#C49A6C", 0.95), lineWidth: 2.5).at(9, 0).size(22, 24)
+                Node.rect(fill: Paint.lilacDeep, corner: 5).at(0, 13).size(40, 20).shadow(Paint.clear("#3A2A55", 0.25), radius: 2, dx: 0, dy: 1)
+            }
             if let mini { mini.node.at(((width - mini.width) / 2).rounded(), (top + (foot - top - mini.height) / 2).rounded()) }
             chips
             if let primary { buttonRow([primary], id: "end.action.0", width: (width - 2 * pad - 10) * 0.54).node.at(pad, height - pad + 4 - 44) }

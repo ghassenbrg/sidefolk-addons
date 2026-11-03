@@ -145,7 +145,7 @@ extension BoardDrawing {
         styles["pd"] = Node.ellipse(fill: Paint.ink).at((side - dot) / 2, (side - dot) / 2).size(dot, dot).opacity(0.5).json
         // Pencil notes, each number in its own place, three to a row: readable at 9 × 9's size, never crowding 6 × 6's.
         guard let digits else { return }
-        let inset = side * 0.06, across = 3, rows = (digits + across - 1) / across
+        let inset = Swift.max(side * 0.06, 5), across = 3, rows = (digits + across - 1) / across
         let w = (side - 2 * inset) / Double(across), h = (side - 2 * inset) / Double(rows)
         for n in 1...digits {
             let r = (n - 1) / across, c = (n - 1) % across

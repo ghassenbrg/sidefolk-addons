@@ -228,8 +228,10 @@ enum HigherLowerScreen: GameScreen {
             }
             if events.contains(where: { if case .sealed = $0 { true } else { false } }) { cue = Cue(move: "tease", prop: "sealed_card", line: "hello") }
         } else if let game = s.yours {
-            let range = L("Between {low} and {high}", ["low": game.low, "high": game.high])
-            let answers = [Tile(L("Higher"), key: "h"), Tile(L("Lower"), key: "l"), Tile(L("That's it!"), key: "y")]
+            // Once the range has closed there is nothing higher or lower left to say.
+            let closed = game.low == game.high
+            let range = closed ? L("It must be {n}", ["n": game.low]) : L("Between {low} and {high}", ["low": game.low, "high": game.high])
+            let answers = [Tile(L("Higher"), state: closed ? .faded : .none, key: "h"), Tile(L("Lower"), state: closed ? .faded : .none, key: "l"), Tile(L("That's it!"), key: "y")]
             let guessing = L("{name} guesses", ["name": o.companion])
             if s.thinking {
                 parts.append(.prompt(L("Hmm… {range}…", ["range": range]), eyebrow: guessing + " · " + L("Question {n}", ["n": game.asked])))

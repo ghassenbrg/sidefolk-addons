@@ -170,9 +170,8 @@ extension BoardDrawing {
     }
 
     var padsFooter: String? {
-        guard !playing else { return nil }
-        return board.play { part -> String? in
-            if case .pads(let pads, _, _, false, _, _) = part { L("1–{n} to copy", ["n": pads.count]) } else { nil }
+        board.play { part -> String? in
+            if case .pads(let pads, _, _, _, _, _) = part { L("1–{n} to copy", ["n": pads.count]) } else { nil }
         }
     }
 

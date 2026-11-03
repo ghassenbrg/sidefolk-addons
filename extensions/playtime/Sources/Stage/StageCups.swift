@@ -235,9 +235,8 @@ extension BoardDrawing {
     var cupsStageWords: String? { board.hasCups && playing ? L("Keep your eye on the gem…") : nil }
 
     var cupsFooter: String? {
-        guard !playing else { return nil }
-        return board.play { part -> String? in
-            if case .cups(let count, _, _, _, _, let revealed, _, let locked) = part, !locked, !revealed { L("1–{n} to pick", ["n": count]) } else { nil }
+        board.play { part -> String? in
+            if case .cups(let count, _, _, _, _, _, _, _) = part { L("1–{n} to pick", ["n": count]) } else { nil }
         }
     }
 

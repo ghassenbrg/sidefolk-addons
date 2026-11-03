@@ -21,7 +21,9 @@ struct FigurePlace {
 
 extension BoardDrawing {
     var figurePlace: FigurePlace? {
-        guard !ended, !isStall else { return nil }
+        guard !ended, !isStall, !board.hasCover else { return nil }
+        // A setting-up board (names, a cover) has no toy to stand by.
+        if board.gridPart == nil, !board.hasCups, !board.hasPads, !board.hasReflex, !board.hasSticks, !board.hasPuzzle, !board.hasLetters, gameTable == nil { return nil }
         switch ctx.entry.id {
         // 03: perched on the arch, the bubble beside its head.
         case TicTacToeScreen.id:

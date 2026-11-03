@@ -26,7 +26,8 @@ extension BoardDrawing {
         if board.plays != nil { return "listening" }
         // A moment that came with a reaction wins over whose turn it is.
         switch board.companion?.move {
-        case "think": return "thinking"
+        // Thinking only while the board answers by itself: a question waiting for the person is the person's turn.
+        case "think": return board.afterMs != nil ? "thinking" : "listening"
         case "cheer", "celebrate", "giggle", "dance", "hop", "spin", "tease", "accent:hop", "accent:spin": return "celebrating"
         case "gasp", "wince", "sweat", "dizzy": return "alert"
         case "nod", "bow", "wave", "accent:wave", "accent:bow": return "success"

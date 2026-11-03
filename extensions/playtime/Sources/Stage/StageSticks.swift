@@ -54,7 +54,7 @@ extension BoardDrawing {
             Node.box("sticks", w: Self.inner, h: tray.height) { nodes }.leftToRight()
             slotRow(y: tray.height + 6, height: Tray.slotH)
             for n in 1...3 {
-                takeButton(n, x: Double(n - 1) * (w + 8), y: takeY, w: w, h: Tray.takeH, open: !locked && n <= take)
+                takeButton(n, x: Double(n - 1) * (w + 8), y: takeY, w: w, h: Tray.takeH, open: !locked && n <= take, waiting: locked && n <= take)
             }
         }
         return PartBlock(part, height: playRoom)
@@ -80,7 +80,7 @@ extension BoardDrawing {
     }
 
     /// A navy button with the rods it takes above its words. It keeps its place when fewer can be taken: faded, not pressable, no key.
-    private func takeButton(_ n: Int, x: Double, y: Double, w: Double, h: Double, open: Bool) -> Node {
+    private func takeButton(_ n: Int, x: Double, y: Double, w: Double, h: Double, open: Bool, waiting: Bool) -> Node {
         let id = "take.\(n)", depth = 3.0, faceH = h - depth, corner = 16.0
         let words = L("Take {n}", ["n": n])
         let rodW = 7.0, rodH = 24.0, step = 12.0
@@ -88,9 +88,9 @@ extension BoardDrawing {
         var face = Node.box(id + ".top", w: w, h: faceH) {
             Node.rect(fill: Paint.action, corner: corner).size(w, faceH)
             for s in 0..<n {
-                Node.image("art/rod.webp", fit: "fill").at((w - whole) / 2 + Double(s) * step, 5).size(rodW, rodH)
+                Node.image("art/rod.webp", fit: "fill").at((w - whole) / 2 + Double(s) * step, 5).size(rodW, rodH).opacity(waiting ? 0.6 : 1)
             }
-            Node.words(words, size: 16.5, weight: "heavy", color: Paint.onAction, align: "center", minScale: 0.6, x: 6, y: 30, w: w - 12, h: 24)
+            Node.words(words, size: 16.5, weight: "heavy", color: Paint.onAction, align: "center", minScale: 0.6, x: 6, y: 30, w: w - 12, h: 24).opacity(waiting ? 0.6 : 1)
         }
         if open {
             keys.append(StageKey(key: "\(n)", id: "take_\(n)", area: "take", value: "\(n)"))
@@ -99,12 +99,13 @@ extension BoardDrawing {
         return Node.box(id, x: x, y: y, w: w, h: h) {
             Node.rect(fill: Paint.actionLip, corner: corner).at(0, depth).size(w, faceH)
             face
-        }.opacity(open ? 1 : 0.38)
+            // Waiting for the other side, it stays solid navy with its words quieter: the scene through it read as a muddy button every turn.
+        }.opacity(open || waiting ? 1 : 0.38)
     }
 
     var sticksFooter: String? {
         board.play { part -> String? in
-            if case .sticks(_, let left, let take, _, _, _, _, false) = part { Swift.min(take, left) == 1 ? L("1 to take") : L("1–{n} to take", ["n": Swift.min(take, left)]) } else { nil }
+            if case .sticks(_, let left, let take, _, _, _, _, _) = part { Swift.min(take, left) == 1 ? L("1 to take") : L("1–{n} to take", ["n": Swift.min(take, left)]) } else { nil }
         }
     }
 
