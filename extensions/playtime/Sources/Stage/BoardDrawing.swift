@@ -59,7 +59,11 @@ struct StageKey {
 /// SwiftUI and carried over; the frame's 44 pt header replaces the game's own (D99, as amended). One object per scene, which
 /// each part adds its animations and keys to.
 final class BoardDrawing {
-    static let width = 400.0, pad = 14.0, inner = 372.0, boardRoom = 540.0, maxHeight = 676.0
+    /// The canvas: the same for every board, so the panel never changes size.
+    static let width = 400.0, pad = 14.0, inner = 372.0, canvas = 620.0, footerRoom = 26.0
+
+    /// What the board has to itself, once the header, the stage and the controls have their places. A part sizes itself to this.
+    var playRoom = 400.0
 
     let board: Board
     let ctx: StageContext
@@ -94,44 +98,43 @@ final class BoardDrawing {
         }
     }
 
+    /// Every game's layout, top to bottom, in places that never move while it is played: the title, the score, the round; the companion and its bubble (one
+    /// size, however many lines it says); the board, centred in what is left; the controls; the line of keys. The panel is one height for every game, the menu and
+    /// the end card, so nothing shifts under the pointer. Whatever comes and goes during a game has its room kept.
     func scene() -> Scene {
-        var y = 7.0
-        var content: [Node] = []
-        // A puzzle is played alone against the clock: no "You vs" bar, so a 9 × 9 Sudoku keeps its room.
-        if !board.hasPuzzle {
-            let bar = scoreBar()
-            content.append(bar.node.at(Self.pad, y))
-            y += bar.height + 8
-        }
-        let parts = boardBlocks()
-        let boardHeight = parts.reduce(-8.0) { $0 + $1.height + 8 } + 4
-        let room = min(Self.boardRoom, boardHeight)
-        var offset = 2.0
-        var stacked = parts.map { block -> Node in
+        let head = header()
+        // The controls first: the board's room is what they and the stage leave.
+        let controls = dock()
+        let bottom = Self.canvas - Self.footerRoom - (controls.map { $0.height + 8 } ?? 0)
+        let said = ended ? nil : stage(text: board.promptPart?.text, chip: board.promptPart?.chip)
+        let top = 4 + head.height + (said.map { $0.height + 6 } ?? 0)
+        playRoom = bottom - top - 6
+        let parts = playBlocks()
+        let height = parts.reduce(-8.0) { $0 + $1.height + 8 }
+        var offset = height <= playRoom ? ((playRoom - height) / 2).rounded() : 0
+        let stacked = parts.map { block -> Node in
             defer { offset += block.height + 8 }
             return block.node.at(Self.pad, offset)
         }
-        // What stands over what follows (the companion's feet on its table) comes last, so it reads the same wherever the scene is drawn.
-        stacked = stacked.filter { $0.json["z"] == nil } + stacked.filter { $0.json["z"] != nil }
-        if boardHeight > Self.boardRoom {
-            content.append(Node.scroll(contentHeight: boardHeight) { stacked }.id("board").at(0, y).size(Self.width, room))
+        var content: [Node] = [head.node.at(Self.pad, 4)]
+        if height > playRoom {
+            content.append(Node.scroll(contentHeight: height) { stacked }.id("board").at(0, top).size(Self.width, playRoom))
         } else {
-            content.append(Node.box("board", y: y, w: Self.width, h: room) { stacked })
+            content.append(Node.box("board", y: top, w: Self.width, h: playRoom) { stacked })
         }
-        y += room + 8
-        let hint = hintRow()
-        content.append(hint.node.at(Self.pad, y))
-        y += hint.height + 10
-        let height = min(y, Self.maxHeight)
+        // Over the board: the companion may lean on what it plays on.
+        if let said { content.append(said.node.at(Self.pad, 4 + head.height).z(1)) }
+        if let controls { content.append(controls.node.at(Self.pad, bottom)) }
+        content.append(hintRow().node.at(Self.pad, Self.canvas - Self.footerRoom))
 
-        var scene = Scene(width: Self.width, height: height) {
-            SceneBackdrop.nodes(look, width: Self.width, height: height)
+        var scene = Scene(width: Self.width, height: Self.canvas) {
+            SceneBackdrop.nodes(look, width: Self.width, height: Self.canvas)
             content.map(\.rounded)
         }
-        .title(ctx.entry.title)
+        .title(L("A little break, together."))
         .withBack()
         .speaker(GameSoundSetting.key(ctx.entry.id))
-        .transition(ms: 350)
+        .transition(ms: 220)
         .animating(anims)
         if ctx.fresh { scene = cued(scene) }
         for (id, ms) in timers { scene = scene.timer(id, ms: ms) }
@@ -173,35 +176,26 @@ final class BoardDrawing {
         return nil
     }
 
-    /// The parts with neighbouring buttons gathered into one row, and the prompt as the companion's stage.
-    private func boardBlocks() -> [PartBlock] {
+    /// The buttons a game offers during play, at their place under the board. On an end card they are the card's.
+    private func dock() -> PartBlock? {
+        guard !ended else { return nil }
+        let row = board.parts.compactMap { part -> GameButton? in if case .button(let b) = part, !b.companion { b } else { nil } }
+        guard !row.isEmpty || dockExtra != nil else { return nil }
+        return buttonRow(row, id: "dock", leading: dockExtra)
+    }
+
+    /// What is played, in the board's order.
+    private func playBlocks() -> [PartBlock] {
         var out: [PartBlock] = []
-        var row: [GameButton] = []
-        var stageDone = false
-        func flush() {
-            if !row.isEmpty { out.append(buttonRow(row, id: "buttons.\(out.count)")) }
-            row = []
-        }
         for part in board.parts {
             if ended, isPlay(part) { continue }
             if ended, case .choice(_, _, .segmented, _, _) = part { continue }
-            if case .button(let b) = part {
-                if !b.companion { row.append(b) }
-                continue
-            }
-            flush()
             switch part {
-            case .score: continue
-            case .prompt(let text, let eyebrow, let chip):
-                out.append(stage(text: text, eyebrow: eyebrow, chip: chip))
-                stageDone = true
+            case .score, .prompt, .button: continue
             default:
                 if let block = block(part) { out.append(block) }
             }
         }
-        flush()
-        // A board without words still has the companion in its scene, unless it is the end card alone.
-        if !stageDone, board.resultPart == nil { out.insert(stage(text: nil, eyebrow: nil, chip: nil), at: 0) }
         return out
     }
 
@@ -217,7 +211,7 @@ final class BoardDrawing {
         case .choice(let name, let label, let style, let options, let selected):
             return choice(name: name, label: label, style: style, options: options, selected: selected, compact: false)
         case .timer(let id, let seconds):
-            // Inside the bubble when there is a prompt.
+            // On the bubble when there is a prompt.
             startClock(id: id, seconds: seconds)
             guard board.promptPart == nil else { return nil }
             return PartBlock(timerBar(id: id, seconds: seconds, width: Self.inner), height: 5)
@@ -248,46 +242,14 @@ final class BoardDrawing {
         }
     }
 
-    /// A prop standing on the scene's table: the table runs the panel's full width behind it and up over the companion's lower
-    /// half, so the companion peeks over it.
-    private func onTable(_ inner: PartBlock) -> PartBlock {
-        let height = inner.height + 10
-        return PartBlock(.box("table", w: Self.inner, h: height) {
-            SceneBackdrop.table(look, x: -Self.pad, y: -6, width: Self.width, height: height + 14)
-            inner.node.at(0, 6)
-        }, height: height)
-    }
+    /// A prop stands on the table its scene already paints.
+    private func onTable(_ inner: PartBlock) -> PartBlock { inner }
 }
 
-/// The scene behind a game: its illustration filling the panel, by day in light mode and the same place at night in dark mode
-/// (its own painting, not the day dimmed), standing on the panel's bottom edge. Never anything a game's data sent.
+/// The scene behind a game: its illustration filling the canvas, by day in light mode and the same place at night in dark mode. Never anything a game's data sent.
 enum SceneBackdrop {
-    /// Every painting is 768 × 1024.
-    static let aspect = 1024.0 / 768.0
-
     static func nodes(_ look: Look, width: Double, height: Double) -> [Node] {
-        let tall = max(width * aspect, height)
-        let wide = tall / aspect
-        var out: [Node] = [
-            Node.rect(fill: .surface).id("bg.base").size(width, height),
-            // Named by the panel's height: it stands on the bottom edge at once when the panel grows, rather than easing up from under it.
-            Node.image(look.scene, dark: look.sceneAtNight, fit: "fill").id("bg.scene.\(Int(height))").at((width - wide) / 2, height - tall).size(wide, tall),
-        ]
-        // A night painting is already calm: a touch darker in dark mode, as the panel drew it.
-        if !look.night { out.append(Node.rect(fill: .adaptive(light: "#00000000", dark: "#00000029")).id("bg.dim").size(width, height)) }
-        // The top softened: the frame's header stands on the panel's own surface.
-        out.append(Node.rect().gradient([Color.surface.tuned(alpha: 0.6), Color.surface.tuned(alpha: 0)]).id("bg.veil").size(width, 90))
-        return out
-    }
-
-    /// The wooden table at the bottom of a game's scene: the same picture's last part, stretched as the panel stretched it.
-    static func table(_ look: Look, x: Double, y: Double, width: Double, height: Double) -> Node {
-        let whole = height / 0.28
-        return Node.box("table.strip", x: x, y: y, w: width, h: height) {
-            Node.image(look.scene, dark: look.sceneAtNight, fit: "fill").at(0, height - whole).size(width, whole)
-            Node.rect(fill: .adaptive(light: "#00000000", dark: "#0000001F")).size(width, height)
-            // Its back edge softened, so the companion behind it sinks into the table rather than being cut.
-            Node.rect().gradient([Paint.clear("#000000", 0.12), Paint.clear("#000000", 0)], from: (0.5, 0), to: (0.5, 0.25)).size(width, height)
-        }.clip()
+        [Node.rect(fill: Paint.paper).id("bg.base").size(width, height),
+         Node.image(look.scene, dark: look.sceneAtNight, fit: "fill").id("bg.scene").size(width, height)]
     }
 }

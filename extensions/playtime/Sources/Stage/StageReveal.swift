@@ -101,7 +101,7 @@ extension BoardDrawing {
             // The clash itself: a burst, or an equals sign for a draw.
             let mark = "\(prefix).burst", side = verdict == .draw ? 22.0 : 30.0, fade = beat.acts + (1 - beat.acts) * 0.7
             anims.append(.keys(mark, [["t": 0, "opacity": 0, "scale": 0.6], ["t": beat.acts, "opacity": 0, "scale": 0.6], ["t": beat.acts + 0.001, "opacity": 1, "scale": 0.6], ["t": fade, "opacity": 0, "scale": 1.3], ["t": 1, "opacity": 0, "scale": 1.3]], ms: beat.ms))
-            burst.append(Node.symbol(verdict == .draw ? "equal" : "burst.fill", color: Color.inkMuted.tuned(alpha: 0.8)).symbolLook(weight: "bold").id(mark).at(mid - side / 2, 52 - side / 2).size(side, side).opacity(0))
+            burst.append(Node.symbol(verdict == .draw ? "equal" : "burst.fill", color: Paint.inkSoft.tuned(alpha: 0.8)).symbolLook(weight: "bold").id(mark).at(mid - side / 2, 52 - side / 2).size(side, side).opacity(0))
         }
         return words + [
             side("you", hand: you, sign: -1, won: verdict == .win, lost: verdict == .loss, mirrored: false),

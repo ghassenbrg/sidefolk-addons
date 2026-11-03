@@ -105,14 +105,19 @@ enum PlayTable {
     // MARK: Moves
 
     private static func menuMove(_ move: SurfaceMove, session: inout Session, id: String) -> Scene {
-        let order = PlayMenu.order
+        let slots = PlayMenu.slots
+        func opening(_ slot: String) -> Scene {
+            // Surprise me: any game but the one just played.
+            let game = slot == PlayMenu.surprise ? PlayMenu.order.map(\.id).filter { $0 != session.game }.randomElement() ?? slots[0] : slot
+            return openFromMenu(game, session: &session, id: id)
+        }
         switch move {
         case .click("open", let game?, _):
-            return openFromMenu(game, session: &session, id: id)
+            return opening(game)
         case .key(let key, _, _) where key.hasPrefix("arrow_"):
-            session.selected = PlayMenu.step(key, from: session.selected, count: order.count, rtl: Language.code == "ar")
+            session.selected = PlayMenu.step(key, from: session.selected, rtl: Language.code == "ar")
         case .key("menu_return", _, _), .key("menu_space", _, _):
-            if order.indices.contains(session.selected) { return openFromMenu(order[session.selected].id, session: &session, id: id) }
+            if slots.indices.contains(session.selected) { return opening(slots[session.selected]) }
         default: break
         }
         return PlayMenu.scene(selected: session.selected, kept: session.game)

@@ -75,7 +75,7 @@ extension BoardDrawing {
         for (name, file) in [("ph", "heart"), ("ps", "star"), ("pf", "flower")] {
             styles[name] = Node.art("art/game-face-\(file).webp", x: (side - art) / 2, y: (side - art) / 2, w: art, h: art).json
         }
-        styles["pd"] = Node.ellipse(fill: Color.inkMuted.tuned(alpha: 0.55)).at((side - dot) / 2, (side - dot) / 2).size(dot, dot).json
+        styles["pd"] = Node.ellipse(fill: Paint.inkSoft.tuned(alpha: 0.55)).at((side - dot) / 2, (side - dot) / 2).size(dot, dot).json
         // Pencil notes, each number in its own place, three to a row.
         guard let digits else { return }
         let inset = side * 0.06, across = 3, rows = (digits + across - 1) / across

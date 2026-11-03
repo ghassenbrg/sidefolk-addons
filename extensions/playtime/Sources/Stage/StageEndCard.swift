@@ -5,122 +5,102 @@ import SidefolkExtensionKit
 // the mark is the only picture, and it appears once.
 extension BoardDrawing {
     func endCard(figure: String, line: String?, ribbon: String?, tone: Tone, facts: [(String, String)], actions: [GameButton]) -> PartBlock {
-        let width = Self.inner, room = width - 24
-        let verdict = Verdict(tone: tone)
-        var y = 12.0
-        var nodes: [Node] = []
-        if let ribbon {
-            // A new best: a small chip in the sun's colour, above the result it crowns.
-            let w = TextFit.width(ribbon, size: 11.5, weight: "semibold") + 24 + 16
-            nodes.append(.box("end.ribbon", x: (width - w) / 2, y: y, w: w, h: 24) {
-                Node.capsule(fill: Paint.clear("#FFC93C", 0.18), stroke: Paint.clear("#FFC93C", 0.45), lineWidth: 1).size(w, 24)
-                Node.symbol("star.fill", color: Paint.sun).symbolLook().at(12, 6).size(12, 12)
-                Node.words(ribbon, size: 11.5, weight: "semibold", design: "default", x: 28, w: w - 40, h: 24)
-            })
-            y += 24 + 8
-            appear("end.ribbon")
-        }
-        let hero = endHero(figure: figure, line: line, verdict: verdict, tone: tone, width: room)
-        nodes.append(hero.node.at(12, y))
-        y += hero.height + 8
-        if !facts.isEmpty {
-            let row = factsRow(facts, width: room, id: "end.facts")
-            nodes.append(row.node.at(12, y))
-            y += row.height + 8
-        }
-        // What to do next in one row; when its words don't fit there, the first action takes its own row, never cut.
-        let back = GameButton(L("Back to games"), move: Self.backMove, style: .secondary, symbol: "square.grid.2x2.fill")
-        let backW = 54.0
-        let wanted = actions.reduce(0) { $0 + buttonWidth($1, flat: true) + 8 }
-        if wanted + backW <= room {
-            nodes.append(buttonRow(actions, id: "end.actions", width: room - backW - 8, flat: true).node.at(12, y))
-            nodes.append(backSquare(back, x: 12 + room - backW, y: y, w: backW))
-            y += 42 + 8
-        } else {
-            nodes.append(buttonRow(Array(actions.prefix(1)), id: "end.first", width: room, flat: true).node.at(12, y))
-            y += 42 + 6
-            let rest = Array(actions.dropFirst())
-            if !rest.isEmpty { nodes.append(buttonRow(rest, id: "end.rest", width: room - backW - 8, flat: true).node.at(12, y)) }
-            nodes.append(backSquare(back, x: 12 + room - backW, y: y, w: backW))
-            y += 42 + 8
-        }
-        // The small choices an end card offers (the level for the next game), at its foot.
-        for case .choice(let name, let label, .segmented, let options, let selected) in board.parts {
-            let row = choice(name: name, label: label, style: .segmented, options: options, selected: selected, compact: true, width: room)
-            nodes.append(row.node.at(12, y))
-            y += row.height + 8
-        }
-        let height = y - 8 + 12
-        return PartBlock(.box("end", w: width, h: height) {
-            Node.gameCard(corner: 22, alpha: 0.98, w: width, h: height).id("end.card")
-            nodes
-        }, height: height)
-    }
-
-    /// What the frame's Back does, as a square on the card.
-    static let backMove = "__back"
-
-    private func backSquare(_ back: GameButton, x: Double, y: Double, w: Double) -> Node {
-        let s = 22.0
-        return Node.box("end.back", x: x, y: y, w: w, h: 42) {
-            Node.rect(fill: Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 14).size(w, 42)
-            Node.symbol(back.symbol ?? "", color: .ink).symbolLook(weight: "bold").at((w - s) / 2, (42 - s) / 2).size(s, s)
-        }.area("button", value: back.move, label: back.label, hover: nil, press: AreaLook(scale: 0.97), sound: "sounds/tap.wav")
-    }
-
-    private func endHero(figure: String, line: String?, verdict: Verdict, tone: Tone, width: Double) -> PartBlock {
-        let textRoom = width - 20 - 58 - 12
-        // Who won, in Playtime's words: said only for a win or a loss (a draw's card speaks for itself). A puzzle is solved, not won.
+        let width = Self.inner, verdict = Verdict(tone: tone)
         let title: String? = switch verdict {
         case .win: ctx.entry.solo ? L("Solved!") : L("You win!")
         case .loss: L("{name} wins!", ["name": "{companion}"])
-        case .draw: nil
+        case .draw: L("A draw")
         }
+        let room = width - 56
         let said = board.promptPart?.text
         let shownLine = line == said ? nil : line
-        let titleH = title.map { TextFit.height($0, size: 18, weight: "heavy", width: textRoom, lines: 2) } ?? 0
-        let lineH = shownLine.map { TextFit.height($0, size: 12, weight: "semibold", width: textRoom, lines: 3) } ?? 0
-        let texts = 36 + (title == nil ? 0 : 2 + titleH) + (shownLine == nil ? 0 : 2 + lineH)
-        let height = max(58, texts) + 20
-        var y = (height - texts) / 2
-        let inner = Node.box("end.hero.words", x: 10 + 58 + 12, w: textRoom, h: height) {
-            Node.words(Self.isolated(figure, rtl: ctx.rtl), size: 30, weight: "black", color: verdict == .draw ? .ink : verdict.color, minScale: 0.6, y: y, w: textRoom, h: 36)
-            if let title { Node.words(title, size: 18, weight: "heavy", lines: 2, minScale: 0.8, y: y + 38, w: textRoom, h: titleH) }
-            if let shownLine {
-                Node.words(shownLine, size: 12, weight: "semibold", color: .inkMuted, valign: "top", lines: 3, y: y + 38 + (title == nil ? 0 : titleH + 2), w: textRoom, h: lineH)
-            }
+        let fact = facts.map { "\($0.0) \($0.1)" }.joined(separator: " · ")
+        let lineH = shownLine.map { TextFit.height($0, size: 14, weight: "bold", width: room, lines: 2) } ?? 0
+        // Companion and award stand on the card's top edge.
+        let figureRow = 92.0
+        var cy = 14.0
+        var inCard: [Node] = []
+        if let title {
+            inCard.append(Node.words(title, size: 30, weight: "black", align: "center", minScale: 0.6, x: 20, y: cy, w: width - 40, h: 38).id("end.title"))
+            cy += 40
         }
-        y = 0
-        appear("end.hero.words")
+        let figureW = Swift.min(TextFit.width(figure, size: 21, weight: "black") + 36, room)
+        inCard.append(Node.capsule(fill: chipFill(verdict)).id("end.chip").at((width - figureW) / 2, cy).size(figureW, 32))
+        inCard.append(Node.words(Self.isolated(figure, rtl: ctx.rtl), size: 21, weight: "black", color: chipInk(verdict), align: "center", minScale: 0.6, x: (width - figureW) / 2 + 8, y: cy, w: figureW - 16, h: 32).textLook(tabular: true).id("end.figure"))
+        cy += 38
+        if let ribbon {
+            let w = TextFit.width(ribbon, size: 12, weight: "bold") + 24
+            inCard.append(Node.capsule(fill: Paint.lilac).id("end.ribbon").at((width - w) / 2, cy).size(w, 22))
+            inCard.append(Node.words(ribbon, size: 12, weight: "bold", align: "center", x: (width - w) / 2, y: cy, w: w, h: 22))
+            cy += 26
+            appear("end.ribbon")
+        }
+        if let shownLine {
+            inCard.append(Node.words(shownLine, size: 14, weight: "bold", align: "center", lines: 2, x: 28, y: cy, w: room, h: lineH))
+            cy += lineH + 4
+        }
+        if !fact.isEmpty {
+            inCard.append(Node.words(fact, size: 12, weight: "semibold", color: Paint.inkSoft, align: "center", minScale: 0.65, x: 20, y: cy, w: width - 40, h: 18))
+            cy += 20
+        }
+        let cardH = cy + 12
+        var nodes: [Node] = [
+            Node.felt("end.mat", x: -6, y: figureRow + 24, w: width + 12, h: cardH - 10, corner: 26, stitch: false),
+            Node.rect(fill: Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 22).id("end.card").at(14, figureRow).size(width - 28, cardH).shadow(Paint.black8, radius: 6, dx: 0, dy: 3),
+            Node.rect(stroke: Paint.clear("#8E72B5", 0.5), lineWidth: 1.25, corner: 18, dash: [5, 4]).id("end.stitch").at(19, figureRow + 5).size(width - 38, cardH - 10),
+            Node.companion(pose: pose).figure(bottom: true).id("end.companion").at(12, 0).size(96, figureRow + 6),
+            markArt(verdict: verdict, tone: tone).at((width - 80) / 2 + 8, figureRow - 78),
+        ]
+        nodes.append(.box("end.words", y: figureRow, w: width, h: cardH) { inCard })
+        var y = figureRow + cardH + 12
+        // The small choices an end card offers (the level for the next game), first.
+        for case .choice(let name, let label, .segmented, let options, let selected) in board.parts {
+            let row = choice(name: name, label: label, style: .segmented, options: options, selected: selected, compact: true, width: width - 80)
+            nodes.append(row.node.at(40, y))
+            y += row.height + 10
+        }
+        for (i, action) in actions.enumerated() {
+            let block = buttonRow([action], id: "end.action.\(i)", width: width - 40, flat: i > 0)
+            nodes.append(block.node.at(20, y))
+            y += block.height + 8
+        }
+        nodes.append(backLink(y: y, width: width))
+        y += 24
+        appear("end.words")
         popMark()
-        return PartBlock(.box("end.hero", w: width, h: height) {
-            Node.rect(fill: Paint.inset, corner: 16).size(width, height)
-            markTile(verdict: verdict, tone: tone).at(10, (height - 58) / 2)
-            inner
-        }, height: height)
+        return PartBlock(.box("end", w: width, h: y) { nodes }, height: y)
     }
 
-    /// The award mark: Playtime's trophy for the person's win (with the crown that goes with the colour), else the verdict's symbol, on a
-    /// soft tile of its colour. Two people: a winner is named with a trophy in neutral ink, so no colour says whose loss it was.
-    private func markTile(verdict: Verdict, tone: Tone) -> Node {
-        let tint: Color = switch verdict {
-        case .win: Paint.clear("#FFC93C", 0.18)
-        case .loss: .adaptive(light: "#B07A522E", dark: "#D9A9822E")
-        case .draw: Color.inkMuted.tuned(alpha: 0.18)
+    /// What the frame's Back does, as a link under the actions.
+    static let backMove = "__back"
+
+    private func backLink(y: Double, width: Double) -> Node {
+        let words = L("Back to games"), w = TextFit.width(words, size: 13, weight: "bold") + 8
+        return Node.box("end.back", x: (width - w) / 2, y: y, w: w, h: 22) {
+            Node.words(words, size: 13, weight: "bold", align: "center", w: w, h: 20)
+            Node.rect(fill: Paint.ink).at(4, 19).size(w - 8, 1)
+        }.area("button", value: Self.backMove, label: words, hover: nil, press: AreaLook(opacity: 0.6), sound: "sounds/tap.wav")
+    }
+
+    private func chipFill(_ verdict: Verdict) -> Color {
+        switch verdict {
+        case .win: .win
+        case .loss: Paint.lostSoft
+        case .draw: Paint.inset
         }
-        let symbol = verdict == .loss ? "hand.thumbsup.fill" : "equal.circle.fill"
-        return Node.box("end.mark", w: 58, h: 58) {
-            Node.rect(fill: tint, corner: 15).size(58, 58)
-            if verdict == .win {
-                Node.art("art/game-trophy.png", x: 8, y: 8, w: 42, h: 42)
-                Node.ellipse(fill: Paint.card).at(38, 3).size(16, 16)
-                Node.symbol("crown.fill", color: .win).symbolLook(weight: "bold").at(40.5, 5.5).size(11, 11)
-            } else if tone == .info {
-                Node.symbol("trophy.fill", color: .ink).symbolLook(weight: "bold").at(14, 14).size(30, 30)
-            } else {
-                // A draw's sign cut out of its disc, as the panel's; a thumb is one shape.
-                Node.symbol(symbol, color: verdict == .draw ? Paint.card : verdict.color).symbolLook(weight: "bold", secondary: verdict == .draw ? verdict.color : nil).at(14, 14).size(30, 30)
-            }
+    }
+
+    private func chipInk(_ verdict: Verdict) -> Color { verdict == .win ? Paint.white : Paint.ink }
+
+    /// The award on the card's edge: quiet, and true of what happened. Two people: a winner is named in neutral, so no picture says whose loss it was.
+    private func markArt(verdict: Verdict, tone: Tone) -> Node {
+        let art: String = switch verdict {
+        case .win: ctx.entry.solo ? "art/result-solved.webp" : "art/result-win.webp"
+        case .loss: "art/result-loss.webp"
+        case .draw: "art/result-draw.webp"
+        }
+        return Node.box("end.mark", w: 80, h: 80) {
+            if tone == .info { Node.art("art/result-draw.webp", w: 80, h: 80) } else { Node.art(art, w: 80, h: 80) }
         }
     }
 

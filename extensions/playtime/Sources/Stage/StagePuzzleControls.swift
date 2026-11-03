@@ -63,24 +63,20 @@ extension BoardDrawing {
         return key
     }
 
-    // MARK: Beside the eyebrow
+    // MARK: Beside the round
 
-    /// A puzzle's clock and Sudoku's notes switch share the eyebrow's row, so a 9 × 9 board keeps its room; side by side, so a long German level never runs under the switch.
-    var puzzleEyebrow: (((node: Node, width: Double, height: Double)) -> PartBlock)? {
-        guard let p = board.puzzlePart, let seconds = p.seconds, let eyebrow = board.promptPart?.eyebrow else { return nil }
-        return { [self] _ in
-            let gap = 6.0
-            let clock = puzzleClock(seconds, running: p.running)
-            let notes = p.input == "digits" && !p.locked ? notesSwitch() : nil
-            let room = Self.inner - clock.width - gap - (notes.map { $0.width + gap } ?? 0)
-            let chip = roundChip(eyebrow, room: room)
-            let height = max(clock.height, chip.height, notes?.height ?? 0)
-            return PartBlock(.box("eyebrow", w: Self.inner, h: height) {
-                clock.node.at(0, (height - clock.height) / 2)
-                chip.node.at(clock.width + gap + (room - chip.width) / 2, (height - chip.height) / 2)
-                if let notes { notes.node.at(Self.inner - notes.width, (height - notes.height) / 2) }
-            }, height: height)
-        }
+    /// A puzzle's clock, at the head of the round's line.
+    func puzzleClockPill() -> (node: Node, width: Double)? {
+        guard let p = board.puzzlePart, let seconds = p.seconds else { return nil }
+        let clock = puzzleClock(seconds, running: p.running)
+        return (clock.node, clock.width)
+    }
+
+    /// Pencil or pen stands first among Sudoku's controls.
+    var puzzleDockExtra: (node: Node, width: Double)? {
+        guard let p = board.puzzlePart, p.input == "digits", !p.locked else { return nil }
+        let notes = notesSwitch()
+        return (notes.node, notes.width)
     }
 
     /// The time so far, counting on once a second while the puzzle is being played. Sidefolk counts it, so it wakes nothing of Playtime's.
@@ -89,11 +85,11 @@ extension BoardDrawing {
         let shape = PuzzleParts.clock(Int(seconds)).map { $0.isNumber ? "0" : String($0) }.joined()
         let wordsW = TextFit.width(shape, size: 13, weight: "heavy") + 2
         let textH = TextFit.lineHeight(13, "heavy")
-        let w = 10 + 13 + 5 + wordsW + 10, h = textH + 8
+        let w = 10 + 13 + 5 + wordsW + 10, h = 20.0
         return (.box("clock", w: w, h: h) {
             Node.capsule(fill: Paint.card(0.96), stroke: Paint.edge, lineWidth: 1).id("clock.pill").size(w, h).shadow(Paint.black8, radius: 3, dx: 0, dy: 1)
             Node.symbol("clock", color: .ink).symbolLook(weight: "bold").at(10, (h - 13) / 2).size(13, 13)
-            Node.clock(seconds: seconds, running: running, size: 13, weight: "heavy", align: "leading").id("clock.time").at(10 + 13 + 5, 4).size(wordsW, textH)
+            Node.clock(seconds: seconds, running: running, size: 13, weight: "heavy", align: "leading").id("clock.time").at(10 + 13 + 5, (h - textH) / 2).size(wordsW, textH)
         }, w, h)
     }
 

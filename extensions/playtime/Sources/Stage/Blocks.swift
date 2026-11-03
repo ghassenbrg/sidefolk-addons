@@ -33,7 +33,7 @@ extension Node {
     }
 
     /// Words in the games' rounded face, sized to a box.
-    static func words(_ words: String, size: Double, weight: String = "semibold", color: Color = .ink, align: String = "leading", valign: String = "center",
+    static func words(_ words: String, size: Double, weight: String = "semibold", color: Color = Paint.ink, align: String = "leading", valign: String = "center",
                       lines: Int = 1, minScale: Double = 0.7, design: String = "rounded", x: Double = 0, y: Double = 0, w: Double, h: Double) -> Node {
         Node.text(words, size: size, weight: weight, design: design, color: color, align: align, valign: valign, lines: lines, minScale: minScale).at(x, y).size(w, h)
     }
@@ -43,11 +43,29 @@ extension Node {
         Node.rect(fill: Paint.card(alpha), stroke: Paint.edge, lineWidth: 1, corner: corner).at(x, y).size(w, h).shadow(Paint.black8, radius: 6, dx: 0, dy: 3)
     }
 
+    /// A tray of lilac felt with a stitched edge: what most boards are played on. The material is a picture, clipped, so a tray is any size.
+    static func felt(_ id: String, x: Double = 0, y: Double = 0, w: Double, h: Double, corner: Double = 22, stitch: Bool = true) -> Node {
+        .box(id, x: x, y: y, w: w, h: h) {
+            Node.rect(fill: Paint.lilacDeep, corner: corner).id(id + ".base").size(w, h).shadow(Paint.clear("#3A2A55", 0.22), radius: 5, dx: 0, dy: 3)
+            Node.image("art/tex-felt-lilac.heic", dark: "art/tex-felt-lilac-night.heic", fit: "fill").id(id + ".tex").size(w, h).corner(corner).clip()
+            if stitch { Node.rect(stroke: Paint.clear("#FFF4E6", 0.55), lineWidth: 1.25, corner: corner - 5, dash: [5, 4]).id(id + ".stitch").at(5, 5).size(w - 10, h - 10) }
+        }
+    }
+
+    /// A frame of painted wood round whatever sits inside it, `inset` in.
+    static func woodFrame(_ id: String, x: Double = 0, y: Double = 0, w: Double, h: Double, inset: Double = 8, corner: Double = 18, inner: Color = Paint.card) -> Node {
+        .box(id, x: x, y: y, w: w, h: h) {
+            Node.rect(fill: Paint.apricot, corner: corner).id(id + ".base").size(w, h).shadow(Paint.clear("#4A2E12", 0.22), radius: 5, dx: 0, dy: 3)
+            Node.image("art/tex-wood.heic", dark: "art/tex-wood-night.heic", fit: "fill").id(id + ".tex").size(w, h).corner(corner).clip()
+            Node.rect(fill: inner, stroke: Paint.clear("#000000", 0.08), lineWidth: 1, corner: Swift.max(corner - inset, 4)).id(id + ".well").at(inset, inset).size(w - 2 * inset, h - 2 * inset)
+        }
+    }
+
     /// A picture from the pack, fitted in a box.
     static func art(_ path: String, x: Double = 0, y: Double = 0, w: Double, h: Double) -> Node { Node.image(path).at(x, y).size(w, h) }
 
     /// An SF Symbol in a box the size of its point size, centred at (cx, cy) of its parent.
-    static func glyph(_ name: String, size: Double, color: Color = .ink, weight: String = "semibold", x: Double, y: Double) -> Node {
+    static func glyph(_ name: String, size: Double, color: Color = Paint.ink, weight: String = "semibold", x: Double, y: Double) -> Node {
         Node.symbol(name, color: color).symbolLook(weight: weight).at(x, y).size(size * 1.25, size * 1.25)
     }
 

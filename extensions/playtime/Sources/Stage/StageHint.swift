@@ -29,20 +29,12 @@ extension BoardDrawing {
 
     func hintRow() -> PartBlock { Self.hintCard(footer, width: Self.inner) }
 
+    /// One quiet line, always one line, in one place at the foot of the panel.
     static func hintCard(_ text: String, width: Double) -> PartBlock {
-        let parts = text.components(separatedBy: " · ")
-        // The bulb is 20 tall and as wide as its picture is.
-        let bulb = 14.0, room = width - 24 - bulb - 8
-        let whole = TextFit.height(text, size: 12, weight: "semibold", width: room, lines: 2)
-        let wide = Swift.min(TextFit.width(text, size: 12, weight: "semibold"), room)
-        let height = Swift.max(whole, 20) + 12
-        let x = (width - wide - bulb - 8) / 2
-        let rest = parts.count > 1 ? " · " + parts.dropFirst().joined(separator: " · ") : ""
-        return PartBlock(.box("hint", w: width, h: height) {
-            Node.gameCard(corner: 15, alpha: 0.94, w: width, h: height).id("hint.card")
-            Node.art("art/game-bulb.webp", x: x, y: (height - 20) / 2, w: bulb, h: 20)
-            Node.runs([(parts[0], Color.ink, nil), (rest, Color.inkMuted, nil)], size: 12, weight: "semibold", design: "rounded", align: "leading", lines: 2)
-                .id("hint.words").at(x + bulb + 8, 6).size(wide + 1, height - 12)
-        }, height: height)
+        let w = Swift.min(TextFit.width(text, size: 11.5, weight: "semibold") + 24, width)
+        return PartBlock(.box("hint", w: width, h: 20) {
+            Node.capsule(fill: Paint.card(0.72)).id("hint.back").at((width - w) / 2, 0).size(w, 20)
+            Node.words(text, size: 11.5, weight: "semibold", color: Paint.inkSoft, align: "center", minScale: 0.62, design: "rounded", x: (width - w) / 2 + 8, w: w - 16, h: 20).id("hint.words")
+        }, height: 20)
     }
 }

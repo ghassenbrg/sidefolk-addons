@@ -1150,7 +1150,7 @@
       "title": "Playtime",
       "symbol": "gamecontroller.fill",
       "width": 400,
-      "height": 676,
+      "height": 620,
       "ai": true,
       "activity": false,
       "arguments": {

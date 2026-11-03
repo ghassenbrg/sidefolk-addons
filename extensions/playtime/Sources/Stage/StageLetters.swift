@@ -48,7 +48,7 @@ extension BoardDrawing {
         for (g, members) in groups.enumerated() {
             // The pad reaches into the gaps around its syllable: two pads stay apart by a hair.
             if hangul, members.count > 1 {
-                nodes.append(Node.rect(fill: Color.surfaceSunken.tuned(alpha: 0.7), corner: 9).id("\(id).pad.\(g)")
+                nodes.append(Node.rect(fill: Paint.inset.tuned(alpha: 0.7), corner: 9).id("\(id).pad.\(g)")
                     .at(x - (Self.hangulGap / 2 - 1), -(Self.hangulGap / 2 - 1)).size(widths[g] + Self.hangulGap - 2, side + Self.hangulGap - 2))
             }
             for (m, i) in members.enumerated() {
@@ -67,7 +67,7 @@ extension BoardDrawing {
         let colors: (face: Color, lip: Color, glow: Color)? = switch tile.mark {
         case "right": (.win, Color.win.tuned(brightness: -0.16), Color.win.tuned(alpha: 0.18))
         case "elsewhere": (Paint.sun, Paint.sunLip, Paint.clear("#FFC93C", 0.18))
-        case "absent": (Color.inkFaint.tuned(alpha: 0.35), Color.inkFaint.tuned(alpha: 0.35, brightness: -0.16), Color.inkFaint.tuned(alpha: 0.06))
+        case "absent": (Paint.inkFaint.tuned(alpha: 0.35), Paint.inkFaint.tuned(alpha: 0.35, brightness: -0.16), Paint.inkFaint.tuned(alpha: 0.06))
         default: nil
         }
         let ink: Color = right ? Paint.white : .ink

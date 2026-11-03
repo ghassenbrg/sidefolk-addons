@@ -148,7 +148,7 @@ extension BoardDrawing {
                         .id("life.\(i)").at(Double(i) * (w + gap), 0).size(w, h)
                         .anchor(0.5, 1).scale(kept ? 1 : 0.6).rotate(kept ? Double(i % 3 - 1) * 5 : 0).opacity(kept ? 1 : 0.3)
                 } else {
-                    Node.symbol(kept ? "heart.fill" : "heart", color: kept ? hue[i % 5] : Color.inkFaint.tuned(alpha: 0.5)).symbolLook(weight: "regular")
+                    Node.symbol(kept ? "heart.fill" : "heart", color: kept ? hue[i % 5] : Paint.inkFaint.tuned(alpha: 0.5)).symbolLook(weight: "regular")
                         .id("life.\(i)").at(Double(i) * (w + gap), 0).size(w, h).scale(kept ? 1 : 0.8)
                 }
             }

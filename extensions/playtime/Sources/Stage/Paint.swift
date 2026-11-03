@@ -4,14 +4,36 @@ import SidefolkExtensionKit
 /// board reads as one set of toys over its scene, by day and at night. A game's colour is identity, never a verdict (D78):
 /// a win is the theme's green by the name `win`, a loss the calm tone `loss`, never a red.
 enum Paint {
-    static let card = Color.surfaceRaised
-    static func card(_ alpha: Double) -> Color { Color.surfaceRaised.tuned(alpha: alpha) }
-    /// The hairline around a card, a bubble or a tile: pale blue by day, a moonlit navy at night.
-    static let edge = Color.adaptive(light: "#D5E1F0", dark: "#34476E")
+    /// One palette for all of Playtime, by day and at night (the accepted redesign): warm cream and porcelain, navy words and actions, restrained lilac, apricot,
+    /// butter and powder blue; ink and slate at night, with ivory actions. Playtime's own, whatever theme the app wears, so its games look the same everywhere;
+    /// what a result means still comes from the theme by name (`win`, `loss`), and coral is the brand, never an error.
+    static func both(_ light: String, _ dark: String) -> Color { .adaptive(light: light, dark: dark) }
+    static let paper = both("#FCF1E6", "#18213C")
+    static let card = both("#FFF9F0", "#27304F")
+    /// The card, see-through: a tuned colour takes only a theme's token.
+    static func card(_ alpha: Double) -> Color {
+        let a = String(format: "%02X", Int((alpha * 255).rounded()))
+        return both("#FFF9F0" + a, "#27304F" + a)
+    }
+    static let ink = both("#14275A", "#F8EFDF")
+    static let inkSoft = both("#566181", "#BEC2D6")
+    static let inkFaint = both("#A9AEC0", "#6C7290")
+    /// The one thing to do: navy by day, ivory at night. Never a game's colour, never green.
+    static let action = both("#14275A", "#F6EAD4")
+    static let onAction = both("#FFF9F0", "#14275A")
+    static let actionLip = both("#0B1A42", "#C9B99F")
+    /// The hairline around a card, a bubble or a tile.
+    static let edge = both("#EADBC9", "#3B4468")
     /// Under a raised tile or button, its thickness.
-    static let lip = Color.adaptive(light: "#C6D5EA", dark: "#0B1322")
-    /// Inside a card: the score bar's halves, a track.
-    static let inset = Color.adaptive(light: "#EEF3FA", dark: "#111A2B")
+    static let lip = both("#E3D1BB", "#12182C")
+    /// Inside a card: a well, a track.
+    static let inset = both("#F4E8DA", "#1E2744")
+    static let lilac = both("#E6DAF1", "#4A3F70")
+    static let lilacDeep = both("#8E72B5", "#B9A2DE")
+    static let apricot = both("#FBD9B8", "#6A4A3A")
+    static let butter = both("#F8DE94", "#6B5A2C")
+    static let rose = both("#F6CFCB", "#6A3F4A")
+    static let powder = both("#BFDCF2", "#35506E")
     static let lostSoft = Color.adaptive(light: "#F3E4D6", dark: "#4A3A2F")
     static let lostEdge = Color.adaptive(light: "#B07A5299", dark: "#D9A98299")
     static let sun = Color.hex("#FFC93C")

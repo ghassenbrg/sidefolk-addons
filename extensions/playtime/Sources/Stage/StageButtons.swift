@@ -4,33 +4,26 @@ import SidefolkExtensionKit
 // app's accent (a game's colour is decoration, never what a button means), the secondary the games' card on its blue lip, the
 // plain one a soft pill. Flat on the end card, where the result is the one thing that stands up.
 extension BoardDrawing {
-    private func metrics(_ b: GameButton, flat: Bool) -> (size: Double, weight: String, corner: Double, depth: Double, height: Double, hPad: Double) {
-        let plain = b.style == .plain
-        return (plain ? 13 : flat ? 15 : 16, flat ? "bold" : "heavy", plain ? 20 : flat ? 14 : 16, flat ? 0 : plain ? 2 : 4, plain ? 34 : flat ? 42 : 46, plain ? 14 : 16)
+    private func metrics(_ b: GameButton, flat: Bool) -> (size: Double, weight: String, height: Double) {
+        b.style == .plain ? (13, "bold", 36) : (flat ? (15, "bold", 42) : (16, "heavy", 46))
     }
 
     /// The room a button's words want.
     func buttonWidth(_ b: GameButton, flat: Bool) -> Double {
         let m = metrics(b, flat: flat)
-        return TextFit.width(b.label, size: m.size, weight: m.weight) + (b.symbol == nil ? 0 : 6 + m.size * 1.2) + m.hPad * 2
+        return TextFit.width(b.label, size: m.size, weight: m.weight) + (b.symbol == nil ? 0 : 6 + m.size * 1.2) + 32
     }
 
-    func buttonRow(_ buttons: [GameButton], id: String, width: Double = BoardDrawing.inner, flat: Bool = false) -> PartBlock {
-        let gap = 8.0
-        // A plain button's words are measured first; the wide buttons beside it take the room left.
-        let fixed = buttons.filter { $0.style == .plain }.reduce(0) { $0 + buttonWidth($1, flat: flat) }
-        let wide = buttons.filter { $0.style != .plain }.count
-        let share = wide > 0 ? max((width - fixed - gap * Double(buttons.count - 1)) / Double(wide), 40) : 0
-        // Long words beside each other (German's Undo and Start over) share the row rather than run past the panel's edge; their words shrink to fit.
-        let fits = fixed > 0 ? min(1, (width - gap * Double(buttons.count - 1) - 40 * Double(wide)) / fixed) : 1
-        var x = 0.0
+    /// Buttons share the row equally, so one changing its words ("Hint", "Do it") moves nothing; words shrink to fit (German's Undo and Start over). A disabled one keeps its place.
+    func buttonRow(_ buttons: [GameButton], id: String, width: Double = BoardDrawing.inner, flat: Bool = false, leading: (node: Node, width: Double)? = nil) -> PartBlock {
+        let gap = 8.0, used = leading.map { $0.width + gap } ?? 0
+        let w = buttons.isEmpty ? 0 : (width - used - gap * Double(buttons.count - 1)) / Double(buttons.count)
+        let height = buttons.map { metrics($0, flat: flat).height }.max() ?? 36
+        var x = used
         var nodes: [Node] = []
-        var height = 0.0
+        if let leading { nodes.append(leading.node.at(0, (height - 28) / 2)) }
         for (i, b) in buttons.enumerated() {
-            let w = b.style == .plain ? min(buttonWidth(b, flat: flat) * fits, width) : share
-            let m = metrics(b, flat: flat)
-            nodes.append(button(b, id: "\(id).\(i)", x: x, w: w, flat: flat))
-            height = max(height, m.height + m.depth)
+            nodes.append(button(b, id: "\(id).\(i)", x: x, y: (height - metrics(b, flat: flat).height) / 2, w: w, flat: flat))
             x += w + gap
             // Return presses the main button; a letter its own. A key's id is a plain token.
             let keyId = "\(id)_\(i)".replacingOccurrences(of: ".", with: "_")
@@ -45,34 +38,30 @@ extension BoardDrawing {
         return PartBlock(.box(id, w: width, h: height) { nodes }, height: height)
     }
 
-    func button(_ b: GameButton, id: String, x: Double, w: Double, flat: Bool) -> Node {
+    /// A capsule: filled navy for the one thing to do, outlined otherwise. Pressing it sinks it a little.
+    func button(_ b: GameButton, id: String, x: Double, y: Double = 0, w: Double, flat: Bool) -> Node {
         let m = metrics(b, flat: flat)
-        let primary = b.style == .primary
-        let fill: Color = primary ? .accent : Paint.card
-        let ink: Color = primary ? .onAccent : .ink
-        // A wide symbol would shrink to fit a square box.
-        let symbolW = b.symbol == nil ? 0 : m.size * (b.symbol == "eye.slash" ? 1.45 : 1.2)
-        let textRoom = w - m.hPad * 2 - (b.symbol == nil ? 0 : 6 + symbolW)
-        let textW = min(TextFit.width(b.label, size: m.size, weight: m.weight), max(textRoom, 10))
-        let startX = (w - textW - (b.symbol == nil ? 0 : 6 + symbolW)) / 2
-        var face = Node.box(id + ".top", w: w, h: m.height) {
-            if primary && !flat {
-                Node.rect(corner: m.corner).gradient([Paint.clear("#FFFFFF", 0.25), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).id(id + ".fill").size(w, m.height)
-                    .background(fill, corner: m.corner, id: id + ".base", w: w, h: m.height)
+        let filled = b.style == .primary || b.move == "hint" || b.move == "do_hint"
+        let ink: Color = filled ? Paint.onAction : Paint.ink
+        // Words first: a narrow button lets its symbol go rather than cut its label.
+        let wanted = TextFit.width(b.label, size: m.size, weight: m.weight) + 2
+        let symbol = wanted + 24 + 6 + m.size * 1.2 <= w ? b.symbol : nil
+        let symbolW = symbol == nil ? 0 : m.size * (symbol == "eye.slash" ? 1.45 : 1.2)
+        let textW = Swift.min(wanted, Swift.max(w - 16 - (symbol == nil ? 0 : 6 + symbolW), 10))
+        let startX = (w - textW - (symbol == nil ? 0 : 6 + symbolW)) / 2
+        var group = Node.box(id, x: x, y: y, w: w, h: m.height) {
+            if filled {
+                Node.capsule(fill: Paint.action).id(id + ".fill").size(w, m.height).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
             } else {
-                Node.rect(fill: fill, stroke: primary ? nil : Paint.edge, lineWidth: 1, corner: m.corner).id(id + ".fill").size(w, m.height)
+                Node.capsule(fill: Paint.card, stroke: Paint.ink, lineWidth: 1.5).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5)
             }
             Node.words(b.label, size: m.size, weight: m.weight, color: ink, align: "center", minScale: 0.65, x: startX, w: textW, h: m.height)
-            if let symbol = b.symbol {
+            if let symbol {
                 Node.symbol(symbol, color: ink).symbolLook(weight: m.weight).at(startX + textW + 6, (m.height - m.size * 1.2) / 2).size(symbolW, m.size * 1.2)
             }
         }
-        face = face.area("button", value: b.move, label: b.label, disabled: b.disabled, hover: nil, press: AreaLook(scale: flat ? 0.97 : 1, dy: flat ? 0 : m.depth - 1), sound: "sounds/tap.wav")
-        var group = Node.box(id, x: x, w: w, h: m.height + m.depth) {
-            if m.depth > 0 { Node.rect(fill: primary ? Color.accent.tuned(brightness: -0.14) : Paint.lip, corner: m.corner).id(id + ".lip").at(0, m.depth).size(w, m.height) }
-            face
-        }
-        if b.disabled { group = group.opacity(0.5) }
+        .area("button", value: b.move, label: b.label, disabled: b.disabled, hover: AreaLook(scale: 1.015), press: AreaLook(scale: 0.97, dy: 1), sound: "sounds/tap.wav")
+        if b.disabled { group = group.opacity(0.45) }
         return group
     }
 

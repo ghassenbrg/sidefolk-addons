@@ -14,6 +14,16 @@ struct Look {
     var night = false
     /// The scene's picture when another look's room is borrowed.
     var room: String?
+    /// The soft tile its icon stands on in the menu and on the page.
+    var tile: Color {
+        switch name {
+        case "grid", "arcade", "words", "sudoku": Paint.butter
+        case "cups", "numbers", "seesaw", "hands": Paint.apricot
+        case "animals", "balloons", "blossoms": Paint.powder
+        case "sticks": Paint.rose
+        default: Paint.lilac
+        }
+    }
 
     var levelChip: Color { chip ?? bottom }
     var scene: String { "art/game-bg-\(room ?? name).heic" }

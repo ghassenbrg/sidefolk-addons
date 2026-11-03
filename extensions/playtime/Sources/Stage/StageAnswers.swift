@@ -70,7 +70,7 @@ extension BoardDrawing {
             switch v {
             case .win: Color.win.tuned(brightness: -0.1)
             case .loss: .adaptive(light: "#DBC2AC", dark: "#3A2C22")
-            case .draw: Color.surfaceRaised.tuned(brightness: -0.1)
+            case .draw: Paint.card.tuned(brightness: -0.1)
             }
         } ?? Paint.lip
         var body = Node.box(id + ".body", w: w, h: h) {

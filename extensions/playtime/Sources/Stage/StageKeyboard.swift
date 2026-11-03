@@ -7,10 +7,10 @@ extension BoardDrawing {
     private func keyColors(_ mark: String) -> (fill: Color, ink: Color) {
         switch mark {
         case "right", "hit": (.win, Paint.white)
-        case "elsewhere": (Paint.sun, .ink)
-        case "absent": (Color.inkFaint.tuned(alpha: 0.3), .inkMuted)
-        case "miss": (Paint.lostSoft, .inkMuted)
-        default: (.surfaceSunken, .ink)
+        case "elsewhere": (Paint.sun, Paint.ink)
+        case "absent": (Paint.inkFaint, Paint.inkSoft)
+        case "miss": (Paint.lostSoft, Paint.inkSoft)
+        default: (Paint.inset, Paint.ink)
         }
     }
 
@@ -90,7 +90,7 @@ extension BoardDrawing {
         case "right", "hit": Color.win.tuned(brightness: -0.14)
         case "elsewhere": .hex("#DBAD33")
         case "miss": .adaptive(light: "#D1C4B8", dark: "#3F3128")
-        default: Color.inkFaint.tuned(alpha: 0.3, brightness: -0.14)
+        default: Paint.inkFaint.tuned(alpha: 0.3, brightness: -0.14)
         }
     }
 
