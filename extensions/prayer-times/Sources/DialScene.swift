@@ -139,12 +139,14 @@ enum DialScene {
             let at = clockPoint(cx, cy, labelRadius, a)
             placed.append((a, at.x, at.y))
             let boxW = textSize * 6.2, boxH = textSize * 2.7
+            // A name is wider than it is tall, so those at the ring's sides stand further off to clear their marks.
+            let aside = sin(a * .pi / 180) * textSize * 0.35
             let ink = isNext ? Noor.accent : Noor.text
             out.append(Node.group {
                 Node.say(Words.prayer(id), 0, 0, boxW, boxH * 0.5, size: textSize * 1.05, weight: isNext ? "semibold" : "medium", color: ink, align: "center")
                 Node.say(Words.time(node.at, zone: zone), 0, boxH * 0.5, boxW, boxH * 0.5, size: textSize, color: isNext ? Noor.accent : Noor.muted, align: "center", tabular: true)
             }
-            .size(boxW, boxH).at(at.x - boxW / 2, at.y - boxH / 2))
+            .size(boxW, boxH).at(at.x + aside - boxW / 2, at.y - boxH / 2))
         }
         return out
     }
