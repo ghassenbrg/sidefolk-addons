@@ -107,7 +107,9 @@ import SidefolkExtensionKit
         let tokens = tokens(before: step.id, flow: flow, app)
         var out: [Block] = []
         for p in problems where p.step == step.id { out.append(.note(p.text, tone: .warn)) }
-        if Hints.asksEachTime(step) {
+        if case .action(let name, _) = step.kind, app.catalog.tool(name)?.risk == "high" {
+            out.append(.note(L("Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.")))
+        } else if Hints.asksEachTime(step) {
             out.append(.note(L("A value filled in when it runs could send it anywhere, so this step asks you each time. Write it out in full and it won't.")))
         }
         switch step.kind {

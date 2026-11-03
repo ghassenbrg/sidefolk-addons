@@ -27,7 +27,8 @@ import SidefolkExtensionKit
     var changed: () -> Void = {}
 
     private var active: Set<String> = []
-    private var queued: Set<String> = []
+    /// One more wanted while it runs, with what set it off.
+    private var queued: [String: String?] = [:]
     private var resuming: Set<String> = []
 
     init(store: FlowStore, catalog: Catalog) {
@@ -41,7 +42,7 @@ import SidefolkExtensionKit
     @discardableResult
     func start(_ flow: Flow, mode: Run.Mode, why: String, trigger: String? = nil) -> Run? {
         if active.contains(flow.id) {
-            if mode == .live { queued.insert(flow.id) }
+            if mode == .live { queued[flow.id] = .some(trigger) }
             return nil
         }
         let now = clock()
@@ -162,12 +163,12 @@ import SidefolkExtensionKit
             run.record(.init(step: step.id, status: .running, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
             if run.mode == .practice {
                 run.record(.init(step: step.id, status: .would, summary: L("Would run {flow}", ["flow": name]), at: clock()))
-            } else if let other = store.find(name), other.id != run.flow {
+            } else if let other = store.find(name), other.id != run.flow, other.state != .paused {
                 // Each keeps to its own: a flow that isn't On asks at every step, and the runaway stop counts every start, so two can't set each other off for ever.
                 _ = start(other, mode: other.live != nil ? .live : .once, why: L("{flow} set it off.", ["flow": run.flowName]))
                 run.record(.init(step: step.id, status: .done, summary: L("Ran {flow}", ["flow": other.name]), at: clock()))
             } else {
-                return failed(step, why: L("There's no other flow called “{name}”.", ["name": name]), reads: false, in: &run)
+                return failed(step, why: L("“{name}” isn't there to run: it's paused, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
             }
             run.pc += 1
             store.save(run)
@@ -305,8 +306,8 @@ import SidefolkExtensionKit
         changed()
         let ended = run
         Task { await self.tell(ended) }
-        if ended.status.isOver || ended.status == .needs_you, queued.remove(ended.flow) != nil, let flow = store.flow(ended.flow), flow.state == .on {
-            start(flow, mode: .live, why: L("It was set off again while it ran."))
+        if ended.status.isOver || ended.status == .needs_you, let trigger = queued.removeValue(forKey: ended.flow), let flow = store.flow(ended.flow), flow.state == .on {
+            start(flow, mode: .live, why: L("It was set off again while it ran."), trigger: trigger)
         }
     }
 
@@ -487,7 +488,10 @@ import SidefolkExtensionKit
             steps.append(PlanStep("watch.pause", ["id": title]))
             steps.append(PlanStep("watch.resume", ["id": title]))
         }
-        return Plan(id: flow.planId, title: flow.name, when: Words.trigger(flow.draft.trigger), steps: steps)
+        // Setting another flow off needs no tool of its own, so the card says it here.
+        let others = flow.draft.allSteps.compactMap { step -> String? in if case .flow(let name) = step.kind { name } else { nil } }
+        let when = others.isEmpty ? Words.trigger(flow.draft.trigger) : L("{when}. Also sets off: {flows}", ["when": Words.trigger(flow.draft.trigger), "flows": others.joined(separator: ", ")])
+        return Plan(id: flow.planId, title: flow.name, when: when, steps: steps)
     }
 
     static func watchTitle(_ flow: Flow) -> String { "\(flow.name) · Sideflow" }

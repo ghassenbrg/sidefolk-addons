@@ -19,6 +19,8 @@ import SidefolkExtensionKit
         var description: String
         var mutates: Bool
         var readsOnly: Bool
+        /// Sidefolk's word for it, for this caller: high asks every single time.
+        var risk = "medium"
         var category: String
         var fromExtension: String?
         var parameters: [Parameter]
@@ -65,7 +67,7 @@ import SidefolkExtensionKit
             return Parameter(name: name, kind: kind, required: required.contains(name), detail: (p["description"] as? String)?.nonEmpty,
                              title: (p["title"] as? String)?.nonEmpty ?? name.replacingOccurrences(of: "_", with: " ").capitalizedFirst)
         }
-        return Tool(name: t.name, title: t.title, description: t.description, mutates: t.mutates, readsOnly: t.readsOnly, category: t.category, fromExtension: t.extensionName, parameters: parameters)
+        return Tool(name: t.name, title: t.title, description: t.description, mutates: t.mutates, readsOnly: t.readsOnly, risk: t.risk, category: t.category, fromExtension: t.extensionName, parameters: parameters)
     }
 }
 

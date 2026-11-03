@@ -439,7 +439,7 @@ import SidefolkExtensionKit
             } else if run != nil {
                 node.state = .pending
                 node.pill = Badge(L("Not reached"), tone: .neutral)
-            } else if Hints.asksEachTime(step) {
+            } else if Hints.asksEachTime(step, catalog: app.catalog) {
                 node.pill = Badge(L("Asks you each time"), tone: .neutral)
             } else if case .ai = step.kind, AI.available == nil {
                 node.state = .attention
@@ -610,12 +610,12 @@ import SidefolkExtensionKit
 }
 
 /// What a step will need, said in advance. Sidefolk holds the rule and enforces it: this only tells the person before the card does.
-enum Hints {
+@MainActor enum Hints {
     private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "notes.search": ["query"], "reminders.create": ["title", "notes"], "notify.user": ["title", "body"], "ask.user": ["question"]]
 
-    static func asksEachTime(_ step: Step) -> Bool {
+    static func asksEachTime(_ step: Step, catalog: Catalog? = nil) -> Bool {
         guard case .action(let tool, let input) = step.kind else { return false }
-        if tool == "clipboard.read" { return true }
+        if tool == "clipboard.read" || catalog?.tool(tool)?.risk == "high" { return true }
         let open = fillable[tool] ?? []
         return input.contains { key, value in !open.contains(key) && value.strings.contains { !Values.references($0).isEmpty } }
     }
