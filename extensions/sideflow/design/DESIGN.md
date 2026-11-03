@@ -86,7 +86,7 @@ The thread runs blue (#4FA8F5) to violet (#7C5CFC), in the icon and on the tree.
 | Where | What | Why |
 |---|---|---|
 | The one main action on a screen | Flat violet `#6E4BF2` | The founder chose flat over a gradient. Rare, so "what do I do here" has one answer |
-| The line a flow took | The thread's gradient, the only one | It's the product's idea, the same as the icon |
+| The line a flow took | The thread's gradient, the only one | It's the product's idea, the same as the icon. The founder chose to keep it |
 | The selected row, card edge, a picked day or option | Blue `#2A6FE8`, a soft tint with its words in that colour | A state, not an action: another shade, so it doesn't compete with the button |
 | Filters, secondary buttons, cards, canvas, words | The theme's neutrals | They carry the content; so it follows light, dark and any theme |
 | Done, needs you, a step's kind | Green, amber, its own tile | They mean something else, and violet never stands in for them | The icon is `design/icon/master.png` generated and masked, in `icon.pdf`; `design/icon/alternative-branch.png` is the one not chosen. Tile colours mean the kind of step and nothing about its state: the state is always a mark and a word (D78). `redesign/` is the design the founder approved, `screens/` is the real thing. `concepts/` is what was explored before it.
