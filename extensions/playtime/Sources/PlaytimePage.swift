@@ -14,7 +14,10 @@ enum PlaytimePage {
         let r = PlaytimeRecords.load()
         let today = DailyWordEngine.today()
         let tile = DailyWordScreen.tile()
-        return Page(summary: summary(today: today, tile: tile), sections: GameCenterPage.sections(records(r, today: today, tile: tile), history: r.history, duels: duels(r)))
+        // Its own room: warm cream by day, ink at night, and it draws its own head.
+        return Page(summary: summary(today: today, tile: tile), sections: GameCenterPage.sections(records(r, today: today, tile: tile), history: r.history, duels: duels(r)), bare: true,
+                    dress: PageDress(ground: PagePair(light: "#FCF1E6", dark: "#18213C"), card: PagePair(light: "#FFF9F0", dark: "#27304F"), line: PagePair(light: "#EADBC9", dark: "#3B4468"),
+                                     accent: PagePair(light: "#14275A", dark: "#3A4F8C")))
     }
 
     /// The Today tile: Daily Word, then the word's streak, how many of the puzzles' boards of the day are solved (one
