@@ -23,7 +23,7 @@ import SidefolkExtensionKit
         /// Answers in the order they're asked, each after a moment: someone taking their time.
         var slowAnswers: [String?] = []
 
-        func call(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Outcome {
+        func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?) async -> Actions.Outcome {
             // Asking the way forward isn't a step of the flow.
             if tool == "ask.user", input["options"] as? [String] != nil, (input["question"] as? String)?.contains("{") == false, answers[tool]?.isEmpty != false {
                 forward.append(input["question"] as? String ?? "")

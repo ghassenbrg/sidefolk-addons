@@ -3,7 +3,8 @@ import SidefolkExtensionKit
 
 /// What the engine needs of Sidefolk; tests script it.
 @MainActor protocol FlowHost: AnyObject {
-    func call(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Outcome
+    /// `written`: the call before words were filled in, for History to keep instead of them.
+    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?) async -> Actions.Outcome
     func check(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Check?
     func write(_ prompt: String, label: String) async -> AI.Result
     func approve(_ plan: Plan) async -> Plans.Answer
@@ -152,11 +153,13 @@ import SidefolkExtensionKit
                 store.save(run)
                 return true
             }
-            return await acting(step, tool: "ask.user", input: input, in: &run)
+            var written = input
+            written["question"] = question
+            return await acting(step, tool: "ask.user", input: input, written: written, in: &run)
         case .action(let tool, let input):
             let filled = run.values.fill(input)
             if run.mode == .practice { return await practising(step, tool: tool, input: filled, in: &run) }
-            return await acting(step, tool: tool, input: filled, in: &run)
+            return await acting(step, tool: tool, input: filled, written: input.mapValues(\.any), in: &run)
         case .branch:
             return true
         case .flow(let name):
@@ -210,7 +213,7 @@ import SidefolkExtensionKit
         let sentence = Words.resolved(check?.summary ?? Words.step(step, body: run.body, catalog: catalog), values: run.values)
         let readsOnly = catalog.tool(tool)?.readsOnly == true
         if readsOnly, check?.decision == .allow {
-            let outcome = await host?.call(tool, input, plan: run.flowPractice)
+            let outcome = await host?.call(tool, input, plan: run.flowPractice, written: nil)
             if let outcome, outcome.ok {
                 run.values.set(step.id, outcome.text)
                 run.record(.init(step: step.id, status: .done, summary: sentence, output: outcome.text, at: clock()))
@@ -237,14 +240,14 @@ import SidefolkExtensionKit
         return true
     }
 
-    private func acting(_ step: Step, tool: String, input: [String: Any], in run: inout Run) async -> Bool {
+    private func acting(_ step: Step, tool: String, input: [String: Any], written: [String: Any]? = nil, in run: inout Run) async -> Bool {
         let sentence = Words.step(step, body: run.body, catalog: catalog)
         run.record(.init(step: step.id, status: .running, summary: sentence, at: clock()))
         store.save(run)
         changed()
         let reads = step.reads(catalog)
         let plan = run.mode == .live ? "flow-\(run.flow)" : nil
-        let outcome = await host?.call(tool, input, plan: plan) ?? Actions.Outcome(status: .lost, text: "", summary: "", untrusted: false, standing: false)
+        let outcome = await host?.call(tool, input, plan: plan, written: written) ?? Actions.Outcome(status: .lost, text: "", summary: "", untrusted: false, standing: false)
         let said = outcome.summary.nonEmpty.map { Words.resolved($0, values: run.values) } ?? sentence
         switch outcome.status {
         case .ok:
@@ -337,7 +340,7 @@ import SidefolkExtensionKit
         let choices: [(words: String, how: Forward)] = run.status == .interrupted
             ? [(L("It didn't: try again"), .try_again), (L("It did: carry on"), .carry_on), (L("Stop here"), .stop)]
             : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
-        guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil), answer.ok,
+        guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil, written: nil), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
         proceed(run.id, chosen.how)
@@ -542,7 +545,7 @@ import SidefolkExtensionKit
                 if case .watch(let w) = current.draft.trigger {
                     let title = Self.watchTitle(current)
                     if oldWatch != nil { await stopWatch(current) }
-                    let made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: current.planId)
+                    let made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: current.planId, written: nil)
                     guard var after = store.flow(id) else { return }
                     if made?.ok == true {
                         after.watchTitle = title
@@ -590,17 +593,17 @@ import SidefolkExtensionKit
 
     private func stopWatch(_ flow: Flow) async {
         guard let title = flow.watchTitle else { return }
-        _ = await host?.call("watch.stop", ["id": title], plan: flow.planId)
+        _ = await host?.call("watch.stop", ["id": title], plan: flow.planId, written: nil)
     }
 
     private func pauseWatch(_ flow: Flow) async {
         guard let title = flow.watchTitle else { return }
-        _ = await host?.call("watch.pause", ["id": title], plan: flow.planId)
+        _ = await host?.call("watch.pause", ["id": title], plan: flow.planId, written: nil)
     }
 
     private func resumeWatch(_ flow: Flow) async {
         guard let title = flow.watchTitle else { return }
-        _ = await host?.call("watch.resume", ["id": title], plan: flow.planId)
+        _ = await host?.call("watch.resume", ["id": title], plan: flow.planId, written: nil)
     }
 }
 

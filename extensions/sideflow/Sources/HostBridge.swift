@@ -3,8 +3,8 @@ import SidefolkExtensionKit
 
 /// The real Sidefolk, through the Kit.
 @MainActor final class SidefolkHost: FlowHost {
-    func call(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Outcome {
-        await Actions.call(tool, input, plan: plan, seconds: tool == "ask.user" ? 615 : 300)
+    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?) async -> Actions.Outcome {
+        await Actions.call(tool, input, plan: plan, written: written, seconds: tool == "ask.user" ? 615 : 300)
     }
 
     func check(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Check? {
