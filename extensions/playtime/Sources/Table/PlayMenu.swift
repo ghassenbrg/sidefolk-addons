@@ -54,6 +54,7 @@ enum PlayMenu {
         let slots = self.slots
         let chosen = slots[safe: selected]
         var nodes: [Node] = [drawing.titleRow(L("All games"), icon: "art/brand-controller.webp", width: inner).at(pad, 4)]
+        nodes.append(languageButton().at(pad + inner - 36, 8))
         var y = 40.0
         let side = 66.0, bubbleH = 46.0
         nodes.append(.box("menu.stage", x: pad, y: y, w: inner, h: 62) {
@@ -97,6 +98,49 @@ enum PlayMenu {
         .react(Reaction(prop: "none", look: "panel"))
         for arrow in ["left", "right", "up", "down"] { scene = scene.key(arrow, id: "arrow_\(arrow)") }
         return scene.key("return", id: "menu_return").key("space", id: "menu_space")
+    }
+
+    /// Which language Playtime plays in, at the end of the title. A globe, so it's found whatever language the screen is in now.
+    private static func languageButton() -> Node {
+        let w = 36.0, h = 26.0, words = L("Game language")
+        return Node.box("menu.language", w: w, h: h) {
+            Node.capsule(fill: Paint.card(0.85), stroke: Paint.edge, lineWidth: 1).size(w, h)
+            Node.symbol("globe", color: Paint.inkSoft).symbolLook(weight: "bold").at((w - 18) / 2, (h - 18) / 2).size(18, 18)
+        }.area("language", label: words, hover: AreaLook(scale: 1.06), press: AreaLook(scale: 0.94), sound: "sounds/tap.wav")
+    }
+
+    /// `auto` first, then each language.
+    static var languageCodes: [String] { [PlayLanguage.auto] + PlayLanguage.names.map(\.code) }
+
+    /// The languages to play in, each in its own script, with the one in use marked.
+    static func languages(cursor: Int) -> Scene {
+        let width = BoardDrawing.width, pad = BoardDrawing.pad, inner = BoardDrawing.inner
+        let current = PlayLanguage.chosen ?? PlayLanguage.auto
+        let rows = [(PlayLanguage.auto, L("Same as Sidefolk"))] + PlayLanguage.names.map { ($0.code, $0.name) }
+        let drawing = BoardDrawing(Board([]), StageContext(entry: GameEntry(id: "", title: "", tagline: "", symbol: "", look: .plain), fresh: false))
+        let rowH = 42.0, gap = 6.0
+        var nodes: [Node] = [drawing.titleRow(L("Game language"), icon: "art/brand-controller.webp", width: inner).at(pad, 4)]
+        var y = 46.0
+        for (i, row) in rows.enumerated() {
+            let id = "language.\(row.0)", on = row.0 == current
+            nodes.append(Node.box(id, x: pad, y: y, w: inner, h: rowH) {
+                Node.rect(fill: Paint.card, stroke: i == cursor ? Paint.action : Paint.edge, lineWidth: i == cursor ? 2.5 : 1, corner: 13).id(id + ".edge").size(inner, rowH)
+                Node.words(row.1, size: 15, weight: "heavy", minScale: 0.7, x: 16, w: inner - 60, h: rowH)
+                if on { Node.symbol("checkmark", color: Paint.ink).symbolLook(weight: "heavy").id(id + ".on").at(inner - 34, (rowH - 18) / 2).size(18, 18) }
+            }.area("pick_language", value: row.0, label: row.1, hover: AreaLook(dy: -1), press: AreaLook(scale: 0.98), selected: on, sound: "sounds/tap.wav"))
+            y += rowH + gap
+        }
+        nodes.append(BoardDrawing.hintCard(L("Arrows to choose · Return to play · Esc to close"), width: inner).node.at(pad, BoardDrawing.canvas - BoardDrawing.footerRoom))
+        var scene = Scene(width: width, height: BoardDrawing.canvas) {
+            Node.rect(fill: Paint.paper).id("bg.base").size(width, BoardDrawing.canvas)
+            nodes.map(\.rounded)
+        }
+        .title(L("A little break, together."))
+        .withBack()
+        .noSpeaker()
+        .transition(ms: 160)
+        for arrow in ["up", "down"] { scene = scene.key(arrow, id: "arrow_\(arrow)") }
+        return scene.key("return", id: "language_return")
     }
 
     /// The person's real numbers, in a line.

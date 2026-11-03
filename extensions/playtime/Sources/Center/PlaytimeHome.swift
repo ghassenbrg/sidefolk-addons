@@ -38,7 +38,7 @@ enum PlaytimeHome {
             }
             side(totals: totals, history: history)
         }]
-        let scene = Scene(width: width, height: height) { nodes.map(\.rounded) }.noSpeaker()
+        let scene = PlayLanguage.stamped(Scene(width: width, height: height) { nodes.map(\.rounded) }.noSpeaker())
         return PageSceneBlock(scene, actions: actions)
     }
 

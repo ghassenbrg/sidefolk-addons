@@ -33,7 +33,15 @@ ext.tool("trivia", "Trivia quiz",
     try Trivia.play(answer: args.string("answer"), category: args.string("category"))
 }
 
-ext.surface("play", open: { request in PlayTable.open(request) }, move: { request in PlayTable.move(request) }, close: { request in PlayTable.close(request) })
+ext.surface("play", open: { request in
+    PlayLanguage.enter(request.language)
+    var reply = PlayTable.open(request)
+    reply.scene = PlayLanguage.stamped(reply.scene)
+    return reply
+}, move: { request in
+    PlayLanguage.enter(request.language)
+    return PlayLanguage.stamped(PlayTable.move(request))
+}, close: { request in PlayTable.close(request) })
 // Trivia packs made by the person's AI (D95): through the one narrow road any extension has (D100), and checked here.
 TriviaAI.send = { id, prompt, label in
     Task { @MainActor in

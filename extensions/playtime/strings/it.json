@@ -722,6 +722,23 @@
         "gentle": "Gentle"
       },
       "title": "Quando vince"
+    },
+    "game_language": {
+      "title": "Lingua dei giochi",
+      "detail": "Menu e giochi di Playtime in questa lingua, qualunque sia quella di Sidefolk.",
+      "options": {
+        "auto": "Come Sidefolk",
+        "en": "English",
+        "fr": "Français",
+        "es": "Español",
+        "de": "Deutsch",
+        "it": "Italiano",
+        "pt-BR": "Português (Brasil)",
+        "ja": "日本語",
+        "ko": "한국어",
+        "zh-Hans": "简体中文",
+        "ar": "العربية"
+      }
     }
   },
   "surfaces": {
@@ -1388,7 +1405,9 @@
     "Let {name} pick one": "Scelga {name}",
     "Here we go!": "Si parte!",
     "{name}, pick your toy.": "{name}, scegli il tuo gioco.",
-    "1–{n} to choose": "1–{n} per scegliere"
+    "1–{n} to choose": "1–{n} per scegliere",
+    "Game language": "Lingua dei giochi",
+    "Same as Sidefolk": "Come Sidefolk"
   },
   "tools": {
     "game_settings": {

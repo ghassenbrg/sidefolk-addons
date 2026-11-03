@@ -8,6 +8,9 @@ import SidefolkExtensionKit
 enum PlayTable {
     struct Session: Codable {
         var menu = true
+        /// The menu is showing the languages to choose from.
+        var choosingLanguage: Bool?
+        var languageCursor: Int?
         var selected = 0
         /// The game on the table, and its state as `GameTable.Driver` keeps it.
         var game: String?
@@ -104,7 +107,33 @@ enum PlayTable {
 
     // MARK: Moves
 
+    private static func languageMove(_ move: SurfaceMove, session: inout Session) -> Scene {
+        func pick(_ code: String) -> Scene {
+            PlayLanguage.picked(code)
+            session.choosingLanguage = nil
+            return PlayMenu.scene(selected: session.selected, kept: session.game)
+        }
+        let codes = PlayMenu.languageCodes
+        switch move {
+        case .click("pick_language", let code?, _): return pick(code)
+        case .key("arrow_up", _, _): session.languageCursor = max((session.languageCursor ?? 0) - 1, 0)
+        case .key("arrow_down", _, _): session.languageCursor = min((session.languageCursor ?? 0) + 1, codes.count - 1)
+        case .key("language_return", _, _): return pick(codes[session.languageCursor ?? 0])
+        case .back:
+            session.choosingLanguage = nil
+            return PlayMenu.scene(selected: session.selected, kept: session.game)
+        default: break
+        }
+        return PlayMenu.languages(cursor: session.languageCursor ?? 0)
+    }
+
     private static func menuMove(_ move: SurfaceMove, session: inout Session, id: String) -> Scene {
+        if session.choosingLanguage == true { return languageMove(move, session: &session) }
+        if case .click("language", _, _) = move {
+            session.choosingLanguage = true
+            session.languageCursor = PlayMenu.languageCodes.firstIndex(of: PlayLanguage.chosen ?? PlayLanguage.auto) ?? 0
+            return PlayMenu.languages(cursor: session.languageCursor ?? 0)
+        }
         let slots = PlayMenu.slots
         func opening(_ slot: String) -> Scene {
             // Surprise me: any game but the one just played.

@@ -714,6 +714,23 @@
         "gentle": "Gentle"
       },
       "title": "عند الفوز"
+    },
+    "game_language": {
+      "title": "لغة الألعاب",
+      "detail": "قوائم Playtime وألعابه بهذه اللغة، أيًّا كانت لغة Sidefolk.",
+      "options": {
+        "auto": "مثل Sidefolk",
+        "en": "English",
+        "fr": "Français",
+        "es": "Español",
+        "de": "Deutsch",
+        "it": "Italiano",
+        "pt-BR": "Português (Brasil)",
+        "ja": "日本語",
+        "ko": "한국어",
+        "zh-Hans": "简体中文",
+        "ar": "العربية"
+      }
     }
   },
   "surfaces": {
@@ -1448,7 +1465,9 @@
     "Let {name} pick one": "دع {name} يختار",
     "Here we go!": "هيا بنا!",
     "{name}, pick your toy.": "{name}، اختر لعبتك.",
-    "1–{n} to choose": "1–{n} للاختيار"
+    "1–{n} to choose": "1–{n} للاختيار",
+    "Game language": "لغة الألعاب",
+    "Same as Sidefolk": "مثل Sidefolk"
   },
   "tools": {
     "game_settings": {
