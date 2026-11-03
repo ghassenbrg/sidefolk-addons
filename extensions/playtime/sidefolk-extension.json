@@ -1198,6 +1198,7 @@
   "settings": [
     {
       "key": "game_language",
+      "listed": false,
       "type": "choice",
       "title": "Game language",
       "detail": "Playtime's menus and games in this language, whatever language Sidefolk is in.",
