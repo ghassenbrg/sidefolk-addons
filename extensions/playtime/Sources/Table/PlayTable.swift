@@ -8,6 +8,9 @@ import SidefolkExtensionKit
 enum PlayTable {
     struct Session: Codable {
         var menu = true
+        /// The menu is showing the languages to choose from.
+        var choosingLanguage: Bool?
+        var languageCursor: Int?
         var selected = 0
         /// The game on the table, and its state as `GameTable.Driver` keeps it.
         var game: String?
@@ -104,15 +107,46 @@ enum PlayTable {
 
     // MARK: Moves
 
+    private static func languageMove(_ move: SurfaceMove, session: inout Session) -> Scene {
+        func pick(_ code: String) -> Scene {
+            PlayLanguage.picked(code)
+            session.choosingLanguage = nil
+            return PlayMenu.scene(selected: session.selected, kept: session.game)
+        }
+        let codes = PlayMenu.languageCodes
+        switch move {
+        case .click("pick_language", let code?, _): return pick(code)
+        case .key("arrow_up", _, _): session.languageCursor = max((session.languageCursor ?? 0) - 1, 0)
+        case .key("arrow_down", _, _): session.languageCursor = min((session.languageCursor ?? 0) + 1, codes.count - 1)
+        case .key("language_return", _, _): return pick(codes[session.languageCursor ?? 0])
+        case .back:
+            session.choosingLanguage = nil
+            return PlayMenu.scene(selected: session.selected, kept: session.game)
+        default: break
+        }
+        return PlayMenu.languages(cursor: session.languageCursor ?? 0)
+    }
+
     private static func menuMove(_ move: SurfaceMove, session: inout Session, id: String) -> Scene {
-        let order = PlayMenu.order
+        if session.choosingLanguage == true { return languageMove(move, session: &session) }
+        if case .click("language", _, _) = move {
+            session.choosingLanguage = true
+            session.languageCursor = PlayMenu.languageCodes.firstIndex(of: PlayLanguage.chosen ?? PlayLanguage.auto) ?? 0
+            return PlayMenu.languages(cursor: session.languageCursor ?? 0)
+        }
+        let slots = PlayMenu.slots
+        func opening(_ slot: String) -> Scene {
+            // Surprise me: any game but the one just played.
+            let game = slot == PlayMenu.surprise ? PlayMenu.order.map(\.id).filter { $0 != session.game }.randomElement() ?? slots[0] : slot
+            return openFromMenu(game, session: &session, id: id)
+        }
         switch move {
         case .click("open", let game?, _):
-            return openFromMenu(game, session: &session, id: id)
+            return opening(game)
         case .key(let key, _, _) where key.hasPrefix("arrow_"):
-            session.selected = PlayMenu.step(key, from: session.selected, count: order.count, rtl: Language.code == "ar")
+            session.selected = PlayMenu.step(key, from: session.selected, rtl: Language.code == "ar")
         case .key("menu_return", _, _), .key("menu_space", _, _):
-            if order.indices.contains(session.selected) { return openFromMenu(order[session.selected].id, session: &session, id: id) }
+            if slots.indices.contains(session.selected) { return opening(slots[session.selected]) }
         default: break
         }
         return PlayMenu.scene(selected: session.selected, kept: session.game)
@@ -141,17 +175,24 @@ enum PlayTable {
             return PlayMenu.scene(selected: PlayMenu.index(of: entry.id).map { session.selected = $0; return $0 } ?? session.selected, kept: session.game)
         case .redraw, .ignore:
             return draw(board.clocked(from: session.held == nil && board.hasPuzzle ? driver.board(data, [], session.options) : nil), entry: entry, session: session, previous: board, fresh: false, id: id)
+        case .settled:
+            let held = board.holdingConflicts(session.local)
+            session.local.settling = nil
+            let now = board.clocked(from: driver.board(data, [], session.options)).withoutFreshMarks
+            return draw(now, entry: entry, session: session, previous: held ?? board, fresh: true, id: id)
         case .play(let m):
             // The build-up's moment is over: the verdict the move already holds.
             if m == .next, let held = session.held {
                 session.held = nil
                 session.pick = nil
+                session.local.builtUp = true
                 let next = driver.board(data, held, session.options) ?? board
                 return verdict(next, previous: board, entry: entry, session: &session, id: id)
             }
             guard session.held == nil, let result = driver.move(m, data, session.options) else {
                 return draw(board, entry: entry, session: session, previous: board, fresh: false, id: id)
             }
+            session.local.builtUp = false
             session.state = result.state
             if m != .next, m != .timeout { session.played = true }
             var picked: Int?
@@ -188,7 +229,7 @@ enum PlayTable {
 
     private static func draw(_ board: Board, entry: GameEntry, session: Session, previous: Board?, fresh: Bool, id: String) -> Scene {
         shown[id] = board
-        var scene = BoardDrawing(board, context(entry, session: session, previous: previous, fresh: fresh)).scene()
+        var scene = BoardDrawing(board.holdingConflicts(session.local) ?? board, context(entry, session: session, previous: previous, fresh: fresh)).scene()
         if !board.typesWithDelete { scene = scene.key("delete", id: "back_delete", always: true) }
         return scene
     }

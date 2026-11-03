@@ -185,21 +185,21 @@ struct PlaytimePuzzlesTests {
     @Test func seesawShowsWhereARuleBreaks() throws {
         var rng = G.Random(seed: 3)
         let solution = G.Seesaw.generate(level: .easy, using: &rng).solution
-        let b = G.Seesaw(level: .easy, size: 6, givens: [.heart] + Array(repeating: nil, count: 35),
+        let b = G.Seesaw(level: .easy, size: 6, givens: [.crescent] + Array(repeating: nil, count: 35),
                          edges: [G.Seesaw.Edge(cell: 6, down: false, clue: .same)], solution: solution)
         var game = G.PuzzleGame(b, at: 0)
         #expect(throws: G.Refusal("given")) { _ = try game.play(.cycle(0), at: 0) }
         #expect(throws: G.Refusal("off_board")) { _ = try game.play(.cycle(36), at: 0) }
-        #expect(try game.play(.cycle(1), at: 1).isEmpty && game.grid[1] == .heart)
+        #expect(try game.play(.cycle(1), at: 1).isEmpty && game.grid[1] == .crescent)
         #expect(try game.play(.cycle(2), at: 2) == [.mistake])
         #expect(game.conflicts == [G.PuzzleConflict(rule: .threeInARow, cells: [0, 1, 2])])
         _ = try game.play(.cycle(2), at: 3)
-        #expect(game.grid[2] == .star && game.conflicts.isEmpty)
-        _ = try game.play(.set(3, .heart), at: 4)
-        _ = try game.play(.set(4, .heart), at: 5)
+        #expect(game.grid[2] == .sun && game.conflicts.isEmpty)
+        _ = try game.play(.set(3, .crescent), at: 4)
+        _ = try game.play(.set(4, .crescent), at: 5)
         #expect(game.conflicts == [G.PuzzleConflict(rule: .tooMany, cells: [0, 1, 3, 4])])
-        _ = try game.play(.set(6, .heart), at: 6)
-        #expect(try game.play(.set(7, .star), at: 7) == [.mistake])
+        _ = try game.play(.set(6, .crescent), at: 6)
+        #expect(try game.play(.set(7, .sun), at: 7) == [.mistake])
         #expect(game.conflicts.contains(G.PuzzleConflict(rule: .clue, cells: [6, 7])))
         // Undo, back to the start, undo that too.
         _ = try game.undo(at: 8)
@@ -207,7 +207,7 @@ struct PlaytimePuzzlesTests {
         _ = try game.clear(at: 9)
         #expect(game.grid == b.start)
         _ = try game.undo(at: 10)
-        #expect(game.grid[6] == .heart)
+        #expect(game.grid[6] == .crescent)
         var fresh = G.PuzzleGame(b, at: 0)
         #expect(throws: G.Refusal("nothing_to_undo")) { _ = try fresh.undo(at: 0) }
     }

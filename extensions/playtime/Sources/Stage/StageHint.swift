@@ -4,16 +4,22 @@ import SidefolkExtensionKit
 extension BoardDrawing {
     /// In Playtime's words now, as they were in the panel's.
     var footer: String {
+        // A build-up is the board before it a moment longer, keys and all.
+        if ctx.buildUp, let before = ctx.previous {
+            return BoardDrawing(before, StageContext(entry: ctx.entry, fresh: false, local: ctx.local)).footer
+        }
         var parts: [String] = []
-        if let a = board.answersPart, !a.locked {
+        // One line a game, whoever's turn it is: what is said here doesn't come and go with a lock. A main button's moment says that instead.
+        if !ended, board.primary == nil, let a = board.answersPart {
             let caps = Self.keyCaps(a.tiles)
-            parts.append(a.tiles.contains(where: { $0.art != nil || $0.key != nil })
+            parts.append(gameTable == .hands ? L("1–{n} to choose", ["n": a.tiles.count]) : a.tiles.contains(where: { $0.key != nil })
                 ? L("{keys} to play", ["keys": caps.joined(separator: " ")])
                 : L("1–{n} to answer", ["n": a.tiles.count]))
         }
-        if let hint = partsFooter { parts.append(hint) }
+        if !ended, board.primary == nil, let hint = partsFooter { parts.append(hint) }
         if let primary = board.primary { parts.append(L("Return: {label}", ["label": primary.label])) }
-        for b in board.buttons where b.key != nil && !b.disabled { parts.append("\(b.key!.uppercased()): \(b.label)") }
+        // A puzzle's line stays one length as Undo comes and goes: its button says what it is.
+        for b in board.buttons where b.key != nil && !(board.hasPuzzle && b.move == "undo") { parts.append("\(b.key!.uppercased()): \(b.label)") }
         if ctx.local.dragFrom == nil { parts.append(L("Esc to close")) }
         return parts.joined(separator: " · ")
     }
@@ -21,28 +27,20 @@ extension BoardDrawing {
     /// The keys a part takes.
     private var partsFooter: String? {
         if let own = padsFooter ?? cupsFooter ?? reflexFooter ?? sticksFooter ?? puzzleFooter { return own }
-        if let g = board.gridPart, !g.locked { return g.numpad ? L("1–9 to play") : L("Arrows and Return to pick") }
-        if let n = board.numberPart, !n.locked { return L("Type a number, Return to guess") }
-        if let k = board.keysPart, !k.locked { return k.mode == "spell" ? L("Type a word, Return to try") : L("Type a letter") }
+        if let g = board.gridPart { return g.numpad ? L("1–9 to play") : L("Arrows and Return to pick") }
+        if board.numberPart != nil { return L("Type a number, Return to guess") }
+        if let k = board.keysPart { return k.mode == "spell" ? L("Type a word, Return to try") : L("Type a letter") }
         return nil
     }
 
     func hintRow() -> PartBlock { Self.hintCard(footer, width: Self.inner) }
 
+    /// One quiet line, always one line, in one place at the foot of the panel.
     static func hintCard(_ text: String, width: Double) -> PartBlock {
-        let parts = text.components(separatedBy: " · ")
-        // The bulb is 20 tall and as wide as its picture is.
-        let bulb = 14.0, room = width - 24 - bulb - 8
-        let whole = TextFit.height(text, size: 12, weight: "semibold", width: room, lines: 2)
-        let wide = Swift.min(TextFit.width(text, size: 12, weight: "semibold"), room)
-        let height = Swift.max(whole, 20) + 12
-        let x = (width - wide - bulb - 8) / 2
-        let rest = parts.count > 1 ? " · " + parts.dropFirst().joined(separator: " · ") : ""
-        return PartBlock(.box("hint", w: width, h: height) {
-            Node.gameCard(corner: 15, alpha: 0.94, w: width, h: height).id("hint.card")
-            Node.art("art/game-bulb.webp", x: x, y: (height - 20) / 2, w: bulb, h: 20)
-            Node.runs([(parts[0], Color.ink, nil), (rest, Color.inkMuted, nil)], size: 12, weight: "semibold", design: "rounded", align: "leading", lines: 2)
-                .id("hint.words").at(x + bulb + 8, 6).size(wide + 1, height - 12)
-        }, height: height)
+        let w = Swift.min(TextFit.width(text, size: 11.5, weight: "semibold") + 24, width)
+        return PartBlock(.box("hint", w: width, h: 20) {
+            Node.capsule(fill: Paint.card(0.72)).id("hint.back").at((width - w) / 2, 0).size(w, 20)
+            Node.words(text, size: 11.5, weight: "semibold", color: Paint.inkSoft, align: "center", minScale: 0.62, design: "rounded", x: (width - w) / 2 + 8, w: w - 16, h: 20).id("hint.words")
+        }, height: 20)
     }
 }

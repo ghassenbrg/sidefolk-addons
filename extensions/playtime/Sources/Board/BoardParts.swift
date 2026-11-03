@@ -6,7 +6,8 @@ import SidefolkExtensionKit
 public enum PlayPart {
     /// 2–5 pads; `play` is a sequence Sidefolk shows first (each pad lit for `stepMs`, 250–2000, with its note and the
     /// companion's `move`), then the person presses: `.pad(i)`.
-    case pads([Pad], play: [Int] = [], stepMs: Int = 600, locked: Bool = false)
+    /// `length` and `done`: how long the dance is and how many moves of it are copied, for its dots.
+    case pads([Pad], play: [Int] = [], stepMs: Int = 600, locked: Bool = false, length: Int? = nil, done: Int = 0)
     /// 2–5 cups: the gem shown under `hide`, then `swaps` (pairs of positions, up to 40) at `swapMs` each; a pick is
     /// `.cell(row: 0, column: position)`. After it, `revealed` lifts them, the gem under `gem` (nil: under none).
     case cups(count: Int, hide: Int? = nil, swaps: [[Int]] = [], swapMs: Int = 400, picked: Int? = nil, revealed: Bool = false, gem: Int? = nil,
@@ -19,6 +20,8 @@ public enum PlayPart {
     case reflex(afterMs: Int?, windowMs: Int = 1500, wait: String, go: String, early: String, shows: String? = nil, keys: [String]? = nil)
     /// A thermometer, 0 cold to 1 warm, with words at either end.
     case meter(Double, label: String? = nil, low: String? = nil, high: String? = nil)
+    /// The big mechanical counter: words on its cards (a guess, "1 – 100"), or nil while it spins for the companion thinking. `caption` on its top plate, `range` on the plate under it.
+    case counter(String?, caption: String? = nil, range: String? = nil)
     /// A number field with a digit pad; Return sends `.number(n)`. `history`: earlier guesses, each `higher`, `lower` or `right`.
     case number(min: Int, max: Int, label: String? = nil, history: [(Int, String)] = [], locked: Bool = false)
     /// Letter tiles: `rows` (Daily Word: up to 8 of up to 24, marks `right`, `elsewhere`, `absent`; the row `flip` turns
@@ -37,7 +40,7 @@ public enum PlayPart {
                 locked: Bool = false)
     /// Lives left, as `balloon`s or `heart`s.
     case lives(total: Int, left: Int, symbol: String = "heart")
-    /// A logic puzzle's grid, 2–10 cells a side: cells with a symbol (`heart`, `star`, `blossom`, `dot`) or a number,
+    /// A logic puzzle's grid, 2–10 cells a side: cells with a symbol (`crescent`, `sun`, `blossom`, `dot`) or a number,
     /// givens drawn fixed, pencil `notes`, coloured `region`s (0–11), thick lines around boxes of `box` (Sudoku's 2 × 3 or
     /// 3 × 3), `=` and `×` clues between cells (`edges`) and rectangles (`plots`). `input` is what the person does on it:
     /// `tap` a cell (`.cell`), `drag` a rectangle (`.area`; a click alone is `.cell`), or `digits` from 1 to `digits` into
@@ -47,7 +50,7 @@ public enum PlayPart {
 
     var json: [String: Any] {
         switch self {
-        case .pads(let pads, let play, let step, let locked):
+        case .pads(let pads, let play, let step, let locked, _, _):
             return ["type": "pads", "items": pads.map(\.json), "play": play, "step_ms": step, "locked": locked]
         case .cups(let count, let hide, let swaps, let ms, let picked, let revealed, let gem, let locked):
             var out = drop(["type": "cups", "count": count, "hide": hide, "swaps": swaps, "swap_ms": ms, "picked": picked, "locked": locked])
@@ -59,6 +62,8 @@ public enum PlayPart {
                          "keys": keys])
         case .meter(let value, let label, let low, let high):
             return drop(["type": "meter", "value": value, "label": label, "low": low, "high": high])
+        case .counter(let words, let caption, let range):
+            return drop(["type": "counter", "words": words, "caption": caption, "range": range])
         case .number(let min, let max, let label, let history, let locked):
             return drop(["type": "number", "min": min, "max": max, "label": label, "history": history.map { ["value": $0.0, "mark": $0.1] },
                          "locked": locked])
@@ -135,7 +140,7 @@ public struct KeyPage {
     var json: [String: Any] { ["label": label, "rows": rows.map { $0.map { ["key": $0.key, "mark": $0.mark] } }] }
 }
 
-/// A puzzle cell: a `symbol` (`heart`, `star`, `blossom`, `dot`) or `text` (a number, up to two characters), `given`
+/// A puzzle cell: a `symbol` (`crescent`, `sun`, `blossom`, `dot`) or `text` (a number, up to two characters), `given`
 /// when it can't change, pencil `notes` (1–9), its `region` (0–11, drawn in that region's colour), a `state`
 /// (`conflict` where a rule breaks, `hint` for what a hint rests on, `target` where it says to play, its mark shown
 /// faintly), and `fresh` for the mark just played.

@@ -20,7 +20,7 @@ extension QuickPawsScreen {
                                        ["a": d.names[0], "ka": keys[0], "b": d.names[1], "kb": keys[1]])
                         : s.lastWinner.map { L("{name} takes the round!", ["name": d.name($0)]) } ?? L("Again!"),
                     eyebrow: L("Round {n}", ["n": s.number])),
-            .play(.reflex(afterMs: s.round?.waitMs, windowMs: s.round?.windowMs ?? Games.QuickPaws.window, wait: L("Steady…"), go: L("Boop!"),
+            .play(.reflex(afterMs: s.round?.waitMs, windowMs: s.round?.windowMs ?? Games.QuickPaws.window, wait: L("Wait for it…"), go: L("Boop!"),
                           early: L("Too soon!"), shows: shows, keys: QuickPawsEngine.keys)),
         ]
         if g.over {
@@ -30,6 +30,6 @@ extension QuickPawsScreen {
                                            facts: facts))
         }
         let between = s.round == nil && !g.over
-        return Board(parts, companion: TwoPlayers.cue(events), over: g.over, afterMs: between ? 1800 : nil)
+        return Board(parts, companion: TwoPlayers.cue(events), over: g.over, afterMs: between ? 2200 : nil)
     }
 }

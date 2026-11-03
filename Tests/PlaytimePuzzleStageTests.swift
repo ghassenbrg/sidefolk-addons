@@ -134,11 +134,11 @@ struct PlaytimePuzzleStageTests {
             return
         }
         let off = Self.scene(board, local: LocalParts(cursor: 1))
-        #expect(Self.keys(off).contains("pad_1") && Self.areas(off, "pad").allSatisfy { $0["sound"] as? String == "sounds/tap.wav" })
+        #expect(Self.keys(off).contains("pad_1") && Self.areas(off, "pad").allSatisfy { $0["sound"] as? String == "sounds/tap.wav" && $0["disabled"] as? Bool != true })
     }
 
     @Test func aTapBoardsCellsAndKeys() {
-        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 3 ? "heart" : nil, given: $0 == 3) }
+        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 3 ? "crescent" : nil, given: $0 == 3) }
         let board = Self.board(input: "tap", cells: cells)
         let scene = Self.scene(board, SeesawKind.id, local: LocalParts(cursor: 2))
         let open = Self.areas(scene, "cell")
@@ -214,7 +214,7 @@ struct PlaytimePuzzleStageTests {
     }
 
     @Test func aBrokenRuleIsTheCalmToneWithAMarkNeverRed() throws {
-        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 0 ? "heart" : nil, state: $0 == 0 ? "conflict" : nil) }
+        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 0 ? "crescent" : nil, state: $0 == 0 ? "conflict" : nil) }
         let scene = Self.scene(Self.board(input: "tap", cells: cells, plots: [PuzzlePlot(row: 0, column: 0, height: 1, width: 2, state: "conflict")]), SeesawKind.id)
         let json = try Self.json(scene)
         #expect(json.contains("exclamationmark"), "a mark goes with the colour")
@@ -223,7 +223,7 @@ struct PlaytimePuzzleStageTests {
     }
 
     @Test func aMarkSettlesOnlyAsItIsPlayed() throws {
-        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 5 ? "star" : nil, fresh: $0 == 5) }
+        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 5 ? "sun" : nil, fresh: $0 == 5) }
         let board = Self.board(input: "tap", cells: cells)
         func settles(fresh: Bool) throws -> Bool { try Self.json(Self.scene(board, SeesawKind.id, fresh: fresh)).contains("\"target\":\"c5.m\"") }
         #expect(try settles(fresh: true))
@@ -259,6 +259,75 @@ struct PlaytimePuzzleStageTests {
         #expect(Self.keys(sudoku).contains("pad_notes"))
         let seesaw = Self.scene(Self.board(input: "tap"), SeesawKind.id)
         #expect(Self.areas(seesaw, "notes").isEmpty && Self.nodes(seesaw).contains { $0["type"] as? String == "clock" })
-        #expect(try Self.json(Self.scene(Self.board(input: "digits", digits: 6, box: (2, 3)), local: LocalParts(cursor: 1, notes: true))).contains("pencil\""))
+        // A real switch: it says which way it stands, to the eye and to VoiceOver, and the outline goes dashed.
+        let on = Self.scene(Self.board(input: "digits", digits: 6, box: (2, 3)), local: LocalParts(cursor: 1, notes: true))
+        #expect(Self.areas(on, "notes").first?["selected"] as? Bool == true)
+        #expect(Self.nodes(on).contains { $0["id"] as? String == "puzzle.cursor" && $0["dash"] != nil })
+    }
+}
+
+/// The founder's complaint: clicking through a cell to the mark they wanted, they were told it was wrong on the way there.
+@Suite(.serialized) @MainActor
+struct PlaytimeClickThroughTests {
+    init() {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("playtime-clickthrough-\(UUID().uuidString)").path
+        try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        setenv("SIDEFOLK_DATA_DIR", dir, 1)
+    }
+
+    private func conflicts(_ board: Board) -> [Int] {
+        let p = board.puzzlePart!
+        return p.cells.indices.filter { p.cells[$0].state == "conflict" }
+    }
+
+    /// Plants blossoms in cells until a click breaks a rule, as a person's clicks reach the game, and checks what shows at each step.
+    @Test func whatACellBreaksWaitsUntilItRests() throws {
+        PlaytimeRecords.update { $0 = PlaytimeRecords() }
+        typealias S = PuzzleScreen<BlossomsKind>
+        var random = Games.Random(seed: 5)
+        let options = PlaytimeScreensTests.options("en")
+        var state = PuzzleEngine<BlossomsKind>.start(level: .easy, options: options, random: &random)
+        var board = S.board(state, events: [.opened], options: options)
+        var local = LocalParts()
+        let width = board.puzzlePart!.columns
+        var heldOnce = false
+        // Every cell of the top row in turn, clicked through its marks until a rule breaks.
+        outer: for column in 0..<width {
+            for _ in 0..<2 {
+                _ = StageMoves.action(.click(area: "cell", value: "0,\(column)", ms: nil), board: board, local: &local)
+                #expect(local.settling == column)
+                let events = GameTable.play(S.self, .cell(row: 0, column: column), on: &state, random: &random)
+                board = S.board(state, events: events, options: options)
+                if conflicts(board).contains(where: { !(local.settledConflicts ?? []).contains($0) }) {
+                    let held = try #require(board.holdingConflicts(local), "held back on the way through")
+                    #expect(conflicts(held).allSatisfy { (local.settledConflicts ?? []).contains($0) }, "nothing new is lit")
+                    #expect(held.companion == nil && held.promptPart?.text == board.calm, "and nothing is said")
+                    #expect(held.afterMs == Board.settleMs)
+                    // At rest, it is said.
+                    guard case .settled = StageMoves.action(.next, board: board, local: &local) else { Issue.record("rest"); return }
+                    local.settling = nil
+                    #expect(board.holdingConflicts(local) == nil)
+                    heldOnce = true
+                    break outer
+                }
+            }
+        }
+        #expect(heldOnce, "the top row can't all hold blossoms")
+    }
+
+    @Test func aFlowerAlreadyMarkedWrongStaysLitWhileAnotherIsClicked() throws {
+        PlaytimeRecords.update { $0 = PlaytimeRecords() }
+        var cells = [PuzzleCell(symbol: "blossom", state: "conflict"), PuzzleCell(symbol: "blossom", state: "conflict"), PuzzleCell(symbol: "dot", state: "conflict"), PuzzleCell()]
+        cells[3].state = nil
+        var board = Board([.prompt("Rule"), .play(.puzzle(rows: 2, columns: 2, cells: cells, input: "tap"))])
+        board.calm = "Calm"
+        var local = LocalParts()
+        local.settling = 2
+        local.settledConflicts = [0, 1]
+        let held = try #require(board.holdingConflicts(local))
+        #expect(conflicts(held) == [0, 1], "old ones stay, the new one waits")
+        // A puzzle typed or dragged isn't clicked through.
+        let digits = Board([.prompt("Rule"), .play(.puzzle(rows: 2, columns: 2, cells: cells, input: "digits"))])
+        #expect(digits.holdingConflicts(local) == nil)
     }
 }

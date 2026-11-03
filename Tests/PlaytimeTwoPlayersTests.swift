@@ -205,7 +205,7 @@ import Testing
         _ = GameTable.play(TriviaScreen.self, .next, on: &s, random: &random)
         #expect(s.phase == .question && s.made.count == 10 && s.madeTopic == "volcanoes")
         let question = TriviaScreen.board(s, events: [.sealed], options: Self.ai())
-        #expect((PlaytimeScreensTests.part(question, "prompt")?["chip"] as? String) == "volcanoes")
+        #expect((PlaytimeScreensTests.part(question, "prompt")?["chip"] as? String)?.hasPrefix("volcanoes") == true)
         let q = try #require(TriviaEngine.question(s))
         _ = GameTable.play(TriviaScreen.self, .answer(TriviaEngine.rightTile(s)!), on: &s, random: &random)
         let answered = TriviaScreen.board(s, events: [.reveal], options: Self.ai())

@@ -733,8 +733,8 @@
       ]
     },
     "toss": {
-      "title": "Flip a coin, roll dice or play a hand",
-      "summary": "Flip a coin, roll dice or play a hand",
+      "title": "Flip a coin, roll dice or play Rock, Paper, Scissors",
+      "summary": "Flip a coin, roll dice or play Rock, Paper, Scissors",
       "risk": "low",
       "category": "system",
       "mutates": false,
@@ -1150,7 +1150,7 @@
       "title": "Playtime",
       "symbol": "gamecontroller.fill",
       "width": 400,
-      "height": 676,
+      "height": 620,
       "ai": true,
       "activity": false,
       "arguments": {
@@ -1186,7 +1186,7 @@
       }
     },
     "toss": {
-      "title": "Coin, dice and hands",
+      "title": "Coin, dice and toys",
       "symbol": "dice.fill",
       "kind": "overlay",
       "width": 460,
@@ -1196,6 +1196,60 @@
     }
   },
   "settings": [
+    {
+      "key": "game_language",
+      "listed": false,
+      "type": "choice",
+      "title": "Game language",
+      "detail": "Playtime's menus and games in this language, whatever language Sidefolk is in.",
+      "options": [
+        {
+          "value": "auto",
+          "title": "Same as Sidefolk"
+        },
+        {
+          "value": "en",
+          "title": "English"
+        },
+        {
+          "value": "fr",
+          "title": "Français"
+        },
+        {
+          "value": "es",
+          "title": "Español"
+        },
+        {
+          "value": "de",
+          "title": "Deutsch"
+        },
+        {
+          "value": "it",
+          "title": "Italiano"
+        },
+        {
+          "value": "pt-BR",
+          "title": "Português (Brasil)"
+        },
+        {
+          "value": "ja",
+          "title": "日本語"
+        },
+        {
+          "value": "ko",
+          "title": "한국어"
+        },
+        {
+          "value": "zh-Hans",
+          "title": "简体中文"
+        },
+        {
+          "value": "ar",
+          "title": "العربية"
+        }
+      ],
+      "default": "auto"
+    },
     {
       "key": "tone",
       "type": "choice",

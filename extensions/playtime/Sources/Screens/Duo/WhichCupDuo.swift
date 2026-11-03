@@ -15,6 +15,8 @@ extension WhichCupScreen {
         let eyebrow = L("Round {n} of {total}", ["n": round, "total": Games.WhichCup.rounds])
         if !s.ready, !s.lifted {
             parts.append(.prompt(L("{name}'s turn: keep your eye on the gem.", ["name": d.name(side)]), eyebrow: eyebrow))
+            // The cups stand on their mat already, so nothing arrives when the round begins.
+            parts.append(.play(.cups(count: g.cups, locked: true)))
             parts.append(.button(GameButton(L("I'm {name}: ready", ["name": d.name(side)]), move: "ready", style: .primary, symbol: "eye")))
         } else {
             let prompt: String = if s.lifted { s.gemAt == s.picked ? L("{name} found it!", ["name": d.name(side)]) : L("Not that one.") }

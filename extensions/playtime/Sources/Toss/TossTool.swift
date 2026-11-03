@@ -6,7 +6,7 @@ import SidefolkExtensionKit
 @MainActor
 enum TossTool {
     static func install(on ext: Extension) {
-        ext.tool("toss", "Flip a coin, roll dice or play a hand",
+        ext.tool("toss", "Flip a coin, roll dice or play Rock, Paper, Scissors",
                  """
                  Your companion flips coins, rolls dice or plays rock, paper, scissors on the user's desktop, where they watch it happen. The result is truly random and comes \
                  back to you: say it as it came, never make one up. Use it whenever the user wants a coin flip, a dice roll (count, sides and modifier, as in 2d6+1 or d20) or a \

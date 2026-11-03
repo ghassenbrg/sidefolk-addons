@@ -12,7 +12,7 @@ extension PlaytimeScreensTests {
     /// The clicks, drags and numbers that play a puzzle's own move through its screen.
     static func clicks(_ move: Games.Seesaw.Move, on grid: Games.Seesaw.Grid, size n: Int) -> [Move] {
         guard case .set(let c, let mark) = move else { return [] }
-        let order: [Games.Seesaw.Mark?] = [nil, .heart, .star]
+        let order: [Games.Seesaw.Mark?] = [nil, .crescent, .sun]
         let times = (order.firstIndex(of: mark)! - order.firstIndex(of: grid[c])! + 3) % 3
         return Array(repeating: .cell(row: c / n, column: c % n), count: times)
     }
@@ -82,7 +82,7 @@ extension PlaytimeScreensTests {
             _ = GameTable.play(PuzzleScreen<SeesawKind>.self, .cell(row: open / 6, column: open % 6), on: &s, random: &random)
             let given = s.game.puzzle.givens.firstIndex { $0 != nil }!
             let refused = GameTable.play(PuzzleScreen<SeesawKind>.self, .cell(row: given / 6, column: given % 6), on: &s, random: &random)
-            #expect(Self.part(PuzzleScreen<SeesawKind>.board(s, events: refused, options: o), "note")?["text"] as? String == L("That one is part of the puzzle."))
+            #expect(Self.part(PuzzleScreen<SeesawKind>.board(s, events: refused, options: o), "prompt")?["text"] as? String == L("That one is part of the puzzle."), "in the bubble: a note would push the board")
             let reopened = PuzzleEngine<SeesawKind>.start(level: .fair, options: o, random: &random)
             #expect(reopened.game.grid == s.game.grid && reopened.game.day == s.game.day, "reopening carries on")
 

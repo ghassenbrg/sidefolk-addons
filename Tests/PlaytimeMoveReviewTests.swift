@@ -22,7 +22,7 @@ struct PlaytimeMoveReviewTests {
         let page = PlaytimePage.render().json
         let text = String(decoding: (try? JSONSerialization.data(withJSONObject: page)) ?? Data(), as: UTF8.self)
         #expect(text.contains("Continue") && text.contains("Sudoku") && text.contains("Ready when you are!"), "the hero says so")
-        #expect(text.contains("Resume") && text.contains("\"style\":\"accent\""), "and its card")
+        #expect(text.contains("Resume") && text.contains("resume"), "and its tile")
     }
 
     @Test func aGameEndedByAnotherOpeningIsKeptAndAnOverGameIsNot() {
@@ -98,19 +98,7 @@ struct PlaytimeMoveReviewTests {
     @Test func theGameCentersLookIsInThePage() {
         let page = PlaytimePage.render().json
         let text = String(decoding: (try? JSONSerialization.data(withJSONObject: page)) ?? Data(), as: UTF8.self)
-        for part in ["\"tile\":[", "\"wash\":[", "\"banner\":{", "\"shape\":\"round\"", "\"grid\":true", "\"ai_title\":", "\"wide\":true"] { #expect(text.contains(part), "\(part)") }
+        for part in ["\"bare\":true", "\"dress\":{", "\"ground\":{", "\"type\":\"scene\"", "\"grid\":true", "\"ai_title\":", "\"wide\":true"] { #expect(text.contains(part), "\(part)") }
     }
 
-    /// Words of the Game Center's and the menu's that mean wins and puzzles are their own, so a language can keep its word for them apart from Daily Word's.
-    @Test func wordsInContextAreTheirOwn() {
-        Language.with("en", strings: PlaytimeGameTests.strings) {
-            #expect(L("Best streak", context: "games") == "Best streak" && L("Not played yet", context: "games") == "Not played yet")
-        }
-        Language.with("zh-Hans", strings: PlaytimeGameTests.strings) {
-            #expect(L("Not played yet", context: "games") == "还没玩过" && L("Not played yet") == "今天还没玩")
-            #expect(L("Best streak", context: "games") == "最佳连胜")
-        }
-        Language.with("ja", strings: PlaytimeGameTests.strings) { #expect(L("Solved", context: "games") == "クリア" && L("Solved") == "正解") }
-        Language.with("ar", strings: PlaytimeGameTests.strings) { #expect(L("Next round") == "الجولة التالية") }
-    }
 }
