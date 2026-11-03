@@ -81,6 +81,14 @@ enum Suspense {
         if let before, !parts.contains(where: isPrompt) {
             parts.insert(before, at: parts.firstIndex { !isScore($0) } ?? parts.count)
         }
+        // A puzzle's dock stays through its last beat, nothing to press, so the board above it doesn't move as it is solved.
+        if next.hasPuzzle {
+            parts += previous.parts.compactMap { part -> BoardPart? in
+                guard case .button(var button) = part else { return nil }
+                button.disabled = true
+                return .button(button)
+            }
+        }
         return Board(parts)
     }
 

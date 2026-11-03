@@ -134,11 +134,11 @@ struct PlaytimePuzzleStageTests {
             return
         }
         let off = Self.scene(board, local: LocalParts(cursor: 1))
-        #expect(Self.keys(off).contains("pad_1") && Self.areas(off, "pad").allSatisfy { $0["sound"] as? String == "sounds/tap.wav" })
+        #expect(Self.keys(off).contains("pad_1") && Self.areas(off, "pad").allSatisfy { $0["sound"] as? String == "sounds/tap.wav" && $0["disabled"] as? Bool != true })
     }
 
     @Test func aTapBoardsCellsAndKeys() {
-        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 3 ? "heart" : nil, given: $0 == 3) }
+        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 3 ? "crescent" : nil, given: $0 == 3) }
         let board = Self.board(input: "tap", cells: cells)
         let scene = Self.scene(board, SeesawKind.id, local: LocalParts(cursor: 2))
         let open = Self.areas(scene, "cell")
@@ -214,7 +214,7 @@ struct PlaytimePuzzleStageTests {
     }
 
     @Test func aBrokenRuleIsTheCalmToneWithAMarkNeverRed() throws {
-        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 0 ? "heart" : nil, state: $0 == 0 ? "conflict" : nil) }
+        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 0 ? "crescent" : nil, state: $0 == 0 ? "conflict" : nil) }
         let scene = Self.scene(Self.board(input: "tap", cells: cells, plots: [PuzzlePlot(row: 0, column: 0, height: 1, width: 2, state: "conflict")]), SeesawKind.id)
         let json = try Self.json(scene)
         #expect(json.contains("exclamationmark"), "a mark goes with the colour")
@@ -223,7 +223,7 @@ struct PlaytimePuzzleStageTests {
     }
 
     @Test func aMarkSettlesOnlyAsItIsPlayed() throws {
-        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 5 ? "star" : nil, fresh: $0 == 5) }
+        let cells = (0..<36).map { PuzzleCell(symbol: $0 == 5 ? "sun" : nil, fresh: $0 == 5) }
         let board = Self.board(input: "tap", cells: cells)
         func settles(fresh: Bool) throws -> Bool { try Self.json(Self.scene(board, SeesawKind.id, fresh: fresh)).contains("\"target\":\"c5.m\"") }
         #expect(try settles(fresh: true))
@@ -259,6 +259,9 @@ struct PlaytimePuzzleStageTests {
         #expect(Self.keys(sudoku).contains("pad_notes"))
         let seesaw = Self.scene(Self.board(input: "tap"), SeesawKind.id)
         #expect(Self.areas(seesaw, "notes").isEmpty && Self.nodes(seesaw).contains { $0["type"] as? String == "clock" })
-        #expect(try Self.json(Self.scene(Self.board(input: "digits", digits: 6, box: (2, 3)), local: LocalParts(cursor: 1, notes: true))).contains("pencil\""))
+        // A real switch: it says which way it stands, to the eye and to VoiceOver, and the outline goes dashed.
+        let on = Self.scene(Self.board(input: "digits", digits: 6, box: (2, 3)), local: LocalParts(cursor: 1, notes: true))
+        #expect(Self.areas(on, "notes").first?["selected"] as? Bool == true)
+        #expect(Self.nodes(on).contains { $0["id"] as? String == "puzzle.cursor" && $0["dash"] != nil })
     }
 }

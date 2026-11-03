@@ -158,6 +158,8 @@ final class BoardDrawing {
             let sound = switch reveal { case .hands: "whoosh"; case .coin: "flip"; case .dice: "rattle" }
             return out.react(Reaction(move: move)).animating(.sequence([.sound("sounds/\(sound).wav")]))
         }
+        // A puzzle's last beat is on its board, and has its own sound (solveMoment).
+        if ctx.buildUp, board.hasPuzzle { return out }
         if ctx.buildUp { return out.react(Reaction(effect: "question")).animating(.sequence([.sound("sounds/tick.wav")])) }
         // A game just come to the table starts with nothing of the last one's above the companion, however it got here.
         let opening = ctx.fresh && ctx.previous == nil

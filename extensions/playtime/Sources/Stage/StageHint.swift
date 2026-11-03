@@ -13,7 +13,8 @@ extension BoardDrawing {
         }
         if let hint = partsFooter { parts.append(hint) }
         if let primary = board.primary { parts.append(L("Return: {label}", ["label": primary.label])) }
-        for b in board.buttons where b.key != nil && !b.disabled { parts.append("\(b.key!.uppercased()): \(b.label)") }
+        // A puzzle's line stays one length as Undo comes and goes: its button says what it is.
+        for b in board.buttons where b.key != nil && !b.disabled && !(board.hasPuzzle && b.move == "undo") { parts.append("\(b.key!.uppercased()): \(b.label)") }
         if ctx.local.dragFrom == nil { parts.append(L("Esc to close")) }
         return parts.joined(separator: " · ")
     }

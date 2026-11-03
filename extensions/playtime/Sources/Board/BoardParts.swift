@@ -37,7 +37,7 @@ public enum PlayPart {
                 locked: Bool = false)
     /// Lives left, as `balloon`s or `heart`s.
     case lives(total: Int, left: Int, symbol: String = "heart")
-    /// A logic puzzle's grid, 2–10 cells a side: cells with a symbol (`heart`, `star`, `blossom`, `dot`) or a number,
+    /// A logic puzzle's grid, 2–10 cells a side: cells with a symbol (`crescent`, `sun`, `blossom`, `dot`) or a number,
     /// givens drawn fixed, pencil `notes`, coloured `region`s (0–11), thick lines around boxes of `box` (Sudoku's 2 × 3 or
     /// 3 × 3), `=` and `×` clues between cells (`edges`) and rectangles (`plots`). `input` is what the person does on it:
     /// `tap` a cell (`.cell`), `drag` a rectangle (`.area`; a click alone is `.cell`), or `digits` from 1 to `digits` into
@@ -135,7 +135,7 @@ public struct KeyPage {
     var json: [String: Any] { ["label": label, "rows": rows.map { $0.map { ["key": $0.key, "mark": $0.mark] } }] }
 }
 
-/// A puzzle cell: a `symbol` (`heart`, `star`, `blossom`, `dot`) or `text` (a number, up to two characters), `given`
+/// A puzzle cell: a `symbol` (`crescent`, `sun`, `blossom`, `dot`) or `text` (a number, up to two characters), `given`
 /// when it can't change, pencil `notes` (1–9), its `region` (0–11, drawn in that region's colour), a `state`
 /// (`conflict` where a rule breaks, `hint` for what a hint rests on, `target` where it says to play, its mark shown
 /// faintly), and `fresh` for the mark just played.
