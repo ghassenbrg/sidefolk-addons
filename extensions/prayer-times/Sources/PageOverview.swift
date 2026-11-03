@@ -44,7 +44,7 @@ enum OverviewPage {
         let rowY = nightY + nightH + r.u(10), rowH = r.u(130)
         let name = ctx.snapshot.name
         let scene = Scene(width: w, height: rowY + rowH + r.u(14)) {
-            dialPanel(ctx, w: leftW, h: frameH, r: r).at(margin, 0)
+            dialPanel(ctx, w: leftW, h: frameH - r.u(14), r: r, rise: r.u(14)).at(margin, r.u(14))
             today(ctx, w: rightW, h: todayH, r: r).at(rightX, r.u(4))
             night(ctx, w: full + r.u(10), h: nightH, r: r).at(margin - r.u(10), nightY)
             qibla(ctx, w: rightW, h: qiblaH, r: r).at(rightX, r.u(312))
@@ -63,7 +63,7 @@ enum OverviewPage {
         var at: [Double] = []
         for h in heights { at.append(y); y += h + gap }
         let scene = Scene(width: w, height: y) {
-            dialPanel(ctx, w: inner, h: heights[0], r: r).at(margin, at[0])
+            dialPanel(ctx, w: inner, h: heights[0] - r.u(14), r: r, rise: r.u(14)).at(margin, at[0] + r.u(14))
             today(ctx, w: inner, h: heights[1], r: r).at(margin, at[1])
             qibla(ctx, w: inner, h: heights[2], r: r).at(margin, at[2])
             night(ctx, w: inner, h: heights[3], r: r).at(margin, at[3])
@@ -88,24 +88,28 @@ enum OverviewPage {
         }
     }
 
-    /// The dial in its arch, its middle the same moment Today and Ask say.
-    static func dialPanel(_ ctx: Context, w: Double, h: Double, r: Ruler) -> Node {
+    /// The dial in its arch, its middle the same moment Today and Ask say. The window is drawn to the shape P02's is, wide in the shoulder: the dial's marks stand where their instants fall, so a name can come anywhere round the ring and must find quiet ground there. Its crown rises over the panel's top by `rise`.
+    static func dialPanel(_ ctx: Context, w: Double, h: Double, r: Ruler, rise: Double = 0) -> Node {
         let s = ctx.snapshot
         let focus = DialScene.focus(s)
-        let radius = min(w * 0.31, (h - r.u(120)) * 0.5)
-        let cx = w / 2, cy = r.u(70) + radius + r.u(16)
+        let pillH = r.u(46), pillY = h - r.u(68)
+        let size = r.f(15.5, min: 12.5), labelGap = r.f(15, min: 12) * 2.2, lift = max(h * 0.36, r.u(150))
+        // A name over the ring must clear the crown's line where the name is widest, and a gap stays between the ring's foot and the pill.
+        let top = lift * 0.16 - rise + 6 + labelGap + size * 1.35
+        let radius = min(w * 0.44 - labelGap - size * 2.4, (pillY - r.u(14) - top) * 0.5)
+        let cx = w / 2, cy = pillY - r.u(14) - radius
         return Node.group {
             Node.frame(.dial, w, h)
-            // The arch's window opens round the dial, so its names stand on quiet ground.
-            Node.image("art/glow.png", tint: .adaptive(light: "#FBF9FD", dark: "#0C0F2C")).size(radius * 3.5, radius * 3.5).at(cx - radius * 1.75, cy - radius * 1.75)
+            Node.rect(stroke: Noor.inlay, lineWidth: 1.2, corner: 16).size(w, h)
+            PrayerPage.archWindow(w: w * 0.88, h: h + rise - 1, lift: lift, spandrel: h * 0.17).at(w * 0.06, -rise)
             Node.group {
                 if let day = s.today {
-                    Node.group { DialScene.nodes(cx: cx, cy: cy, radius: radius, labelRadius: radius + r.f(15) * 2.5, snapshot: s, day: day, focusAt: focusAt(s), big: true, label: r.f(15.5)) }.size(w, h)
+                    Node.group { DialScene.nodes(cx: cx, cy: cy, radius: radius, labelRadius: radius + labelGap, snapshot: s, day: day, focusAt: focusAt(s), big: true, label: size) }.size(w, h)
                 }
                 Node.group { DialScene.middle(cx: cx, cy: cy, radius: radius * 0.86, focus: focus) }.size(w, h)
             }
             .size(w, h).leftToRight().label(DialScene.spoken(s, focus: focus))
-            Node.pill("dial", label: L("View today's prayer times"), x: w / 2 - r.u(150), y: h - r.u(68), w: r.u(300), h: r.u(46), symbol: "chevron.forward", size: r.f(16.5))
+            Node.pill("dial", label: L("View today's prayer times"), x: w / 2 - r.u(150), y: pillY, w: r.u(300), h: pillH, symbol: "chevron.forward", size: r.f(16.5))
         }
         .size(w, h)
     }
@@ -199,12 +203,8 @@ enum OverviewPage {
         let arc = "M \(n(first - r.u(58))) \(n(arcY + lift * 0.9)) C \(n(first + step * 0.4)) \(n(arcY - lift)) \(n(last - step * 0.4)) \(n(arcY - lift)) \(n(last + r.u(20))) \(n(arcY + lift * 0.3))"
         return Node.group {
             Node.panel(w, h, corner: r.u(16))
-            // The painted night, its horizon low in the strip, and its sky quieter so the words stand on it.
-            Node.group {
-                Node.image("art/tonight-l.jpg", dark: "art/tonight-d.jpg", fit: "fill").size(w, w * 0.267).at(0, h * 0.74 - w * 0.267 * 0.4)
-                Node.rect().gradient([.adaptive(light: "#F7F3FBEE", dark: "#0C0F2CF0"), .adaptive(light: "#F7F3FB00", dark: "#0C0F2C20")]).size(w, h)
-            }
-            .size(w, h).corner(r.u(16)).clip()
+            // The night's hills along the strip's foot, dim enough for words, with the mosque showing under Qibla.
+            PrayerPage.nightArt(w: w, h: h, mosqueAt: 0.72, footY: h - r.u(2), across: w * 1.2, corner: r.u(16))
             Node.rect(stroke: Noor.hairline, lineWidth: 1, corner: r.u(16)).size(w, h)
             Node.say(L("Tonight"), r.u(22), r.u(10), r.u(200), r.u(32), size: r.f(20, min: 14), weight: "semibold")
             Node.group {
@@ -222,8 +222,8 @@ enum OverviewPage {
                 let y = arcY - lift * (i == 1 ? 0.55 : 0.05)
                 Node.glow(sun ? .hex("#F6B45C") : .hex("#8C7AE6"), cx: x, cy: y, r: glyph * 0.9)
                 Node.symbol(sun ? "sun.max.fill" : "moon.fill", color: sun ? .hex("#F6B45C") : .adaptive(light: "#FFFFFF", dark: "#D6C6F2")).size(glyph * 0.8, glyph * 0.8).at(x - glyph * 0.4, y - glyph * 0.4)
-                Node.say(Words.solar(event), x - r.u(84), r.u(80), r.u(168), r.u(24), size: r.f(14.5), color: sun ? Noor.warm : Noor.text, align: "center")
-                Node.say(ctx.t(solar[event]!), x - r.u(84), r.u(100), r.u(168), r.u(26), size: r.f(17, min: 12.5), weight: "medium", color: sun ? Noor.warm : Noor.text, align: "center", tabular: true)
+                Node.say(Words.solar(event), x - r.u(84), r.u(80), r.u(168), r.u(24), size: r.f(14.5), color: sun ? PrayerPage.nightWarm : Noor.text, align: "center")
+                Node.say(ctx.t(solar[event]!), x - r.u(84), r.u(100), r.u(168), r.u(26), size: r.f(17, min: 12.5), weight: "medium", color: sun ? PrayerPage.nightWarm : Noor.text, align: "center", tabular: true)
             }
         }
         .size(w, h)

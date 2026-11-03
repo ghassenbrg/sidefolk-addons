@@ -120,7 +120,7 @@ enum RamadanPage {
             more(ctx, year: year, day: picked, w: leftW, h: moreH, open: open, r: r).at(leftX, moreY)
             table(ctx, month, picked: picked, w: leftW, h: tableH, r: r).at(leftX, tableY)
             remindersPanel(ctx, month: month, draft: draft, w: rightW, h: panelH, r: rr).at(rightX, heroY)
-        }, w: leftW, r: r)
+        }, w: leftW, tableH: tableH, r: r)
         var inlays = [PageInlay(x: yearX, y: pillY, w: yearW, h: pillH, yearChoice(year))]
         inlays += reminderInlays(month: month, draft: draft, x: rightX, y: heroY, w: rightW, r: rr)
         return (scene, inlays)
@@ -148,7 +148,7 @@ enum RamadanPage {
             more(ctx, year: year, day: picked, w: inner, h: moreH, open: open, r: Ruler(width: 1000)).at(margin, moreY)
             table(ctx, month, picked: picked, w: inner, h: tableH, r: Ruler(width: 950)).at(margin, tableY)
             remindersPanel(ctx, month: month, draft: draft, w: inner, h: panelH, r: panelR).at(margin, panelY)
-        }, w: inner, r: Ruler(width: 950))
+        }, w: inner, tableH: tableH, r: Ruler(width: 950))
         var inlays = [PageInlay(x: margin, y: pillsY, w: halfW, h: pillH, yearChoice(year))]
         inlays += reminderInlays(month: month, draft: draft, x: margin, y: panelY, w: inner, r: panelR)
         return (scene, inlays)
@@ -220,10 +220,10 @@ enum RamadanPage {
             }
             .size(w - band * 2, h - band * 2).at(band, band).corner(r.u(12)).clip()
             Node.group {
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, h - side).rotate(90)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(0, h - side).rotate(180)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(0, 0).rotate(270)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0).turnsWithWords()
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, h - side).turned(90)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(0, h - side).turned(180)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(0, 0).turned(270)
             }
             .size(w, h).corner(r.u(16)).clip()
             Node.rect(stroke: Noor.inlay, lineWidth: 2, corner: r.u(16)).size(w, h)
@@ -300,7 +300,8 @@ enum RamadanPage {
         let zone = IANAZone.zone(month.zoneID) ?? ctx.zone
         let c1 = r.u(30), c2 = w * 218 / 872, c3 = w * 350 / 872, c4 = w * 476 / 872
         let lines = [w * 170 / 872, w * 310 / 872, w * 451 / 872]
-        let headY = r.u(55), headH = r.u(40), rowH = r.u(40), bodyY = headY + headH
+        let headY = r.u(55), headH = r.u(40), bodyY = headY + headH, rowH = tableRow(h, r: r)
+        let viewH = h - bodyY - r.u(6), fadeH = rowH * 0.6
         let chosen = ctx.model.prefs.reminders.ramadan
         let place = ctx.snapshot.place?.label ?? ""
         let suhoor = chosen.suhoorMinutesBeforeFajr
@@ -318,7 +319,8 @@ enum RamadanPage {
             Node.say(Words.prayer(.fajr), c2, headY, c3 - c2, headH, size: r.f(15.5, min: 11.5), color: Noor.muted)
             Node.say(Words.prayer(.maghrib), c3, headY, c4 - c3, headH, size: r.f(15.5, min: 11.5), color: Noor.muted)
             Node.say(L("Reminders"), c4, headY, w - c4 - r.u(12), headH, size: r.f(15.5, min: 11.5), color: Noor.muted)
-            Node.scroll(contentHeight: Double(month.dayCount) * rowH, scrollTo: "day\(picked.number)") {
+            // Room past the last row, so the fade that says there is more never covers it.
+            Node.scroll(contentHeight: Double(month.dayCount) * rowH + fadeH, scrollTo: "day\(picked.number)") {
                 for (i, day) in month.days.enumerated() {
                     let isPicked = day.number == picked.number
                     let on = chosen.enabled && chosen.days.contains(day.number)
@@ -339,14 +341,21 @@ enum RamadanPage {
                     .area("day\(day.number)", label: L("Ramadan {number}, {date}, Fajr {fajr}, Maghrib {maghrib}", ["number": "\(day.number)", "date": Words.date(day.date), "fajr": Words.time(day.fajr, zone: zone), "maghrib": Words.time(day.maghrib, zone: zone)]), hover: nil, press: nil, selected: isPicked)
                 }
             }
-            .size(w, h - bodyY - r.u(6)).at(0, bodyY).id("ramadan-table")
+            .size(w, viewH).at(0, bodyY).id("ramadan-table")
+            Node.rect().gradient([.adaptive(light: "#FFFFFF00", dark: "#11153A00"), Noor.surface]).size(w - 2, fadeH).at(1, bodyY + viewH - fadeH)
         }
         .size(w, h)
     }
 
+    /// A row's height in a table this tall: near the board's, stretched so the table shows only whole rows.
+    private static func tableRow(_ h: Double, r: Ruler) -> Double {
+        let view = h - r.u(95) - r.u(6)
+        return view / max(1, (view / r.u(40)).rounded(.down))
+    }
+
     /// What a table row's words share, so a month of rows stays inside a scene's 64 KB.
-    private static func rowStyles(_ scene: Scene, w: Double, r: Ruler) -> Scene {
-        let rowH = round10(r.u(40))
+    private static func rowStyles(_ scene: Scene, w: Double, tableH: Double, r: Ruler) -> Scene {
+        let rowH = round10(tableRow(tableH, r: r))
         func words(size: Double, weight: String = "regular", color: Color, tabular: Bool = true) -> [String: Any] {
             var out: [String: Any] = ["type": "text", "size": round10(size), "weight": weight, "design": "default", "color": color.json, "align": "leading", "valign": "center", "lines": 1, "min_scale": 0.7, "y": 0, "h": rowH]
             if tabular { out["tabular"] = true }
@@ -357,7 +366,7 @@ enum RamadanPage {
             .style("cellTime", words(size: r.f(16.5, min: 12.5), color: Noor.text))
             .style("cellMuted", words(size: r.f(14, min: 11), color: Noor.muted, tabular: false))
             .style("cellOn", words(size: r.f(15, min: 11.5), color: Noor.text, tabular: false))
-            .style("cellOff", words(size: r.f(15, min: 11.5), color: Noor.faint, tabular: false))
+            .style("cellOff", words(size: r.f(15, min: 11.5), color: Noor.muted, tabular: false))
             .style("rule", ["type": "shape", "shape": "rect", "fill": Noor.hairline.json, "line_width": 1, "x": 0, "w": round10(w), "h": 1])
     }
 
@@ -399,8 +408,8 @@ enum RamadanPage {
         return Node.group {
             Node.panel(w, h, corner: r.u(16))
             Node.group {
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0).opacity(0.9)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side * 1.5, side * 1.5).at(w - side * 1.5, h - side * 1.5).rotate(90).opacity(0.9)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0).opacity(0.9).turnsWithWords()
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side * 1.5, side * 1.5).at(w - side * 1.5, h - side * 1.5).turned(90).opacity(0.9)
             }
             .size(w, h).corner(r.u(16)).clip()
             Node.rect(stroke: Noor.inlay, lineWidth: 1, corner: r.u(16)).size(w, h).opacity(0.7)

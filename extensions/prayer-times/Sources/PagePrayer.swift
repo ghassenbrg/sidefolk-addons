@@ -44,8 +44,8 @@ enum PrayerPage {
             "focus": .go(Go(set: ["full": NSNull(), "day": NSNull(), "select": NSNull()])),
         ]
         for prayer in PrayerID.allCases {
-            acts["row.\(prayer.rawValue)"] = .go(Go(set: ["select": prayer.rawValue]))
-            acts["bell.\(prayer.rawValue)"] = .go(Go(set: ["sheet": "prefs", "section": "reminders", "focus_prayer": prayer.rawValue], push: true))
+            acts["row-\(prayer.rawValue)"] = .go(Go(set: ["select": prayer.rawValue]))
+            acts["bell-\(prayer.rawValue)"] = .go(Go(set: ["sheet": "prefs", "section": "reminders", "focus_prayer": prayer.rawValue], push: true))
         }
         if ctx.narrow {
             let margin = 16.0, inner = w - margin * 2, gap = 12.0
@@ -115,7 +115,7 @@ enum PrayerPage {
         let isToday = date == today
         let focus = isToday ? DialScene.focus(s) : nil
         let focusAt = isToday ? OverviewPage.focusAt(s) : nil
-        let radius = r.u(193)
+        let radius = r.u(188)
         let cx = w / 2, cy = r.u(297)
         let ground = Color.adaptive(light: "#FBF9FD", dark: "#0C0F2C")
         let place = s.place?.label ?? s.source?.name ?? ""
@@ -130,6 +130,8 @@ enum PrayerPage {
             Node.group {
                 Node.glow(ground, cx: r.u(82), cy: r.u(92), r: r.u(150), opacity: 1)
                 Node.glow(ground, cx: r.u(82), cy: r.u(92), r: r.u(120), opacity: 1)
+                Node.glow(ground, cx: r.u(92), cy: r.u(72), r: r.u(104), opacity: 1)
+                Node.glow(ground, cx: r.u(92), cy: r.u(116), r: r.u(104), opacity: 1)
                 Node.say(L("Now"), r.u(33), r.u(36), r.u(150), r.u(24), size: r.f(16.5))
                 Node.say(ctx.t(s.now), r.u(33), r.u(56), r.u(160), r.u(40), size: r.f(31, min: 17), weight: "medium", tabular: true)
                 Node.say(shortDate(today), r.u(33), r.u(93), r.u(170), r.u(24), size: r.f(16.5))
@@ -244,7 +246,7 @@ enum PrayerPage {
                     }
                 }
                 .size(w, rowH).at(0, rowY)
-                .area(row.prayer.map { "row.\($0.rawValue)" } ?? "row.sunrise", label: rowSpoken(ctx, row.name, row.start, row.iqamah, next: next, past: past), disabled: row.prayer == nil, hover: .init(scale: 1.0), selected: picked)
+                .area(row.prayer.map { "row-\($0.rawValue)" } ?? "row-sunrise", label: rowSpoken(ctx, row.name, row.start, row.iqamah, next: next, past: past), disabled: row.prayer == nil, hover: .init(scale: 1.0), selected: picked)
                 if let prayer = row.prayer {
                     let choice = reminders.prayers[prayer]
                     let on = reminders.master && choice.map { $0.atStart || $0.beforeMinutes != nil || $0.iqamahMinutes != nil } ?? false
@@ -253,7 +255,7 @@ enum PrayerPage {
                         Node.symbol(on ? "bell.fill" : "bell", color: next || on ? Noor.accent : Noor.text).size(bell, bell).at(r.u(7), r.u(7))
                     }
                     .size(box, box).at((bellLineX + w - r.u(12)) / 2 - box / 2, rowY + (rowH - box) / 2)
-                    .area("bell.\(prayer.rawValue)", label: on ? L("{prayer} reminder is on. Change it.", ["prayer": row.name]) : L("{prayer} reminder is off. Set it.", ["prayer": row.name]))
+                    .area("bell-\(prayer.rawValue)", label: on ? L("{prayer} reminder is on. Change it.", ["prayer": row.name]) : L("{prayer} reminder is off. Set it.", ["prayer": row.name]))
                 }
             }
         }
@@ -304,25 +306,31 @@ enum PrayerPage {
         }
     }
 
-    /// The strip's painted night, its mosque where the board has it and fading out before the buttons, and its lattice corners.
-    static func nightGround(w: Double, h: Double, corner: Double, mosqueAt: Double = 0.56, horizon: Double = 0.62, side: Double? = nil) -> [Node] {
-        // The painted skyline ends at the mosque, so the rest of the strip stands on the plain night behind the buttons.
-        let artW = mosqueAt / 0.86 * w
-        let artH = artW / 2.78
-        let side = side ?? h * 0.9
-        let sky = Color.adaptive(light: "#F7F3FBFF", dark: "#0E1234FF"), clear = Color.adaptive(light: "#F7F3FB00", dark: "#0E123400")
-        return [
+    /// A time's gold on the night's pale hills, in the light: the page's own warm is a shade too thin there.
+    static let nightWarm = Color.adaptive(light: "#6F4509", dark: "#EFCF8E")
+
+    /// The night picture placed so its mosque stands at `mosqueAt` of a strip and its foot at `footY`. The picture is hills from edge to edge, its sky and foot already the strip's own ground (`scripts/noor-night-art.py`): nothing to fade out, and what is below the foot is quiet enough for words.
+    static func nightArt(w: Double, h: Double, mosqueAt: Double, footY: Double, across: Double, corner: Double) -> Node {
+        let artW = across, artH = artW / 6
+        return Node.group {
+            Node.image("art/prayer-night-l.jpg", dark: "art/prayer-night-d.jpg", fit: "fill").size(artW, artH).at(w * mosqueAt - artW * 0.6, footY - artH * 0.68)
+        }
+        .size(w, h).corner(corner).clip()
+    }
+
+    /// The strip's night inside its lattice rim, as P02: lobes down its left, a scalloped side down its right, each as tall as the strip. Where the strip is too tall for those (`corners`), a lattice corner at each end instead.
+    static func nightGround(w: Double, h: Double, corner: Double, mosqueAt: Double = 0.58, footY: Double? = nil, corners: Double? = nil) -> [Node] {
+        [
             Node.panel(w, h, corner: corner, fill: .adaptive(light: "#F7F3FB", dark: "#0E1234")),
+            nightArt(w: w, h: h, mosqueAt: mosqueAt, footY: footY ?? h * 0.62, across: max(w * 1.05, h * 6), corner: corner),
             Node.group {
-                Node.image("art/hero-l.jpg", dark: "art/hero-d.jpg", fit: "fill").size(artW, artH).at(0, h * horizon - artH * 0.78).opacity(0.72)
-                Node.rect().gradient([clear, sky], from: (0.94, 0.5), to: (1, 0.5)).size(artW, h)
-                Node.rect(fill: sky).size(w - artW, h).at(artW - 1, 0)
-                Node.rect().gradient([sky, clear, clear]).size(w, h)
-            }
-            .size(w, h).corner(corner).clip(),
-            Node.group {
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0).opacity(0.8)
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side * 0.7, side * 0.7).at(0, h - side * 0.7).rotate(180).opacity(0.8)
+                if let corners {
+                    Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(corners, corners).at(w - corners, 0).turnsWithWords()
+                    Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(corners * 0.7, corners * 0.7).at(0, h - corners * 0.7).turned(180)
+                } else {
+                    Node.image("art/prayer-rim-left-l.png", dark: "art/prayer-rim-left-d.png", fit: "fill").size(h * 0.3, h).at(0, 0).turnsWithWords()
+                    Node.image("art/prayer-rim-right-l.png", dark: "art/prayer-rim-right-d.png", fit: "fill").size(h * 0.73, h).at(w - h * 0.73, 0).turnsWithWords()
+                }
             }
             .size(w, h).corner(corner).clip(),
             Node.rect(stroke: Noor.inlay, lineWidth: 1.2, corner: corner).size(w, h),
@@ -336,9 +344,9 @@ enum PrayerPage {
         let manual = ctx.snapshot.source?.kind == .manual
         let arc = "M \(n(places[0] + r.u(8))) \(n(r.u(64))) C \(n(places[0] + r.u(120))) \(n(r.u(24))) \(n(places[2] - r.u(150))) \(n(r.u(14))) \(n(places[2] - r.u(16))) \(n(r.u(64)))"
         let glyph = r.f(29, min: 18)
-        let lineX = w - r.u(316), noteX = r.u(720)
+        let lineX = w - r.u(326), noteX = r.u(720), pillX = w - r.u(306)
         return Node.group {
-            nightGround(w: w, h: h, corner: r.u(18))
+            nightGround(w: w, h: h, corner: r.u(18), footY: r.u(102))
             Node.say(L("Tonight"), r.u(25), r.u(12), r.u(200), r.u(34), size: r.f(23, min: 15), weight: "semibold")
             if times.count == 3 {
                 Node.path(arc, stroke: .adaptive(light: "#7A5AB8", dark: "#D6C6F2"), lineWidth: 1.3, dash: [1.5, 5]).size(w, h).at(0, 0)
@@ -348,11 +356,11 @@ enum PrayerPage {
                 let sun = item.event == .imsak
                 Node.glow(sun ? .hex("#F6B45C") : .hex("#8C7AE6"), cx: x, cy: r.u(77), r: glyph * 1.1)
                 Node.symbol(sun ? "sun.max.fill" : "moon.fill", color: sun ? .hex("#F6C04C") : .adaptive(light: "#7A5AB8", dark: "#D6C6F2")).size(glyph, glyph).at(x - glyph / 2, r.u(77) - glyph / 2)
-                Node.say(item.name, x - r.u(100), r.u(102), r.u(200), r.u(26), size: r.f(18, min: 12), color: sun ? Noor.warm : Noor.text, align: "center")
-                Node.say(ctx.t(item.at), x - r.u(100), r.u(127), r.u(200), r.u(30), size: r.f(21, min: 13), color: sun ? Noor.warm : Noor.text, align: "center", tabular: true)
+                Node.say(item.name, x - r.u(100), r.u(102), r.u(200), r.u(26), size: r.f(18, min: 12), color: sun ? nightWarm : Noor.text, align: "center")
+                Node.say(ctx.t(item.at), x - r.u(100), r.u(127), r.u(200), r.u(30), size: r.f(21, min: 13), color: sun ? nightWarm : Noor.text, align: "center", tabular: true)
             }
             if times.isEmpty {
-                Node.say(manual ? L("This timetable lists prayers only, so it has no night times.") : L("No night times for this date."), r.u(25), r.u(66), r.u(640), r.u(56), size: r.f(17, min: 12), color: Noor.muted, lines: 2)
+                Node.say(manual ? L("This timetable lists prayers only, so it has no night times.") : L("No night times for this date."), r.u(66), r.u(104), r.u(600), r.u(56), size: r.f(17, min: 12), color: Noor.muted, lines: 2)
             }
             Node.rect(fill: Noor.faint).size(1, r.u(50)).at(noteX - r.u(26), r.u(118))
             if manual {
@@ -361,11 +369,11 @@ enum PrayerPage {
                 Node.say(L("Night times follow your selected convention."), noteX, r.u(112), lineX - noteX - r.u(16), r.u(60), size: r.f(16, min: 11.5), color: Noor.muted, lines: 2)
             }
             Node.rect(fill: Noor.faint).size(1, r.u(80)).at(lineX, r.u(77))
-            Node.pill("reminders", label: L("Set reminders"), x: w - r.u(295), y: r.u(53), w: r.u(244), h: r.u(47), symbol: "bell", filled: true, size: r.f(19, min: 13))
+            Node.pill("reminders", label: L("Set reminders"), x: pillX, y: r.u(53), w: r.u(244), h: r.u(47), symbol: "bell", filled: true, size: r.f(19, min: 13))
             if manual {
-                Node.pill("source", label: L("Source details"), x: w - r.u(295), y: r.u(114), w: r.u(244), h: r.u(47), symbol: "slider.horizontal.3", size: r.f(19, min: 13))
+                Node.pill("source", label: L("Source details"), x: pillX, y: r.u(114), w: r.u(244), h: r.u(47), symbol: "slider.horizontal.3", size: r.f(19, min: 13))
             } else {
-                Node.pill("details", label: L("Calculation details"), x: w - r.u(295), y: r.u(114), w: r.u(244), h: r.u(47), symbol: "slider.horizontal.3", size: r.f(19, min: 13))
+                Node.pill("details", label: L("Calculation details"), x: pillX, y: r.u(114), w: r.u(244), h: r.u(47), symbol: "slider.horizontal.3", size: r.f(19, min: 13))
             }
         }
         .size(w, h)
@@ -377,15 +385,15 @@ enum PrayerPage {
         let manual = ctx.snapshot.source?.kind == .manual
         let step = w / 3
         return Node.group {
-            nightGround(w: w, h: h, corner: 16, mosqueAt: 0.8, horizon: 0.5, side: 64)
+            nightGround(w: w, h: h, corner: 16, mosqueAt: 0.7, footY: 74, corners: 64)
             Node.say(L("Tonight"), 18, 10, 200, 28, size: 18, weight: "semibold")
             for (i, item) in times.enumerated() {
                 let x = step * (Double(i) + 0.5)
                 let sun = item.event == .imsak
                 Node.glow(sun ? .hex("#F6B45C") : .hex("#8C7AE6"), cx: x, cy: 58, r: 22)
                 Node.symbol(sun ? "sun.max.fill" : "moon.fill", color: sun ? .hex("#F6C04C") : .adaptive(light: "#7A5AB8", dark: "#D6C6F2")).size(22, 22).at(x - 11, 47)
-                Node.say(item.name, x - step / 2 + 4, 76, step - 8, 36, size: 13, color: sun ? Noor.warm : Noor.text, align: "center", lines: 2)
-                Node.say(ctx.t(item.at), x - step / 2 + 4, 112, step - 8, 26, size: 16, color: sun ? Noor.warm : Noor.text, align: "center", tabular: true)
+                Node.say(item.name, x - step / 2 + 4, 76, step - 8, 36, size: 13, color: sun ? nightWarm : Noor.text, align: "center", lines: 2)
+                Node.say(ctx.t(item.at), x - step / 2 + 4, 112, step - 8, 26, size: 16, color: sun ? nightWarm : Noor.text, align: "center", tabular: true)
             }
             if manual {
                 MosqueFocus.sourceWords(ctx, x: 18, y: 146, w: w - 36, h: 42, size: 12.5)
@@ -401,6 +409,13 @@ enum PrayerPage {
         }
         .size(w, h)
     }
+}
+
+extension Node {
+    /// The host moves a picture to the other side in a language that reads right to left, but draws it as it is: lattice cut to fit one corner needs turning to fit the other.
+    func turnsWithWords() -> Node { Language.rightToLeft ? scale(x: -1, y: 1) : self }
+    /// The same for a piece already turned to fit another corner. The host turns a rotation the other way itself, and its flip comes after the rotation, so this one is sent backwards.
+    func turned(_ degrees: Double) -> Node { Language.rightToLeft ? rotate(-degrees).scale(x: -1, y: 1) : rotate(degrees) }
 }
 
 /// P03: a mosque's timetable while the moment isn't simply "the next start": between a start and its iqamah, and once the day's last prayer has begun. Start and congregation stay separate, nothing is inferred, and tomorrow is named only if the timetable has it.
@@ -439,7 +454,7 @@ enum MosqueFocus {
             "full": .go(Go(set: ["full": true])),
             "source": .go(Go(set: ["sheet": "prefs", "section": "sources"], push: true)),
         ]
-        for prayer in PrayerID.allCases { acts["col.\(prayer.rawValue)"] = .go(Go(set: ["full": true, "select": prayer.rawValue])) }
+        for prayer in PrayerID.allCases { acts["col-\(prayer.rawValue)"] = .go(Go(set: ["full": true, "select": prayer.rawValue])) }
         let scene = ctx.narrow ? narrow(ctx, hold, day: day) : wide(ctx, hold, day: day)
         return .scene(PageSceneBlock(scene, acts: acts))
     }
@@ -469,7 +484,7 @@ enum MosqueFocus {
         let v = outer >= 702 ? min(max(1, outer / 1020), 1.3) : outer / 702
         let u: (Double) -> Double = { $0 * v }
         let f: (Double, Double) -> Double = { max($0 * v, $1) }
-        let headH = u(60), frameH = u(366), stripH = u(190)
+        let headH = u(60), frameH = u(390), stripH = u(196)
         let frameW = outer - u(12)
         let total = headH + frameH + stripH + u(8)
         let panel = coming(s, day: day, hold: hold)
@@ -566,18 +581,19 @@ enum MosqueFocus {
 
     /// The panel: lattice all across, one arch cut out of it at any proportion, the card and the way to the whole ledger on its right.
     private static func dialPanel(_ ctx: Context, _ hold: Hold, day: PrayerDay, coming: (id: PrayerID, at: Date, iqamah: Date?, tomorrow: Bool)?, w: Double, h: Double, u: (Double) -> Double, f: (Double, Double) -> Double) -> Node {
-        let archW = h * 1.17, archH = h + u(10)
-        let cx = max(archW / 2 + u(14), w * 0.34), archX = cx - archW / 2, radius = h * 0.395, cy = h * 0.565
-        let cardW = min(u(310), w - archX - archW - u(36)), cardH = u(250), cardX = w - cardW - u(18)
+        // Two thirds of the panel, as P03: the ring fills the arch's height and what comes next stands beside it, over the lattice.
+        let archW = w * 0.655, archH = h + u(10), archX = u(14), radius = h * 0.41, cy = h * 0.56
+        let cardX = w * 0.715, cardW = w - cardX - u(8), cardY = h * 0.13, cardH = h * 0.62
+        let pillX = w * 0.68, pillW = w - pillX - u(8)
         let side = h * 0.2
         return Node.group {
             PrayerPage.latticeField(w: w, h: h, corner: u(12))
-            PrayerPage.archWindow(w: archW, h: archH, lift: archH * 0.32, spandrel: side).at(archX, h - archH)
+            PrayerPage.archWindow(w: archW, h: archH, lift: archH * 0.36, spandrel: side).at(archX, h - archH)
             Node.rect(stroke: Noor.inlay, lineWidth: 1, corner: u(12)).size(w, h).opacity(0.6)
             // A box the arch's width, so in Arabic the place moves with the arch while the ring stays as it is.
             dialMarks(ctx, day: day, cx: archW / 2, cy: cy, radius: radius, w: archW, h: h, f: f, u: u).at(archX, 0)
-            card(ctx, hold, coming: coming, w: cardW, h: cardH, u: u, f: f).at(cardX, u(24))
-            Node.pill("full", label: L("View full prayer times"), x: cardX, y: u(24) + cardH + u(16), w: cardW, h: u(48), symbol: "chevron.forward", size: f(16, 12.5))
+            card(ctx, hold, coming: coming, w: cardW, h: cardH, u: u, f: f).at(cardX, cardY)
+            Node.pill("full", label: L("View full prayer times"), x: pillX, y: cardY + cardH + u(14), w: pillW, h: u(50), symbol: "chevron.forward", size: f(16, 12.5))
         }
         .size(w, h)
     }
@@ -594,7 +610,7 @@ enum MosqueFocus {
         return Node.group {
             Node.panel(w, h, corner: u(16), fill: Noor.surface, line: Noor.edge)
             Node.group {
-                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(h - bodyY, h - bodyY).at(w - h + bodyY, bodyY + 1).opacity(0.9)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(h - bodyY, h - bodyY).at(w - h + bodyY, bodyY + 1).opacity(0.9).turnsWithWords()
             }
             .size(w, h).corner(u(16)).clip()
             Node.say(heading, inset, 0, w - inset * 2, bodyY - 2, size: f(18, 13.5), weight: "medium")
@@ -660,34 +676,33 @@ enum MosqueFocus {
         let spoken = L("{prayer}, starts {time}", ["prayer": Words.prayer(id), "time": ctx.t(start)]) + (iqamah.map { ", " + L("iqamah {time}", ["time": ctx.t($0)]) } ?? "")
         return Node.group {
             if held {
-                Node.rect(stroke: Noor.pickedEdge, lineWidth: 1, corner: u(12)).gradient([.adaptive(light: "#EDE4F7", dark: "#4A347F"), .adaptive(light: "#E2D5F2", dark: "#2F2558")]).size(w, u(90)).at(0, u(4))
+                // One plate: the bright part names it, the quiet part under it spells out its two times.
+                Node.rect(fill: Noor.quiet, stroke: Noor.pickedEdge, lineWidth: 1, corner: u(12)).size(w, h - u(6)).at(0, u(3))
+                Node.rect(stroke: Noor.pickedEdge, lineWidth: 1, corner: u(12)).gradient([.adaptive(light: "#EDE4F7", dark: "#4A347F"), .adaptive(light: "#E2D5F2", dark: "#2F2558")]).size(w, u(90)).at(0, u(3))
             }
             Node.glow(color, cx: w / 2, cy: u(26), r: dot * 1.2)
             Node.ellipse(fill: color, stroke: .hex("#FFFFFF"), lineWidth: 2).size(dot, dot).at(w / 2 - dot / 2, u(26) - dot / 2)
             Node.say(Words.prayer(id), 2, u(40), w - 4, u(26), size: f(16, 12), color: held ? Noor.accent : Noor.text, align: "center")
             Node.say(held ? "\(ctx.t(start)) / \(iqamah.map(ctx.t) ?? "—")" : ctx.t(start), 2, u(62), w - 4, u(28), size: f(18, 12.5), color: held ? Noor.warm : Noor.text, align: "center", tabular: true)
             if held {
-                Node.say(L("Starts {time}", ["time": ctx.t(start)]), 4, u(96), w * 0.48 - 4, u(30), size: f(14, 10.5), color: Noor.muted, align: "center")
-                if let iqamah { Node.say(L("Iqamah {time}", ["time": ctx.t(iqamah)]), w * 0.5, u(96), w * 0.5 - 4, u(30), size: f(14, 10.5), color: Noor.muted, align: "center") }
+                Node.say(L("Starts {time}", ["time": ctx.t(start)]), 4, u(93), w * 0.48 - 4, h - u(96) - u(3), size: f(14, 11), color: Noor.muted, align: "center")
+                if let iqamah { Node.say(L("Iqamah {time}", ["time": ctx.t(iqamah)]), w * 0.5, u(93), w * 0.5 - 4, h - u(96) - u(3), size: f(14, 11), color: Noor.muted, align: "center") }
             }
         }
         .size(w, h)
-        .area("col.\(id.rawValue)", label: spoken, hover: .init(scale: 1.0))
+        .area("col-\(id.rawValue)", label: spoken, hover: .init(scale: 1.0))
     }
 
     /// P03's second strip: the last prayer's start and iqamah, then the night, then tomorrow's Fajr if there is one.
     private static func nightStrip(_ ctx: Context, _ last: PrayerID, day: PrayerDay, coming: (id: PrayerID, at: Date, iqamah: Date?, tomorrow: Bool)?, w: Double, h: Double, u: (Double) -> Double, f: (Double, Double) -> Double) -> Node {
         let line = sourceLine(ctx)
-        let y = u(68), x0 = w * 0.07, x1 = w * 0.27, end = w - u(70), artH = w / 2.78
+        let y = u(72), x0 = w * 0.07, x1 = w * 0.27, end = w - u(70)
         let start = day.starts[last]!, iqamah = day.iqamah[last]
         let solidTo = iqamah == nil ? x0 : x1
         return Node.group {
             Node.panel(w, h, corner: u(16))
-            Node.group {
-                Node.image("art/hero-l.jpg", dark: "art/hero-d.jpg", fit: "fill").size(w, artH).at(0, y + u(12) - artH * 0.78).opacity(0.85)
-                Node.rect().gradient([.adaptive(light: "#F7F3FBB0", dark: "#0C0F2CB0"), .adaptive(light: "#F7F3FB10", dark: "#0C0F2C10"), .adaptive(light: "#FBF9FDFF", dark: "#11153AFF")]).size(w, h)
-            }
-            .size(w, h).corner(u(16)).clip()
+            // The hills end at the line, so every word below it stands on quiet ground.
+            PrayerPage.nightArt(w: w, h: h, mosqueAt: 0.8, footY: y + u(4), across: w * 1.34, corner: u(16))
             Node.rect(stroke: Noor.inlay, lineWidth: 1, corner: u(16)).size(w, h).opacity(0.75)
             Node.say(L("Tonight and tomorrow"), u(26), u(2), w * 0.5, u(38), size: f(21, 14), weight: "semibold")
             Node.group {
@@ -710,7 +725,7 @@ enum MosqueFocus {
                     Node.say(L("{prayer} starts", ["prayer": Words.prayer(coming.id)]), 0, u(20), u(190), u(20), size: f(14.5, 11), align: "trailing")
                     Node.say(ctx.t(coming.at), 0, u(38), u(190), u(24), size: f(16.5, 12), align: "trailing", tabular: true)
                 }
-                .size(u(190), u(64)).at(w - u(20) - u(190), y + u(14))
+                .size(u(190), u(64)).at(w - u(20) - u(190), y + u(12))
             }
             Node.group {
                 Node.rect(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1, corner: u(12)).size(w - u(40), u(36))
