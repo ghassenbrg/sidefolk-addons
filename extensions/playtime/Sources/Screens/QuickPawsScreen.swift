@@ -121,10 +121,12 @@ enum QuickPawsScreen: GameScreen {
             : L("You {you} · {name} {companion}", ["you": ms(g.lastYouMs ?? 0), "name": o.companion, "companion": ms(g.lastCompanionMs ?? 0)])
         var parts: [BoardPart] = [
             ScreenKit.score(g.score, rounds: Games.QuickPaws.target),
-            .prompt(s.round != nil || g.lastCompanionMs == nil ? L("Boop the button the moment it says Boop!")
-                        : g.lastYouMs.map { $0 <= g.lastCompanionMs! } == true ? L("You were quicker!") : L("{name} was quicker.", ["name": o.companion]),
+            .prompt(s.round != nil ? (s.number == 1 ? L("Boop the button the moment it says Boop!") : L("Steady…"))
+                        : s.early ? L("Pressed before Boop! That round goes to {name}.", ["name": o.companion])
+                        : g.lastYouMs == nil ? L("Too slow! That round goes to {name}.", ["name": o.companion])
+                        : g.lastYouMs.map { $0 <= g.lastCompanionMs ?? 0 } == true ? L("You were quicker!") : L("{name} was quicker.", ["name": o.companion]),
                     eyebrow: L("Round {n} · {level}", ["n": s.number, "level": ScreenKit.level(g.level)])),
-            .play(.reflex(afterMs: s.round?.waitMs, windowMs: s.round?.windowMs ?? Games.QuickPaws.window, wait: L("Steady…"), go: L("Boop!"),
+            .play(.reflex(afterMs: s.round?.waitMs, windowMs: s.round?.windowMs ?? Games.QuickPaws.window, wait: L("Wait for it…"), go: L("Boop!"),
                           early: L("Too soon!"), shows: shows)),
         ]
         if let best = g.best { parts.append(.facts([(L("Your best"), ms(best))])) }
@@ -138,6 +140,6 @@ enum QuickPawsScreen: GameScreen {
         if events.contains(.opened) || events == [.turn(.you)] { cue = Cue(move: "ready", line: events.contains(.opened) ? "hello" : nil, look: "panel") }
         // Between rounds Sidefolk waits a moment on the times, then asks for the next round.
         let between = s.round == nil && !g.over
-        return Board(parts, companion: cue, over: g.over, afterMs: between ? 1800 : nil)
+        return Board(parts, companion: cue, over: g.over, afterMs: between ? 2200 : nil)
     }
 }

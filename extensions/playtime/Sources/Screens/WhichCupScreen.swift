@@ -115,8 +115,8 @@ enum WhichCupScreen: GameScreen {
             else if s.lifted, s.gemAt == nil { L("It was in {name}'s paw all along!", ["name": o.companion]) }
             else if s.lifted { s.gemAt == s.picked ? L("Found it!") : L("Not that one.") }
             else if g.accused { L("Nothing in my paw! It's under a cup.") }
-            else if g.sneaky { L("Keep your eye on the gem… which cup? Think I'm hiding it? Click me.") }
-            else { L("Keep your eye on the gem… which cup?") }
+            else if g.sneaky { L("Where's the gem? Think I'm hiding it? Click me.") }
+            else { L("Where's the gem?") }
         var parts: [BoardPart] = [
             ScreenKit.score(g.score),
             .prompt(prompt, eyebrow: L("Round {n} of {total} · {level}", ["n": round, "total": Games.WhichCup.rounds, "level": ScreenKit.level(g.level)])),

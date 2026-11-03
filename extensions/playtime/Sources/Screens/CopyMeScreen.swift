@@ -69,10 +69,13 @@ enum CopyMeScreen: GameScreen {
     /// Each pad's shape and colour, the companion's move, and Sidefolk's picture of that move (a waving hand, a hopping
     /// bunny…), drawn instead of the shape where Sidefolk has it.
     static let looks: [Games.CopyMe.Pad: (shape: String, color: String, move: String, art: String)] = [
-        .wave: ("circle", "blue", "accent:wave", "wave"), .hop: ("triangle", "green", "accent:hop", "hop"),
-        .spin: ("star", "yellow", "accent:spin", "spin"), .bow: ("square", "red", "accent:bow", "bow"),
-        .otherWave: ("diamond", "purple", "accent:wave", "wave_both"),
+        .wave: ("circle", "purple", "accent:wave", "wave"), .hop: ("triangle", "blue", "accent:hop", "hop"),
+        .spin: ("star", "red", "accent:spin", "spin"), .bow: ("square", "yellow", "accent:bow", "bow"),
+        .otherWave: ("diamond", "green", "accent:wave", "wave_both"),
     ]
+
+    /// The quickest a dance is shown: the engine's tempo keeps rising, but a pad lit for less than this can't be followed.
+    static func paced(_ stepMs: Int) -> Int { max(stepMs, 340) }
 
     static func name(_ pad: Games.CopyMe.Pad) -> String {
         switch pad {
@@ -95,9 +98,10 @@ enum CopyMeScreen: GameScreen {
         var parts: [BoardPart] = [
             .prompt(g.phase == .over ? L("Oops, that one was wrong!") : replay ? L("Watch {name}, then copy.", ["name": o.companion]) : L("Your turn: copy it."),
                     eyebrow: L(one: "{count} move · {level}", other: "{count} moves · {level}", count: g.length, ["level": ScreenKit.level(g.level)])),
-            .play(.pads(pads, play: replay ? g.sequence.map { s in g.pads.firstIndex(of: s)! } : [], stepMs: g.stepMs, locked: g.phase == .over)),
+            .play(.pads(pads, play: replay ? g.sequence.map { s in g.pads.firstIndex(of: s)! } : [], stepMs: paced(g.stepMs), locked: g.phase == .over, length: g.length, done: replay ? 0 : g.position)),
         ]
         if g.copied == 0, g.phase != .over { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
+        else if best > 0, g.phase != .over { parts.append(.facts([(L("Your best"), Format.integer(best))])) }
         if g.phase == .over {
             parts.append(ScreenKit.result(s.record ? .won : .draw, figure: Format.integer(g.copied),
                                           line: s.record ? L(one: "A new best: {count} move!", other: "A new best: {count} moves!", count: g.copied) : L(one: "You copied {count} move.", other: "You copied {count} moves.", count: g.copied),

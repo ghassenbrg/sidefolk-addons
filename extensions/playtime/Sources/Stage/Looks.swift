@@ -37,7 +37,7 @@ struct Look {
     static let quiz = Look(name: "quiz", top: .hex("#6B7BFF"), bottom: .hex("#4A55D9"))
     static let grid = Look(name: "grid", top: .hex("#22C2B0"), bottom: .hex("#0E9384"))
     static let dance = Look(name: "dance", top: .hex("#3FCB74"), bottom: .hex("#1F9E52"))
-    static let arcade = Look(name: "arcade", top: .hex("#3A2380"), bottom: .hex("#1D1450"), chip: .hex("#3E6FE8"), night: true)
+    static let arcade = Look(name: "arcade", top: .hex("#3A2380"), bottom: .hex("#1D1450"), chip: .hex("#3E6FE8"))
     static let cups = Look(name: "cups", top: .hex("#F4626A"), bottom: .hex("#D6404B"), chip: .hex("#3E6FE8"))
     static let numbers = Look(name: "numbers", top: .hex("#FF9447"), bottom: .hex("#E8691C"), chip: .hex("#2C8BD6"))
     static let animals = Look(name: "animals", top: .hex("#7DBD45"), bottom: .hex("#4F9128"))

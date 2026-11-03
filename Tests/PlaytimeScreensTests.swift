@@ -176,7 +176,7 @@ import Testing
         let pressed = GameTable.play(QuickPawsScreen.self, .press(milliseconds: 100), on: &s, random: &random)
         #expect(s.game.lastCompanionMs == companion && pressed.contains(.point(.you)))
         let after = QuickPawsScreen.board(s, events: pressed, options: Self.options())
-        #expect(after.afterMs == 1800 && (Self.part(after, "reflex")?["shows"] as? String)?.seen.contains("100 ms") == true)
+        #expect(after.afterMs == 2200 && (Self.part(after, "reflex")?["shows"] as? String)?.seen.contains("100 ms") == true)
     }
 
     @Test func whichCupsGemIsWhereTheSwapsLeaveIt() throws {
@@ -201,7 +201,7 @@ import Testing
         let board = WhichCupScreen.board(s, events: [.opened], options: sneaky)
         let check = try #require(Self.parts(board).first { $0["move"] as? String == "accuse" })
         #expect(check["companion"] as? Bool == true && check["key"] as? String == "c" && check["disabled"] == nil)
-        #expect(Self.part(board, "prompt")?["text"] as? String == L("Keep your eye on the gem… which cup? Think I'm hiding it? Click me."))
+        #expect(Self.part(board, "prompt")?["text"] as? String == L("Where's the gem? Think I'm hiding it? Click me."))
         var seen: Set<String> = []
         for _ in 0..<20 where !s.game.over {
             let events = GameTable.play(WhichCupScreen.self, .button("accuse"), on: &s, random: &random)

@@ -100,6 +100,11 @@ enum LastStickScreen: GameScreen {
             winner == .you ? L("{name} took the last stick. You win!", ["name": o.companion]) : L("You took the last stick.")
         } else if g.turn == .companion {
             L("{name} counts… {n} left.", ["name": o.companion, "n": g.left])
+        } else if g.left == 1 {
+            L("One left, and it's yours to take.")
+        } else if s.takenBy == .companion {
+            // Said as the rods go to it, so its take can't be missed.
+            L("{name} took {n}. Your turn.", ["name": o.companion, "n": s.taken])
         } else {
             L("Take 1, 2 or 3. Don't take the last one!")
         }
