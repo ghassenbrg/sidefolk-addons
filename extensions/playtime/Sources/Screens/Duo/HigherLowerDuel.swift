@@ -125,9 +125,8 @@ struct HigherLowerDuel: Codable, Equatable {
                 else if let last { last < game.low ? L("Higher than {n}!", ["n": last]) : L("Lower than {n}!", ["n": last]) }
                 else { L("{name}, find {other}'s number.", ["name": d.name(duel.guesser), "other": d.name(duel.hider)]) }
             parts.append(.prompt(text, eyebrow: round + " · " + L("Guess {n} · par {par}", ["n": game.guesses.count + (game.found ? 0 : 1), "par": game.par])))
-            if last != nil, !game.found {
-                parts.append(.play(.meter(game.warmth, label: HigherLowerScreen.warmth(game.warmth), low: L("Cold"), high: L("Hot"))))
-            }
+            parts.append(.play(.counter(last.map(Format.integer), caption: L("Last guess"))))
+            parts.append(.play(.meter(game.warmth, label: last == nil ? nil : HigherLowerScreen.warmth(game.warmth), low: L("Cold"), high: L("Hot"))))
             let history = game.guesses.map { g -> (Int, String) in (g, g == game.shown ? "right" : g < game.low ? "higher" : "lower") }
             parts.append(.play(.number(min: s.low, max: s.high, label: L("Between {low} and {high}", ["low": game.low, "high": game.high]),
                                        history: history, locked: game.found)))

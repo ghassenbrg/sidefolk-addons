@@ -37,6 +37,8 @@ enum TicTacToeEngine: GameEngine {
             s.fresh = [i]
             s.hint = nil
         case .next:
+            // The last line has been looked at: on to the end card.
+            if s.game.seriesOver { return [] }
             guard !s.duo.on, s.game.turn == .companion, !s.game.gameOver else { throw Games.Refusal("not_now") }
             // Its move is chosen now, from the board as it stands: the person's next move isn't known to it.
             let i = s.game.companionMove(using: &random)
@@ -106,7 +108,10 @@ enum TicTacToeScreen: GameScreen {
                         animate: s.fresh.contains(i) ? "stamp" : nil)
         }
         let thinking = events.compactMap { if case .think(let ms) = $0 { ms } else { nil } }.first
-        let status: String = if g.gameOver {
+        // The series was just won: the board stays a moment with its line and its score, and the end card comes after that.
+        let lastLine = events.contains { if case .matchOver = $0 { true } else { false } }
+        let status: String = if let refused = ScreenKit.refused(events) { refused }
+            else if g.gameOver {
             winner == .you ? L("You win this game!") : winner == .companion ? L("{name} wins this game.", ["name": o.companion]) : L("Cat's game: a draw.")
         } else if g.turn == .you {
             L("Your turn: you're X.")
@@ -118,20 +123,31 @@ enum TicTacToeScreen: GameScreen {
             .prompt(status, eyebrow: L("Game {n} · {level}", ["n": s.number, "level": ScreenKit.level(g.level)])),
             .board(rows: 3, columns: 3, cells: cells, locked: g.gameOver || g.turn != .you, numpad: true),
         ]
-        if let note = ScreenKit.refusal(events) { parts.append(note) }
-        if s.number == 1, g.cells.allSatisfy({ $0 == nil }) { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
-        if let outcome = TicTacToeEngine.outcome(of: s) {
+        let untouched = s.number == 1 && g.cells.allSatisfy { $0 == nil }
+        if untouched { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
+        if let outcome = TicTacToeEngine.outcome(of: s), !lastLine {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.series.you)) – \(Format.integer(g.series.companion))",
-                                          companion: o.companion))
+                                          companion: o.companion, margin: g.series.you - g.series.companion))
             parts.append(ScreenKit.levels(g.level))
         } else if g.gameOver {
-            parts.append(.button(GameButton(L("Next game"), move: "again", style: .primary, symbol: "arrow.right")))
-        } else if g.turn == .you, !g.hintUsed {
-            parts.append(.button(GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h")))
+            if !g.seriesOver {
+                parts.append(.button(GameButton(L("Next game"), move: "again", style: .primary, symbol: "arrow.right")))
+            } else {
+                // The series' last line, a moment before its card: the Hint keeps its place and look until then.
+                var hint = GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h", disabled: true)
+                hint.waiting = true
+                parts.append(.button(hint))
+            }
+        } else {
+            // In its place all game: faded while it can't be pressed.
+            var hint = GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h", disabled: g.turn != .you || g.hintUsed)
+            hint.waiting = g.turn != .you && !g.hintUsed
+            parts.append(.button(hint))
         }
         var cue = EventCues.cue(events)
         if let hint = s.hint, events.contains(.hint) { cue?.look = [hint / 3, hint % 3] }
         if let at = s.fresh.first, thinking == nil, g.turn == .you, !g.gameOver, events.contains(.turn(.you)) { cue?.look = [at / 3, at % 3] }
-        return Board(parts, companion: cue, over: TicTacToeEngine.outcome(of: s) != nil, afterMs: thinking)
+        return Board(parts, companion: cue, over: TicTacToeEngine.outcome(of: s) != nil && !lastLine, afterMs: lastLine ? 1100 : thinking.map { max($0, 900) },
+                     turn: g.gameOver ? nil : g.turn == .you ? "you" : "companion")
     }
 }

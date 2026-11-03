@@ -1,112 +1,125 @@
 import Foundation
 import SidefolkExtensionKit
 
-// "You vs <companion>" (ScoreBar): both faces and names, the score large or round pips for a match, a streak, and the
-// companion's sealed pick, on one card over the scene. It mirrors in right-to-left languages like everything else.
+// The top of every game, in the same places on every board: its icon and title, you against the companion, and the round between two hairlines. Quiet: the board is
+// what matters. Mirrors in right-to-left languages like everything else.
 extension BoardDrawing {
-    func scoreBar() -> PartBlock {
-        let score = board.scorePart
-        let width = Self.inner, gap = 4.0
-        let hasPoints = score != nil
-        let sideH = hasPoints ? (score?.rounds != nil ? 6 + 16 + 19.0 : 6 + 16 + 27.0) : 44.0
-        let height = max(sideH, 44) + 8
-        let markW = 42.0 + TextFit.width(L("VS"), size: 16, weight: "black") - 22
-        let sideW = (width - 8 - markW - 2 * gap) / 2
-        let two = score?.players
-        return PartBlock(.box("score", w: width, h: height) {
-            Node.gameCard(corner: 19, w: width, h: height).id("score.card")
-            if let two {
-                side("score.you", x: 4, w: sideW, h: height - 8, name: two[0], points: score?.you, rounds: score?.rounds, tint: Paint.players[0], face: initial(two[0], Paint.players[0]))
-            } else {
-                side("score.you", x: 4, w: sideW, h: height - 8, name: L("You"), points: score?.you, rounds: score?.rounds, tint: .win,
-                     face: .box(w: 36, h: 36) {
-                         Node.person().size(36, 36).corner(18).clip()
-                         Node.ellipse(stroke: Paint.white, lineWidth: 2).at(1, 1).size(34, 34)
-                     }, streak: score?.streak)
+    func header() -> PartBlock {
+        let width = Self.inner
+        var y = 0.0
+        var nodes: [Node] = [titleRow(ctx.entry.title, icon: look.icon, width: width)]
+        if let toggle = twoPlayersToggle(width: width) { nodes.append(toggle) }
+        y += 36
+        if board.scorePart != nil {
+            nodes.append(scoreRow(width: width).at(0, y))
+            y += 34
+        }
+        if !ended, let meta = metaRow(width: width) {
+            nodes.append(meta.at(0, y))
+            y += 22
+        }
+        if isStall {
+            // The balloons hang from the rail painted in the stall; the companion's bubble comes after them, so the stage stands in the stall.
+            if let rail = board.play({ part -> PartBlock? in if case .lives(let total, let left, let symbol) = part { lives(total: total, left: left, symbol: symbol) } else { nil } }) {
+                nodes.append(rail.node.at((width - Self.balloonRailW) / 2, Self.railY - 4))
             }
-            versus(x: 4 + sideW + gap, y: 4, w: markW, h: height - 8)
-            if let two {
-                side("score.other", x: 4 + sideW + gap + markW + gap, w: sideW, h: height - 8, name: two[1], points: score?.companion, rounds: score?.rounds, tint: Paint.players[1],
-                     face: initial(two[1], Paint.players[1]))
-            } else {
-                side("score.other", x: 4 + sideW + gap + markW + gap, w: sideW, h: height - 8, name: "{companion}", points: score?.companion, rounds: score?.rounds, tint: .loss,
-                     face: .faceDisc(x: 0, y: 0, side: 36).shadow(Paint.black15, radius: 2, dx: 0, dy: 1), sealed: score?.picked == true)
-            }
-        }, height: height)
+            y = Self.stallStageY - 4
+        }
+        return PartBlock(.box("header", w: width, h: y) { nodes }, height: y)
     }
 
-    private func side(_ id: String, x: Double, w: Double, h: Double, name: String, points: Int?, rounds: Int?, tint: Color, face: Node, streak: Int? = nil, sealed: Bool = false) -> Node {
-        let nameX = 7 + 36 + 8.0
-        var trailing = 7.0
-        var extras: [Node] = []
-        if let streak, streak >= 2 {
-            // A streak is the person's winning run: success, with its flame.
-            let words = Format.integer(streak), pill = TextFit.width(words, size: 12, weight: "heavy") + 14 + 14
-            extras.append(.box(id + ".streak", x: w - 7 - pill, y: (h - 22) / 2, w: pill, h: 22) {
-                Node.capsule(fill: .successSoft).size(pill, 22)
-                Node.symbol("flame.fill", color: .win).symbolLook(weight: "heavy").at(6, 5).size(12, 12)
-                Node.words(words, size: 12, weight: "heavy", x: 20, w: pill - 24, h: 22).textLook(tabular: true)
-            }.label(L("{n} in a row", ["n": streak])))
-            trailing += pill + 4
-        }
-        if sealed {
-            extras.append(sealedCard(x: w - 7 - 22, y: (h - 30) / 2).label(L("{name} has picked", ["name": "{companion}"])))
-            trailing += 26
-        }
-        let room = w - nameX - trailing
-        return Node.box(id, x: x, y: 4, w: w, h: h) {
-            Node.rect(fill: Paint.inset, corner: 15).id(id + ".inset").size(w, h)
-            face.at(7, (h - 36) / 2)
-            Node.words(name, size: 13, weight: "heavy", x: nameX, y: points == nil ? 0 : 3, w: room, h: points == nil ? h : 16)
-            if let points {
-                if let rounds {
-                    Node.box(id + ".pips", x: nameX, y: 23, w: room, h: 11) {
-                        for i in 0..<rounds {
-                            Node.ellipse(fill: i < points ? tint : .line, stroke: i < points ? Paint.clear("#FFFFFF", 0.6) : nil, lineWidth: 1.5).at(Double(i) * 15, 0).size(11, 11)
-                        }
-                    }.label(Format.integer(points))
-                } else {
-                    Node.words(Format.integer(points), size: 22, weight: "black", x: nameX, y: 19, w: room, h: 27).textLook(tabular: true).id(id + ".points")
-                }
-            }
-            extras
+    /// Where the stall's scene paints its rail, and where its stage stands: under the balloons.
+    static let railY = 183.0, stallStageY = 244.0
+
+    /// Playing a friend on this Mac: a small quiet switch at the end of the title, before a game has started. No concept has a control for it on the board, and none is needed there.
+    private func twoPlayersToggle(width: Double) -> Node? {
+        guard !ended, let who = board.choicePart("opponent") else { return nil }
+        let on = who.selected == "two"
+        let other = who.options.first { $0.value != who.selected } ?? who.options[0]
+        let w = 36.0, h = 26.0
+        return Node.box("who", x: width - w, y: 4, w: w, h: h) {
+            Node.capsule(fill: on ? Paint.action : Paint.card(0.85), stroke: on ? nil : Paint.edge, lineWidth: 1).id("who.back").size(w, h)
+            Node.symbol("person.2.fill", color: on ? Paint.onAction : Paint.inkSoft).symbolLook(weight: "bold").id("who.mark").at((w - 20) / 2, (h - 15) / 2).size(20, 15)
+        }.area("choice", value: "opponent|\(other.value)", label: other.label, hover: AreaLook(scale: 1.06), press: AreaLook(scale: 0.94), selected: on, always: playing, sound: "sounds/tap.wav")
+    }
+
+    /// The game's one icon beside its name, centred together.
+    func titleRow(_ title: String, icon: String, width: Double) -> Node {
+        let iconSide = 40.0, room = width - iconSide - 8 - 76
+        let wordsW = Swift.min(TextFit.width(title, size: 21, weight: "black") + 2, room)
+        let x = (width - iconSide - 8 - wordsW) / 2
+        return .box("title", w: width, h: 34) {
+            Node.art(icon, x: x, y: -3, w: iconSide, h: iconSide).id("title.icon")
+            Node.words(title, size: 21, weight: "black", minScale: 0.7, x: x + iconSide + 8, w: wordsW, h: 34).id("title.words")
         }
     }
 
-    /// A player's first letter on a disc of their colour, for two people playing each other (no picture of either).
-    private func initial(_ name: String, _ color: Color) -> Node {
-        .box(w: 36, h: 36) {
-            Node.ellipse(fill: color).size(36, 36)
-            Node.ellipse(stroke: Paint.white, lineWidth: 2).at(1, 1).size(34, 34)
-            Node.words(name.first.map { String($0).uppercased() } ?? "?", size: 17.3, weight: "heavy", color: Paint.white, align: "center", w: 36, h: 36)
+    /// "You 2 vs {companion} 1": faces, names and numbers, nothing behind them. Two people get their initials in their own colours.
+    private func scoreRow(width: Double) -> Node {
+        guard let score = board.scorePart else { return .box(w: 1, h: 1) {} }
+        let vs = 34.0, side = (width - vs) / 2
+        let two = score.players
+        return .box("score", w: width, h: 32) {
+            scoreSide("score.you", x: 0, w: side, name: two?[0] ?? L("You"), points: score.you, before: ctx.previous?.scorePart?.you, trailing: true,
+                      face: two.map { initial($0[0], Paint.players[0]) } ?? Node.box(w: 28, h: 28) {
+                          Node.person().size(28, 28).corner(14).clip()
+                          Node.ellipse(stroke: Paint.card, lineWidth: 1.5).at(0.75, 0.75).size(26.5, 26.5)
+                      })
+            Node.capsule(fill: Paint.clear("#F2715F", 0.16)).id("score.vs").at(side + 3, 7).size(vs - 6, 18)
+            Node.words(L("VS"), size: 10, weight: "black", color: Paint.coral, align: "center", x: side + 3, y: 7, w: vs - 6, h: 18)
+            scoreSide("score.other", x: side + vs, w: side, name: two?[1] ?? "{companion}", points: score.companion, before: ctx.previous?.scorePart?.companion, trailing: false,
+                      face: two.map { initial($0[1], Paint.players[1]) } ?? Node.faceDisc(x: 0, y: 0, side: 28, ring: 1.5), sealed: two == nil && score.picked && gameTable == nil)
         }
     }
 
-    /// "VS" between the two sides, with a few still sparks either side: the bar's one flourish.
-    private func versus(x: Double, y: Double, w: Double, h: Double) -> Node {
-        let sparks = { (side: Double, flip: Bool) -> Node in
-            // Three short strokes fanning out from the trailing side, drawn once and still.
-            let reach = 11.0, from = (x: 10.0, y: 12.0)
-            var path = ""
-            for angle in [-0.85, 0.0, 0.85] {
-                path += "M \(from.x - cos(angle) * reach * 0.5) \(from.y + sin(angle) * reach * 0.5) L \(from.x - cos(angle) * reach) \(from.y + sin(angle) * reach) "
+    /// One side: `trailing` sits against the middle from the left, the other from the right, so the two read as a pair however long a name is.
+    private func scoreSide(_ id: String, x: Double, w: Double, name: String, points: Int, before: Int?, trailing: Bool, face: Node, sealed: Bool = false) -> Node {
+        let digits = Format.integer(points)
+        let pointsW = Swift.max(TextFit.width(digits, size: 20, weight: "black") + 2, 16)
+        let seal = sealed ? 24.0 : 0
+        let nameW = Swift.min(TextFit.width(name, size: 13, weight: "heavy") + 2, w - 28 - 8 - 6 - pointsW - 4 - seal)
+        let whole = 28 + 6 + nameW + 6 + pointsW + seal
+        let start = trailing ? w - whole - 2 : 2
+        if ctx.fresh, let before, before != points {
+            anims.append(Anim.keys(id + ".points", [["t": 0, "scale": 1.5], ["t": 1, "scale": 1]], ms: 360, ease: "spring").delay(ms: gameTable == nil ? 0 : 320))
+        }
+        // Whose turn it is, on the board two sides take turns on: a navy outline round that side, the same place all game, passing across as the turn does.
+        let turnSide = ctx.buildUp ? ctx.previous?.turn : board.turn
+        return .box(id, x: x, w: w, h: 32) {
+            if board.gridPart != nil {
+                Node.capsule(fill: Paint.card(0.92), stroke: Paint.action, lineWidth: 1.5).id(id + ".turn").at(start - 5, 0.75).size(whole + 9, 30.5).opacity(turnSide == (trailing ? "you" : "companion") ? 1 : 0)
             }
-            let node = Node.path(path, stroke: Paint.sun, lineWidth: 2).at(side, (h - 24) / 2).size(10, 24)
-            return flip ? node.scale(x: -1, y: 1) : node
-        }
-        return Node.box("score.vs", x: x, y: y, w: w, h: h) {
-            sparks(0, false)
-            Node.words(L("VS"), size: 16, weight: "black", color: look.levelChip, align: "center", x: 11, w: w - 22, h: h).textLook(italic: true)
-            sparks(w - 10, true)
+            face.at(start, 2)
+            Node.words(name, size: 13, weight: "heavy", minScale: 0.75, x: start + 34, w: nameW, h: 32)
+            Node.words(digits, size: 20, weight: "black", align: "center", x: start + 34 + nameW + 6, w: pointsW, h: 32).textLook(tabular: true).id(id + ".points")
+            if sealed { Node.art("art/envelope-sealed.webp", x: start + 34 + nameW + 6 + pointsW + 4, y: 7, w: 22, h: 18).id(id + ".sealed").label(L("{name} has picked", ["name": "{companion}"])) }
         }
     }
 
-    /// A small card face down with the companion's face on it: it has picked and isn't telling.
-    private func sealedCard(x: Double, y: Double) -> Node {
-        Node.box("score.sealed", x: x, y: y, w: 22, h: 30) {
-            Node.rect(corner: 5).gradient([Paint.navy, Paint.clear("#0F2D5B", 0.75)], from: (0, 0), to: (1, 1)).size(22, 30)
-            Node.rect(stroke: Paint.clear("#FFFFFF", 0.7), lineWidth: 1.5, corner: 4).at(2, 2).size(18, 26)
-            Node.companion().figure(face: true).at(4, 8).size(14, 14).corner(7).clip()
-        }.rotate(-8).shadow(Paint.black15, radius: 2, dx: 0, dy: 1)
+    func initial(_ name: String, _ color: Color) -> Node {
+        .box(w: 28, h: 28) {
+            Node.ellipse(fill: color).size(28, 28)
+            Node.words(name.first.map { String($0).uppercased() } ?? "?", size: 14, weight: "heavy", color: Paint.white, align: "center", w: 28, h: 28)
+        }
+    }
+
+    /// "Round 1 of 5 · Fair" between two hairlines, a puzzle's clock first.
+    private func metaRow(width: Double) -> Node? {
+        var words = board.promptPart?.eyebrow ?? ""
+        if let chip = board.promptPart?.chip { words += (words.isEmpty ? "" : " · ") + chip }
+        if let rounds = board.scorePart?.rounds { words += (words.isEmpty ? "" : " · ") + L("First to {n}", ["n": rounds]) }
+        let clock = puzzleClockPill()
+        guard !words.isEmpty || clock != nil else { return nil }
+        let textW = Swift.min(TextFit.width(words, size: 12.5, weight: "bold") + 2, width - 40 - (clock.map { $0.width + 8 } ?? 0))
+        let whole = textW + (clock.map { $0.width + 8 } ?? 0)
+        let x = (width - whole) / 2, line = Paint.clear("#A08A70", 0.35)
+        return .box("meta", w: width, h: 20) {
+            if x > 22 {
+                Node.rect(fill: line).id("meta.line.a").at(6, 10).size(x - 16, 1)
+                Node.rect(fill: line).id("meta.line.b").at(x + whole + 10, 10).size(x - 16, 1)
+            }
+            if let clock { clock.node.at(x, 0) }
+            Node.words(words, size: 12.5, weight: "bold", align: "center", minScale: 0.7, x: x + (clock.map { $0.width + 8 } ?? 0), w: textW, h: 20).id("meta.words")
+        }
     }
 }

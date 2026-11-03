@@ -65,18 +65,36 @@ public struct Board {
     /// Sidefolk shows this board so long (100–6000 ms), then asks for the next with `.next`: the companion thinking
     /// before its move, two cards left face up a moment. The game keeps no clock.
     public var afterMs: Int?
+    /// Whose turn it is on a board two sides take turns on: `you` (the first player) or `companion` (the second), nil when nobody's.
+    public var turn: String?
+    /// The move just made was refused: said in the prompt, with a small shake of what was refused.
+    public var refused: Bool
+    /// What the companion's bubble says when the board's own words stand elsewhere (a question on its plaque): something short.
+    public var said: String?
+    /// A puzzle's words with nothing to complain of, for while a click-through cell rests.
+    public var calm: String?
+    /// An end card's big words, when its game's result isn't a win, a loss or a draw between two sides. The tone stays what is recorded; these are only what is shown.
+    public var endTitle: String?
+    /// An end card that is a friendly fact, whatever is recorded: no loss, no draw in how it looks.
+    public var endFriendly = false
+    /// Two people's Rock, Paper, Scissors: the first hand is in. It says that, never which.
+    public var sealedFirst = false
 
-    public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil) {
+    public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil, turn: String? = nil, refused: Bool = false, said: String? = nil) {
         self.parts = parts
         self.companion = companion
         self.over = over
         self.afterMs = afterMs
+        self.turn = turn
+        self.refused = refused
+        self.said = said
     }
 
     public var json: [String: Any] {
         var out: [String: Any] = ["parts": parts.map(\.json), "over": over]
         if let companion { out["companion"] = companion.json }
         if let afterMs { out["after_ms"] = afterMs }
+        if let said { out["said"] = said }
         return out
     }
 }
@@ -225,6 +243,8 @@ public struct GameButton {
     /// Clicking the companion in the game's scene presses it, and Sidefolk draws no button for it (its key and VoiceOver
     /// still press it). A Sidefolk from before this draws it as a plain button.
     public var companion: Bool
+    /// Off only until the other side has moved: it keeps its look, so it doesn't dim and return every turn.
+    public var waiting = false
 
     public init(_ label: String, move: String, style: ButtonStyle = .secondary, symbol: String? = nil, key: String? = nil, disabled: Bool = false,
                 companion: Bool = false) {

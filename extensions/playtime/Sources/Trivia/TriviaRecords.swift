@@ -8,6 +8,8 @@ struct TriviaRecords: Codable, Equatable {
         var topic = "mix"
         var length = 10
         var quick = false
+        /// The level picked on the set-up, when one was.
+        var level: GameLevel?
     }
 
     struct Game: Codable, Equatable {

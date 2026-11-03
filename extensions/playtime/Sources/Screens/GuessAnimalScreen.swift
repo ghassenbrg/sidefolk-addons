@@ -14,10 +14,12 @@ enum GuessAnimalEngine: GameEngine {
         var thinking = false
         var outcome: GameOutcome?
         var learned = false
+        /// The answer picked for the new animal, until Remember keeps it.
+        var newYes: Bool?
     }
 
     enum Action: Equatable {
-        case answer(Games.GuessAnimal.Answer), verdict(Bool), animal(String), question(String), newAnswer(Bool), next, again
+        case answer(Games.GuessAnimal.Answer), verdict(Bool), animal(String), question(String), pickNew(Bool), newAnswer(Bool), skip, next, again
     }
 
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
@@ -47,6 +49,15 @@ enum GuessAnimalEngine: GameEngine {
             guard !q.isEmpty else { throw Games.Refusal("empty") }
             guard q.count <= Games.GuessAnimal.Memory.longestQuestion else { throw Games.Refusal("too_long") }
             s.question = q
+            return []
+        case .pickNew(let yes):
+            guard s.question != nil, s.outcome == nil else { throw Games.Refusal("not_now") }
+            s.newYes = yes
+            return []
+        case .skip:
+            // Not taught: nothing is kept, and the person still won.
+            guard s.game.phase == .teaching, s.outcome == nil else { throw Games.Refusal("not_now") }
+            finish(&s, .won)
             return []
         case .newAnswer(let yes):
             guard let animal = s.animal, let question = s.question else { throw Games.Refusal("not_now") }
@@ -81,7 +92,9 @@ enum GuessAnimalScreen: GameScreen {
         switch move {
         case .answer(let i) where s.game.phase == .asking: [Games.GuessAnimal.Answer.yes, .no, .unsure][safe: i].map { .answer($0) }
         case .answer(let i) where s.game.phase == .guessing: i < 2 ? .verdict(i == 0) : nil
-        case .answer(let i) where s.question != nil: i < 2 ? .newAnswer(i == 0) : nil
+        case .choice("new_answer", let v): .pickNew(v == "yes")
+        case .button("remember"): s.newYes.map { .newAnswer($0) }
+        case .button("skip"): .skip
         case .text("animal", let v): .animal(v)
         case .text("question", let v): .question(v)
         case .next: .next
@@ -96,46 +109,58 @@ enum GuessAnimalScreen: GameScreen {
         var cue = EventCues.cue(events)
         var after: Int?
         let yesNo = [Tile(L("Yes"), key: "y"), Tile(L("No"), key: "n")]
+        // Three answers in three places, whatever is asked: a guess fades the third, and thinking holds them all.
+        let three = yesNo + [Tile(L("Not sure"), key: "?")]
+        var said: String?
         if s.thinking {
             parts.append(.prompt(L("Hmm… let me think again."), eyebrow: L("Question {n}", ["n": g.asked])))
+            parts.append(.answers(three, layout: .row, locked: true))
+            said = L("Hmm… let me think again.")
             after = 900
             cue = Cue(move: "think", prop: "magnifier", line: "thinking", look: "panel")
         } else if let question = g.question {
             parts.append(.prompt(question, eyebrow: L("Question {n} of {total}", ["n": g.asked + 1, "total": Games.GuessAnimal.maxQuestions])))
-            parts.append(.answers(yesNo + [Tile(L("Not sure"), key: "?")], layout: .row))
+            parts.append(.answers(three, layout: .row))
+            said = g.asked == 0 ? L("Think of an animal. I'll try to guess it.") : L("And this one?")
             if events.contains(.opened) { cue = Cue(move: "think", prop: "magnifier", line: "hello", look: "panel") }
             else if cue == nil || events.isEmpty { cue = Cue(move: "think", prop: "magnifier", look: "panel") }
         } else if g.phase == .guessing, let guess = g.guess {
             parts.append(.prompt(L("Is it… {animal}?", ["animal": [guess.emoji, guess.name].filter { !$0.isEmpty }.joined(separator: " ")]),
                                  eyebrow: L("My guess")))
             parts.append(.answers([Tile(L("Yes, that's it!"), key: "y"), Tile(L("No"), key: "n")], layout: .row))
+            said = L("I think I know!")
             cue = Cue(move: "gasp", effect: "exclaim", prop: "magnifier", look: "you")
-        } else if g.phase == .teaching, let wrong = g.guess?.name {
-            if s.animal == nil {
-                parts.append(.prompt(L("You win! What was it?")))
-                parts.append(.play(.entry(name: "animal", label: L("Your animal"), placeholder: L("Your animal"), button: L("Tell"),
-                                          max: Games.GuessAnimal.Memory.longestName)))
-            } else if s.question == nil {
-                parts.append(.prompt(L("A yes-or-no question that tells {new} from {old}?", ["new": s.animal!, "old": wrong])))
-                parts.append(.play(.entry(name: "question", label: L("Your question"), placeholder: L("Does it…?"), button: L("Teach"),
-                                          max: Games.GuessAnimal.Memory.longestQuestion)))
-            } else {
-                parts.append(.prompt(L("And for {new}, the answer is…", ["new": s.animal!]), eyebrow: s.question))
-                parts.append(.answers(yesNo, layout: .row))
-            }
+        } else if g.phase == .teaching, s.outcome == nil, let wrong = g.guess?.name {
+            // One page: each field opens when the one before is filled, and Remember keeps them all.
+            parts.append(.prompt(L("Teach me for next time?"), eyebrow: L("A new animal")))
+            parts.append(.play(.entry(name: "animal", label: L("What was your animal?"), placeholder: s.animal ?? L("Your animal"),
+                                      max: Games.GuessAnimal.Memory.longestName, locked: s.animal != nil)))
+            parts.append(.play(.entry(name: "question", label: L("A question that tells it apart from {old}", ["old": wrong]), placeholder: s.question ?? L("Does it…?"),
+                                      max: Games.GuessAnimal.Memory.longestQuestion, locked: s.animal == nil || s.question != nil)))
+            parts.append(.choice(name: "new_answer", label: s.animal.map { L("For {new}, the answer is", ["new": $0]) } ?? L("The answer for yours is"), style: .segmented,
+                                 options: [ChoiceOption("yes", L("Yes")), ChoiceOption("no", L("No"))], selected: s.newYes.map { $0 ? "yes" : "no" }))
+            parts.append(.button(GameButton(L("Remember"), move: "remember", style: .primary, disabled: s.newYes == nil)))
+            parts.append(.button(GameButton(L("Skip"), move: "skip", style: .plain)))
             if s.animal == nil, events.contains(where: { if case .roundOver = $0 { true } else { false } }) {
                 cue = Cue(move: "sulk", prop: "none", line: "you_win", look: "you")
             }
         }
         if s.outcome == .lost, let guess = g.guess {
             parts.append(.prompt(L("It was {animal}!", ["animal": [guess.emoji, guess.name].filter { !$0.isEmpty }.joined(separator: " ")])))
+            parts.append(.answers(three, layout: .row, locked: true))
         }
         if let note = ScreenKit.refusal(events) { parts.append(note) }
         if let outcome = s.outcome {
-            let line = outcome == .won ? L("Thank you! I'll remember {animal}.", ["animal": s.animal ?? ""]) : L("I got it!")
-            parts.append(ScreenKit.result(outcome, figure: Format.integer(g.asked), line: line,
-                                          facts: [(L("Questions"), Format.integer(g.asked))], companion: o.companion))
+            // The card says it itself, since no bubble does here: which animal, once.
+            let named = g.guess.map { L("It was {animal}!", ["animal": [$0.emoji, $0.name].filter { !$0.isEmpty }.joined(separator: " ")]) }
+            let line = outcome == .won ? (s.learned ? L("Thank you! I'll remember {animal}.", ["animal": s.animal ?? ""]) : "") : named ?? ""
+            parts.append(ScreenKit.result(outcome, figure: L(one: "{count} question", other: "{count} questions", count: g.asked), line: line, companion: o.companion))
         }
-        return Board(parts, companion: cue, over: s.outcome != nil, afterMs: after)
+        var out = Board(parts, companion: cue, over: s.outcome != nil, afterMs: after, said: said)
+        if let outcome = s.outcome {
+            out.endTitle = outcome == .won ? L("You stumped me!") : L("I got it!")
+            out.endFriendly = outcome == .lost
+        }
+        return out
     }
 }

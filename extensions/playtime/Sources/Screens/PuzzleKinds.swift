@@ -7,7 +7,7 @@ enum SeesawKind: PuzzleKind {
     typealias Rules = Games.Seesaw
     static let id = Games.Seesaw.id
 
-    static var rules: String { L("As many hearts as stars in every row and column, never three alike in a line. = means the same, × different.") }
+    static func rules(_ game: Games.PuzzleGame<Rules>) -> String { L("As many crescents as suns in every line. Never three alike.") }
 
     static func reason(_ r: Rules.Reason) -> String {
         switch r {
@@ -39,7 +39,7 @@ enum SeesawKind: PuzzleKind {
         switch move { case .set(let c, _), .cycle(let c): c }
     }
 
-    static func name(_ mark: Rules.Mark?) -> String? { mark.map { $0 == .heart ? L("Heart") : L("Star") } }
+    static func name(_ mark: Rules.Mark?) -> String? { mark.map { $0 == .crescent ? L("Crescent") : L("Sun") } }
 
     static func part(_ g: Games.PuzzleGame<Rules>, hint: Games.PuzzleHint<Rules.Move, Rules.Reason>?, fresh: Int?, now: Double) -> BoardPart {
         let b = g.puzzle, n = b.size
@@ -49,7 +49,7 @@ enum SeesawKind: PuzzleKind {
         let cells = g.grid.indices.map { i -> PuzzleCell in
             let mark = target?.cell == i && g.grid[i] == nil ? target?.mark : g.grid[i]
             let state = target?.cell == i ? "target" : broken.contains(i) ? "conflict" : lit.contains(i) ? "hint" : nil
-            return PuzzleCell(symbol: mark.map { $0 == .heart ? "heart" : "star" }, given: b.givens[i] != nil, state: state, fresh: fresh == i,
+            return PuzzleCell(symbol: mark.map { $0 == .crescent ? "crescent" : "sun" }, given: b.givens[i] != nil, state: state, fresh: fresh == i,
                               label: PuzzleParts.label(i, columns: n, name(g.grid[i])))
         }
         let edges = b.edges.map { PuzzleEdge(cell: $0.cell, down: $0.down, clue: $0.clue.rawValue) }
@@ -62,7 +62,10 @@ enum SudokuKind: PuzzleKind {
     typealias Rules = Games.Sudoku
     static let id = Games.Sudoku.id
 
-    static var rules: String { L("Fill the grid: every row, column and box holds each number once.") }
+    static func rules(_ game: Games.PuzzleGame<Rules>) -> String { 
+        // A hyphen that holds, so "1–6" never breaks over two lines.
+        L("Each row, column and box uses 1–{n} once.", ["n": game.puzzle.size]).replacingOccurrences(of: "–", with: "\u{2011}")
+    }
 
     static func reason(_ r: Rules.Reason) -> String {
         switch r {
@@ -72,7 +75,7 @@ enum SudokuKind: PuzzleKind {
         case .lastInRow: L("The only place left for this number in its row.")
         case .lastInColumn: L("The only place left for this number in its column.")
         case .locked: L("A number kept to one line of a box rules it out elsewhere, leaving this.")
-        case .pair: L("Two cells share the same two numbers, ruling them out elsewhere, leaving this.")
+        case .pair: L("Two cells share two numbers, ruling them out elsewhere.")
         case .reveal: L("Here's one to keep you going.")
         }
     }
@@ -120,7 +123,7 @@ enum GardenPlotsKind: PuzzleKind {
     typealias Rules = Games.GardenPlots
     static let id = Games.GardenPlots.id
 
-    static var rules: String { L("Split the garden into rectangles, one number in each: as many squares as it says.") }
+    static func rules(_ game: Games.PuzzleGame<Rules>) -> String { L("One number per rectangle. Its number is its area.") }
 
     static func reason(_ r: Rules.Reason) -> String {
         switch r {
@@ -189,7 +192,7 @@ enum BlossomsKind: PuzzleKind {
     typealias Rules = Games.Blossoms
     static let id = Games.Blossoms.id
 
-    static var rules: String { L("One blossom in every row, column and bed. Blossoms never touch, not even corner to corner.") }
+    static func rules(_ game: Games.PuzzleGame<Rules>) -> String { L("One blossom per row, column and bed. They never touch, even at corners.") }
 
     static func reason(_ r: Rules.Reason) -> String {
         switch r {
@@ -197,9 +200,9 @@ enum BlossomsKind: PuzzleKind {
         case .lastInRow: L("The last place left in this row.")
         case .lastInColumn: L("The last place left in this column.")
         case .lastInBed: L("The last place left in this bed.")
-        case .locked: L("A bed kept to one line rules out the rest of that line, leaving this.")
-        case .wouldEmpty: L("A blossom in the other places would leave a row, column or bed no room, leaving this.")
-        case .group: L("These beds fill those lines between them, ruling out the rest, leaving this.")
+        case .locked: L("A bed kept to one line rules out the rest of that line.")
+        case .wouldEmpty: L("Anywhere else, a row, column or bed would have no room.")
+        case .group: L("These beds fill those lines, ruling out the rest.")
         case .chain: L("A blossom in the other places leads to a dead end a few moves on.")
         case .reveal: L("Here's one to keep you going.")
         }

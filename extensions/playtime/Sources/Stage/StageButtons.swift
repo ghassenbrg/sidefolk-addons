@@ -4,33 +4,28 @@ import SidefolkExtensionKit
 // app's accent (a game's colour is decoration, never what a button means), the secondary the games' card on its blue lip, the
 // plain one a soft pill. Flat on the end card, where the result is the one thing that stands up.
 extension BoardDrawing {
-    private func metrics(_ b: GameButton, flat: Bool) -> (size: Double, weight: String, corner: Double, depth: Double, height: Double, hPad: Double) {
-        let plain = b.style == .plain
-        return (plain ? 13 : flat ? 15 : 16, flat ? "bold" : "heavy", plain ? 20 : flat ? 14 : 16, flat ? 0 : plain ? 2 : 4, plain ? 34 : flat ? 42 : 46, plain ? 14 : 16)
+    private func metrics(_ b: GameButton, flat: Bool) -> (size: Double, weight: String, height: Double) {
+        b.style == .plain ? (13, "bold", 36) : (flat ? (15, "bold", 42) : (16, "heavy", 46))
     }
 
     /// The room a button's words want.
     func buttonWidth(_ b: GameButton, flat: Bool) -> Double {
         let m = metrics(b, flat: flat)
-        return TextFit.width(b.label, size: m.size, weight: m.weight) + (b.symbol == nil ? 0 : 6 + m.size * 1.2) + m.hPad * 2
+        return TextFit.width(b.label, size: m.size, weight: m.weight) + (b.symbol == nil ? 0 : 6 + m.size * 1.2) + 32
     }
 
-    func buttonRow(_ buttons: [GameButton], id: String, width: Double = BoardDrawing.inner, flat: Bool = false) -> PartBlock {
-        let gap = 8.0
-        // A plain button's words are measured first; the wide buttons beside it take the room left.
-        let fixed = buttons.filter { $0.style == .plain }.reduce(0) { $0 + buttonWidth($1, flat: flat) }
-        let wide = buttons.filter { $0.style != .plain }.count
-        let share = wide > 0 ? max((width - fixed - gap * Double(buttons.count - 1)) / Double(wide), 40) : 0
-        // Long words beside each other (German's Undo and Start over) share the row rather than run past the panel's edge; their words shrink to fit.
-        let fits = fixed > 0 ? min(1, (width - gap * Double(buttons.count - 1) - 40 * Double(wide)) / fixed) : 1
-        var x = 0.0
+    /// Buttons share the row equally, so one changing its words ("Hint", "Do it") moves nothing; words shrink to fit (German's Undo and Start over). A disabled one keeps its place.
+    func buttonRow(_ buttons: [GameButton], id: String, width: Double = BoardDrawing.inner, flat: Bool = false, leading: (node: Node, width: Double)? = nil) -> PartBlock {
+        let gap = 8.0, used = leading.map { $0.width + gap } ?? 0
+        // A lone quiet button keeps to its words, in the middle of its row.
+        let lone = quietHints && leading == nil && buttons.count == 1 && buttons[0].style == .plain
+        let w = lone ? Swift.min(buttonWidth(buttons[0], flat: flat), width) : buttons.isEmpty ? 0 : (width - used - gap * Double(buttons.count - 1)) / Double(buttons.count)
+        let height = buttons.map { metrics($0, flat: flat).height }.max() ?? 36
+        var x = lone ? (width - w) / 2 : used
         var nodes: [Node] = []
-        var height = 0.0
+        if let leading { nodes.append(leading.node.at(0, (height - 28) / 2)) }
         for (i, b) in buttons.enumerated() {
-            let w = b.style == .plain ? min(buttonWidth(b, flat: flat) * fits, width) : share
-            let m = metrics(b, flat: flat)
-            nodes.append(button(b, id: "\(id).\(i)", x: x, w: w, flat: flat))
-            height = max(height, m.height + m.depth)
+            nodes.append(button(b, id: "\(id).\(i)", x: x, y: (height - metrics(b, flat: flat).height) / 2, w: w, flat: flat))
             x += w + gap
             // Return presses the main button; a letter its own. A key's id is a plain token.
             let keyId = "\(id)_\(i)".replacingOccurrences(of: ".", with: "_")
@@ -45,35 +40,33 @@ extension BoardDrawing {
         return PartBlock(.box(id, w: width, h: height) { nodes }, height: height)
     }
 
-    func button(_ b: GameButton, id: String, x: Double, w: Double, flat: Bool) -> Node {
+    /// A capsule: filled navy for the one thing to do, outlined otherwise. Pressing it sinks it a little.
+    func button(_ b: GameButton, id: String, x: Double, y: Double = 0, w: Double, flat: Bool) -> Node {
         let m = metrics(b, flat: flat)
-        let primary = b.style == .primary
-        let fill: Color = primary ? .accent : Paint.card
-        let ink: Color = primary ? .onAccent : .ink
-        // A wide symbol would shrink to fit a square box.
-        let symbolW = b.symbol == nil ? 0 : m.size * (b.symbol == "eye.slash" ? 1.45 : 1.2)
-        let textRoom = w - m.hPad * 2 - (b.symbol == nil ? 0 : 6 + symbolW)
-        let textW = min(TextFit.width(b.label, size: m.size, weight: m.weight), max(textRoom, 10))
-        let startX = (w - textW - (b.symbol == nil ? 0 : 6 + symbolW)) / 2
-        var face = Node.box(id + ".top", w: w, h: m.height) {
-            if primary && !flat {
-                Node.rect(corner: m.corner).gradient([Paint.clear("#FFFFFF", 0.25), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).id(id + ".fill").size(w, m.height)
-                    .background(fill, corner: m.corner, id: id + ".base", w: w, h: m.height)
+        let filled = b.style == .primary || (!quietHints && (b.move == "hint" || b.move == "do_hint"))
+        // Off, it stays solid and muted, so the scene doesn't show through it and it keeps its place.
+        let off = b.disabled && !b.waiting
+        let ink: Color = off ? Paint.inkFaint : filled ? Paint.onAction : Paint.ink
+        // Words first: a narrow button lets its symbol go rather than cut its label.
+        let wanted = TextFit.width(b.label, size: m.size, weight: m.weight) + 2
+        let symbol = wanted + 24 + 6 + m.size * 1.2 <= w ? b.symbol : nil
+        let symbolW = symbol == nil ? 0 : m.size * (symbol == "eye.slash" ? 1.45 : 1.2)
+        let textW = Swift.min(wanted, Swift.max(w - 16 - (symbol == nil ? 0 : 6 + symbolW), 10))
+        let startX = (w - textW - (symbol == nil ? 0 : 6 + symbolW)) / 2
+        return Node.box(id, x: x, y: y, w: w, h: m.height) {
+            if off {
+                Node.capsule(fill: Paint.inset, stroke: Paint.edge, lineWidth: 1.5).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5)
+            } else if filled {
+                Node.capsule(fill: Paint.action).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
             } else {
-                Node.rect(fill: fill, stroke: primary ? nil : Paint.edge, lineWidth: 1, corner: m.corner).id(id + ".fill").size(w, m.height)
+                Node.capsule(fill: Paint.card, stroke: Paint.ink, lineWidth: 1.5).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5)
             }
             Node.words(b.label, size: m.size, weight: m.weight, color: ink, align: "center", minScale: 0.65, x: startX, w: textW, h: m.height)
-            if let symbol = b.symbol {
+            if let symbol {
                 Node.symbol(symbol, color: ink).symbolLook(weight: m.weight).at(startX + textW + 6, (m.height - m.size * 1.2) / 2).size(symbolW, m.size * 1.2)
             }
         }
-        face = face.area("button", value: b.move, label: b.label, disabled: b.disabled, hover: nil, press: AreaLook(scale: flat ? 0.97 : 1, dy: flat ? 0 : m.depth - 1), sound: "sounds/tap.wav")
-        var group = Node.box(id, x: x, w: w, h: m.height + m.depth) {
-            if m.depth > 0 { Node.rect(fill: primary ? Color.accent.tuned(brightness: -0.14) : Paint.lip, corner: m.corner).id(id + ".lip").at(0, m.depth).size(w, m.height) }
-            face
-        }
-        if b.disabled { group = group.opacity(0.5) }
-        return group
+        .area("button", value: b.move, label: b.label, disabled: b.disabled, hover: AreaLook(scale: 1.015), press: AreaLook(scale: 0.97, dy: 1), sound: "sounds/tap.wav")
     }
 
     /// A lightbulb, a seal or a mark, the words on the sun's tint.
@@ -109,15 +102,15 @@ extension BoardDrawing {
         }, height: height)
     }
 
-    /// One of a few options, as cards (each in its own soft pastel, with its picture) or segments.
-    func choice(name: String, label: String?, style: ChoiceStyle, options: [ChoiceOption], selected: String?, compact: Bool, width: Double = BoardDrawing.inner) -> PartBlock {
+    /// One of a few options, as cards or as segments on a lilac track: picked is navy. `labelWidth` lines a column of them up under each other.
+    func choice(name: String, label: String?, style: ChoiceStyle, options: [ChoiceOption], selected: String?, compact: Bool, width: Double = BoardDrawing.inner, labelWidth: Double? = nil, disabled: Bool = false) -> PartBlock {
         let id = "choice.\(name)"
         var y = 0.0
         var nodes: [Node] = []
         if let label, !compact {
             let w = min(TextFit.width(label, size: 11.5, weight: "semibold") + 16, width)
             nodes.append(Node.capsule(fill: Paint.card(0.94)).id(id + ".pill").size(w, 18))
-            nodes.append(Node.words(label, size: 11.5, weight: "semibold", color: .inkMuted, align: "center", design: "default", w: w, h: 18))
+            nodes.append(Node.words(label, size: 11.5, weight: "semibold", color: Paint.inkSoft, align: "center", design: "default", w: w, h: 18))
             y += 18 + 8
         }
         switch style {
@@ -128,81 +121,48 @@ extension BoardDrawing {
         case .segmented:
             var x = 0.0
             if compact, let label {
-                let w = TextFit.width(label, size: 11.5, weight: "semibold")
-                nodes.append(Node.words(label, size: 11.5, weight: "semibold", color: .inkMuted, design: "default", y: y, w: w, h: 32))
-                x = w + 6
+                let w = labelWidth ?? TextFit.width(label, size: 12.5, weight: "heavy")
+                nodes.append(Node.capsule(fill: Paint.card(0.72)).id(id + ".name").at(0, y + 3).size(w - 6, 24))
+                nodes.append(Node.words(label, size: 12.5, weight: "heavy", align: "center", minScale: 0.7, x: 3, y: y, w: w - 12, h: 30))
+                x = w
             }
-            let rowW = width - x, h = 32.0
-            let segW = (rowW - 6 - 4 * Double(options.count - 1)) / Double(max(options.count, 1))
-            nodes.append(Node.capsule(fill: compact ? Paint.inset : Paint.card(0.96), stroke: compact ? nil : Paint.edge, lineWidth: 1).id(id + ".track").at(x, y).size(rowW, h))
+            let rowW = width - x, h = 30.0
+            let segW = (rowW - 6 - 2 * Double(options.count - 1)) / Double(max(options.count, 1))
+            nodes.append(Node.capsule(fill: Paint.lilac, stroke: Paint.clear("#8E72B5", 0.25), lineWidth: 1).id(id + ".track").at(x, y).size(rowW, h))
             for (i, o) in options.enumerated() {
                 let on = selected == o.value
                 let segId = "\(id).\(o.value)"
-                nodes.append(Node.box(segId, x: x + 3 + Double(i) * (segW + 4), y: y + 3, w: segW, h: h - 6) {
-                    Node.capsule(fill: on ? Color.accent : Color.clear).size(segW, h - 6)
-                    Node.words(o.label, size: 11.5, weight: "semibold", color: on ? .onAccent : .ink, align: "center", design: "default", x: 3, w: segW - 6, h: h - 6)
-                }.area("choice", value: "\(name)|\(o.value)", label: o.label, hover: nil, press: AreaLook(scale: 0.97), selected: on, always: playing, sound: "sounds/tap.wav"))
+                nodes.append(Node.box(segId, x: x + 3 + Double(i) * (segW + 2), y: y + 3, w: segW, h: h - 6) {
+                    Node.capsule(fill: on ? Paint.action : Paint.clear("#FFFFFF", 0)).id(segId + ".fill").size(segW, h - 6)
+                    Node.words(o.label, size: 12.5, weight: "bold", color: on ? Paint.onAction : Paint.ink, align: "center", minScale: 0.6, x: 4, w: segW - 8, h: h - 6)
+                }.area("choice", value: "\(name)|\(o.value)", label: o.label, disabled: disabled, hover: AreaLook(opacity: 0.8), press: AreaLook(scale: 0.97), selected: on, always: playing, sound: "sounds/tap.wav"))
             }
             y += h
         }
-        return PartBlock(.box(id, w: width, h: y) { nodes }, height: y)
+        var group = Node.box(id, w: width, h: y) { nodes }
+        if disabled { group = group.opacity(0.5) }
+        return PartBlock(group, height: y)
     }
 
     private func choiceCards(name: String, options: [ChoiceOption], selected: String?, width: Double) -> (Node, Double) {
         // Three or fewer share the row, rather than sitting in the left half of a grid laid out for four.
         let gap = 8.0
         let columns = options.count < 4 ? max(options.count, 1) : max(Int((width + gap) / (72 + gap)), 1)
-        let w = (width - gap * Double(columns - 1)) / Double(columns)
-        func heightOf(_ o: ChoiceOption) -> Double {
-            let art = o.symbol == nil ? 0.0 : Self.topicArt(o.symbol) != nil ? 32 + 4 : 38 + 4
-            let label = TextFit.height(o.label, size: 11.5, weight: "semibold", width: w - 8, lines: 3)
-            let detail = o.detail.map { TextFit.height($0, size: 11.5, width: w - 8, lines: 2) + 4 } ?? 0
-            return max(60, 12 + art + label + detail)
-        }
+        let w = (width - gap * Double(columns - 1)) / Double(columns), h = 80.0
         var nodes: [Node] = []
         var y = 0.0
         for start in stride(from: 0, to: options.count, by: columns) {
-            let row = options[start..<min(start + columns, options.count)]
-            let h = row.map(heightOf).max() ?? 60
-            for (c, o) in row.enumerated() {
-                nodes.append(choiceCard(o, name: name, tint: start + c, selected: selected == o.value, x: Double(c) * (w + gap), y: y, w: w, h: h))
+            for (c, o) in options[start..<min(start + columns, options.count)].enumerated() {
+                let id = "choice.\(name).\(o.value)", on = selected == o.value
+                nodes.append(Node.box(id, x: Double(c) * (w + gap), y: y, w: w, h: h) {
+                    Node.rect(fill: Paint.card, stroke: on ? Paint.action : Paint.edge, lineWidth: on ? 2.5 : 1, corner: 14).id(id + ".base").size(w, h).shadow(Paint.black8, radius: 2, dx: 0, dy: 2)
+                    if let art = Self.topicArt(o.symbol) { Node.art(art, x: (w - 32) / 2, y: 8, w: 32, h: 32) }
+                    Node.words(o.label, size: 11.5, weight: "heavy", align: "center", lines: 2, minScale: 0.7, x: 4, y: 42, w: w - 8, h: 32)
+                }.area("choice", value: "\(name)|\(o.value)", label: o.label, hover: AreaLook(scale: 1.02), press: AreaLook(scale: 0.98), selected: on, always: playing, sound: "sounds/tap.wav"))
             }
             y += h + gap
         }
         return (Node.box("choice.\(name).cards", w: width, h: y - gap) { nodes }, y - gap)
-    }
-
-    private func choiceCard(_ o: ChoiceOption, name: String, tint: Int, selected: Bool, x: Double, y: Double, w: Double, h: Double) -> Node {
-        let id = "choice.\(name).\(o.value)"
-        var inner: [Node] = []
-        let art = Self.topicArt(o.symbol)
-        let label = TextFit.height(o.label, size: 11.5, weight: "semibold", width: w - 8, lines: 3)
-        let detail = o.detail.map { TextFit.height($0, size: 11.5, width: w - 8, lines: 2) } ?? 0
-        let top = o.symbol == nil ? 0.0 : art != nil ? 36 : 42
-        var cursor = (h - top - label - (o.detail == nil ? 0 : detail + 4)) / 2
-        if let art {
-            inner.append(Node.art(art, x: (w - 32) / 2, y: cursor, w: 32, h: 32))
-            cursor += 36
-        } else if let symbol = o.symbol {
-            inner.append(Node.ellipse(fill: selected ? .accent : .accentSoft).at((w - 38) / 2, cursor).size(38, 38))
-            inner.append(Node.symbol(symbol, color: selected ? .onAccent : .ink).symbolLook().at((w - 24) / 2, cursor + 7).size(24, 24))
-            cursor += 42
-        }
-        // A long name wraps a little smaller rather than being cut mid-word.
-        let longest = o.label.split(separator: " ").map { TextFit.width(String($0), size: 11.5, weight: "semibold") }.max() ?? 0
-        let fitted = max(11.5 * min(1, (w - 8) / max(longest, 1)), 9.2)
-        inner.append(Node.words(o.label, size: fitted, weight: "semibold", align: "center", lines: 3, minScale: 0.8, design: "default", x: 4, y: cursor, w: w - 8, h: label))
-        cursor += label + 4
-        if let d = o.detail {
-            inner.append(Node.words(d, size: 11.5, weight: "regular", color: .inkMuted, align: "center", lines: 2, design: "default", x: 4, y: cursor, w: w - 8, h: detail))
-        }
-        return Node.box(id, x: x, y: y, w: w, h: h) {
-            Node.rect(fill: selected ? .accentSoft : Paint.card, corner: 14).id(id + ".base").size(w, h).shadow(Paint.black8, radius: 2, dx: 0, dy: 2)
-            if !selected { Node.rect(fill: Paint.region(tint, alpha: "66"), corner: 14).id(id + ".tint").size(w, h) }
-            // A choice is a selection, not a result: the app's accent, as everywhere else.
-            Node.rect(stroke: selected ? .accent : Paint.edge, lineWidth: selected ? 2.5 : 1, corner: 14).id(id + ".edge").size(w, h)
-            inner
-        }.area("choice", value: "\(name)|\(o.value)", label: o.label, hover: nil, press: AreaLook(scale: 0.98), selected: selected, always: playing, sound: "sounds/tap.wav")
     }
 
     /// A choice card's picture for its SF Symbol (trivia's topics, Higher or Lower's two ways).
@@ -218,7 +178,7 @@ extension BoardDrawing {
         case "paintpalette.fill": "art/game-topic-arts.webp"
         case "cpu": "art/game-topic-tech.webp"
         case "figure.run", "sportscourt.fill": "art/game-topic-sports.webp"
-        case "sun.max.fill": "art/game-face-sun.webp"
+        case "sun.max.fill": "art/game-topic-mediterranean.webp"
         case "questionmark.square.fill", "questionmark": "art/game-icon-quiz.webp"
         case "brain.head.profile", "lightbulb", "lightbulb.fill": "art/game-bulb.webp"
         default: nil

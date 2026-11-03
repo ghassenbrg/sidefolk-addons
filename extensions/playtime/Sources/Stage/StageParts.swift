@@ -1,9 +1,42 @@
 import SidefolkExtensionKit
 
-// What a part adds to the stage's words and row: the table props and puzzle fill these in their own files.
+// What a part adds to the stage's words and the controls: the table props and puzzle fill these in their own files.
 extension BoardDrawing {
     /// A part saying something in the companion's bubble instead of the board's prompt ("Shuffling…", "Watch…").
     var partsStageWords: String? { cupsStageWords ?? padsStageWords }
-    /// A puzzle's clock and Sudoku's notes switch beside the eyebrow.
-    var puzzleEyebrowExtras: (((node: Node, width: Double, height: Double)) -> PartBlock)? { puzzleEyebrow }
+    /// Something of a part's that stands first among the controls: Sudoku's notes switch.
+    /// A question stands on its own card in the board, so the bubble says something short instead. A refusal is the companion's to say too: the bubble is the one place it can't push anything.
+    var stageWordsOverride: String? {
+        guard let table = gameTable else { return nil }
+        if let refusal = board.parts.lazy.compactMap({ part -> String? in if case .note(let text, _, .warn) = part { text } else { nil } }).first { return refusal }
+        if ctx.buildUp { return table == .hands ? L("Here we go!") : L("Let's see…") }
+        return board.said
+    }
+    /// How wide a game wants its companion, if not the usual.
+    var stageFigure: Double? { nil }
+    var dockExtra: (node: Node, width: Double)? { puzzleDockExtra }
+
+    /// The controls' room, kept for a game whose buttons come and go, so its board never moves for one.
+    var dockRoom: Double {
+        if board.gridPart?.numpad == true || isStall { return 46 }
+        return 0
+    }
+
+    /// A hint on these boards is the quiet button; it isn't the one thing to do.
+    var quietHints: Bool { board.gridPart != nil || board.hasLetters }
+
+    /// A part drawn somewhere of its own rather than stacked on the board.
+    func placedElsewhere(_ part: BoardPart) -> Bool {
+        switch part {
+        case .choice("opponent", _, _, _, _): return true
+        case .play(.lives): return isStall
+        default: return false
+        }
+    }
+
+    /// Daily Word's hint stands beside its legend, on the tray.
+    func buttonPlacedElsewhere(_ b: GameButton) -> Bool { b.move == "hint" && board.lettersPart?.style == "rows" }
+    /// The toys lay out the whole room themselves: what comes and goes around one (who plays, the next round, a best time, a secret) has its place in it (`slotRow`), so it never
+    /// pushes the toy or changes the room it has.
+    var partHoldsRoom: Bool { !ended && (board.hasCups || board.hasPads || board.hasReflex || board.hasSticks) }
 }

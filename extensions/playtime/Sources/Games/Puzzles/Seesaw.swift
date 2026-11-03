@@ -1,17 +1,17 @@
 import Foundation
 
 extension Games {
-    /// Seesaw (the Takuzu family of puzzles): fill the board with hearts and stars so that every row and column
+    /// Seesaw (the Takuzu family of puzzles): fill the board with crescents and suns so that every row and column
     /// balances, as many of each; no three alike sit side by side in a row or a column; and the clues between two
     /// cells hold, `=` the same mark on both sides, `×` different ones. 6 × 6 on Easy and Fair, 8 × 8 on Hard.
     ///
     /// Levels are the techniques the board needs: Easy only the plain rules one cell at a time (and a few spare
-    /// marks), Fair also "every way to finish this row puts a heart here", Hard also a short chain ("a star here
+    /// marks), Fair also "every way to finish this row puts a crescent here", Hard also a short chain ("a sun here
     /// would break a column two moves on").
     struct Seesaw: PuzzleRules {
         enum Mark: Int8, Codable, Sendable, CaseIterable {
-            case heart = 1, star = 2
-            var other: Mark { self == .heart ? .star : .heart }
+            case crescent = 1, sun = 2
+            var other: Mark { self == .crescent ? .sun : .crescent }
         }
 
         enum Clue: String, Codable, Sendable { case same, different }
@@ -23,7 +23,7 @@ extension Games {
             let clue: Clue
         }
 
-        /// `set` a mark (nil clears it); `cycle` goes empty, heart, star, empty, for a click.
+        /// `set` a mark (nil clears it); `cycle` goes empty, crescent, sun, empty, for a click.
         enum Move: Codable, Equatable, Sendable {
             case set(Int, Mark?)
             case cycle(Int)
@@ -128,7 +128,7 @@ extension Games {
             let rows = Logic.patterns(n)
             let full = UInt16(1 << n) - 1
             var chosen: [UInt16] = []
-            var hearts = Array(repeating: 0, count: n)
+            var crescents = Array(repeating: 0, count: n)
             func fill() -> Bool {
                 let r = chosen.count
                 if r == n { return true }
@@ -138,20 +138,20 @@ extension Games {
                         if p & a & b != 0 || ~p & ~a & ~b & full != 0 { continue }
                     }
                     let ok = (0..<n).allSatisfy { c in
-                        let h = hearts[c] + Int((p >> c) & 1)
+                        let h = crescents[c] + Int((p >> c) & 1)
                         return h <= n / 2 && (r + 1 - h) <= n / 2
                     }
                     guard ok else { continue }
-                    for c in 0..<n { hearts[c] += Int((p >> c) & 1) }
+                    for c in 0..<n { crescents[c] += Int((p >> c) & 1) }
                     chosen.append(p)
                     if fill() { return true }
                     chosen.removeLast()
-                    for c in 0..<n { hearts[c] -= Int((p >> c) & 1) }
+                    for c in 0..<n { crescents[c] -= Int((p >> c) & 1) }
                 }
                 return false
             }
             _ = fill()
-            return chosen.flatMap { p in (0..<n).map { (p >> $0) & 1 == 1 ? Mark.heart : Mark.star } }
+            return chosen.flatMap { p in (0..<n).map { (p >> $0) & 1 == 1 ? Mark.crescent : Mark.sun } }
         }
 
         // MARK: Playing
@@ -159,7 +159,7 @@ extension Games {
         func apply(_ move: Move, to grid: inout Grid) throws {
             let (cell, mark): (Int, Mark?) = switch move {
             case .set(let cell, let mark): (cell, mark)
-            case .cycle(let cell): (cell, grid.indices.contains(cell) ? (grid[cell] == nil ? .heart : grid[cell] == .heart ? .star : nil) : nil)
+            case .cycle(let cell): (cell, grid.indices.contains(cell) ? (grid[cell] == nil ? .crescent : grid[cell] == .crescent ? .sun : nil) : nil)
             }
             guard grid.indices.contains(cell) else { throw Refusal("off_board") }
             guard givens[cell] == nil else { throw Refusal("given") }
@@ -246,7 +246,7 @@ extension Games {
                 }
             }
 
-            /// Every valid line of n cells as the mask of its hearts: half hearts, no three alike.
+            /// Every valid line of n cells as the mask of its crescents: half crescents, no three alike.
             static func patterns(_ n: Int) -> [UInt16] {
                 let full = (1 << n) - 1
                 return (0...full).filter { p in
@@ -256,7 +256,7 @@ extension Games {
 
             func cell(_ line: Int, _ i: Int) -> Int { line < n ? line * n + i : i * n + line - n }
 
-            func masks(_ grid: [Int8], _ line: Int) -> (hearts: UInt16, stars: UInt16) {
+            func masks(_ grid: [Int8], _ line: Int) -> (crescents: UInt16, suns: UInt16) {
                 var h: UInt16 = 0, s: UInt16 = 0
                 for i in 0..<n {
                     switch grid[cell(line, i)] {
@@ -269,7 +269,7 @@ extension Games {
             }
 
             /// What the plain rules force in a line, or nil when the line already breaks one.
-            func singles(_ h: UInt16, _ s: UInt16, _ line: Int) -> (hearts: UInt16, stars: UInt16)? {
+            func singles(_ h: UInt16, _ s: UInt16, _ line: Int) -> (crescents: UInt16, suns: UInt16)? {
                 let eq = same[line], ne = different[line]
                 let open = full & ~(h | s)
                 if h & (h >> 1) & (h >> 2) != 0 || s & (s >> 1) & (s >> 2) != 0 { return nil }
@@ -277,17 +277,17 @@ extension Games {
                 if ((h & (s >> 1)) | (s & (h >> 1))) & eq != 0 || ((h & (h >> 1)) | (s & (s >> 1))) & ne != 0 { return nil }
                 func beside(_ m: UInt16) -> UInt16 { ((m << 1) & (m << 2)) | ((m >> 1) & (m >> 2)) | ((m << 1) & (m >> 1)) }
                 // Next to two alike or between them: the other mark. Across `=`: the same; across `×`: the other.
-                var toHeart = beside(s) | ((h & eq) << 1) | ((h >> 1) & eq) | ((s & ne) << 1) | ((s >> 1) & ne)
-                var toStar = beside(h) | ((s & eq) << 1) | ((s >> 1) & eq) | ((h & ne) << 1) | ((h >> 1) & ne)
-                if h.nonzeroBitCount == n / 2 { toStar |= open }
-                if s.nonzeroBitCount == n / 2 { toHeart |= open }
-                toStar &= open
-                toHeart &= open
-                return toStar & toHeart == 0 ? (toHeart, toStar) : nil
+                var toCrescent = beside(s) | ((h & eq) << 1) | ((h >> 1) & eq) | ((s & ne) << 1) | ((s >> 1) & ne)
+                var toSun = beside(h) | ((s & eq) << 1) | ((s >> 1) & eq) | ((h & ne) << 1) | ((h >> 1) & ne)
+                if h.nonzeroBitCount == n / 2 { toSun |= open }
+                if s.nonzeroBitCount == n / 2 { toCrescent |= open }
+                toSun &= open
+                toCrescent &= open
+                return toSun & toCrescent == 0 ? (toCrescent, toSun) : nil
             }
 
             /// What every way to finish the line agrees on, or nil when there is none.
-            func lineForced(_ h: UInt16, _ s: UInt16, _ line: Int) -> (hearts: UInt16, stars: UInt16)? {
+            func lineForced(_ h: UInt16, _ s: UInt16, _ line: Int) -> (crescents: UInt16, suns: UInt16)? {
                 let eq = same[line], ne = different[line]
                 var all = full, any: UInt16 = 0, found = false
                 for p in patterns where p & s == 0 && h & ~p == 0 {
@@ -316,11 +316,11 @@ extension Games {
                         guard var forced = singles(h, s, line) else { return false }
                         if technique >= .line {
                             guard let more = lineForced(h, s, line) else { return false }
-                            forced = (forced.hearts | more.hearts, forced.stars | more.stars)
-                            if forced.hearts & forced.stars != 0 { return false }
+                            forced = (forced.crescents | more.crescents, forced.suns | more.suns)
+                            if forced.crescents & forced.suns != 0 { return false }
                         }
-                        for i in 0..<n where (forced.hearts | forced.stars) >> i & 1 == 1 {
-                            grid[cell(line, i)] = forced.hearts >> i & 1 == 1 ? 1 : 2
+                        for i in 0..<n where (forced.crescents | forced.suns) >> i & 1 == 1 {
+                            grid[cell(line, i)] = forced.crescents >> i & 1 == 1 ? 1 : 2
                             changed = true
                         }
                     }
@@ -359,9 +359,9 @@ extension Games {
                 }
                 for line in 0..<(2 * n) {
                     let (h, s) = masks(grid, line)
-                    guard let forced = lineForced(h, s, line), forced.hearts | forced.stars != 0 else { continue }
-                    let i = (forced.hearts | forced.stars).trailingZeroBitCount
-                    return (cell(line, i), forced.hearts >> i & 1 == 1 ? 1 : 2, .line, (0..<n).map { cell(line, $0) })
+                    guard let forced = lineForced(h, s, line), forced.crescents | forced.suns != 0 else { continue }
+                    let i = (forced.crescents | forced.suns).trailingZeroBitCount
+                    return (cell(line, i), forced.crescents >> i & 1 == 1 ? 1 : 2, .line, (0..<n).map { cell(line, $0) })
                 }
                 if let (c, mark) = chainStep(grid) { return (c, mark, .chain, [c]) }
                 return nil
