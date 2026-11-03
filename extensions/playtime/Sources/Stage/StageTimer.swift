@@ -20,9 +20,9 @@ extension BoardDrawing {
         anims.append(Anim.to("timer.fill", ["sx": 0], ms: ms, ease: "linear").essential().named("timer_\(id)"))
         anims.append(Anim.sequence([.wait(ms: warmAt), .to("timer.warm", ["opacity": 1], ms: 200, ease: "linear")]).essential().named("timer_\(id)_warm"))
         return Node.box("timer", w: width, h: 5) {
-            Node.capsule(fill: .surfaceSunken).id("timer.track").size(width, 5)
+            Node.capsule(fill: Paint.lilac).id("timer.track").size(width, 5)
             Node.box("timer.fill", w: width, h: 5) {
-                Node.capsule(fill: .accent).size(width, 5)
+                Node.capsule(fill: Paint.action).size(width, 5)
                 Node.capsule(fill: .hex("#FF8A3D")).id("timer.warm").size(width, 5).opacity(0)
             }.anchor(0, 0.5)
         }.label(L("{n} seconds left", ["n": Int(seconds.rounded(.up))]))

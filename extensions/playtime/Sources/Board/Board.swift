@@ -69,20 +69,24 @@ public struct Board {
     public var turn: String?
     /// The move just made was refused: said in the prompt, with a small shake of what was refused.
     public var refused: Bool
+    /// What the companion's bubble says when the board's own words stand elsewhere (a question on its plaque): something short.
+    public var said: String?
 
-    public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil, turn: String? = nil, refused: Bool = false) {
+    public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil, turn: String? = nil, refused: Bool = false, said: String? = nil) {
         self.parts = parts
         self.companion = companion
         self.over = over
         self.afterMs = afterMs
         self.turn = turn
         self.refused = refused
+        self.said = said
     }
 
     public var json: [String: Any] {
         var out: [String: Any] = ["parts": parts.map(\.json), "over": over]
         if let companion { out["companion"] = companion.json }
         if let afterMs { out["after_ms"] = afterMs }
+        if let said { out["said"] = said }
         return out
     }
 }

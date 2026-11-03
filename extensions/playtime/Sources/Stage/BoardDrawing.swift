@@ -112,14 +112,14 @@ final class BoardDrawing {
     func scene() -> Scene {
         let head = header()
         // The controls first: the board's room is what they and the stage leave.
-        let controls = dock()
+        let controls = gameTable == nil ? dock() : nil
         // A part keeps the controls' room whether or not they show now, so the board doesn't move when a button comes or goes.
         let dockHeight = Swift.max(controls?.height ?? 0, dockRoom)
         let bottom = Self.canvas - Self.footerRoom - (dockHeight > 0 ? dockHeight + 8 : 0)
         let said = ended ? nil : stage(text: board.promptPart?.text, chip: board.promptPart?.chip)
         let top = 4 + head.height + (said.map { $0.height + 6 } ?? 0)
         playRoom = bottom - top - 6
-        let parts = playBlocks()
+        let parts = tableBlock().map { [$0] } ?? playBlocks()
         let height = parts.reduce(-8.0) { $0 + $1.height + 8 }
         var offset = height <= playRoom ? ((playRoom - height) / 2).rounded() : 0
         let stacked = parts.map { block -> Node in
@@ -244,7 +244,8 @@ final class BoardDrawing {
             return onTable(cupsPart(count: count, hide: hide, swaps: swaps, swapMs: swapMs, picked: picked, revealed: revealed, gem: gem, locked: locked))
         case .reflex(let after, let window, let wait, let go, let early, let shows, let keys):
             return onTable(reflexPart(afterMs: after, windowMs: window, wait: wait, go: go, early: early, shows: shows, keys: keys))
-        case .meter(let value, let label, let low, let high): return meter(value, label: label, low: low, high: high)
+        case .meter(let value, let label, _, _): return PartBlock(warmth(value, label: label, width: Self.inner), height: 30)
+        case .counter(let words, let caption, _): return counterBlock(words, caption: caption)
         case .number(let min, let max, let label, let history, let locked): return numberField(min: min, max: max, label: label, history: history, locked: locked)
         case .letters(let rows, let length, let tries, let style, let draft, let flip, let script):
             return lettersPart(rows: rows, length: length, tries: tries, style: style, draft: draft, flip: flip, script: script)

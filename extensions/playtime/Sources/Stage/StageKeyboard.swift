@@ -122,35 +122,38 @@ extension BoardDrawing {
     }
 
     /// A text field: `word` sends `.word`, `text` sends `.text`; Return or its button sends it, and the app's field takes the input method.
-    func entry(name: String, kind: String, label: String?, placeholder: String?, button: String?, max: Int, locked: Bool) -> PartBlock {
-        let width = Self.inner, room = width - 20
+    func entry(name: String, kind: String, label: String?, placeholder: String?, button: String?, max: Int, locked: Bool, width: Double = BoardDrawing.inner) -> PartBlock {
+        let room = width - 20
         var y = 10.0
         var nodes: [Node] = []
         if let label {
-            let h = TextFit.lineHeight(11.5, "semibold")
-            nodes.append(Node.words(label, size: 11.5, weight: "semibold", color: .inkMuted, design: "default", x: 10, y: y, w: room, h: h))
+            let h = TextFit.lineHeight(12.5, "bold")
+            nodes.append(Node.words(label, size: 12.5, weight: "bold", minScale: 0.7, x: 10, y: y, w: room, h: h))
             y += h + 6
         }
         let words = button ?? L("OK")
-        let buttonW = TextFit.width(words, size: 16, weight: "heavy") + 28
-        // The button sets the row's height, with the field in its middle; the panel's plain field stood 38.
-        let fieldW = room - buttonW - 8, fieldH = 38.0, rowH = 50.0
-        let fieldY = y + (rowH - fieldH) / 2
-        nodes.append(Node.rect(fill: .surfaceSunken, stroke: .line, lineWidth: 1, corner: 10).id("entry.well").at(10, fieldY).size(fieldW, fieldH))
-        // An AppKit field insets its words 2 more than the panel's did.
-        nodes.append(Node.entry(name: name, placeholder: placeholder, max: max, locked: locked, size: 17).fieldLook(focus: true, plain: true, weight: "semibold", design: "rounded")
-            .id("entry.\(name)").at(10 + 10, fieldY + 8).size(fieldW - 20, fieldH - 16))
-        // The whole button is the area: Sidefolk dims it while the field is empty, lip and all.
+        let buttonW = Swift.min(TextFit.width(words, size: 15, weight: "heavy") + 28, room * 0.45)
+        let fieldW = room - buttonW - 8, rowH = 42.0
+        nodes.append(fieldBox(name, placeholder: placeholder, max: max, locked: locked, focus: true, x: 10, y: y, w: fieldW, h: rowH))
+        // The whole button is the area: Sidefolk dims it while the field is empty.
         nodes.append(.box("entry.send", x: 10 + fieldW + 8, y: y, w: buttonW, h: rowH) {
-            Node.rect(fill: Color.accent.tuned(brightness: -0.14), corner: 16).at(0, 4).size(buttonW, 46)
-            Node.rect(fill: .accent, corner: 16).size(buttonW, 46)
-            Node.rect(corner: 16).gradient([Paint.clear("#FFFFFF", 0.25), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(buttonW, 46)
-            Node.words(words, size: 16, weight: "heavy", color: .onAccent, align: "center", minScale: 0.65, x: 8, w: buttonW - 16, h: 46)
-        }.area("entry_send", label: words, disabled: locked, hover: nil, press: AreaLook(scale: 0.97), submits: name, sound: "sounds/tap.wav"))
+            Node.capsule(fill: Paint.action).id("entry.send.fill").size(buttonW, rowH).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
+            Node.words(words, size: 15, weight: "heavy", color: Paint.onAction, align: "center", minScale: 0.6, x: 8, w: buttonW - 16, h: rowH)
+        }.area("entry_send", label: words, disabled: locked, hover: AreaLook(scale: 1.015), press: AreaLook(scale: 0.97, dy: 1), submits: name, sound: "sounds/tap.wav"))
         y += rowH + 10
         return PartBlock(.box("entrycard.\(name)", w: width, h: y) {
             Node.gameCard(corner: 16, alpha: 0.95, w: width, h: y).id("entry.card")
             nodes
         }, height: y)
+    }
+
+    /// A native field on a well of ours: an outline, navy while it has the keyboard's words to take.
+    func fieldBox(_ name: String, placeholder: String?, max: Int, locked: Bool, focus: Bool, x: Double, y: Double, w: Double, h: Double) -> Node {
+        .box("entry.\(name).box", x: x, y: y, w: w, h: h) {
+            Node.rect(fill: Paint.card, stroke: locked ? Paint.edge : Paint.action, lineWidth: locked ? 1 : 1.5, corner: 10).id("entry.well.\(name)").size(w, h)
+            // An AppKit field insets its words a little more than the box they stand in.
+            Node.entry(name: name, placeholder: placeholder, max: max, locked: locked, size: 16).fieldLook(focus: focus && !locked, plain: true, weight: "semibold", design: "rounded")
+                .id("entry.\(name)").at(10, (h - 22) / 2).size(w - 20, 22)
+        }
     }
 }

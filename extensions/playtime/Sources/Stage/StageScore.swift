@@ -55,7 +55,7 @@ extension BoardDrawing {
             Node.capsule(fill: Paint.clear("#F2715F", 0.16)).id("score.vs").at(side + 3, 7).size(vs - 6, 18)
             Node.words(L("VS"), size: 10, weight: "black", color: Paint.coral, align: "center", x: side + 3, y: 7, w: vs - 6, h: 18)
             scoreSide("score.other", x: side + vs, w: side, name: two?[1] ?? "{companion}", points: score.companion, before: ctx.previous?.scorePart?.companion, trailing: false,
-                      face: two.map { initial($0[1], Paint.players[1]) } ?? Node.faceDisc(x: 0, y: 0, side: 28, ring: 1.5), sealed: two == nil && score.picked)
+                      face: two.map { initial($0[1], Paint.players[1]) } ?? Node.faceDisc(x: 0, y: 0, side: 28, ring: 1.5), sealed: two == nil && score.picked && gameTable == nil)
         }
     }
 
@@ -68,7 +68,7 @@ extension BoardDrawing {
         let whole = 28 + 6 + nameW + 6 + pointsW + seal
         let start = trailing ? w - whole - 2 : 2
         if ctx.fresh, let before, before != points {
-            anims.append(.keys(id + ".points", [["t": 0, "scale": 1.5], ["t": 1, "scale": 1]], ms: 360, ease: "spring"))
+            anims.append(Anim.keys(id + ".points", [["t": 0, "scale": 1.5], ["t": 1, "scale": 1]], ms: 360, ease: "spring").delay(ms: gameTable == nil ? 0 : 320))
         }
         // Whose turn it is, on the board two sides take turns on: a navy outline round that side, the same place all game, passing across as the turn does.
         let turnSide = ctx.buildUp ? ctx.previous?.turn : board.turn

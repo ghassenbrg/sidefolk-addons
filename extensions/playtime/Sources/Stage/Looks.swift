@@ -49,7 +49,7 @@ struct Look {
     static let seesaw = Look(name: "seesaw", top: .hex("#B06AB3"), bottom: .hex("#8A4590"))
     static let sudoku = Look(name: "sudoku", top: .hex("#6F8BAB"), bottom: .hex("#4A6585"))
     static let blossoms = Look(name: "blossoms", top: .hex("#FF9580"), bottom: .hex("#EC6A55"), chip: .hex("#3E9A5A"))
-    static let hands = Look(name: "hands", top: .hex("#FFAE48"), bottom: .hex("#EE8A1E"), room: "cups")
+    static let hands = Look(name: "hands", top: .hex("#FFAE48"), bottom: .hex("#EE8A1E"))
 }
 
 /// Every game Playtime offers, in the menu's order: what the manifest's `games` used to say, now the program's own. A game

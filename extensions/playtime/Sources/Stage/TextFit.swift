@@ -46,6 +46,13 @@ enum TextFit {
         (framed(words, size, weight, width: 100_000).width).rounded(.up) + 1
     }
 
+    /// The size at which the longest word of these fits `width`, so a line wraps between words rather than cutting one in two ("Wissenschaft"). Scripts that wrap anywhere keep their size.
+    static func wordSize(_ words: String, size: Double, weight: String = "regular", width: Double, least: Double = 0.55) -> Double {
+        guard !["ja", "ko", "zh-Hans"].contains(Language.code) else { return size }
+        let longest = words.split(whereSeparator: \.isWhitespace).map { Self.width(String($0), size: size, weight: weight) }.max() ?? 0
+        return longest <= width ? size : Swift.max(size * width / longest, size * least)
+    }
+
     /// The height of the words wrapped to `width`, at most `lines` lines, rounded up.
     static func height(_ words: String, size: Double, weight: String = "regular", width: Double, lines: Int = 0) -> Double {
         let line = lineHeight(size, weight)

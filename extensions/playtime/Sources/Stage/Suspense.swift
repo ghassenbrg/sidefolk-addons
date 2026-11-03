@@ -6,7 +6,7 @@ import SidefolkExtensionKit
 /// companion's reaction, sounds and what VoiceOver hears. A screen sends its next board with the verdict in it; this is what shows until the
 /// verdict's moment comes.
 enum Suspense {
-    static let revealMs = 1500
+    static let revealMs = 2100
     static let beatMs = 800
 
     /// The board to show first, and for how long, or nil when `next` gives nothing away.
@@ -30,7 +30,8 @@ enum Suspense {
            let previous, let before = previous.answersPart, !before.locked {
             let parts = previous.parts.compactMap { part -> BoardPart? in
                 switch part {
-                case .answers(let tiles, let layout, _): .answers(pending(tiles, picked), layout: layout, locked: true)
+                // A tile the help took away stays away.
+                case .answers(let tiles, let layout, _): .answers(pending(tiles, picked, keepFaded: true), layout: layout, locked: true)
                 case .button, .timer, .choice: nil
                 default: part
                 }
@@ -111,8 +112,10 @@ enum Suspense {
             return .cups(count: count, hide: hide, swaps: [], swapMs: ms, picked: picked, revealed: false, gem: gem, locked: true)
         case .reflex(_, let window, let wait, let go, let early, _, let keys):
             return .reflex(afterMs: nil, windowMs: window, wait: wait, go: go, early: early, shows: nil, keys: keys)
+        case .meter:
+            return previous.play { if case .meter = $0 { $0 } else { nil } } ?? part
         case .number(let min, let max, let label, _, _):
-            return .number(min: min, max: max, label: label, history: previous.numberPart?.history ?? [], locked: true)
+            return .number(min: min, max: max, label: previous.numberPart?.label ?? label, history: previous.numberPart?.history ?? [], locked: true)
         case .sticks(let total, let left, let take, let groups, let hint, let taken, let by, _):
             return .sticks(total: total, left: left, take: take, groups: groups, hint: hint, taken: taken, takenBy: by, locked: true)
         case .pads(let pads, _, let ms, _, let length, let done): return .pads(pads, play: [], stepMs: ms, locked: true, length: length, done: done)
@@ -124,10 +127,10 @@ enum Suspense {
     }
 
     /// The tiles while the verdict waits: the person's pick pressed, nothing judged, the companion's pick still hidden.
-    static func pending(_ tiles: [Tile], _ picked: Int?) -> [Tile] {
+    static func pending(_ tiles: [Tile], _ picked: Int?, keepFaded: Bool = false) -> [Tile] {
         tiles.enumerated().map { i, tile in
             var t = tile
-            t.state = i == picked ? .picked : .none
+            t.state = i == picked ? .picked : keepFaded && tile.state == .faded ? .faded : .none
             t.companion = false
             return t
         }

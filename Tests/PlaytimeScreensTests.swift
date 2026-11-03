@@ -65,11 +65,11 @@ import Testing
             }
             if let key = keys.first(where: { $0["mark"] as? String == "none" }) { return .letter(key["key"] as! String) }
         }
-        if let e = find("entry"), e["locked"] as? Bool != true {
+        if let e = ps.first(where: { $0["type"] as? String == "entry" && $0["locked"] as? Bool != true }) {
             if e["kind"] as? String == "word" { return .word(["一心一意", "七上八下", "人山人海", "三心二意", "十全十美", "五颜六色"][step % 6]) }
             return .text(name: e["name"] as! String, value: e["name"] as? String == "animal" ? "axolotl \(step)" : "Does it live in a lake?")
         }
-        if let b = ps.first(where: { $0["type"] as? String == "button" && $0["style"] as? String == "primary" }) { return .button(b["move"] as! String) }
+        if let b = ps.first(where: { $0["type"] as? String == "button" && $0["style"] as? String == "primary" && $0["disabled"] as? Bool != true }) { return .button(b["move"] as! String) }
         if let c = find("choice"), c["name"] as? String != "level" {
             return .choice(name: c["name"] as! String, value: ((c["options"] as! [[String: Any]])[0]["value"] as! String))
         }
@@ -269,12 +269,12 @@ import Testing
             _ = GameTable.play(HigherLowerScreen.self, .button("start"), on: &again, random: &random)
             #expect(again.mine != nil && PlaytimeRecords.load().higherLowerMode == "mine")
 
-            // During a game: the switch, never while the companion thinks.
-            #expect(!buttons(HigherLowerScreen.board(s, events: [], options: Self.options())).contains("switch"), "thinking")
+            // During a game: the switch, never while the companion thinks: it waits in its place, faded.
+            #expect(Self.parts(HigherLowerScreen.board(s, events: [], options: Self.options())).first { $0["move"] as? String == "switch" }?["disabled"] as? Bool == true, "thinking")
             _ = GameTable.play(HigherLowerScreen.self, .next, on: &s, random: &random)
             board = HigherLowerScreen.board(s, events: [], options: Self.options())
             #expect(buttons(board) == ["switch"])
-            #expect(Self.parts(board).first { $0["move"] as? String == "switch" }?["label"] as? String == "Switch: you guess")
+            #expect(Self.parts(board).first { $0["move"] as? String == "switch" }?["label"] as? String == "Switch: I'll guess")
             _ = GameTable.play(HigherLowerScreen.self, .button("switch"), on: &s, random: &random)
             #expect(s.mode == .mine && s.mine != nil && s.yours == nil && PlaytimeRecords.load().higherLowerMode == "mine")
             #expect(PlaytimeRecords.load().games[HigherLowerScreen.id] == nil, "the game left isn't scored")
@@ -285,7 +285,7 @@ import Testing
             }
             board = HigherLowerScreen.board(s, events: [.roundOver(winner: .you)], options: Self.options())
             #expect(buttons(board) == ["again", "switch"] && board.over)
-            #expect(((Self.part(board, "result")?["actions"] as? [[String: Any]])?.last?["label"] as? String)?.seen == "Switch: Mochi guesses")
+            #expect(((Self.part(board, "result")?["actions"] as? [[String: Any]])?.last?["label"] as? String)?.seen == "Let Mochi guess instead")
             _ = GameTable.play(HigherLowerScreen.self, .button("switch"), on: &s, random: &random)
             #expect(s.mode == .yours && !s.over && PlaytimeRecords.load().higherLowerMode == "yours")
             _ = GameTable.play(HigherLowerScreen.self, .next, on: &s, random: &random)
@@ -308,7 +308,9 @@ import Testing
         #expect(GameTable.play(GuessAnimalScreen.self, .text(name: "animal", value: s.game.guess!.name), on: &s, random: &random) == [.refused("same_animal")])
         _ = GameTable.play(GuessAnimalScreen.self, .text(name: "animal", value: "axolotl"), on: &s, random: &random)
         _ = GameTable.play(GuessAnimalScreen.self, .text(name: "question", value: "Does it live in a Mexican lake?"), on: &s, random: &random)
-        let learned = GameTable.play(GuessAnimalScreen.self, .answer(0), on: &s, random: &random)
+        _ = GameTable.play(GuessAnimalScreen.self, .choice(name: "new_answer", value: "yes"), on: &s, random: &random)
+        #expect(!PlaytimeRecords.animals().lessons.values.contains { $0.contains { $0.animal == "axolotl" } }, "kept when Remember says so")
+        let learned = GameTable.play(GuessAnimalScreen.self, .button("remember"), on: &s, random: &random)
         #expect(learned.contains(.learned) && s.outcome == .won)
         #expect(PlaytimeRecords.animals().lessons["en"]?.last?.animal == "axolotl", "kept in Playtime's folder")
         let next = GuessAnimalEngine.start(level: .fair, options: Self.options(), random: &random)

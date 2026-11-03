@@ -57,7 +57,7 @@ enum TriviaEngine: GameEngine {
     }
 
     enum Action: Equatable {
-        case topic(String), length(Int), pace(quick: Bool), start
+        case topic(String), length(Int), pace(quick: Bool), level(GameLevel), start
         case answer(Int), timeout, hint, next, finish, again, topics
         case custom(String), duo(TwoPlayers.Setup)
     }
@@ -73,7 +73,7 @@ enum TriviaEngine: GameEngine {
     static func start(level: GameLevel, options: GameOptions, random: inout Games.Random) -> State {
         var state = State()
         let setup = TriviaRecords.load().setup
-        state.level = level
+        state.level = options.asked ?? setup.level ?? level
         state.companionName = options.companion
         state.language = options.language
         state.topic = setup.topic == surprise && options.aiTrivia == nil ? "mix" : setup.topic
@@ -126,6 +126,9 @@ enum TriviaEngine: GameEngine {
         case (.setup, .duo(let setup)):
             _ = TwoPlayers.apply(setup, to: &state.duo)
             return []
+        case (.setup, .level(let level)):
+            state.level = level
+            return []
         case (.setup, .topic(let t)):
             guard t == "mix" || TriviaLibrary.categories(language: state.language).contains(t) || t == surprise && state.aiMaker != nil
             else { throw Games.Refusal("not_now") }
@@ -156,7 +159,7 @@ enum TriviaEngine: GameEngine {
             return []
         case (.setup, .start), (.done, .again):
             guard !state.duo.on || state.duo.playing else { throw Games.Refusal("not_now") }
-            TriviaRecords.update { $0.setup = TriviaRecords.Setup(topic: state.topic, length: state.length, quick: state.quick) }
+            TriviaRecords.update { $0.setup = TriviaRecords.Setup(topic: state.topic, length: state.length, quick: state.quick, level: state.level) }
             if state.phase == .setup { state.made = [] }
             begin(&state, random: &random)
             return [.sealed]

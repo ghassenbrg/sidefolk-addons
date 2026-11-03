@@ -6,7 +6,7 @@ extension BoardDrawing {
     /// A dense board keeps a smaller companion, for every board of that game alike.
     private var compact: Bool { board.hasPuzzle || board.hasKeys || board.hasLetters }
     /// The stage's one height, whatever is said: one line or three, the board below stays where it is.
-    private var stageHeight: Double { isStall ? 44 : compact ? 60 : 78 }
+    private var stageHeight: Double { stageTall ?? (isStall ? 44 : compact ? 60 : 78) }
 
     /// The founder's rule: the companion earns its place by reacting. It thinks while it plays or while something is playing, leans in when it's the person's turn, reacts to
     /// what just happened, and shows how the game went. It changes only with the game: no idle movement, and it is always a still of the person's real companion.
@@ -39,7 +39,7 @@ extension BoardDrawing {
     private var posed: String? { ctx.previous.map { BoardDrawing($0, StageContext(entry: ctx.entry, fresh: false, local: ctx.local)).pose } }
 
     func stage(text: String?, chip: String?) -> PartBlock {
-        let inner = Self.inner, h = stageHeight, side = compact ? 58.0 : 80.0
+        let inner = Self.inner, h = stageHeight, side = stageTall ?? (compact ? 58.0 : 80.0)
         let words = stageWords(prompt: text)
         if isStall {
             // In the stall the companion stands on the counter, with its bubble up beside it over the word's sign.
@@ -49,7 +49,7 @@ extension BoardDrawing {
                 if let words { speechBubble(words, width: inner - bubbleX - 8, height: h - 4).node.at(bubbleX, 0) }
             }, height: h)
         }
-        let bubbleW = inner - side - 8
+        let bubbleW = stageBubbleWidth ?? inner - side - 8
         return PartBlock(Node.box("stage", w: inner, h: h) {
             companionFigure(w: side, h: h + 6, y: 0)
             if let words { speechBubble(words, width: bubbleW, height: Swift.min(h - 6, 64)).node.at(side + 8, (h - Swift.min(h - 6, 64)) / 2) }
@@ -93,7 +93,7 @@ extension BoardDrawing {
     func speechBubble(_ text: String, width: Double, height: Double) -> PartBlock {
         let clock = board.timerPart
         let room = width - 28, wordsH = height - 10 - (clock == nil ? 0 : 7)
-        if ctx.fresh, let before = ctx.previous?.promptPart?.text, before != text {
+        if ctx.fresh, let before = ctx.previous?.said ?? ctx.previous?.promptPart?.text, before != text {
             anims.append(.keys("bubble.text", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 180, ease: "out"))
         }
         let shape = ShapePath.rounded(x: 0, y: 0, w: width, h: height, r: 18)

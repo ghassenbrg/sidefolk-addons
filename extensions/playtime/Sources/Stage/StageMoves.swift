@@ -126,7 +126,8 @@ enum StageMoves {
     /// Return on a word or a number being typed.
     private static func submit(board: Board, local: LocalParts) -> StageAction {
         if let keys = board.keysPart, keys.mode == "spell", local.draft.count == keys.length { return .play(.word(local.draft.lowercased())) }
-        if let field = board.numberPart, let n = Int(local.draft), (field.min...field.max).contains(n) { return .play(.number(n)) }
+        // Out of range too: the game refuses it in words, rather than Return doing nothing.
+        if board.numberPart?.locked == false, let n = Int(local.draft) { return .play(.number(n)) }
         return .ignore
     }
 
