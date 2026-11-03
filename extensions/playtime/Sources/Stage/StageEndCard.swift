@@ -95,7 +95,9 @@ extension BoardDrawing {
 
     /// A puzzle solved: a sheet from the notebook, with the companion delighted beside the time, how it went, the board as it was finished, and what next. Nothing but the true numbers.
     private func puzzleSheet(time: String, ribbon: String?, facts: [(String, String)], actions: [GameButton]) -> PartBlock {
-        let width = Self.inner, height = playRoom, pad = 22.0
+        // A little below the title, so its clip hangs under the name rather than over it.
+        let drop = 10.0
+        let width = Self.inner, height = playRoom - drop, pad = 22.0
         let right = 126.0, room = width - right - 16
         // The time is the headline, so the rest of what's known goes in one line under it.
         let how = facts.dropFirst().map { "\($0.0) \($0.1)" }.joined(separator: " · ")
@@ -150,7 +152,7 @@ extension BoardDrawing {
             chips
             if let primary { buttonRow([primary], id: "end.action.0", width: (width - 2 * pad - 10) * 0.54).node.at(pad, height - pad + 4 - 44) }
             buttonRow([back], id: "end.back.row", width: (width - 2 * pad - 10) * 0.46, flat: true).node.at(pad + (width - 2 * pad - 10) * 0.54 + 10, height - pad + 4 - 43)
-        }, height: height)
+        }.at(0, drop), height: playRoom)
     }
 
     /// What the frame's Back does, as a link under the actions.
