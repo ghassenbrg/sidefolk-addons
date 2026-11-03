@@ -109,7 +109,7 @@ extension BoardDrawing {
         // It moves when it reacts or its pose changes; a board redrawn for a key, or nothing new, leaves it still. A throw has its own dips and flinches (`companionThrough`) on `y`, so during one only its lean plays.
         if let move = stageFigureMove {
             let before = posed.map { FigureRest(pose: $0, toward: figureToward) } ?? rest
-            anims.append(move.anim("companion.figure", from: before, to: rest, toward: figureToward, leanOnly: gameTable == .hands && ctx.buildUp))
+            anims.append(move.anim("companion.figure", from: before, to: rest, toward: figureToward, leanOnly: (gameTable == .hands && ctx.buildUp) || playing))
         }
         if let button = board.companionButton {
             group = group.area("button", value: button.move, label: button.label, hover: AreaLook(scale: 1.02), press: AreaLook(scale: 0.95), always: true, sound: "sounds/tap.wav")

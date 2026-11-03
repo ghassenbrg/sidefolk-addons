@@ -59,6 +59,12 @@ extension BoardDrawing {
                 steps += [light(i, on: true, ms: on), .wait(ms: Swift.max(hold, 0)), light(i, on: false, ms: off, rest: Self.standBack), .wait(ms: 40)]
             }
             anims.append(Anim.sequence(steps).essential().blocksInput().named("pads_play"))
+            // "Watch me": the companion bobs with each step of its dance, as far as a track's points reach. Its own run, so it carries on through a redraw; not essential, so Reduce Motion rests it.
+            var bobs: [Anim] = [.wait(ms: Double(Self.padsLeadMs))]
+            for _ in play.prefix(10) {
+                bobs += [.keys("companion.figure", [["t": 0, "y": 0, "sy": 1], ["t": 0.45, "y": -9, "sy": 1.04], ["t": 1, "y": 0, "sy": 1]], ms: Swift.min(step - 40, 300), ease: "in_out"), .wait(ms: Swift.max(step - Swift.min(step - 40, 300), 0))]
+            }
+            anims.append(Anim.sequence(bobs).named("pads_bob"))
             untilPlayed()
         } else if let right, pads.indices.contains(right) {
             if ctx.fresh, let pressed, pads.indices.contains(pressed) {

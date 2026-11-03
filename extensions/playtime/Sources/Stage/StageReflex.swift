@@ -62,7 +62,7 @@ extension BoardDrawing {
             if went { signalOver(go, id: "reflex.went.over", opacity: 1) }
             if let seats, armed { seatCaps(seats) }
             slotRow(y: playRoom - 38, height: 38)
-        }.leftToRight()
+        }
         return PartBlock(part, height: playRoom)
     }
 
@@ -105,14 +105,15 @@ extension BoardDrawing {
     /// Two people: their keys, each on their side of the machine, on the mat.
     private func seatCaps(_ seats: [String]) -> Node {
         let side = 32.0, y = Machine.matY + Machine.matH - 44
-        return .box("reflex.seats", w: Self.inner, h: playRoom) {
+        // Each key on its own side of the keyboard, in any language.
+        return Node.box("reflex.seats", w: Self.inner, h: playRoom) {
             for (i, seat) in seats.enumerated() {
                 Node.box("reflex.seat.\(i)", x: i == 0 ? 6 : Self.inner - side - 6, y: y, w: side, h: side) {
                     Node.rect(fill: Paint.card, stroke: Paint.players[i], lineWidth: 2, corner: 8).size(side, side)
                     Node.words(seat.uppercased(), size: 15, weight: "heavy", align: "center", w: side, h: side)
                 }
             }
-        }
+        }.leftToRight()
     }
 
     var reflexFooter: String? {
