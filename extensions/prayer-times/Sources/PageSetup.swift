@@ -9,7 +9,7 @@ enum SetupPage {
 
     static func sections(_ ctx: Context) -> [Section] {
         let step = ctx.state.string("setup") ?? (ctx.snapshot.place == nil ? "welcome" : "source")
-        if step == "source" { return SourcePage.setupStep(ctx) }
+        if step == "source" { return SourcePage.sections(ctx) }
         if ctx.width >= bothFrom { return both(ctx, step: step) }
         return step == "place" ? one(ctx, place: true, step: step) : one(ctx, place: false, step: step)
     }
@@ -42,12 +42,7 @@ enum SetupPage {
     }
 
     private static func wrap(_ ctx: Context, _ scene: Scene, _ wiring: SceneWiring) -> [Section] {
-        var out = [Section(nil, [.scene(PageSceneBlock(scene, actions: wiring.tools, acts: wiring.acts, inlays: wiring.inlays))], wide: true)]
-        // Opening Sidefolk's settings hangs on a button that says so (host D105); a scene's area can't.
-        if SharedPlace.shared, SharedPlace.current == nil {
-            out.append(Section(nil, [.action(Action(L("Open Sidefolk's place settings"), act: .settings("place"), symbol: "gearshape"))], wide: true))
-        }
-        return out
+        [Section(nil, [.scene(PageSceneBlock(scene, actions: wiring.tools, acts: wiring.acts, inlays: wiring.inlays))], wide: true)]
     }
 
     // MARK: Welcome
@@ -92,9 +87,13 @@ enum SetupPage {
     private static func placeHeight(_ ctx: Context, r: Ruler) -> Double {
         let shared = ctx.state.string("place_mode") == "shared"
         let more = ctx.model.placeResults.count > 3 ? 54.0 : 0
-        let extra = shared ? 0 : Double(rowsShown(ctx) - 2) * 70 + more + (ctx.state.bool("place_adv") == true ? 186 : 0)
+        let extra = shared ? 0 : Double(rowsShown(ctx) - 2) * 70 + more + (ctx.state.bool("place_adv") == true ? 186 : 0) + (sidefolkKnowsNoPlace ? settingsRoom : 0)
         return r.u(798 + extra)
     }
+
+    /// Shared, and Sidefolk has no place to share: the way to its settings stands in the consent row.
+    private static var sidefolkKnowsNoPlace: Bool { SharedPlace.shared && SharedPlace.current == nil }
+    private static let settingsRoom = 46.0
 
     /// The results to draw, the picked one always among them.
     private static func visibleResults(_ ctx: Context, picked: String?) -> [Place] {
@@ -190,7 +189,7 @@ enum SetupPage {
         } else {
             for (i, place) in results.enumerated() {
                 let on = place.id == picked
-                let title = [place.label, place.region, place.country].compactMap { $0 }.joined(separator: " · ")
+                let title = PlaceParts.parts(place).joined(separator: " · ")
                 wiring.acts["pick-\(i)"] = .go(Go(set: ["place_pick": place.id]))
                 out.append(Node.group {
                     if on {
@@ -279,19 +278,27 @@ enum SetupPage {
 
     /// What this switch means changes as the person answers, so it says so each time. It only asks: Sidefolk's own question is the consent.
     private static func consentRow(_ ctx: Context, x: Double, y: Double, w: Double, ox: Double, oy: Double, r: Ruler, wiring: inout SceneWiring) -> [Node] {
-        let h = r.u(86), control = consentControl(ctx)
+        let h = consentHeight(r), control = consentControl(ctx)
         let words = consentWords(ctx)
-        let out: [Node] = [
+        var out: [Node] = [
             Node.well(w, h, corner: r.u(12)).at(x, y),
-            Node.medallion("location", cx: x + r.u(37), cy: y + h / 2, d: r.u(40), ink: Noor.text),
+            Node.medallion("location", cx: x + r.u(37), cy: y + r.u(43), d: r.u(40), ink: Noor.text),
             Node.say(L("Use Sidefolk's place (optional)"), x + r.u(75), y + r.u(8), w - r.u(160), r.u(26), size: r.f(16, min: 11.5), weight: "medium"),
             Node.say(words, x + r.u(75), y + r.u(33), w - (control == nil ? r.u(90) : r.u(160)), r.u(50), size: r.f(13.5, min: 10.5), color: Noor.muted, lines: 2),
         ]
         if let control {
             wiring.inlays.append(PageInlay(x: ox + x + w - r.u(72), y: oy + y + (h - r.u(32)) / 2, w: r.u(56), h: r.u(32), control))
         }
+        if sidefolkKnowsNoPlace {
+            // Opening Sidefolk's settings is a button that says so, over this pill: a scene's area can't (host D105, D109).
+            let buttonX = x + r.u(75), buttonY = y + r.u(86), buttonW = w - r.u(91), buttonH = r.u(36)
+            out.append(Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(buttonW, buttonH).at(buttonX, buttonY))
+            wiring.inlays.append(PageInlay(x: ox + buttonX, y: oy + buttonY, w: buttonW, h: buttonH, .action(Action(L("Open Sidefolk's place settings"), act: .settings("place"), symbol: "gearshape"))))
+        }
         return out
     }
+
+    private static func consentHeight(_ r: Ruler) -> Double { r.u(86 + (sidefolkKnowsNoPlace ? settingsRoom : 0)) }
 
     private static func consentWords(_ ctx: Context) -> String {
         guard SharedPlace.shared else { return L("Optional. Sidefolk asks you first, then shares your town and its zone with Noor. Noor sends the coordinates to AlAdhan.") }
@@ -315,7 +322,7 @@ enum SetupPage {
             ("paperplane", L("Noor sends the coordinates to AlAdhan for times and the bearing.")),
             ("pin", L("You can keep a place you choose instead, also when you travel.")),
         ]
-        var py = y + r.u(106)
+        var py = y + consentHeight(r) + r.u(20)
         for point in points {
             out.append(Node.medallion(point.0, cx: x + r.u(37), cy: py + r.u(26), d: r.u(40), ink: Noor.text, ring: NoorLine.soft))
             out.append(Node.say(point.1, x + r.u(75), py, w - r.u(90), r.u(52), size: r.f(15, min: 11.5), color: Noor.muted, lines: 2))
@@ -331,7 +338,14 @@ enum SetupPage {
 /// Finding a place, here and in Preferences.
 @MainActor
 enum PlaceParts {
-    static func title(_ place: Place) -> String { [place.label, place.region, place.country].compactMap { $0 }.joined(separator: ", ") }
+    /// A place's name, region and country, each once: for many cities the region has the city's own name.
+    static func parts(_ place: Place) -> [String] {
+        var out: [String] = []
+        for part in [place.label, place.region, place.country].compactMap({ $0 }) where !out.contains(where: { $0.caseInsensitiveCompare(part) == .orderedSame }) { out.append(part) }
+        return out
+    }
+
+    static func title(_ place: Place) -> String { parts(place).joined(separator: ", ") }
 
     static func input(_ place: Place) -> [String: Any] {
         var out: [String: Any] = ["label": place.label, "latitude": place.latitude, "longitude": place.longitude, "zone": place.zoneID]

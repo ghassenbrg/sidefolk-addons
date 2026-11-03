@@ -193,4 +193,58 @@ struct NoorProviderTests {
         _ = await load(provider, at: now.addingTimeInterval(2))
         #expect(await fetch.asked.count > tries, "a new round tries again")
     }
+
+    @Test func aFailedRefreshWithASavedAnswerReportsItsReason() async throws {
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let busy = Data(#"{"code":429,"data":"slow"}"#.utf8)
+        let (provider, _) = provider([.answer(200, try S.fixture("prayer-day")), .answer(200, Data("<html>oops</html>".utf8)),
+                                      .answer(429, busy), .answer(429, busy), .answer(429, busy), .failure, .failure, .failure])
+        let good = try #require(await load(provider).value)
+        #expect(await provider.standingFailure == nil, "nothing has failed yet")
+
+        // Each time the times stay, and the reason doesn't hide behind them.
+        #expect(await load(provider, refresh: true) == .cached(good, fetchedAt: now))
+        #expect(await provider.standingFailure == .malformed)
+        #expect(await load(provider, refresh: true) == .cached(good, fetchedAt: now))
+        #expect(await provider.standingFailure == .rateLimited(retryAfter: 60))
+
+        let afterCooling = now.addingTimeInterval(61)
+        #expect(await load(provider, at: afterCooling, refresh: true) == .cached(good, fetchedAt: now))
+        #expect(await provider.standingFailure == .offline)
+    }
+
+    @Test func aFailureStaysUntilARealFetchSucceeds() async throws {
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let busy = Data(#"{"code":429,"data":"slow"}"#.utf8)
+        let (provider, fetch) = provider([.answer(200, try S.fixture("prayer-day")), .answer(429, busy), .answer(429, busy), .answer(429, busy), .answer(200, try S.fixture("prayer-day"))])
+        let good = try #require(await load(provider).value)
+        #expect(await load(provider, refresh: true) == .cached(good, fetchedAt: now))
+        let asked = await fetch.asked.count
+
+        // Another round, a page opened or a tab changed, reads the young saved answer: that isn't the network saying yes.
+        await provider.beginAsking()
+        #expect(await load(provider, at: now.addingTimeInterval(10)) == .cached(good, fetchedAt: now))
+        #expect(await fetch.asked.count == asked, "still cooling down")
+        #expect(await provider.standingFailure == .rateLimited(retryAfter: 50))
+
+        // It tries again by itself once it may, though the saved answer is young, and a real answer ends it.
+        await provider.beginAsking()
+        let after = now.addingTimeInterval(61)
+        guard case .fresh = await load(provider, at: after) else { Issue.record("Expected fresh after the cooldown"); return }
+        #expect(await provider.standingFailure == nil)
+    }
+
+    @Test func anotherAnswerDoesNotClearAFailureAboutSomethingElse() async throws {
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let (provider, _) = provider([.answer(200, try S.fixture("prayer-day")), .answer(200, Data("<html>oops</html>".utf8)), .answer(200, try S.fixture("qibla-tokyo"))])
+        _ = await load(provider)
+        _ = await load(provider, refresh: true)
+        guard case .fresh = await provider.qibla(place: S.tokyo, now: now) else { Issue.record("Expected fresh"); return }
+        #expect(await provider.standingFailure == .malformed)
+
+        // A round that no longer asks about it has left it behind: a place no longer chosen doesn't speak for this one.
+        await provider.beginAsking()
+        _ = await provider.qibla(place: S.tokyo, now: now)
+        #expect(await provider.standingFailure == nil)
+    }
 }

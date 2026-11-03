@@ -189,10 +189,11 @@ final class NoorModel {
         freshening?.cancel()
         loadedKey = key
         if stale { freshAt = now }
-        load = .loading
+        // A round the page started by itself doesn't take back a failure that stands: only asking again on purpose, or an answer, does.
+        if refresh || problem == nil { load = .loading }
         freshening = Task { @MainActor [weak self] in
             await self?.fetchAll(now: now, refresh: refresh)
-            guard let self else { return }
+            guard let self, !Task.isCancelled else { return }
             self.freshening = nil
             if self.againAfter {
                 self.againAfter = false
@@ -267,6 +268,7 @@ final class NoorModel {
         if let list = await provider.load(AlAdhan.prayerMethods(), now: now).value { prayerMethods = list }
 
         guard let place = prefs.place else {
+            if failed == nil { failed = await provider.standingFailure }
             load = failed == .offline ? .offline : .settled
             problem = failed
             return
@@ -302,7 +304,10 @@ final class NoorModel {
            let list = note(await provider.load(AlAdhan.occasions(hijriYear: year, method: prefs.calendarMethod), now: now, refresh: refresh), into: &failed, at: &fetched) {
             occasions[year] = Occasion.dedupe(list)
         }
-        if failed == nil, await provider.foundNoConnection { failed = .offline }
+        // A round replaced while it ran has nothing to say: the one that took over will.
+        guard !Task.isCancelled else { return }
+        // A saved answer covers a failed refresh on the page, not in what the person is told.
+        if failed == nil { failed = await provider.standingFailure }
         problem = failed
         fetchedAt = fetched ?? (failed == nil ? now : fetchedAt)
         load = failed == nil ? .settled : (failed == .offline ? .offline : .failed)

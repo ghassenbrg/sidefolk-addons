@@ -1,20 +1,15 @@
 import Foundation
 import SidefolkExtensionKit
 
-/// F02: which timetable, and a mosque's own by hand or from a file that is looked over before anything is kept. Two panels where they fit, one above the other where they don't.
+/// F02: which timetable, and a mosque's own by hand or from a file that is looked over before anything is kept. The same board in first run and in Preferences: two panels where they fit, one above the other where they don't.
 @MainActor
 enum SourcePage {
     // MARK: What a page holds
 
-    static func addButtons(_ ctx: Context) -> [Block] {
-        [.action(Action(L("Import a CSV file"), act: .file(tool: "import_csv", param: "path", types: ["csv", "txt"]), symbol: "square.and.arrow.down")),
-         .action(Action(L("Enter by hand"), act: .go(Go(set: ["sheet": "manual"], push: true)), symbol: "pencil")),
-         .action(Action(L("Copy a CSV template"), act: .copy(CSVImport.template), style: .plain, symbol: "doc.on.doc"))]
-    }
-
     /// Calculated, or a mosque's timetable by hand or from a file. No directory of mosques: nothing here pretends to one.
-    static func setupStep(_ ctx: Context) -> [Section] {
-        two(ctx, right: { w, h, ox, oy, r, wiring in guide(ctx, w: w, h: h, ox: ox, oy: oy, r: r, wiring: &wiring) }, foot: fileButtons(ctx, first: true))
+    static func sections(_ ctx: Context) -> [Section] {
+        if ctx.model.review != nil { return review(ctx) }
+        return two(ctx, right: { w, h, ox, oy, r, wiring in guide(ctx, w: w, h: h, ox: ox, oy: oy, r: r, wiring: &wiring) })
     }
 
     /// What the file holds, for looking over: nothing is saved until Add, and Cancel leaves no source.
@@ -22,7 +17,7 @@ enum SourcePage {
         guard ctx.model.review != nil else {
             return [NoorPage.status(ctx, symbol: "doc", title: L("There's no file being looked at."), detail: "", tint: Noor.text, buttons: [("back", L("Back"), false, .go(.backward))])]
         }
-        return two(ctx, right: { w, h, ox, oy, r, wiring in check(ctx, w: w, h: h, ox: ox, oy: oy, r: r, wiring: &wiring) }, foot: fileButtons(ctx, first: false), rightFirst: true)
+        return two(ctx, right: { w, h, ox, oy, r, wiring in check(ctx, w: w, h: h, ox: ox, oy: oy, r: r, wiring: &wiring) }, rightFirst: true)
     }
 
     /// Choosing a file, a button that says so.
@@ -30,69 +25,79 @@ enum SourcePage {
         .action(Action(first ? L("Import a CSV file") : L("Choose another file"), act: .file(tool: "import_csv", param: "path", types: ["csv", "txt"]), symbol: first ? "square.and.arrow.down" : "doc"))
     }
 
+    private static var copyButton: Block { .action(Action(L("Copy a CSV template"), act: .copy(CSVImport.template), style: .plain, symbol: "doc.on.doc")) }
+
     private static func mosqueChosen(_ ctx: Context) -> Bool {
         let manual = ctx.model.source?.kind == .manual || ctx.model.review != nil || ctx.state.string("sheet") == "import"
         return (ctx.state.string("src_kind") ?? (manual ? "mosque" : "calculated")) == "mosque"
     }
 
-    /// Under the panels: what they have no slot for.
-    private static func fileButtons(_ ctx: Context, first: Bool) -> Section {
-        var blocks: [Block] = [.action(Action(L("Copy a CSV template"), act: .copy(CSVImport.template), style: .plain, symbol: "doc.on.doc"))]
-        if first {
-            blocks.insert(.action(Action(L("Enter by hand"), act: .go(Go(set: ["sheet": "manual"], push: true)), symbol: "pencil")), at: 0)
-            if !mosqueChosen(ctx) { blocks.insert(importButton(first: true), at: 0) }
-        }
-        return Section(nil, blocks, wide: true)
+    /// As tall as the board's panels where two stand side by side; stacked, each is only what it holds.
+    private static func least(_ ctx: Context, _ r: Ruler) -> Double { ctx.narrow ? 0 : r.u(720) }
+
+    /// A native button over the pill drawn for it: a scene's area may only move around the page or run a tool (host D105, D109).
+    private static func slot(_ part: Block, x: Double, y: Double, w: Double, h: Double, ox: Double, oy: Double, wiring: inout SceneWiring) -> Node {
+        wiring.inlays.append(PageInlay(x: ox + x, y: oy + y, w: w, h: h, part))
+        return Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(w, h).at(x, y)
     }
 
     private typealias Panel = (_ w: Double, _ h: Double?, _ ox: Double, _ oy: Double, _ r: Ruler, _ wiring: inout SceneWiring) -> (node: Node, height: Double)
 
-    private static func two(_ ctx: Context, left: Panel? = nil, right: @escaping Panel, foot: Section? = nil, rightFirst: Bool = false) -> [Section] {
+    private static func two(_ ctx: Context, left: Panel? = nil, right: @escaping Panel, rightFirst: Bool = false) -> [Section] {
         let w = ctx.width
         let left: Panel = left ?? { w, h, ox, oy, r, wiring in chooser(ctx, w: w, h: h, ox: ox, oy: oy, r: r, wiring: &wiring) }
-        var wiring = SceneWiring()
-        let scene: Scene
         if ctx.narrow {
+            // One above the other, what is being looked at first, a scene each: together they could pass a scene's tallest size.
             let margin = 16.0, inner = w - margin * 2
             let r = Ruler(width: inner / 621 * 1290)
-            var skip = SceneWiring()
-            // One above the other, what is being looked at first.
-            let upper = rightFirst ? right : left, lower = rightFirst ? left : right
-            let a = upper(inner, nil, margin, 0, r, &skip)
-            let drawn = upper(inner, a.height, margin, 0, r, &wiring)
-            let b = lower(inner, nil, margin, a.height + 14, r, &wiring)
-            scene = Scene(width: w, height: a.height + b.height + 26) {
-                drawn.node.at(margin, 0)
-                b.node.at(margin, a.height + 14)
-            }
-        } else {
-            let r = ctx.ruler, margin = r.u(23), gap = r.u(17)
-            let leftW = (w - margin * 2 - gap) * 0.504, rightW = w - margin * 2 - gap - leftW, rightX = margin + leftW + gap
-            var skip = SceneWiring()
-            let h = max(left(leftW, nil, margin, 0, r, &skip).height, right(rightW, nil, rightX, 0, r, &skip).height)
-            let a = left(leftW, h, margin, 0, r, &wiring), b = right(rightW, h, rightX, 0, r, &wiring)
-            scene = Scene(width: w, height: h + r.u(14)) {
-                a.node.at(margin, 0)
-                b.node.at(rightX, 0)
+            return (rightFirst ? [right, left] : [left, right]).map { panel in
+                var skip = SceneWiring(), wiring = SceneWiring()
+                let height = panel(inner, nil, margin, 0, r, &skip).height
+                let drawn = panel(inner, height, margin, 0, r, &wiring)
+                let scene = Scene(width: w, height: height + 12) { drawn.node.at(margin, 0) }
+                return Section(nil, [.scene(PageSceneBlock(scene, actions: wiring.tools, acts: wiring.acts, inlays: wiring.inlays))], wide: true)
             }
         }
-        var out = [Section(nil, [.scene(PageSceneBlock(scene, actions: wiring.tools, acts: wiring.acts, inlays: wiring.inlays))], wide: true)]
-        if let foot { out.append(foot) }
-        return out
+        let r = ctx.ruler, margin = r.u(23), gap = r.u(17)
+        let leftW = (w - margin * 2 - gap) * 0.504, rightW = w - margin * 2 - gap - leftW, rightX = margin + leftW + gap
+        var skip = SceneWiring(), wiring = SceneWiring()
+        let h = max(left(leftW, nil, margin, 0, r, &skip).height, right(rightW, nil, rightX, 0, r, &skip).height)
+        let a = left(leftW, h, margin, 0, r, &wiring), b = right(rightW, h, rightX, 0, r, &wiring)
+        let scene = Scene(width: w, height: h + r.u(14)) {
+            a.node.at(margin, 0)
+            b.node.at(rightX, 0)
+        }
+        return [Section(nil, [.scene(PageSceneBlock(scene, actions: wiring.tools, acts: wiring.acts, inlays: wiring.inlays))], wide: true)]
     }
 
-    /// The boards' panel: a line, its fill, the lattice coming in at both top corners under a way out of the corner's curve.
+    /// The boards' panel: a rim of lattice inside its line, the plate standing on it, and the lattice coming in at each corner, widest at the top where the title makes way for it.
     private static func panelChrome(_ w: Double, _ h: Double, r: Ruler) -> Node {
-        let side = r.u(120)
+        let rim = r.u(7), side = r.u(120), low = r.u(66), corner = r.u(18)
         return Node.group {
-            Node.rect(fill: Color.adaptive(light: "#FFFFFFF0", dark: "#0B1640F5"), stroke: Color.adaptive(light: "#C9AB72", dark: "#7A4E6E"), lineWidth: 1.2, corner: r.u(18)).size(w, h)
+            Node.image("art/lattice-l.jpg", dark: "art/panel-lattice-d.jpg", fit: "cover").size(w, h).corner(corner).clip().opacity(0.75)
+            Node.rect(fill: Color.adaptive(light: "#FFFFFF", dark: "#0B1640"), stroke: Color.adaptive(light: "#C9AB72", dark: "#B55A4E"), lineWidth: 1, corner: r.u(13)).size(w - rim * 2, h - rim * 2).at(rim, rim)
             Node.group {
                 Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(w - side, 0)
                 Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(side, side).at(0, 0).scale(x: -1, y: 1)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(low, low).at(w - low, h - low).scale(x: 1, y: -1)
+                Node.image("art/corner-l.png", dark: "art/corner-d.png", fit: "contain").size(low, low).at(0, h - low).scale(x: -1, y: -1)
             }
-            .size(w, h).corner(r.u(18)).clip().opacity(0.8)
+            .size(w, h).corner(corner).clip().opacity(0.85)
+            Node.rect(stroke: Color.adaptive(light: "#C9AB72", dark: "#C47F6A"), lineWidth: 1.2, corner: corner).size(w, h)
         }
         .size(w, h)
+    }
+
+    /// The way back, on a plate of its own: it stands where the corner's lattice comes in, and a bleed page has no host Back to see.
+    private static func backMark(_ act: PageAct, r: Ruler, wiring: inout SceneWiring) -> Node {
+        wiring.acts["back"] = act
+        let d = r.u(32), glyphW = r.f(10, min: 8), glyphH = r.f(16, min: 12)
+        return Node.group {
+            Node.ellipse(fill: Noor.quiet, stroke: NoorLine.soft, lineWidth: 1).size(d, d).at(0, 0)
+            Node.symbol("chevron.backward", color: Noor.text).size(glyphW, glyphH).at((d - glyphW) / 2 - r.u(1), (d - glyphH) / 2)
+        }
+        .size(d, d).at(r.u(14), r.u(26))
+        .area("back", label: L("Back"), hover: .init(scale: 1.05))
     }
 
     private static func heading(_ title: String, _ detail: String, r: Ruler, w: Double) -> [Node] {
@@ -103,23 +108,24 @@ enum SourcePage {
     // MARK: Choose your timetable
 
     private static func chooser(_ ctx: Context, w: Double, h: Double?, ox: Double, oy: Double, r: Ruler, wiring: inout SceneWiring) -> (node: Node, height: Double) {
-        let manual = ctx.model.source?.kind == .manual || ctx.model.review != nil || ctx.state.string("sheet") == "import"
-        let mosque = (ctx.state.string("src_kind") ?? (manual ? "mosque" : "calculated")) == "mosque"
+        let mosque = mosqueChosen(ctx)
         wiring.acts["kind-calculated"] = .go(Go(set: ["src_kind": "calculated"]))
         wiring.acts["kind-mosque"] = .go(Go(set: ["src_kind": "mosque"]))
         let x = r.u(21), inner = w - x * 2
         var nodes = heading(L("Choose your timetable"), L("Select where your prayer times come from."), r: r, w: w)
+        // First run goes back a step, anywhere else to where this was opened from.
+        nodes.append(backMark(ctx.state.string("sheet") == nil ? .go(Go(set: ["setup": "place"])) : .go(.backward), r: r, wiring: &wiring))
         let gap = r.u(12), cardW = (inner - gap) / 2, cardH = r.u(120), cardY = r.u(101)
         nodes.append(kindCard("kind-calculated", symbol: "mappin.and.ellipse", title: L("Calculated for my place"), detail: L("Times calculated for your place by AlAdhan, with a method you choose."), on: !mosque, x: x, y: cardY, w: cardW, h: cardH, r: r))
         nodes.append(kindCard("kind-mosque", symbol: "building.columns", title: L("My mosque's timetable"), detail: L("A timetable from your own mosque, entered by you or from a file."), on: mosque, x: x + cardW + gap, y: cardY, w: cardW, h: cardH, r: r))
         var y = cardY + cardH + r.u(20)
         if mosque {
-            mosquePart(ctx, x: x, w: inner, y: &y, r: r, nodes: &nodes, wiring: &wiring)
+            mosquePart(ctx, x: x, w: inner, y: &y, ox: ox, oy: oy, r: r, nodes: &nodes, wiring: &wiring)
         } else {
             calculatedPart(ctx, x: x, w: inner, y: &y, ox: ox, oy: oy, r: r, nodes: &nodes, wiring: &wiring)
         }
         let buttonH = r.u(52)
-        let height = max(y + buttonH + r.u(30), r.u(650))
+        let height = max(y + buttonH + r.u(30), least(ctx, r))
         let foot = (h ?? height) - buttonH - r.u(22)
         if mosque {
             let picked = pick(ctx)
@@ -127,14 +133,14 @@ enum SourcePage {
             if let picked { wiring.tools["use"] = ("choose_source", ["id": picked.id]) }
             let mainW = inner * 0.56
             nodes.append(Node.ctaPill("use", label: L("Use selected timetable"), x: x, y: foot, w: mainW, h: buttonH, symbol: "chevron.forward", disabled: picked == nil || current, size: r.f(17, min: 12)))
-            // Choosing a file is a button that says so, laid over this pill: a scene's area may only move around the page or run a tool (host D105, D109).
-            nodes.append(Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(inner - mainW - r.u(14), buttonH).at(x + mainW + r.u(14), foot))
-            wiring.inlays.append(PageInlay(x: ox + x + mainW + r.u(14), y: oy + foot, w: inner - mainW - r.u(14), h: buttonH, importButton(first: true)))
+            nodes.append(slot(importButton(first: true), x: x + mainW + r.u(14), y: foot, w: inner - mainW - r.u(14), h: buttonH, ox: ox, oy: oy, wiring: &wiring))
         } else {
             let method = ctx.state.string("d_method") ?? ctx.model.prefs.convention.map { "\($0.method)" } ?? ""
             let ready = !method.isEmpty && ctx.model.prefs.place != nil
+            // Already what is in use, there is nothing for it to do.
+            let inUse = ctx.model.source?.kind == .calculated && method == ctx.model.prefs.convention.map { "\($0.method)" }
             wiring.tools["use"] = ("use_calculated", ["method": Int(method) ?? -1])
-            nodes.append(Node.ctaPill("use", label: L("Use calculated times"), x: x, y: foot, w: inner, h: buttonH, disabled: !ready, size: r.f(17, min: 12)))
+            nodes.append(Node.ctaPill("use", label: L("Use calculated times"), x: x, y: foot, w: inner, h: buttonH, disabled: !ready || inUse, size: r.f(17, min: 12)))
         }
         let finalH = h ?? height
         return (Node.group {
@@ -163,7 +169,14 @@ enum SourcePage {
         return saved.first { $0.id == ctx.model.prefs.sourceID } ?? saved.first
     }
 
-    private static func mosquePart(_ ctx: Context, x: Double, w: Double, y: inout Double, r: Ruler, nodes: inout [Node], wiring: inout SceneWiring) {
+    /// Five rows, the rest in a menu, the picked one always among the rows.
+    private static func rows(_ saved: [TimetableSource], picked: TimetableSource?) -> [TimetableSource] {
+        var shown = Array(saved.prefix(5))
+        if let picked, !shown.contains(where: { $0.id == picked.id }) { shown[shown.count - 1] = picked }
+        return shown
+    }
+
+    private static func mosquePart(_ ctx: Context, x: Double, w: Double, y: inout Double, ox: Double, oy: Double, r: Ruler, nodes: inout [Node], wiring: inout SceneWiring) {
         let saved = ctx.model.sources.filter { $0.kind == .manual }
         let picked = pick(ctx), removing = ctx.state.string("src_remove")
         nodes.append(Node.say(L("Saved timetables"), x + r.u(2), y, w, r.u(28), size: r.f(17, min: 12), weight: "medium"))
@@ -177,33 +190,51 @@ enum SourcePage {
             .size(w, r.u(58)).at(x, y))
             y += r.u(68)
         }
-        for (i, source) in saved.prefix(6).enumerated() {
-            let on = source.id == picked?.id, rowH = r.u(60)
+        let shown = rows(saved, picked: picked)
+        for (i, source) in shown.enumerated() {
+            let on = source.id == picked?.id, inUse = source.id == ctx.model.prefs.sourceID, rowH = r.u(60)
             wiring.acts["src-\(i)"] = .go(Go(set: ["src_pick": source.id]))
             var detail = [Words.sourceKind(source)]
+            if source.zoneID != ctx.model.prefs.place?.zoneID { detail.append(source.zoneID) }
             if let coverage = source.coverage { detail.append(L("Valid to {date}", ["date": Words.date(coverage.upperBound, weekday: false)])) }
+            let chipW = r.u(82), wordsW = w - r.u(106) - r.u(56) - (inUse ? chipW + r.u(8) : 0)
             nodes.append(Node.group {
                 Node.rect(fill: on ? Color.adaptive(light: "#F3EEFA", dark: "#23206A") : Noor.quiet, stroke: on ? NoorLine.chosen : NoorLine.soft, lineWidth: 1, corner: r.u(12)).size(w, rowH)
                 Node.radio(cx: r.u(29), cy: rowH / 2, d: r.u(23), on: on)
                 Node.symbol("building.columns", color: Noor.text).size(r.f(24, min: 15), r.f(24, min: 15)).at(r.u(62), (rowH - r.f(24, min: 15)) / 2)
-                Node.say(source.name + (source.id == ctx.model.prefs.sourceID ? " ✓" : ""), r.u(106), r.u(7), w - r.u(190), r.u(26), size: r.f(16, min: 11.5))
-                Node.say(detail.joined(separator: " · "), r.u(106), r.u(31), w - r.u(190), r.u(24), size: r.f(13.5, min: 10.5), color: Noor.muted)
+                Node.say(source.name, r.u(106), r.u(7), wordsW, r.u(26), size: r.f(16, min: 11.5))
+                Node.say(detail.joined(separator: " · "), r.u(106), r.u(31), wordsW, r.u(24), size: r.f(13.5, min: 10.5), color: Noor.muted)
+                if inUse { Node.chip(L("In use"), x: w - r.u(56) - chipW, y: (rowH - r.u(30)) / 2, w: chipW, h: r.u(30), size: r.f(13, min: 10.5)) }
             }
             .size(w, rowH).at(x, y)
-            .area("src-\(i)", label: source.name, hover: .init(scale: 1.005), selected: on))
+            .area("src-\(i)", label: inUse ? L("{name}, in use", ["name": source.name]) : source.name, hover: .init(scale: 1.005), selected: on))
+            wiring.acts["remove-\(i)"] = .go(Go(set: ["src_remove": removing == source.id ? NSNull() : source.id]))
+            nodes.append(Node.group { Node.symbol("ellipsis", color: Noor.text).size(r.f(18, min: 13), r.f(18, min: 13)).at(r.u(10), r.u(10)) }
+                .size(r.u(38), r.u(38)).at(x + w - r.u(50), y + (rowH - r.u(38)) / 2)
+                .area("remove-\(i)", label: L("Remove {name}", ["name": source.name])))
+            y += rowH + r.u(6)
             // Removing asks once more, in place: it takes its saved times with it.
             if removing == source.id {
                 wiring.tools["remove-yes"] = ("remove_source", ["id": source.id])
                 wiring.acts["remove-no"] = .go(Go(set: ["src_remove": NSNull()]))
-                nodes.append(Node.pill("remove-yes", label: L("Remove"), spoken: L("Remove {name}", ["name": source.name]), x: x + w - r.u(186), y: y + r.u(12), w: r.u(90), h: r.u(36), size: r.f(13.5, min: 10.5)))
-                nodes.append(Node.pill("remove-no", label: L("Keep"), x: x + w - r.u(90), y: y + r.u(12), w: r.u(78), h: r.u(36), size: r.f(13.5, min: 10.5)))
-            } else {
-                wiring.acts["remove-\(i)"] = .go(Go(set: ["src_remove": source.id]))
-                nodes.append(Node.group { Node.symbol("trash", color: Noor.muted).size(r.f(18, min: 13), r.f(18, min: 13)).at(r.u(9), r.u(9)) }
-                    .size(r.u(38), r.u(38)).at(x + w - r.u(52), y + r.u(11))
-                    .area("remove-\(i)", label: L("Remove {name}", ["name": source.name])))
+                let bandH = r.u(84), yesW = r.u(100), noW = r.u(78), wordsW = w - yesW - noW - r.u(50)
+                nodes.append(Node.rect(fill: Noor.quiet, stroke: NoorLine.danger, lineWidth: 1, corner: r.u(12)).size(w, bandH).at(x, y))
+                nodes.append(Node.say(L("Remove {name}?", ["name": source.name]), x + r.u(16), y + r.u(8), wordsW, r.u(26), size: r.f(15, min: 11.5), weight: "medium"))
+                nodes.append(Node.say(inUse ? L("Removes its saved times. Noor goes back to calculated times if a method is set.") : L("Removes its saved times."), x + r.u(16), y + r.u(32), wordsW, r.u(46), size: r.f(13.5, min: 10.5), color: Noor.muted, lines: 2))
+                nodes.append(dangerPill("remove-yes", label: L("Remove"), spoken: L("Remove {name}", ["name": source.name]), x: x + w - yesW - noW - r.u(22), y: y + (bandH - r.u(36)) / 2, w: yesW, h: r.u(36), size: r.f(13.5, min: 10.5)))
+                nodes.append(Node.pill("remove-no", label: L("Keep"), x: x + w - noW - r.u(12), y: y + (bandH - r.u(36)) / 2, w: noW, h: r.u(36), size: r.f(13.5, min: 10.5)))
+                y += bandH + r.u(6)
             }
-            y += rowH + r.u(6)
+        }
+        let rest = saved.filter { source in !shown.contains { $0.id == source.id } }
+        if !rest.isEmpty {
+            // The rest, in the system's own menu over a drawn row.
+            let moreH = r.u(44), words = L("More timetables ({count})", ["count": Format.integer(rest.count)])
+            nodes.append(Node.well(w, moreH, corner: r.u(10), fill: Noor.quiet).at(x, y))
+            nodes.append(Node.say(words, x + r.u(24), y, w - r.u(80), moreH, size: r.f(15, min: 11.5)))
+            nodes.append(Node.symbol("chevron.up.chevron.down", color: Noor.muted).size(r.f(14), r.f(14)).at(x + w - r.u(34), y + (moreH - r.f(14)) / 2))
+            wiring.inlays.append(PageInlay(x: ox + x, y: oy + y, w: w, h: moreH, .draftChoice(words, options: rest.map { Option($0.id, $0.name, detail: Words.sourceKind($0)) }, selected: picked?.id ?? "", key: "src_pick", style: .rows)))
+            y += moreH + r.u(6)
         }
         y += r.u(12)
         nodes.append(Node.say(L("Supported feeds"), x + r.u(2), y, w, r.u(28), size: r.f(16, min: 11.5)))
@@ -218,7 +249,19 @@ enum SourcePage {
         y += feedH + r.u(12)
         if let picked {
             preview(ctx, picked, x: x, w: w, y: &y, r: r, nodes: &nodes)
+        } else {
+            noTimes(L("A saved timetable's times show here."), x: x, w: w, y: &y, r: r, nodes: &nodes)
         }
+    }
+
+    /// An outline in the danger colour, for the one thing here that can't be taken back.
+    private static func dangerPill(_ id: String, label: String, spoken: String, x: Double, y: Double, w: Double, h: Double, size: Double) -> Node {
+        Node.group {
+            Node.capsule(fill: Noor.quiet, stroke: NoorLine.danger, lineWidth: 1.2).size(w, h).at(0, 0)
+            Node.say(label, 8, 0, w - 16, h, size: size, weight: "medium", color: NoorLine.danger, align: "center")
+        }
+        .size(w, h).at(x, y)
+        .area(id, label: spoken)
     }
 
     /// A day from the picked timetable, read from what is saved: today's if it covers today, otherwise its first.
@@ -227,25 +270,38 @@ enum SourcePage {
         let today = CivilDate(ctx.snapshot.now, in: source.zone)
         let date = source.coverage.map { $0.contains(today) ? today : $0.lowerBound } ?? today
         guard case .success(let day) = table.day(on: date) else { return }
-        let boxH = r.u(146), head = r.u(36), row = r.u(38)
+        let chip = source.kind == .manual ? (L("Manual"), "pencil") : (L("Calculated"), "function")
+        nodes.append(timesBox(L("Source preview"), L("Sample times from {name}", ["name": source.name]), chip: chip, corner: L("Date"), rows: [(Words.dateShort(date), day, source.zone)], w: w, r: r).at(x, y))
+        y += timesHeight(rows: 1, r: r) + r.u(12)
+    }
+
+    private static func timesHeight(rows: Int, r: Ruler) -> Double { r.u(60 + 36 + 38 * Double(rows) + 12) }
+
+    /// The boards' table of a day's five times under a title: a row each for what is being read or compared.
+    private static func timesBox(_ title: String, _ detail: String, chip: (words: String, symbol: String)?, corner: String, rows: [(label: String, day: PrayerDay?, zone: TimeZone)], w: Double, r: Ruler) -> Node {
+        let boxH = timesHeight(rows: rows.count, r: r), head = r.u(36), row = r.u(38), top = r.u(60)
         let tx = r.u(14), tw = w - tx * 2, first = tw * 0.25, col = (tw - first) / Double(PrayerID.allCases.count)
-        nodes.append(Node.group {
+        return Node.group {
             Node.well(w, boxH, corner: r.u(12), fill: Noor.quiet)
-            Node.say(L("Source preview"), r.u(18), r.u(8), w * 0.6, r.u(26), size: r.f(16.5, min: 12), weight: "medium")
-            Node.say(L("Sample times from {name}", ["name": source.name]), r.u(18), r.u(32), w * 0.66, r.u(22), size: r.f(13.5, min: 10.5), color: Noor.muted)
-            Node.chip(L("Manual"), symbol: "pencil", x: w - r.u(130), y: r.u(12), w: r.u(116), h: r.u(32), size: r.f(13, min: 10.5))
-            Node.rect(fill: Noor.surface, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(8)).size(tw, head + row).at(tx, r.u(60))
-            Node.rect(fill: NoorLine.soft).size(tw, 1).at(tx, r.u(60) + head)
-            Node.say(L("Date"), tx + r.u(14), r.u(60), first, head, size: r.f(13.5, min: 10.5), color: Noor.muted)
-            Node.say(Words.date(date, weekday: true, year: false), tx + r.u(14), r.u(60) + head, first - r.u(14), row, size: r.f(14, min: 10.5))
+            Node.say(title, r.u(18), r.u(8), w * 0.6, r.u(26), size: r.f(16.5, min: 12), weight: "medium")
+            Node.say(detail, r.u(18), r.u(32), w * 0.66, r.u(22), size: r.f(13.5, min: 10.5), color: Noor.muted)
+            if let chip { Node.chip(chip.words, symbol: chip.symbol, x: w - r.u(130), y: r.u(12), w: r.u(116), h: r.u(32), size: r.f(13, min: 10.5)) }
+            Node.rect(fill: Noor.surface, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(8)).size(tw, head + row * Double(rows.count)).at(tx, top)
+            for i in 0..<rows.count { Node.rect(fill: NoorLine.soft).size(tw, 1).at(tx, top + head + row * Double(i)) }
+            for i in 0..<PrayerID.allCases.count { Node.rect(fill: NoorLine.soft).size(1, head + row * Double(rows.count)).at(tx + first + Double(i) * col, top) }
+            Node.say(corner, tx + r.u(14), top, first - r.u(18), head, size: r.f(13.5, min: 10.5), color: Noor.muted)
             for (i, id) in PrayerID.allCases.enumerated() {
-                let cx = tx + first + Double(i) * col
-                Node.say(Words.prayer(id), cx, r.u(60), col, head, size: r.f(13.5, min: 10), color: Noor.muted, align: "center")
-                Node.say(day.starts[id].map { Words.time($0, zone: source.zone) } ?? "—", cx, r.u(60) + head, col, row, size: r.f(14, min: 10.5), align: "center", tabular: true)
+                Node.say(Words.prayer(id), tx + first + Double(i) * col, top, col, head, size: r.f(13.5, min: 10), color: Noor.muted, align: "center")
+            }
+            for (n, line) in rows.enumerated() {
+                let ry = top + head + row * Double(n)
+                Node.say(line.label, tx + r.u(14), ry, first - r.u(18), row, size: r.f(14, min: 10.5))
+                for (i, id) in PrayerID.allCases.enumerated() {
+                    Node.say(line.day?.starts[id].map { Words.time($0, zone: line.zone) } ?? "—", tx + first + Double(i) * col, ry, col, row, size: r.f(14, min: 10.5), align: "center", tabular: true)
+                }
             }
         }
-        .size(w, boxH).at(x, y))
-        y += boxH + r.u(12)
+        .size(w, boxH)
     }
 
     private static func calculatedPart(_ ctx: Context, x: Double, w: Double, y: inout Double, ox: Double, oy: Double, r: Ruler, nodes: inout [Node], wiring: inout SceneWiring) {
@@ -268,36 +324,69 @@ enum SourcePage {
             wiring.inlays.append(PageInlay(x: ox + x, y: oy + y, w: w, h: wellH, .draftChoice(L("Calculation method"), detail: L("From the provider's list, in its order."), options: methods.prefix(24).map { Option("\($0.id)", $0.name) }, selected: method, key: "d_method", style: .rows)))
         }
         y += wellH + r.u(14)
-        let noteH = r.u(92), glyph = r.f(20, min: 14)
+        let noteH = r.u(84), glyph = r.f(20, min: 14)
         nodes.append(Node.group {
             Node.well(w, noteH, corner: r.u(12), fill: Noor.quiet)
             Node.symbol("info.circle", color: Noor.text).size(glyph, glyph).at(r.u(20), (noteH - glyph) / 2)
             Node.say(L("There is no one right method: pick what your community follows. You can change it at any time."), r.u(58), 0, w - r.u(76), noteH, size: r.f(15, min: 11.5), color: Noor.muted, lines: 3)
         }
         .size(w, noteH).at(x, y))
-        y += noteH + r.u(12)
+        y += noteH + r.u(14)
+        calculatedTimes(ctx, method: method, x: x, w: w, y: &y, r: r, nodes: &nodes)
+    }
+
+    /// Today's calculated times, while they are the ones the chosen method gives.
+    private static func calculatedTimes(_ ctx: Context, method: String, x: Double, w: Double, y: inout Double, r: Ruler, nodes: inout [Node]) {
+        let chip = (words: L("Calculated"), symbol: "function")
+        if let source = ctx.model.source, source.kind == .calculated, method == ctx.model.prefs.convention.map({ "\($0.method)" }),
+           let today = ctx.snapshot.localDate, let day = ctx.model.day(today) {
+            nodes.append(timesBox(L("Source preview"), L("Sample times from {name}", ["name": source.name]), chip: chip, corner: L("Date"), rows: [(Words.dateShort(today), day, source.zone)], w: w, r: r).at(x, y))
+            y += timesHeight(rows: 1, r: r) + r.u(12)
+            return
+        }
+        noTimes(L("Times from this method show here once you use it."), x: x, w: w, y: &y, r: r, nodes: &nodes)
+    }
+
+    /// Where the preview will stand, with no number that isn't real.
+    private static func noTimes(_ words: String, x: Double, w: Double, y: inout Double, r: Ruler, nodes: inout [Node]) {
+        let boxH = r.u(110), glyph = r.f(24, min: 15)
+        nodes.append(Node.group {
+            Node.rect(fill: Noor.quiet, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(12), dash: [3, 4]).size(w, boxH)
+            Node.symbol("clock", color: Noor.muted).size(glyph, glyph).at(r.u(20), (boxH - glyph) / 2)
+            Node.say(L("Source preview"), r.u(60), r.u(18), w - r.u(76), r.u(28), size: r.f(16.5, min: 12), weight: "medium")
+            Node.say(words, r.u(60), r.u(48), w - r.u(76), r.u(44), size: r.f(14, min: 10.5), color: Noor.muted, lines: 2)
+        }
+        .size(w, boxH).at(x, y))
+        y += boxH + r.u(12)
     }
 
     // MARK: Before a file: what the other side says
 
     private static func guide(_ ctx: Context, w: Double, h: Double?, ox: Double, oy: Double, r: Ruler, wiring: inout SceneWiring) -> (node: Node, height: Double) {
-        let manual = ctx.model.source?.kind == .manual
-        let mosque = (ctx.state.string("src_kind") ?? (manual ? "mosque" : "calculated")) == "mosque"
+        let mosque = mosqueChosen(ctx)
         let x = r.u(21), inner = w - x * 2
+        wiring.acts["by-hand"] = .go(Go(set: ["sheet": "manual"], push: true))
         var nodes = heading(mosque ? L("Check your timetable") : L("Calculated for your place"), mosque ? L("Your file is looked over before it is added.") : L("Where these times come from."), r: r, w: w)
         var y = r.u(107)
+        // What stands at the panel's foot, level with the other panel's buttons, and how much room it takes.
+        let footH: Double
         if mosque {
-            let boxH = r.u(172)
-            nodes.append(Node.group {
-                Node.rect(fill: Noor.quiet, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(14), dash: [3, 4]).size(inner, boxH)
-                Node.medallion("doc.text", cx: inner / 2, cy: r.u(50), d: r.u(64), ink: Noor.text)
-                Node.say(L("No file yet"), r.u(20), r.u(88), inner - r.u(40), r.u(30), size: r.f(19, min: 13), weight: "medium", align: "center")
-                Node.say(L("Enter it by hand or import a CSV file. Noor doesn't search for mosques and never guesses an iqamah."), r.u(30), r.u(116), inner - r.u(60), r.u(50), size: r.f(14.5, min: 11), color: Noor.muted, align: "center", lines: 2)
+            footH = r.u(52)
+            if !compareBox(ctx, x: x, w: inner, y: &y, r: r, nodes: &nodes) {
+                let boxH = r.u(172)
+                nodes.append(Node.group {
+                    Node.rect(fill: Noor.quiet, stroke: NoorLine.soft, lineWidth: 1, corner: r.u(14), dash: [3, 4]).size(inner, boxH)
+                    Node.medallion("doc.text", cx: inner / 2, cy: r.u(50), d: r.u(64), ink: Noor.text)
+                    Node.say(L("No file yet"), r.u(20), r.u(88), inner - r.u(40), r.u(30), size: r.f(19, min: 13), weight: "medium", align: "center")
+                    Node.say(L("Enter it by hand or import a CSV file. Noor doesn't search for mosques and never guesses an iqamah."), r.u(30), r.u(116), inner - r.u(60), r.u(50), size: r.f(14.5, min: 11), color: Noor.muted, align: "center", lines: 2)
+                }
+                .size(inner, boxH).at(x, y))
+                y += boxH + r.u(20)
             }
-            .size(inner, boxH).at(x, y))
-            y += boxH + r.u(20)
-            nodes.append(Node.say(L("A file looks like this"), x + r.u(2), y, inner, r.u(28), size: r.f(17, min: 12), weight: "medium"))
-            y += r.u(32)
+            let copyW = r.u(220), labelH = r.u(36)
+            nodes.append(Node.say(L("A file looks like this"), x + r.u(2), y, inner - copyW - r.u(10), labelH, size: r.f(17, min: 12), weight: "medium"))
+            wiring.inlays.append(PageInlay(x: ox + x + inner - copyW, y: oy + y, w: copyW, h: labelH, copyButton))
+            y += labelH + r.u(4)
             let lines = CSVImport.template.split(separator: "\n").prefix(5).map(String.init)
             let lineH = r.u(32), tableH = lineH * Double(lines.count) + r.u(18)
             nodes.append(Node.group {
@@ -311,36 +400,82 @@ enum SourcePage {
             nodes.append(Node.say(L("One row per date and prayer. Leave iqamah empty where the mosque gives none."), x + r.u(4), y, inner - r.u(8), r.u(50), size: r.f(14.5, min: 11), color: Noor.muted, lines: 2))
             y += r.u(56)
         } else {
+            footH = r.u(158)
             let place = ctx.model.prefs.place
-            let rows: [(String, String, String)] = [
+            var rows: [(String, String, String)] = [
                 ("mappin.and.ellipse", L("Place"), place.map(PlaceParts.title) ?? "—"),
                 ("clock", L("Time zone"), place.map { SetupPage.zoneLine($0.zoneID, now: ctx.snapshot.now) } ?? "—"),
                 ("function", L("Calculated by"), TimetableSource.calculatedAttribution),
             ]
+            // Times have been fetched only once a method is set; before that only the lists of methods and Names have.
+            if ctx.model.source?.kind == .calculated, ctx.model.prefs.convention != nil, let fetched = ctx.model.source?.lastFetch {
+                rows.append(("arrow.clockwise", L("Last successful sync"), Format.dateTime(fetched, timeZone: ctx.zone)))
+            }
+            let rowH = r.u(70)
             for row in rows {
                 nodes.append(Node.group {
-                    Node.well(inner, r.u(78), corner: r.u(14), fill: Noor.quiet)
-                    Node.symbol(row.0, color: Noor.text).size(r.f(26, min: 16), r.f(26, min: 16)).at(r.u(22), (r.u(78) - r.f(26, min: 16)) / 2)
-                    Node.say(row.1, r.u(70), r.u(10), inner - r.u(84), r.u(26), size: r.f(14.5, min: 11), color: Noor.muted)
-                    Node.say(row.2, r.u(70), r.u(36), inner - r.u(84), r.u(30), size: r.f(17, min: 12.5))
+                    Node.well(inner, rowH, corner: r.u(14), fill: Noor.quiet)
+                    Node.symbol(row.0, color: Noor.text).size(r.f(26, min: 16), r.f(26, min: 16)).at(r.u(22), (rowH - r.f(26, min: 16)) / 2)
+                    Node.say(row.1, r.u(70), r.u(8), inner - r.u(84), r.u(24), size: r.f(14.5, min: 11), color: Noor.muted)
+                    Node.say(row.2, r.u(70), r.u(32), inner - r.u(84), r.u(30), size: r.f(17, min: 12.5))
                 }
-                .size(inner, r.u(78)).at(x, y))
-                y += r.u(90)
+                .size(inner, rowH).at(x, y))
+                y += rowH + r.u(10)
             }
-            nodes.append(Node.say(L("Saving sends these coordinates to AlAdhan to calculate times and the bearing."), x + r.u(4), y + r.u(4), inner - r.u(8), r.u(50), size: r.f(14.5, min: 11), color: Noor.muted, lines: 2))
-            y += r.u(60)
+            // Coming from a mosque's timetable, saying what the switch does is part of the choice.
+            let fromMosque = ctx.model.source?.kind == .manual
+            let note = L("Saving sends these coordinates to AlAdhan to calculate times and the bearing.") + (fromMosque ? " " + L("Calculated times come from the provider once you switch, then replace what is planned. Your reminder choices stay.") : "")
+            let noteH = r.u(fromMosque ? 72 : 50)
+            nodes.append(Node.say(note, x + r.u(4), y + r.u(2), inner - r.u(8), noteH, size: r.f(14.5, min: 11), color: Noor.muted, lines: fromMosque ? 3 : 2))
+            y += noteH + r.u(10)
             if place == nil {
-                wiring.acts["to-place"] = .go(Go(set: ["setup": "place"]))
+                // Preferences stands over first run, so the way to a place leaves it.
+                wiring.acts["to-place"] = .go(Go(set: ["setup": "place", "sheet": NSNull()]))
                 nodes.append(Node.ctaPill("to-place", label: L("Choose a place"), x: x, y: y, w: inner, h: r.u(50), filled: false, size: r.f(16.5, min: 12)))
                 y += r.u(60)
             }
         }
-        let height = max(y + r.u(30), r.u(650)), finalH = h ?? height
+        let height = max(y + footH + r.u(30), least(ctx, r)), finalH = h ?? height
+        let foot = finalH - footH - r.u(22)
+        if mosque {
+            nodes.append(Node.ctaPill("by-hand", label: L("Enter by hand"), x: x, y: foot, w: inner, h: footH, symbol: nil, leading: "pencil", filled: false, size: r.f(17, min: 12)))
+        } else {
+            nodes.append(addWell(x: x, y: foot, w: inner, h: footH, ox: ox, oy: oy, r: r, wiring: &wiring))
+        }
         return (Node.group {
             panelChrome(w, finalH, r: r)
             nodes
         }
         .size(w, finalH), height)
+    }
+
+    /// A mosque's timetable can still be added from here, without leaving calculated times.
+    private static func addWell(x: Double, y: Double, w: Double, h: Double, ox: Double, oy: Double, r: Ruler, wiring: inout SceneWiring) -> Node {
+        let pad = r.u(16), gap = r.u(10), buttonH = r.u(42), buttonY = h - buttonH - r.u(14)
+        let room = w - pad * 2 - gap * 2, importW = room * 0.33, handW = room * 0.26, copyW = room - importW - handW
+        return Node.group {
+            Node.well(w, h, corner: r.u(14), fill: Noor.quiet)
+            Node.say(L("Add a mosque's timetable"), pad, r.u(10), w - pad * 2, r.u(26), size: r.f(16.5, min: 12), weight: "medium")
+            Node.say(L("A source you enter is labelled Manual. An imported file is checked before anything is saved."), pad, r.u(36), w - pad * 2, r.u(46), size: r.f(14, min: 10.5), color: Noor.muted, lines: 2)
+            slot(importButton(first: true), x: pad, y: buttonY, w: importW, h: buttonH, ox: ox + x, oy: oy + y, wiring: &wiring)
+            Node.ctaPill("by-hand", label: L("Enter by hand"), x: pad + importW + gap, y: buttonY, w: handW, h: buttonH, symbol: nil, filled: false, size: r.f(14, min: 11))
+            slot(copyButton, x: pad + importW + handW + gap * 2, y: buttonY, w: copyW, h: buttonH, ox: ox + x, oy: oy + y, wiring: &wiring)
+        }
+        .size(w, h).at(x, y)
+    }
+
+    /// The same date under what is in use and what is picked, before anything changes. Reminders you chose stay chosen; a missing iqamah is called out rather than borrowed.
+    private static func compareBox(_ ctx: Context, x: Double, w: Double, y: inout Double, r: Ruler, nodes: inout [Node]) -> Bool {
+        guard let next = pick(ctx), let current = ctx.model.source, next.id != current.id, let today = ctx.snapshot.localDate else { return false }
+        let nextDay = PreferencesPage.proposedDay(ctx, next)
+        nodes.append(timesBox(L("Source-change preview"), L("{old} → {new}", ["old": current.name, "new": next.name]), chip: nil, corner: "", rows: [(current.name, ctx.model.day(today), current.zone), (next.name, nextDay, next.zone)], w: w, r: r).at(x, y))
+        y += timesHeight(rows: 2, r: r) + r.u(8)
+        if ctx.model.prefs.reminders.prayers.contains(where: { $0.value.iqamahMinutes != nil }), nextDay?.iqamah.isEmpty ?? true {
+            nodes.append(Node.say(L("This source has no iqamah times, so your iqamah reminders won't come from it. Your choices are kept."), x + r.u(4), y, w - r.u(8), r.u(44), size: r.f(14, min: 10.5), color: Noor.warm, lines: 2))
+            y += r.u(46)
+        }
+        y += r.u(10)
+        return true
     }
 
     // MARK: Check your timetable
@@ -427,9 +562,11 @@ enum SourcePage {
 
         // A sample of the rows, as they will be read.
         let sample = Array(review.rows.prefix(4))
-        if !sample.isEmpty {
-            nodes.append(Node.say(L("Sample of imported times"), x + r.u(2), y, inner, r.u(28), size: r.f(17, min: 12)))
-            y += r.u(30)
+        let copyW = r.u(220)
+        wiring.inlays.append(PageInlay(x: ox + x + inner - copyW, y: oy + y, w: copyW, h: r.u(32), copyButton))
+        if sample.isEmpty { y += r.u(40) } else {
+            nodes.append(Node.say(L("Sample of imported times"), x + r.u(2), y, inner - copyW - r.u(10), r.u(32), size: r.f(17, min: 12)))
+            y += r.u(34)
             let row = r.u(38), tableH = row * Double(sample.count + 1)
             let cols = [0.0, inner * 0.36, inner * 0.62, inner * 0.82]
             let titles = [L("Date"), L("Prayer"), L("Starts"), L("Iqamah")]
@@ -441,7 +578,7 @@ enum SourcePage {
                 for (n, line) in sample.enumerated() {
                     let ry = row * Double(n + 1)
                     Node.rect(fill: NoorLine.soft).size(inner, 1).at(0, ry)
-                    Node.say(Words.date(line.date, weekday: true, year: true), cols[0] + r.u(16), ry, cols[1] - r.u(20), row, size: r.f(14.5, min: 10.5))
+                    Node.say(Words.dateShort(line.date, year: true), cols[0] + r.u(16), ry, cols[1] - r.u(20), row, size: r.f(14.5, min: 10.5))
                     Node.say(slotName(line.slot), cols[1] + r.u(16), ry, cols[2] - cols[1] - r.u(20), row, size: r.f(14.5, min: 10.5))
                     Node.say(line.start.text, cols[2] + r.u(16), ry, cols[3] - cols[2] - r.u(20), row, size: r.f(14.5, min: 10.5), tabular: true)
                     Node.say(line.iqamah?.text ?? "—", cols[3] + r.u(16), ry, inner - cols[3] - r.u(20), row, size: r.f(14.5, min: 10.5), tabular: true)
@@ -452,12 +589,11 @@ enum SourcePage {
         }
 
         let buttonH = r.u(50)
-        let height = max(y + buttonH + r.u(30), r.u(650)), finalH = h ?? height
+        let height = max(y + buttonH + r.u(30), ctx.narrow ? 0 : r.u(650)), finalH = h ?? height
         wiring.tools["add"] = ("save_import", ["name": typed])
         let addW = inner * 0.6, buttonY = finalH - buttonH - r.u(22)
         nodes.append(Node.ctaPill("add", label: L("Add timetable"), x: x, y: buttonY, w: addW, h: buttonH, symbol: "checkmark", disabled: !review.canSave, size: r.f(17, min: 12)))
-        nodes.append(Node.capsule(fill: Noor.quiet, stroke: Noor.edge, lineWidth: 1.2).size(inner - addW - r.u(14), buttonH).at(x + addW + r.u(14), buttonY))
-        wiring.inlays.append(PageInlay(x: ox + x + addW + r.u(14), y: oy + buttonY, w: inner - addW - r.u(14), h: buttonH, importButton(first: false)))
+        nodes.append(slot(importButton(first: false), x: x + addW + r.u(14), y: buttonY, w: inner - addW - r.u(14), h: buttonH, ox: ox, oy: oy, wiring: &wiring))
         return (Node.group {
             panelChrome(w, finalH, r: r)
             nodes
@@ -494,8 +630,7 @@ enum SourcePage {
         let left: Panel = { w, h, ox, oy, r, wiring in
             let x = r.u(21), inner = w - x * 2
             var nodes = heading(L("Enter a timetable"), L("The same times every day of a range you choose."), r: r, w: w)
-            wiring.acts["back"] = .go(.backward)
-            nodes.append(Node.group { Node.symbol("chevron.backward", color: Noor.text).size(r.f(12, min: 9), r.f(20, min: 14)).at(r.u(10), r.u(8)) }.size(r.u(32), r.u(36)).at(r.u(14), r.u(24)).area("back", label: L("Back")))
+            nodes.append(backMark(.go(.backward), r: r, wiring: &wiring))
             var y = r.u(112)
             let fields: [(String, String, String, String)] = [
                 (L("Name of the source"), L("Community Mosque"), "m_name", name), (L("Time zone"), "Europe/London", "m_zone", zone),
@@ -509,7 +644,7 @@ enum SourcePage {
             }
             nodes.append(Node.say(L("For times that change daily, import a file."), x + r.u(4), y + r.u(4), inner - r.u(8), r.u(26), size: r.f(14.5, min: 11), color: Noor.muted))
             y += r.u(40)
-            let height = max(y + r.u(20), r.u(640)), finalH = h ?? height
+            let height = max(y + r.u(20), ctx.narrow ? 0 : r.u(640)), finalH = h ?? height
             return (Node.group { panelChrome(w, finalH, r: r); nodes }.size(w, finalH), height)
         }
         let right: Panel = { w, h, ox, oy, r, wiring in
@@ -533,7 +668,7 @@ enum SourcePage {
                 nodes.append(Node.say(problem, x + r.u(4), y + r.u(2), inner - r.u(8), r.u(48), size: r.f(14, min: 10.5), color: NoorLine.caution, lines: 2))
             }
             y += r.u(52)
-            let height = max(y + r.u(80), r.u(640)), finalH = h ?? height
+            let height = max(y + r.u(80), ctx.narrow ? 0 : r.u(640)), finalH = h ?? height
             wiring.tools["save"] = ("save_manual", ["name": name, "zone": zone, "from": from, "to": to, "starts": starts, "iqamah": iqamah])
             wiring.acts["cancel"] = .go(.backward)
             let buttonH = r.u(50), foot = finalH - buttonH - r.u(22)

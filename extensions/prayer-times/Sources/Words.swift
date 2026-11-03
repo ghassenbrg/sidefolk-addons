@@ -61,6 +61,15 @@ enum Words {
         return f.string(from: date.anchor)
     }
 
+    /// As a table's first column has it: "Tue, Nov 3".
+    static func dateShort(_ date: CivilDate, year: Bool = false) -> String {
+        let f = DateFormatter()
+        f.locale = Language.locale
+        f.timeZone = TimeZone(secondsFromGMT: 0)
+        f.setLocalizedDateFormatFromTemplate("EEEdMMM" + (year ? "y" : ""))
+        return f.string(from: date.anchor)
+    }
+
     static func weekdayShort(_ weekday: Int) -> String {
         let f = DateFormatter()
         f.locale = Language.locale
@@ -129,11 +138,12 @@ enum Words {
         return parts.joined(separator: " · ")
     }
 
-    static func problem(_ reason: UnavailableReason?) -> String {
+    /// `saved`: something saved earlier is on screen. Without it nothing is, so no sentence may lean on a saved copy.
+    static func problem(_ reason: UnavailableReason?, saved: Bool = false) -> String {
         switch reason {
-        case .offline: L("No connection. What is shown was saved earlier.")
+        case .offline: saved ? L("No connection. What is shown was saved earlier.") : L("No connection right now.")
         case .rateLimited: L("The provider asked Noor to wait a moment. It will try again by itself.")
-        case .malformed: L("The provider's answer couldn't be read, so the last good one stays.")
+        case .malformed: saved ? L("The provider's answer couldn't be read, so the last good one stays.") : L("The provider's answer couldn't be read.")
         case .noCoverage: L("The provider has nothing for that date.")
         case .expired: L("This timetable has ended.")
         case .noPlace: L("Choose a place first.")

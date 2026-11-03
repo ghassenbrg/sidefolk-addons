@@ -171,7 +171,6 @@ extension NoorPage {
             let why: String
             switch ctx.model.problem {
             case .offline: why = L("No connection, and no times saved for today yet. Try again once you're online.")
-            case .malformed: why = L("The provider's answer couldn't be read.")
             default: why = Words.problem(ctx.model.problem).isEmpty ? L("The provider didn't answer.") : Words.problem(ctx.model.problem)
             }
             return statusPanel(ctx, StatusPart(symbol: "wifi.slash", tint: danger, title: L("Couldn't get this timetable"), detail: why,
@@ -195,7 +194,7 @@ extension NoorPage {
                                                buttons: [("refresh", L("Refresh"), true, "arrow.clockwise", .tool("refresh")), keep]),
                                extraActs: ["prayer": .go(Go(set: ["tab": "prayer"]))])
         }
-        let why = Words.problem(ctx.model.problem).isEmpty ? L("The provider is unavailable. Showing your last downloaded times.") : Words.problem(ctx.model.problem)
+        let why = Words.problem(ctx.model.problem, saved: true).isEmpty ? L("The provider is unavailable. Showing your last downloaded times.") : Words.problem(ctx.model.problem, saved: true)
         let parts = ctx.model.fetchedAt.map { (Format.date($0, year: true, timeZone: ctx.zone), Format.time($0, timeZone: ctx.zone)) }
         return statusPanel(ctx, StatusPart(symbol: "wifi.slash", tint: NoorLine.danger, title: L("Couldn't refresh this source"), detail: why,
                                            facts: (L("Last successful sync"), parts?.0 ?? "—", parts?.1, source.rightLabel, [Words.provenance(s)]),
@@ -222,7 +221,7 @@ extension NoorPage {
         guard ctx.snapshot.validity == .offlineValid || ctx.model.load == .failed || ctx.model.load == .offline else { return nil }
         let saved = ctx.model.fetchedAt.map { Format.dateTime($0, timeZone: ctx.zone) }
         let text = saved.map { L("Offline. Showing times saved {when}.", ["when": $0]) } ?? L("Offline. Showing saved times.")
-        let words = ctx.model.problem == .offline || ctx.model.load == .offline ? text : (Words.problem(ctx.model.problem).isEmpty ? text : Words.problem(ctx.model.problem))
+        let words = ctx.model.problem == .offline || ctx.model.load == .offline ? text : (Words.problem(ctx.model.problem, saved: true).isEmpty ? text : Words.problem(ctx.model.problem, saved: true))
         let w = ctx.width, r = ctx.narrow ? Ruler(width: 860) : ctx.ruler
         let margin = ctx.narrow ? 16 : r.u(28), inner = w - margin * 2, h = ctx.narrow ? 56 : r.u(56)
         let buttonW = ctx.narrow ? 92 : r.u(136)
