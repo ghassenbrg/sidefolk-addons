@@ -31,21 +31,23 @@ enum TossSurface {
 
     static func install(on ext: Extension) {
         ext.surface("toss", open: { request in
+            PlayLanguage.enter(request.language)
             var random = Games.Random.fresh()
             // Opened with nothing said (the AI's own road, `surfaces.open`): a real coin, as a person asking for one would get.
             let toss = Toss(arguments: request.arguments) ?? Toss.coins([random.below(2) == 1])
             let session = UUID().uuidString
             shown[session] = toss
-            return SurfaceReply(session: session, scene: flying(toss))
+            return SurfaceReply(session: session, scene: PlayLanguage.stamped(flying(toss)))
         }, move: { request in
+            PlayLanguage.enter(request.language)
             guard let toss = shown[request.session] else { return Scene(width: 200, height: 120).closing() }
             switch request.move {
-            case .next: return landed(toss)
+            case .next: return PlayLanguage.stamped(landed(toss))
             case .click(area: "again", _, _):
                 let next = again(toss)
                 shown[request.session] = next
-                return flying(next, after: toss)
-            default: return landed(toss)
+                return PlayLanguage.stamped(flying(next, after: toss))
+            default: return PlayLanguage.stamped(landed(toss))
             }
         }, close: { request in
             shown[request.session] = nil
