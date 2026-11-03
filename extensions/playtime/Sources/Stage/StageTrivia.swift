@@ -151,6 +151,50 @@ extension BoardDrawing {
         return .box("setup", w: width, h: room) { nodes }
     }
 
+    /// Any topic, for someone with an AI allowed: the same table as the set-up, so only the tray changes. Name a topic and make its questions, or let the AI pick one. No concept
+    /// draws this: it is the set-up's materials and places.
+    func triviaAnyTopicTable() -> Node {
+        let width = Self.inner, room = playRoom
+        let trayH = room - 46 - 8 - 3 * (30 + 5)
+        var nodes: [Node] = [
+            Node.woodFrame("topics.frame", w: width, h: trayH, inset: 8, corner: 20, inner: Paint.lilacDeep),
+            Node.image("art/tex-felt-lilac.heic", dark: "art/tex-felt-lilac-night.heic", fit: "fill").id("topics.felt").at(8, 8).size(width - 16, trayH - 16).corner(12).clip(),
+        ]
+        let cardX = 20.0, cardW = width - 40, inner = cardW - 36
+        var y = 20.0
+        var card: [Node] = [Node.rect(fill: Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 18).id("any.card").size(cardW, trayH - 40).shadow(Paint.black8, radius: 4, dx: 0, dy: 2)]
+        card.append(Node.symbol("sparkles", color: Paint.lilacDeep).symbolLook(weight: "bold").id("any.mark").at((cardW - 34) / 2, y).size(34, 34))
+        y += 42
+        if case .play(.entry(let name, _, _, let placeholder, let button, let max, let locked))? = board.parts.first(where: { if case .play(.entry) = $0 { true } else { false } }) {
+            card.append(fieldBox(name, placeholder: placeholder, max: max, locked: locked, focus: true, x: 18, y: y, w: inner, h: 42))
+            y += 52
+            let words = button ?? L("OK")
+            card.append(.box("entry.send", x: 18, y: y, w: inner, h: 44) {
+                Node.capsule(fill: Paint.action).id("entry.send.fill").size(inner, 44).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
+                Node.words(words, size: 16, weight: "heavy", color: Paint.onAction, align: "center", minScale: 0.65, x: 12, w: inner - 24, h: 44)
+            }.area("entry_send", label: words, disabled: locked, hover: AreaLook(scale: 1.015), press: AreaLook(scale: 0.97, dy: 1), submits: name, sound: "sounds/tap.wav"))
+            y += 50
+        }
+        let back = L("Back to topics"), backW = TextFit.width(back, size: 13, weight: "bold") + 8
+        card.append(Node.box("any.back", x: (cardW - backW) / 2, y: y, w: backW, h: 22) {
+            Node.words(back, size: 13, weight: "bold", align: "center", w: backW, h: 20)
+            Node.rect(fill: Paint.ink).at(4, 19).size(backW - 8, 1)
+        }.area("button", value: "topics", label: back, hover: nil, press: AreaLook(opacity: 0.6), sound: "sounds/tap.wav"))
+        nodes.append(.box("any", x: cardX, y: 20, w: cardW, h: trayH - 40) { card })
+        var at = trayH + 5
+        for name in ["length", "pace", "level"] {
+            if let c = board.choicePart(name) {
+                nodes.append(choice(name: name, label: c.label ?? L("Play"), style: .segmented, options: c.options, selected: c.selected, compact: true, labelWidth: 78).node.at(0, at))
+            }
+            at += 30 + 5
+        }
+        // Start here is "you pick": quiet under the field's own button, which Return presses.
+        if let pick = tableButtons.first(where: { $0.move == "start" && $0.style == .secondary }) {
+            nodes.append(buttonRow([pick], id: "dock", flat: true).node.at(0, at + 5))
+        }
+        return .box("setup", w: width, h: room) { nodes }
+    }
+
     /// Topics in rows of four; a last row of fewer shares the width, as in the concept.
     private func topicTiles(_ options: [ChoiceOption], selected: String?, x: Double, y: Double, w: Double, h: Double) -> Node {
         let columns = 4, gap = 6.0

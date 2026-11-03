@@ -62,11 +62,11 @@ enum TriviaScreen: GameScreen {
         var parts: [BoardPart]
         let notice = s.notice.map { TriviaAI.words($0, provider: s.aiMaker ?? o.companion) }
         if let maker = s.aiMaker, s.topic == TriviaEngine.surprise {
-            parts = [.prompt(L("Any topic"), eyebrow: TriviaAI.sentence(L("{name} writes the questions", ["name": maker]))),
+            parts = [.prompt(notice ?? L("Any topic"), eyebrow: TriviaAI.sentence(L("{name} writes the questions", ["name": maker]))),
                      .play(.entry(name: "topic", label: L("Leave it empty and {name} picks one.", ["name": maker]),
                                   placeholder: L("Volcanoes, jazz, Japan…"), button: L("Make questions"), max: 60)),
-                     .button(GameButton(L("Back to topics"), move: "topics", style: .plain, symbol: "chevron.backward"))]
-            if let notice { parts.append(.note(notice, tone: .info)) }
+                     .button(GameButton(L("Back to topics"), move: "topics", style: .plain, symbol: "chevron.backward")),
+                     .button(GameButton(L("Let {name} pick one", ["name": maker]), move: "start", style: .secondary))]
         } else {
             let ids = ["mix"] + TriviaLibrary.categories(language: s.language) + (s.aiMaker != nil ? [TriviaEngine.surprise] : [])
             let topics = ids.map { ChoiceOption($0, topic($0), symbol: symbols[$0] ?? "questionmark") }
@@ -86,7 +86,7 @@ enum TriviaScreen: GameScreen {
             .choice(name: "level", label: L("Level"), style: .segmented,
                     options: [ChoiceOption("easy", L("Easy")), ChoiceOption("fair", L("Fair")), ChoiceOption("hard", L("Hard"))],
                     selected: s.level.rawValue),
-            .button(GameButton(L("Start quiz"), move: "start", style: .primary, symbol: "play.fill")),
+        ] + (s.aiMaker != nil && s.topic == TriviaEngine.surprise ? [] : [.button(GameButton(L("Start quiz"), move: "start", style: .primary, symbol: "play.fill"))]) + [
             TwoPlayers.opponent(two: s.duo.on, companion: o.companion),
         ], companion: events.contains(.opened) ? Cue(move: "ready", line: "hello", look: "panel") : nil)
     }

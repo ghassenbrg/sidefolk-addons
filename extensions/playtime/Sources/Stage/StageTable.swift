@@ -4,7 +4,7 @@ import SidefolkExtensionKit
 /// A board laid out as one piece rather than stacked: every part has its place from the first move to the last, whatever it says and whatever has come or gone, and what
 /// isn't there yet has its room kept. Only for play: an end card, a name to type or a cover stack as usual.
 enum TableLayout {
-    case triviaSetup, triviaQuestion, numbersSetup, numbersGuess, numbersAsked, animalAsks, animalTeach, hands
+    case triviaSetup, triviaAnyTopic, triviaQuestion, numbersSetup, numbersGuess, numbersAsked, animalAsks, animalTeach, hands
 }
 
 extension BoardDrawing {
@@ -14,6 +14,7 @@ extension BoardDrawing {
         case TriviaScreen.id:
             if board.answersPart != nil { return .triviaQuestion }
             if board.parts.contains(where: { if case .choice("topic", _, _, _, _) = $0 { true } else { false } }) { return .triviaSetup }
+            if board.parts.contains(where: { if case .play(.entry("topic", _, _, _, _, _, _)) = $0 { true } else { false } }) { return .triviaAnyTopic }
         case HigherLowerScreen.id:
             if board.numberPart != nil { return .numbersGuess }
             if board.answersPart != nil, board.counterPart != nil { return .numbersAsked }
@@ -52,6 +53,7 @@ extension BoardDrawing {
         guard let table = gameTable else { return nil }
         let node: Node = switch table {
         case .triviaSetup: triviaSetupTable()
+        case .triviaAnyTopic: triviaAnyTopicTable()
         case .triviaQuestion: triviaTable()
         case .numbersSetup: numbersSetupTable()
         case .numbersGuess: numbersGuessTable()
