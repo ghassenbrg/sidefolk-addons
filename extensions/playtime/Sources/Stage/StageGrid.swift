@@ -9,7 +9,7 @@ extension BoardDrawing {
         if !locked {
             if numpad {
                 for n in 1...9 {
-                    let at = (2 - (n - 1) / 3) * 3 + (n - 1) % 3
+                    let at = n - 1
                     guard at < cells.count, cells[at].state != "disabled" else { continue }
                     // A digit on a taken cell still goes to the game, which says it's taken.
                     let open = cells[at].mark == "empty"
@@ -104,7 +104,7 @@ extension BoardDrawing {
         ]
         if numpad {
             // The digit that plays here, as on a number pad (7 8 9 on top): quiet, in the corner, and only on a cell that can be played now.
-            inner.append(Node.words("\((2 - r) * 3 + c + 1)", size: 12, weight: "bold", color: Paint.inkSoft, align: "center", x: side - 23, y: 5, w: 18, h: 18).id(id + ".digit").opacity(open ? 1 : 0))
+            inner.append(Node.words("\(r * 3 + c + 1)", size: 12, weight: "bold", color: Paint.inkSoft, align: "center", x: side - 23, y: 5, w: 18, h: 18).id(id + ".digit").opacity(open ? 1 : 0))
         }
         if open, let next { inner.append(Node.image(next).id(id + ".ghost").at(inset, inset).size(s, s).opacity(0)) }
         if let piece {

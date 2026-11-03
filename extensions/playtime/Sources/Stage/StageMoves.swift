@@ -64,7 +64,7 @@ enum StageMoves {
         case "arrow_left", "arrow_right", "arrow_up", "arrow_down": return arrow(id, board: board, local: &local)
         case _ where id.hasPrefix("numpad_"):
             guard let n = Int(id.dropFirst(7)), (1...9).contains(n) else { return .ignore }
-            let at = (2 - (n - 1) / 3) * 3 + (n - 1) % 3
+            let at = n - 1
             return .play(.cell(row: at / 3, column: at % 3))
         case "cursor_return", "cursor_space":
             guard let c = local.cursor, let g = board.gridPart else { return .ignore }

@@ -16,7 +16,7 @@ extension BoardDrawing {
     }
 
     /// A keyboard of many rows (kana, hangul) has slimmer keys, so the board fits the panel. By the tallest page, so a page never moves anything.
-    private static func keyHeight(pages: [KeyPage], stall: Bool) -> Double { (pages.map(\.rows.count).max() ?? 0) > 3 ? 26 : stall ? 32 : 36 }
+    private static func keyHeight(pages: [KeyPage], stall: Bool) -> Double { (pages.map(\.rows.count).max() ?? 0) > 3 ? 26 : 36 }
     private static let keyGap = 5.0, tabsHeight = 28.0
 
     static func keyboardHeight(pages: [KeyPage], stall: Bool) -> Double {

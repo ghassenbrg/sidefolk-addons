@@ -18,9 +18,7 @@ extension BoardDrawing {
             y += 22
         }
         if isStall {
-            // The stall's awning reaches the top of its scene: a cream plate hung on it keeps the words clear. The balloons hang from the rail painted below it, and the companion's
-            // bubble comes after them, so the stage stands in the stall.
-            nodes.insert(Node.rect(fill: Paint.card(0.95), stroke: Paint.edge, lineWidth: 1, corner: 14).id("header.plate").at(26, -2).size(width - 52, y + 2).shadow(Paint.clear("#000000", 0.14), radius: 4, dx: 0, dy: 2), at: 0)
+            // The balloons hang from the rail painted in the stall; the companion's bubble comes after them, so the stage stands in the stall.
             if let rail = board.play({ part -> PartBlock? in if case .lives(let total, let left, let symbol) = part { lives(total: total, left: left, symbol: symbol) } else { nil } }) {
                 nodes.append(rail.node.at((width - Self.balloonRailW) / 2, Self.railY - 4))
             }
@@ -30,7 +28,7 @@ extension BoardDrawing {
     }
 
     /// Where the stall's scene paints its rail, and where its stage stands: under the balloons.
-    static let railY = 96.0, stallStageY = 172.0
+    static let railY = 183.0, stallStageY = 244.0
 
     /// The game's one icon beside its name, centred together.
     func titleRow(_ title: String, icon: String, width: Double) -> Node {
@@ -103,7 +101,7 @@ extension BoardDrawing {
         let whole = textW + (clock.map { $0.width + 8 } ?? 0)
         let x = (width - whole) / 2, line = Paint.clear("#A08A70", 0.35)
         return .box("meta", w: width, h: 20) {
-            if x > 22, !isStall {
+            if x > 22 {
                 Node.rect(fill: line).id("meta.line.a").at(6, 10).size(x - 16, 1)
                 Node.rect(fill: line).id("meta.line.b").at(x + whole + 10, 10).size(x - 16, 1)
             }

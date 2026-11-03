@@ -139,7 +139,7 @@ extension BoardDrawing {
         styles["pu"] = Node.words("", size: side * 0.52, weight: "semibold", color: skin.entered, align: "center", minScale: 0.5, w: side, h: side).json
         // A mark and the disc on the line beside it never meet: the disc reaches half its width into a cell, and every mark leaves that much and a little.
         let art = skin.kind == .seesaw ? side - Self.discSide(side) - 2 : side * 0.72, dot = side * 0.16
-        for (name, file) in [("ph", "crescent"), ("ps", "sun"), ("pf", "flower")] {
+        for (name, file) in [("ph", "crescent"), ("ps", "sun"), ("pf", "blossom")] {
             styles[name] = Node.art("art/game-face-\(file).webp", x: (side - art) / 2, y: (side - art) / 2, w: art, h: art).json
         }
         styles["pd"] = Node.ellipse(fill: Paint.ink).at((side - dot) / 2, (side - dot) / 2).size(dot, dot).opacity(0.5).json

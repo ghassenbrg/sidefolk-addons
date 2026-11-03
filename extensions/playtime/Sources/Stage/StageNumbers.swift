@@ -173,7 +173,7 @@ extension BoardDrawing {
         return PartBlock(.box("lives", w: Self.balloonRailW, h: h) { nodes }.label(L("{left} of {total} left", ["left": left, "total": total])), height: h)
     }
 
-    static let balloonH = 68.0, balloonRailW = 336.0
+    static let balloonH = 58.0, balloonRailW = 336.0
 
     /// The burst, about half a second: it swells and is gone, its scraps fly out and fall, and the string it hung by is what's left, swinging.
     private func pop(id: String, index: Int, x: Double, w: Double, h: Double) -> [Node] {

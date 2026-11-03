@@ -211,7 +211,7 @@ extension BoardDrawing {
     // MARK: Balloon Words
 
     /// The sign's room: it stands on the stall's counter whatever the keyboard takes below it.
-    private static let signX = 102.0, signY = 22.0, signW = 264.0, signH = 74.0
+    private static let signX = 102.0, signY = 0.0, signW = 264.0, signH = 46.0
 
     private func wordSign(rows: [[LetterTile]], length: Int, script: String) -> PartBlock {
         let row = rows.first ?? []
@@ -240,7 +240,7 @@ extension BoardDrawing {
             Node.box("letters.sign", x: Self.signX, y: Self.signY, w: Self.signW, h: Self.signH) {
                 Node.woodFrame("sign.frame", w: Self.signW, h: Self.signH, inset: 5, corner: 16, inner: Paint.signFelt)
                 Node.rect(stroke: Paint.clear("#FFF4E6", 0.7), lineWidth: 1.25, corner: 9, dash: [4, 3]).id("sign.stitch").at(9, 9).size(Self.signW - 18, Self.signH - 18)
-                for (i, spot) in [(14.0, 14.0), (Self.signW - 22, 14.0), (14.0, Self.signH - 22), (Self.signW - 22, Self.signH - 22)].enumerated() {
+                for (i, spot) in [(9.0, 9.0), (Self.signW - 17, 9.0), (9.0, Self.signH - 17), (Self.signW - 17, Self.signH - 17)].enumerated() {
                     Node.ellipse().gradient([.hex("#F3C98F"), .hex("#B9803F")], from: (0.3, 0.2), to: (0.7, 0.9)).id("sign.stud.\(i)").at(spot.0, spot.1).size(8, 8)
                 }
                 slots
@@ -250,13 +250,13 @@ extension BoardDrawing {
 
     /// A place in the word: a line, and its letter once guessed, dropping onto it.
     private func slot(_ tile: LetterTile, id: String, x: Double, w: Double, landsAfter: Double?) -> Node {
-        let h = Self.signH - 22, size = min(w * 0.95, 28)
+        let h = Self.signH - 12, size = min(w * 0.95, 24)
         let words = tile.mark == "hidden" || tile.text.isEmpty ? nil : shown(tile.text)
         let target = id + ".letter"
         if let landsAfter {
             heldKeys(target, [["t": 0, "y": -16, "scale": 1.35, "opacity": 0], ["t": 0.2, "opacity": 1], ["t": 0.75, "y": 0, "scale": 1], ["t": 1, "y": 0, "scale": 1, "opacity": 1]], delayMs: landsAfter, ms: 300, ease: "out")
         }
-        return Node.box(id, x: x, y: 11, w: w, h: h) {
+        return Node.box(id, x: x, y: 6, w: w, h: h) {
             Node.capsule(fill: Paint.signInk).id(id + ".line").at(1, h - 7).size(w - 2, 3)
             if let words {
                 Node.words(words, size: size, weight: "heavy", color: Paint.signInk, align: "center", minScale: 0.55, w: w, h: h - 7).id(target).opacity(tile.mark == "absent" ? 0.55 : 1)
