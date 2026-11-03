@@ -1,0 +1,30 @@
+{
+  "code": 200,
+  "status": "OK",
+  "data": [
+    {
+      "id": "UAQ",
+      "name": "Umm al-Qura",
+      "description": "The Umm Al-Qura Calender based on astronomical data provided by the Umm al-Qura University in Makkah, Saudi Arabia. Strictly speaking, this calendar is intended for civil purposes only. Please keep in mind that the first visual sighting of the lunar crescent (hilāl) can occur up to two days after the date predicted by the Umm al-Qura calendar.",
+      "validity": "1356 AH (14 March 1937 CE) to 1500 AH (16 November 2077 CE)"
+    },
+    {
+      "id": "HJCoSA",
+      "name": "Majlis al-Qadāʾ al-Aʿlā (High Judiciary Council of Saudi Arabia)",
+      "description": "This calendar is based on the Umm al-Qura calendar, but the dates for the months of Muḥarram, Ramaḍān, Shawwāl and Dhu ʾl-Ḥijja are adjusted after reported sightings of the lunar crescent announced by the Majlis al-Qadāʾ al-Aʿlā (High Judiciary Council of Saudi Arabia). Please also see https://webspace.science.uu.nl/~gent0113/islam/ummalqura_adjust.htm for more details.",
+      "validity": "1356 AH (14 March 1937 CE) to 1500 AH (16 November 2077 CE)"
+    },
+    {
+      "id": "DIYANET",
+      "name": "Diyanet İşleri Başkanlığı",
+      "description": "The Islamic Calendar of Tukey based on astronomical data provided by Turkish Presidency of Religious Affairs (Diyanet İşleri Başkanlığı.",
+      "validity": "1 Muharram 1318 AH (1 May 1900) to 29 Şaban 1449 AH (26 January 2028)"
+    },
+    {
+      "id": "MATHEMATICAL",
+      "name": "Mathematical calculator based on a calculation written by Layth A. Ibraheem",
+      "description": "This has been the default calendar used by the AlAdhan API until January 2025. It is purely mathematical does not keep track of the number of days in a month, so adjusting it to match the actual hilaal sightings is not possible. It still works if you are happy wth some inconsistencies, but is no longer the default calendar. This calendar allows for adjustments. This method is considered deprecated and whilst it is still available, is recommended that you use one of the other methods.",
+      "validity": "No restrictions"
+    }
+  ]
+}

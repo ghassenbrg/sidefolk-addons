@@ -4,7 +4,7 @@ import PackageDescription
 /// Sidefolk's extensions in the add-on gallery: one small program each, on a copy of sidefolk/extensions/Kit
 /// (scripts/check.sh says when they differ). World Clock, System Vitals, Weather and Calculator also go in the app as
 /// seed packs, for a fresh Mac's first run (Sidefolk D98); everything about them lives here.
-let extensions = ["world-clock", "system-vitals", "weather", "calculator", "git", "currency", "playtime", "images", "pdf", "qr-codes", "archives", "dev-toolbox", "feeds", "system-vitals-plus", "clipboard", "keep-awake"]
+let extensions = ["world-clock", "system-vitals", "weather", "calculator", "git", "currency", "playtime", "images", "pdf", "qr-codes", "archives", "dev-toolbox", "feeds", "system-vitals-plus", "clipboard", "keep-awake", "prayer-times"]
 
 let package = Package(
     name: "SidefolkAddons",
