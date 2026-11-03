@@ -224,7 +224,7 @@ extension BoardDrawing {
             if let region = cell.region { inGrid.append(Node.rect(fill: Paint.region(region)).at(x, y).size(side, side)) }
             if let text = cell.text { inGrid.append(Node(["style": "mt", "text": text]).at(x, y)) }
             if let file = cell.symbol.flatMap({ ["crescent": "crescent", "sun": "sun", "blossom": "flower"][$0] }) {
-                inGrid.append(Node.art("art/game-face-\(file).webp", x: x + (side - art) / 2, y: y + (side - art) / 2, w: art, h: art))
+                inGrid.append(Node.image("art/game-face-\(file).webp", dark: file == "crescent" ? "art/game-face-crescent-night.webp" : nil).at(x + (side - art) / 2, y + (side - art) / 2).size(art, art))
             }
         }
         // Garden Plots' own borders say it all at this size.

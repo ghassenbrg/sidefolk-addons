@@ -32,6 +32,8 @@ enum PlayTable {
     private static var keptFile: String { folder + "/kept.json" }
     /// What is on screen for each open session: it needn't be read back from the state at every key.
     private static var shown: [String: Board] = [:]
+    /// The build-up on the table and when it ends, for a letter typed during it.
+    private static var building: [String: (board: Board, ends: Date)] = [:]
     /// How long a game put away is kept, as the frame keeps a surface.
     static let keptFor: TimeInterval = 600
 
@@ -169,6 +171,9 @@ enum PlayTable {
             session.menu = true
             return PlayMenu.scene(selected: session.selected, kept: nil)
         }
+        if session.held != nil, let build = building[id], case .key(let key, let character, _) = move, key == "letter" || key == "draft_delete" {
+            return typedDuring(build, key: key, character: character, board: board, entry: entry, session: &session)
+        }
         switch StageMoves.action(move, board: board, local: &session.local) {
         case .back:
             session.menu = true
@@ -185,6 +190,7 @@ enum PlayTable {
             if m == .next, let held = session.held {
                 session.held = nil
                 session.pick = nil
+                building[id] = nil
                 session.local.builtUp = true
                 let next = driver.board(data, held, session.options) ?? board
                 return verdict(next, previous: board, entry: entry, session: &session, id: id)
@@ -207,6 +213,7 @@ enum PlayTable {
                 ctx.afterMs = ms
                 // The board this was built from stays what the build-up's verdict compares against.
                 shown[id] = board
+                building[id] = (build, Date().addingTimeInterval(Double(ms) / 1000))
                 var scene = BoardDrawing(build, ctx).scene()
                 if result.board.revealPart != nil { scene = scene.afterStill(ms: 100) }
                 return scene
@@ -215,9 +222,29 @@ enum PlayTable {
         }
     }
 
+    /// A letter typed while a played row turns: kept for the next row, and the turning carries on, ending when it would have.
+    private static func typedDuring(_ build: (board: Board, ends: Date), key: String, character: String?, board: Board, entry: GameEntry, session: inout Session) -> Scene {
+        let length = build.board.keysPart?.length ?? 0
+        if key == "draft_delete" {
+            if !session.local.typedAhead.isEmpty { session.local.typedAhead.removeLast() }
+            session.local.justTyped = false
+        } else if let character, session.local.typedAhead.count < length {
+            session.local.typedAhead += character
+            session.local.justTyped = true
+        }
+        var ctx = context(entry, session: session, previous: board, fresh: false)
+        ctx.buildUp = true
+        ctx.buildingOn = true
+        ctx.afterMs = max(Int(build.ends.timeIntervalSinceNow * 1000), 1)
+        return BoardDrawing(build.board, ctx).scene()
+    }
+
     /// A board with its result in it, at its moment.
     private static func verdict(_ next: Board, previous: Board?, entry: GameEntry, session: inout Session, id: String) -> Scene {
         StageMoves.settle(next, local: &session.local)
+        // What was typed while the row turned is the next row's, if there is one.
+        if !session.local.typedAhead.isEmpty, !next.over, next.keysPart?.mode == "spell" { session.local.draft = session.local.typedAhead }
+        session.local.typedAhead = ""
         session.over = next.over
         if next.over {
             if !session.recorded { record(next, entry: entry, session: &session) }
@@ -247,6 +274,8 @@ enum PlayTable {
         let held = session.held ?? []
         session.held = nil
         session.pick = nil
+        building[id] = nil
+        session.local.typedAhead = ""
         let board = shown[id].map { $0.hasPuzzle ? $0.clocked(from: driver.board(data, held, session.options)) : $0 } ?? driver.board(data, held, session.options) ?? Board([])
         Playback.cameBack(board, local: &session.local)
         return draw(board, entry: entry, session: session, previous: nil, fresh: fresh, id: id)
