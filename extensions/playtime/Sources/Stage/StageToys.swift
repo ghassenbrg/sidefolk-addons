@@ -162,10 +162,9 @@ extension BoardDrawing {
         let verdict = handsVerdict(you, companion), toy = stage.toy
         let ends = toyEnds(you: you, companion: companion, stage: stage)
         var toys: [Node] = []
-        // At the verdict, and not before: a soft round light behind who won. Whose loss it was is in its tone; two people's is neutral.
+        // At the verdict, and not before: a soft warm light behind who won, the same whoever it was. Whose win it was is in the pills, and a loss is never red (D78).
         if !playing, verdict != .draw, let rest = ends[verdict == .win ? "you" : "them"] {
-            let glow = stage.names != nil ? Color.inkMuted : verdict == .win ? Color.win : Color.loss
-            toys.append(Node.ellipse(fill: glow.tuned(alpha: 0.12)).id(prefix + ".glow").at(rest.x - toy * 0.06, rest.y).size(toy * 1.12, toy * 1.12))
+            toys.append(Node.art("art/toy-glow.webp", x: rest.x - toy * 0.2, y: rest.y - toy * 0.14, w: toy * 1.4, h: toy * 1.4).id(prefix + ".glow"))
         }
         for (side, hand) in [("you", you), ("them", companion)] {
             let id = "\(prefix).\(side)", rest = ends[side]!

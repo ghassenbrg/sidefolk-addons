@@ -125,6 +125,11 @@ extension BoardDrawing {
         if ctx.fresh, let before = ctx.previous?.said ?? ctx.previous?.promptPart?.text, before != text {
             anims.append(.keys("bubble.text", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 180, ease: "out"))
         }
+        // Quick Paws' signal put the bubble away so the machine had the word: it stays away until the verdict, and comes back with it.
+        let hushed = ctx.buildUp && !ctx.local.early && ctx.previous?.reflexArmed == true
+        if ctx.fresh, !ctx.buildUp, ctx.previous?.reflexArmed == true {
+            anims.append(.keys("bubble", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 200, ease: "out"))
+        }
         let tail = switch side {
         case .left: "M 1 \(height - 26) Q -4 \(height - 16) -10 \(height - 10) Q -3 \(height - 10) 1 \(height - 12) Z"
         case .right: "M \(width - 1) \(height - 26) Q \(width + 4) \(height - 16) \(width + 10) \(height - 10) Q \(width + 3) \(height - 10) \(width - 1) \(height - 12) Z"
@@ -138,7 +143,7 @@ extension BoardDrawing {
                 let _ = startClock(id: clock.id, seconds: clock.seconds)
                 timerBar(id: clock.id, seconds: clock.seconds, width: room).at(14, height - 10)
             }
-        }, height: height)
+        }.opacity(hushed ? 0 : 1), height: height)
     }
 }
 

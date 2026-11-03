@@ -190,6 +190,23 @@ struct PlaytimePolishTests {
         }
     }
 
+    /// The machine has the word at Quick Paws' signal: the bubble goes without moving anything, stays away through the wait for the verdict and comes back with it.
+    @Test func quickPawsBubbleNeverArguesWithTheSignal() throws {
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            PlaytimeRecords.update { $0 = PlaytimeRecords() }
+            let boards = try PlaytimeScreensTests.play(QuickPawsScreen.self, seed: 1).boards
+            let armed = try #require(boards.first { $0.reflexArmed })
+            let scene = BoardDrawing(armed, StageContext(entry: Self.entry(QuickPawsScreen.id))).scene()
+            #expect(Self.anims(scene, on: "bubble").contains { ($0["to"] as? [String: Any])?["opacity"] as? Double == 0 })
+            var waiting = StageContext(entry: Self.entry(QuickPawsScreen.id), previous: armed)
+            waiting.buildUp = true
+            let build = BoardDrawing(armed, waiting).scene()
+            #expect(Self.node(build, "bubble")?.node["opacity"] as? Double == 0)
+            let rest = BoardDrawing(armed, StageContext(entry: Self.entry(QuickPawsScreen.id))).scene()
+            #expect(Self.node(rest, "bubble")?.node["opacity"] as? Double ?? 1 == 1)
+        }
+    }
+
     @Test func theFigureMovesOnlyOnAChangeAndEndsWhereItRests() throws {
         try Language.with("en", strings: PlaytimeGameTests.strings) {
             PlaytimeRecords.update { $0 = PlaytimeRecords() }

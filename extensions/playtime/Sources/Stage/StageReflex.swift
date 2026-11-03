@@ -38,6 +38,8 @@ extension BoardDrawing {
             anims.append(Anim.sequence([.wait(ms: moment), .sound("sounds/boop.wav"), .together([
                 .to("reflex.go.under", ["opacity": 1], ms: 90, ease: "out"), .to("reflex.go.over", ["opacity": 1], ms: 90, ease: "out"),
                 .to("reflex.dome", ["opacity": 1], ms: 90, ease: "out"), .to("reflex.waiting", ["opacity": 0], ms: 90, ease: "out"),
+                // The machine has the word now: a bubble still saying Steady… would argue with it.
+                .to("bubble", ["opacity": 0], ms: 90, ease: "out"),
             ])]).essential().named("reflex_signal"))
             anims.append(.sequence([.wait(ms: moment), .keys("reflex.go.word", [["t": 0, "scale": 0.7], ["t": 1, "scale": 1]], ms: 220, ease: "spring")]))
             timers.append(("reflex", moment + Double(windowMs)))
