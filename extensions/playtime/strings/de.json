@@ -1393,7 +1393,6 @@
     "{name}, find {other}'s number.": "{name}, finde die Zahl von {other}.",
     "{name}, guess {other}'s word.": "{name}, rate das Wort von {other}.",
     "{name}, look away!": "{name}, schau weg!",
-    "{name}, pick your hand.": "{name}, wähl deine Hand.",
     "{name}, type a secret number.": "{name}, gib eine geheime Zahl ein.",
     "{name}, type a word for {other}.": "{name}, gib ein Wort für {other} ein.",
     "{name}: {n} ms": "{name}: {n} ms",
@@ -1412,7 +1411,10 @@
     "{title} is already at its hardest.": "{title} ist schon am schwersten.",
     "{win} beats {lose}: a point for {name}.": "{win} schlägt {lose}: ein Punkt für {name}.",
     "“kind” must be coin, dice or rock_paper_scissors.": "„kind“ muss coin, dice oder rock_paper_scissors sein.",
-    "Let {name} pick one": "{name} sucht eins aus"
+    "Let {name} pick one": "{name} sucht eins aus",
+    "Here we go!": "Los geht’s!",
+    "{name}, pick your toy.": "{name}, wähl dein Spielzeug.",
+    "1–{n} to choose": "1–{n} zum Wählen"
   },
   "tools": {
     "game_settings": {

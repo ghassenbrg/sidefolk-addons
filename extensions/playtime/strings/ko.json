@@ -1341,7 +1341,6 @@
     "{name}, find {other}'s number.": "{name}, {other}의 숫자를 찾아요.",
     "{name}, guess {other}'s word.": "{name}, {other}의 단어를 맞혀요.",
     "{name}, look away!": "{name}, 보지 마세요!",
-    "{name}, pick your hand.": "{name}, 손을 고르세요.",
     "{name}, type a secret number.": "{name}, 비밀 숫자를 입력하세요.",
     "{name}, type a word for {other}.": "{name}, {other}에게 낼 단어를 입력하세요.",
     "{name}: {n} ms": "{name}: {n}ms",
@@ -1360,7 +1359,10 @@
     "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
     "{win} beats {lose}: a point for {name}.": "{win}이(가) {lose}을(를) 이겨요: {name}에게 1점.",
     "“kind” must be coin, dice or rock_paper_scissors.": "“kind”는 coin, dice, rock_paper_scissors 중 하나여야 해요.",
-    "Let {name} pick one": "{name}에게 맡기기"
+    "Let {name} pick one": "{name}에게 맡기기",
+    "Here we go!": "간다!",
+    "{name}, pick your toy.": "{name}, 장난감을 골라요.",
+    "1–{n} to choose": "1–{n}로 선택"
   },
   "tools": {
     "game_settings": {

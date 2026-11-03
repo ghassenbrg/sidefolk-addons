@@ -1427,7 +1427,6 @@
     "{name}, find {other}'s number.": "{name}، اعثر على رقم {other}.",
     "{name}, guess {other}'s word.": "{name}، خمّن كلمة {other}.",
     "{name}, look away!": "{name}، لا تنظر!",
-    "{name}, pick your hand.": "{name}، اختر يدك.",
     "{name}, type a secret number.": "{name}، اكتب رقمًا سريًا.",
     "{name}, type a word for {other}.": "{name}، اكتب كلمة لـ{other}.",
     "{name}: {n} ms": "{name}: {n} م.ث",
@@ -1446,7 +1445,10 @@
     "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
     "{win} beats {lose}: a point for {name}.": "{win} يغلب {lose}: نقطة لـ{name}.",
     "“kind” must be coin, dice or rock_paper_scissors.": "يجب أن تكون قيمة «kind» إحدى القيم coin أو dice أو rock_paper_scissors.",
-    "Let {name} pick one": "دع {name} يختار"
+    "Let {name} pick one": "دع {name} يختار",
+    "Here we go!": "هيا بنا!",
+    "{name}, pick your toy.": "{name}، اختر لعبتك.",
+    "1–{n} to choose": "1–{n} للاختيار"
   },
   "tools": {
     "game_settings": {

@@ -1353,7 +1353,6 @@
     "{name}, find {other}'s number.": "{name}、{other}の数を当てて。",
     "{name}, guess {other}'s word.": "{name}、{other}の言葉を当てて。",
     "{name}, look away!": "{name}は見ないでね！",
-    "{name}, pick your hand.": "{name}、手を選んでね。",
     "{name}, type a secret number.": "{name}、ひみつの数を入力してね。",
     "{name}, type a word for {other}.": "{name}、{other}のための言葉を入力してね。",
     "{name}: {n} ms": "{name}：{n}ミリ秒",
@@ -1372,7 +1371,10 @@
     "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
     "{win} beats {lose}: a point for {name}.": "{win}は{lose}に勝つ：{name}に1点。",
     "“kind” must be coin, dice or rock_paper_scissors.": "「kind」はcoin、dice、rock_paper_scissorsのいずれかにしてください。",
-    "Let {name} pick one": "{name}におまかせ"
+    "Let {name} pick one": "{name}におまかせ",
+    "Here we go!": "いくよ！",
+    "{name}, pick your toy.": "{name}、おもちゃを選んで。",
+    "1–{n} to choose": "1–{n} で選ぶ"
   },
   "tools": {
     "game_settings": {

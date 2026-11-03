@@ -1343,7 +1343,6 @@
     "{name}, find {other}'s number.": "{name}，找出{other}的数。",
     "{name}, guess {other}'s word.": "{name}，猜出{other}的词。",
     "{name}, look away!": "{name}，别看！",
-    "{name}, pick your hand.": "{name}，选你的手势。",
     "{name}, type a secret number.": "{name}，输入一个秘密数字。",
     "{name}, type a word for {other}.": "{name}，为{other}输入一个词。",
     "{name}: {n} ms": "{name}：{n}毫秒",
@@ -1362,7 +1361,10 @@
     "{title} is already at its hardest.": "{title} 已经是最难的了。",
     "{win} beats {lose}: a point for {name}.": "{win}胜{lose}：{name}得一分。",
     "“kind” must be coin, dice or rock_paper_scissors.": "“kind”必须是 coin、dice 或 rock_paper_scissors。",
-    "Let {name} pick one": "让{name}来选"
+    "Let {name} pick one": "让{name}来选",
+    "Here we go!": "开始啦！",
+    "{name}, pick your toy.": "{name}，选你的玩具。",
+    "1–{n} to choose": "按 1–{n} 选择"
   },
   "tools": {
     "game_settings": {
