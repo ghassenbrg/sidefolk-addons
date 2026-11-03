@@ -403,14 +403,17 @@ MINIMUM_PLACEHOLDER = "0.1.0-snapshot.786"
 
 def check_minimums(build):
     """A signed build says which Sidefolk it is for, and no pack may ask for more, or still name the placeholder."""
-    for file in sorted((ROOT / "extensions").glob("*/addon.json")):
-        minimum = json.loads(file.read_text()).get("minimum_sidefolk")
-        if not minimum:
-            continue
-        if minimum == MINIMUM_PLACEHOLDER:
-            sys.exit(f"{file.parent.name}: minimum_sidefolk is still the placeholder {minimum}: set the real snapshot (Sidefolk docs/RELEASE.md).")
-        if int(minimum.rsplit(".", 1)[1]) > build:
-            sys.exit(f"{file.parent.name}: minimum_sidefolk {minimum} is newer than Sidefolk snapshot {build}: no copy could install it.")
+    for kind in ("companions", "extensions", "themes"):
+        for file in sorted((ROOT / kind).glob("*/addon.json")):
+            minimum = json.loads(file.read_text()).get("minimum_sidefolk")
+            if not minimum:
+                continue
+            if minimum == MINIMUM_PLACEHOLDER:
+                sys.exit(f"{file.parent.name}: minimum_sidefolk is still the placeholder {minimum}: set the real snapshot (Sidefolk docs/RELEASE.md).")
+            # Companions and themes may name a plain version ("0.1.0"), which no snapshot number says anything about.
+            snapshot = re.fullmatch(r"\d+\.\d+\.\d+-snapshot\.(\d+)", minimum)
+            if snapshot and int(snapshot[1]) > build:
+                sys.exit(f"{file.parent.name}: minimum_sidefolk {minimum} is newer than Sidefolk snapshot {build}: no copy could install it.")
 
 
 def main():
