@@ -127,7 +127,7 @@ enum TicTacToeScreen: GameScreen {
         if untouched { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = TicTacToeEngine.outcome(of: s), !lastLine {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.series.you)) – \(Format.integer(g.series.companion))",
-                                          companion: o.companion))
+                                          companion: o.companion, margin: g.series.you - g.series.companion))
             parts.append(ScreenKit.levels(g.level))
         } else if g.gameOver {
             if !g.seriesOver { parts.append(.button(GameButton(L("Next game"), move: "again", style: .primary, symbol: "arrow.right"))) }

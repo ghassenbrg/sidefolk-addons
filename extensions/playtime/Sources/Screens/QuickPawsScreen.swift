@@ -133,7 +133,7 @@ enum QuickPawsScreen: GameScreen {
         if s.number == 1, g.score == Games.Score() { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = QuickPawsEngine.outcome(of: s) {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))",
-                                          ribbon: s.record ? L("New best!") : nil, companion: o.companion))
+                                          ribbon: s.record ? L("New best!") : nil, companion: o.companion, margin: g.score.you - g.score.companion))
             parts.append(ScreenKit.levels(g.level))
         }
         var cue = EventCues.cue(events)

@@ -151,10 +151,16 @@ enum GuessAnimalScreen: GameScreen {
         }
         if let note = ScreenKit.refusal(events) { parts.append(note) }
         if let outcome = s.outcome {
-            let line = outcome == .won ? (s.learned ? L("Thank you! I'll remember {animal}.", ["animal": s.animal ?? ""]) : L("You stumped me!")) : L("I got it!")
-            parts.append(ScreenKit.result(outcome, figure: Format.integer(g.asked), line: line,
-                                          facts: [(L("Questions"), Format.integer(g.asked))], companion: o.companion))
+            // The card says it itself, since no bubble does here: which animal, once.
+            let named = g.guess.map { L("It was {animal}!", ["animal": [$0.emoji, $0.name].filter { !$0.isEmpty }.joined(separator: " ")]) }
+            let line = outcome == .won ? (s.learned ? L("Thank you! I'll remember {animal}.", ["animal": s.animal ?? ""]) : "") : named ?? ""
+            parts.append(ScreenKit.result(outcome, figure: L(one: "{count} question", other: "{count} questions", count: g.asked), line: line, companion: o.companion))
         }
-        return Board(parts, companion: cue, over: s.outcome != nil, afterMs: after, said: said)
+        var out = Board(parts, companion: cue, over: s.outcome != nil, afterMs: after, said: said)
+        if let outcome = s.outcome {
+            out.endTitle = outcome == .won ? L("You stumped me!") : L("I got it!")
+            out.endFriendly = outcome == .lost
+        }
+        return out
     }
 }

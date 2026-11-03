@@ -71,6 +71,8 @@ struct StageKey {
 final class BoardDrawing {
     /// The canvas: the same for every board, so the panel never changes size.
     static let width = 400.0, pad = 14.0, inner = 372.0, canvas = 620.0, footerRoom = 26.0
+    /// How long an end card holds the person's moves as it arrives.
+    static let cardHoldMs = 700
 
     /// What the board has to itself, once the header, the stage and the controls have their places. A part sizes itself to this.
     var playRoom = 400.0
@@ -167,6 +169,8 @@ final class BoardDrawing {
         if let after = partAfterMs ?? board.afterMs ?? ctx.afterMs { scene = scene.after(ms: after) }
         if let still = partAfterStillMs { scene = scene.afterStill(ms: still) }
         if ctx.fresh, let words = spoken { scene = scene.announcing(words) }
+        // A card comes in under a hand that may still be clicking what was there: its buttons wait until it can be seen.
+        if ctx.fresh, ended, ctx.previous?.resultPart == nil { scene = scene.inputAfter(ms: Self.cardHoldMs) }
         if board.over, let result = board.resultPart {
             let two = board.scorePart?.players != nil
             scene = scene.over(outcome: two ? nil : Verdict(tone: result.tone).rawValue)
@@ -188,7 +192,7 @@ final class BoardDrawing {
             return out.react(Reaction(move: move)).animating(.sequence([.sound("sounds/\(sound).wav")]))
         }
         // A puzzle's last beat is on its board, and has its own sound (solveMoment).
-        if ctx.buildUp, board.hasPuzzle { return out }
+        if ctx.buildUp, board.hasPuzzle || board.padMissed != nil { return out }
         if ctx.buildUp { return out.react(Reaction(effect: "question")).animating(.sequence([.sound("sounds/tick.wav")])) }
         // A game just come to the table starts with nothing of the last one's above the companion, however it got here.
         let opening = ctx.fresh && ctx.previous == nil
@@ -221,6 +225,8 @@ final class BoardDrawing {
         for part in board.parts {
             if ended, isPlay(part) { continue }
             if ended, case .choice(_, _, .segmented, _, _) = part { continue }
+            // Its numbers are in the card's facts.
+            if ended, case .facts = part { continue }
             if partHoldsRoom, !isPlay(part) { continue }
             if placedElsewhere(part) { continue }
             switch part {

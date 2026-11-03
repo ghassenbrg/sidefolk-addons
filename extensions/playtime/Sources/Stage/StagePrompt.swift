@@ -221,6 +221,7 @@ extension BoardDrawing {
     /// What the figure does on the stage as this scene comes, if anything: only a new board, never the first (a game come back to doesn't replay what it last did).
     private var stageFigureMove: FigureMove? {
         guard ctx.fresh, ctx.previous != nil else { return nil }
+        if ctx.buildUp, board.padMissed != nil { return .jumpBack }
         if !(gameTable == .hands && ctx.buildUp), !playing, let move = FigureMove(cue: board.companion?.move) { return move }
         return posed != pose ? .lean : nil
     }

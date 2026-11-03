@@ -173,7 +173,7 @@ enum RockPaperScissorsScreen: GameScreen {
         if s.round == 1, s.last == nil { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if s.over {
             let won = s.you > s.companion
-            parts.append(.result(figure: figure(s), line: won ? L("You win the match!") : L("{name} wins the match.", ["name": o.companion]), tone: won ? .good : .bad,
+            parts.append(.result(figure: figure(s), line: won ? ScreenKit.beat(o.companion, by: s.you - s.companion) : nil, tone: won ? .good : .bad,
                                  actions: [rematch]))
         } else if s.last != nil {
             parts.append(.button(GameButton(L("Next round"), move: "next", style: .primary, symbol: "arrow.right")))

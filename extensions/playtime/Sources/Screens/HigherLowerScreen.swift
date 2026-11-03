@@ -257,14 +257,20 @@ enum HigherLowerScreen: GameScreen {
         if let outcome = s.outcome {
             let guesses = s.mine?.guesses.count ?? s.yours?.asked ?? 0
             let par = s.mine?.par ?? Games.HigherLower.par(s.high - s.low + 1)
-            parts.append(ScreenKit.result(outcome, figure: Format.integer(guesses),
-                                          line: s.mode == .yours ? L(one: "{name} found it in {count} question.", other: "{name} found it in {count} questions.", count: guesses, ["name": o.companion])
+            // Nobody lost: the number was found. What is recorded stays as it was; the card says what happened.
+            parts.append(ScreenKit.result(outcome, figure: s.mode == .yours ? L(one: "{count} question", other: "{count} questions", count: guesses) : Format.integer(guesses),
+                                          line: s.mode == .yours ? ""
                                               : outcome == .won ? L("Found in {n}, at par or better!", ["n": guesses]) : L("Found in {n}: par is {par}.", ["n": guesses, "par": par]),
                                           facts: [(L("Numbers"), L("{low} to {high}", ["low": s.low, "high": s.high]))],
                                           companion: o.companion,
                                           actions: [ScreenKit.playAgain] + (s.mode.map { [switchButton(from: $0, o)] } ?? [])))
         }
-        return Board(parts, companion: cue, over: s.over, afterMs: after)
+        var out = Board(parts, companion: cue, over: s.over, afterMs: after)
+        if s.outcome != nil {
+            out.endTitle = s.mode == .yours ? L("{name} found it!", ["name": o.companion]) : L("Found it!")
+            out.endFriendly = s.mode == .yours || s.outcome == .lost
+        }
+        return out
     }
 
     /// A refused move in this game's words: a guess outside the range names the range; a top that isn't one says what is.

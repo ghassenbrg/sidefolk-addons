@@ -127,16 +127,16 @@ enum ScreenKit {
     /// The end card: the outcome's words (the person's win, the companion's, a draw), a figure, facts, and its buttons
     /// (Play again unless a game gives its own).
     static func result(_ outcome: GameOutcome, figure: String, line: String? = nil, ribbon: String? = nil, facts: [(String, String)] = [],
-                       companion: String, actions: [GameButton]? = nil) -> BoardPart {
-        let words = line ?? {
-            switch outcome {
-            case .won: L("You beat {name}!", ["name": companion])
-            case .lost: L("{name} wins this one.", ["name": companion])
-            case .draw: L("A draw!")
-            }
-        }()
+                       companion: String, margin: Int? = nil, actions: [GameButton]? = nil) -> BoardPart {
+        // The card's title already says who won: its line only says what the title doesn't.
+        let words = line ?? (outcome == .won ? margin.map { beat(companion, by: $0) } : nil)
         return .result(figure: figure, line: words, ribbon: ribbon, tone: outcome == .won ? .good : outcome == .lost ? .bad : .neutral,
                        facts: facts, actions: actions ?? [playAgain])
+    }
+
+    /// "You beat {companion} by one", as a match's card says it under "You win!".
+    static func beat(_ companion: String, by margin: Int) -> String {
+        L("You beat {name} by {n}.", ["name": companion, "n": margin])
     }
 
     /// A move the rules refused, in the person's words; nil when nothing was refused.

@@ -73,6 +73,10 @@ public struct Board {
     public var said: String?
     /// A puzzle's words with nothing to complain of, for while a click-through cell rests.
     public var calm: String?
+    /// An end card's big words, when its game's result isn't a win, a loss or a draw between two sides. The tone stays what is recorded; these are only what is shown.
+    public var endTitle: String?
+    /// An end card that is a friendly fact, whatever is recorded: no loss, no draw in how it looks.
+    public var endFriendly = false
     /// Two people's Rock, Paper, Scissors: the first hand is in. It says that, never which.
     public var sealedFirst = false
 

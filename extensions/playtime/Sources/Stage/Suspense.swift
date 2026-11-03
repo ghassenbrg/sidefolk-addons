@@ -49,6 +49,8 @@ enum Suspense {
         }
         // The cups lift in the build-up, slowly: that is the payoff, and the words, the score and the reaction wait for it.
         if next.cupsRevealed, !previous.cupsRevealed { return (withheld(next, previous), BoardDrawing.cupsLiftMs(next)) }
+        // A wrong press reads at once: the pad shakes, the right one lights, the bubble says so, a beat, then the card.
+        if next.padMissed != nil, previous.hasPads { return (withheld(next, previous), BoardDrawing.padMissMs) }
         return decides(next, after: previous) ? (withheld(next, previous), beatMs) : nil
     }
 
@@ -120,7 +122,7 @@ enum Suspense {
             return .number(min: min, max: max, label: previous.numberPart?.label ?? label, history: previous.numberPart?.history ?? [], locked: true)
         case .sticks(let total, let left, let take, let groups, let hint, let taken, let by, _):
             return .sticks(total: total, left: left, take: take, groups: groups, hint: hint, taken: taken, takenBy: by, locked: true)
-        case .pads(let pads, _, let ms, _, let length, let done): return .pads(pads, play: [], stepMs: ms, locked: true, length: length, done: done)
+        case .pads(let pads, let steps, let ms, let locked, let length, let done): return .pads(pads, play: locked ? steps : [], stepMs: ms, locked: true, length: length, done: done)
         case .puzzle(let rows, let columns, let cells, let input, let digits, let box, let edges, let plots, let seconds, _, _):
             // The last mark settles on a still board: the clock stopped, nothing to press yet.
             return .puzzle(rows: rows, columns: columns, cells: cells, input: input, digits: digits, box: box, edges: edges, plots: plots, seconds: seconds, running: false, locked: true)
@@ -156,6 +158,8 @@ enum Suspense {
 
 extension Board {
     var cupsRevealed: Bool { play { if case .cups(_, _, _, _, _, let revealed, _, _) = $0 { revealed } else { nil } } ?? false }
+    /// The pad that was right, on a board a wrong press ended.
+    var padMissed: Int? { play { if case .pads(_, let steps, _, true, _, _) = $0 { steps.first } else { nil } } }
     var reflexShows: Bool { play { if case .reflex(_, _, _, _, _, let shows, _) = $0 { shows != nil } else { nil } } ?? false }
     var reflexArmed: Bool { play { if case .reflex(let after, _, _, _, _, let shows, _) = $0 { after != nil && shows == nil } else { nil } } ?? false }
 }
