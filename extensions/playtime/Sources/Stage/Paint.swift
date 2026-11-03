@@ -41,6 +41,15 @@ enum Paint {
     static let coral = Color.hex("#FF7B6B")
     static let navy = Color.hex("#0F2D5B")
     static let white = Color.hex("#FFFFFF")
+    /// A pair of Memory cards found: the person's warm, the other side's cool. Whose, never how it went.
+    static let pairYours = both("#FFEFC2", "#5A4A1E")
+    static let pairTheirs = both("#D6E8F7", "#2E4A68")
+    /// Daily Word's tile for a letter not in the word: plain, never a result's colour.
+    static let tileAbsent = both("#CFCDD2", "#566082")
+    static let tileAbsentLip = both("#ACA9B1", "#3D4563")
+    /// Balloon Words' sign: navy felt with cream words, day and night.
+    static let signFelt = Color.hex("#1B2A5C")
+    static let signInk = Color.hex("#FFF4E6")
     /// Two players on one Mac (D96): who, never how it went: a calm blue and a warm violet.
     static let players = [Color.adaptive(light: "#3B7DD8", dark: "#7FB2FF"), Color.adaptive(light: "#8A55D6", dark: "#C09BFF")]
     /// The pads' colours and the balloons', soft clay, so red reads as a colour of the game, not an alarm.

@@ -162,6 +162,12 @@ enum ScreenKit {
         return nil
     }
 
+    /// A refusal said in the companion's bubble, for a board whose parts keep their places.
+    static func refused(_ events: [Games.Event]) -> String? {
+        if case .note(let text, _, _)? = refusal(events) { return text }
+        return nil
+    }
+
     static func score(_ s: Games.Score, rounds: Int? = nil, best: Int? = nil) -> BoardPart {
         .score(you: s.you, companion: s.companion, best: best, rounds: rounds)
     }

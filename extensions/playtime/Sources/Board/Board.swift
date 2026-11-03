@@ -65,12 +65,18 @@ public struct Board {
     /// Sidefolk shows this board so long (100–6000 ms), then asks for the next with `.next`: the companion thinking
     /// before its move, two cards left face up a moment. The game keeps no clock.
     public var afterMs: Int?
+    /// Whose turn it is on a board two sides take turns on: `you` (the first player) or `companion` (the second), nil when nobody's.
+    public var turn: String?
+    /// The move just made was refused: said in the prompt, with a small shake of what was refused.
+    public var refused: Bool
 
-    public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil) {
+    public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil, turn: String? = nil, refused: Bool = false) {
         self.parts = parts
         self.companion = companion
         self.over = over
         self.afterMs = afterMs
+        self.turn = turn
+        self.refused = refused
     }
 
     public var json: [String: Any] {

@@ -40,7 +40,9 @@ enum Suspense {
         guard let previous else { return nil }
         // A row of letters just played: its tiles flip one by one (the reveal), and what it means waits until they have.
         if let letters = next.lettersPart, let flip = letters.flip, letters.rows.count > (previous.lettersPart?.rows.count ?? 0), letters.rows.indices.contains(flip) {
-            return (withheld(next, previous), 350 + letters.rows[flip].count * 220)
+            // A row all right takes a little longer: its tiles hop once they have all turned.
+            let solved = letters.rows[flip].allSatisfy { $0.mark == "right" }
+            return (withheld(next, previous), 350 + letters.rows[flip].count * 220 + (solved ? 520 : 0))
         }
         return decides(next, after: previous) ? (withheld(next, previous), beatMs) : nil
     }
@@ -51,7 +53,8 @@ enum Suspense {
     /// Whether `next` settles something `previous` left open: a point scored, a line won, the cups lifted, a reflex timed, a guess judged, a
     /// card turned with the companion's reaction, the end card.
     static func decides(_ next: Board, after previous: Board) -> Bool {
-        if next.resultPart != nil, previous.resultPart == nil { return true }
+        // A last line or pair already shown, score and all, was the build-up to the end card.
+        if next.resultPart != nil, previous.resultPart == nil, previous.gridPart?.cells.contains(where: { $0.state == "win" }) != true { return true }
         if let s = next.scorePart, let p = previous.scorePart, s.you > p.you || s.companion > p.companion { return true }
         if let g = next.gridPart, g.cells.contains(where: { $0.state == "win" }), previous.gridPart?.cells.contains(where: { $0.state == "win" }) != true { return true }
         if let g = next.gridPart, next.companion != nil, g.cells.contains(where: { $0.animate == "flip" }) { return true }
@@ -81,7 +84,7 @@ enum Suspense {
         if let before, !parts.contains(where: isPrompt) {
             parts.insert(before, at: parts.firstIndex { !isScore($0) } ?? parts.count)
         }
-        return Board(parts)
+        return Board(parts, turn: previous.turn)
     }
 
     private static func withheld(_ part: PlayPart, next: Board, previous: Board) -> PlayPart? {
@@ -89,9 +92,11 @@ enum Suspense {
         case .keys:
             guard let k = previous.keysPart else { return nil }
             return .keys(pages: k.pages, mode: k.mode, length: k.length, script: k.script, locked: true)
-        case .lives:
-            return previous.play { if case .lives = $0 { $0 } else { nil } } ?? part
-        case .entry: return nil
+        // The last balloon pops in the build-up: that is what the end card follows, and its word stays hidden until then.
+        case .letters where next.play({ if case .lives(_, let left, _) = $0 { left } else { nil } }) == 0:
+            return previous.play { if case .letters = $0 { $0 } else { nil } } ?? part
+        case .entry(let name, let kind, let label, let placeholder, let button, let max, _):
+            return .entry(name: name, kind: kind, label: label, placeholder: placeholder, button: button, max: max, locked: true)
         case .cups(let count, let hide, _, let ms, let picked, _, _, _):
             return .cups(count: count, hide: hide, swaps: [], swapMs: ms, picked: picked, revealed: false, gem: nil, locked: true)
         case .reflex(_, let window, let wait, let go, let early, _, let keys):

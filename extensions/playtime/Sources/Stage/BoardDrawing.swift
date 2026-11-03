@@ -25,6 +25,10 @@ struct LocalParts: Codable, Equatable {
     var lit: Int?
     /// The reflex was pressed before its signal: "Too soon!" at once, until the verdict's moment.
     var early = false
+    /// The last letter on the word being typed was just added: it lands, once.
+    var justTyped = false
+    /// The board on the way is the verdict of a build-up that already played its marks landing: they don't land again.
+    var builtUp = false
 }
 
 /// What a board needs from the game round it.
@@ -105,7 +109,9 @@ final class BoardDrawing {
         let head = header()
         // The controls first: the board's room is what they and the stage leave.
         let controls = dock()
-        let bottom = Self.canvas - Self.footerRoom - (controls.map { $0.height + 8 } ?? 0)
+        // A part keeps the controls' room whether or not they show now, so the board doesn't move when a button comes or goes.
+        let dockHeight = Swift.max(controls?.height ?? 0, dockRoom)
+        let bottom = Self.canvas - Self.footerRoom - (dockHeight > 0 ? dockHeight + 8 : 0)
         let said = ended ? nil : stage(text: board.promptPart?.text, chip: board.promptPart?.chip)
         let top = 4 + head.height + (said.map { $0.height + 6 } ?? 0)
         playRoom = bottom - top - 6
@@ -124,7 +130,7 @@ final class BoardDrawing {
         }
         // Over the board: the companion may lean on what it plays on.
         if let said { content.append(said.node.at(Self.pad, 4 + head.height).z(1)) }
-        if let controls { content.append(controls.node.at(Self.pad, bottom)) }
+        if let controls { content.append(controls.node.at(Self.pad, bottom + (dockHeight - controls.height) / 2)) }
         content.append(hintRow().node.at(Self.pad, Self.canvas - Self.footerRoom))
 
         var scene = Scene(width: Self.width, height: Self.canvas) {
@@ -179,7 +185,7 @@ final class BoardDrawing {
     /// The buttons a game offers during play, at their place under the board. On an end card they are the card's.
     private func dock() -> PartBlock? {
         guard !ended else { return nil }
-        let row = board.parts.compactMap { part -> GameButton? in if case .button(let b) = part, !b.companion { b } else { nil } }
+        let row = board.parts.compactMap { part -> GameButton? in if case .button(let b) = part, !b.companion, !buttonPlacedElsewhere(b) { b } else { nil } }
         guard !row.isEmpty || dockExtra != nil else { return nil }
         return buttonRow(row, id: "dock", leading: dockExtra)
     }
@@ -190,6 +196,7 @@ final class BoardDrawing {
         for part in board.parts {
             if ended, isPlay(part) { continue }
             if ended, case .choice(_, _, .segmented, _, _) = part { continue }
+            if placedElsewhere(part) { continue }
             switch part {
             case .score, .prompt, .button: continue
             default:

@@ -99,27 +99,27 @@ enum DailyWordScreen: GameScreen {
         }
         let played = events.contains(.reveal)
         let marks = g.keyMarks
-        let text: String = if g.solved { L("Solved in {n}!", ["n": g.rows.count]) }
+        let refused = ScreenKit.refused(events)
+        let text: String = if let refused { refused }
+            else if g.solved { L("Solved in {n}!", ["n": g.rows.count]) }
             else if g.over { s.isPractice ? L("The word was {word}.", ["word": g.shown ?? ""]) : L("Today's word was {word}.", ["word": g.shown ?? ""]) }
             else if let shown = s.hintShown, let place = s.hintPlace { L("Hint: letter {n} is {letter}.", ["n": place + 1, "letter": shown]) }
             else if s.isPractice { L("Guess this word in six tries.") }
             else { L("Guess today's word in six tries.") }
         var parts: [BoardPart] = [
             .prompt(text, eyebrow: s.isPractice ? L("Practice word · not in your streak")
-                                                : L("Daily Word · {date}", ["date": Format.date(DailyWordEngine.now())])),
+                                                : L("Today's word · {date}", ["date": Format.date(DailyWordEngine.now())])),
             .play(.letters(rows: rows, length: g.length, tries: Games.DailyWord.tries, draft: !g.over, flip: played ? rows.count - 1 : nil,
                            script: Keyboards.script(language))),
         ]
-        if !g.over {
-            if let keys = Keyboards.part(language, for: .daily, mode: "spell", length: g.length, mark: { marks[$0]?.rawValue ?? "none" }) {
-                parts.append(keys)
-            } else {
-                // Chinese idioms are typed with the input method.
-                parts.append(.play(.entry(name: "word", kind: "word", label: L("Four characters"), placeholder: L("Type an idiom"), button: L("Try"),
-                                          max: g.length)))
-            }
+        // Stays to the end, locked, so the last row turns over on the same board.
+        if let keys = Keyboards.part(language, for: .daily, mode: "spell", length: g.length, locked: g.over, mark: { marks[$0]?.rawValue ?? "none" }) {
+            parts.append(keys)
+        } else {
+            // Chinese idioms are typed with the input method.
+            parts.append(.play(.entry(name: "word", kind: "word", label: L("Four characters"), placeholder: L("Type an idiom"), button: L("Try"),
+                                      max: g.length, locked: g.over)))
         }
-        if let note = ScreenKit.refusal(events) { parts.append(note) }
         if let outcome = DailyWordEngine.outcome(of: s) {
             let records = PlaytimeRecords.load()
             let r = records.daily
@@ -134,14 +134,15 @@ enum DailyWordScreen: GameScreen {
             parts.append(ScreenKit.result(outcome, figure: g.shown ?? "", line: outcome == .won ? L("Solved in {n}!", ["n": g.rows.count]) : missed,
                                           facts: facts, companion: o.companion,
                                           actions: [GameButton(L("Play another word"), move: "practice", style: .primary, symbol: "arrow.clockwise")]))
-        } else if s.hintPlace == nil, !g.rows.isEmpty {
-            parts.append(.button(GameButton(L("A hint"), move: "hint", style: .plain, symbol: "lightbulb")))
+        } else {
+            // In its place from the start: faded until there is a row to go on, and once it is used.
+            parts.append(.button(GameButton(L("A hint"), move: "hint", style: .plain, symbol: "lightbulb", disabled: g.rows.isEmpty || s.hintPlace != nil)))
         }
         var cue = EventCues.cue(events)
         if played, !g.over, let greens = g.rows.last?.marks.filter({ $0 == .right }).count {
             cue = greens >= 4 ? Cue(move: "gasp", effect: "exclaim", line: "close_one") : greens >= 2 ? Cue(move: "cheer", line: "encourage") : Cue(move: "nod")
         }
-        return Board(parts, companion: cue, over: g.over)
+        return Board(parts, companion: cue, over: g.over, refused: refused != nil)
     }
 
     /// The Today tile's lines: not played yet, solved in 4, missed, and the streak while it's alive.

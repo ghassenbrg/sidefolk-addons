@@ -46,6 +46,7 @@ enum StageMoves {
         case "key": return type(value, board: board, local: &local)
         case "keys_page":
             local.page = Int(value) ?? 0
+            local.justTyped = false
             return .redraw
         default: return .ignore
         }
@@ -108,6 +109,7 @@ enum StageMoves {
     private static func delete(_ local: inout LocalParts) -> StageAction {
         guard !local.draft.isEmpty else { return .ignore }
         local.draft.removeLast()
+        local.justTyped = false
         return .redraw
     }
 
@@ -117,6 +119,7 @@ enum StageMoves {
         if keys.mode == "letter" { return .play(.letter(letter)) }
         guard local.draft.count < (keys.length ?? 0) else { return .ignore }
         local.draft += letter
+        local.justTyped = true
         return .redraw
     }
 
