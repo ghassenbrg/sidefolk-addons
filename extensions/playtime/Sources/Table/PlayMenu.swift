@@ -1,160 +1,210 @@
 import Foundation
 import SidefolkExtensionKit
 
-/// The menu when no game is open: every game as a card in its own colour and art, with its tagline, the person's stats against the companion
-/// (counted from Playtime's own record of games played), and the companion in the scene inviting them. A game put away shows "Resume". Arrow
-/// keys move, Return opens. The frame's header holds what the panel's own header did.
+/// All games: every game with its one icon on a tile of its own colour, the person's real numbers, and the companion inviting them. Everything fits at once, in the same
+/// canvas as a game, so nothing scrolls or jumps. A game put away says Resume. Arrows move, Return opens.
 @MainActor
 enum PlayMenu {
-    /// The cards in the order the arrows follow: the games against the companion, then the puzzles.
-    static var order: [GameEntry] { GameCatalog.all.filter { !$0.solo } + GameCatalog.all.filter(\.solo) }
+    /// A tile that opens one game the person hasn't just played, as the Game Center's Surprise me does.
+    static let surprise = "random"
 
-    static func index(of game: String) -> Int? { order.firstIndex { $0.id == game } }
+    /// The games against the companion, then the puzzles.
+    static var order: [GameEntry] { versus + GameCatalog.all.filter(\.solo) }
+    private static var versus: [GameEntry] { GameCatalog.all.filter { !$0.solo } }
+    private static var daily: GameEntry? { GameCatalog.entry(DailyWordScreen.id) }
+    private static var puzzles: [GameEntry] { GameCatalog.all.filter { $0.solo && $0.id != DailyWordScreen.id } }
 
-    /// Arrows move through the two columns.
-    static func step(_ key: String, from: Int, count: Int, rtl: Bool) -> Int {
+    /// What the arrows walk, row by row: pairs of cards, a banner alone.
+    static var rows: [[String]] {
+        var ids = versus.map(\.id)
+        if !ids.count.isMultiple(of: 2) { ids.append(surprise) }
+        var out = stride(from: 0, to: ids.count, by: 2).map { Array(ids[$0..<min($0 + 2, ids.count)]) }
+        if let daily { out.append([daily.id]) }
+        let solos = puzzles.map(\.id)
+        out += stride(from: 0, to: solos.count, by: 2).map { Array(solos[$0..<min($0 + 2, solos.count)]) }
+        return out
+    }
+
+    static var slots: [String] { rows.flatMap { $0 } }
+
+    static func index(of game: String) -> Int? { slots.firstIndex(of: game) }
+
+    /// Arrows move across a row and between rows, keeping their side where they can.
+    static func step(_ key: String, from: Int, rtl: Bool) -> Int {
+        let rows = self.rows
+        var at = 0, row = 0, column = 0
+        for (r, ids) in rows.enumerated() {
+            if from < at + ids.count { (row, column) = (r, from - at); break }
+            at += ids.count
+        }
+        func index(_ r: Int, _ c: Int) -> Int { rows[..<r].reduce(0) { $0 + $1.count } + min(c, rows[r].count - 1) }
         switch key {
-        case "arrow_left": min(max(from + (rtl ? 1 : -1), 0), count - 1)
-        case "arrow_right": min(max(from + (rtl ? -1 : 1), 0), count - 1)
-        case "arrow_up": max(0, from - 2)
-        default: min(count - 1, from + 2)
+        case "arrow_left": return index(row, max(column + (rtl ? 1 : -1), 0))
+        case "arrow_right": return index(row, max(column + (rtl ? -1 : 1), 0))
+        case "arrow_up": return row > 0 ? index(row - 1, column) : from
+        default: return row + 1 < rows.count ? index(row + 1, column) : from
         }
     }
 
+    private static let cardH = 41.0, gap = 5.0
+
     static func scene(selected: Int, kept: String?) -> Scene {
         let width = BoardDrawing.width, pad = BoardDrawing.pad, inner = BoardDrawing.inner
-        var y = 7.0
-        var nodes: [Node] = []
-        let bubbleW = inner - 64 - 4
-        let invite = L("Pick a game! Can you beat me?")
-        let drawing = BoardDrawing(Board([]), StageContext(entry: GameEntry(id: "", title: "", tagline: "", symbol: "", look: .dance), fresh: false))
-        let bubble = drawing.speechBubble(invite, chip: nil, width: bubbleW)
-        let stageH = max(64, bubble.height)
-        nodes.append(.box("menu.stage", x: pad, y: y, w: inner, h: stageH) {
-            Node.ellipse(fill: Paint.clear("#000000", 0.16)).at(3, stageH - 6).size(58, 8)
-            Node.companion(pose: "listening").figure(bottom: true).id("menu.figure").at(0, stageH - 64).size(64, 64)
-            bubble.node.at(68, stageH - bubble.height)
-        })
-        y += stageH + 10
-        nodes.append(stats(width: inner).at(pad, y))
-        y += 50 + 10
-        let list = cards(selected: selected, kept: kept)
-        let room = min(list.height, 420)
-        let selectedId = "card.\(order[safe: selected]?.id ?? "")"
-        nodes.append(Node.scroll(contentHeight: list.height, scrollTo: selectedId) { list.nodes }.id("menu.cards").at(0, y).size(width, room))
-        y += room + 10
-        let hint = BoardDrawing.hintCard(L("Arrows to choose · Return to play · Esc to close"), width: inner)
-        nodes.append(hint.node.at(pad, y))
-        y += hint.height + 10
-        let height = min(y, BoardDrawing.maxHeight)
-        var scene = Scene(width: width, height: height) {
-            SceneBackdrop.nodes(.dance, width: width, height: height)
-            nodes
+        let drawing = BoardDrawing(Board([]), StageContext(entry: GameEntry(id: "", title: "", tagline: "", symbol: "", look: .plain), fresh: false))
+        let slots = self.slots
+        let chosen = slots[safe: selected]
+        var nodes: [Node] = [drawing.titleRow(L("All games"), icon: "art/brand-controller.webp", width: inner).at(pad, 4)]
+        nodes.append(languageButton().at(pad + inner - 36, 8))
+        var y = 40.0
+        let side = 66.0, bubbleH = 46.0
+        nodes.append(.box("menu.stage", x: pad, y: y, w: inner, h: 62) {
+            Node.companion(pose: "listening").figure(bottom: true).id("menu.figure").at(0, 0).size(side, 66)
+            drawing.speechBubble(L("What shall we play?"), width: inner - side - 8, height: bubbleH).node.at(side + 8, 0)
+            Node.words(statsLine(), size: 12, weight: "semibold", color: Paint.inkSoft, align: "center", minScale: 0.7, x: side + 8, y: bubbleH + 2, w: inner - side - 8, h: 16).id("menu.stats")
+        }.z(1))
+        y += 66
+        nodes.append(sectionPill(L("Play with {name}", ["name": "{companion}"]), width: inner).at(pad, y))
+        y += 26
+        let w = (inner - 8) / 2
+        func card(_ id: String, row: Int, column: Int) -> Node {
+            let at = (x: pad + Double(column) * (w + 8), y: y)
+            if id == surprise { return surpriseCard(selected: chosen == id, x: at.x, y: at.y, w: w, h: cardH) }
+            return gameCard(GameCatalog.entry(id)!, selected: chosen == id, resume: kept == id, x: at.x, y: at.y, w: w, h: cardH)
         }
-        .title(L("Playtime"))
+        var puzzlesHeaded = false
+        for (r, ids) in rows.enumerated() {
+            if ids.count == 1, let daily, ids[0] == daily.id {
+                nodes.append(dailyBanner(daily, selected: chosen == daily.id, resume: kept == daily.id, x: pad, y: y + 1, w: inner, h: 40))
+                y += 46
+                continue
+            }
+            if let first = ids.first, GameCatalog.entry(first)?.solo == true, !puzzlesHeaded {
+                puzzlesHeaded = true
+                nodes.append(sectionPill(L("Puzzles"), width: inner).at(pad, y))
+                y += 26
+            }
+            for (c, id) in ids.enumerated() { nodes.append(card(id, row: r, column: c)) }
+            y += cardH + gap
+        }
+        nodes.append(BoardDrawing.hintCard(L("Arrows to choose · Return to play · Esc to close"), width: inner).node.at(pad, BoardDrawing.canvas - BoardDrawing.footerRoom))
+        var scene = Scene(width: width, height: BoardDrawing.canvas) {
+            Node.rect(fill: Paint.paper).id("bg.base").size(width, BoardDrawing.canvas)
+            nodes.map(\.rounded)
+        }
+        .title(L("A little break, together."))
         // The menu has no sound, so no speaker; and whatever the last game put above the companion is put away.
         .noSpeaker()
+        .transition(ms: 160)
         .react(Reaction(prop: "none", look: "panel"))
         for arrow in ["left", "right", "up", "down"] { scene = scene.key(arrow, id: "arrow_\(arrow)") }
         return scene.key("return", id: "menu_return").key("space", id: "menu_space")
     }
 
-    /// Wins, the current run of wins, and games played, on one card.
-    private static func stats(width: Double) -> Node {
+    /// Which language Playtime plays in, at the end of the title. A globe, so it's found whatever language the screen is in now.
+    private static func languageButton() -> Node {
+        let w = 36.0, h = 26.0, words = L("Game language")
+        return Node.box("menu.language", w: w, h: h) {
+            Node.capsule(fill: Paint.card(0.85), stroke: Paint.edge, lineWidth: 1).size(w, h)
+            Node.symbol("globe", color: Paint.inkSoft).symbolLook(weight: "bold").at((w - 18) / 2, (h - 18) / 2).size(18, 18)
+        }.area("language", label: words, hover: AreaLook(scale: 1.06), press: AreaLook(scale: 0.94), sound: "sounds/tap.wav")
+    }
+
+    /// `auto` first, then each language.
+    static var languageCodes: [String] { [PlayLanguage.auto] + PlayLanguage.names.map(\.code) }
+
+    /// The languages to play in, each in its own script, with the one in use marked.
+    static func languages(cursor: Int) -> Scene {
+        let width = BoardDrawing.width, pad = BoardDrawing.pad, inner = BoardDrawing.inner
+        let current = PlayLanguage.chosen ?? PlayLanguage.auto
+        let rows = [(PlayLanguage.auto, L("Same as Sidefolk"))] + PlayLanguage.names.map { ($0.code, $0.name) }
+        let drawing = BoardDrawing(Board([]), StageContext(entry: GameEntry(id: "", title: "", tagline: "", symbol: "", look: .plain), fresh: false))
+        let rowH = 42.0, gap = 6.0
+        var nodes: [Node] = [drawing.titleRow(L("Game language"), icon: "art/brand-controller.webp", width: inner).at(pad, 4)]
+        var y = 46.0
+        for (i, row) in rows.enumerated() {
+            let id = "language.\(row.0)", on = row.0 == current
+            nodes.append(Node.box(id, x: pad, y: y, w: inner, h: rowH) {
+                Node.rect(fill: Paint.card, stroke: i == cursor ? Paint.action : Paint.edge, lineWidth: i == cursor ? 2.5 : 1, corner: 13).id(id + ".edge").size(inner, rowH)
+                Node.words(row.1, size: 15, weight: "heavy", minScale: 0.7, x: 16, w: inner - 60, h: rowH)
+                if on { Node.symbol("checkmark", color: Paint.ink).symbolLook(weight: "heavy").id(id + ".on").at(inner - 34, (rowH - 18) / 2).size(18, 18) }
+            }.area("pick_language", value: row.0, label: row.1, hover: AreaLook(dy: -1), press: AreaLook(scale: 0.98), selected: on, sound: "sounds/tap.wav"))
+            y += rowH + gap
+        }
+        nodes.append(BoardDrawing.hintCard(L("Arrows to choose · Return to play · Esc to close"), width: inner).node.at(pad, BoardDrawing.canvas - BoardDrawing.footerRoom))
+        var scene = Scene(width: width, height: BoardDrawing.canvas) {
+            Node.rect(fill: Paint.paper).id("bg.base").size(width, BoardDrawing.canvas)
+            nodes.map(\.rounded)
+        }
+        .title(L("A little break, together."))
+        .withBack()
+        .noSpeaker()
+        .transition(ms: 160)
+        for arrow in ["up", "down"] { scene = scene.key(arrow, id: "arrow_\(arrow)") }
+        return scene.key("return", id: "language_return")
+    }
+
+    /// The person's real numbers, in a line.
+    private static func statsLine() -> String {
         let s = PlaytimeRecords.load().stats
-        let w = (width - 8 - 2) / 3
-        func stat(_ i: Int, _ value: Int, _ label: String, _ symbol: String, _ color: Color, _ soft: Color) -> Node {
-            .box("menu.stat.\(i)", x: 4 + Double(i) * (w + 1), y: 8, w: w, h: 34) {
-                Node.ellipse(fill: soft).at(8, 1).size(32, 32)
-                Node.symbol(symbol, color: color).symbolLook(weight: "bold").at(14, 7).size(20, 20)
-                Node.words(Format.integer(value), size: 20, weight: "black", x: 48, y: -2, w: w - 52, h: 24).textLook(tabular: true)
-                Node.words(label, size: 11, weight: "bold", color: .inkMuted, x: 48, y: 20, w: w - 52, h: 14)
-            }
-        }
-        return .box("menu.stats", w: width, h: 50) {
-            Node.gameCard(w: width, h: 50)
-            stat(0, s.wins, L("Wins"), "trophy.fill", Paint.sun, Paint.clear("#FFC93C", 0.16))
-            Node.rect(fill: Paint.edge).at(4 + w, 10).size(1, 30)
-            stat(1, s.streak, L("Streak", context: "games"), "flame.fill", .win, Color.win.tuned(alpha: 0.16))
-            Node.rect(fill: Paint.edge).at(4 + 2 * w + 1, 10).size(1, 30)
-            stat(2, s.played, L("Played", context: "games"), "gamecontroller.fill", .accent, Color.accent.tuned(alpha: 0.16))
+        return [L(one: "{count} win", other: "{count} wins", count: s.wins), L("{n} played", ["n": s.played]), L("{n} streak", ["n": s.streak])].joined(separator: " · ")
+    }
+
+    private static func sectionPill(_ title: String, width: Double) -> Node {
+        let w = Swift.min(TextFit.width(title, size: 12, weight: "heavy") + 24, width - 40)
+        return .box("menu.head.\(title.hashValue & 0xFFFF)", w: width, h: 22) {
+            Node.capsule(fill: Paint.action).size(w, 22)
+            Node.words(title, size: 12, weight: "heavy", color: Paint.onAction, align: "center", minScale: 0.7, x: 8, w: w - 16, h: 22)
+            Node.rect(fill: Paint.clear("#A08A70", 0.35)).at(w + 10, 11).size(width - w - 14, 1)
         }
     }
 
-    /// The games against the companion, then the puzzles played alone, each a grid of cards.
-    private static func cards(selected: Int, kept: String?) -> (nodes: [Node], height: Double) {
-        let pad = BoardDrawing.pad, inner = BoardDrawing.inner
-        var nodes: [Node] = []
-        var y = 2.0
-        let w = (inner - 8) / 2
-        let versus = order.filter { !$0.solo }, puzzles = order.filter(\.solo)
-        func group(_ title: String, solo: Bool, _ games: [GameEntry]) {
-            guard !games.isEmpty else { return }
-            nodes.append(sectionHeader(title, solo: solo, width: inner).at(pad, y))
-            y += 34 + 8
-            for start in stride(from: 0, to: games.count, by: 2) {
-                let row = Array(games[start..<min(start + 2, games.count)])
-                let h = row.map { cardHeight($0, kept: kept, w: w) }.max() ?? 70
-                for (c, game) in row.enumerated() {
-                    nodes.append(card(game, selected: index(of: game.id) == selected, resume: kept == game.id, x: pad + Double(c) * (w + 8), y: y, w: w, h: h))
-                }
-                y += h + 8
-            }
-            y += 4
-        }
-        group(L("Play against {name}", ["name": "{companion}"]), solo: false, versus)
-        group(L("Puzzles"), solo: true, puzzles)
-        return (nodes, y)
+    private static func base(_ id: String, selected: Bool, w: Double, h: Double, tile: Color, icon: String?, symbol: String? = nil) -> [Node] {
+        var out: [Node] = [
+            Node.rect(fill: Paint.card, corner: 13).id(id + ".face").size(w, h).shadow(Paint.clear("#7A5A3A", 0.13), radius: 3, dx: 0, dy: 2),
+            Node.rect(fill: tile, corner: 13).id(id + ".tile").size(58, h),
+        ]
+        if let icon { out.append(Node.image(icon).id(id + ".icon").at(58 / 2 - 18, (h - 36) / 2).size(36, 36)) }
+        if let symbol { out.append(Node.symbol(symbol, color: Paint.ink).symbolLook(weight: "bold").id(id + ".icon").at(58 / 2 - 11, (h - 22) / 2).size(22, 22)) }
+        out.append(Node.rect(stroke: selected ? Paint.action : Paint.edge, lineWidth: selected ? 2.5 : 1, corner: 13).id(id + ".edge").size(w, h))
+        return out
     }
 
-    /// A heading over a group of games: "Play against <companion>" with its face, or "Puzzles" with a piece, on a band tinted warm or cool.
-    private static func sectionHeader(_ title: String, solo: Bool, width: Double) -> Node {
-        let hex = solo ? "#4D9BEA" : "#FFC93C"
-        return .box("menu.head.\(solo ? "solo" : "versus")", w: width, h: 34) {
-            Node.rect(fill: Paint.card(0.95), corner: 12).size(width, 34)
-            Node.rect(fill: Paint.clear(hex, 0.16), stroke: Paint.clear(hex, 0.35), lineWidth: 1, corner: 12).size(width, 34)
-            if solo {
-                Node.symbol("puzzlepiece.fill", color: .hex(hex)).symbolLook(weight: "bold").at(10, 7).size(20, 20)
-            } else {
-                Node.faceDisc(x: 8, y: 5, side: 24, ring: 1.5)
-            }
-            Node.words(title, size: 15, weight: "heavy", x: 40, w: width - 48, h: 34)
-        }
-    }
+    private static let hoverIcon = AreaLook(scale: 1.1, rotate: -3)
 
-    private static func cardHeight(_ game: GameEntry, kept: String?, w: Double) -> Double {
-        let room = w - 14 - 54 - 9
-        let title = TextFit.height(game.title, size: 14, weight: "heavy", width: room, lines: 2)
-        let tag = TextFit.height(game.tagline, size: 11, weight: "semibold", width: room, lines: 3)
-        return max(70, 14 + title + 2 + tag)
-    }
-
-    /// A game on a menu: its picture tile, its title and tagline beside it, "Resume" when it was put away.
-    private static func card(_ game: GameEntry, selected: Bool, resume: Bool, x: Double, y: Double, w: Double, h: Double) -> Node {
-        let id = "card.\(game.id)"
-        let room = w - 14 - 54 - 9
-        let title = TextFit.height(game.title, size: 14, weight: "heavy", width: room, lines: 2)
+    /// A game: its tile and name. Put away, it also says Resume, in the room its name leaves.
+    private static func gameCard(_ game: GameEntry, selected: Bool, resume: Bool, x: Double, y: Double, w: Double, h: Double) -> Node {
+        let id = "card.\(game.id)", room = w - 58 - 16
         return Node.box(id, x: x, y: y, w: w, h: h) {
-            Node.rect(fill: Paint.card, corner: 17).size(w, h).shadow(Paint.clear("#000000", 0.07), radius: 3, dx: 0, dy: 2)
-            Node.rect(stroke: selected ? .accent : Paint.edge, lineWidth: selected ? 2.5 : 1, corner: 17).id(id + ".edge").size(w, h)
-            artTile(game, id: id + ".tile", side: 54, corner: 13).at(7, (h - 54) / 2)
-            Node.words(game.title, size: 14, weight: "heavy", valign: "top", lines: 2, minScale: 0.85, x: 7 + 54 + 9, y: 7, w: room, h: title)
+            base(id, selected: selected, w: w, h: h, tile: game.look.tile, icon: game.look.icon)
             if resume {
-                Node.symbol("play.fill", color: .link).symbolLook(weight: "heavy").at(70, 9 + title).size(11, 11)
-                Node.words(L("Resume"), size: 11, weight: "heavy", color: .link, x: 84, y: 7 + title, w: room - 14, h: 15)
+                Node.words(game.title, size: 13.5, weight: "heavy", minScale: 0.7, x: 58 + 9, y: 4, w: room, h: 18)
+                Node.words(L("Resume"), size: 11, weight: "heavy", color: Paint.inkSoft, x: 58 + 9, y: 21, w: room, h: 15)
             } else {
-                Node.words(game.tagline, size: 11, weight: "semibold", color: .inkMuted, valign: "top", lines: 3, minScale: 0.9, x: 7 + 54 + 9, y: 9 + title, w: room, h: max(h - 16 - title, 14))
+                Node.words(game.title, size: 13.5, weight: "heavy", lines: 2, minScale: 0.7, x: 58 + 9, w: room, h: h)
             }
-        }.area("open", value: game.id, label: resume ? "\(game.title), \(L("Resume"))" : "\(game.title), \(game.tagline)", hover: nil, press: AreaLook(scale: 0.95),
-               looks: [id + ".tile.icon": AreaLook(scale: 1.07, rotate: -4)], selected: selected, sound: "sounds/tap.wav")
+        }.area("open", value: game.id, label: resume ? "\(game.title), \(L("Resume"))" : "\(game.title), \(game.tagline)", hover: AreaLook(dy: -1), press: AreaLook(scale: 0.97),
+               looks: [id + ".icon": hoverIcon], selected: selected, sound: "sounds/tap.wav")
     }
 
-    /// A game's picture on a tile in its colour.
-    static func artTile(_ game: GameEntry, id: String, side: Double, corner: Double) -> Node {
-        Node.box(id, w: side, h: side) {
-            Node.rect(corner: corner).gradient([game.look.top, game.look.bottom]).size(side, side)
-            Node.rect(corner: corner).gradient([Paint.clear("#FFFFFF", 0.3), Paint.clear("#FFFFFF", 0)], from: (0.5, 0), to: (0.5, 0.5)).size(side, side)
-            Node.image(game.look.icon).id(id + ".icon").at(side * 0.07, side * 0.07).size(side * 0.86, side * 0.86).shadow(Paint.clear("#000000", 0.2), radius: 2.5, dx: 0, dy: 2)
-        }
+    private static func surpriseCard(selected: Bool, x: Double, y: Double, w: Double, h: Double) -> Node {
+        let id = "card.random", words = L("Surprise me")
+        return Node.box(id, x: x, y: y, w: w, h: h) {
+            base(id, selected: selected, w: w, h: h, tile: Paint.lilac, icon: nil, symbol: "dice.fill")
+            Node.words(words, size: 13.5, weight: "heavy", lines: 2, minScale: 0.7, x: 58 + 9, w: w - 58 - 16, h: h)
+        }.area("open", value: surprise, label: words, hover: AreaLook(dy: -1), press: AreaLook(scale: 0.97), looks: [id + ".icon": hoverIcon], selected: selected, sound: "sounds/tap.wav")
+    }
+
+    /// Daily Word has the one navy banner: it is the game of the day.
+    private static func dailyBanner(_ game: GameEntry, selected: Bool, resume: Bool, x: Double, y: Double, w: Double, h: Double) -> Node {
+        let id = "card.\(game.id)"
+        let words = resume ? "\(game.title) · \(L("Resume"))" : game.title
+        let textW = Swift.min(TextFit.width(words, size: 16, weight: "black") + 2, w - 80)
+        let start = (w - 40 - 8 - textW) / 2
+        return Node.box(id, x: x, y: y, w: w, h: h) {
+            Node.capsule(fill: Paint.action).id(id + ".face").size(w, h).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
+            Node.image(game.look.icon).id(id + ".icon").at(start, 2).size(36, 36)
+            Node.words(words, size: 16, weight: "black", color: Paint.onAction, minScale: 0.7, x: start + 44, w: textW, h: h)
+            if selected { Node.capsule(stroke: Paint.coral, lineWidth: 2.5).id(id + ".edge").at(1.25, 1.25).size(w - 2.5, h - 2.5) }
+        }.area("open", value: game.id, label: "\(game.title), \(game.tagline)", hover: AreaLook(dy: -1), press: AreaLook(scale: 0.98), looks: [id + ".icon": hoverIcon], selected: selected, sound: "sounds/tap.wav")
     }
 }

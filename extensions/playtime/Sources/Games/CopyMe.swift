@@ -76,6 +76,9 @@ extension Games {
             return [.point(.you), .grew(length), .turn(.companion)]
         }
 
+        /// The longest dance, all of it copied: an end with no wrong press in it.
+        var perfect: Bool { position >= length }
+
         /// No press in time (the adapter's timer).
         mutating func timeout() throws -> [Event] {
             guard phase == .copying else { throw Refusal("not_now") }

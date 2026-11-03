@@ -123,7 +123,10 @@ struct BalloonWordsDuel: Codable, Equatable {
                 parts.append(.button(GameButton(L("Next round"), move: "next_round", style: .primary, symbol: "arrow.right")))
             }
         }
-        if let note = ScreenKit.refusal(events) { parts.append(note) }
+        // While a word is being guessed everything has its place: a refusal is said by the bubble.
+        if case .guessing = duel.stage, let refused = ScreenKit.refused(events), let at = parts.firstIndex(where: { if case .prompt = $0 { true } else { false } }), case .prompt(_, let eyebrow, let chip) = parts[at] {
+            parts[at] = .prompt(refused, eyebrow: eyebrow, chip: chip)
+        } else if let note = ScreenKit.refusal(events) { parts.append(note) }
         return Board(parts, companion: cue, over: duel.over)
     }
 }

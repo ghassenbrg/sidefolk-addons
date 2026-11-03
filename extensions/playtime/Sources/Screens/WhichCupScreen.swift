@@ -115,8 +115,8 @@ enum WhichCupScreen: GameScreen {
             else if s.lifted, s.gemAt == nil { L("It was in {name}'s paw all along!", ["name": o.companion]) }
             else if s.lifted { s.gemAt == s.picked ? L("Found it!") : L("Not that one.") }
             else if g.accused { L("Nothing in my paw! It's under a cup.") }
-            else if g.sneaky { L("Keep your eye on the gem… which cup? Think I'm hiding it? Click me.") }
-            else { L("Keep your eye on the gem… which cup?") }
+            else if g.sneaky { L("Where's the gem? Think I'm hiding it? Click me.") }
+            else { L("Where's the gem?") }
         var parts: [BoardPart] = [
             ScreenKit.score(g.score),
             .prompt(prompt, eyebrow: L("Round {n} of {total} · {level}", ["n": round, "total": Games.WhichCup.rounds, "level": ScreenKit.level(g.level)])),
@@ -130,7 +130,7 @@ enum WhichCupScreen: GameScreen {
         }
         if g.played == 0, !s.lifted { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = WhichCupEngine.outcome(of: s) {
-            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion))
+            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion, margin: g.score.you - g.score.companion))
             parts.append(ScreenKit.levels(g.level))
         } else if s.lifted {
             parts.append(.button(GameButton(L("Next round"), move: "next", style: .primary, symbol: "arrow.right")))

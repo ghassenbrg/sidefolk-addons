@@ -21,14 +21,14 @@ extension RockPaperScissorsScreen {
             parts.append(.prompt(verdict(last, names: d.names), eyebrow: roundTitle(s.round)))
             parts.append(.answers(tiles, layout: .row, locked: true))
         } else if s.firstHand == nil {
-            parts.append(.prompt(L("{name}, pick your hand.", ["name": first]), eyebrow: L("{name}, look away!", ["name": second])))
+            parts.append(.prompt(L("{name}, pick your toy.", ["name": first]), eyebrow: L("{name}, look away!", ["name": second])))
             parts.append(.answers(tiles, layout: .row))
         } else if !s.handedOver {
             // The cover: the first hand is in, and nothing here says which.
             parts.append(.prompt(L("Pass the Mac to {name}.", ["name": second]), eyebrow: L("{name}, look away!", ["name": first])))
             parts.append(.button(GameButton(L("I'm {name}: ready", ["name": second]), move: "ready", style: .primary, symbol: "eye.slash")))
         } else {
-            parts.append(.prompt(L("{name}, pick your hand.", ["name": second]), eyebrow: L("{name}, look away!", ["name": first])))
+            parts.append(.prompt(L("{name}, pick your toy.", ["name": second]), eyebrow: L("{name}, look away!", ["name": first])))
             parts.append(.answers(tiles, layout: .row))
         }
         if s.over {
@@ -37,7 +37,9 @@ extension RockPaperScissorsScreen {
         } else if s.last != nil {
             parts.append(.button(GameButton(L("Next round"), move: "next", style: .primary, symbol: "arrow.right")))
         }
-        return Board(parts, companion: cue(s, events: events), over: s.over)
+        var made = Board(parts, companion: cue(s, events: events), over: s.over)
+        made.sealedFirst = s.firstHand != nil
+        return made
     }
 
     private static func cue(_ s: RockPaperScissorsEngine.State, events: [Games.Event]) -> Cue? {

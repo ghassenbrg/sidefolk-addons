@@ -40,14 +40,14 @@ struct Playback: Codable, Equatable {
 }
 
 extension Board {
-    /// What this board plays by itself, and for how long: a pause and each step of a dance; the gem shown and lowered, then each swap.
+    /// What this board plays by itself, and for how long: a pause and each step of a dance; the gem shown and lowered, then each swap and its rest.
     var plays: (what: String, ms: Int)? {
         play { part -> (String, Int)? in
             switch part {
-            case .pads(_, let steps, let ms, let locked) where !steps.isEmpty && !locked:
-                ("pads \(steps) \(ms)", 600 + steps.count * ms)
+            case .pads(_, let steps, let ms, let locked, _, _) where !steps.isEmpty && !locked:
+                ("pads \(steps) \(ms)", BoardDrawing.padsLeadMs + steps.count * ms)
             case .cups(let count, let hide, let swaps, let ms, _, let revealed, _, _) where !swaps.isEmpty && !revealed:
-                ("cups \(count) \(hide ?? -1) \(swaps) \(ms)", 1400 + swaps.count * ms)
+                ("cups \(count) \(hide ?? -1) \(swaps) \(ms)", BoardDrawing.cupsOpenMs + swaps.count * (ms + BoardDrawing.swapRestMs))
             default: nil
             }
         }.map { (what: $0.0, ms: $0.1) }

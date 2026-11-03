@@ -4,6 +4,8 @@ import SidefolkExtensionKit
 enum StageAction {
     case play(Move)
     case redraw
+    /// A click-through cell has rested: what it breaks is said now.
+    case settled
     case back
     case ignore
 }
@@ -46,6 +48,7 @@ enum StageMoves {
         case "key": return type(value, board: board, local: &local)
         case "keys_page":
             local.page = Int(value) ?? 0
+            local.justTyped = false
             return .redraw
         default: return .ignore
         }
@@ -63,7 +66,7 @@ enum StageMoves {
         case "arrow_left", "arrow_right", "arrow_up", "arrow_down": return arrow(id, board: board, local: &local)
         case _ where id.hasPrefix("numpad_"):
             guard let n = Int(id.dropFirst(7)), (1...9).contains(n) else { return .ignore }
-            let at = (2 - (n - 1) / 3) * 3 + (n - 1) % 3
+            let at = n - 1
             return .play(.cell(row: at / 3, column: at % 3))
         case "cursor_return", "cursor_space":
             guard let c = local.cursor, let g = board.gridPart else { return .ignore }
@@ -108,6 +111,7 @@ enum StageMoves {
     private static func delete(_ local: inout LocalParts) -> StageAction {
         guard !local.draft.isEmpty else { return .ignore }
         local.draft.removeLast()
+        local.justTyped = false
         return .redraw
     }
 
@@ -117,13 +121,15 @@ enum StageMoves {
         if keys.mode == "letter" { return .play(.letter(letter)) }
         guard local.draft.count < (keys.length ?? 0) else { return .ignore }
         local.draft += letter
+        local.justTyped = true
         return .redraw
     }
 
     /// Return on a word or a number being typed.
     private static func submit(board: Board, local: LocalParts) -> StageAction {
         if let keys = board.keysPart, keys.mode == "spell", local.draft.count == keys.length { return .play(.word(local.draft.lowercased())) }
-        if let field = board.numberPart, let n = Int(local.draft), (field.min...field.max).contains(n) { return .play(.number(n)) }
+        // Out of range too: the game refuses it in words, rather than Return doing nothing.
+        if board.numberPart?.locked == false, let n = Int(local.draft) { return .play(.number(n)) }
         return .ignore
     }
 

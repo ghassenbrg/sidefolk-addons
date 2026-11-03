@@ -5,123 +5,184 @@ import SidefolkExtensionKit
 // the mark is the only picture, and it appears once.
 extension BoardDrawing {
     func endCard(figure: String, line: String?, ribbon: String?, tone: Tone, facts: [(String, String)], actions: [GameButton]) -> PartBlock {
-        let width = Self.inner, room = width - 24
-        let verdict = Verdict(tone: tone)
-        var y = 12.0
-        var nodes: [Node] = []
+        if board.puzzleDrawing != nil { return puzzleSheet(time: figure, ribbon: ribbon, facts: facts, actions: actions) }
+        let width = Self.inner, verdict = Verdict(tone: tone), friendly = board.endFriendly
+        // Two people: the line names the winner, so it is the title. Played alone, nobody beat anyone: the companion only watched.
+        let two = tone == .info
+        let earned: String = switch verdict {
+        case .win: ctx.entry.solo ? L("Solved!") : L("You win!")
+        case .loss: board.scorePart == nil ? L("Not this time") : L("{name} wins!", ["name": "{companion}"])
+        case .draw: L("A draw")
+        }
+        let title = board.endTitle ?? (two ? line ?? earned : earned)
+        let room = width - 56
+        let said = line?.isEmpty == true || two ? nil : line
+        let shownLine = said == title ? nil : said
+        // A number the board kept (a best time) belongs with the card's facts, not floating over it.
+        let kept = board.parts.flatMap { part -> [(String, String)] in if case .facts(let items) = part { items } else { [] } }
+        let fact = (facts + kept).map { "\($0.0) \($0.1)" }.joined(separator: " · ")
+        let lineH = shownLine.map { TextFit.height($0, size: 15, weight: "bold", width: room, lines: 2) } ?? 0
+        var cy = 14.0
+        var inCard: [Node] = []
+        inCard.append(Node.words(title, size: 38, weight: "black", align: "center", minScale: 0.5, x: 20, y: cy, w: width - 40, h: 46).id("end.title"))
+        cy += 48
+        let figureW = Swift.min(TextFit.width(figure, size: 22, weight: "black") + 40, room)
+        inCard.append(Node.capsule(fill: chipFill(verdict, friendly: friendly)).id("end.chip").at((width - figureW) / 2, cy).size(figureW, 34))
+        inCard.append(Node.words(Self.isolated(figure, rtl: ctx.rtl), size: 22, weight: "black", color: chipInk(verdict, friendly: friendly), align: "center", minScale: 0.6, x: (width - figureW) / 2 + 8, y: cy, w: figureW - 16, h: 34).textLook(tabular: true).id("end.figure"))
+        cy += 40
         if let ribbon {
-            // A new best: a small chip in the sun's colour, above the result it crowns.
-            let w = TextFit.width(ribbon, size: 11.5, weight: "semibold") + 24 + 16
-            nodes.append(.box("end.ribbon", x: (width - w) / 2, y: y, w: w, h: 24) {
-                Node.capsule(fill: Paint.clear("#FFC93C", 0.18), stroke: Paint.clear("#FFC93C", 0.45), lineWidth: 1).size(w, 24)
-                Node.symbol("star.fill", color: Paint.sun).symbolLook().at(12, 6).size(12, 12)
-                Node.words(ribbon, size: 11.5, weight: "semibold", design: "default", x: 28, w: w - 40, h: 24)
-            })
-            y += 24 + 8
+            let w = TextFit.width(ribbon, size: 12, weight: "bold") + 24
+            inCard.append(Node.capsule(fill: Paint.lilac).id("end.ribbon").at((width - w) / 2, cy).size(w, 22))
+            inCard.append(Node.words(ribbon, size: 12, weight: "bold", align: "center", x: (width - w) / 2, y: cy, w: w, h: 22))
+            cy += 26
             appear("end.ribbon")
         }
-        let hero = endHero(figure: figure, line: line, verdict: verdict, tone: tone, width: room)
-        nodes.append(hero.node.at(12, y))
-        y += hero.height + 8
-        if !facts.isEmpty {
-            let row = factsRow(facts, width: room, id: "end.facts")
-            nodes.append(row.node.at(12, y))
-            y += row.height + 8
+        if let shownLine {
+            inCard.append(Node.words(shownLine, size: 15, weight: "bold", align: "center", lines: 2, x: 28, y: cy, w: room, h: lineH))
+            cy += lineH + 4
         }
-        // What to do next in one row; when its words don't fit there, the first action takes its own row, never cut.
-        let back = GameButton(L("Back to games"), move: Self.backMove, style: .secondary, symbol: "square.grid.2x2.fill")
-        let backW = 54.0
-        let wanted = actions.reduce(0) { $0 + buttonWidth($1, flat: true) + 8 }
-        if wanted + backW <= room {
-            nodes.append(buttonRow(actions, id: "end.actions", width: room - backW - 8, flat: true).node.at(12, y))
-            nodes.append(backSquare(back, x: 12 + room - backW, y: y, w: backW))
-            y += 42 + 8
-        } else {
-            nodes.append(buttonRow(Array(actions.prefix(1)), id: "end.first", width: room, flat: true).node.at(12, y))
-            y += 42 + 6
-            let rest = Array(actions.dropFirst())
-            if !rest.isEmpty { nodes.append(buttonRow(rest, id: "end.rest", width: room - backW - 8, flat: true).node.at(12, y)) }
-            nodes.append(backSquare(back, x: 12 + room - backW, y: y, w: backW))
-            y += 42 + 8
+        if !fact.isEmpty {
+            inCard.append(Node.words(fact, size: 12, weight: "semibold", color: Paint.inkSoft, align: "center", minScale: 0.6, x: 24, y: cy, w: width - 48, h: 18))
+            cy += 20
         }
-        // The small choices an end card offers (the level for the next game), at its foot.
-        for case .choice(let name, let label, .segmented, let options, let selected) in board.parts {
-            let row = choice(name: name, label: label, style: .segmented, options: options, selected: selected, compact: true, width: room)
-            nodes.append(row.node.at(12, y))
-            y += row.height + 8
+        let cardH = cy + 12
+        // What comes next, first: the card takes its size, and the companion what is left, so nothing is cut at any length.
+        var next: [Node] = []
+        var y = 0.0
+        // The small choices an end card offers (the level for the next game), first: three pills say what they are.
+        for case .choice(let name, _, .segmented, let options, let selected) in board.parts {
+            let row = choice(name: name, label: nil, style: .segmented, options: options, selected: selected, compact: true, width: width - 120)
+            next.append(row.node.at(60, y))
+            y += row.height + 10
         }
-        let height = y - 8 + 12
+        for (i, action) in actions.enumerated() {
+            let block = buttonRow([action], id: "end.action.\(i)", width: width - 40, flat: i > 0)
+            next.append(block.node.at(20, y))
+            y += block.height + 8
+        }
+        next.append(backLink(y: y, width: width))
+        y += 24
+        // Companion and award stand on the card's top edge, as 19 draws them: as large as the room lets them be.
+        let figureRow = Swift.min(Swift.max(playRoom - endNotesHeight - cardH - 14 - y, 56), 148)
+        let figureH = figureRow + 10, figureW2 = Swift.min(figureH * 0.86, 138)
+        let markSide = Swift.min(84, figureRow - 2)
+        endFigure("end.companion", x: 8, y: 0, verdict: verdict, friendly: friendly)
+        var nodes: [Node] = [
+            Node.felt("end.mat", x: -6, y: figureRow + 30, w: width + 12, h: cardH - 14, corner: 26, stitch: false),
+            Node.rect(fill: Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 22).id("end.card").at(14, figureRow).size(width - 28, cardH).shadow(Paint.black8, radius: 6, dx: 0, dy: 3),
+            Node.rect(stroke: Paint.clear("#8E72B5", 0.5), lineWidth: 1.25, corner: 18, dash: [5, 4]).id("end.stitch").at(19, figureRow + 5).size(width - 38, cardH - 10),
+            markArt(verdict: verdict, tone: tone, friendly: friendly, side: markSide).at((width - markSide) / 2 + 14, figureRow - markSide + 4),
+            Node.companion(pose: friendly ? "success" : pose).figure(bottom: true).id("end.companion").anchor(0.5, 1).at(8, 0).size(figureW2, figureH),
+        ]
+        nodes.append(.box("end.words", y: figureRow, w: width, h: cardH) { inCard })
+        let top = figureRow + cardH + 14
+        nodes.append(.box("end.next", y: top, w: width, h: y) { next })
+        y += top
+        appear("end.words")
+        popMark()
+        return PartBlock(.box("end", w: width, h: y) { nodes }, height: y)
+    }
+
+    /// What else stands above an end card: a note the game has left.
+    private var endNotesHeight: Double {
+        board.parts.reduce(0.0) { sum, part in
+            if case .note(let text, let title, let tone) = part { return sum + note(text, title: title, tone: tone).height + 8 }
+            return sum
+        }
+    }
+
+    /// A puzzle solved: a sheet from the notebook, with the companion delighted beside the time, how it went, the board as it was finished, and what next. Nothing but the true numbers.
+    private func puzzleSheet(time: String, ribbon: String?, facts: [(String, String)], actions: [GameButton]) -> PartBlock {
+        let width = Self.inner, height = playRoom, pad = 22.0
+        let right = 126.0, room = width - right - 16
+        // The time is the headline, so the rest of what's known goes in one line under it.
+        let how = facts.dropFirst().map { "\($0.0) \($0.1)" }.joined(separator: " · ")
+        let timeW = Swift.min(TextFit.width(time, size: 36, weight: "black") + 4, room)
+        // What next is pinned to the foot of the sheet, and the board takes what's left between.
+        let footH = 42.0 + 12 + 34
+        let foot = height - pad + 4 - footH
+        let top = 176.0
+        let mini = solvedBoard(room: foot - top - 8)
+        var chips: [Node] = []
+        // Three pills say what they are, as 24 draws them.
+        for case .choice(let name, _, .segmented, let options, let selected) in board.parts {
+            chips.append(choice(name: name, label: nil, style: .segmented, options: options, selected: selected, compact: true, width: width - 140).node.at(70, foot))
+        }
+        let primary = actions.first
+        let back = GameButton(L("Back to games"), move: Self.backMove, style: .secondary)
+        endFigure("end.companion", x: 6, y: 20, verdict: .win, friendly: false)
+        appear("end.words")
+        popMark()
         return PartBlock(.box("end", w: width, h: height) {
-            Node.gameCard(corner: 22, alpha: 0.98, w: width, h: height).id("end.card")
-            nodes
+            Node.rect(fill: Paint.lilacDeep, corner: 26).id("sheet.edge").size(width, height).shadow(Paint.clear("#3A2A55", 0.2), radius: 6, dx: 0, dy: 3)
+            Node.rect(fill: Paint.card, corner: 22).id("sheet.paper").at(5, 5).size(width - 10, height - 10)
+            for i in 0..<11 {
+                Node.ellipse(fill: Paint.inset, stroke: Paint.edge, lineWidth: 1).at(26 + Double(i) * 30.5, 12).size(9, 9)
+            }
+            Node.companion(pose: pose).figure(bottom: true).id("end.companion").anchor(0.5, 1).at(6, 20).size(124, 130)
+            Node.box("end.words", w: width, h: 170) {
+                Node.words(L("Solved!"), size: 38, weight: "black", minScale: 0.6, x: right, y: 22, w: room - 56, h: 48).id("end.title")
+                Node.words(Self.isolated(time, rtl: ctx.rtl), size: 36, weight: "black", minScale: 0.6, x: right, y: 68, w: timeW, h: 44).textLook(tabular: true).id("end.figure")
+                if let ribbon {
+                    let w = Swift.min(TextFit.width(ribbon, size: 12, weight: "bold") + 20, room - timeW - 6)
+                    Node.capsule(fill: Color.win.tuned(alpha: 0.2)).id("end.ribbon").at(right + timeW + 6, 78).size(w, 24)
+                    Node.words(ribbon, size: 12, weight: "bold", align: "center", minScale: 0.7, x: right + timeW + 6, y: 78, w: w, h: 24)
+                }
+                if let eyebrow = board.promptPart?.eyebrow {
+                    Node.words(eyebrow, size: 13, weight: "bold", minScale: 0.7, x: right, y: 112, w: room, h: 20)
+                }
+                Node.rect(fill: Paint.edge).at(pad, 152).size(width - 2 * pad, 1)
+                if !how.isEmpty {
+                    let w = Swift.min(TextFit.width(how, size: 13, weight: "bold") + 20, width - 2 * pad)
+                    Node.rect(fill: Paint.card).at((width - w) / 2, 142).size(w, 20)
+                    Node.words(how, size: 13, weight: "bold", align: "center", minScale: 0.7, x: (width - w) / 2, y: 142, w: w, h: 20)
+                }
+            }
+            Node.art("art/result-solved.webp", x: width - 80, y: 14, w: 66, h: 66).id("end.mark")
+            // The clip that holds the sheet, as 24 draws it.
+            Node.box("sheet.clip", x: width / 2 - 20, y: -14, w: 40, h: 34) {
+                Node.ellipse(stroke: Paint.clear("#C49A6C", 0.95), lineWidth: 2.5).at(9, 0).size(22, 24)
+                Node.rect(fill: Paint.lilacDeep, corner: 5).at(0, 13).size(40, 20).shadow(Paint.clear("#3A2A55", 0.25), radius: 2, dx: 0, dy: 1)
+            }
+            if let mini { mini.node.at(((width - mini.width) / 2).rounded(), (top + (foot - top - mini.height) / 2).rounded()) }
+            chips
+            if let primary { buttonRow([primary], id: "end.action.0", width: (width - 2 * pad - 10) * 0.54).node.at(pad, height - pad + 4 - 44) }
+            buttonRow([back], id: "end.back.row", width: (width - 2 * pad - 10) * 0.46, flat: true).node.at(pad + (width - 2 * pad - 10) * 0.54 + 10, height - pad + 4 - 43)
         }, height: height)
     }
 
-    /// What the frame's Back does, as a square on the card.
+    /// What the frame's Back does, as a link under the actions.
     static let backMove = "__back"
 
-    private func backSquare(_ back: GameButton, x: Double, y: Double, w: Double) -> Node {
-        let s = 22.0
-        return Node.box("end.back", x: x, y: y, w: w, h: 42) {
-            Node.rect(fill: Paint.card, stroke: Paint.edge, lineWidth: 1, corner: 14).size(w, 42)
-            Node.symbol(back.symbol ?? "", color: .ink).symbolLook(weight: "bold").at((w - s) / 2, (42 - s) / 2).size(s, s)
-        }.area("button", value: back.move, label: back.label, hover: nil, press: AreaLook(scale: 0.97), sound: "sounds/tap.wav")
+    private func backLink(y: Double, width: Double) -> Node {
+        let words = L("Back to games"), w = TextFit.width(words, size: 13, weight: "bold") + 8
+        return Node.box("end.back", x: (width - w) / 2, y: y, w: w, h: 22) {
+            Node.words(words, size: 13, weight: "bold", align: "center", w: w, h: 20)
+            Node.rect(fill: Paint.ink).at(4, 19).size(w - 8, 1)
+        }.area("button", value: Self.backMove, label: words, hover: nil, press: AreaLook(opacity: 0.6), sound: "sounds/tap.wav")
     }
 
-    private func endHero(figure: String, line: String?, verdict: Verdict, tone: Tone, width: Double) -> PartBlock {
-        let textRoom = width - 20 - 58 - 12
-        // Who won, in Playtime's words: said only for a win or a loss (a draw's card speaks for itself). A puzzle is solved, not won.
-        let title: String? = switch verdict {
-        case .win: ctx.entry.solo ? L("Solved!") : L("You win!")
-        case .loss: L("{name} wins!", ["name": "{companion}"])
-        case .draw: nil
+    private func chipFill(_ verdict: Verdict, friendly: Bool) -> Color {
+        if friendly { return Paint.lilac }
+        return switch verdict {
+        case .win: .win
+        case .loss: Paint.lostSoft
+        case .draw: Paint.inset
         }
-        let said = board.promptPart?.text
-        let shownLine = line == said ? nil : line
-        let titleH = title.map { TextFit.height($0, size: 18, weight: "heavy", width: textRoom, lines: 2) } ?? 0
-        let lineH = shownLine.map { TextFit.height($0, size: 12, weight: "semibold", width: textRoom, lines: 3) } ?? 0
-        let texts = 36 + (title == nil ? 0 : 2 + titleH) + (shownLine == nil ? 0 : 2 + lineH)
-        let height = max(58, texts) + 20
-        var y = (height - texts) / 2
-        let inner = Node.box("end.hero.words", x: 10 + 58 + 12, w: textRoom, h: height) {
-            Node.words(Self.isolated(figure, rtl: ctx.rtl), size: 30, weight: "black", color: verdict == .draw ? .ink : verdict.color, minScale: 0.6, y: y, w: textRoom, h: 36)
-            if let title { Node.words(title, size: 18, weight: "heavy", lines: 2, minScale: 0.8, y: y + 38, w: textRoom, h: titleH) }
-            if let shownLine {
-                Node.words(shownLine, size: 12, weight: "semibold", color: .inkMuted, valign: "top", lines: 3, y: y + 38 + (title == nil ? 0 : titleH + 2), w: textRoom, h: lineH)
-            }
-        }
-        y = 0
-        appear("end.hero.words")
-        popMark()
-        return PartBlock(.box("end.hero", w: width, h: height) {
-            Node.rect(fill: Paint.inset, corner: 16).size(width, height)
-            markTile(verdict: verdict, tone: tone).at(10, (height - 58) / 2)
-            inner
-        }, height: height)
     }
 
-    /// The award mark: Playtime's trophy for the person's win (with the crown that goes with the colour), else the verdict's symbol, on a
-    /// soft tile of its colour. Two people: a winner is named with a trophy in neutral ink, so no colour says whose loss it was.
-    private func markTile(verdict: Verdict, tone: Tone) -> Node {
-        let tint: Color = switch verdict {
-        case .win: Paint.clear("#FFC93C", 0.18)
-        case .loss: .adaptive(light: "#B07A522E", dark: "#D9A9822E")
-        case .draw: Color.inkMuted.tuned(alpha: 0.18)
-        }
-        let symbol = verdict == .loss ? "hand.thumbsup.fill" : "equal.circle.fill"
-        return Node.box("end.mark", w: 58, h: 58) {
-            Node.rect(fill: tint, corner: 15).size(58, 58)
-            if verdict == .win {
-                Node.art("art/game-trophy.png", x: 8, y: 8, w: 42, h: 42)
-                Node.ellipse(fill: Paint.card).at(38, 3).size(16, 16)
-                Node.symbol("crown.fill", color: .win).symbolLook(weight: "bold").at(40.5, 5.5).size(11, 11)
-            } else if tone == .info {
-                Node.symbol("trophy.fill", color: .ink).symbolLook(weight: "bold").at(14, 14).size(30, 30)
-            } else {
-                // A draw's sign cut out of its disc, as the panel's; a thumb is one shape.
-                Node.symbol(symbol, color: verdict == .draw ? Paint.card : verdict.color).symbolLook(weight: "bold", secondary: verdict == .draw ? verdict.color : nil).at(14, 14).size(30, 30)
+    private func chipInk(_ verdict: Verdict, friendly: Bool) -> Color { verdict == .win && !friendly ? Paint.white : Paint.ink }
+
+    /// The award on the card's edge: quiet, and true of what happened. Two people: a winner is named in neutral, so no picture says whose loss it was. A friendly fact gets the paw: it was nobody's loss.
+    private func markArt(verdict: Verdict, tone: Tone, friendly: Bool, side: Double) -> Node {
+        let art: String = if friendly { "art/result-loss.webp" } else if tone == .info { "art/result-draw.webp" } else {
+            switch verdict {
+            case .win: ctx.entry.solo ? "art/result-solved.webp" : "art/result-win.webp"
+            case .loss: "art/result-loss.webp"
+            case .draw: "art/result-draw.webp"
             }
         }
+        return Node.box("end.mark", w: side, h: side) { Node.art(art, w: side, h: side) }.anchor(0.5, 0.5)
     }
 
     private func appear(_ id: String) {

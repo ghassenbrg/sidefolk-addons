@@ -16,6 +16,7 @@ enum TriviaScreen: GameScreen {
         case .next where state.phase == .making: .next
         case .choice("length", let n): Int(n).map { .length($0) } ?? (n == "endless" ? .length(0) : nil)
         case .choice("pace", let p): .pace(quick: p == "quick")
+        case .choice("level", let l): GameLevel(rawValue: l).map { .level($0) }
         case .answer(let i): .answer(i)
         case .timeout: .timeout
         case .button(let b): ["start": .start, "hint": .hint, "next": .next, "finish": .finish, "again": .again, "topics": .topics][b]
@@ -61,30 +62,31 @@ enum TriviaScreen: GameScreen {
         var parts: [BoardPart]
         let notice = s.notice.map { TriviaAI.words($0, provider: s.aiMaker ?? o.companion) }
         if let maker = s.aiMaker, s.topic == TriviaEngine.surprise {
-            parts = [.prompt(L("Any topic"), eyebrow: TriviaAI.sentence(L("{name} writes the questions", ["name": maker]))),
+            parts = [.prompt(notice ?? L("Any topic"), eyebrow: TriviaAI.sentence(L("{name} writes the questions", ["name": maker]))),
                      .play(.entry(name: "topic", label: L("Leave it empty and {name} picks one.", ["name": maker]),
                                   placeholder: L("Volcanoes, jazz, Japan…"), button: L("Make questions"), max: 60)),
-                     .button(GameButton(L("Back to topics"), move: "topics", style: .plain, symbol: "chevron.backward"))]
-            if let notice { parts.append(.note(notice, tone: .info)) }
+                     .button(GameButton(L("Back to topics"), move: "topics", style: .plain, symbol: "chevron.backward")),
+                     .button(GameButton(L("Let {name} pick one", ["name": maker]), move: "start", style: .secondary))]
         } else {
             let ids = ["mix"] + TriviaLibrary.categories(language: s.language) + (s.aiMaker != nil ? [TriviaEngine.surprise] : [])
             let topics = ids.map { ChoiceOption($0, topic($0), symbol: symbols[$0] ?? "questionmark") }
             // Why no questions came is the companion's own line ("…Here are mine."), said in place of "Pick a topic":
             // a note under the topics would push the two-player choice past the panel's height.
-            parts = [.prompt(notice ?? L("Pick a topic"), eyebrow: s.duo.on ? L("2 players") : L("A quiz with {name}", ["name": o.companion])),
+            parts = [.prompt(notice ?? L("What are you curious about?"), eyebrow: s.duo.on ? L("2 players") : L("A quiz with {name}", ["name": o.companion])),
                      .choice(name: "topic", options: topics, selected: s.topic)]
         }
         return Board(parts + [
-            // The choices name themselves ("10 questions", "Relaxed"), so they need no labels and the board stays
-            // within the panel with the topics, Start and the two-player choice.
-            .choice(name: "length", style: .segmented,
-                    options: [ChoiceOption("5", L(one: "{count} question", other: "{count} questions", count: 5)),
-                              ChoiceOption("10", L(one: "{count} question", other: "{count} questions", count: 10)), ChoiceOption("0", L("Endless"))],
+            // The first three in the set-up's own column, each with its name (concept 20).
+            .choice(name: "length", label: L("Questions"), style: .segmented,
+                    options: [ChoiceOption("5", Format.integer(5)), ChoiceOption("10", Format.integer(10)), ChoiceOption("0", L("Endless"))],
                     selected: String(s.length)),
-            .choice(name: "pace", style: .segmented,
+            .choice(name: "pace", label: L("Pace"), style: .segmented,
                     options: [ChoiceOption("relaxed", L("Relaxed")), ChoiceOption("quick", L("Quick, {n} s", ["n": Int(TriviaEngine.quickSeconds)]))],
                     selected: s.quick ? "quick" : "relaxed"),
-            .button(GameButton(L("Start"), move: "start", style: .primary, symbol: "play.fill")),
+            .choice(name: "level", label: L("Level"), style: .segmented,
+                    options: [ChoiceOption("easy", L("Easy")), ChoiceOption("fair", L("Fair")), ChoiceOption("hard", L("Hard"))],
+                    selected: s.level.rawValue),
+        ] + (s.aiMaker != nil && s.topic == TriviaEngine.surprise ? [] : [.button(GameButton(L("Start quiz"), move: "start", style: .primary, symbol: "play.fill"))]) + [
             TwoPlayers.opponent(two: s.duo.on, companion: o.companion),
         ], companion: events.contains(.opened) ? Cue(move: "ready", line: "hello", look: "panel") : nil)
     }
@@ -115,9 +117,9 @@ enum TriviaScreen: GameScreen {
             }
             return Tile(q.choices[choice], state: state, companion: answered && !s.duo.on && i == s.companionPick)
         }
-        var progress = s.length > 0 ? L("{n} of {total}", ["n": s.index + 1, "total": s.length]) : L("Question {n}", ["n": s.index + 1])
+        var progress = s.length > 0 ? L("Question {n} of {total}", ["n": s.index + 1, "total": s.length]) : L("Question {n}", ["n": s.index + 1])
         if s.duo.on { progress = TwoPlayers.turn(s.duo, TriviaEngine.player(s)) + " · " + progress }
-        let chip = s.made.isEmpty ? topic(q.category) : s.madeTopic ?? topic(q.category)
+        let chip = (s.made.isEmpty ? topic(q.category) : s.madeTopic ?? topic(q.category)) + " · " + (s.quick ? L("Quick") : L("Relaxed"))
         var parts: [BoardPart] = [
             s.duo.on ? TwoPlayers.score(s.duo, s.you, s.companion)
                 : .score(you: s.you, companion: s.companion, streak: s.streak, companionPicked: !answered),
@@ -132,11 +134,25 @@ enum TriviaScreen: GameScreen {
             }
             let last = s.length > 0 && s.index + 1 >= s.round.count
             parts.append(.button(GameButton(last ? L("See results") : L("Next"), move: "next", style: .primary, symbol: last ? "flag.checkered" : "arrow.right")))
-        } else if !s.lifelineUsed, !s.duo.on {
-            parts.append(.button(GameButton(L("Ask {name}", ["name": o.companion]), move: "hint", style: .plain, symbol: "lightbulb", key: "h")))
+        } else if !s.duo.on {
+            // Once used it stays where it is, faded: one help a round.
+            parts.append(.button(GameButton(L("Ask {name}", ["name": o.companion]), move: "hint", style: .plain, symbol: "lightbulb", key: "h", disabled: s.lifelineUsed)))
         }
         if s.length == 0 { parts.append(.button(GameButton(L("Finish"), move: "finish", style: .plain, symbol: "flag.checkered"))) }
-        return Board(parts, companion: s.duo.on ? TwoPlayers.cue(events) : cue(events))
+        return Board(parts, companion: s.duo.on ? TwoPlayers.cue(events) : cue(events), said: said(s, answered: answered))
+    }
+
+    /// The bubble's words: the question stands on its plaque. Who got it, once it's answered.
+    private static func said(_ s: TriviaEngine.State, answered: Bool) -> String {
+        guard answered else { return L("Your turn!") }
+        let right = TriviaEngine.rightTile(s)
+        if s.duo.on { return s.picked == right ? L("Right!") : L("Not this time.") }
+        switch (s.picked == right, s.companionPick == right) {
+        case (true, true): return L("We both got it!")
+        case (true, false): return L("You got it!")
+        case (false, true): return L("I got this one!")
+        case (false, false): return L("Neither of us!")
+        }
     }
 
     private static func done(_ s: TriviaEngine.State, events: [Games.Event], _ o: GameOptions) -> Board {
@@ -159,7 +175,7 @@ enum TriviaScreen: GameScreen {
         return Board([
             .score(you: s.you, companion: s.companion, streak: s.streak),
             .result(figure: asked == 0 ? "–" : figure,
-                    line: outcome == .won ? L("You beat {name}!", ["name": o.companion]) : outcome == .lost ? L("{name} wins this one.", ["name": o.companion]) : L("A draw!"),
+                    line: outcome == .won ? ScreenKit.beat(o.companion, by: s.you - s.companion) : nil,
                     ribbon: s.record ? L("New best!") : nil, tone: outcome == .won ? .good : outcome == .lost ? .bad : .neutral,
                     facts: [(o.companion, Format.integer(s.companion)), (L("Streak this round"), Format.integer(max(s.bestStreak, 0))),
                             (L("Best streak ever"), Format.integer(records.bestStreak)), (L("Topic"), s.madeTopic ?? topic(s.topic))],

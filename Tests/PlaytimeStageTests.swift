@@ -9,6 +9,53 @@ import Testing
 struct PlaytimeStageTests {
     static func entry(_ id: String) -> GameEntry { GameCatalog.entry(id)! }
 
+    /// The founder's complaint: the gem showed beside its cup, then vanished. It stays put on the mat, and goes only after its cup has landed and before any cup moves off.
+    @Test func theGemIsGoneOnlyUnderItsLandedCup() throws {
+        var random = Games.Random(seed: 3)
+        let o = PlaytimeScreensTests.options("en")
+        let state = WhichCupEngine.start(level: .fair, options: o, random: &random)
+        let board = WhichCupScreen.board(state, events: [.opened], options: o)
+        var local = LocalParts()
+        StageMoves.settle(board, local: &local)
+        let scene = BoardDrawing(board, StageContext(entry: Self.entry(WhichCupScreen.id), local: local)).scene()
+        let run = try #require((scene.json["animations"] as? [[String: Any]])?.first { $0["id"] as? String == "cups_shuffle" })
+        let steps = try #require(run["sequence"] as? [[String: Any]])
+        func touches(_ step: [String: Any], _ target: String, _ key: String? = nil) -> Bool {
+            if let list = (step["together"] ?? step["sequence"]) as? [[String: Any]] { return list.contains { touches($0, target, key) } }
+            guard step["target"] as? String == target else { return false }
+            guard let key else { return true }
+            return (step["to"] as? [String: Double])?[key] != nil || (step["keys"] as? [[String: Double]])?.contains { $0[key] != nil } == true
+        }
+        func gemGoes(_ step: [String: Any]) -> Bool { step["target"] as? String == "cups.gem" && (step["to"] as? [String: Double])?["opacity"] == 0 }
+        func swaps(_ step: [String: Any]) -> Bool { (step["together"] as? [[String: Any]])?.contains { ($0["keys"] as? [[String: Double]])?.contains { $0["x"] != nil } == true } == true }
+        let goes = try #require(steps.firstIndex(where: gemGoes))
+        let firstSwap = try #require(steps.firstIndex(where: swaps))
+        let lastLanding = try #require(steps.lastIndex { step in (0..<8).contains { touches(step, "cup.\($0)", "y") } && !swaps(step) })
+        #expect(lastLanding < goes && goes < firstSwap, "cup lands, then the gem goes, then cups move")
+        #expect(!steps.contains { touches($0, "cups.gem", "y") }, "the gem never moves with a cup")
+    }
+
+    /// An animation holds its last values, so a move that ends anywhere but where its node rests leaves the node there until the next board: a Tic-tac-toe piece stood at the top of
+    /// its cell until the next move. A path's end has to be the node's own place.
+    static func landsWhereItRests(_ scene: Scene, _ context: String) {
+        var rest: [String: (x: Double, y: Double)] = [:]
+        func places(_ node: [String: Any]) {
+            if let id = node["id"] as? String { rest[id] = (node["x"] as? Double ?? 0, node["y"] as? Double ?? 0) }
+            for child in node["children"] as? [[String: Any]] ?? [] { places(child) }
+            for key in ["front", "back"] { if let face = node[key] as? [String: Any] { places(face) } }
+        }
+        (scene.json["nodes"] as? [[String: Any]] ?? []).forEach(places)
+        func walk(_ anim: [String: Any]) {
+            for key in ["sequence", "together"] { (anim[key] as? [[String: Any]])?.forEach(walk) }
+            guard let target = anim["target"] as? String, let frames = anim["keys"] as? [[String: Double]], let at = rest[target] else { return }
+            // Cups are named by where they end, and a thing that flies off is gone by its fade.
+            guard !target.hasPrefix("cup."), frames.last?["opacity"] != 0 else { return }
+            if let y = frames.last(where: { $0["y"] != nil })?["y"] { #expect(abs(y - at.y) < 0.6, "\(context): \(target) ends at y \(y), rests at \(at.y)") }
+            if let x = frames.last(where: { $0["x"] != nil })?["x"] { #expect(abs(x - at.x) < 0.6, "\(context): \(target) ends at x \(x), rests at \(at.x)") }
+        }
+        (scene.json["animations"] as? [[String: Any]] ?? []).forEach(walk)
+    }
+
     /// A scene as Sidefolk gets it: within its size and caps, and every key and area id a plain token.
     static func check(_ scene: Scene, _ context: String) throws {
         let data = try JSONSerialization.data(withJSONObject: scene.json)
@@ -38,6 +85,7 @@ struct PlaytimeStageTests {
             for child in node["children"] as? [[String: Any]] ?? [] { visit(child) }
         }
         (scene.json["nodes"] as? [[String: Any]] ?? []).forEach(visit)
+        landsWhereItRests(scene, context)
         for run in scene.json["animations"] as? [[String: Any]] ?? [] {
             if let id = run["id"] as? String { #expect(id.range(of: token, options: .regularExpression) != nil, "\(context): \(id)") }
         }
@@ -187,17 +235,19 @@ struct PlaytimeStageTests {
         let playing = drawn(Self.cups, WhichCupScreen.id, local: &local)
         let run = try #require(Self.run("cups_shuffle", in: playing))
         #expect(run["essential"] as? Bool == true && run["blocks_input"] as? Bool == true, "the swaps are the game, under Reduce Motion too")
-        #expect(Self.json(playing).contains("Shuffling") && Self.json(playing).contains("thinking"), "it says what it is doing")
-        #expect(playing.json["after_ms"] as? Int ?? 0 >= 2200 - 100, "the gem's 1400 ms and two swaps")
-        // Named by where it ends, starting where it starts: cup 0 goes 0 → 1 → 2, so it is the node at place 2, at the first slot, lifted over the gem.
+        #expect(Self.json(playing).contains("Keep your eye") && Self.json(playing).contains("thinking"), "it says what it is doing")
+        #expect(playing.json["after_ms"] as? Int ?? 0 >= BoardDrawing.cupsOpenMs + 2 * (400 + BoardDrawing.swapRestMs) - 100, "the gem's moment and two swaps with their rests")
+        // Named by where it ends, starting where it starts: cup 0 goes 0 → 1 → 2, so it is the node at place 2, at the first slot.
         let cup = try #require(Self.node("cup.2", in: playing))
-        #expect(cup["x"] as? Double == (BoardDrawing.inner / 3 - 72) / 2 && cup["y"] as? Double == 4)
+        let firstSlot = 6 + (BoardDrawing.inner - 12) / 3 * 0.5 - 48
+        #expect(abs((cup["x"] as? Double ?? 0) - firstSlot) < 0.02)
+        #expect(cup["area"] == nil && playing.keys.allSatisfy { $0["area"] as? String != "cell" }, "nothing to press while they move")
         #expect(Self.node("cups.gem", in: playing) != nil)
         // The companion's paw checked mid-shuffle: the same run carries on, with the time it has left.
         let same = Board([.prompt("Nothing in my paw!", eyebrow: "Round 1"), .play(.cups(count: 3, hide: 0, swaps: [[0, 1], [1, 2]], swapMs: 400))])
         let startedAt = local.playback?.startedAt
         let carried = drawn(same, WhichCupScreen.id, local: &local, previous: Self.cups)
-        #expect(local.playback?.startedAt == startedAt && Self.json(carried).contains("cups_shuffle") && Self.json(carried).contains("Shuffling"))
+        #expect(local.playback?.startedAt == startedAt && Self.json(carried).contains("cups_shuffle") && Self.json(carried).contains("Keep your eye"))
         // Its time up, the same board at rest: the game's words, each cup at its place, no gem, a move of its own.
         local.playback?.startedAt -= 10
         guard case .redraw? = BoardDrawing.cupsMove(.next, board: same, local: &local) else {
@@ -206,10 +256,10 @@ struct PlaytimeStageTests {
         }
         let rest = BoardDrawing(same, StageContext(entry: Self.entry(WhichCupScreen.id), previous: same, fresh: false, local: local)).scene()
         #expect(Self.run("cups_shuffle", in: rest) == nil && Self.node("cups.gem", in: rest) == nil && rest.json["after_ms"] == nil)
-        #expect(!Self.json(rest).contains("Shuffling") && Self.json(rest).contains("Nothing in my paw!"))
+        #expect(!Self.json(rest).contains("Keep your eye") && Self.json(rest).contains("Nothing in my paw!"))
         for place in 0..<3 {
             let x = try #require(Self.node("cup.\(place)", in: rest)?["x"] as? Double)
-            #expect(x == BoardDrawing.inner / 3 * (Double(place) + 0.5) - 36)
+            #expect(abs(x - (6 + (BoardDrawing.inner - 12) / 3 * (Double(place) + 0.5) - 48)) < 0.02)
         }
         #expect(Self.node("cups", in: rest)?["ltr"] as? Bool == true, "the table reads the same in every language")
     }
@@ -271,7 +321,7 @@ struct PlaytimeStageTests {
         #expect(signal["essential"] as? Bool == true, "the signal comes under Reduce Motion too")
         #expect((armed.timers.first?["ms"] as? Double) == 3800, "its wait and its window")
         #expect(armed.keys.contains { $0["key"] as? String == "space" && $0["timed_from_ms"] as? Double == 2300 })
-        #expect((Self.node("reflex", in: armed)?["area"] as? [String: Any])?["timed_from_ms"] as? Double == 2300)
+        #expect((Self.node("reflex.press", in: armed)?["area"] as? [String: Any])?["timed_from_ms"] as? Double == 2300)
         let board = reflex(2300)
         guard case .play(.press(milliseconds: 312)) = StageMoves.action(.click(area: "boop", value: nil, ms: 312), board: board, local: &local), !local.early,
               case .play(.early) = StageMoves.action(.click(area: "boop", value: nil, ms: -40), board: board, local: &local), local.early else {
@@ -290,7 +340,7 @@ struct PlaytimeStageTests {
         #expect(Self.json(pressed).contains("reflex.went") && Self.json(pressed).contains("…"), "a press ends the signal: it goes as it came, and the verdict waits")
         // Two people: a key each by where it sits, no click.
         let two = BoardDrawing(reflex(1800, keys: ["a", "l"]), StageContext(entry: Self.entry(QuickPawsScreen.id))).scene()
-        #expect(Self.node("reflex", in: two)?["area"] == nil)
+        #expect(Self.node("reflex.press", in: two)?["area"] == nil)
         #expect(two.keys.contains { $0["id"] as? String == "seat_a" && $0["seat"] as? Bool == true && $0["timed_from_ms"] as? Double == 1800 })
         guard case .play(.pressKey(milliseconds: 200, key: "l")) = StageMoves.action(.key(id: "seat_l", character: nil, ms: 200), board: board, local: &local),
               case .play(.earlyKey("a")) = StageMoves.action(.key(id: "seat_a", character: nil, ms: -1), board: board, local: &local) else {
@@ -302,7 +352,7 @@ struct PlaytimeStageTests {
     @Test func aDanceIsOneRunOfLightsAndNotesAndComesBackWithItsGame() throws {
         let pads = (0..<4).map { Pad("P\($0)", shape: "circle", color: "blue", move: "accent:wave", art: "wave") }
         let board = Board([.play(.pads(pads, play: [2, 0, 2], stepMs: 500))])
-        #expect(board.plays?.ms == 600 + 3 * 500)
+        #expect(board.plays?.ms == BoardDrawing.padsLeadMs + 3 * 500)
         var local = LocalParts()
         let scene = drawn(board, CopyMeScreen.id, local: &local)
         let run = try #require(Self.run("pads_play", in: scene))
@@ -394,7 +444,7 @@ struct PlaytimeStageTests {
         let board = Board([.result(figure: "1 – 3", tone: .bad, actions: [ScreenKit.playAgain])], over: true)
         let json = String(decoding: try JSONSerialization.data(withJSONObject: BoardDrawing(board, StageContext(entry: Self.entry(TicTacToeScreen.id))).scene().json), as: UTF8.self)
         for red in ["FF0000", "FF3B30", "D70015"] { #expect(!json.uppercased().contains(red)) }
-        #expect(json.contains("hand.thumbsup.fill"), "a loss's mark says so with a symbol")
+        #expect(json.contains("art/result-loss.webp") || json.contains("art\\/result-loss.webp"), "a loss has its own quiet mark, beside the words that say it")
     }
 
     @Test func aPackFromTheAIIsCheckedHere() {
@@ -432,7 +482,7 @@ struct PlaytimeStageTests {
         PlaytimeRecords.update { $0 = PlaytimeRecords() }
         let page = PlaytimePage.render()
         let json = String(decoding: try JSONSerialization.data(withJSONObject: page.json, options: .withoutEscapingSlashes), as: UTF8.self)
-        for kind in ["\"hero\"", "\"stats\"", "\"cards\"", "\"badges\"", "\"settings\""] { #expect(json.contains(kind), "\(kind)") }
+        for kind in ["\"scene\"", "\"cards\"", "\"badges\"", "\"settings\""] { #expect(json.contains(kind), "\(kind)") }
         #expect(json.contains("art/game-icon-numbers.webp") && json.contains("level_tictactoe"), "its own art, its own settings")
     }
 

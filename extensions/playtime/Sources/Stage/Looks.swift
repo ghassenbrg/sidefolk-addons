@@ -14,6 +14,18 @@ struct Look {
     var night = false
     /// The scene's picture when another look's room is borrowed.
     var room: String?
+    /// The soft tile its icon stands on in the menu and on the page.
+    var tile: Color {
+        // By day each has its soft colour; at night they all stand on the same slate, and the art carries the colour.
+        let day = switch name {
+        case "grid", "arcade", "words", "sudoku": "#F8DE94"
+        case "cups", "numbers", "seesaw", "hands": "#FBD9B8"
+        case "animals", "balloons", "blossoms": "#BFDCF2"
+        case "sticks": "#F6CFCB"
+        default: "#E6DAF1"
+        }
+        return Paint.both(day, "#2C3556")
+    }
 
     var levelChip: Color { chip ?? bottom }
     var scene: String { "art/game-bg-\(room ?? name).heic" }
@@ -25,7 +37,7 @@ struct Look {
     static let quiz = Look(name: "quiz", top: .hex("#6B7BFF"), bottom: .hex("#4A55D9"))
     static let grid = Look(name: "grid", top: .hex("#22C2B0"), bottom: .hex("#0E9384"))
     static let dance = Look(name: "dance", top: .hex("#3FCB74"), bottom: .hex("#1F9E52"))
-    static let arcade = Look(name: "arcade", top: .hex("#3A2380"), bottom: .hex("#1D1450"), chip: .hex("#3E6FE8"), night: true)
+    static let arcade = Look(name: "arcade", top: .hex("#3A2380"), bottom: .hex("#1D1450"), chip: .hex("#3E6FE8"))
     static let cups = Look(name: "cups", top: .hex("#F4626A"), bottom: .hex("#D6404B"), chip: .hex("#3E6FE8"))
     static let numbers = Look(name: "numbers", top: .hex("#FF9447"), bottom: .hex("#E8691C"), chip: .hex("#2C8BD6"))
     static let animals = Look(name: "animals", top: .hex("#7DBD45"), bottom: .hex("#4F9128"))
@@ -37,7 +49,7 @@ struct Look {
     static let seesaw = Look(name: "seesaw", top: .hex("#B06AB3"), bottom: .hex("#8A4590"))
     static let sudoku = Look(name: "sudoku", top: .hex("#6F8BAB"), bottom: .hex("#4A6585"))
     static let blossoms = Look(name: "blossoms", top: .hex("#FF9580"), bottom: .hex("#EC6A55"), chip: .hex("#3E9A5A"))
-    static let hands = Look(name: "hands", top: .hex("#FFAE48"), bottom: .hex("#EE8A1E"), room: "cups")
+    static let hands = Look(name: "hands", top: .hex("#FFAE48"), bottom: .hex("#EE8A1E"))
 }
 
 /// Every game Playtime offers, in the menu's order: what the manifest's `games` used to say, now the program's own. A game
@@ -78,7 +90,7 @@ enum GameCatalog {
          GameEntry(id: RockPaperScissorsScreen.id, title: L("Rock, Paper, Scissors"), tagline: L("Best of three, no peeking"), symbol: "hand.raised.fill", look: .hands, levels: false),
          GameEntry(id: DailyWordScreen.id, title: L("Daily Word"), tagline: L("One new word to find every day"), symbol: "textformat.abc", look: .words, solo: true, levels: false),
          GameEntry(id: GardenPlotsKind.id, title: L("Garden Plots"), tagline: L("Split the garden into plots by their numbers"), symbol: "square.split.2x2.fill", look: .plots, solo: true),
-         GameEntry(id: SeesawKind.id, title: L("Seesaw"), tagline: L("Balance hearts and stars in every line"), symbol: "heart.circle.fill", look: .seesaw, solo: true),
+         GameEntry(id: SeesawKind.id, title: L("Seesaw"), tagline: L("Balance crescents and suns in every line"), symbol: "moon.fill", look: .seesaw, solo: true),
          GameEntry(id: SudokuKind.id, title: L("Sudoku"), tagline: L("Each number once in every row, column and box"), symbol: "square.grid.3x3.fill", look: .sudoku, solo: true),
          GameEntry(id: BlossomsKind.id, title: L("Blossoms"), tagline: L("One flower in every row, column and bed"), symbol: "camera.macro", look: .blossoms, solo: true)]
     }

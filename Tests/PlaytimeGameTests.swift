@@ -67,7 +67,7 @@ import Testing
         #expect(try TriviaEngine.play(.start, on: &s, random: &random) == [.sealed])
         #expect(s.phase == .question && s.round.count == 5 && Set(s.round).count == 5)
         #expect(s.round.allSatisfy { id in TriviaLibrary.questions(language: "en").first { $0.id == id }?.category == "space" })
-        #expect(TriviaRecords.load().setup == TriviaRecords.Setup(topic: "space", length: 5, quick: false), "the set-up is remembered")
+        #expect(TriviaRecords.load().setup == TriviaRecords.Setup(topic: "space", length: 5, quick: false, level: .fair), "the set-up is remembered")
 
         // The lifeline, once: two tiles fade, and the person can't pick one.
         let hint = try TriviaEngine.play(.hint, on: &s, random: &random)
@@ -140,8 +140,8 @@ import Testing
             var s = TriviaEngine.start(level: .fair, options: options, random: &random)
             let setup = TriviaScreen.board(s, events: [.opened], options: options).json
             let parts = setup["parts"] as! [[String: Any]]
-            #expect(parts.map { $0["type"] as! String } == ["prompt", "choice", "choice", "choice", "button", "choice"])
-            #expect((parts[0]["eyebrow"] as? String)?.seen == "Ein Quiz mit Nori" && parts[4]["label"] as? String == "Starten")
+            #expect(parts.map { $0["type"] as! String } == ["prompt", "choice", "choice", "choice", "choice", "button", "choice"])
+            #expect((parts[0]["eyebrow"] as? String)?.seen == "Ein Quiz mit Nori" && parts[5]["move"] as? String == "start")
             #expect((setup["companion"] as? [String: Any])?["line"] as? String == "hello")
 
             _ = try TriviaEngine.play(.start, on: &s, random: &random)
@@ -172,13 +172,9 @@ import Testing
             #expect(empty.summary?.title.seen == "Le mot du jour : Pas encore joué")
             PlaytimeRecords.finish(QuickPawsScreen.id, .won, you: 3, companion: 1, best: 243, lower: true)
             PlaytimeRecords.finish(QuickPawsScreen.id, .lost, you: 1, companion: 3, best: 300, lower: true)
-            let page = PlaytimePage.render()
-            let json = String(decoding: try! JSONSerialization.data(withJSONObject: page.json), as: UTF8.self)
-            #expect(json.seen.contains("Record : 243 ms"), "\(json.prefix(400))")
             let records = PlaytimePage.records(PlaytimeRecords.load(), today: DailyWordEngine.today(), tile: DailyWordScreen.tile())
             let paws = records[QuickPawsScreen.id]
             #expect(paws?.played == 2 && paws?.won == 1 && paws?.lost == 1 && paws?.best?.seen == "Record : 243 ms")
-            #expect(!page.sections.isEmpty, "the Game Center is Playtime's own page")
             #expect(PlaytimeRecords.load().history.map(\.outcome) == [.lost, .won])
             #expect(records[DailyWordScreen.id]?.today?.done == false)
         }

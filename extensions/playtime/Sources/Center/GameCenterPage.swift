@@ -24,97 +24,34 @@ enum GameCenterPage {
         }
         let dailies = entries.filter { record($0).today != nil }
         let kept = PlayTable.keptGame
-        func last(_ e: GameEntry) -> Date? { history.first { $0.game == e.id || $0.game.hasPrefix(e.id + "_") }?.date }
-
-        var out: [Section] = [Section(nil, [hero(dailies: dailies, record: record, kept: kept), stats(totals)])]
-        if !dailies.isEmpty {
-            let date = Date().formatted(.dateTime.weekday(.wide).day().month(.wide).locale(Language.locale))
-            out.append(Section(L("Today"), [.cards(size: .small, dailies.map { daily($0, record($0)) })], detail: date))
+        // The page as one picture, its text, tiles and numbers live; what the design leaves out stays a click away, folded beneath it.
+        var out: [Section] = [Section(nil, [.scene(PlaytimeHome.block(totals: totals, dailies: dailies, record: record, kept: kept, history: history))])]
+        let versus = entries.filter { TwoPlayers.games.contains($0.id) }
+        if !versus.isEmpty {
+            out.append(Section(L("2 players"), [.cards(size: .small, versus.map { e in
+                Card(e.title, detail: L("Play against a friend on this Mac"), picture: picture(e), color: e.look.bottom.json as? String,
+                     actions: [Action(L("Play"), tool: "open", input: ["game": e.id, "players": 2, "person": true], symbol: "person.2.fill", round: true)])
+            })], collapsed: true))
         }
-        func group(_ title: String, solo: Bool, picture: Picture?) {
-            let games = entries.filter { $0.solo == solo }
-            guard !games.isEmpty else { return }
-            // The menu's own bands, so Home and the menu read as one.
-            let banner = solo ? (tint: "#4D9BEA", symbol: "puzzlepiece.fill" as String?) : (tint: Paint.sun.json as? String ?? "#FFC93C", symbol: "gamecontroller.fill" as String?)
-            out.append(Section(title, [.cards(size: .large, games.map { card($0, record($0), kept: kept == $0.id, last: last($0)) })], picture: picture, banner: banner))
-        }
-        group(L("Play against {name}", ["name": "{companion}"]), solo: false, picture: .companion(.face))
-        group(L("Puzzles"), solo: true, picture: nil)
-        out.append(Section(L("Last games"), [lastGames(history)]))
+        out.append(Section(L("Last games"), [lastGames(history)], collapsed: true))
         if !duels.isEmpty {
             out.append(Section(L("Head to head"), [.facts(nil, duels.map { d in
                 (GameCatalog.entry(d.game)?.title ?? d.game, "\(d.names[0]) \(Format.integer(d.wins[0])) · \(d.names[1]) \(Format.integer(d.wins[1]))")
-            })]))
+            })], collapsed: true))
         }
         let all = badges(totals, entries: entries, record: record, dailies: dailies)
         let earned = all.filter(\.earned).count
-        out.append(Section(L("Badges"), [.badges(nil, all.filter(\.earned) + all.filter { !$0.earned })], detail: L("{n} of {total} earned", ["n": earned, "total": all.count])))
-        out.append(Section(L("Game settings"), [.settings(nil, keys: ["tone", "sounds", "sneaky"], ai: true, aiTitle: L("Make new trivia questions with AI"),
-                                                          aiDetail: L("Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked."))], wide: true))
+        out.append(Section(L("Badges"), [.badges(nil, all.filter(\.earned) + all.filter { !$0.earned })], collapsed: true, detail: L("{n} of {total} earned", ["n": earned, "total": all.count])))
+        out.append(Section(L("Game settings"), [.settings(nil, keys: ["game_language", "tone", "sounds", "sneaky"], ai: true, aiTitle: L("Make new trivia questions with AI"),
+                                                          aiDetail: L("Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked."))], collapsed: true, wide: true))
         let leveled = entries.filter(\.levels)
         var pictures: [String: Picture] = [:]
         for e in leveled { pictures[GameSoundSetting.levelKey(e.id)] = picture(e) }
-        out.append(Section(L("Levels"), [.settings(nil, keys: leveled.map { GameSoundSetting.levelKey($0.id) }, grid: true, pictures: pictures)], wide: true))
+        out.append(Section(L("Levels"), [.settings(nil, keys: leveled.map { GameSoundSetting.levelKey($0.id) }, grid: true, pictures: pictures)], collapsed: true, wide: true))
         return out
     }
 
-    /// Continue the game put away; else the first daily not done today; else a surprise.
-    private static func hero(dailies: [GameEntry], record: (GameEntry) -> Record, kept: String?) -> Block {
-        var action = Action(L("Surprise me"), tool: "open", input: ["game": "random", "person": true], style: .primary, symbol: "dice.fill")
-        var says = L("Pick a game! Can you beat me?")
-        if let kept, let entry = GameCatalog.entry(kept) {
-            action = Action(L("Continue {title}", ["title": entry.title]), tool: "open", input: ["game": kept, "person": true], style: .primary, symbol: "play.fill")
-            says = L("Ready when you are!")
-        } else if let daily = dailies.first(where: { record($0).today?.done != true }) {
-            action = Action(L("Play today's {title}", ["title": daily.title]), tool: "open", input: ["game": daily.id, "person": true], style: .primary, symbol: "sun.max.fill")
-            says = L("Today's boards are waiting!")
-        }
-        var hero = Hero(L("Playtime"), detail: L("Games against {name}, and puzzles of your own", ["name": "{companion}"]), symbol: "gamecontroller.fill",
-                        actions: [action, Action(L("All games"), tool: "open", input: ["game": "menu", "person": true], symbol: "square.grid.2x2.fill")],
-                        scene: .pack(Look.dance.scene, dark: Look.dance.sceneAtNight), figure: .companion(.full), says: says)
-        let colours = [Look.dance.top, Look.dance.bottom].compactMap { $0.json as? String }
-        hero.tile = colours
-        hero.wash = colours
-        return .hero(hero)
-    }
-
-    /// Wins, puzzles solved, the best run of wins and games played.
-    private static func stats(_ t: Totals) -> Block {
-        .stats([StatItem(L("Wins"), Format.integer(t.wins), symbol: "trophy.fill", color: Paint.sun.json as? String),
-                StatItem(L("Solved", context: "games"), Format.integer(t.solved), symbol: "checkmark.seal.fill", tone: .good),
-                StatItem(L("Best streak", context: "games"), Format.integer(t.bestStreak), symbol: "flame.fill", color: Look.numbers.bottom.json as? String),
-                StatItem(L("Played", context: "games"), Format.integer(t.played), symbol: "gamecontroller.fill")])
-    }
-
     private static func picture(_ e: GameEntry) -> Picture { .pack(e.look.icon) }
-
-    private static func daily(_ e: GameEntry, _ r: Record) -> Card {
-        let streak = r.today?.streak ?? 0
-        return Card(e.title, detail: r.today?.text, meta: streak > 1 ? L("{n} days in a row", ["n": streak]) : nil, picture: picture(e), color: e.look.bottom.json as? String, done: r.today?.done == true,
-                    actions: [Action(L("Play"), tool: "open", input: ["game": e.id, "person": true], symbol: "play.fill", round: true)])
-    }
-
-    /// A game as a card: its art, title and tagline, its best and record, when it was last played, Play (with a level from the menu beside it), and Resume when it was put away.
-    private static func card(_ e: GameEntry, _ r: Record, kept: Bool, last: Date?) -> Card {
-        var actions = [Action(kept ? L("Resume") : L("Play"), tool: "open", input: ["game": e.id, "person": true], style: kept ? .accent : .secondary, symbol: "play.fill")]
-        if TwoPlayers.games.contains(e.id) {
-            actions.append(Action(L("2 players"), tool: "open", input: ["game": e.id, "players": 2, "person": true], symbol: "person.2.fill", detail: L("Play against a friend on this Mac")))
-        }
-        let levels = e.levels ? GameLevel.allCases.map { Action(ScreenKit.level($0), tool: "open", input: ["game": e.id, "level": $0.rawValue, "person": true]) } : []
-        let chosen = PlayOptions.chosenLevel(e.id)
-        return Card(e.title, detail: e.tagline, meta: recordLine(e, r, last: last), at: last, picture: picture(e), color: e.look.bottom.json as? String,
-                    badge: chosen.map { Badge(ScreenKit.level($0), tone: .info) }, actions: actions, menu: levels.isEmpty ? nil : (L("Level"), levels))
-    }
-
-    /// Its record in plain words: the game's own best, then wins of games played (a puzzle's solves), or not yet played. Nothing when a game was opened but none finished.
-    private static func recordLine(_ e: GameEntry, _ r: Record, last: Date?) -> String? {
-        guard r.played > 0 else { return last == nil ? L("Not played yet", context: "games") : nil }
-        var parts: [String] = []
-        if let best = r.best { parts.append(best) }
-        parts.append(e.solo ? L("{n} solved", ["n": r.won]) : L("Won {won} of {played}", ["won": r.won, "played": r.played]))
-        if r.streak > 1 { parts.append(L("{n} wins in a row", ["n": r.streak])) }
-        return parts.joined(separator: " · ")
-    }
 
     /// The last games played: a puzzle's row says its time, not who won. Verdicts by symbol and word, in the calm tones (D78).
     private static func lastGames(_ history: [PlaytimeRecords.Played]) -> Block {

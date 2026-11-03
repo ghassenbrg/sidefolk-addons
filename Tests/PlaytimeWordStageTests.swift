@@ -47,11 +47,12 @@ struct PlaytimeWordStageTests {
             return node(scene, "letters.0.0")?["w"] as? Double ?? 0
         }
         let row = BoardPart.letters(5)
-        #expect(side(Board([row, keys(3)])) == 37)
-        #expect(side(Board([row, keys(4)])) == 24, "beside a tall keyboard, so the board fits the panel")
-        #expect(side(Board([.play(.letters(rows: [(0..<5).map { tile("", "hidden", $0) }], length: 5, style: "slots", script: "latin"))])) == 34)
-        // A long word shrinks to fit the card.
-        #expect(abs(side(Board([BoardPart.letters(12)])) - (372 - 16 - 11 * 5) / 12) < 0.01)
+        // Whatever the keyboard leaves: larger beside a short one, and always in the tray.
+        #expect(side(Board([row, keys(3)])) > side(Board([row, keys(5)])))
+        #expect(side(Board([row, keys(3)])) * 5 + 4 * 5 <= 372 - 28)
+        #expect(side(Board([.play(.letters(rows: [(0..<5).map { tile("", "hidden", $0) }], length: 5, style: "slots", script: "latin"))])) == 30)
+        // A long word shrinks to fit the tray.
+        #expect(abs(side(Board([BoardPart.letters(12)])) - (372 - 28 - 11 * 5) / 12) < 0.01)
     }
 
     @Test func aRowTurnsOverTileByTileAndOnlyInItsBuildUp() throws {
@@ -72,8 +73,11 @@ struct PlaytimeWordStageTests {
         #expect(paths.map { $0["target"] as? String } == ["letters.0.0", "letters.0.1", "letters.0.2"])
         for (i, path) in paths.enumerated() {
             let frames = path["keys"] as? [[String: Any]] ?? []
-            #expect(frames.first?["sy"] as? Double == 0.02, "shut from the first frame, so no colour shows before its moment")
+            #expect(frames.first?["sy"] as? Double == 1 && frames.contains { $0["sy"] as? Double == 0.02 }, "it turns from the tile it was: narrowing to nothing, then opening")
             #expect(frames.last?["sy"] as? Double == 1)
+            // The typed tile lies over the marked one until the middle of its turn, so no colour shows before its moment.
+            let shut = (scene.json["animations"] as? [[String: Any]] ?? []).first { $0["target"] as? String == "letters.0.\(i).shut" }
+            #expect((shut?["keys"] as? [[String: Any]])?.first?["opacity"] as? Double == 1)
             #expect((path["ms"] as? Double) == Double(i) * 220 + 250)
         }
         #expect(!(build.keysPart?.locked == false), "nothing to press while it turns")
@@ -86,19 +90,22 @@ struct PlaytimeWordStageTests {
         let row = [tile("a", "right", 0), tile("b", "elsewhere", 1), tile("c", "absent", 2)]
         let scene = BoardDrawing(Board([.play(.letters(rows: [row], length: 3, tries: 1, script: "latin"))]), StageContext(entry: entry("daily_word"))).scene()
         let all = nodes(scene)
-        #expect(all.contains { $0["text"] as? String == "●" } && all.contains { $0["text"] as? String == "◐" })
+        // A dot, half a dot, a cross: each a shape of its own on its tile, with the colour.
+        func shapes(_ id: String) -> [String] { (node(scene, id)?["children"] as? [[String: Any]] ?? []).compactMap { ($0["shape"] as? String) }.filter { $0 != "rect" } }
+        #expect(shapes("letters.0.0") == ["ellipse"] && shapes("letters.0.1") == ["path"] && shapes("letters.0.2") == ["path"])
+        #expect(!all.isEmpty)
         #expect(node(scene, "letters.0.0")?["label"] as? String == "a, right place")
         #expect(node(scene, "letters.0.2")?["label"] as? String == "c, not in the word")
     }
 
     @Test func aKeyboardsRowsRunItsWidth() {
         let scene = BoardDrawing(Board([keys(3)]), StageContext(entry: entry("daily_word"))).scene()
-        // Seven keys on a row of their own share all of it, and the last row leaves room for ↵ and ⌫.
+        // One width of key on a page: a row of its own stands in the middle; the last row runs the width, with Enter and delete at its ends.
         let first = node(scene, "key.a"), last = node(scene, "key.g")
         let right = (last?["x"] as? Double ?? 0) + (last?["w"] as? Double ?? 0)
-        #expect(first?["x"] as? Double == 0 && abs(right - BoardDrawing.inner) < 0.01)
-        let del = node(scene, "key.delete")
-        #expect(abs((del?["x"] as? Double ?? 0) + 40 - BoardDrawing.inner) < 0.01)
+        #expect(abs((first?["x"] as? Double ?? 0) - (BoardDrawing.inner - right)) < 0.01)
+        let enter = node(scene, "key.return"), del = node(scene, "key.delete")
+        #expect(enter?["x"] as? Double == 0 && abs((del?["x"] as? Double ?? 0) + (del?["w"] as? Double ?? 0) - BoardDrawing.inner) < 0.01)
     }
 
     @Test func typingAWordIsKeptHereUntilReturn() {
@@ -172,7 +179,7 @@ struct PlaytimeWordStageTests {
             Issue.record("a word in lower case, a text as typed, nothing empty")
             return
         }
-        let scene = BoardDrawing(Board([text]), StageContext(entry: entry("guess_animal"))).scene()
+        let scene = BoardDrawing(Board([text, .button(GameButton("Remember", move: "remember", style: .primary))]), StageContext(entry: entry("guess_animal"))).scene()
         let send = node(scene, "entry.send")?["area"] as? [String: Any]
         #expect(send?["submits"] as? String == "animal", "the whole button, so Sidefolk dims it while the field is empty")
         #expect(node(scene, "entry.animal")?["type"] as? String == "entry")
@@ -180,11 +187,12 @@ struct PlaytimeWordStageTests {
 
     @Test func balloonsLostAreFaintAndSaySoAndHeartsToo() {
         let scene = BoardDrawing(Board([.play(.lives(total: 7, left: 5, symbol: "balloon"))]), StageContext(entry: entry("balloon_words"))).scene()
-        let kept = node(scene, "life.0"), lost = node(scene, "life.6")
-        #expect(kept?["opacity"] as? Double == 1 && lost?["opacity"] as? Double == 0.3 && lost?["scale"] as? Double == 0.6)
-        #expect(kept?["image"] as? String == "art/game-balloon.png")
-        // As tall as the panel drew it, its width by the picture's: 86 × 120.
-        #expect(kept?["h"] as? Double == 30 && abs((kept?["w"] as? Double ?? 0) - 21.5) < 0.01)
+        let kept = node(scene, "life.0")
+        #expect(kept?["opacity"] as? Double == 1 && kept?["image"] as? String == "art/game-balloon-0.webp")
+        #expect(node(scene, "life.6.string") != nil && node(scene, "life.6") == nil, "gone, but for the string it hung by")
+        // Each its own colour, in the picture's proportions.
+        #expect(node(scene, "life.3")?["image"] as? String == "art/game-balloon-3.webp")
+        #expect(abs((kept?["w"] as? Double ?? 0) - (kept?["h"] as? Double ?? 0) * 232 / 305) < 0.01)
         #expect(node(scene, "lives")?["label"] as? String != nil)
     }
 
@@ -251,9 +259,12 @@ struct PlaytimeWordStageTests {
                 (state, board) = (next.state, next.board)
                 let scene = BoardDrawing(board, StageContext(entry: entry("guess_animal"))).scene()
                 try PlaytimeStageTests.check(scene, "guess_animal teaching")
-                if let name { #expect(node(scene, "entry.\(name)") != nil) } else { #expect(board.answersPart?.tiles.count == 2) }
+                if let name { #expect(node(scene, "entry.\(name)") != nil) } else { #expect(board.choicePart("new_answer")?.options.count == 2) }
             }
-            let end = try #require(driver.move(.answer(0), state, options))
+            // One page: the answer picked is only picked, until Remember keeps it.
+            let picked = try #require(driver.move(.choice(name: "new_answer", value: "yes"), state, options))
+            #expect(!picked.board.over && picked.board.buttons.first { $0.move == "remember" }?.disabled == false)
+            let end = try #require(driver.move(.button("remember"), picked.state, options))
             #expect(end.board.over && end.board.resultPart?.line == L("Thank you! I'll remember {animal}.", ["animal": "zebra"]))
             #expect(Self.caps(end.board).isEmpty)
         }

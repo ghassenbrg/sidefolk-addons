@@ -33,6 +33,8 @@ enum MemoryPairsEngine: GameEngine {
             events = try s.game.flip(i, by: s.duo.on ? s.game.turn : .you)
             (s.fresh, s.recalled) = (i, false)
         case .next:
+            // The last pair has been looked at: on to the end card.
+            if s.game.over { return [] }
             if s.game.waitingToCover {
                 events = try s.game.cover()
                 s.fresh = nil
@@ -108,11 +110,14 @@ enum MemoryPairsScreen: GameScreen {
             let up = g.owner[i] != nil || g.faceUp.contains(i)
             let label = L("Card {n}", ["n": i + 1])
             return up ? Cell("symbol", value: symbols[g.cards[i]], companion: g.owner[i] == .companion || (g.owner[i] == nil && g.turn == .companion),
-                             label: label + ", " + name(g.cards[i]), animate: s.fresh == i ? "flip" : nil)
+                             state: pairState(s, i, events), label: label + ", " + name(g.cards[i]), animate: s.fresh == i ? "flip" : nil)
                 : Cell("card_back", label: label)
         }
         let thinking = events.compactMap { if case .think(let ms) = $0 { ms } else { nil } }.first
-        let text: String = if g.over { L("All pairs found.") }
+        // The last pair was just found: it stays a moment, with the score, and the end card comes after that.
+        let lastPair = events.contains { if case .roundOver = $0 { true } else { false } }
+        let text: String = if let refused = ScreenKit.refused(events) { refused }
+            else if g.over { L("All pairs found.") }
             else if g.waitingToCover { L("Not a pair.") }
             else if g.turn == .you { L("Your turn: turn two cards.") }
             else if s.recalled { L("{name}: “I saw one… around here?”", ["name": o.companion]) }
@@ -123,15 +128,22 @@ enum MemoryPairsScreen: GameScreen {
             .board(rows: 4, columns: 4, cells: cells, locked: g.over || g.turn != .you || g.waitingToCover),
         ]
         if g.flips == 0 { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
-        if let outcome = MemoryPairsEngine.outcome(of: s) {
-            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion))
+        if let outcome = MemoryPairsEngine.outcome(of: s), !lastPair {
+            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion, margin: g.score.you - g.score.companion))
             parts.append(ScreenKit.levels(g.level))
         }
         var cue = EventCues.cue(events)
         if thinking != nil, cue?.move == nil || cue?.move == "think" { cue = Cue(move: "think", effect: s.recalled ? "question" : nil, look: "panel") }
         if let fresh = s.fresh, cue != nil, cue?.look as? String == "panel" { cue?.look = [fresh / 4, fresh % 4] }
         // Two cards that don't match stay up a moment; the companion's turn goes card by card.
-        let after = g.over ? nil : g.waitingToCover ? 1200 : thinking ?? (g.turn == .companion ? 900 : nil)
-        return Board(parts, companion: cue, over: g.over, afterMs: after)
+        let after = lastPair ? 1100 : g.over ? nil : g.waitingToCover ? 1200 : thinking.map { max($0, 800) } ?? (g.turn == .companion ? 900 : nil)
+        return Board(parts, companion: cue, over: g.over && !lastPair, afterMs: after, turn: g.over ? nil : g.turn == .you ? "you" : "companion")
+    }
+
+    /// A found pair's state: `win` the moment it is found, as the verdict after its build-up, and `pair` from then on.
+    static func pairState(_ s: MemoryPairsEngine.State, _ i: Int, _ events: [Games.Event]) -> String? {
+        guard s.game.owner[i] != nil else { return nil }
+        let found = events.contains { if case .pair = $0 { true } else { false } }
+        return found && s.fresh.map({ s.game.cards[$0] }) == s.game.cards[i] ? "win" : "pair"
     }
 }

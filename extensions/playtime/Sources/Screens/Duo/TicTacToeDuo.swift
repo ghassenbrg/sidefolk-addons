@@ -16,7 +16,9 @@ extension TicTacToeScreen {
             return Cell(side == .you ? "x" : side == .companion ? "o" : "empty", state: line.contains(i) ? "win" : nil,
                         label: side.map { label + ", " + d.name($0) } ?? label, animate: s.fresh.contains(i) ? "stamp" : nil)
         }
-        let status: String = if g.gameOver {
+        let lastLine = events.contains { if case .matchOver = $0 { true } else { false } }
+        let status: String = if let refused = ScreenKit.refused(events) { refused }
+            else if g.gameOver {
             winner.map { L("{name} wins this game!", ["name": d.name($0)]) } ?? L("Cat's game: a draw.")
         } else {
             TwoPlayers.turn(d, g.turn) + " · " + (g.turn == .you ? "X" : "O")
@@ -26,17 +28,16 @@ extension TicTacToeScreen {
             .prompt(status, eyebrow: L("Game {n}", ["n": s.number])),
             .board(rows: 3, columns: 3, cells: cells, locked: g.gameOver, numpad: true),
         ]
-        if let note = ScreenKit.refusal(events) { parts.append(note) }
-        if g.seriesOver {
+        if g.seriesOver, !lastLine {
             var facts: [(String, String)] = []
             if let tally = TwoPlayers.tally(id, d) { facts.append(tally) }
             parts.append(TwoPlayers.result(d, winner: g.series.leader, figure: "\(Format.integer(g.series.you)) – \(Format.integer(g.series.companion))",
                                            facts: facts))
-        } else if g.gameOver {
+        } else if g.gameOver, !g.seriesOver {
             parts.append(.button(GameButton(L("Next game"), move: "again", style: .primary, symbol: "arrow.right")))
         }
         var cue = TwoPlayers.cue(events)
         if let at = s.fresh.first, !g.gameOver { cue?.look = [at / 3, at % 3] }
-        return Board(parts, companion: cue, over: g.seriesOver)
+        return Board(parts, companion: cue, over: g.seriesOver && !lastLine, afterMs: lastLine ? 1100 : nil, turn: g.gameOver ? nil : g.turn == .you ? "you" : "companion")
     }
 }
