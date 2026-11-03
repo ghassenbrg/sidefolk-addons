@@ -97,7 +97,8 @@ def pairs_digest(pairs):
 
 def kit_versions():
     """Kit/ as it was at each commit that changed it, newest first, as (relative path, bytes) pairs."""
-    revs = run("git", "log", "--format=%H", "--", "Kit", cwd=ROOT, capture_output=True).stdout.split()
+    # --full-history: a merge that keeps one side's Kit would otherwise hide the Kit the other side's packs were built with.
+    revs = run("git", "log", "--full-history", "--format=%H", "--", "Kit", cwd=ROOT, capture_output=True).stdout.split()
     out = []
     for rev in revs:
         names = run("git", "ls-tree", "-r", "--name-only", rev, "--", "Kit", cwd=ROOT, capture_output=True).stdout.split("\n")
