@@ -605,7 +605,7 @@ import SidefolkExtensionKit
 
 /// What a step will need, said in advance. Sidefolk holds the rule and enforces it: this only tells the person before the card does.
 @MainActor enum Hints {
-    private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "notes.search": ["query"], "reminders.create": ["title", "notes"], "notify.user": ["title", "body"], "ask.user": ["question"]]
+    private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "reminders.create": ["title", "notes"], "notify.user": ["title", "body"], "ask.user": ["question"]]
 
     static func asksEachTime(_ step: Step, catalog: Catalog? = nil) -> Bool {
         guard case .action(let tool, let input) = step.kind else { return false }

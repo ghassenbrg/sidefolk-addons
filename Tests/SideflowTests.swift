@@ -526,6 +526,24 @@ import SidefolkExtensionKit
         #expect(w.store.flow(flow.id)?.pausedBecause != nil)
     }
 
+    @Test func thirtyRunsInAnHourIsTheStopAndItHoldsAgainstAFlowThatSetsItselfOff() async throws {
+        let w = try World()
+        #expect(w.engine.runawayLimit == 30)
+        let flow = try w.flow([["id": "n", "text": "x"]], trigger: ["type": "event", "event": "attention.changed"])
+        for _ in 0..<30 {
+            w.engine.happened(name: "attention.changed", title: "focus", detail: nil)
+            for _ in 0..<200 where w.engine.isRunning(flow.id) { try await Task.sleep(for: .milliseconds(2)) }
+            w.now = w.now.addingTimeInterval(10)
+        }
+        #expect(w.store.runs(of: flow.id, since: w.now.addingTimeInterval(-3600)).count == 30)
+        #expect(w.store.flow(flow.id)?.state == .on)
+        w.engine.happened(name: "attention.changed", title: "focus", detail: nil)
+        #expect(w.store.flow(flow.id)?.state == .paused, "the thirty-first pauses it, and says why")
+        #expect(w.store.flow(flow.id)?.pausedBecause != nil)
+        w.engine.happened(name: "attention.changed", title: "focus", detail: nil)
+        #expect(w.store.runs(of: flow.id, since: w.now.addingTimeInterval(-3600)).count == 30, "paused, nothing sets it off")
+    }
+
     @Test func oneRunAtATimeWithOneMoreWaiting() async throws {
         let w = try World()
         w.host.hold = "reads.it"

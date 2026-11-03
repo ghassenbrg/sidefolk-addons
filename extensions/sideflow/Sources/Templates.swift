@@ -59,11 +59,10 @@ import SidefolkExtensionKit
                     ["do": "notes.save", "with": ["text": "Week in review\n{{week}}"], "name": L("Save a note")],
                 ],
             ]),
-            Template(id: "meeting", name: L("Before a meeting"), line: L("Five minutes before, what you noted about it, on your desktop."), symbol: "person.2.wave.2", color: "#1FA88A", body: [
+            Template(id: "meeting", name: L("Before a meeting"), line: L("A word on your desktop, five minutes before."), symbol: "person.2.wave.2", color: "#1FA88A", body: [
                 "trigger": ["type": "event", "event": "calendar.starting"],
                 "steps": [
-                    ["id": "found", "do": "notes.search", "with": ["query": "{{trigger}}"], "name": L("Find my notes on it")],
-                    ["do": "notify.user", "with": ["title": "{{trigger}}", "body": "{{found}}"], "name": L("Tell me")],
+                    ["do": "notify.user", "with": ["title": "{{trigger}}", "body": L("Starts in five minutes.")], "name": L("Tell me")],
                 ],
             ]),
             Template(id: "focus", name: L("Focus hour"), line: L("An hour of Focus when you ask, and a word when it's over."), symbol: "circle.lefthalf.filled", color: "#8E6CF0", body: [
