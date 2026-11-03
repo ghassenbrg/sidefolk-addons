@@ -117,7 +117,7 @@ enum PlaytimeHome {
     private static func label(_ title: String, id: String, w: Double, h: Double) -> Node {
         .box(id + ".label", x: 6, y: h - 31, w: w - 12, h: 26) {
             Node.capsule(fill: Paint.card).size(w - 12, 26).shadow(Paint.clear("#7A5A3A", 0.12), radius: 2, dx: 0, dy: 1)
-            Node.words(title, size: 13.5, weight: "heavy", align: "center", minScale: 0.62, x: 6, w: w - 24, h: 26)
+            Node.words(title, size: 13.5, weight: "heavy", align: "center", minScale: 0.55, x: 3, w: w - 18, h: 26)
         }
     }
 
