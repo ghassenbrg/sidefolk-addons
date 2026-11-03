@@ -126,8 +126,8 @@ enum BalloonWordsScreen: GameScreen {
             parts.append(ScreenKit.result(outcome, figure: g.entry.word, line: outcome == .won ? L(one: "{count} balloon left.", other: "{count} balloons left.", count: g.left) : nil,
                                           companion: o.companion))
             parts.append(ScreenKit.levels(BalloonWordsEngine.level(of: s)))
-        } else if !g.guessed.isEmpty {
-            // Who plays has this place until the first letter; from then on it stays, faded once it is used.
+        } else {
+            // It keeps its place from the first board to the last, faded once it is used.
             parts.append(.button(GameButton(L("Show a letter"), move: "hint", style: .plain, symbol: "lightbulb", disabled: g.hintUsed)))
         }
         if g.guessed.isEmpty { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }

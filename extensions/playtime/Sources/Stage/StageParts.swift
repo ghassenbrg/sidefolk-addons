@@ -12,7 +12,9 @@ extension BoardDrawing {
         if ctx.buildUp, table != .hands { return L("Let's see…") }
         return board.said
     }
-    var dockExtra: (node: Node, width: Double)? { puzzleDockExtra ?? opponentInDock }
+    /// How wide a game wants its companion, if not the usual.
+    var stageFigure: Double? { nil }
+    var dockExtra: (node: Node, width: Double)? { puzzleDockExtra }
 
     /// The controls' room, kept for a game whose buttons come and go, so its board never moves for one.
     var dockRoom: Double {
@@ -23,16 +25,10 @@ extension BoardDrawing {
     /// A hint on these boards is the quiet button; it isn't the one thing to do.
     var quietHints: Bool { board.gridPart != nil || board.hasLetters }
 
-    /// Who plays stands in the controls, where it costs the board nothing, on a game that keeps their room.
-    private var opponentInDock: (node: Node, width: Double)? {
-        guard board.gridPart?.numpad == true || isStall else { return nil }
-        return opponentRow(width: 280).map { row in (Node.box(w: Self.inner, h: 32) { row.node.at((Self.inner - row.width) / 2, 0) }, Self.inner) }
-    }
-
     /// A part drawn somewhere of its own rather than stacked on the board.
     func placedElsewhere(_ part: BoardPart) -> Bool {
         switch part {
-        case .choice("opponent", _, _, _, _): return board.gridPart != nil || isStall
+        case .choice("opponent", _, _, _, _): return true
         case .play(.lives): return isStall
         default: return false
         }

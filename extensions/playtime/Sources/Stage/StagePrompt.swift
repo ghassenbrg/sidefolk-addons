@@ -51,8 +51,9 @@ extension BoardDrawing {
         }
         let bubbleW = stageBubbleWidth ?? inner - side - 8
         return PartBlock(Node.box("stage", w: inner, h: h) {
-            companionFigure(w: side, h: h + 6, y: 0)
-            if let words { speechBubble(words, width: bubbleW, height: Swift.min(h - 6, 64)).node.at(side + 8, (h - Swift.min(h - 6, 64)) / 2) }
+            // Larger than its row, as the concepts draw it: its ears rise past the round's line and its feet stand on what it plays on.
+            companionFigure(w: side, h: h + 22, y: -14)
+            if let words { speechBubble(words, width: bubbleW, height: Swift.min(h - 8, 56)).node.at(side + 8, (h - Swift.min(h - 8, 56)) / 2) }
         }, height: h)
     }
 

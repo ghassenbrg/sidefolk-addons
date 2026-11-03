@@ -131,7 +131,7 @@ enum TicTacToeScreen: GameScreen {
             parts.append(ScreenKit.levels(g.level))
         } else if g.gameOver {
             if !g.seriesOver { parts.append(.button(GameButton(L("Next game"), move: "again", style: .primary, symbol: "arrow.right"))) }
-        } else if !untouched {
+        } else {
             // In its place all game: faded while it can't be pressed.
             parts.append(.button(GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h", disabled: g.turn != .you || g.hintUsed)))
         }

@@ -13,18 +13,10 @@ extension BoardDrawing {
                 slotNote(note, width: width, height: height)
             } else {
                 let row = board.parts.compactMap { part -> GameButton? in if case .button(let b) = part, !b.companion { b } else { nil } }
-                let who = board.parts.compactMap { part -> (String, [ChoiceOption], String?)? in
-                    if case .choice(let name, _, _, let options, let selected) = part, name == "opponent" { (name, options, selected) } else { nil }
-                }.first
-                let chooser = who.map { choice(name: $0.0, label: nil, style: .segmented, options: $0.1, selected: $0.2, compact: false, width: row.isEmpty ? 250 : 190) }
-                if let chooser {
-                    chooser.node.at(row.isEmpty ? (width - 250) / 2 : 0, (height - chooser.height) / 2)
-                }
                 if !row.isEmpty {
-                    let used = chooser == nil ? 0 : 198.0
-                    let buttons = buttonRow(row, id: "dock", width: width - used)
-                    buttons.node.at(used, (height - buttons.height) / 2)
-                } else if chooser == nil, let fact = board.parts.compactMap({ part -> (String, String)? in if case .facts(let items) = part { items.first } else { nil } }).first {
+                    let buttons = buttonRow(row, id: "dock", width: width)
+                    buttons.node.at(0, (height - buttons.height) / 2)
+                } else if let fact = board.parts.compactMap({ part -> (String, String)? in if case .facts(let items) = part { items.first } else { nil } }).first {
                     slotFact(fact, width: width, height: height)
                 }
             }

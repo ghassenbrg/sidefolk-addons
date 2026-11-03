@@ -5,6 +5,7 @@ import SidefolkExtensionKit
 // the mark is the only picture, and it appears once.
 extension BoardDrawing {
     func endCard(figure: String, line: String?, ribbon: String?, tone: Tone, facts: [(String, String)], actions: [GameButton]) -> PartBlock {
+        if board.puzzleDrawing != nil { return puzzleSheet(time: figure, ribbon: ribbon, facts: facts, actions: actions) }
         let width = Self.inner, verdict = Verdict(tone: tone)
         let title: String? = switch verdict {
         case .win: ctx.entry.solo ? L("Solved!") : L("You win!")
@@ -80,6 +81,59 @@ extension BoardDrawing {
         appear("end.words")
         popMark()
         return PartBlock(.box("end", w: width, h: y) { nodes }, height: y)
+    }
+
+    /// A puzzle solved: a sheet from the notebook, with the companion delighted beside the time, how it went, the board as it was finished, and what next. Nothing but the true numbers.
+    private func puzzleSheet(time: String, ribbon: String?, facts: [(String, String)], actions: [GameButton]) -> PartBlock {
+        let width = Self.inner, height = playRoom, pad = 22.0
+        let right = 126.0, room = width - right - 16
+        // The time is the headline, so the rest of what's known goes in one line under it.
+        let how = facts.dropFirst().map { "\($0.0) \($0.1)" }.joined(separator: " · ")
+        let timeW = Swift.min(TextFit.width(time, size: 36, weight: "black") + 4, room)
+        // What next is pinned to the foot of the sheet, and the board takes what's left between.
+        let footH = 42.0 + 12 + 34
+        let foot = height - pad + 4 - footH
+        let top = 176.0
+        let mini = solvedBoard(room: foot - top - 8)
+        var chips: [Node] = []
+        for case .choice(let name, let label, .segmented, let options, let selected) in board.parts {
+            chips.append(choice(name: name, label: label, style: .segmented, options: options, selected: selected, compact: true, width: width - 96).node.at(48, foot))
+        }
+        let primary = actions.first
+        let back = GameButton(L("Back to games"), move: Self.backMove, style: .secondary)
+        appear("end.words")
+        popMark()
+        return PartBlock(.box("end", w: width, h: height) {
+            Node.rect(fill: Paint.lilacDeep, corner: 26).id("sheet.edge").size(width, height).shadow(Paint.clear("#3A2A55", 0.2), radius: 6, dx: 0, dy: 3)
+            Node.rect(fill: Paint.card, corner: 22).id("sheet.paper").at(5, 5).size(width - 10, height - 10)
+            for i in 0..<11 {
+                Node.ellipse(fill: Paint.inset, stroke: Paint.edge, lineWidth: 1).at(26 + Double(i) * 30.5, 12).size(9, 9)
+            }
+            Node.companion(pose: pose).figure(bottom: true).id("end.companion").at(10, 22).size(112, 126)
+            Node.box("end.words", w: width, h: 170) {
+                Node.words(L("Solved!"), size: 38, weight: "black", minScale: 0.6, x: right, y: 22, w: room - 56, h: 48).id("end.title")
+                Node.words(Self.isolated(time, rtl: ctx.rtl), size: 36, weight: "black", minScale: 0.6, x: right, y: 68, w: timeW, h: 44).textLook(tabular: true).id("end.figure")
+                if let ribbon {
+                    let w = Swift.min(TextFit.width(ribbon, size: 12, weight: "bold") + 20, room - timeW - 6)
+                    Node.capsule(fill: Color.win.tuned(alpha: 0.2)).id("end.ribbon").at(right + timeW + 6, 78).size(w, 24)
+                    Node.words(ribbon, size: 12, weight: "bold", align: "center", minScale: 0.7, x: right + timeW + 6, y: 78, w: w, h: 24)
+                }
+                if let eyebrow = board.promptPart?.eyebrow {
+                    Node.words(eyebrow, size: 13, weight: "bold", minScale: 0.7, x: right, y: 112, w: room, h: 20)
+                }
+                Node.rect(fill: Paint.edge).at(pad, 152).size(width - 2 * pad, 1)
+                if !how.isEmpty {
+                    let w = Swift.min(TextFit.width(how, size: 13, weight: "bold") + 20, width - 2 * pad)
+                    Node.rect(fill: Paint.card).at((width - w) / 2, 142).size(w, 20)
+                    Node.words(how, size: 13, weight: "bold", align: "center", minScale: 0.7, x: (width - w) / 2, y: 142, w: w, h: 20)
+                }
+            }
+            Node.art("art/result-solved.webp", x: width - 74, y: 16, w: 58, h: 58).id("end.mark")
+            if let mini { mini.node.at(((width - mini.width) / 2).rounded(), (top + (foot - top - mini.height) / 2).rounded()) }
+            chips
+            if let primary { buttonRow([primary], id: "end.action.0", width: (width - 2 * pad - 10) * 0.54).node.at(pad, height - pad + 4 - 44) }
+            buttonRow([back], id: "end.back.row", width: (width - 2 * pad - 10) * 0.46, flat: true).node.at(pad + (width - 2 * pad - 10) * 0.54 + 10, height - pad + 4 - 43)
+        }, height: height)
     }
 
     /// What the frame's Back does, as a link under the actions.

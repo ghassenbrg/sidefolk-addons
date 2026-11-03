@@ -258,8 +258,7 @@ extension BoardDrawing {
         let counterW = 158.0, counterH = counterW * Self.counterRatio
         let segH = 30.0, gap = 6.0
         let startY = room - 46
-        let opponentY = startY - gap - segH
-        let topY = opponentY - gap - segH
+        let topY = startY - gap - segH
         let cardsY = counterH + gap, cardsH = topY - gap - cardsY
         var nodes: [Node] = []
         if let e = board.entryPart("top") {
@@ -275,9 +274,6 @@ extension BoardDrawing {
         choiceArrows(name: "mode", options: modes.options, selected: modes.selected, columns: 2)
         if let t = board.choicePart("top") {
             nodes.append(choice(name: "top", label: t.label, style: .segmented, options: t.options, selected: t.selected, compact: true, labelWidth: 62).node.at(0, topY))
-        }
-        if let o = board.choicePart("opponent") {
-            nodes.append(choice(name: "opponent", label: L("Play"), style: .segmented, options: o.options, selected: o.selected, compact: true, labelWidth: 62).node.at(0, opponentY))
         }
         nodes.append(buttonRow(tableButtons, id: "dock").node.at(0, startY))
         return .box("setup", w: width, h: room) { nodes }

@@ -44,15 +44,18 @@ extension BoardDrawing {
     func button(_ b: GameButton, id: String, x: Double, y: Double = 0, w: Double, flat: Bool) -> Node {
         let m = metrics(b, flat: flat)
         let filled = b.style == .primary || (!quietHints && (b.move == "hint" || b.move == "do_hint"))
-        let ink: Color = filled ? Paint.onAction : Paint.ink
+        // Off, it stays solid and muted, so the scene doesn't show through it and it keeps its place.
+        let ink: Color = b.disabled ? Paint.inkFaint : filled ? Paint.onAction : Paint.ink
         // Words first: a narrow button lets its symbol go rather than cut its label.
         let wanted = TextFit.width(b.label, size: m.size, weight: m.weight) + 2
         let symbol = wanted + 24 + 6 + m.size * 1.2 <= w ? b.symbol : nil
         let symbolW = symbol == nil ? 0 : m.size * (symbol == "eye.slash" ? 1.45 : 1.2)
         let textW = Swift.min(wanted, Swift.max(w - 16 - (symbol == nil ? 0 : 6 + symbolW), 10))
         let startX = (w - textW - (symbol == nil ? 0 : 6 + symbolW)) / 2
-        var group = Node.box(id, x: x, y: y, w: w, h: m.height) {
-            if filled {
+        return Node.box(id, x: x, y: y, w: w, h: m.height) {
+            if b.disabled {
+                Node.capsule(fill: Paint.inset, stroke: Paint.edge, lineWidth: 1.5).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5)
+            } else if filled {
                 Node.capsule(fill: Paint.action).id(id + ".fill").size(w, m.height).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
             } else {
                 Node.capsule(fill: Paint.card, stroke: Paint.ink, lineWidth: 1.5).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5)
@@ -63,8 +66,6 @@ extension BoardDrawing {
             }
         }
         .area("button", value: b.move, label: b.label, disabled: b.disabled, hover: AreaLook(scale: 1.015), press: AreaLook(scale: 0.97, dy: 1), sound: "sounds/tap.wav")
-        if b.disabled { group = group.opacity(0.45) }
-        return group
     }
 
     /// A lightbulb, a seal or a mark, the words on the sun's tint.

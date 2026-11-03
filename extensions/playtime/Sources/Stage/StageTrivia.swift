@@ -135,13 +135,13 @@ extension BoardDrawing {
         let topics = board.choicePart("topic")!
         var y = 0.0
         var nodes: [Node] = []
-        let trayH = room - 46 - 8 - 4 * (30 + 5)
+        let trayH = room - 46 - 8 - 3 * (30 + 5)
         nodes.append(Node.woodFrame("topics.frame", w: width, h: trayH, inset: 8, corner: 20, inner: Paint.lilacDeep))
         nodes.append(Node.image("art/tex-felt-lilac.heic", dark: "art/tex-felt-lilac-night.heic", fit: "fill").id("topics.felt").at(8, 8).size(width - 16, trayH - 16).corner(12).clip())
         nodes.append(topicTiles(topics.options, selected: topics.selected, x: 15, y: 15, w: width - 30, h: trayH - 30))
         choiceArrows(name: "topic", options: topics.options, selected: topics.selected, columns: 4)
         y += trayH + 5
-        for name in ["length", "pace", "level", "opponent"] {
+        for name in ["length", "pace", "level"] {
             if let c = board.choicePart(name) {
                 nodes.append(choice(name: name, label: c.label ?? L("Play"), style: .segmented, options: c.options, selected: c.selected, compact: true, labelWidth: 78).node.at(0, y))
             }

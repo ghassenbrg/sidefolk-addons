@@ -69,9 +69,6 @@ extension BoardDrawing {
                 anims.append(.keys("sealed.sign", [["t": 0, "opacity": 1], ["t": at, "opacity": 1], ["t": at + 0.08, "opacity": 0], ["t": 1, "opacity": 0]], ms: RevealBeat().ms))
             }
         }
-        if let opponent = board.choicePart("opponent"), a?.locked != true {
-            nodes.append(choice(name: "opponent", label: L("Play"), style: .segmented, options: opponent.options, selected: opponent.selected, compact: true, labelWidth: 62).node.at(0, dockY + 8))
-        }
         let buttons = tableButtons
         if !buttons.isEmpty { nodes.append(buttonRow(buttons, id: "dock", width: width).node.at(0, dockY)) }
         return .box("arena.table", w: width, h: room) { nodes }

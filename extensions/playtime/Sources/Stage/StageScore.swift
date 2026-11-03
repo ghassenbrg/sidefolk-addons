@@ -8,6 +8,7 @@ extension BoardDrawing {
         let width = Self.inner
         var y = 0.0
         var nodes: [Node] = [titleRow(ctx.entry.title, icon: look.icon, width: width)]
+        if let toggle = twoPlayersToggle(width: width) { nodes.append(toggle) }
         y += 36
         if board.scorePart != nil {
             nodes.append(scoreRow(width: width).at(0, y))
@@ -30,13 +31,25 @@ extension BoardDrawing {
     /// Where the stall's scene paints its rail, and where its stage stands: under the balloons.
     static let railY = 183.0, stallStageY = 244.0
 
+    /// Playing a friend on this Mac: a small quiet switch at the end of the title, before a game has started. No concept has a control for it on the board, and none is needed there.
+    private func twoPlayersToggle(width: Double) -> Node? {
+        guard !ended, let who = board.choicePart("opponent") else { return nil }
+        let on = who.selected == "two"
+        let other = who.options.first { $0.value != who.selected } ?? who.options[0]
+        let w = 36.0, h = 26.0
+        return Node.box("who", x: width - w, y: 4, w: w, h: h) {
+            Node.capsule(fill: on ? Paint.action : Paint.card(0.85), stroke: on ? nil : Paint.edge, lineWidth: 1).id("who.back").size(w, h)
+            Node.symbol("person.2.fill", color: on ? Paint.onAction : Paint.inkSoft).symbolLook(weight: "bold").id("who.mark").at((w - 20) / 2, (h - 15) / 2).size(20, 15)
+        }.area("choice", value: "opponent|\(other.value)", label: other.label, hover: AreaLook(scale: 1.06), press: AreaLook(scale: 0.94), selected: on, always: playing, sound: "sounds/tap.wav")
+    }
+
     /// The game's one icon beside its name, centred together.
     func titleRow(_ title: String, icon: String, width: Double) -> Node {
-        let iconSide = 32.0, room = width - iconSide - 8
+        let iconSide = 40.0, room = width - iconSide - 8 - 76
         let wordsW = Swift.min(TextFit.width(title, size: 21, weight: "black") + 2, room)
         let x = (width - iconSide - 8 - wordsW) / 2
         return .box("title", w: width, h: 34) {
-            Node.art(icon, x: x, y: 1, w: iconSide, h: iconSide).id("title.icon")
+            Node.art(icon, x: x, y: -3, w: iconSide, h: iconSide).id("title.icon")
             Node.words(title, size: 21, weight: "black", minScale: 0.7, x: x + iconSide + 8, w: wordsW, h: 34).id("title.words")
         }
     }

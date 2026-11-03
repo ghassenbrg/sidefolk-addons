@@ -158,24 +158,22 @@ extension BoardDrawing {
     // MARK: Cards
 
     /// The back is a little taller than it is wide.
-    private static let trayPad = 12.0, cardGap = 8.0, cardRatio = 0.913, opponentRoom = 36.0
+    private static let trayPad = 12.0, cardGap = 8.0, cardRatio = 0.975
 
-    /// A felt tray filling the board's room, with a line kept under it for choosing who plays, before the first card only. Face down, face up, and two kinds of pair: the person's
+    /// A felt tray filling the board's room. Face down, face up, and two kinds of pair: the person's
     /// and the other side's, each with a colour and a face of its own, so they read apart at a glance.
     private func cardTray(rows: Int, columns: Int, cells: [Cell], locked: Bool) -> PartBlock {
-        let trayH = playRoom - Self.opponentRoom, trayW = Self.inner
+        let trayH = playRoom, trayW = Self.inner
         let h = (trayH - 2 * Self.trayPad - Double(rows - 1) * Self.cardGap) / Double(rows)
         let w = min(h * Self.cardRatio, (trayW - 2 * Self.trayPad - Double(columns - 1) * Self.cardGap) / Double(columns))
         let gapX = columns > 1 ? min(12, (trayW - 2 * Self.trayPad - Double(columns) * w) / Double(columns - 1)) : 0
         let x = (trayW - Double(columns) * w - Double(columns - 1) * gapX) / 2
-        let row = opponentRow(width: 280)
         return PartBlock(.box("grid", w: Self.inner, h: playRoom) {
             Node.felt("grid.tray", w: trayW, h: trayH)
             for i in cells.indices {
                 self.card(cells[i], index: i, columns: columns, w: w, h: h, locked: locked, cells: cells)
                     .at(x + Double(i % columns) * (w + gapX), Self.trayPad + Double(i / columns) * (h + Self.cardGap))
             }
-            if let row { row.node.at((trayW - row.width) / 2, trayH + 4) }
         }, height: playRoom)
     }
 
@@ -263,13 +261,6 @@ extension BoardDrawing {
     }
 
     /// Who plays: at the start of a game only, in a place kept for it.
-    func opponentRow(width: Double) -> (node: Node, width: Double)? {
-        for case .choice("opponent", let label, .segmented, let options, let selected) in board.parts {
-            return (choice(name: "opponent", label: label, style: .segmented, options: options, selected: selected, compact: true, width: width).node, width)
-        }
-        return nil
-    }
-
     static func keyCapWidth(_ text: String) -> Double { max(16, TextFit.width(text, size: 10, weight: "bold")) + 4 }
 
     /// A key's letter in a small outlined cap.
