@@ -20,7 +20,11 @@ import SidefolkExtensionKit
         switch Nav.place(state) {
         case .flow(let id):
             if let flow = app.store.flow(id) {
-                return state.string("tab") == "runs" ? flowRunsPage(flow, app, state: state) : flowPage(flow, app, state: state)
+                switch state.string("tab") {
+                case "runs": return flowRunsPage(flow, app, state: state)
+                case "activity": return flowActivityPage(flow, app, state: state)
+                default: return flowPage(flow, app, state: state)
+                }
             }
         case .run(let id):
             if let run = app.store.run(id) { return runPage(run, app, state: state) }
@@ -319,7 +323,10 @@ import SidefolkExtensionKit
         builder.go = Go(set: ["tab": "builder"])
         var runs = PageTab("runs", L("Runs"), symbol: "chart.bar", sections: [])
         runs.go = Go(set: ["tab": "runs"])
-        return .tabs(selected: state.string("tab") == "runs" ? "runs" : "builder", [builder, runs])
+        var activity = PageTab("activity", L("Activity"), symbol: "list.bullet", sections: [])
+        activity.go = Go(set: ["tab": "activity"])
+        let chosen = state.string("tab")
+        return .tabs(selected: chosen == "runs" || chosen == "activity" ? chosen : "builder", [builder, runs, activity])
     }
 
     static func head(_ flow: Flow, _ app: App, ready: Bool) -> PageBar {
@@ -556,6 +563,27 @@ import SidefolkExtensionKit
         return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), [Section(nil, [.bar(head(flow, app, ready: flow.draft.problems(app.catalog).isEmpty)), tabs(flow, state: state)])] + body, end: end)
     }
 
+    // MARK: A flow's activity
+
+    /// Every step it took, newest first, from its runs' own journals: what it did, not how each run went.
+    static func flowActivityPage(_ flow: Flow, _ app: App, state: Arguments) -> Page {
+        var rows: [(at: Date, item: RecentItem)] = flow.missed.map { ($0, RecentItem(L("Missed"), detail: L("Sidefolk or your Mac was off."), at: $0, tone: .neutral, symbol: "moon")) }
+        for run in app.store.runs(of: flow.id).prefix(10) {
+            for record in run.records {
+                let (state, _) = result(record)
+                let tone: Tone = state == .attention ? .warn : state == .done ? .good : .neutral
+                let kind = run.mode == .practice ? L("Practice run") : run.why
+                rows.append((record.at, RecentItem(record.summary, detail: kind, at: record.at, tone: tone, symbol: run.body.step(record.step).map { look($0, app).symbol })))
+            }
+        }
+        let items = rows.sorted { $0.at > $1.at }.prefix(20).map(\.item)
+        let body: Block = items.isEmpty ? .note(L("Nothing yet. Each step it takes shows here.")) : .recent(nil, Array(items))
+        return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), [
+            Section(nil, [.bar(head(flow, app, ready: flow.draft.problems(app.catalog).isEmpty)), tabs(flow, state: state)]),
+            Section(nil, [body], wide: true),
+        ])
+    }
+
     // MARK: One run
 
     static func runPage(_ run: Run, _ app: App, state: Arguments) -> Page {
@@ -610,7 +638,7 @@ import SidefolkExtensionKit
 
 /// What a step will need, said in advance. Sidefolk holds the rule and enforces it: this only tells the person before the card does.
 @MainActor enum Hints {
-    private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "notes.search": ["query"], "reminders.create": ["title"], "notify.user": ["title", "body"], "ask.user": ["question"]]
+    private static let fillable: [String: Set<String>] = ["notes.save": ["text"], "notes.search": ["query"], "voice.say": ["text"], "reminders.create": ["title"], "notify.user": ["title", "body"], "ask.user": ["question"]]
 
     static func asksEachTime(_ step: Step, catalog: Catalog? = nil) -> Bool {
         guard case .action(let tool, let input) = step.kind else { return false }

@@ -67,7 +67,7 @@ import SidefolkExtensionKit
             }
             var text = L("Saved “{name}” as a draft. Nothing runs until you turn it on. {words}", ["name": flow.name, "words": Words.aloud(body, catalog: app.catalog)])
             if !problems.isEmpty { text += "\n" + L("To fix first: {list}", ["list": problems.joined(separator: " ")]) }
-            return ToolReply(text).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
+            return ToolReply(text).showing(tree: Pages.mini(body, pending: true, app)).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
         })
 
         ext.tool("update_flow", "Change a flow", "Replaces a flow's definition, name, or both. An On flow keeps running as it was until the person applies the change on a card.",
