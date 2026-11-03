@@ -8,26 +8,35 @@ extension BoardDrawing {
     /// The stage's one height, whatever is said: one line or three, the board below stays where it is.
     private var stageHeight: Double { compact ? 60 : 78 }
 
-    /// The pose for the board's cue: a mood from the fixed list read as one of the states every companion is drawn in.
+    /// The founder's rule: the companion earns its place by reacting. It thinks while it plays or while something is playing, leans in when it's the person's turn, reacts to
+    /// what just happened, and shows how the game went. It changes only with the game: no idle movement, and it is always a still of the person's real companion.
     var pose: String {
         if playing { return "thinking" }
         if board.over, let result = board.resultPart {
             switch Verdict(tone: result.tone) {
             case .loss: return "celebrating"
-            case .win: return "waiting"
+            case .win: return "success"
             case .draw: return "idle"
             }
         }
+        // A moment that came with a reaction wins over whose turn it is.
         switch board.companion?.move {
         case "think", "shuffle": return "thinking"
         case "cheer", "celebrate", "giggle", "dance", "hop", "spin", "tease", "accent:hop", "accent:spin": return "celebrating"
         case "gasp", "wince", "sweat", "dizzy": return "alert"
         case "nod", "bow", "wave", "accent:wave", "accent:bow": return "success"
-        case "ready": return "listening"
         case "sulk", "shrug": return "waiting"
-        default: return "idle"
+        case "ready": return "listening"
+        default: break
         }
+        // A build-up is held breath; a board that answers by itself is the companion's own turn; otherwise it watches the person.
+        if ctx.buildUp { return "alert" }
+        if board.afterMs != nil { return "thinking" }
+        return "listening"
     }
+
+    /// The pose the last board had, to see whether this one is a change worth a little hop.
+    private var posed: String? { ctx.previous.map { BoardDrawing($0, StageContext(entry: ctx.entry, fresh: false, local: ctx.local)).pose } }
 
     func stage(text: String?, chip: String?) -> PartBlock {
         let inner = Self.inner, h = stageHeight, side = compact ? 58.0 : 80.0
@@ -58,8 +67,8 @@ extension BoardDrawing {
                 Node.symbol(button.symbol ?? "hand.tap.fill", color: .accent).symbolLook(weight: "bold").at(w - 19, 5).size(14, 14)
             }
         }
-        // A little hop when it has something to react to; a board redrawn for a key leaves it still.
-        if ctx.fresh, board.companion != nil {
+        // A little hop when it reacts or its pose changes; a board redrawn for a key, or nothing new, leaves it still.
+        if ctx.fresh, board.companion != nil || (posed != nil && posed != pose) {
             anims.append(.keys("companion.figure", [["t": 0, "y": 0, "sx": 1, "sy": 1], ["t": 0.47, "y": -6, "sx": 0.97, "sy": 1.04], ["t": 1, "y": 0, "sx": 1, "sy": 1]], ms: 300, ease: "in_out"))
         }
         if let button = board.companionButton {
