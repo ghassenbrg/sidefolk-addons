@@ -121,7 +121,7 @@ enum QuickPawsScreen: GameScreen {
             : L("You {you} · {name} {companion}", ["you": ms(g.lastYouMs ?? 0), "name": o.companion, "companion": ms(g.lastCompanionMs ?? 0)])
         var parts: [BoardPart] = [
             ScreenKit.score(g.score, rounds: Games.QuickPaws.target),
-            .prompt(s.round != nil ? (s.number == 1 ? L("Boop the button the moment it says Boop!") : L("Steady…"))
+            .prompt(s.round != nil ? (s.number == 1 ? L("Boop when it says Boop!") : L("Steady…"))
                         : s.early ? L("Pressed before Boop! That round goes to {name}.", ["name": o.companion])
                         : g.lastYouMs == nil ? L("Too slow! That round goes to {name}.", ["name": o.companion])
                         : g.lastYouMs.map { $0 <= g.lastCompanionMs ?? 0 } == true ? L("You were quicker!") : L("{name} was quicker.", ["name": o.companion]),

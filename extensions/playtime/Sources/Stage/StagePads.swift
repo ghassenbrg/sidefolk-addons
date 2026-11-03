@@ -28,7 +28,7 @@ extension BoardDrawing {
         let showing = playing
         let open = !locked && !showing
         let statusH = 30.0, gap = 10.0, pad = 12.0, depth = 5.0
-        let matY = statusH + 6, matH = playRoom - matY - Self.slotHeight - 6
+        let slotH = 38.0, matY = statusH + 6, matH = playRoom - matY - slotH - 6
         let columns = pads.count > 4 ? 3 : 2
         let rows = (pads.count + columns - 1) / columns
         let tileW = (Self.inner - 2 * pad - gap * Double(columns - 1)) / Double(columns)
@@ -82,7 +82,7 @@ extension BoardDrawing {
             padsStatus(width: Self.inner, height: statusH, showing: showing, open: open, length: length ?? play.count, done: done)
             Node.felt("pads.mat", y: matY, w: Self.inner, h: matH)
             tiles
-            slotRow(y: playRoom - Self.slotHeight)
+            slotRow(y: playRoom - slotH, height: slotH)
         }.leftToRight(), height: playRoom)
     }
 

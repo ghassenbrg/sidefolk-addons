@@ -235,12 +235,13 @@ extension BoardDrawing {
         let linkH = 26.0, tileH = 86.0, gap = 8.0
         let tilesY = room - linkH - 8 - tileH
         let plateY = tilesY - 10 - 36
-        let counterH = plateY - 4 + 16, counterW = counterH / Self.counterRatio
+        // On the right of the mat, as 22 draws it: the companion stands at its foot.
+        let counterW = 300.0, counterH = counterW * Self.counterRatio
         let tileW = (width - 2 * gap) / 3
         var nodes: [Node] = [
-            Node.felt("asked.mat", x: 4, y: counterH * 0.74, w: width - 8, h: plateY + 36 + 6 - counterH * 0.74, corner: 26),
-            counter(c.words, caption: c.caption, w: counterW).at((width - counterW) / 2 + counterW * 0.03, -4),
-            rangePlate(c.range ?? " ", width: 250, h: 36).at((width - 250) / 2, plateY),
+            Node.felt("asked.mat", x: -4, y: plateY - 76, w: width + 8, h: 76 + 36 + 6, corner: 26),
+            counter(c.words, caption: c.caption, w: counterW).at(width - counterW + 6, plateY + 16 - counterH),
+            rangePlate(c.range ?? " ", width: 250, h: 36).at(width - 250 - 4, plateY),
         ]
         let symbols = ["arrow.up", "arrow.down", "checkmark"]
         let caps = Self.keyCaps(a.tiles)

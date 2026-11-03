@@ -74,6 +74,8 @@ final class BoardDrawing {
 
     /// What the board has to itself, once the header, the stage and the controls have their places. A part sizes itself to this.
     var playRoom = 400.0
+    /// Where the stage starts in the canvas, under the header: a companion has its place in the scene, in canvas points.
+    var stageTop = 96.0
 
     let board: Board
     let ctx: StageContext
@@ -120,6 +122,7 @@ final class BoardDrawing {
         // A part keeps the controls' room whether or not they show now, so the board doesn't move when a button comes or goes.
         let dockHeight = Swift.max(controls?.height ?? 0, dockRoom)
         let bottom = Self.canvas - Self.footerRoom - (dockHeight > 0 ? dockHeight + 8 : 0)
+        stageTop = 4 + head.height
         let said = ended ? nil : stage(text: board.promptPart?.text, chip: board.promptPart?.chip)
         let top = 4 + head.height + (said.map { $0.height + 6 } ?? 0)
         playRoom = bottom - top - 6
@@ -139,8 +142,11 @@ final class BoardDrawing {
             let box = Node.box(ended ? "board.end" : "board", y: top, w: Self.width, h: playRoom) { stacked }
             content.append(gameTable == .hands ? box.z(2) : box)
         }
-        // Over the board: the companion may lean on what it plays on.
-        if let said { content.append(said.node.at(Self.pad, 4 + head.height).z(1)) }
+        // Over the board: the companion may lean on what it plays on. At a table it sits behind what's on it.
+        if let said {
+            let stage = said.node.at(Self.pad, 4 + head.height)
+            if figurePlace?.behindBoard == true { content.insert(stage, at: 1) } else { content.append(stage.z(1)) }
+        }
         if let controls { content.append(controls.node.at(Self.pad, bottom + (dockHeight - controls.height) / 2)) }
         content.append(hintRow().node.at(Self.pad, Self.canvas - Self.footerRoom))
 

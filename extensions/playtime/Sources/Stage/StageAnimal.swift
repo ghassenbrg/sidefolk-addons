@@ -5,7 +5,7 @@ import SidefolkExtensionKit
 // their places whatever is asked. The journal stays paper at night, so what is written straight on it stays ink. A wrong guess turns to the page for a new animal: the fields one under another, each opening as the one before it is filled.
 extension BoardDrawing {
     /// A card with a soft torn edge, always the same one: nothing about it depends on what's written.
-    private func tornPaper(_ id: String, w: Double, h: Double) -> Node {
+    func tornPaper(_ id: String, w: Double, h: Double) -> Node {
         // A deckle: small steps along each side from a fixed list, so it's the same shape on every scene.
         let wob = [0.0, 1.6, -0.8, 1.2, -1.4, 0.6, 1.8, -1.0, 0.4, -1.6, 1.0, -0.4]
         var path = "M 8 \(wob[0] + 2) "
