@@ -56,7 +56,7 @@ extension BoardDrawing {
             if b.disabled {
                 Node.capsule(fill: Paint.inset, stroke: Paint.edge, lineWidth: 1.5).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5)
             } else if filled {
-                Node.capsule(fill: Paint.action).id(id + ".fill").size(w, m.height).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
+                Node.capsule(fill: Paint.action).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
             } else {
                 Node.capsule(fill: Paint.card, stroke: Paint.ink, lineWidth: 1.5).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5)
             }

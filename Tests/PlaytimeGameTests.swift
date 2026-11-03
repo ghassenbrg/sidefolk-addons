@@ -172,13 +172,9 @@ import Testing
             #expect(empty.summary?.title.seen == "Le mot du jour : Pas encore joué")
             PlaytimeRecords.finish(QuickPawsScreen.id, .won, you: 3, companion: 1, best: 243, lower: true)
             PlaytimeRecords.finish(QuickPawsScreen.id, .lost, you: 1, companion: 3, best: 300, lower: true)
-            let page = PlaytimePage.render()
-            let json = String(decoding: try! JSONSerialization.data(withJSONObject: page.json), as: UTF8.self)
-            #expect(json.seen.contains("Record : 243 ms"), "\(json.prefix(400))")
             let records = PlaytimePage.records(PlaytimeRecords.load(), today: DailyWordEngine.today(), tile: DailyWordScreen.tile())
             let paws = records[QuickPawsScreen.id]
             #expect(paws?.played == 2 && paws?.won == 1 && paws?.lost == 1 && paws?.best?.seen == "Record : 243 ms")
-            #expect(!page.sections.isEmpty, "the Game Center is Playtime's own page")
             #expect(PlaytimeRecords.load().history.map(\.outcome) == [.lost, .won])
             #expect(records[DailyWordScreen.id]?.today?.done == false)
         }

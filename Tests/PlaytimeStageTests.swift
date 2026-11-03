@@ -396,7 +396,7 @@ struct PlaytimeStageTests {
         let board = Board([.result(figure: "1 – 3", tone: .bad, actions: [ScreenKit.playAgain])], over: true)
         let json = String(decoding: try JSONSerialization.data(withJSONObject: BoardDrawing(board, StageContext(entry: Self.entry(TicTacToeScreen.id))).scene().json), as: UTF8.self)
         for red in ["FF0000", "FF3B30", "D70015"] { #expect(!json.uppercased().contains(red)) }
-        #expect(json.contains("hand.thumbsup.fill"), "a loss's mark says so with a symbol")
+        #expect(json.contains("art/result-loss.webp") || json.contains("art\\/result-loss.webp"), "a loss has its own quiet mark, beside the words that say it")
     }
 
     @Test func aPackFromTheAIIsCheckedHere() {
@@ -434,7 +434,7 @@ struct PlaytimeStageTests {
         PlaytimeRecords.update { $0 = PlaytimeRecords() }
         let page = PlaytimePage.render()
         let json = String(decoding: try JSONSerialization.data(withJSONObject: page.json, options: .withoutEscapingSlashes), as: UTF8.self)
-        for kind in ["\"hero\"", "\"stats\"", "\"cards\"", "\"badges\"", "\"settings\""] { #expect(json.contains(kind), "\(kind)") }
+        for kind in ["\"scene\"", "\"cards\"", "\"badges\"", "\"settings\""] { #expect(json.contains(kind), "\(kind)") }
         #expect(json.contains("art/game-icon-numbers.webp") && json.contains("level_tictactoe"), "its own art, its own settings")
     }
 
