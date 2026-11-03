@@ -17,14 +17,16 @@ enum OverviewPage {
     }
 
     private static func acts(_ ctx: Context) -> [String: PageAct] {
-        var calendar: [String: Any] = ["tab": "calendar", "month": NSNull(), "sel": NSNull()]
+        // Open calendar says what it does: this month. The line beside it is next month's, and opens that.
+        var next: [String: Any] = ["tab": "calendar", "month": NSNull(), "sel": NSNull()]
         if let coming = nextMonth(ctx) {
-            calendar["month"] = "h:\(coming.year):\(coming.month)"
-            if let first = coming.first { calendar["sel"] = first.gregorian.iso }
+            next["month"] = "h:\(coming.year):\(coming.month)"
+            if let first = coming.first { next["sel"] = first.gregorian.iso }
         }
         return [
             "dial": .go(Go(set: ["tab": "prayer"])),
-            "calendar": .go(Go(set: calendar)),
+            "calendar": .go(Go(set: ["tab": "calendar", "month": NSNull(), "sel": NSNull()])),
+            "next-month": .go(Go(set: next)),
             "qibla": .go(Go(set: ["tab": "qibla"])),
             "names": .go(Go(set: ["tab": "names"])),
             "ramadan": .go(Go(set: ["sheet": "ramadan"], push: true)),
@@ -143,6 +145,7 @@ enum OverviewPage {
             } else {
                 Node.say(L("Paired dates follow the calendar method"), r.u(76), h - r.u(76), w - r.u(290), r.u(56), size: r.f(15.5), color: Noor.muted, lines: 2)
             }
+            Node.rect(fill: .hex("#00000000"), corner: 10).size(w - r.u(232), r.u(66)).at(r.u(18), h - r.u(82)).area("next-month", label: L("Open next month in the calendar"), hover: .init(scale: 1.0))
             Node.pill("calendar", label: L("Open calendar"), x: w - r.u(202), y: h - r.u(70), w: r.u(182), h: r.u(46), symbol: "chevron.forward", size: r.f(16))
         }
         .size(w, h)
