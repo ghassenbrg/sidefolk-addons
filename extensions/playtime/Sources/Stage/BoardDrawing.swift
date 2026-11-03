@@ -25,6 +25,10 @@ struct LocalParts: Codable, Equatable {
     var lit: Int?
     /// The reflex was pressed before its signal: "Too soon!" at once, until the verdict's moment.
     var early = false
+    /// A cell of a click-through puzzle just clicked: the person may still be on their way to the mark they want, so what it breaks isn't said yet.
+    var settling: Int?
+    /// The cells whose broken rule was already showing before that click: those stay lit.
+    var settledConflicts: [Int]?
     /// The dome was pressed in time: it stays down until the verdict's moment.
     var boopPressed = false
     /// The last letter on the word being typed was just added: it lands, once.

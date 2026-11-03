@@ -146,6 +146,11 @@ enum PlayTable {
             return PlayMenu.scene(selected: PlayMenu.index(of: entry.id).map { session.selected = $0; return $0 } ?? session.selected, kept: session.game)
         case .redraw, .ignore:
             return draw(board.clocked(from: session.held == nil && board.hasPuzzle ? driver.board(data, [], session.options) : nil), entry: entry, session: session, previous: board, fresh: false, id: id)
+        case .settled:
+            let held = board.holdingConflicts(session.local)
+            session.local.settling = nil
+            let now = board.clocked(from: driver.board(data, [], session.options)).withoutFreshMarks
+            return draw(now, entry: entry, session: session, previous: held ?? board, fresh: true, id: id)
         case .play(let m):
             // The build-up's moment is over: the verdict the move already holds.
             if m == .next, let held = session.held {
@@ -195,7 +200,7 @@ enum PlayTable {
 
     private static func draw(_ board: Board, entry: GameEntry, session: Session, previous: Board?, fresh: Bool, id: String) -> Scene {
         shown[id] = board
-        var scene = BoardDrawing(board, context(entry, session: session, previous: previous, fresh: fresh)).scene()
+        var scene = BoardDrawing(board.holdingConflicts(session.local) ?? board, context(entry, session: session, previous: previous, fresh: fresh)).scene()
         if !board.typesWithDelete { scene = scene.key("delete", id: "back_delete", always: true) }
         return scene
     }

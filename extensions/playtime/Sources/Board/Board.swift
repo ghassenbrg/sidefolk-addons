@@ -71,6 +71,8 @@ public struct Board {
     public var refused: Bool
     /// What the companion's bubble says when the board's own words stand elsewhere (a question on its plaque): something short.
     public var said: String?
+    /// A puzzle's words with nothing to complain of, for while a click-through cell rests.
+    public var calm: String?
 
     public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil, turn: String? = nil, refused: Bool = false, said: String? = nil) {
         self.parts = parts

@@ -4,6 +4,8 @@ import SidefolkExtensionKit
 enum StageAction {
     case play(Move)
     case redraw
+    /// A click-through cell has rested: what it breaks is said now.
+    case settled
     case back
     case ignore
 }

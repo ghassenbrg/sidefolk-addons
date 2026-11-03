@@ -140,6 +140,19 @@ extension BoardDrawing {
             return .play(.place(row: c / w, column: c % w, value: value, note: local.notes && value > 0))
         }
         switch move {
+        // Clicking through a cell's marks is one thought, not several moves: what the mark on the way breaks waits until the cell has rested (`holdingConflicts`).
+        case .click("cell", let value?, _) where p.input == "tap":
+            let at = value.split(separator: ",").compactMap { Int($0) }
+            guard at.count == 2 else { return nil }
+            let cell = at[0] * w + at[1]
+            local.settledConflicts = p.cells.indices.filter { p.cells[$0].state == "conflict" && $0 != cell }
+            local.settling = cell
+            return nil
+        case .click("button", _, _):
+            local.settling = nil
+            return nil
+        case .next where local.settling != nil:
+            return .settled
         // A puzzle is the same picture in every language: the arrows move as they point.
         case .key(let id, _, _) where id.hasPrefix("arrow_"):
             stepped(id)
@@ -232,6 +245,42 @@ extension Board {
     /// What a puzzle's board shows, for what is drawn from it besides the part itself.
     var puzzleDrawing: (rows: Int, columns: Int, cells: [PuzzleCell], input: String, box: (rows: Int, columns: Int)?, plots: [PuzzlePlot])? {
         play { if case .puzzle(let rows, let columns, let cells, let input, _, let box, _, let plots, _, _, _) = $0 { (rows, columns, cells, input, box, plots) } else { nil } }
+    }
+
+    /// How long a click-through cell rests before what it breaks is said: long enough to click again, not so long that a mistake seems missed.
+    static let settleMs = 1000
+
+    /// This board with what the cell just clicked breaks held back, and nothing said about it yet; nil when nothing is. A rule that was already showing stays, and one mended goes at
+    /// once, since only a new complaint can be premature. Each further click starts the wait again; a click elsewhere means the last cell was meant, and it is said then.
+    func holdingConflicts(_ local: LocalParts) -> Board? {
+        guard local.settling != nil, !over, let p = puzzlePart, p.input == "tap", !p.locked else { return nil }
+        let shown = Set(local.settledConflicts ?? [])
+        guard p.cells.indices.contains(where: { p.cells[$0].state == "conflict" && !shown.contains($0) }) else { return nil }
+        var out = self
+        out.parts = parts.map { part in
+            switch part {
+            case .play(.puzzle(let rows, let columns, let cells, let input, let digits, let box, let edges, let plots, let seconds, let running, let locked)):
+                var held = cells
+                for i in held.indices where held[i].state == "conflict" && !shown.contains(i) { held[i].state = nil }
+                return .play(.puzzle(rows: rows, columns: columns, cells: held, input: input, digits: digits, box: box, edges: edges, plots: plots, seconds: seconds, running: running, locked: locked))
+            case .prompt(_, let eyebrow, let chip):
+                return .prompt(calm ?? promptPart?.text ?? "", eyebrow: eyebrow, chip: chip)
+            default: return part
+            }
+        }
+        out.companion = nil
+        out.afterMs = Self.settleMs
+        return out
+    }
+
+    /// The board again with no mark settling in: it landed already, and only what it broke arrives now.
+    var withoutFreshMarks: Board {
+        var out = self
+        out.parts = parts.map { part in
+            guard case .play(.puzzle(let rows, let columns, let cells, let input, let digits, let box, let edges, let plots, let seconds, let running, let locked)) = part else { return part }
+            return .play(.puzzle(rows: rows, columns: columns, cells: cells.map { var c = $0; c.fresh = false; return c }, input: input, digits: digits, box: box, edges: edges, plots: plots, seconds: seconds, running: running, locked: locked))
+        }
+        return out
     }
 
     var puzzlePart: (rows: Int, columns: Int, cells: [PuzzleCell], input: String, digits: Int?, seconds: Double?, running: Bool, locked: Bool)? {

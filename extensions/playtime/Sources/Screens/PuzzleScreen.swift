@@ -157,7 +157,9 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
             parts.append(.button(GameButton(L("Start over"), move: "clear", style: .plain, symbol: "arrow.counterclockwise",
                                             disabled: g.grid == g.puzzle.start)))
         }
-        return Board(parts, companion: cue(events, s), over: g.solved)
+        var board = Board(parts, companion: cue(events, s), over: g.solved)
+        board.calm = K.rules(g)
+        return board
     }
 
     /// A puzzle's companion is calm: a nod for a hint, a thoughtful look at a broken rule, a celebration only for the solve.
