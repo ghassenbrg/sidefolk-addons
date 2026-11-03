@@ -192,7 +192,7 @@ struct PlaytimeWordStageTests {
         #expect(node(scene, "life.6.string") != nil && node(scene, "life.6") == nil, "gone, but for the string it hung by")
         // Each its own colour, in the picture's proportions.
         #expect(node(scene, "life.3")?["image"] as? String == "art/game-balloon-3.webp")
-        #expect(abs((kept?["w"] as? Double ?? 0) - (kept?["h"] as? Double ?? 0) * 200 / 305) < 0.01)
+        #expect(abs((kept?["w"] as? Double ?? 0) - (kept?["h"] as? Double ?? 0) * 232 / 305) < 0.01)
         #expect(node(scene, "lives")?["label"] as? String != nil)
     }
 
