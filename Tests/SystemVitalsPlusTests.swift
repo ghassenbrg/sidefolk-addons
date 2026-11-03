@@ -71,12 +71,11 @@ struct SystemVitalsPlusTests {
 
     @Test func thePageHasEverythingInOrder() {
         let page = MacPage.make(Self.snapshot(battery: Self.battery(64)))
-        #expect(page.sections.compactMap(\.title) == ["Right now", "Over time", "What's using your Mac", "Memory", "Storage", "Battery", "Network",
-                                                      "This Mac", "Ask about it"])
+        #expect(page.sections.compactMap(\.title) == ["Processor & graphics", "Top apps", "Heads-ups", "Ask about this Mac", "Over time", "Memory", "Storage", "Battery", "Network", "This Mac"])
         // Without a battery, the fourth ring is the graphics and nobody is asked about a battery.
         let desktop = MacPage.make(Self.snapshot())
         #expect(!desktop.sections.compactMap(\.title).contains("Battery"))
-        let asks: [String] = desktop.sections.last?.blocks.compactMap { b -> String? in if case .ask(let label, _) = b { label } else { nil } } ?? []
-        #expect(!asks.contains { $0.contains("battery") })
+        let words = desktop.sections.first { $0.title == "Ask about this Mac" }.map { String(describing: $0.blocks) } ?? ""
+        #expect(!words.contains("battery"))
     }
 }

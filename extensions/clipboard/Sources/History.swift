@@ -75,7 +75,8 @@ final class History {
     }
 
     func togglePin(_ id: String) {
-        guard let i = entries.firstIndex(where: { $0.id == id }) else { return }
+        // A hidden copy is forgotten in two minutes, as the page promises: a pin would keep it.
+        guard let i = entries.firstIndex(where: { $0.id == id }), !entries[i].secret else { return }
         entries[i].pinned.toggle()
         save()
     }

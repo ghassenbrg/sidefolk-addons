@@ -29,7 +29,9 @@
       "refresh": 3
     }
   },
-  "examples": ["what did I copy?"],
+  "examples": [
+    "what did I copy?"
+  ],
   "tools": {
     "recent_copies": {
       "title": "Recent copies",
@@ -194,6 +196,20 @@
           }
         }
       ],
+      "ai": false
+    },
+    "pin_copy": {
+      "title": "Pin a copy",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
+      "ai": false
+    },
+    "delete_copy": {
+      "title": "Delete a copy",
+      "risk": "medium",
+      "category": "system",
+      "mutates": true,
       "ai": false
     }
   }

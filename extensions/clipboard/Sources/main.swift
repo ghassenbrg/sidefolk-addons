@@ -42,7 +42,7 @@ ext.palette("history", query: { query in
     history.entries.first { $0.id == id }.map { Words.preview($0) }
 })
 
-ext.page("clipboard") { _ in ClipboardPage.make(history) }
+ext.page("clipboard") { args in ClipboardPage.make(history, place: ClipboardPage.Place(args.pageState)) }
 
 ext.tool("recent_copies", "Recent copies", "The latest things the person copied, newest first, with the app and when. Secrets show "
     + "masked.", input: Schema.object(["count": Schema.integer("How many, 1–30 (10 if missing).", minimum: 1, maximum: 30)])) { args in
@@ -66,6 +66,19 @@ ext.tool("copy_again", "Copy again", "Puts an earlier copy back on the clipboard
     watch.write(entry, plain: history.options.plain)
     history.raise(entry.id)
     return L("On the clipboard again: {copy}.", ["copy": Words.title(entry)])
+}
+ext.tool("pin_copy", "Pin a copy", "Pins a copy so it stays, or unpins it, by its id from the Clipboard page.", input: Schema.object(["id": Schema.string("Its id, from the Clipboard page.")], required: ["id"])) { args in
+    let id = try args.required("id")
+    guard let entry = history.entries.first(where: { $0.id == id }) else { throw Problem(L("That copy is gone.")) }
+    guard !entry.secret else { throw Problem(L("A hidden copy can't be pinned: it's forgotten in two minutes.")) }
+    history.togglePin(id)
+    return entry.pinned ? L("Unpinned.") : L("Pinned.")
+}
+ext.tool("delete_copy", "Delete a copy", "Forgets one copy, by its id from the Clipboard page.", input: Schema.object(["id": Schema.string("Its id, from the Clipboard page.")], required: ["id"])) { args in
+    let id = try args.required("id")
+    guard history.entries.contains(where: { $0.id == id }) else { throw Problem(L("That copy is gone.")) }
+    history.delete(id)
+    return L("Deleted.")
 }
 ext.tool("pause", "Pause the history", "Stops keeping copies for a while.", input: Schema.object([
     "minutes": Schema.integer("For how long, 1–1440 (30 if missing).", minimum: 1, maximum: 1440),

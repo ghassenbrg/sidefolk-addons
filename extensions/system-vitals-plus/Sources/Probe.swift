@@ -127,6 +127,8 @@ enum Probe {
         /// Memory it holds, as Activity Monitor's "Memory" column counts it.
         var memory: Double
         var processes: Int
+        /// Where its app is installed, when it is one: only for its icon.
+        var path: String?
     }
 
     private static var lastTimes: (at: Date, ns: [pid_t: Double])?
@@ -144,7 +146,7 @@ enum Probe {
         var apps: [String: App] = [:]
         for (pid, p) in now {
             let cpu = before[pid].map { max(0, p.ns - $0) / elapsed } ?? 0
-            var app = apps[p.app] ?? App(name: p.app, cpu: 0, memory: 0, processes: 0)
+            var app = apps[p.app] ?? App(name: p.app, cpu: 0, memory: 0, processes: 0, path: p.path)
             app.cpu += cpu
             app.memory += p.footprint
             app.processes += 1
@@ -159,10 +161,10 @@ enum Probe {
         return info.denom == 0 ? 1 : Double(info.numer) / Double(info.denom)
     }()
 
-    private static func processes() -> [pid_t: (app: String, ns: Double, footprint: Double)] {
+    private static func processes() -> [pid_t: (app: String, ns: Double, footprint: Double, path: String?)] {
         var pids = [pid_t](repeating: 0, count: 8192)
         let n = Int(proc_listallpids(&pids, Int32(pids.count * MemoryLayout<pid_t>.size)))
-        var out: [pid_t: (String, Double, Double)] = [:]
+        var out: [pid_t: (String, Double, Double, String?)] = [:]
         var path = [CChar](repeating: 0, count: Int(MAXPATHLEN) * 4)
         let me = getpid()
         for pid in pids.prefix(max(0, n)) where pid > 0 && pid != me {
@@ -172,13 +174,14 @@ enum Probe {
             }
             guard ok == 0 else { continue }
             let length = proc_pidpath(pid, &path, UInt32(path.count))
-            var name = length > 0 ? appName(String(decoding: path.prefix(Int(length)).map { UInt8(bitPattern: $0) }, as: UTF8.self)) : ""
+            let full = length > 0 ? String(decoding: path.prefix(Int(length)).map { UInt8(bitPattern: $0) }, as: UTF8.self) : ""
+            var name = length > 0 ? appName(full) : ""
             if name.isEmpty {
                 var short = [CChar](repeating: 0, count: 256)
                 name = proc_name(pid, &short, 256) > 0 ? String(decoding: short.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self) : L("Process {pid}", ["pid": String(pid)])
             }
             let ns = Double(usage.ri_user_time + usage.ri_system_time) * timebase
-            out[pid] = (name, ns, Double(usage.ri_phys_footprint))
+            out[pid] = (name, ns, Double(usage.ri_phys_footprint), appPath(full))
         }
         return out
     }
@@ -191,6 +194,12 @@ enum Probe {
         let parts = path.split(separator: "/")
         if let app = parts.first(where: { $0.hasSuffix(".app") }) { return String(app.dropLast(4)) }
         return parts.last.map(String.init) ?? path
+    }
+
+    /// "/Applications/Xcode.app/Contents/MacOS/Xcode" → "/Applications/Xcode.app"; nil for a program that isn't in an app.
+    nonisolated static func appPath(_ path: String) -> String? {
+        guard let range = path.range(of: ".app/") else { return nil }
+        return String(path[..<range.lowerBound]) + ".app"
     }
 
     // MARK: Battery and power

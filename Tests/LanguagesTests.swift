@@ -39,12 +39,12 @@ struct LanguagesTests {
         Language.with("de", strings: Self.strings("system-vitals-plus")) {
             #expect(Words.summary(s).title == "Dein Mac arbeitet sehr hart")
             #expect(Words.glance(s).seen.hasPrefix("CPU 95\u{00A0}%"), "\(Words.glance(s))")
-            #expect(Self.texts(MacPage.make(s)).contains("Gerade jetzt"))
+            #expect(Self.texts(MacPage.make(s)).contains("Prozessor und Grafik"))
             #expect(Answers.memory(s).contains("Speicherdruck"), "\(Answers.memory(s))")
         }
         Language.with("ja", strings: Self.strings("system-vitals-plus")) {
             #expect(Words.cores(s.specs).seen == "10コア（高性能 4、高効率 6）")
-            #expect(Self.texts(MacPage.make(s)).contains("現在"))
+            #expect(Self.texts(MacPage.make(s)).contains("プロセッサとグラフィックス"))
         }
         Language.with("ar", strings: Self.strings("system-vitals-plus")) {
             #expect(Words.summary(s).title == "جهاز Mac يعمل بجهد كبير")
@@ -62,7 +62,7 @@ struct LanguagesTests {
             #expect(Rules.left(Date(timeIntervalSince1970: 5400), now: Date(timeIntervalSince1970: 0)) == "1 Std., 30 Min.")
         }
         Language.with("ja", strings: Self.strings("clipboard")) {
-            let page = Self.texts(ClipboardPage.make(History(folder: folder)))
+            let page = Self.texts(ClipboardPage.make(History(folder: folder), place: .init(settings: true)))
             #expect(page.contains("コピーした内容の履歴を残す"), "\(page.prefix(300))")
         }
     }

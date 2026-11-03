@@ -276,35 +276,33 @@ struct MirayaTests {
 
     @Test func readyHasOneThingToDoAndThePicturesToChooseFrom() throws {
         let page = Self.page(MirayaPage.make(Self.ready()))
-        let hero = try #require(Self.hero(page))
-        #expect((hero["title"] as? String)?.seen == "Share your screen to Living Room" && hero["eyebrow"] as? String == "Ready")
-        #expect(hero["image"] == nil, "the source picture belongs in the picker, not duplicated in the summary")
-        let start = try #require((hero["actions"] as? [[String: Any]])?.first)
+        #expect(Self.hero(page) == nil, "ready is the picker and the panel, with no hero above them")
+        #expect((Self.blocks(page).first?["pill"] as? [String: Any])?["text"] as? String == "Ready to share")
+        let start = try #require(Self.buttons(page).first { $0["tool"] as? String == "share_screen" && $0["fill"] as? Bool == true })
         #expect(start["tool"] as? String == "share_screen" && (start["input"] as? [String: Any])?["display"] as? Int == 1)
         #expect(Self.primaries(page) == ["Start sharing"], "one primary on the page")
         // The tile and the sidebar can start it too.
         let control = try #require((page["summary"] as? [String: Any])?["control"] as? [String: Any])
         #expect(control["tool"] as? String == "share_screen" && control["style"] as? String == "primary")
-        // TVs as rows with their state, the chosen one picked, choosing runs choose_tv with `tv`.
+        // TVs as rows with their state in words, the chosen one picked, choosing runs choose_tv with `tv`.
         let tvs = try #require(Self.blocks(page).first { $0["type"] as? String == "choice" && $0["tool"] as? String == "choose_tv" })
         #expect(tvs["style"] as? String == "rows" && tvs["key"] as? String == "tv" && tvs["selected"] as? String == Self.living.id)
-        let badges = (tvs["options"] as? [[String: Any]] ?? []).compactMap { ($0["badge"] as? [String: Any])?["text"] as? String }
-        #expect(badges == ["Paired", "New"])
-        // Displays as pictures; quality as cards.
+        #expect((tvs["options"] as? [[String: Any]] ?? []).compactMap { $0["detail"] as? String } == ["Paired · on now", "On now · not paired yet"])
+        // Displays as pictures; quality as a menu with all five.
         let screens = try #require(Self.blocks(page).first { $0["style"] as? String == "tiles" })
         #expect((screens["options"] as? [[String: Any]])?.first?["image"] as? String == "shots/1/display-1.jpg")
-        let quality = try #require(Self.blocks(page).first { $0["style"] as? String == "cards" })
+        let quality = try #require(Self.blocks(page).first { $0["style"] as? String == "menu" })
         #expect((quality["options"] as? [[String: Any]])?.count == 5 && quality["selected"] as? String == "balanced")
         let folded = Self.sections(page).filter { $0["collapsed"] as? Bool == true }.compactMap { $0["title"] as? String }
-        #expect(folded == ["Picture & sound", "More picture settings", "Play a video on the TV", "Connect by address"])
+        #expect(folded == ["More picture settings", "Play a video on the TV", "Connect by address", "Heads-ups"])
     }
 
     @Test func aNewTVSaysACodeComesAndAWindowNeedsChoosing() throws {
         let page = Self.page(MirayaPage.make(Self.ready { $0.tv = Self.bedroom; $0.choices.kind = "window" }))
-        let hero = try #require(Self.hero(page))
-        #expect(hero["eyebrow"] as? String == "New TV" && (hero["detail"] as? String ?? "").contains("six-digit code"))
+        #expect((Self.blocks(page).first?["pill"] as? [String: Any])?["text"] as? String == "New TV")
+        #expect(Self.blocks(page).contains { $0["type"] as? String == "note" && ($0["text"] as? String ?? "").contains("six-digit code") })
         // No window listed yet: Start is there but can't run, and the page offers to list them.
-        let start = try #require((hero["actions"] as? [[String: Any]])?.first)
+        let start = try #require(Self.buttons(page).first { $0["fill"] as? Bool == true })
         #expect(start["disabled"] as? Bool == true)
         #expect(Self.buttons(page).contains { $0["tool"] as? String == "list_windows" })
 
@@ -312,7 +310,7 @@ struct MirayaTests {
         let listed = Self.page(MirayaPage.make(Self.ready { $0.choices.kind = "window"; $0.windows = windows; $0.shots["window:42"] = "shots/2/window-42.jpg" }))
         let tile = try #require(Self.blocks(listed).first { $0["style"] as? String == "tiles" })
         #expect(tile["selected"] as? String == "42" && (tile["options"] as? [[String: Any]])?.first?["image"] as? String == "shots/2/window-42.jpg")
-        let go = try #require((Self.hero(listed)?["actions"] as? [[String: Any]])?.first)
+        let go = try #require(Self.buttons(listed).first { $0["fill"] as? Bool == true })
         #expect((go["input"] as? [String: Any])?["window_id"] as? Int == 42 && go["disabled"] == nil)
     }
 
@@ -325,17 +323,18 @@ struct MirayaTests {
             $0.choices.area = "left"
         }))
         let picker = try #require(Self.blocks(page).first {
-            $0["label"] as? String == "Screen" && $0["style"] as? String == "rows"
+            $0["label"] as? String == "Screen" && $0["style"] as? String == "bar"
         })
         #expect(picker["selected"] as? String == "2")
-        let start = try #require((Self.hero(page)?["actions"] as? [[String: Any]])?.first)
+        let start = try #require(Self.buttons(page).first { $0["fill"] as? Bool == true })
         let input = try #require(start["input"] as? [String: Any])
         #expect(input["display"] as? Int == 2 && input["area"] as? String == "left")
     }
 
     @Test func pairingIsTheCodeAndItsTwoButtonsAlone() throws {
         let page = Self.page(MirayaPage.make(Self.ready { $0.phase = .pairing; $0.mode = .pair; $0.tv = Self.bedroom; $0.pairingCode = "447474" }))
-        #expect(Self.sections(page).count == 1)
+        // The head, the code, and heads-ups folded away.
+        #expect(Self.sections(page).count == 3 && Self.sections(page).last?["collapsed"] as? Bool == true)
         let hero = try #require(Self.hero(page))
         #expect((hero["code"] as? String)?.seen == "447 474" && (hero["title"] as? String)?.seen == "Compare with Bedroom")
         #expect((hero["actions"] as? [[String: Any]])?.compactMap { $0["tool"] as? String } == ["confirm_pairing", "stop"])
@@ -382,7 +381,8 @@ struct MirayaTests {
             let data = try JSONSerialization.data(withJSONObject: page)
             #expect(data.count < 128 * 1024)
             #expect(Self.sections(page).count <= 16 && Self.sections(page).allSatisfy { ($0["blocks"] as? [Any])?.count ?? 0 <= 24 })
-            let hero = try #require(Self.hero(page))
+            // Every state but ready says what's happening in a hero.
+            let hero = Self.hero(page) ?? [:]
             #expect((hero["title"] as? String ?? "").count <= 80 && (hero["detail"] as? String ?? "").count <= 300)
         }
     }

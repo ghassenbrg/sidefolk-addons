@@ -84,18 +84,85 @@ enum MirayaPage {
                    audioConfirmed: s.audioRouting.confirmed, audioPending: s.audioRouting.pending, shots: shots)
     }
 
+    static var dress: PageDress {
+        PageDress(ground: PagePair(light: "#F5F3FB", dark: "#17172A"), card: PagePair(light: "#FFFFFF", dark: "#222236"), line: PagePair(light: "#E4E0F1", dark: "#3A3852"),
+                                 accent: PagePair(light: "#6B46C1", dark: "#B190E4"), selected: PagePair(light: "#6B46C1", dark: "#B190E4"), well: PagePair(light: "#EFEBF9", dark: "#2E2C44"))
+    }
+
     static func make(_ n: Now) -> Page {
-        let top = Section(nil, [.hero(hero(n))])
+        func page(_ sections: [Section]) -> Page {
+            Page(summary: summary(n), sections: [head(n)] + sections + [heads], bare: true, dress: dress, maxWidth: 1180)
+        }
+        let top = Section(nil, [.hero(plainHero(n))], wide: true)
         switch n.phase {
         case .pairing, .connecting, .reconnecting, .authorizing, .starting:
             // One thing at a time: the code to compare, or what the TV is doing.
-            return Page(summary: summary(n), sections: [top])
+            return page([top])
         case .sharing, .pausing, .paused:
-            if n.mode == .media { return Page(summary: summary(n), sections: [top, Section(nil, [.transport(transport(n))])]) }
-            return Page(summary: summary(n), sections: [top, picture(n, live: true), more(n), connection(n)])
+            if n.mode == .media { return page([top, Section(nil, [.transport(transport(n))]).inCard()]) }
+            return page([Section(nil, [.hero(plainHero(n))]).inCard(row: "main", weight: 62), picture(n, live: true).inCard(row: "main", weight: 38), more(n), connection(n)])
         case .idle:
-            if n.tv == nil { return Page(summary: summary(n), sections: [top, tvs(n)]) }
-            return Page(summary: summary(n), sections: [top, tvs(n), what(n), picture(n, live: false), more(n), play(n), address()])
+            if n.tv == nil { return page([top, tvs(n).inCard()]) }
+            return page([what(n).inCard(row: "main", weight: 62), panel(n), more(n), play(n), address()])
+        }
+    }
+
+    static func plainHero(_ n: Now) -> Hero {
+        var h = hero(n)
+        h.plain = true
+        return h
+    }
+
+    static var heads: Section { Section(L("Heads-ups"), [.headsUps()], place: .bottom, collapsed: true) }
+
+    /// Whose page this is and what it's doing, in a word.
+    static func head(_ n: Now) -> Section {
+        Section(nil, [.bar(PageBar(L("Miraya"), pill: pill(n), detail: L("Share your Mac with a TV."), brand: true))], wide: true)
+    }
+
+    static func pill(_ n: Now) -> Badge {
+        switch n.phase {
+        case .idle:
+            if n.problem != nil { return Badge(L("Couldn't share"), tone: .bad) }
+            guard let tv = n.tv else { return Badge(L("Looking for TVs"), tone: .neutral) }
+            if !tv.online { return Badge(L("{tv} isn't on now", ["tv": n.tvName]), tone: .warn) }
+            return tv.paired ? Badge(L("Ready to share"), tone: .good) : Badge(L("New TV"), tone: .info)
+        case .pairing: return Badge(L("Verify the TV"), tone: .warn)
+        case .authorizing: return Badge(L("Waiting for the TV"), tone: .info)
+        case .connecting, .starting: return Badge(L("Connecting"), tone: .info)
+        case .reconnecting: return Badge(L("Reconnecting"), tone: .warn)
+        case .sharing: return n.mode == .media ? Badge(L("Playing on the TV"), tone: .good) : Badge(L("Sharing · live"), tone: .good)
+        case .pausing, .paused:
+            if n.mode == .media && n.mediaState == "ended" { return Badge(L("Finished"), tone: .neutral) }
+            return Badge(L("Paused"), tone: .warn)
+        }
+    }
+
+    /// The TV, the picture and sound, and the one action: everything that decides what starting does.
+    static func panel(_ n: Now) -> Section {
+        var blocks = tvs(n, lookAgain: false).blocks
+        blocks.append(.heading(L("Picture & sound"), rule: true))
+        blocks += pictureBlocks(n, live: false)
+        blocks.append(.rule)
+        if let problem = n.problem { blocks.append(.note(problem, tone: .bad)) }
+        else if let chosen = n.tv, !chosen.online { blocks.append(.note(L("Open Miraya on the TV, then share."), tone: .warn)) }
+        else if let chosen = n.tv, !chosen.paired { blocks.append(.note(L("The first time, you compare a six-digit code with the TV."), tone: .info)) }
+        if source(n) != nil { blocks.append(.note(L("{what} → {tv}", ["what": routeName(n), "tv": n.tvName]), symbol: "display")) }
+        var start = hero(n).actions.first ?? Action(L("Start sharing"), tool: "share_screen", style: .primary, symbol: "play.fill")
+        start.fill = true
+        blocks.append(.action(start))
+        var look = Action(L("Look again"), tool: "find_tvs", symbol: "arrow.clockwise")
+        look.iconOnly = true
+        return Section(L("Share to"), blocks).inCard(row: "main", weight: 38, accessories: [.action(look)])
+    }
+
+    /// What's picked, by its own name, for the line that says where it goes.
+    static func routeName(_ n: Now) -> String {
+        let display = n.displays.first { $0.id == n.choices.display } ?? n.displays.first { $0.id == CGMainDisplayID() } ?? n.displays.first
+        switch n.choices.kind ?? "display" {
+        case "window": return n.windows?.first { $0.id == n.choices.window }?.app ?? n.windows?.first?.app ?? L("a window")
+        case "area": return areas.first { $0.name == n.choices.area }?.label ?? areas[2].label
+        default: return display.map(displayName) ?? L("your screen")
         }
     }
 
@@ -272,25 +339,30 @@ enum MirayaPage {
 
     // MARK: TVs
 
-    static func tvs(_ n: Now) -> Section {
+    static func tvs(_ n: Now, lookAgain: Bool = true) -> Section {
         var blocks: [Block] = []
         // Without a TV the hero says how to find one and looks again; here, only the address.
         if !n.tvs.isEmpty {
             let options = n.tvs.map { tv in
                 Option(tv.id, tv.name, detail: tv.online ? (tv.paired ? L("Paired · on now") : L("On now · not paired yet")) : L("Paired · not seen now"),
-                       symbol: "tv", badge: tv.online ? (tv.paired ? Badge(L("Paired"), tone: .good) : Badge(L("New"), tone: .info)) : Badge(L("Off")),
-                       action: tv.paired && !n.busy ? Action(L("Forget"), tool: "forget_tv", input: ["tv": tv.id], style: .plain,
-                                                             detail: L("Forget this TV on this Mac; pairing again needs a new code.")) : nil)
+                       symbol: "tv", action: tv.paired && !n.busy ? forget(tv) : nil)
             }
-            blocks.append(.picker(L("Share to"), detail: n.busy ? L("Stop first to change the TV.") : nil, style: .rows, options, selected: n.tv?.id ?? "",
-                                  tool: "choose_tv", key: "tv", disabled: n.busy))
+            blocks.append(.choosing(L("Share to"), detail: n.busy ? L("Stop first to change the TV.") : nil, style: .rows, options, selected: n.tv?.id ?? "",
+                                    tool: "choose_tv", key: "tv", disabled: n.busy, hideLabel: true))
         }
         if let problem = n.discoveryProblem, n.tv != nil { blocks.append(.note(problem, tone: .warn)) }
         if !n.busy {
-            if !n.tvs.isEmpty { blocks.append(.action(Action(L("Look again"), tool: "find_tvs", style: .plain, symbol: "arrow.clockwise"))) }
+            if !n.tvs.isEmpty, lookAgain { blocks.append(.action(Action(L("Look again"), tool: "find_tvs", style: .plain, symbol: "arrow.clockwise"))) }
             if n.tv == nil { blocks.append(addressField) }
         }
         return Section(L("TVs"), blocks, place: n.tv == nil ? .main : .side)
+    }
+
+    /// Small on its row, its name on hover and read aloud.
+    static func forget(_ tv: Now.TV) -> Action {
+        var action = Action(L("Forget"), tool: "forget_tv", input: ["tv": tv.id], style: .plain, symbol: "xmark", detail: L("Forget this TV on this Mac; pairing again needs a new code."))
+        action.iconOnly = true
+        return action
     }
 
     static var addressField: Block {
@@ -306,9 +378,9 @@ enum MirayaPage {
 
     static func what(_ n: Now) -> Section {
         let kind = n.choices.kind ?? "display"
-        var blocks: [Block] = [.picker(L("Share"), style: .segmented,
-                                       [Option("display", L("A screen")), Option("window", L("A window")), Option("area", L("Part of a screen"))],
-                                       selected: kind, tool: "set_option", input: ["option": "kind"])]
+        var blocks: [Block] = [.choosing(L("Share"), style: .bar,
+                                         [Option("display", L("Screen"), symbol: "display"), Option("window", L("Window"), symbol: "macwindow"), Option("area", L("Area"), symbol: "rectangle.dashed")],
+                                         selected: kind, tool: "set_option", input: ["option": "kind"], hideLabel: true)]
         let picked = source(n).map { String($0.key.split(separator: ":")[1]) } ?? ""
         switch kind {
         case "window":
@@ -316,8 +388,8 @@ enum MirayaPage {
                 let options = windows.prefix(maxWindows).map { w in
                     Option("\(w.id)", w.app, detail: w.title.isEmpty ? nil : w.title, image: n.shots["window:\(w.id)"], symbol: "macwindow")
                 }
-                blocks.append(.picker(L("Window"), detail: L("Only this window goes to the TV, even while you use other apps. Its app's sound goes too."),
-                                      style: .tiles, Array(options), selected: picked, tool: "set_option", input: ["option": "window"]))
+                blocks.append(.choosing(L("Window"), style: .tiles, Array(options), selected: picked, tool: "set_option", input: ["option": "window"], hideLabel: true, columns: 3))
+                blocks.append(.note(L("Only this window goes to the TV, even while you use other apps. Its app's sound goes too."), symbol: "info.circle"))
             } else if n.windows != nil {
                 blocks.append(.note(L("No window to share is open.")))
             } else {
@@ -329,26 +401,28 @@ enum MirayaPage {
             let display = n.displays.first { $0.id == n.choices.display } ?? main
             if n.displays.count > 1 {
                 let displays = n.displays.map { Option("\($0.id)", displayName($0), detail: $0.name.components(separatedBy: " · ").dropFirst().first) }
-                blocks.append(.picker(L("Screen"), style: .rows, displays, selected: display.map { "\($0.id)" } ?? "",
-                                      tool: "set_option", input: ["option": "display"]))
+                blocks.append(.choosing(L("Screen"), style: .bar, displays, selected: display.map { "\($0.id)" } ?? "", tool: "set_option", input: ["option": "display"]))
             }
             let options = areas.map { a in
                 Option(a.name, a.label, detail: display.map(displayName), image: n.shots["area:\(a.name)"], symbol: "rectangle.dashed")
             }
-            blocks.append(.picker(L("Part"), detail: L("Handy for one app beside another, or a video playing in the middle."), style: .tiles, options,
-                                  selected: picked, tool: "set_option", input: ["option": "area"]))
+            blocks.append(.choosing(L("Part"), style: .tiles, options, selected: picked, tool: "set_option", input: ["option": "area"], hideLabel: true, columns: 3))
+            blocks.append(.note(L("Handy for one app beside another, or a video playing in the middle."), symbol: "info.circle"))
         default:
             let options = n.displays.map { d in
                 Option("\(d.id)", displayName(d), detail: d.name.components(separatedBy: " · ").dropFirst().first, image: n.shots["display:\(d.id)"], symbol: "display")
             }
             if !options.isEmpty {
-                blocks.append(.picker(L("Screen"), style: .tiles, options, selected: picked, tool: "set_option", input: ["option": "display"]))
+                blocks.append(.choosing(L("Screen"), style: .tiles, options, selected: picked, tool: "set_option", input: ["option": "display"], hideLabel: true, columns: 2))
+                blocks.append(.note(L("Only the selected screen will be shared."), symbol: "info.circle"))
             }
         }
         if !n.canRecord && kind != "window" {
             blocks.append(.note(L("Pictures of your screens show here once macOS lets Sidefolk record the screen: System Settings › Privacy & Security › Screen & System Audio Recording. Sharing the first time asks."), tone: .info))
         }
-        return Section(L("What to share"), blocks)
+        var section = Section(L("What to share"), blocks)
+        section.pinLast = kind == "display" && !n.displays.isEmpty && n.canRecord
+        return section
     }
 
     static func displayName(_ d: Screens.Display) -> String { d.name.components(separatedBy: " · ")[0] }
@@ -362,15 +436,20 @@ enum MirayaPage {
     static func qualityName(_ q: CaptureQuality) -> String { presets.first { $0.0 == q }?.1 ?? q.label }
 
     static func picture(_ n: Now, live: Bool) -> Section {
-        Section(L("Picture & sound"), [
-            .picker(L("Quality"), detail: live ? L("Changes while you share: the TV shows the new picture in a moment.") : L("The most the TV gets; the TV's own size can lower it."),
-                    style: .cards, presets.map { Option($0.0.rawValue, $0.1, detail: $0.0.label) }, selected: n.choices.quality,
-                    tool: "set_option", input: ["option": "quality"]),
-            .picker(L("Play system audio on"), detail: L("System audio only; the microphone is never shared. TV only temporarily mutes this Mac's entire output, including other apps."),
-                    style: .cards, Choices.AudioDestination.allCases.map { Option($0.rawValue, audioName($0)) },
-                    selected: n.choices.audio.rawValue, tool: "set_option", input: ["option": "audio_destination"]),
-        ], place: .bottom, collapsed: true,
-           detail: "\(qualityName(n.choices.preset)) · \(n.choices.preset.label) · " + soundLine(n))
+        Section(L("Picture & sound"), pictureBlocks(n, live: live))
+    }
+
+    static func pictureBlocks(_ n: Now, live: Bool) -> [Block] {
+        [
+            .choosing(L("Quality"), detail: live ? L("Changes while you share: the TV shows the new picture in a moment.") : L("The most the TV gets; the TV's own size can lower it."),
+                      style: .menu, presets.map { Option($0.0.rawValue, $0.1, detail: $0.0.label) }, selected: n.choices.quality, tool: "set_option", input: ["option": "quality"]),
+            .choosing(L("Play system audio on"), style: .bar, Choices.AudioDestination.allCases.map { Option($0.rawValue, audioName($0), detail: $0 == .tv ? L("System audio only; the microphone is never shared. TV only temporarily mutes this Mac's entire output, including other apps.") : nil) },
+                      selected: n.choices.audio.rawValue, tool: "set_option", input: ["option": "audio_destination"]),
+            // The whole warning stands where it matters, and on hover over TV only before that.
+            n.audioPending ? .note(L("Updating sound…"), symbol: "hourglass", style: .plain)
+                : n.choices.audio == .tv ? .note(L("System audio only; the microphone is never shared. TV only temporarily mutes this Mac's entire output, including other apps."), tone: .warn, symbol: "speaker.slash", style: .plain)
+                : .note(L("Your microphone is never shared."), symbol: "mic.slash", style: .plain),
+        ]
     }
 
     static func audioName(_ destination: Choices.AudioDestination) -> String {

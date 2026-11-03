@@ -6,7 +6,7 @@ import SidefolkExtensionKit
 // Everything is read from macOS itself: no internet, no files, no programs.
 let ext = Extension(name: "system-vitals-plus")
 
-ext.page("mac") { _ in MacPage.make(await Snapshot.take()) }
+ext.page("mac") { args in MacPage.make(await Snapshot.take(), appsBy: args.pageState.string("apps") ?? "cpu") }
 
 ext.tool("health", "Mac health check", "Whether this Mac is doing fine, what needs a look (memory, heat, disk, battery, a busy "
     + "processor) and what to do about it, with the main numbers.") { _ in Answers.health(await Snapshot.take()) }

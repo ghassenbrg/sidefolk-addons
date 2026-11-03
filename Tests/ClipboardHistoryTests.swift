@@ -271,11 +271,12 @@ struct ClipboardHistoryTests {
         h.add(Entry(id: "p", kind: .image, image: "images/p.png", width: 10, height: 10, thumb: "thumbs/p.png", digest: "d", source: "Safari",
                     app: "com.apple.Safari", copied: Self.t0), files: ["images/p.png": Data([1]), "thumbs/p.png": Data([1])])
         h.add(Self.text("#2ED4D9", at: 5))
-        let json = ClipboardPage.make(h, now: Self.t0.addingTimeInterval(60)).json
+        let json = ClipboardPage.make(h, place: .init(settings: true), now: Self.t0.addingTimeInterval(60)).json
         let blocks = (json["sections"] as? [[String: Any]] ?? []).flatMap { $0["blocks"] as? [[String: Any]] ?? [] }
         let types = Set(blocks.compactMap { $0["type"] as? String })
-        #expect(types.isSuperset(of: ["switch", "button", "list", "choice", "field", "stat"]))
-        let rows = blocks.first { $0["type"] as? String == "list" }?["items"] as? [[String: Any]] ?? []
+        #expect(types.isSuperset(of: ["switch", "button", "choice", "field", "stat"]))
+        let main = ClipboardPage.make(h, now: Self.t0.addingTimeInterval(60)).json
+        let rows = (main["sections"] as? [[String: Any]] ?? []).flatMap { $0["blocks"] as? [[String: Any]] ?? [] }.first { $0["type"] as? String == "list" }?["items"] as? [[String: Any]] ?? []
         #expect(rows.contains { $0["image"] as? String == "thumbs/p.png" } && rows.contains { $0["color"] as? String == "#2ED4D9" })
         #expect(blocks.contains { $0["type"] as? String == "switch" && ($0["label"] as? String)?.seen == "Ignore Safari" })
         let data = try JSONSerialization.data(withJSONObject: json)

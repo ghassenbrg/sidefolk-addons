@@ -67,7 +67,8 @@ enum Words {
 
     static func item(_ e: Entry, section: String? = nil, now: Date = Date()) -> PaletteItem {
         let kind = PaletteItem.Kind(rawValue: e.kind.rawValue) ?? .text
-        var actions = ["alternate", "pin", "delete"]
+        // A hidden copy is forgotten in two minutes, so it can't be kept for good.
+        var actions = e.secret ? ["alternate", "delete"] : ["alternate", "pin", "delete"]
         if e.rtfFile != nil || e.htmlFile != nil || e.kind == .link { actions.insert("plain", at: 0) }
         return PaletteItem(id: e.id, title: title(e), detail: detail(e, now: now), kind: kind, pinned: e.pinned, actions: actions,
                            image: e.thumb, color: swatch(e), section: section)
