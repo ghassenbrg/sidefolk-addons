@@ -7,7 +7,7 @@ extension BoardDrawing {
         var parts: [String] = []
         if let a = board.answersPart, !a.locked {
             let caps = Self.keyCaps(a.tiles)
-            parts.append(a.tiles.contains(where: { $0.key != nil })
+            parts.append(gameTable == .hands ? L("1–{n} to choose", ["n": a.tiles.count]) : a.tiles.contains(where: { $0.key != nil })
                 ? L("{keys} to play", ["keys": caps.joined(separator: " ")])
                 : L("1–{n} to answer", ["n": a.tiles.count]))
         }

@@ -16,7 +16,8 @@ enum TossSurface {
             switch toss {
             case .coins: (launch, flight) = (320, 1200)
             case .dice: (launch, flight) = (960, 900)
-            case .hands: (launch, flight) = (0, 1120)
+            // The throw's own timing: thumps, lids, hold and gag, to the end of which the settling is the last part.
+            case .hands: (launch, flight) = (0, Double(Suspense.revealMs) - 600)
             }
         }
 
@@ -87,7 +88,7 @@ enum TossSurface {
         let move = switch toss {
         case .coins: "flick"
         case .dice: "roll"
-        case .hands: "pump"
+        case .hands: "ready"
         }
         let whisper = TossParts.whisper(waiting)
         let objects = TossParts.objects(toss, time: time, playing: true)
@@ -307,13 +308,11 @@ enum TossParts {
 
     // MARK: Hands
 
-    /// The clash the panel plays (StageReveal), with the desktop's timing: the pumping and flying in take the flight, the outcome the settling after it.
+    /// The throw the panel plays (StageToys), smaller: two boxes, shut, that thump and spring open.
     private static func hands(_ person: Toss.Hand, _ companion: Toss.Hand, time: TossSurface.Timing, playing: Bool) -> Part {
         let drawing = BoardDrawing(Board([]), StageContext(entry: GameEntry(id: "", title: "", tagline: "", symbol: "", look: .hands), fresh: false))
-        let width = 260.0, height = 118.0
-        let total = time.flight + time.settle
-        let beat = BoardDrawing.RevealBeat(ms: total, opens: 0.45 / 0.62 * time.flight / total, acts: time.flight / total)
-        let nodes = drawing.hands(you: person.rawValue, companion: companion.rawValue, width: width, playing: playing, prefix: "toss", beat: beat)
+        let width = 260.0, height = 170.0
+        let nodes = drawing.hands(you: person.rawValue, companion: companion.rawValue, width: width, playing: playing, prefix: "toss", beat: .init(width: width, height: height))
         return Part(node: .box("toss.hands", w: width, h: height) { nodes }, width: width, height: height, anims: drawing.anims)
     }
 

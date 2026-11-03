@@ -9,7 +9,7 @@ extension BoardDrawing {
     var stageWordsOverride: String? {
         guard let table = gameTable else { return nil }
         if let refusal = board.parts.lazy.compactMap({ part -> String? in if case .note(let text, _, .warn) = part { text } else { nil } }).first { return refusal }
-        if ctx.buildUp, table != .hands { return L("Let's see…") }
+        if ctx.buildUp { return table == .hands ? L("Here we go!") : L("Let's see…") }
         return board.said
     }
     /// How wide a game wants its companion, if not the usual.

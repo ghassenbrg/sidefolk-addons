@@ -28,10 +28,10 @@ struct PlaytimeStabilityG2 {
         return out
     }
 
-    /// What may differ between boards without being a shift: a digit's card (as many as the number has digits), a guess in the row, the marker on the bar, the thrown hands, which
-    /// are the game moving.
+    /// What may differ between boards without being a shift: a digit's card (as many as the number has digits), a guess in the row, the marker on the bar, the thrown toys and their boxes stepping
+    /// forward, which are the game moving.
     private func isFree(_ id: String) -> Bool {
-        id.hasPrefix("counter.") || id.hasPrefix("guess.") || id.hasPrefix("meter.mark") || id.hasPrefix("reveal")
+        id.hasPrefix("counter.") || id.hasPrefix("guess.") || id.hasPrefix("meter.mark") || id.hasPrefix("reveal") || id.hasPrefix("box") || id.hasPrefix("result.") || id.hasPrefix("toy.")
     }
 
     /// The dock's place: a smaller button (Ask) and a larger one (Next) share a middle.
@@ -150,6 +150,82 @@ struct PlaytimeStabilityG2 {
             for board in boards where board.answersPart != nil {
                 let words = BoardDrawing(board, StageContext(entry: entry)).stageWordsOverride
                 #expect(words != nil && words != board.promptPart?.text)
+            }
+        }
+    }
+
+    /// The founder's note on the toys: the one chosen goes into the box itself, with no copy left behind; the other two leave; and nothing of the row is left faded.
+    @Test func aPickGoesIntoItsBoxAndTheRowLeaves() throws {
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            let entry = PlaytimeStageTests.entry(RockPaperScissorsScreen.id)
+            let tiles = Games.Hand.allCases.map { Tile(RockPaperScissorsScreen.title($0), art: $0.rawValue) }
+            let before = Board([.score(you: 0, companion: 0, rounds: 2, companionPicked: true), .prompt("Rock, paper or scissors?"), .answers(tiles, layout: .row)])
+            let after = Board([.score(you: 1, companion: 0, rounds: 2), .reveal(.hands(you: "rock", companion: "scissors")), .answers(tiles, layout: .row, locked: true)])
+            let (build, ms) = try #require(Suspense.buildUp(from: before, to: after, picked: 0))
+            #expect(ms == Suspense.revealMs)
+            var ctx = StageContext(entry: entry, previous: before)
+            ctx.buildUp = true
+            ctx.pendingAnswer = 0
+            let scene = BoardDrawing(build, ctx).scene()
+            let runs = scene.animations.map(\.json)
+            func frames(_ id: String, _ value: String) -> [Double] {
+                runs.filter { $0["target"] as? String == id }.flatMap { ($0["keys"] as? [[String: Double]] ?? []).compactMap { $0[value] } }
+            }
+            #expect(frames("tile.0.toy", "opacity") == [0, 0], "no copy stays on its plate")
+            let hop = frames("toy.hop", "x")
+            #expect(hop.first != hop.last, "it travels")
+            #expect(frames("toy.hop", "opacity").last == 0, "and it's gone, into the box")
+            for i in [1, 2] {
+                let x = frames("tile.\(i).toy", "x")
+                #expect(abs((x.last ?? 0) - (x.first ?? 0)) > 100, "the others leave the table")
+                #expect(frames("tile.\(i).toy", "opacity").last == 0)
+            }
+            for i in 0..<3 { #expect(frames("tile.\(i).plate", "opacity").last == 0, "no plate is left behind") }
+            // The verdict's board has none of the row either, and its room is kept.
+            let verdict = places(BoardDrawing(after, StageContext(entry: entry, previous: build)).scene())
+            let choosing = places(BoardDrawing(before, StageContext(entry: entry)).scene())
+            for i in 0..<3 { #expect(verdict["tile.\(i)"]?.y == choosing["tile.\(i)"]?.y) }
+        }
+    }
+
+    /// The bluff still says its line, and its box only wiggles, once the row is home: nothing about it says which hand is inside.
+    @Test func aBluffIsWordsAndAWiggle() throws {
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            let entry = PlaytimeStageTests.entry(RockPaperScissorsScreen.id)
+            let tiles = Games.Hand.allCases.map { Tile(RockPaperScissorsScreen.title($0), art: $0.rawValue) }
+            let thrown = Board([.score(you: 1, companion: 0, rounds: 2), .reveal(.hands(you: "rock", companion: "scissors")), .answers(tiles, layout: .row, locked: true)])
+            let next = Board([.score(you: 1, companion: 0, rounds: 2, companionPicked: true), .prompt("I'm going rock…"), .answers(tiles, layout: .row)], companion: Cue(move: "tease", look: "you"))
+            let scene = BoardDrawing(next, StageContext(entry: entry, previous: thrown)).scene()
+            let wiggle = scene.animations.map(\.json).filter { ["box.them", "boxtop.them"].contains($0["target"] as? String) && ($0["keys"] as? [[String: Double]])?.contains { $0["rotate"] != nil } == true }
+            #expect(wiggle.count == 2)
+            let text = String(decoding: try JSONSerialization.data(withJSONObject: scene.json), as: UTF8.self)
+            #expect(text.contains("I'm going rock…"))
+        }
+    }
+
+    /// One thing has one track for each value, within what Sidefolk reads: a second would cut the first off from the start (it did: the box under the blow lost its thumps, so it gave
+    /// the result away), and points past 32 are dropped. And both boxes thump alike until the lids go.
+    @Test func everyThrowPlaysAsItIsWritten() throws {
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            let names = Games.Hand.allCases.map(\.rawValue)
+            for you in names {
+                for companion in names {
+                    let drawing = BoardDrawing(Board([]), StageContext(entry: PlaytimeStageTests.entry(RockPaperScissorsScreen.id), previous: nil))
+                    _ = drawing.hands(you: you, companion: companion, width: 260, playing: true, prefix: "toss", beat: .init(width: 260, height: 170))
+                    var seen = Set<String>()
+                    for run in drawing.anims.map(\.json) {
+                        guard let target = run["target"] as? String, let keys = run["keys"] as? [[String: Double]] else { continue }
+                        #expect(keys.count <= 32, "\(you)/\(companion): \(target) has \(keys.count) points")
+                        for value in Set(keys.flatMap(\.keys)).subtracting(["t"]) {
+                            #expect(seen.insert("\(target).\(value)").inserted, "\(you)/\(companion): \(target).\(value) twice")
+                        }
+                    }
+                    func thumps(_ side: String) -> [[String: Double]] {
+                        let run = drawing.anims.map(\.json).first { $0["target"] as? String == "box.\(side)" && ($0["keys"] as? [[String: Double]])?.first?["sy"] != nil }
+                        return (run?["keys"] as? [[String: Double]] ?? []).filter { ($0["t"] ?? 1) <= BoardDrawing.ToyTime.opens / BoardDrawing.ToyTime.total }
+                    }
+                    #expect(thumps("you") == thumps("them") && !thumps("you").isEmpty, "\(you)/\(companion)")
+                }
             }
         }
     }

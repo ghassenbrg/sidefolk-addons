@@ -81,14 +81,14 @@ struct PlaytimeHandsAndTossTests {
             _ = try Engine.play(.duo(.begin), on: &s, random: &random)
             #expect(s.duo.playing)
             func board(_ e: [Games.Event] = []) -> Board { RockPaperScissorsScreen.board(s, events: e, options: o) }
-            #expect(Self.plain(board().promptPart?.text) == "Ana, pick your hand.")
+            #expect(Self.plain(board().promptPart?.text) == "Ana, pick your toy.")
             let picked = try Engine.play(.hand(2), on: &s, random: &random)
             let cover = board(picked)
             #expect(Self.plain(cover.promptPart?.text) == "Pass the Mac to Sam." && cover.answersPart == nil)
             #expect(!Self.text(cover.json).contains("scissors"), "nothing says which")
             #expect(throws: Games.Refusal.self) { try Engine.play(.hand(0), on: &s, random: &random) }
             _ = try Engine.play(.ready, on: &s, random: &random)
-            #expect(Self.plain(board().promptPart?.text) == "Sam, pick your hand." && !Self.text(board().json).contains("\"picked\""))
+            #expect(Self.plain(board().promptPart?.text) == "Sam, pick your toy." && !Self.text(board().json).contains("\"picked\""))
             let round = try Engine.play(.hand(0), on: &s, random: &random)
             #expect(round == [.roundOver(winner: .companion)])
             let thrown = board(round)
@@ -195,10 +195,14 @@ struct PlaytimeHandsAndTossTests {
             let drawing = BoardDrawing(Board([]), StageContext(entry: PlaytimeStageTests.entry(RockPaperScissorsScreen.id)))
             _ = drawing.hands(you: "rock", companion: "scissors", width: 372, playing: true, prefix: "reveal", beat: .init())
             let runs = drawing.anims.map(\.json)
-            let thrown = try #require(runs.first { $0["target"] as? String == "reveal.you.throw" && ($0["keys"] as? [[String: Double]])?.first?["opacity"] == 0 })
-            let keys = try #require(thrown["keys"] as? [[String: Double]])
-            #expect(keys[0]["t"] == 0 && keys[0]["opacity"] == 0, "hidden from the first moment")
-            #expect(keys.first { $0["t"]! >= 0.45 }?["opacity"] == 1)
+            // Each toy shows only as its box opens, and both in the same moment: a choice comes out then, and not before.
+            func shows(_ side: String) -> Double? {
+                let run = runs.first { $0["target"] as? String == "reveal.\(side)" && ($0["keys"] as? [[String: Double]])?.first?["opacity"] == 0 }
+                return (run?["keys"] as? [[String: Double]])?.first { $0["opacity"] == 1 }?["t"]
+            }
+            let opens = BoardDrawing.ToyTime.opens / BoardDrawing.ToyTime.total
+            #expect(shows("you") == shows("them"))
+            #expect((shows("you") ?? 0) >= opens, "nothing shows before the lids go")
             #expect(drawing.handsVerdict("rock", "scissors") == .win && drawing.handsVerdict("rock", "paper") == .loss && drawing.handsVerdict("rock", "rock") == .draw)
         }
     }

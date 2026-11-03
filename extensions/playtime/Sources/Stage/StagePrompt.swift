@@ -49,6 +49,14 @@ extension BoardDrawing {
                 if let words { speechBubble(words, width: inner - bubbleX - 8, height: h - 4).node.at(bubbleX, 0) }
             }, height: h)
         }
+        if gameTable == .hands {
+            // Above its own score: the score line has the companion on the right, so here it stands there too, its bubble to its left (approved for this game).
+            let bubbleH = Swift.min(h - 8, 56), bubbleW = inner - side - 2
+            return PartBlock(Node.box("stage", w: inner, h: h) {
+                companionFigure(w: side, h: h + 22, y: -14).at(inner - side + 4, -14)
+                if let words { speechBubble(words, width: bubbleW, height: bubbleH, tailRight: true).node.at(0, 6) }
+            }, height: h)
+        }
         let bubbleW = stageBubbleWidth ?? inner - side - 8
         return PartBlock(Node.box("stage", w: inner, h: h) {
             // Larger than its row, as the concepts draw it: its ears rise past the round's line and its feet stand on what it plays on.
@@ -80,7 +88,8 @@ extension BoardDrawing {
             }
         }
         // A little hop when it reacts or its pose changes; a board redrawn for a key, or nothing new, leaves it still.
-        if ctx.fresh, board.companion != nil || (posed != nil && posed != pose) {
+        // A throw has its own dips and flinches (`companionThrough`).
+        if ctx.fresh, !(gameTable == .hands && ctx.buildUp), board.companion != nil || (posed != nil && posed != pose) {
             anims.append(.keys("companion.figure", [["t": 0, "y": 0, "sx": 1, "sy": 1], ["t": 0.47, "y": -6, "sx": 0.97, "sy": 1.04], ["t": 1, "y": 0, "sx": 1, "sy": 1]], ms: 300, ease: "in_out"))
         }
         if let button = board.companionButton {
@@ -91,14 +100,15 @@ extension BoardDrawing {
     }
 
     /// A bubble of one size with a tail toward whoever speaks. Its words shrink to fit rather than its edge growing, and only they change, with a short fade.
-    func speechBubble(_ text: String, width: Double, height: Double) -> PartBlock {
+    func speechBubble(_ text: String, width: Double, height: Double, tailRight: Bool = false) -> PartBlock {
         let clock = board.timerPart
         let room = width - 28, wordsH = height - 10 - (clock == nil ? 0 : 7)
         if ctx.fresh, let before = ctx.previous?.said ?? ctx.previous?.promptPart?.text, before != text {
             anims.append(.keys("bubble.text", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 180, ease: "out"))
         }
-        let shape = ShapePath.rounded(x: 0, y: 0, w: width, h: height, r: 18)
-            + "M 1 \(height - 26) Q -4 \(height - 16) -10 \(height - 10) Q -3 \(height - 10) 1 \(height - 12) Z"
+        let tail = tailRight ? "M \(width - 1) \(height - 26) Q \(width + 4) \(height - 16) \(width + 10) \(height - 10) Q \(width + 3) \(height - 10) \(width - 1) \(height - 12) Z"
+            : "M 1 \(height - 26) Q -4 \(height - 16) -10 \(height - 10) Q -3 \(height - 10) 1 \(height - 12) Z"
+        let shape = ShapePath.rounded(x: 0, y: 0, w: width, h: height, r: 18) + tail
         return PartBlock(.box("bubble", w: width, h: height) {
             Node.path(shape, fill: Paint.card, stroke: Paint.edge, lineWidth: 1).id("bubble.shape").size(width, height).shadow(Paint.clear("#000000", 0.1), radius: 6, dx: 0, dy: 3)
             Node.words(text, size: 15, weight: "heavy", valign: "center", lines: 3, minScale: 0.68, x: 14, y: 5, w: room, h: wordsH).id("bubble.text")

@@ -6,8 +6,9 @@ import SidefolkExtensionKit
 /// companion's reaction, sounds and what VoiceOver hears. A screen sends its next board with the verdict in it; this is what shows until the
 /// verdict's moment comes.
 enum Suspense {
-    static let revealMs = 2100
+    static let revealMs = 3400
     static let beatMs = 800
+    static let endHoldMs = 700
 
     /// The board to show first, and for how long, or nil when `next` gives nothing away.
     static func buildUp(from previous: Board?, to next: Board, picked: Int?) -> (board: Board, ms: Int)? {
@@ -24,7 +25,8 @@ enum Suspense {
             if let prompt = previous?.parts.first(where: isPrompt) {
                 parts.insert(prompt, at: min(parts.count, parts.firstIndex { if case .answers = $0 { true } else { false } } ?? parts.count))
             }
-            return (Board(parts), revealMs)
+            // The last throw stands a moment before the end card takes the table.
+            return (Board(parts), next.over ? revealMs + endHoldMs : revealMs)
         }
         if let answers = next.answersPart, answers.locked, answers.tiles.contains(where: { $0.state == .right || $0.state == .wrong }),
            let previous, let before = previous.answersPart, !before.locked {

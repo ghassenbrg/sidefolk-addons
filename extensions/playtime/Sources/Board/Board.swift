@@ -73,6 +73,8 @@ public struct Board {
     public var said: String?
     /// A puzzle's words with nothing to complain of, for while a click-through cell rests.
     public var calm: String?
+    /// Two people's Rock, Paper, Scissors: the first hand is in. It says that, never which.
+    public var sealedFirst = false
 
     public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil, turn: String? = nil, refused: Bool = false, said: String? = nil) {
         self.parts = parts
