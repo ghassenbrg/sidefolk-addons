@@ -713,6 +713,23 @@
         "gentle": "Gentle"
       },
       "title": "이겼을 때"
+    },
+    "game_language": {
+      "title": "게임 언어",
+      "detail": "Sidefolk 언어와 상관없이 Playtime의 메뉴와 게임을 이 언어로 표시해요.",
+      "options": {
+        "auto": "Sidefolk과 동일",
+        "en": "English",
+        "fr": "Français",
+        "es": "Español",
+        "de": "Deutsch",
+        "it": "Italiano",
+        "pt-BR": "Português (Brasil)",
+        "ja": "日本語",
+        "ko": "한국어",
+        "zh-Hans": "简体中文",
+        "ar": "العربية"
+      }
     }
   },
   "surfaces": {
@@ -1362,7 +1379,9 @@
     "Let {name} pick one": "{name}에게 맡기기",
     "Here we go!": "간다!",
     "{name}, pick your toy.": "{name}, 장난감을 골라요.",
-    "1–{n} to choose": "1–{n}로 선택"
+    "1–{n} to choose": "1–{n}로 선택",
+    "Game language": "게임 언어",
+    "Same as Sidefolk": "Sidefolk과 동일"
   },
   "tools": {
     "game_settings": {

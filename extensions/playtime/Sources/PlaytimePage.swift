@@ -13,9 +13,12 @@ enum PlaytimePage {
     @MainActor static func render() -> Page {
         let r = PlaytimeRecords.load()
         let today = DailyWordEngine.today()
+        // The summary goes to Today and the sidebar, which are the app's; the page itself is Playtime's.
+        let told = summary(today: today, tile: DailyWordScreen.tile())
+        PlayLanguage.enter(Language.code)
         let tile = DailyWordScreen.tile()
         // Its own room: warm cream by day, ink at night, and it draws its own head.
-        return Page(summary: summary(today: today, tile: tile), sections: GameCenterPage.sections(records(r, today: today, tile: tile), history: r.history, duels: duels(r)), bare: true,
+        return Page(summary: told, sections: GameCenterPage.sections(records(r, today: today, tile: tile), history: r.history, duels: duels(r)), bare: true,
                     dress: PageDress(ground: PagePair(light: "#FCF1E6", dark: "#18213C"), card: PagePair(light: "#FFF9F0", dark: "#27304F"), line: PagePair(light: "#EADBC9", dark: "#3B4468"),
                                      accent: PagePair(light: "#14275A", dark: "#3A4F8C")))
     }
