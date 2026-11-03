@@ -35,7 +35,7 @@ extension BoardDrawing {
         case .triviaQuestion: 90
         case .numbersGuess, .numbersAsked: 100
         case .animalAsks, .animalTeach: 118
-        case .hands: 100
+        case .hands: 110
         default: nil
         }
     }

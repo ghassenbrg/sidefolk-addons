@@ -101,7 +101,7 @@ final class BoardDrawing {
 
     private func isPlay(_ part: BoardPart) -> Bool {
         switch part {
-        case .answers, .board, .timer, .play: true
+        case .answers, .board, .timer, .play, .reveal: true
         default: false
         }
     }
@@ -131,7 +131,9 @@ final class BoardDrawing {
             content.append(Node.scroll(contentHeight: height) { stacked }.id("board").at(0, top).size(Self.width, playRoom))
         } else {
             // The end card has its own room: a game starting after it arrives in place, rather than gliding from where the card stood.
-            content.append(Node.box(ended ? "board.end" : "board", y: top, w: Self.width, h: playRoom) { stacked })
+            // The toys stand in front of the companion behind them, so that board goes over the stage.
+            let box = Node.box(ended ? "board.end" : "board", y: top, w: Self.width, h: playRoom) { stacked }
+            content.append(gameTable == .hands ? box.z(2) : box)
         }
         // Over the board: the companion may lean on what it plays on.
         if let said { content.append(said.node.at(Self.pad, 4 + head.height).z(1)) }
@@ -145,7 +147,8 @@ final class BoardDrawing {
         .title(L("A little break, together."))
         .withBack()
         .speaker(GameSoundSetting.key(ctx.entry.id))
-        .transition(ms: 220)
+        // A throw plays every move itself, from its very first frame: nothing may ease on its own.
+        .transition(ms: gameTable == .hands ? 0 : 220)
         .animating(anims)
         if ctx.fresh { scene = cued(scene) }
         for (id, ms) in timers { scene = scene.timer(id, ms: ms) }
@@ -165,6 +168,10 @@ final class BoardDrawing {
     /// stay inside its surface (D98), so the companion says nothing on the desktop or aloud.
     private func cued(_ scene: Scene) -> Scene {
         var out = scene
+        // The boxes thump, so the companion only readies itself on the desktop, with nothing to mistake for a fist.
+        if case .hands(let you, let companion)? = board.revealPart, ctx.buildUp {
+            return out.animating(Self.throwSounds(you: you, companion: companion)).animating(.sequence([.wait(ms: ToyTime.thumps), .react(Reaction(move: "ready"))]))
+        }
         if let reveal = board.revealPart, ctx.buildUp {
             let move = switch reveal { case .hands: "pump"; case .coin: "flick"; case .dice: "roll" }
             let sound = switch reveal { case .hands: "whoosh"; case .coin: "flip"; case .dice: "rattle" }

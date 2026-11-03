@@ -71,6 +71,8 @@ public struct Board {
     public var refused: Bool
     /// What the companion's bubble says when the board's own words stand elsewhere (a question on its plaque): something short.
     public var said: String?
+    /// Two people's Rock, Paper, Scissors: the first hand is in. It says that, never which.
+    public var sealedFirst = false
 
     public init(_ parts: [BoardPart], companion: Cue? = nil, over: Bool = false, afterMs: Int? = nil, turn: String? = nil, refused: Bool = false, said: String? = nil) {
         self.parts = parts
