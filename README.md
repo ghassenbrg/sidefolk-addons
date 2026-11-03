@@ -3,12 +3,13 @@
 The add-on gallery of [Sidefolk](https://github.com/ghassenbrg/sidefolk), the desktop companion for macOS:
 companions, extensions and themes that Sidefolk downloads only when someone picks them, so nobody carries what they don't
 use. Sidefolk shows them in its Home window's **Gallery** (Sidefolk D84); Settings › Companion and Settings › Add-ons
-lead there too.
+lead there too. Everything here is a snapshot for now, and Sidefolk starts on releases only, so people see it after
+**Show snapshots** in the Gallery or **Versions to offer** in Settings › General › Updates (Sidefolk D65).
 
 | | What | |
 |---|---|---|
 | **Companions** | Ember (a fox), Kiko (a young astronaut), Nimbo (a cloud), Folio (a paper wish), Iris (a camera scout), Nori (a tuxedo cat), Purl (a ragdoll), Rune (a stone golem), Piko (a robot cat), Noor (a baby moth) | 3D, a few MB each; their 2D forms are built into Sidefolk (D59), Piko and Noor are 3D only |
-| **Extensions** | World Clock, Calculator, System Vitals, Weather (these four are a fresh Mac's first extensions, Sidefolk D98), Noor (prayer times, the Hijri calendar, Qibla, the Names and a Ramadan planner), Sideflow (teach your companion a routine), Git, Currency, Playtime (eleven games and five puzzles, on its own surfaces, its look and words entirely in its pack), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages in Home Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
+| **Extensions** | World Clock, Calculator, System Vitals, Weather (these four are a fresh Mac's first extensions, Sidefolk D98), Noor (prayer times, the Hijri calendar, Qibla, the Names and a Ramadan planner), Sideflow (teach your companion a routine), Formatic (turn a file into the format you need, on the Mac; no video), Git, Currency, Playtime (eleven games and five puzzles with a pause card and practice boards, on its own surfaces, its look and words entirely in its pack), Images, PDF Tools, QR Codes, Archives, Dev Toolbox, Feeds, and with pages composed like an app's screen in Home (Sidefolk D170) Your Mac, Clipboard, Keep Awake and Miraya | about 170 KB each; Playtime and Miraya more |
 | **Themes** | Paper Garden (warm paper, hinoki wood, bamboo shadows), Night Studio (indigo glass over a dusk landscape), Marshmallow (candy colours and clouds). They moved here from the app (Sidefolk D130), which keeps Sidefolk and Harbor built in; whoever wore one gets it back by itself | |
 
 Every add-on here names its author; Sidefolk's own carry a seal ("Made by Sidefolk", ids under `dev.sidefolk.`).
@@ -16,6 +17,22 @@ Built into the app are Mochi and Spark and the folks, and no extension: everythi
 Mac starts with World Clock, Calculator, System Vitals and Weather, from these same signed packs carried in the app
 (Sidefolk D98, its `Resources/SeedPacks`); from then on the gallery updates them like any other, and removing one is
 remembered. Publish the gallery before a Sidefolk release: `sidefolk/scripts/seed-packs.py` takes the packs from it.
+
+## What each one needs
+
+A copy of Sidefolk older than an add-on's `minimum_sidefolk` keeps what it has and isn't offered that version. The
+catalog in the `gallery` release is the source; at the time of writing:
+
+| Add-on | Needs Sidefolk snapshot |
+|---|---|
+| Paper Garden, Night Studio, Marshmallow | 1177 |
+| Formatic; Your Mac, Clipboard, Keep Awake and Miraya with their new pages | 1170 |
+| Sideflow | 1137 |
+| Playtime | 958 |
+| Noor (the extension) | 911 |
+| The other extensions | 827 |
+| Piko, Noor (the companion) | 779 |
+| The other companions | none |
 
 ## How Sidefolk trusts what it downloads
 
