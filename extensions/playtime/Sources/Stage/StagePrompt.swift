@@ -73,7 +73,7 @@ extension BoardDrawing {
     func speechBubble(_ text: String, width: Double, height: Double) -> PartBlock {
         let clock = board.timerPart
         let room = width - 28, wordsH = height - 10 - (clock == nil ? 0 : 7)
-        if ctx.fresh, let before = ctx.previous?.promptPart?.text, before != text {
+        if ctx.fresh, let before = ctx.previous?.said ?? ctx.previous?.promptPart?.text, before != text {
             anims.append(.keys("bubble.text", [["t": 0, "opacity": 0], ["t": 1, "opacity": 1]], ms: 180, ease: "out"))
         }
         let shape = ShapePath.rounded(x: 0, y: 0, w: width, h: height, r: 18)

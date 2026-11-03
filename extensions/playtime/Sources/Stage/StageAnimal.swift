@@ -101,8 +101,8 @@ extension BoardDrawing {
         if let remember = buttons.first(where: { $0.style == .primary }) {
             if let active, !locked {
                 // While a field is open, the button sends what is in it: Sidefolk dims it while the field is empty.
-                nodes.append(.box("teach.send", x: x, y: y, w: rememberW, h: rowH) {
-                    Node.capsule(fill: Paint.action).id("teach.send.fill").size(rememberW, rowH).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
+                nodes.append(.box("entry.send", x: x, y: y, w: rememberW, h: rowH) {
+                    Node.capsule(fill: Paint.action).id("entry.send.fill").size(rememberW, rowH).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)
                     Node.words(remember.label, size: 16, weight: "heavy", color: Paint.onAction, align: "center", minScale: 0.6, x: 8, w: rememberW - 16, h: rowH)
                 }.area("entry_send", label: remember.label, hover: AreaLook(scale: 1.015), press: AreaLook(scale: 0.97, dy: 1), submits: active, sound: "sounds/tap.wav"))
             } else {

@@ -172,7 +172,7 @@ struct PlaytimeWordStageTests {
             Issue.record("a word in lower case, a text as typed, nothing empty")
             return
         }
-        let scene = BoardDrawing(Board([text]), StageContext(entry: entry("guess_animal"))).scene()
+        let scene = BoardDrawing(Board([text, .button(GameButton("Remember", move: "remember", style: .primary))]), StageContext(entry: entry("guess_animal"))).scene()
         let send = node(scene, "entry.send")?["area"] as? [String: Any]
         #expect(send?["submits"] as? String == "animal", "the whole button, so Sidefolk dims it while the field is empty")
         #expect(node(scene, "entry.animal")?["type"] as? String == "entry")
@@ -251,9 +251,12 @@ struct PlaytimeWordStageTests {
                 (state, board) = (next.state, next.board)
                 let scene = BoardDrawing(board, StageContext(entry: entry("guess_animal"))).scene()
                 try PlaytimeStageTests.check(scene, "guess_animal teaching")
-                if let name { #expect(node(scene, "entry.\(name)") != nil) } else { #expect(board.answersPart?.tiles.count == 2) }
+                if let name { #expect(node(scene, "entry.\(name)") != nil) } else { #expect(board.choicePart("new_answer")?.options.count == 2) }
             }
-            let end = try #require(driver.move(.answer(0), state, options))
+            // One page: the answer picked is only picked, until Remember keeps it.
+            let picked = try #require(driver.move(.choice(name: "new_answer", value: "yes"), state, options))
+            #expect(!picked.board.over && picked.board.buttons.first { $0.move == "remember" }?.disabled == false)
+            let end = try #require(driver.move(.button("remember"), picked.state, options))
             #expect(end.board.over && end.board.resultPart?.line == L("Thank you! I'll remember {animal}.", ["animal": "zebra"]))
             #expect(Self.caps(end.board).isEmpty)
         }

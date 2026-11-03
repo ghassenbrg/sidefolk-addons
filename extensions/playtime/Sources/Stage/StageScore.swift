@@ -58,7 +58,7 @@ extension BoardDrawing {
         let whole = 28 + 6 + nameW + 6 + pointsW + seal
         let start = trailing ? w - whole - 2 : 2
         if ctx.fresh, let before, before != points {
-            anims.append(.keys(id + ".points", [["t": 0, "scale": 1.5], ["t": 1, "scale": 1]], ms: 360, ease: "spring"))
+            anims.append(Anim.keys(id + ".points", [["t": 0, "scale": 1.5], ["t": 1, "scale": 1]], ms: 360, ease: "spring").delay(ms: gameTable == nil ? 0 : 320))
         }
         return .box(id, x: x, w: w, h: 32) {
             face.at(start, 2)
