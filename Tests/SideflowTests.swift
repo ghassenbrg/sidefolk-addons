@@ -20,11 +20,18 @@ import SidefolkExtensionKit
         var written: [String] = []
         /// What they answer when a stopped run asks the way forward: by default nobody does.
         var wayForward: String?
+        /// Answers in the order they're asked, each after a moment: someone taking their time.
+        var slowAnswers: [String?] = []
 
         func call(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Outcome {
             // Asking the way forward isn't a step of the flow.
             if tool == "ask.user", input["options"] as? [String] != nil, (input["question"] as? String)?.contains("{") == false, answers[tool]?.isEmpty != false {
                 forward.append(input["question"] as? String ?? "")
+                if !slowAnswers.isEmpty {
+                    let answer = slowAnswers.removeFirst()
+                    try? await Task.sleep(for: .milliseconds(80))
+                    return Actions.Outcome(status: .ok, text: answer ?? "no answer", summary: "Asked")
+                }
                 return Actions.Outcome(status: .ok, text: wayForward ?? "no answer", summary: "Asked")
             }
             calls.append((tool, input, plan))
@@ -338,6 +345,21 @@ import SidefolkExtensionKit
         #expect(w.store.run(run!.id)?.status == .done)
     }
 
+    @Test func anAnswerToAnOldQuestionDoesntMoveALaterStop() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .unanswered, text: ""), Actions.Outcome(status: .ok, text: "a"), Actions.Outcome(status: .unanswered, text: "")]
+        w.host.slowAnswers = [L("Skip this step"), nil]
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]], ["id": "b", "do": "changes.it", "with": ["text": "y"]], ["id": "c", "text": "after"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "test"))
+        #expect(run?.status == .needs_you)
+        // On the page, while the question about the first stop is still up.
+        w.engine.proceed(run!.id, .try_again)
+        try await Task.sleep(for: .milliseconds(250))
+        let after = w.store.run(run!.id)
+        #expect(after?.status == .needs_you, "stopped at the second step, and the old answer doesn't move it")
+        #expect(after?.record(of: "c") == nil)
+    }
+
     @Test func nobodyAnsweringLeavesItWhereItIs() async throws {
         let w = try World()
         w.host.answers["changes.it"] = [Actions.Outcome(status: .unanswered, text: "")]
@@ -394,7 +416,20 @@ import SidefolkExtensionKit
         w.store.save(renamed)
         let again = await w.settled(w.engine.start(caller, mode: .live, why: "t"))
         #expect(again?.status == .failed, "a flow they paused stays paused")
+        renamed.state = .draft
+        w.store.save(renamed)
+        let draft = await w.settled(w.engine.start(caller, mode: .live, why: "t"))
+        #expect(draft?.status == .failed, "and a draft isn't set off by another flow")
         #expect(w.store.runs(of: other.id).count == 1)
+    }
+
+    @Test func aJobTooLongToShowIsMarkedToFix() throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "companion.job", title: "Job", schema: #"{"properties":{"job":{"type":"string"}},"required":["job"]}"#)]))
+        let long = try FlowCodec.body(["steps": [["id": "j", "do": "companion.job", "with": ["job": String(repeating: "a", count: 201)]]]])
+        let fine = try FlowCodec.body(["steps": [["id": "j", "do": "companion.job", "with": ["job": "Tidy up"]]]])
+        #expect(long.problems(w.catalog).contains { $0.step == "j" })
+        #expect(fine.problems(w.catalog).isEmpty)
     }
 
     @Test func aPlanSaysWhatElseItSetsOff() throws {

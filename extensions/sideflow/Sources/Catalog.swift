@@ -96,6 +96,9 @@ extension FlowBody {
                 switch step.kind {
                 case .action(let tool, let input):
                     refs(input.values.flatMap(\.strings), step)
+                    if tool == "companion.job", (input["job"]?.string?.count ?? 0) > 200 {
+                        out.append(FlowProblem(step: step.id, text: L("A job is at most {count} characters, so a card can show all of it.", ["count": Format.integer(200)])))
+                    }
                     if catalog.loadedAt != nil {
                         if let known = catalog.tool(tool) {
                             for p in known.parameters where p.required && (input[p.name] == nil || input[p.name]?.string?.trimmed.isEmpty == true) {

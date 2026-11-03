@@ -97,6 +97,7 @@
     "A file changes": "Un fichier change",
     "A flow can have at most {count} steps.": "Une routine peut avoir au plus {count} étapes.",
     "A flow is an object with “trigger” and “steps”.": "Une routine est un objet avec « trigger » et « steps ».",
+    "A job is at most {count} characters, so a card can show all of it.": "Une tâche fait au plus {count} caractères, pour qu'une carte puisse tout afficher.",
     "A new file in a folder": "Un nouveau fichier dans un dossier",
     "A notice from your companion": "Un message de votre compagnon",
     "A page, a file, a program": "Une page, un fichier, un programme",
@@ -524,9 +525,9 @@
     "“{day}” isn't a day: use mon, tue, wed, thu, fri, sat or sun.": "« {day} » n’est pas un jour : utilisez mon, tue, wed, thu, fri, sat ou sun.",
     "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.": "« {id} » ne peut pas nommer une étape : jusqu’à 24 lettres minuscules, chiffres et _.",
     "“{key}” isn't something a {what} has.": "« {key} » n’est pas une clé reconnue pour {what}.",
+    "“{name}” can't run: it isn't on, or there's no other flow by that name.": "« {name} » ne peut pas s’exécuter : elle n’est pas activée, ou aucune autre routine ne porte ce nom.",
     "“{name}” is already running.": "« {name} » est déjà en cours d’exécution.",
     "“{name}” is running by itself again.": "« {name} » s’exécute de nouveau toute seule.",
-    "“{name}” isn't there to run: it's paused, or there's no other flow by that name.": "« {name} » n’est pas disponible : elle est en pause, ou il n’y a pas d’autre routine de ce nom.",
     "“{name}” needs a value.": "« {name} » a besoin d’une valeur.",
     "“{tool}” has no value called “{name}”.": "« {tool} » n’a pas de valeur appelée « {name} ».",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "« {tool} » n’est pas disponible actuellement. Son extension est peut-être désactivée ou absente, ou Sidefolk ne laisse pas les extensions l’utiliser."

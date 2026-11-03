@@ -9,6 +9,7 @@
     "A file changes": "A file changes",
     "A flow can have at most {count} steps.": "A flow can have at most {count} steps.",
     "A flow is an object with “trigger” and “steps”.": "A flow is an object with “trigger” and “steps”.",
+    "A job is at most {count} characters, so a card can show all of it.": "A job is at most {count} characters, so a card can show all of it.",
     "A new file in a folder": "A new file in a folder",
     "A notice from your companion": "A notice from your companion",
     "A page, a file, a program": "A page, a file, a program",
@@ -436,9 +437,9 @@
     "“{day}” isn't a day: use mon, tue, wed, thu, fri, sat or sun.": "“{day}” isn't a day: use mon, tue, wed, thu, fri, sat or sun.",
     "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.": "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.",
     "“{key}” isn't something a {what} has.": "“{key}” isn't something a {what} has.",
+    "“{name}” can't run: it isn't on, or there's no other flow by that name.": "“{name}” can't run: it isn't on, or there's no other flow by that name.",
     "“{name}” is already running.": "“{name}” is already running.",
     "“{name}” is running by itself again.": "“{name}” is running by itself again.",
-    "“{name}” isn't there to run: it's paused, or there's no other flow by that name.": "“{name}” isn't there to run: it's paused, or there's no other flow by that name.",
     "“{name}” needs a value.": "“{name}” needs a value.",
     "“{tool}” has no value called “{name}”.": "“{tool}” has no value called “{name}”.",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it."

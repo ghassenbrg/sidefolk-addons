@@ -97,6 +97,7 @@
     "A file changes": "Eine Datei ändert sich",
     "A flow can have at most {count} steps.": "Ein Ablauf kann höchstens {count} Schritte haben.",
     "A flow is an object with “trigger” and “steps”.": "Ein Ablauf ist ein Objekt mit „trigger“ und „steps“.",
+    "A job is at most {count} characters, so a card can show all of it.": "Ein Auftrag hat höchstens {count} Zeichen, damit eine Karte alles zeigen kann.",
     "A new file in a folder": "Eine neue Datei in einem Ordner",
     "A notice from your companion": "Eine Mitteilung von deinem Begleiter",
     "A page, a file, a program": "Eine Seite, eine Datei, ein Programm",
@@ -524,9 +525,9 @@
     "“{day}” isn't a day: use mon, tue, wed, thu, fri, sat or sun.": "„{day}“ ist kein Tag: nimm mon, tue, wed, thu, fri, sat oder sun.",
     "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.": "„{id}“ kann keinen Schritt benennen: bis zu 24 Kleinbuchstaben, Ziffern und _.",
     "“{key}” isn't something a {what} has.": "„{key}“ ist für {what} nicht vorgesehen.",
+    "“{name}” can't run: it isn't on, or there's no other flow by that name.": "„{name}“ kann nicht laufen: Der Ablauf ist nicht an, oder es gibt keinen anderen Ablauf mit diesem Namen.",
     "“{name}” is already running.": "„{name}“ läuft schon.",
     "“{name}” is running by itself again.": "„{name}“ läuft wieder von allein.",
-    "“{name}” isn't there to run: it's paused, or there's no other flow by that name.": "„{name}“ ist nicht da zum Ausführen: Er ist pausiert, oder es gibt keinen anderen Ablauf mit diesem Namen.",
     "“{name}” needs a value.": "„{name}“ braucht einen Wert.",
     "“{tool}” has no value called “{name}”.": "„{tool}“ hat keinen Wert namens „{name}“.",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "„{tool}“ ist gerade nicht verfügbar. Seine Erweiterung ist vielleicht aus oder weg, oder Sidefolk lässt Erweiterungen es nicht nutzen."

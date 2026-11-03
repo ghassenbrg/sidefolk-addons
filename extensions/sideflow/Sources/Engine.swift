@@ -163,12 +163,12 @@ import SidefolkExtensionKit
             run.record(.init(step: step.id, status: .running, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
             if run.mode == .practice {
                 run.record(.init(step: step.id, status: .would, summary: L("Would run {flow}", ["flow": name]), at: clock()))
-            } else if let other = store.find(name), other.id != run.flow, other.state != .paused {
-                // Each keeps to its own: a flow that isn't On asks at every step, and the runaway stop counts every start, so two can't set each other off for ever.
-                _ = start(other, mode: other.live != nil ? .live : .once, why: L("{flow} set it off.", ["flow": run.flowName]))
+            } else if let other = store.find(name), other.id != run.flow, other.state == .on {
+                // Each keeps to its own, and the runaway stop counts every start, so two can't set each other off for ever.
+                _ = start(other, mode: .live, why: L("{flow} set it off.", ["flow": run.flowName]))
                 run.record(.init(step: step.id, status: .done, summary: L("Ran {flow}", ["flow": other.name]), at: clock()))
             } else {
-                return failed(step, why: L("“{name}” isn't there to run: it's paused, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
+                return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
             }
             run.pc += 1
             store.save(run)
@@ -339,7 +339,7 @@ import SidefolkExtensionKit
             : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
         guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
-              let now = store.run(run.id), now.status == run.status else { return }
+              let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
         proceed(run.id, chosen.how)
     }
 

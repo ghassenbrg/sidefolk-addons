@@ -97,6 +97,7 @@
     "A file changes": "تغيّر ملف",
     "A flow can have at most {count} steps.": "يمكن أن يضم الروتين {count} خطوات على الأكثر.",
     "A flow is an object with “trigger” and “steps”.": "الروتين كائن فيه «trigger» و«steps».",
+    "A job is at most {count} characters, so a card can show all of it.": "المهمة {count} حرفًا على الأكثر، حتى تعرضها البطاقة كاملة.",
     "A new file in a folder": "ملف جديد في مجلد",
     "A notice from your companion": "إشعار من رفيقك",
     "A page, a file, a program": "صفحة أو ملف أو برنامج",
@@ -540,9 +541,9 @@
     "“{day}” isn't a day: use mon, tue, wed, thu, fri, sat or sun.": "«{day}» ليس يومًا: استخدم mon أو tue أو wed أو thu أو fri أو sat أو sun.",
     "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.": "لا يصلح «{id}» اسمًا لخطوة: حتى 24 حرفًا صغيرًا وأرقامًا وشرطة سفلية _.",
     "“{key}” isn't something a {what} has.": "«{key}» غير مسموح به في {what}.",
+    "“{name}” can't run: it isn't on, or there's no other flow by that name.": "لا يمكن تشغيل “{name}”: إما أنه غير مفعّل، أو لا يوجد روتين آخر بهذا الاسم.",
     "“{name}” is already running.": "«{name}» يعمل بالفعل.",
     "“{name}” is running by itself again.": "«{name}» يعمل من تلقاء نفسه مجددًا.",
-    "“{name}” isn't there to run: it's paused, or there's no other flow by that name.": "«{name}» غير متاح للتشغيل: إما أنه متوقف مؤقتًا أو لا يوجد روتين آخر بهذا الاسم.",
     "“{name}” needs a value.": "«{name}» يحتاج إلى قيمة.",
     "“{tool}” has no value called “{name}”.": "ليس في «{tool}» قيمة اسمها «{name}».",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» غير متاح الآن. قد تكون إضافته متوقفة أو اختفت، أو لا يسمح Sidefolk للإضافات باستخدامه."

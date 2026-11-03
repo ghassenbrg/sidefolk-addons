@@ -97,6 +97,7 @@
     "A file changes": "ファイルが変わったとき",
     "A flow can have at most {count} steps.": "ルーティンのステップは最大{count}個までです。",
     "A flow is an object with “trigger” and “steps”.": "ルーティンは「trigger」と「steps」を持つオブジェクトです。",
+    "A job is at most {count} characters, so a card can show all of it.": "カードに全文を表示できるよう、ジョブは{count}文字までです。",
     "A new file in a folder": "フォルダに新しいファイルが入ったとき",
     "A notice from your companion": "コンパニオンからのお知らせ",
     "A page, a file, a program": "ページ、ファイル、プログラム",
@@ -520,9 +521,9 @@
     "“{day}” isn't a day: use mon, tue, wed, thu, fri, sat or sun.": "「{day}」は曜日として使えません：mon、tue、wed、thu、fri、sat、sun を使ってください。",
     "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.": "「{id}」はステップ名にできません：小文字の英字、数字、_ を24文字までで指定してください。",
     "“{key}” isn't something a {what} has.": "「{key}」は{what}では使えません。",
+    "“{name}” can't run: it isn't on, or there's no other flow by that name.": "“{name}” は実行できません。オンになっていないか、その名前のほかのルーティンがありません。",
     "“{name}” is already running.": "「{name}」はすでに実行中です。",
     "“{name}” is running by itself again.": "「{name}」はまた自動で動いています。",
-    "“{name}” isn't there to run: it's paused, or there's no other flow by that name.": "「{name}」は実行できません：一時停止中か、その名前のほかのルーティンがありません。",
     "“{name}” needs a value.": "「{name}」には値が必要です。",
     "“{tool}” has no value called “{name}”.": "「{tool}」に「{name}」という値はありません。",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "「{tool}」はいま使えません。その拡張機能がオフか削除されているか、Sidefolkが拡張機能に使わせていません。"

@@ -97,6 +97,7 @@
     "A file changes": "文件变化时",
     "A flow can have at most {count} steps.": "一个流程最多有 {count} 个步骤。",
     "A flow is an object with “trigger” and “steps”.": "流程是一个包含“trigger”和“steps”的对象。",
+    "A job is at most {count} characters, so a card can show all of it.": "任务最多 {count} 个字符,这样卡片才能完整显示。",
     "A new file in a folder": "文件夹里有新文件",
     "A notice from your companion": "来自伙伴的通知",
     "A page, a file, a program": "一个页面、文件或程序",
@@ -520,9 +521,9 @@
     "“{day}” isn't a day: use mon, tue, wed, thu, fri, sat or sun.": "“{day}”不是一个星期几：请用 mon、tue、wed、thu、fri、sat 或 sun。",
     "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.": "“{id}”不能作为步骤名称：最多 24 个小写字母、数字和 _。",
     "“{key}” isn't something a {what} has.": "“{key}”不能用在 {what} 中。",
+    "“{name}” can't run: it isn't on, or there's no other flow by that name.": "“{name}”无法运行:它没有开启,或者没有其他同名流程。",
     "“{name}” is already running.": "“{name}”已经在运行。",
     "“{name}” is running by itself again.": "“{name}”又开始自己运行了。",
-    "“{name}” isn't there to run: it's paused, or there's no other flow by that name.": "“{name}”无法运行：它已暂停，或者没有其他同名流程。",
     "“{name}” needs a value.": "“{name}”需要一个值。",
     "“{tool}” has no value called “{name}”.": "“{tool}”没有名为“{name}”的值。",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "“{tool}”现在不可用。它的扩展可能已关闭或不见了，或者 Sidefolk 不允许扩展使用它。"
