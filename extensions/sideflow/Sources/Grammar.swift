@@ -25,7 +25,7 @@ enum Grammar {
     {{x}} is step x's result. Also {{trigger}} (what set it off), {{today}}, {{now}}.
     Use list_actions for the tools and their values. To tell the person, use the tool notify.user with title and body.
 
-    Only some values may hold {{x}} and still run without asking: notes.save's text, reminders.create's title and notes, notify.user's title and body, ask questions. Write everything else out in full: any other {{x}} works, but that step asks the person every time it runs.
+    Only some values may hold {{x}} and still run without asking: notes.save's text, reminders.create's title, notify.user's title and body, ask questions. Write everything else out in full: any other {{x}} works, but that step asks the person every time it runs.
 
     Nothing you write runs until the person allows it: flows are drafts until they answer a card that shows what it will do. A practice run reads for real and changes nothing.
     """
