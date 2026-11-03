@@ -70,7 +70,7 @@
   },
   "palettes": {
     "run": {
-      "title": "루틴 실행",
+      "title": "루틴",
       "placeholder": "어떤 루틴인가요?"
     }
   },

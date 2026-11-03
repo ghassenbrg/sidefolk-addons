@@ -19,7 +19,7 @@
     "flows": { "title": "Sideflow", "symbol": "point.3.connected.trianglepath.dotted", "refresh": 3, "widget": true }
   },
   "palettes": {
-    "run": { "title": "Run a flow", "hotkey": "ctrl+option+f", "placeholder": "Which flow?" }
+    "run": { "title": "Flows", "hotkey": "ctrl+option+f", "placeholder": "Which flow?" }
   },
   "settings": [
     { "key": "tell", "type": "choice", "title": "Tell me when a flow finishes", "detail": "It always tells you when one stops or needs you.", "segmented": true,
