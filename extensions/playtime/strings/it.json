@@ -550,6 +550,23 @@
     ]
   },
   "settings": {
+    "game_language": {
+      "detail": "Menu e giochi di Playtime in questa lingua, qualunque sia quella di Sidefolk.",
+      "options": {
+        "ar": "العربية",
+        "auto": "Come Sidefolk",
+        "de": "Deutsch",
+        "en": "English",
+        "es": "Español",
+        "fr": "Français",
+        "it": "Italiano",
+        "ja": "日本語",
+        "ko": "한국어",
+        "pt-BR": "Português (Brasil)",
+        "zh-Hans": "简体中文"
+      },
+      "title": "Lingua dei giochi"
+    },
     "level_balloon_words": {
       "options": {
         "default": "Predefinito",
@@ -722,23 +739,6 @@
         "gentle": "Gentle"
       },
       "title": "Quando vince"
-    },
-    "game_language": {
-      "title": "Lingua dei giochi",
-      "detail": "Menu e giochi di Playtime in questa lingua, qualunque sia quella di Sidefolk.",
-      "options": {
-        "auto": "Come Sidefolk",
-        "en": "English",
-        "fr": "Français",
-        "es": "Español",
-        "de": "Deutsch",
-        "it": "Italiano",
-        "pt-BR": "Português (Brasil)",
-        "ja": "日本語",
-        "ko": "한국어",
-        "zh-Hans": "简体中文",
-        "ar": "العربية"
-      }
     }
   },
   "surfaces": {
@@ -746,7 +746,7 @@
       "title": "Svago"
     },
     "toss": {
-      "title": "Moneta, dadi e mani"
+      "title": "Moneta, dadi e giocattoli"
     }
   },
   "tagline": "Giochi e rompicapi con il tuo compagno, e scelte a caso",
@@ -754,6 +754,7 @@
     "1 to take": "1 per prendere",
     "1–9 to play": "1–9 per giocare",
     "1–{n} to answer": "1–{n} per rispondere",
+    "1–{n} to choose": "1–{n} per scegliere",
     "1–{n} to copy": "1–{n} per copiare",
     "1–{n} to pick": "1–{n} per scegliere",
     "1–{n} to take": "1–{n} per prendere",
@@ -771,10 +772,6 @@
     "A mystery animal": "Un animale misterioso",
     "A new animal": "Un animale nuovo",
     "A new best for {level}!": "Nuovo record in {level}!",
-    "A new best: {count} moves!": {
-      "one": "Nuovo record: {count} mossa!",
-      "other": "Nuovo record: {count} mosse!"
-    },
     "A new word and {count} puzzle boards every day": {
       "one": "Una parola nuova e {count} rompicapo ogni giorno",
       "other": "Una parola nuova e {count} rompicapi ogni giorno"
@@ -837,8 +834,8 @@
     "Blossom": "Fiore",
     "Blossoms": "Fiori",
     "Blossoms can't touch, not even corner to corner.": "I fiori non si toccano, nemmeno in diagonale.",
-    "Boop the button the moment it says Boop!": "Premi il bottone appena dice Bup!",
     "Boop the moment it says Boop!": "Premi appena dice Bup!",
+    "Boop when it says Boop!": "Boop quando dice Boop!",
     "Boop!": "Bup!",
     "Both danced!": "Avete ballato tutti e due!",
     "Both {hand}: a draw.": "Entrambi {hand}: pareggio.",
@@ -906,6 +903,7 @@
     "Freezing": "Gelido",
     "Fresh questions": "Domande nuove",
     "Full house": "Filotto",
+    "Game language": "Lingua dei giochi",
     "Game settings": "Impostazioni dei giochi",
     "Game sounds off": "Suoni dei giochi disattivati",
     "Game sounds on": "Suoni dei giochi attivati",
@@ -931,6 +929,7 @@
     "Heads or tails…": "Testa o croce…",
     "Heads!": "Testa!",
     "Heart": "Cuore",
+    "Here we go!": "Si parte!",
     "Here's one to keep you going.": "Eccone uno per andare avanti.",
     "Hide it": "Nascondila",
     "Higher": "Più alto",
@@ -954,8 +953,13 @@
     "I'm going rock…": "Faccio sasso…",
     "I'm going scissors…": "Faccio forbici…",
     "I'm {name}: ready": "Sono {name}: pronto",
+    "In {count} tries.": {
+      "one": "In {count} tentativo.",
+      "other": "In {count} tentativi."
+    },
     "Is it… {animal}?": "È… {animal}?",
     "Is it… {n}?": "È il… {n}?",
+    "It must be {n}": "Deve essere {n}",
     "It was in {name}'s paw all along!": "Era nella zampa di {name} fin dall'inizio!",
     "It was {animal}!": "Era {animal}!",
     "It's {n}!": "È uscito {n}!",
@@ -969,6 +973,7 @@
     "Leave it empty and {name} picks one.": "Lascialo vuoto e {name} ne sceglie uno.",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "Lascia uno in più di un multiplo di quattro: 17, 13, 9, 5, poi 1.",
     "Let {name} guess instead": "Fai indovinare {name}",
+    "Let {name} pick one": "Scelga {name}",
     "Let's see…": "Vediamo…",
     "Level": "Livello",
     "Levels": "Livelli",
@@ -993,6 +998,7 @@
     "Next game": "Partita successiva",
     "Next one's yours.": "La prossima è tua.",
     "Next round": "Round successivo",
+    "Nice try!": "Bel tentativo!",
     "No": "No",
     "No reading yet": "Nessuna lettura",
     "No room is left there for its blossom.": "Lì non c'è più spazio per il suo fiore.",
@@ -1020,6 +1026,7 @@
     "Only one number still fits this cell.": "Solo un numero sta ancora in questa casella.",
     "Only one plot of that size fits around this number.": "Solo un lotto di quella misura sta attorno a questo numero.",
     "Oof.": "Ahi.",
+    "Oops! It was {pad}.": "Ops! Era {pad}.",
     "Oops, that one was wrong!": "Ops, quello era sbagliato!",
     "Other wave": "Saluto con l'altra mano",
     "Other…": "Altro…",
@@ -1038,10 +1045,10 @@
     "Play": "Gioca",
     "Play again": "Gioca ancora",
     "Play against a friend on this Mac": "Gioca contro un amico su questo Mac",
-    "Play against {name}": "Contro {name}",
     "Play another": "Giocane un altro",
     "Play another word": "Gioca un'altra parola",
     "Play every game once": "Gioca una volta a ogni gioco",
+    "Play with {name}": "Gioca con {name}",
     "Play {title}": "Gioca a {title}",
     "Played": "Giocate",
     "Played {title} with {with}": "Partita a {title} con {with}",
@@ -1098,6 +1105,7 @@
     "Row {row}, column {column}": "Riga {row}, colonna {column}",
     "Row {r}, column {c}": "Riga {r}, colonna {c}",
     "Ruled out": "Esclusa",
+    "Same as Sidefolk": "Come Sidefolk",
     "Science": "Scienza",
     "Scissors": "Forbici",
     "Scissors beat paper: I win!": "Le forbici battono la carta: vinco io!",
@@ -1159,6 +1167,7 @@
     "That's not in the word list.": "Questa parola non è nella lista.",
     "That's the animal I guessed.": "È l'animale che ho detto io.",
     "The answer for yours is": "Per il tuo la risposta è",
+    "The balloons flew away.": "I palloncini sono volati via.",
     "The cells on either side match, so this one is the other.": "Le caselle ai lati sono uguali, quindi questa è l'altra.",
     "The clue beside it decides this one.": "L'indizio accanto decide questa.",
     "The hint is used up.": "L'aiuto è già stato usato.",
@@ -1255,7 +1264,7 @@
     "Yes, that's it!": "Sì, è quello!",
     "Yesterday": "Ieri",
     "You": "Tu",
-    "You beat {name}!": "Hai battuto {name}!",
+    "You beat {name} by {n}.": "Batti {name} di {n}.",
     "You called it!": "Indovinato!",
     "You copied {count} moves.": {
       "one": "Hai copiato {count} mossa.",
@@ -1267,7 +1276,6 @@
     "You took the last stick.": "Hai preso l'ultimo bastoncino.",
     "You tried that one already.": "L'hai già provato.",
     "You were quicker!": "Sei stato più veloce!",
-    "You win the match!": "Vinci la partita!",
     "You win this game!": "Vinci questa partita!",
     "You win!": "Hai vinto!",
     "You won": "Hai vinto",
@@ -1320,6 +1328,10 @@
       "one": "{count} parola di allenamento",
       "other": "{count} parole di allenamento"
     },
+    "{count} questions": {
+      "one": "{count} domanda",
+      "other": "{count} domande"
+    },
     "{count} sticks left": {
       "one": "{count} bastoncino rimasto",
       "other": "{count} bastoncini rimasti"
@@ -1342,10 +1354,6 @@
     "{name} counts… {n} left.": "{name} conta… ne restano {n}.",
     "{name} didn't get it either.": "Neanche {name} l'ha trovata.",
     "{name} didn't get it either. Tomorrow!": "Neanche {name} l'ha trovata. A domani!",
-    "{name} found it in {count} questions.": {
-      "one": "{name} l'ha trovato in {count} domanda.",
-      "other": "{name} l'ha trovato in {count} domande."
-    },
     "{name} found it!": "{name} l'ha trovata!",
     "{name} guesses": "{name} indovina",
     "{name} has picked": "{name} ha scelto",
@@ -1364,10 +1372,8 @@
     "{name} took {n}. Your turn.": "{name} ne prende {n}. A te.",
     "{name} was quicker.": "{name} è stato più veloce.",
     "{name} wins the match!": "{name} vince la partita!",
-    "{name} wins the match.": "{name} vince la partita.",
     "{name} wins this game!": "{name} vince questa partita!",
     "{name} wins this game.": "{name} vince questa partita.",
-    "{name} wins this one.": "Questa la vince {name}.",
     "{name} wins!": "Vince {name}!",
     "{name} won": "Ha vinto {name}",
     "{name} writes the questions": "{name} scrive le domande",
@@ -1384,6 +1390,7 @@
     "{name}, find {other}'s number.": "{name}, trova il numero di {other}.",
     "{name}, guess {other}'s word.": "{name}, indovina la parola di {other}.",
     "{name}, look away!": "{name}, non guardare!",
+    "{name}, pick your toy.": "{name}, scegli il tuo gioco.",
     "{name}, type a secret number.": "{name}, scrivi un numero segreto.",
     "{name}, type a word for {other}.": "{name}, scrivi una parola per {other}.",
     "{name}: {n} ms": "{name}: {n} ms",
@@ -1401,13 +1408,7 @@
     "{title} is already at its easiest.": "{title} è già al più facile.",
     "{title} is already at its hardest.": "{title} è già al più difficile.",
     "{win} beats {lose}: a point for {name}.": "{win} batte {lose}: un punto a {name}.",
-    "“kind” must be coin, dice or rock_paper_scissors.": "“kind” deve essere coin, dice o rock_paper_scissors.",
-    "Let {name} pick one": "Scelga {name}",
-    "Here we go!": "Si parte!",
-    "{name}, pick your toy.": "{name}, scegli il tuo gioco.",
-    "1–{n} to choose": "1–{n} per scegliere",
-    "Game language": "Lingua dei giochi",
-    "Same as Sidefolk": "Come Sidefolk"
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind” deve essere coin, dice o rock_paper_scissors."
   },
   "tools": {
     "game_settings": {

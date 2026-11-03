@@ -543,6 +543,23 @@
     ]
   },
   "settings": {
+    "game_language": {
+      "detail": "无论 Sidefolk 用什么语言，Playtime 的菜单和游戏都用这种语言。",
+      "options": {
+        "ar": "العربية",
+        "auto": "与 Sidefolk 相同",
+        "de": "Deutsch",
+        "en": "English",
+        "es": "Español",
+        "fr": "Français",
+        "it": "Italiano",
+        "ja": "日本語",
+        "ko": "한국어",
+        "pt-BR": "Português (Brasil)",
+        "zh-Hans": "简体中文"
+      },
+      "title": "游戏语言"
+    },
     "level_balloon_words": {
       "options": {
         "default": "默认",
@@ -715,23 +732,6 @@
         "gentle": "Gentle"
       },
       "title": "赢了的时候"
-    },
-    "game_language": {
-      "title": "游戏语言",
-      "detail": "无论 Sidefolk 用什么语言，Playtime 的菜单和游戏都用这种语言。",
-      "options": {
-        "auto": "与 Sidefolk 相同",
-        "en": "English",
-        "fr": "Français",
-        "es": "Español",
-        "de": "Deutsch",
-        "it": "Italiano",
-        "pt-BR": "Português (Brasil)",
-        "ja": "日本語",
-        "ko": "한국어",
-        "zh-Hans": "简体中文",
-        "ar": "العربية"
-      }
     }
   },
   "surfaces": {
@@ -739,7 +739,7 @@
       "title": "游戏时间"
     },
     "toss": {
-      "title": "硬币、骰子和猜拳"
+      "title": "硬币、骰子和玩具"
     }
   },
   "tagline": "和伙伴一起玩游戏和谜题，还有随机抽选",
@@ -747,6 +747,7 @@
     "1 to take": "1 拿取",
     "1–9 to play": "1–9 落子",
     "1–{n} to answer": "按 1–{n} 作答",
+    "1–{n} to choose": "按 1–{n} 选择",
     "1–{n} to copy": "1–{n} 跟着做",
     "1–{n} to pick": "1–{n} 选择",
     "1–{n} to take": "1–{n} 拿取",
@@ -764,9 +765,6 @@
     "A mystery animal": "神秘动物",
     "A new animal": "新动物",
     "A new best for {level}!": "{level}新纪录！",
-    "A new best: {count} moves!": {
-      "other": "新纪录：{count}个动作！"
-    },
     "A new word and {count} puzzle boards every day": {
       "other": "每天一个新成语和{count}道谜题"
     },
@@ -826,8 +824,8 @@
     "Blossom": "花",
     "Blossoms": "花开",
     "Blossoms can't touch, not even corner to corner.": "花与花不能相邻，斜着也不行。",
-    "Boop the button the moment it says Boop!": "一出现“啵！”就按按钮",
     "Boop the moment it says Boop!": "一出现“啵！”就按下",
+    "Boop when it says Boop!": "听到 Boop! 就按！",
     "Boop!": "啵！",
     "Both danced!": "你们都跳完了！",
     "Both {hand}: a draw.": "都出了{hand}：平局。",
@@ -895,6 +893,7 @@
     "Freezing": "冰冷",
     "Fresh questions": "全新题目",
     "Full house": "大满贯",
+    "Game language": "游戏语言",
     "Game settings": "游戏设置",
     "Game sounds off": "游戏音效已关闭",
     "Game sounds on": "游戏音效已打开",
@@ -920,6 +919,7 @@
     "Heads or tails…": "正面还是反面……",
     "Heads!": "正面！",
     "Heart": "爱心",
+    "Here we go!": "开始啦！",
     "Here's one to keep you going.": "给你一个，继续加油。",
     "Hide it": "藏好",
     "Higher": "更大",
@@ -943,8 +943,12 @@
     "I'm going rock…": "我要出石头…",
     "I'm going scissors…": "我要出剪刀…",
     "I'm {name}: ready": "我是{name}：准备好了",
+    "In {count} tries.": {
+      "other": "用了 {count} 次。"
+    },
     "Is it… {animal}?": "是……{animal}吗？",
     "Is it… {n}?": "是……{n}吗？",
+    "It must be {n}": "一定是 {n}",
     "It was in {name}'s paw all along!": "宝石一直在{name}的爪子里！",
     "It was {animal}!": "是{animal}！",
     "It's {n}!": "{n} 点！",
@@ -958,6 +962,7 @@
     "Leave it empty and {name} picks one.": "留空则由{name}来选。",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "留下比4的倍数多1的数：17、13、9、5，最后是1。",
     "Let {name} guess instead": "换{name}来猜",
+    "Let {name} pick one": "让{name}来选",
     "Let's see…": "让我看看……",
     "Level": "难度",
     "Levels": "难度",
@@ -982,6 +987,7 @@
     "Next game": "下一局",
     "Next one's yours.": "下次一定猜中。",
     "Next round": "下一轮",
+    "Nice try!": "不错的尝试！",
     "No": "不是",
     "No reading yet": "还没有读数",
     "No room is left there for its blossom.": "那里已经没有放花的位置了。",
@@ -1009,6 +1015,7 @@
     "Only one number still fits this cell.": "这一格只剩一个数字能填。",
     "Only one plot of that size fits around this number.": "这个数字周围只放得下一块那么大的地。",
     "Oof.": "哎呀。",
+    "Oops! It was {pad}.": "哎呀！应该是{pad}。",
     "Oops, that one was wrong!": "哎呀，按错了！",
     "Other wave": "换只手挥",
     "Other…": "其他…",
@@ -1027,10 +1034,10 @@
     "Play": "玩一玩",
     "Play again": "再玩一次",
     "Play against a friend on this Mac": "在这台Mac上和朋友对战",
-    "Play against {name}": "和 {name} 对战",
     "Play another": "再玩一个",
     "Play another word": "再猜一个成语",
     "Play every game once": "每个游戏玩一次",
+    "Play with {name}": "和{name}一起玩",
     "Play {title}": "玩{title}",
     "Played": "已玩",
     "Played {title} with {with}": "和{with}玩了{title}",
@@ -1087,6 +1094,7 @@
     "Row {row}, column {column}": "第{row}行第{column}列",
     "Row {r}, column {c}": "第{r}行，第{c}列",
     "Ruled out": "已排除",
+    "Same as Sidefolk": "与 Sidefolk 相同",
     "Science": "科学",
     "Scissors": "剪刀",
     "Scissors beat paper: I win!": "剪刀赢布：我赢了！",
@@ -1148,6 +1156,7 @@
     "That's not in the word list.": "词库里没有这个词。",
     "That's the animal I guessed.": "这就是我猜的动物。",
     "The answer for yours is": "你的动物，答案是",
+    "The balloons flew away.": "气球飞走了。",
     "The cells on either side match, so this one is the other.": "两边的格子相同，所以这一格是另一种。",
     "The clue beside it decides this one.": "旁边的线索决定了这一格。",
     "The hint is used up.": "提示已经用过了。",
@@ -1242,7 +1251,7 @@
     "Yes, that's it!": "对，就是它！",
     "Yesterday": "昨天",
     "You": "你",
-    "You beat {name}!": "你赢了{name}！",
+    "You beat {name} by {n}.": "你以 {n} 分之差赢了{name}。",
     "You called it!": "猜中了！",
     "You copied {count} moves.": {
       "other": "你跟上了{count}个动作。"
@@ -1253,7 +1262,6 @@
     "You took the last stick.": "你拿了最后一根。",
     "You tried that one already.": "已经试过了。",
     "You were quicker!": "你更快！",
-    "You win the match!": "你赢了这局！",
     "You win this game!": "这局你赢了！",
     "You win!": "你赢了！",
     "You won": "你赢了",
@@ -1300,6 +1308,9 @@
     "{count} practice words": {
       "other": "练习{count}个成语"
     },
+    "{count} questions": {
+      "other": "{count} 个问题"
+    },
     "{count} sticks left": {
       "other": "还剩{count}根"
     },
@@ -1319,9 +1330,6 @@
     "{name} counts… {n} left.": "{name}在数……还剩{n}根。",
     "{name} didn't get it either.": "{name}也没猜出来。",
     "{name} didn't get it either. Tomorrow!": "{name}也没猜出来。明天再来！",
-    "{name} found it in {count} questions.": {
-      "other": "{name}问了{count}次就猜中了。"
-    },
     "{name} found it!": "{name}找到了！",
     "{name} guesses": "{name}来猜",
     "{name} has picked": "{name}已选好",
@@ -1340,10 +1348,8 @@
     "{name} took {n}. Your turn.": "{name}拿了{n}根。轮到你。",
     "{name} was quicker.": "{name}更快。",
     "{name} wins the match!": "{name}赢得比赛！",
-    "{name} wins the match.": "{name}赢了这局。",
     "{name} wins this game!": "这局{name}赢了！",
     "{name} wins this game.": "这局{name}赢了。",
-    "{name} wins this one.": "这次{name}赢了。",
     "{name} wins!": "{name}赢了！",
     "{name} won": "{name} 赢了",
     "{name} writes the questions": "由{name}出题",
@@ -1360,6 +1366,7 @@
     "{name}, find {other}'s number.": "{name}，找出{other}的数。",
     "{name}, guess {other}'s word.": "{name}，猜出{other}的词。",
     "{name}, look away!": "{name}，别看！",
+    "{name}, pick your toy.": "{name}，选你的玩具。",
     "{name}, type a secret number.": "{name}，输入一个秘密数字。",
     "{name}, type a word for {other}.": "{name}，为{other}输入一个词。",
     "{name}: {n} ms": "{name}：{n}毫秒",
@@ -1377,13 +1384,7 @@
     "{title} is already at its easiest.": "{title} 已经是最简单的了。",
     "{title} is already at its hardest.": "{title} 已经是最难的了。",
     "{win} beats {lose}: a point for {name}.": "{win}胜{lose}：{name}得一分。",
-    "“kind” must be coin, dice or rock_paper_scissors.": "“kind”必须是 coin、dice 或 rock_paper_scissors。",
-    "Let {name} pick one": "让{name}来选",
-    "Here we go!": "开始啦！",
-    "{name}, pick your toy.": "{name}，选你的玩具。",
-    "1–{n} to choose": "按 1–{n} 选择",
-    "Game language": "游戏语言",
-    "Same as Sidefolk": "与 Sidefolk 相同"
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind”必须是 coin、dice 或 rock_paper_scissors。"
   },
   "tools": {
     "game_settings": {

@@ -553,6 +553,23 @@
     ]
   },
   "settings": {
+    "game_language": {
+      "detail": "Sidefolkの言語に関係なく、Playtimeのメニューとゲームをこの言語にします。",
+      "options": {
+        "ar": "العربية",
+        "auto": "Sidefolkと同じ",
+        "de": "Deutsch",
+        "en": "English",
+        "es": "Español",
+        "fr": "Français",
+        "it": "Italiano",
+        "ja": "日本語",
+        "ko": "한국어",
+        "pt-BR": "Português (Brasil)",
+        "zh-Hans": "简体中文"
+      },
+      "title": "ゲームの言語"
+    },
     "level_balloon_words": {
       "options": {
         "default": "デフォルト",
@@ -725,23 +742,6 @@
         "gentle": "Gentle"
       },
       "title": "勝ったとき"
-    },
-    "game_language": {
-      "title": "ゲームの言語",
-      "detail": "Sidefolkの言語に関係なく、Playtimeのメニューとゲームをこの言語にします。",
-      "options": {
-        "auto": "Sidefolkと同じ",
-        "en": "English",
-        "fr": "Français",
-        "es": "Español",
-        "de": "Deutsch",
-        "it": "Italiano",
-        "pt-BR": "Português (Brasil)",
-        "ja": "日本語",
-        "ko": "한국어",
-        "zh-Hans": "简体中文",
-        "ar": "العربية"
-      }
     }
   },
   "surfaces": {
@@ -749,7 +749,7 @@
       "title": "あそびタイム"
     },
     "toss": {
-      "title": "コイン、サイコロ、じゃんけん"
+      "title": "コイン、サイコロ、おもちゃ"
     }
   },
   "tagline": "相棒と遊ぶゲームとパズル、ランダム選び",
@@ -757,6 +757,7 @@
     "1 to take": "1でとる",
     "1–9 to play": "1〜9で置く",
     "1–{n} to answer": "1〜{n}で回答",
+    "1–{n} to choose": "1–{n} で選ぶ",
     "1–{n} to copy": "1〜{n}でまねる",
     "1–{n} to pick": "1〜{n}で選ぶ",
     "1–{n} to take": "1〜{n}でとる",
@@ -774,9 +775,6 @@
     "A mystery animal": "なぞの動物",
     "A new animal": "新しい動物",
     "A new best for {level}!": "{level}の新記録！",
-    "A new best: {count} moves!": {
-      "other": "新記録：{count}手！"
-    },
     "A new word and {count} puzzle boards every day": {
       "other": "毎日あたらしいことばと{count}つのパズル"
     },
@@ -836,8 +834,8 @@
     "Blossom": "花",
     "Blossoms": "花ばたけ",
     "Blossoms can't touch, not even corner to corner.": "花どうしは、ななめでも隣り合いません。",
-    "Boop the button the moment it says Boop!": "「ポン！」が出たらすぐボタンを押そう",
     "Boop the moment it says Boop!": "「ポン！」の瞬間に押そう",
+    "Boop when it says Boop!": "ポン！と言ったらポン！",
     "Boop!": "ポン！",
     "Both danced!": "ふたりとも踊ったね！",
     "Both {hand}: a draw.": "どちらも{hand}：あいこ。",
@@ -905,6 +903,7 @@
     "Freezing": "こおりそう",
     "Fresh questions": "新しい問題",
     "Full house": "パーフェクト",
+    "Game language": "ゲームの言語",
     "Game settings": "ゲームの設定",
     "Game sounds off": "ゲームの効果音オフ",
     "Game sounds on": "ゲームの効果音オン",
@@ -930,6 +929,7 @@
     "Heads or tails…": "表か裏か…",
     "Heads!": "表！",
     "Heart": "ハート",
+    "Here we go!": "いくよ！",
     "Here's one to keep you going.": "続けるためのひとつです。",
     "Hide it": "かくす",
     "Higher": "もっと大きい",
@@ -953,8 +953,12 @@
     "I'm going rock…": "グーを出そうかな…",
     "I'm going scissors…": "チョキを出そうかな…",
     "I'm {name}: ready": "{name}です：準備OK",
+    "In {count} tries.": {
+      "other": "{count}回で。"
+    },
     "Is it… {animal}?": "それは…{animal}？",
     "Is it… {n}?": "{n}…かな？",
+    "It must be {n}": "{n}で決まり",
     "It was in {name}'s paw all along!": "ずっと{name}の手の中にあったよ！",
     "It was {animal}!": "{animal}だった！",
     "It's {n}!": "{n}が出ました！",
@@ -968,6 +972,7 @@
     "Leave it empty and {name} picks one.": "空欄なら{name}が選びます。",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "4の倍数より1多く残そう：17、13、9、5、そして1。",
     "Let {name} guess instead": "{name}に当ててもらう",
+    "Let {name} pick one": "{name}におまかせ",
     "Let's see…": "どれどれ…",
     "Level": "レベル",
     "Levels": "レベル",
@@ -992,6 +997,7 @@
     "Next game": "次のゲーム",
     "Next one's yours.": "次はきっと当たります。",
     "Next round": "次のラウンド",
+    "Nice try!": "おしい！",
     "No": "いいえ",
     "No reading yet": "まだ測定なし",
     "No room is left there for its blossom.": "そこにはもう花を置く場所がありません。",
@@ -1019,6 +1025,7 @@
     "Only one number still fits this cell.": "このマスに入る数字はひとつだけです。",
     "Only one plot of that size fits around this number.": "この数字のまわりに入るその大きさの区画はひとつだけです。",
     "Oof.": "あちゃー。",
+    "Oops! It was {pad}.": "おっと！正解は{pad}。",
     "Oops, that one was wrong!": "おっと、ちがったね！",
     "Other wave": "反対の手でふる",
     "Other…": "その他…",
@@ -1037,10 +1044,10 @@
     "Play": "あそぶ",
     "Play again": "もう一回",
     "Play against a friend on this Mac": "このMacで友だちと対戦",
-    "Play against {name}": "{name}と対戦",
     "Play another": "もうひとつ遊ぶ",
     "Play another word": "別のことばで遊ぶ",
     "Play every game once": "すべてのゲームを1回遊ぶ",
+    "Play with {name}": "{name}とあそぶ",
     "Play {title}": "{title}で遊ぶ",
     "Played": "プレイ回数",
     "Played {title} with {with}": "{with}と{title}で遊びました",
@@ -1097,6 +1104,7 @@
     "Row {row}, column {column}": "{row}行{column}列",
     "Row {r}, column {c}": "{r}行{c}列",
     "Ruled out": "除外",
+    "Same as Sidefolk": "Sidefolkと同じ",
     "Science": "科学",
     "Scissors": "チョキ",
     "Scissors beat paper: I win!": "チョキはパーに勝ちます。こちらの勝ち！",
@@ -1158,6 +1166,7 @@
     "That's not in the word list.": "その言葉はリストにありません。",
     "That's the animal I guessed.": "それは私が言った動物です。",
     "The answer for yours is": "あなたの動物の答えは",
+    "The balloons flew away.": "風船は飛んでいっちゃった。",
     "The cells on either side match, so this one is the other.": "両側のマスが同じなので、ここはもう一方です。",
     "The clue beside it decides this one.": "となりのヒントでここが決まります。",
     "The hint is used up.": "ヒントはもう使いました。",
@@ -1252,7 +1261,7 @@
     "Yes, that's it!": "うん、それ！",
     "Yesterday": "昨日",
     "You": "自分",
-    "You beat {name}!": "{name}に勝った！",
+    "You beat {name} by {n}.": "{name}に{n}点差で勝ち。",
     "You called it!": "予想どおり！",
     "You copied {count} moves.": {
       "other": "{count}手まねできたよ。"
@@ -1263,7 +1272,6 @@
     "You took the last stick.": "さいごの1本をとっちゃった。",
     "You tried that one already.": "それはもう試しました。",
     "You were quicker!": "あなたのほうが速かった！",
-    "You win the match!": "勝ちましたね！",
     "You win this game!": "このゲームはあなたの勝ち！",
     "You win!": "あなたの勝ち！",
     "You won": "あなたの勝ち",
@@ -1310,6 +1318,9 @@
     "{count} practice words": {
       "other": "練習{count}語"
     },
+    "{count} questions": {
+      "other": "{count}問"
+    },
     "{count} sticks left": {
       "other": "のこり{count}本"
     },
@@ -1329,9 +1340,6 @@
     "{name} counts… {n} left.": "{name}が数えてる…のこり{n}本。",
     "{name} didn't get it either.": "{name}もわからなかった。",
     "{name} didn't get it either. Tomorrow!": "{name}もわからなかった。また明日！",
-    "{name} found it in {count} questions.": {
-      "other": "{name}は{count}問で当てたよ。"
-    },
     "{name} found it!": "{name}が見つけた！",
     "{name} guesses": "{name}が当てる",
     "{name} has picked": "{name}は選びました",
@@ -1350,10 +1358,8 @@
     "{name} took {n}. Your turn.": "{name}は{n}本とったよ。あなたの番。",
     "{name} was quicker.": "{name}のほうが速かった。",
     "{name} wins the match!": "{name}の勝ち！",
-    "{name} wins the match.": "{name}の勝ちです。",
     "{name} wins this game!": "このゲームは{name}の勝ち！",
     "{name} wins this game.": "このゲームは{name}の勝ち。",
-    "{name} wins this one.": "今回は{name}の勝ち。",
     "{name} wins!": "{name}の勝ち！",
     "{name} won": "{name}の勝ち",
     "{name} writes the questions": "{name}が問題を作ります",
@@ -1370,6 +1376,7 @@
     "{name}, find {other}'s number.": "{name}、{other}の数を当てて。",
     "{name}, guess {other}'s word.": "{name}、{other}の言葉を当てて。",
     "{name}, look away!": "{name}は見ないでね！",
+    "{name}, pick your toy.": "{name}、おもちゃを選んで。",
     "{name}, type a secret number.": "{name}、ひみつの数を入力してね。",
     "{name}, type a word for {other}.": "{name}、{other}のための言葉を入力してね。",
     "{name}: {n} ms": "{name}：{n}ミリ秒",
@@ -1387,13 +1394,7 @@
     "{title} is already at its easiest.": "{title}はもういちばんやさしいレベルです。",
     "{title} is already at its hardest.": "{title}はもういちばん難しいレベルです。",
     "{win} beats {lose}: a point for {name}.": "{win}は{lose}に勝つ：{name}に1点。",
-    "“kind” must be coin, dice or rock_paper_scissors.": "「kind」はcoin、dice、rock_paper_scissorsのいずれかにしてください。",
-    "Let {name} pick one": "{name}におまかせ",
-    "Here we go!": "いくよ！",
-    "{name}, pick your toy.": "{name}、おもちゃを選んで。",
-    "1–{n} to choose": "1–{n} で選ぶ",
-    "Game language": "ゲームの言語",
-    "Same as Sidefolk": "Sidefolkと同じ"
+    "“kind” must be coin, dice or rock_paper_scissors.": "「kind」はcoin、dice、rock_paper_scissorsのいずれかにしてください。"
   },
   "tools": {
     "game_settings": {

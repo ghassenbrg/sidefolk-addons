@@ -2,7 +2,7 @@ import SidefolkExtensionKit
 
 // Playtime: games beside the companion, all of it in this pack (Sidefolk D101): every game's screens, words, art and sounds, a menu,
 // and the Game Center as its page. Eleven played against the companion (trivia, tic-tac-toe, Copy Me, Quick Paws, Which Cup?, Higher or Lower,
-// Guess My Animal, Balloon Words, Last Stick, Memory Pairs and rock, paper, scissors), coin, dice and hands on the desktop, and five puzzles played alone (Daily Word, Garden Plots, Seesaw, Sudoku and
+// Guess My Animal, Balloon Words, Last Stick, Memory Pairs and rock, paper, scissors), coin, dice and pop-up toys on the desktop, and five puzzles played alone (Daily Word, Garden Plots, Seesaw, Sudoku and
 // Blossoms); and random picks for a break. Scores stay in its own folder. Its words come in Sidefolk's ten languages (strings/, the Kit's L),
 // chosen by the `language` Sidefolk passes.
 let ext = Extension(name: "playtime", version: "1.0.0")

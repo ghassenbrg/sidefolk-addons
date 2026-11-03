@@ -541,6 +541,23 @@
     ]
   },
   "settings": {
+    "game_language": {
+      "detail": "Sidefolk 언어와 상관없이 Playtime의 메뉴와 게임을 이 언어로 표시해요.",
+      "options": {
+        "ar": "العربية",
+        "auto": "Sidefolk과 동일",
+        "de": "Deutsch",
+        "en": "English",
+        "es": "Español",
+        "fr": "Français",
+        "it": "Italiano",
+        "ja": "日本語",
+        "ko": "한국어",
+        "pt-BR": "Português (Brasil)",
+        "zh-Hans": "简体中文"
+      },
+      "title": "게임 언어"
+    },
     "level_balloon_words": {
       "options": {
         "default": "기본값",
@@ -713,23 +730,6 @@
         "gentle": "Gentle"
       },
       "title": "이겼을 때"
-    },
-    "game_language": {
-      "title": "게임 언어",
-      "detail": "Sidefolk 언어와 상관없이 Playtime의 메뉴와 게임을 이 언어로 표시해요.",
-      "options": {
-        "auto": "Sidefolk과 동일",
-        "en": "English",
-        "fr": "Français",
-        "es": "Español",
-        "de": "Deutsch",
-        "it": "Italiano",
-        "pt-BR": "Português (Brasil)",
-        "ja": "日本語",
-        "ko": "한국어",
-        "zh-Hans": "简体中文",
-        "ar": "العربية"
-      }
     }
   },
   "surfaces": {
@@ -737,7 +737,7 @@
       "title": "놀이 시간"
     },
     "toss": {
-      "title": "동전, 주사위, 가위바위보"
+      "title": "동전, 주사위, 장난감"
     }
   },
   "tagline": "동반자와 즐기는 게임과 퍼즐, 무작위 뽑기",
@@ -745,6 +745,7 @@
     "1 to take": "1로 가져가기",
     "1–9 to play": "1~9로 두기",
     "1–{n} to answer": "1–{n}로 답하기",
+    "1–{n} to choose": "1–{n}로 선택",
     "1–{n} to copy": "1~{n}로 따라 하기",
     "1–{n} to pick": "1~{n}로 고르기",
     "1–{n} to take": "1~{n}로 가져가기",
@@ -762,9 +763,6 @@
     "A mystery animal": "수수께끼 동물",
     "A new animal": "새로운 동물",
     "A new best for {level}!": "{level} 새 기록!",
-    "A new best: {count} moves!": {
-      "other": "새 기록: {count}동작!"
-    },
     "A new word and {count} puzzle boards every day": {
       "other": "매일 새로운 단어와 퍼즐 {count}개"
     },
@@ -824,8 +822,8 @@
     "Blossom": "꽃",
     "Blossoms": "꽃밭",
     "Blossoms can't touch, not even corner to corner.": "꽃끼리는 대각선으로도 붙지 않아요.",
-    "Boop the button the moment it says Boop!": "‘콕!’이 뜨면 바로 버튼을 눌러요",
     "Boop the moment it says Boop!": "‘콕!’ 하는 순간 눌러요",
+    "Boop when it says Boop!": "붑! 하면 붑!",
     "Boop!": "콕!",
     "Both danced!": "둘 다 춤췄어요!",
     "Both {hand}: a draw.": "둘 다 {hand}: 무승부.",
@@ -893,6 +891,7 @@
     "Freezing": "꽁꽁 얼었어요",
     "Fresh questions": "새 문제",
     "Full house": "올클리어",
+    "Game language": "게임 언어",
     "Game settings": "게임 설정",
     "Game sounds off": "게임 소리 끔",
     "Game sounds on": "게임 소리 켬",
@@ -918,6 +917,7 @@
     "Heads or tails…": "앞면일까, 뒷면일까…",
     "Heads!": "앞면!",
     "Heart": "하트",
+    "Here we go!": "간다!",
     "Here's one to keep you going.": "계속할 수 있게 하나 알려 줄게요.",
     "Hide it": "숨기기",
     "Higher": "더 커요",
@@ -941,8 +941,12 @@
     "I'm going rock…": "바위 낼 거예요…",
     "I'm going scissors…": "가위 낼 거예요…",
     "I'm {name}: ready": "저는 {name}: 준비됐어요",
+    "In {count} tries.": {
+      "other": "{count}번 만에."
+    },
     "Is it… {animal}?": "혹시… {animal}?",
     "Is it… {n}?": "혹시… {n}?",
+    "It must be {n}": "{n}일 수밖에 없어요",
     "It was in {name}'s paw all along!": "계속 {name}의 손에 있었어요!",
     "It was {animal}!": "{animal}였어요!",
     "It's {n}!": "{n} 나왔어요!",
@@ -956,6 +960,7 @@
     "Leave it empty and {name} picks one.": "비워 두면 {name}이(가) 골라요.",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "4의 배수보다 하나 더 남기세요: 17, 13, 9, 5, 그리고 1.",
     "Let {name} guess instead": "{name}이(가) 맞히게 하기",
+    "Let {name} pick one": "{name}에게 맡기기",
     "Let's see…": "어디 보자…",
     "Level": "단계",
     "Levels": "단계",
@@ -980,6 +985,7 @@
     "Next game": "다음 게임",
     "Next one's yours.": "다음엔 맞힐 거예요.",
     "Next round": "다음 라운드",
+    "Nice try!": "잘했어요!",
     "No": "아니요",
     "No reading yet": "아직 측정값 없음",
     "No room is left there for its blossom.": "그곳엔 꽃을 둘 자리가 더 없어요.",
@@ -1007,6 +1013,7 @@
     "Only one number still fits this cell.": "이 칸에 들어갈 숫자는 하나뿐이에요.",
     "Only one plot of that size fits around this number.": "이 숫자 둘레에 그 크기의 구획은 하나만 들어가요.",
     "Oof.": "아이고.",
+    "Oops! It was {pad}.": "앗! {pad}였어요.",
     "Oops, that one was wrong!": "앗, 틀렸어요!",
     "Other wave": "반대 손 흔들기",
     "Other…": "기타…",
@@ -1025,10 +1032,10 @@
     "Play": "놀기",
     "Play again": "다시 하기",
     "Play against a friend on this Mac": "이 Mac에서 친구와 대결",
-    "Play against {name}": "{name}와 대결",
     "Play another": "하나 더 하기",
     "Play another word": "다른 단어 하기",
     "Play every game once": "모든 게임 한 번씩 하기",
+    "Play with {name}": "{name}와 놀기",
     "Play {title}": "{title} 하기",
     "Played": "플레이",
     "Played {title} with {with}": "{with}와(과) {title} 플레이",
@@ -1085,6 +1092,7 @@
     "Row {row}, column {column}": "{row}행 {column}열",
     "Row {r}, column {c}": "{r}행 {c}열",
     "Ruled out": "제외",
+    "Same as Sidefolk": "Sidefolk과 동일",
     "Science": "과학",
     "Scissors": "가위",
     "Scissors beat paper: I win!": "가위가 보를 이겨요. 제가 이겼어요!",
@@ -1146,6 +1154,7 @@
     "That's not in the word list.": "목록에 없는 단어예요.",
     "That's the animal I guessed.": "제가 말한 동물이에요.",
     "The answer for yours is": "당신 동물의 답은",
+    "The balloons flew away.": "풍선이 날아갔어요.",
     "The cells on either side match, so this one is the other.": "양옆 칸이 같으니 이 칸은 다른 것이에요.",
     "The clue beside it decides this one.": "옆의 단서가 이 칸을 정해요.",
     "The hint is used up.": "힌트를 이미 썼어요.",
@@ -1240,7 +1249,7 @@
     "Yes, that's it!": "네, 맞아요!",
     "Yesterday": "어제",
     "You": "나",
-    "You beat {name}!": "{name}을(를) 이겼어요!",
+    "You beat {name} by {n}.": "{name}를 {n}점 차로 이겼어요.",
     "You called it!": "맞혔어요!",
     "You copied {count} moves.": {
       "other": "{count}동작을 따라 했어요."
@@ -1251,7 +1260,6 @@
     "You took the last stick.": "마지막 막대를 가져갔어요.",
     "You tried that one already.": "이미 해 봤어요.",
     "You were quicker!": "당신이 더 빨랐어요!",
-    "You win the match!": "승리했어요!",
     "You win this game!": "이번 게임은 당신의 승리!",
     "You win!": "당신의 승리!",
     "You won": "이겼어요",
@@ -1298,6 +1306,9 @@
     "{count} practice words": {
       "other": "연습 단어 {count}개"
     },
+    "{count} questions": {
+      "other": "질문 {count}개"
+    },
     "{count} sticks left": {
       "other": "{count}개 남음"
     },
@@ -1317,9 +1328,6 @@
     "{name} counts… {n} left.": "{name}이(가) 세는 중… {n}개 남았어요.",
     "{name} didn't get it either.": "{name}도 못 맞혔어요.",
     "{name} didn't get it either. Tomorrow!": "{name}도 못 맞혔어요. 내일 또 해요!",
-    "{name} found it in {count} questions.": {
-      "other": "{name}이(가) {count}번 만에 맞혔어요."
-    },
     "{name} found it!": "{name}이(가) 찾았어요!",
     "{name} guesses": "{name}이(가) 맞혀요",
     "{name} has picked": "{name} 선택 완료",
@@ -1338,10 +1346,8 @@
     "{name} took {n}. Your turn.": "{name}이(가) {n}개 가져갔어요. 당신 차례.",
     "{name} was quicker.": "{name}이(가) 더 빨랐어요.",
     "{name} wins the match!": "{name} 승리!",
-    "{name} wins the match.": "{name} 승리예요.",
     "{name} wins this game!": "이번 게임은 {name} 승리!",
     "{name} wins this game.": "이번 게임은 {name}의 승리.",
-    "{name} wins this one.": "이번엔 {name}이(가) 이겼어요.",
     "{name} wins!": "{name} 승리!",
     "{name} won": "{name} 승리",
     "{name} writes the questions": "{name}이(가) 문제를 만들어요",
@@ -1358,6 +1364,7 @@
     "{name}, find {other}'s number.": "{name}, {other}의 숫자를 찾아요.",
     "{name}, guess {other}'s word.": "{name}, {other}의 단어를 맞혀요.",
     "{name}, look away!": "{name}, 보지 마세요!",
+    "{name}, pick your toy.": "{name}, 장난감을 골라요.",
     "{name}, type a secret number.": "{name}, 비밀 숫자를 입력하세요.",
     "{name}, type a word for {other}.": "{name}, {other}에게 낼 단어를 입력하세요.",
     "{name}: {n} ms": "{name}: {n}ms",
@@ -1375,13 +1382,7 @@
     "{title} is already at its easiest.": "{title}은(는) 이미 가장 쉬워요.",
     "{title} is already at its hardest.": "{title}은(는) 이미 가장 어려워요.",
     "{win} beats {lose}: a point for {name}.": "{win}이(가) {lose}을(를) 이겨요: {name}에게 1점.",
-    "“kind” must be coin, dice or rock_paper_scissors.": "“kind”는 coin, dice, rock_paper_scissors 중 하나여야 해요.",
-    "Let {name} pick one": "{name}에게 맡기기",
-    "Here we go!": "간다!",
-    "{name}, pick your toy.": "{name}, 장난감을 골라요.",
-    "1–{n} to choose": "1–{n}로 선택",
-    "Game language": "게임 언어",
-    "Same as Sidefolk": "Sidefolk과 동일"
+    "“kind” must be coin, dice or rock_paper_scissors.": "“kind”는 coin, dice, rock_paper_scissors 중 하나여야 해요."
   },
   "tools": {
     "game_settings": {

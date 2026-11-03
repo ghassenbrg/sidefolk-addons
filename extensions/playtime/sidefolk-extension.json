@@ -733,8 +733,8 @@
       ]
     },
     "toss": {
-      "title": "Flip a coin, roll dice or play a hand",
-      "summary": "Flip a coin, roll dice or play a hand",
+      "title": "Flip a coin, roll dice or play Rock, Paper, Scissors",
+      "summary": "Flip a coin, roll dice or play Rock, Paper, Scissors",
       "risk": "low",
       "category": "system",
       "mutates": false,
@@ -1186,7 +1186,7 @@
       }
     },
     "toss": {
-      "title": "Coin, dice and hands",
+      "title": "Coin, dice and toys",
       "symbol": "dice.fill",
       "kind": "overlay",
       "width": 460,

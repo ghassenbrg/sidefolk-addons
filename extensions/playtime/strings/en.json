@@ -21,10 +21,6 @@
     "A mystery animal": "A mystery animal",
     "A new animal": "A new animal",
     "A new best for {level}!": "A new best for {level}!",
-    "A new best: {count} moves!": {
-      "one": "A new best: {count} move!",
-      "other": "A new best: {count} moves!"
-    },
     "A new word and {count} puzzle boards every day": {
       "one": "A new word and {count} puzzle board every day",
       "other": "A new word and {count} puzzle boards every day"
@@ -87,8 +83,8 @@
     "Blossom": "Blossom",
     "Blossoms": "Blossoms",
     "Blossoms can't touch, not even corner to corner.": "Blossoms can't touch, not even corner to corner.",
-    "Boop the button the moment it says Boop!": "Boop the button the moment it says Boop!",
     "Boop the moment it says Boop!": "Boop the moment it says Boop!",
+    "Boop when it says Boop!": "Boop when it says Boop!",
     "Boop!": "Boop!",
     "Both danced!": "Both danced!",
     "Both {hand}: a draw.": "Both {hand}: a draw.",
@@ -206,8 +202,13 @@
     "I'm going rock…": "I'm going rock…",
     "I'm going scissors…": "I'm going scissors…",
     "I'm {name}: ready": "I'm {name}: ready",
+    "In {count} tries.": {
+      "one": "In {count} try.",
+      "other": "In {count} tries."
+    },
     "Is it… {animal}?": "Is it… {animal}?",
     "Is it… {n}?": "Is it… {n}?",
+    "It must be {n}": "It must be {n}",
     "It was in {name}'s paw all along!": "It was in {name}'s paw all along!",
     "It was {animal}!": "It was {animal}!",
     "It's {n}!": "It's {n}!",
@@ -246,6 +247,7 @@
     "Next game": "Next game",
     "Next one's yours.": "Next one's yours.",
     "Next round": "Next round",
+    "Nice try!": "Nice try!",
     "No": "No",
     "No reading yet": "No reading yet",
     "No room is left there for its blossom.": "No room is left there for its blossom.",
@@ -273,6 +275,7 @@
     "Only one number still fits this cell.": "Only one number still fits this cell.",
     "Only one plot of that size fits around this number.": "Only one plot of that size fits around this number.",
     "Oof.": "Oof.",
+    "Oops! It was {pad}.": "Oops! It was {pad}.",
     "Oops, that one was wrong!": "Oops, that one was wrong!",
     "Other wave": "Other wave",
     "Other…": "Other…",
@@ -291,10 +294,10 @@
     "Play": "Play",
     "Play again": "Play again",
     "Play against a friend on this Mac": "Play against a friend on this Mac",
-    "Play against {name}": "Play against {name}",
     "Play another": "Play another",
     "Play another word": "Play another word",
     "Play every game once": "Play every game once",
+    "Play with {name}": "Play with {name}",
     "Play {title}": "Play {title}",
     "Played": "Played",
     "Played {title} with {with}": "Played {title} with {with}",
@@ -413,6 +416,7 @@
     "That's not in the word list.": "That's not in the word list.",
     "That's the animal I guessed.": "That's the animal I guessed.",
     "The answer for yours is": "The answer for yours is",
+    "The balloons flew away.": "The balloons flew away.",
     "The cells on either side match, so this one is the other.": "The cells on either side match, so this one is the other.",
     "The clue beside it decides this one.": "The clue beside it decides this one.",
     "The hint is used up.": "The hint is used up.",
@@ -509,7 +513,7 @@
     "Yes, that's it!": "Yes, that's it!",
     "Yesterday": "Yesterday",
     "You": "You",
-    "You beat {name}!": "You beat {name}!",
+    "You beat {name} by {n}.": "You beat {name} by {n}.",
     "You called it!": "You called it!",
     "You copied {count} moves.": {
       "one": "You copied {count} move.",
@@ -521,7 +525,6 @@
     "You took the last stick.": "You took the last stick.",
     "You tried that one already.": "You tried that one already.",
     "You were quicker!": "You were quicker!",
-    "You win the match!": "You win the match!",
     "You win this game!": "You win this game!",
     "You win!": "You win!",
     "You won": "You won",
@@ -574,6 +577,10 @@
       "one": "{count} practice word",
       "other": "{count} practice words"
     },
+    "{count} questions": {
+      "one": "{count} question",
+      "other": "{count} questions"
+    },
     "{count} sticks left": {
       "one": "{count} stick left",
       "other": "{count} sticks left"
@@ -596,10 +603,6 @@
     "{name} counts… {n} left.": "{name} counts… {n} left.",
     "{name} didn't get it either.": "{name} didn't get it either.",
     "{name} didn't get it either. Tomorrow!": "{name} didn't get it either. Tomorrow!",
-    "{name} found it in {count} questions.": {
-      "one": "{name} found it in {count} question.",
-      "other": "{name} found it in {count} questions."
-    },
     "{name} found it!": "{name} found it!",
     "{name} guesses": "{name} guesses",
     "{name} has picked": "{name} has picked",
@@ -618,10 +621,8 @@
     "{name} took {n}. Your turn.": "{name} took {n}. Your turn.",
     "{name} was quicker.": "{name} was quicker.",
     "{name} wins the match!": "{name} wins the match!",
-    "{name} wins the match.": "{name} wins the match.",
     "{name} wins this game!": "{name} wins this game!",
     "{name} wins this game.": "{name} wins this game.",
-    "{name} wins this one.": "{name} wins this one.",
     "{name} wins!": "{name} wins!",
     "{name} won": "{name} won",
     "{name} writes the questions": "{name} writes the questions",

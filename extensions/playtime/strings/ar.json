@@ -542,6 +542,23 @@
     ]
   },
   "settings": {
+    "game_language": {
+      "detail": "قوائم Playtime وألعابه بهذه اللغة، أيًّا كانت لغة Sidefolk.",
+      "options": {
+        "ar": "العربية",
+        "auto": "مثل Sidefolk",
+        "de": "Deutsch",
+        "en": "English",
+        "es": "Español",
+        "fr": "Français",
+        "it": "Italiano",
+        "ja": "日本語",
+        "ko": "한국어",
+        "pt-BR": "Português (Brasil)",
+        "zh-Hans": "简体中文"
+      },
+      "title": "لغة الألعاب"
+    },
     "level_balloon_words": {
       "options": {
         "default": "افتراضي",
@@ -714,23 +731,6 @@
         "gentle": "Gentle"
       },
       "title": "عند الفوز"
-    },
-    "game_language": {
-      "title": "لغة الألعاب",
-      "detail": "قوائم Playtime وألعابه بهذه اللغة، أيًّا كانت لغة Sidefolk.",
-      "options": {
-        "auto": "مثل Sidefolk",
-        "en": "English",
-        "fr": "Français",
-        "es": "Español",
-        "de": "Deutsch",
-        "it": "Italiano",
-        "pt-BR": "Português (Brasil)",
-        "ja": "日本語",
-        "ko": "한국어",
-        "zh-Hans": "简体中文",
-        "ar": "العربية"
-      }
     }
   },
   "surfaces": {
@@ -738,7 +738,7 @@
       "title": "وقت اللعب"
     },
     "toss": {
-      "title": "عملة ونرد وأيدٍ"
+      "title": "عملة ونرد وألعاب"
     }
   },
   "tagline": "ألعاب وألغاز مع رفيقك، واختيار عشوائي",
@@ -746,6 +746,7 @@
     "1 to take": "1 للأخذ",
     "1–9 to play": "1–9 للعب",
     "1–{n} to answer": "1–{n} للإجابة",
+    "1–{n} to choose": "1–{n} للاختيار",
     "1–{n} to copy": "1–{n} للتقليد",
     "1–{n} to pick": "1–{n} للاختيار",
     "1–{n} to take": "1–{n} للأخذ",
@@ -763,14 +764,6 @@
     "A mystery animal": "حيوان غامض",
     "A new animal": "حيوان جديد",
     "A new best for {level}!": "رقم قياسي جديد في المستوى {level}!",
-    "A new best: {count} moves!": {
-      "few": "رقم قياسي جديد: {count} حركات!",
-      "many": "رقم قياسي جديد: {count} حركة!",
-      "one": "رقم قياسي جديد: حركة واحدة!",
-      "other": "رقم قياسي جديد: {count} حركة!",
-      "two": "رقم قياسي جديد: حركتان!",
-      "zero": "رقم قياسي جديد: {count} حركة!"
-    },
     "A new word and {count} puzzle boards every day": {
       "few": "كلمة جديدة و{count} ألغاز كل يوم",
       "many": "كلمة جديدة و{count} لغزًا كل يوم",
@@ -845,8 +838,8 @@
     "Blossom": "زهرة",
     "Blossoms": "أزهار",
     "Blossoms can't touch, not even corner to corner.": "الأزهار لا تتلامس، ولا حتى قطريًا.",
-    "Boop the button the moment it says Boop!": "اضغط الزر لحظة ظهور «بوب!»",
     "Boop the moment it says Boop!": "اضغط لحظة ظهور «بوب!»",
+    "Boop when it says Boop!": "اضغط عندما يقول بوب!",
     "Boop!": "بوب!",
     "Both danced!": "رقصتما كلاكما!",
     "Both {hand}: a draw.": "كلاكما {hand}: تعادل.",
@@ -914,6 +907,7 @@
     "Freezing": "متجمّد",
     "Fresh questions": "أسئلة جديدة",
     "Full house": "علامة كاملة",
+    "Game language": "لغة الألعاب",
     "Game settings": "إعدادات الألعاب",
     "Game sounds off": "أصوات الألعاب متوقفة",
     "Game sounds on": "أصوات الألعاب مشغلة",
@@ -939,6 +933,7 @@
     "Heads or tails…": "صورة أم كتابة…",
     "Heads!": "صورة!",
     "Heart": "قلب",
+    "Here we go!": "هيا بنا!",
     "Here's one to keep you going.": "إليك واحدة لتكمل.",
     "Hide it": "إخفاؤها",
     "Higher": "أكبر",
@@ -962,8 +957,17 @@
     "I'm going rock…": "سأختار حجرة…",
     "I'm going scissors…": "سأختار مقصًا…",
     "I'm {name}: ready": "أنا {name}: جاهز",
+    "In {count} tries.": {
+      "few": "في {count} محاولات.",
+      "many": "في {count} محاولة.",
+      "one": "في محاولة واحدة.",
+      "other": "في {count} محاولة.",
+      "two": "في محاولتين.",
+      "zero": "من دون محاولات."
+    },
     "Is it… {animal}?": "هل هو… {animal}؟",
     "Is it… {n}?": "هل هو… {n}؟",
+    "It must be {n}": "لا بد أنه {n}",
     "It was in {name}'s paw all along!": "كانت في يد {name} طوال الوقت!",
     "It was {animal}!": "كان {animal}!",
     "It's {n}!": "ظهر الرقم {n}!",
@@ -977,6 +981,7 @@
     "Leave it empty and {name} picks one.": "اتركه فارغًا ويختار {name} واحدًا.",
     "Leave one more than a multiple of four: 17, 13, 9, 5, then 1.": "اترك عددًا يزيد واحدًا على مضاعفات الأربعة: 17، 13، 9، 5، ثم 1.",
     "Let {name} guess instead": "دع {name} يخمّن",
+    "Let {name} pick one": "دع {name} يختار",
     "Let's see…": "لنرَ…",
     "Level": "الدرجة",
     "Levels": "الدرجات",
@@ -1001,6 +1006,7 @@
     "Next game": "الجولة التالية",
     "Next one's yours.": "المرة القادمة لك.",
     "Next round": "الجولة التالية",
+    "Nice try!": "محاولة جميلة!",
     "No": "لا",
     "No reading yet": "لا قراءة بعد",
     "No room is left there for its blossom.": "لم يبق مكان هناك لزهرته.",
@@ -1028,6 +1034,7 @@
     "Only one number still fits this cell.": "رقم واحد فقط ما زال يناسب هذا المربع.",
     "Only one plot of that size fits around this number.": "قطعة واحدة فقط بهذا الحجم تتسع حول هذا الرقم.",
     "Oof.": "أوه.",
+    "Oops! It was {pad}.": "أوه! كان {pad}.",
     "Oops, that one was wrong!": "عفوًا، كان هذا خطأ!",
     "Other wave": "تلويح باليد الأخرى",
     "Other…": "غير ذلك…",
@@ -1046,10 +1053,10 @@
     "Play": "العب",
     "Play again": "العب مرة أخرى",
     "Play against a friend on this Mac": "العب ضد صديق على هذا الماك",
-    "Play against {name}": "العب ضد {name}",
     "Play another": "العب أخرى",
     "Play another word": "العب كلمة أخرى",
     "Play every game once": "العب كل لعبة مرة",
+    "Play with {name}": "العب مع {name}",
     "Play {title}": "لعب {title}",
     "Played": "لُعبت",
     "Played {title} with {with}": "لعب {title} مع {with}",
@@ -1106,6 +1113,7 @@
     "Row {row}, column {column}": "الصف {row}، العمود {column}",
     "Row {r}, column {c}": "الصف {r}، العمود {c}",
     "Ruled out": "مستبعد",
+    "Same as Sidefolk": "مثل Sidefolk",
     "Science": "العلوم",
     "Scissors": "مقص",
     "Scissors beat paper: I win!": "المقص يغلب الورقة: الفوز لي!",
@@ -1167,6 +1175,7 @@
     "That's not in the word list.": "هذه الكلمة ليست في القائمة.",
     "That's the animal I guessed.": "هذا هو الحيوان الذي خمّنته.",
     "The answer for yours is": "جواب حيوانك",
+    "The balloons flew away.": "طارت البالونات بعيدًا.",
     "The cells on either side match, so this one is the other.": "المربعان على الجانبين متشابهان، فهذا هو الآخر.",
     "The clue beside it decides this one.": "الدليل المجاور يحدد هذا المربع.",
     "The hint is used up.": "استُخدم التلميح من قبل.",
@@ -1271,7 +1280,7 @@
     "Yes, that's it!": "نعم، هذا هو!",
     "Yesterday": "أمس",
     "You": "أنت",
-    "You beat {name}!": "هزمت {name}!",
+    "You beat {name} by {n}.": "فزت على {name} بفارق {n}.",
     "You called it!": "توقّعك صحيح!",
     "You copied {count} moves.": {
       "few": "قلّدت {count} حركات.",
@@ -1287,7 +1296,6 @@
     "You took the last stick.": "أخذت العود الأخير.",
     "You tried that one already.": "جرّبته من قبل.",
     "You were quicker!": "كنت أسرع!",
-    "You win the match!": "فزت بالمباراة!",
     "You win this game!": "فزت بهذه الجولة!",
     "You win!": "فزت!",
     "You won": "فزت",
@@ -1364,6 +1372,14 @@
       "two": "كلمتا تدريب",
       "zero": "لا كلمات تدريب"
     },
+    "{count} questions": {
+      "few": "{count} أسئلة",
+      "many": "{count} سؤالًا",
+      "one": "سؤال واحد",
+      "other": "{count} سؤال",
+      "two": "سؤالان",
+      "zero": "من دون أسئلة"
+    },
     "{count} sticks left": {
       "few": "بقيت {count} أعواد",
       "many": "بقي {count} عودًا",
@@ -1398,14 +1414,6 @@
     "{name} counts… {n} left.": "{name} يعدّ… بقي {n}.",
     "{name} didn't get it either.": "لم يعرفها {name} أيضًا.",
     "{name} didn't get it either. Tomorrow!": "لم يعرفها {name} أيضًا. إلى الغد!",
-    "{name} found it in {count} questions.": {
-      "few": "وجده {name} في {count} أسئلة.",
-      "many": "وجده {name} في {count} سؤالًا.",
-      "one": "وجده {name} بسؤال واحد.",
-      "other": "وجده {name} في {count} سؤال.",
-      "two": "وجده {name} بسؤالين.",
-      "zero": "وجده {name} في {count} سؤال."
-    },
     "{name} found it!": "وجدها {name}!",
     "{name} guesses": "{name} يخمّن",
     "{name} has picked": "اختار {name}",
@@ -1424,10 +1432,8 @@
     "{name} took {n}. Your turn.": "أخذ {name} {n}. دورك.",
     "{name} was quicker.": "كان {name} أسرع.",
     "{name} wins the match!": "فاز {name} بالمباراة!",
-    "{name} wins the match.": "فاز {name} بالمباراة.",
     "{name} wins this game!": "فاز {name} بهذه اللعبة!",
     "{name} wins this game.": "فاز {name} بهذه الجولة.",
-    "{name} wins this one.": "فاز {name} هذه المرة.",
     "{name} wins!": "فاز {name}!",
     "{name} won": "فاز {name}",
     "{name} writes the questions": "يكتب {name} الأسئلة",
@@ -1444,6 +1450,7 @@
     "{name}, find {other}'s number.": "{name}، اعثر على رقم {other}.",
     "{name}, guess {other}'s word.": "{name}، خمّن كلمة {other}.",
     "{name}, look away!": "{name}، لا تنظر!",
+    "{name}, pick your toy.": "{name}، اختر لعبتك.",
     "{name}, type a secret number.": "{name}، اكتب رقمًا سريًا.",
     "{name}, type a word for {other}.": "{name}، اكتب كلمة لـ{other}.",
     "{name}: {n} ms": "{name}: {n} م.ث",
@@ -1461,13 +1468,7 @@
     "{title} is already at its easiest.": "{title} في أسهل درجة بالفعل.",
     "{title} is already at its hardest.": "{title} في أصعب درجة بالفعل.",
     "{win} beats {lose}: a point for {name}.": "{win} يغلب {lose}: نقطة لـ{name}.",
-    "“kind” must be coin, dice or rock_paper_scissors.": "يجب أن تكون قيمة «kind» إحدى القيم coin أو dice أو rock_paper_scissors.",
-    "Let {name} pick one": "دع {name} يختار",
-    "Here we go!": "هيا بنا!",
-    "{name}, pick your toy.": "{name}، اختر لعبتك.",
-    "1–{n} to choose": "1–{n} للاختيار",
-    "Game language": "لغة الألعاب",
-    "Same as Sidefolk": "مثل Sidefolk"
+    "“kind” must be coin, dice or rock_paper_scissors.": "يجب أن تكون قيمة «kind» إحدى القيم coin أو dice أو rock_paper_scissors."
   },
   "tools": {
     "game_settings": {
