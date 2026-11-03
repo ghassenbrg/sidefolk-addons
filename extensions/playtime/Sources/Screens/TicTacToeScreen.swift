@@ -127,13 +127,22 @@ enum TicTacToeScreen: GameScreen {
         if untouched { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = TicTacToeEngine.outcome(of: s), !lastLine {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.series.you)) – \(Format.integer(g.series.companion))",
-                                          companion: o.companion))
+                                          companion: o.companion, margin: g.series.you - g.series.companion))
             parts.append(ScreenKit.levels(g.level))
         } else if g.gameOver {
-            if !g.seriesOver { parts.append(.button(GameButton(L("Next game"), move: "again", style: .primary, symbol: "arrow.right"))) }
+            if !g.seriesOver {
+                parts.append(.button(GameButton(L("Next game"), move: "again", style: .primary, symbol: "arrow.right")))
+            } else {
+                // The series' last line, a moment before its card: the Hint keeps its place and look until then.
+                var hint = GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h", disabled: true)
+                hint.waiting = true
+                parts.append(.button(hint))
+            }
         } else {
             // In its place all game: faded while it can't be pressed.
-            parts.append(.button(GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h", disabled: g.turn != .you || g.hintUsed)))
+            var hint = GameButton(L("Hint"), move: "hint", style: .plain, symbol: "lightbulb", key: "h", disabled: g.turn != .you || g.hintUsed)
+            hint.waiting = g.turn != .you && !g.hintUsed
+            parts.append(.button(hint))
         }
         var cue = EventCues.cue(events)
         if let hint = s.hint, events.contains(.hint) { cue?.look = [hint / 3, hint % 3] }

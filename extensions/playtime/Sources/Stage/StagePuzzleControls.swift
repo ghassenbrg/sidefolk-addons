@@ -114,7 +114,7 @@ extension BoardDrawing {
 
     /// One short line, the same through the last beat: what stays out of it (the keyboard's whole path) is in the area's label.
     var puzzleFooter: String? {
-        guard let p = board.puzzlePart, !p.locked || ctx.buildUp else { return nil }
+        guard let p = board.puzzlePart else { return nil }
         switch p.input {
         case "tap": return look.name == Look.blossoms.name ? L("Click: mark or plant") : L("Click a cell to change it")
         case "drag":

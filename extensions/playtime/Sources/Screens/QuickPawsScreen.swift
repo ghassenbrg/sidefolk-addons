@@ -65,7 +65,9 @@ enum QuickPawsEngine: GameEngine {
             events = try s.game.timeout()
             s.early = false
         case .next:
-            guard !s.game.over, s.round == nil else { throw Games.Refusal("not_now") }
+            // After a match's last times: nothing more happens, and the board without them is its end card.
+            if s.game.over { return [] }
+            guard s.round == nil else { throw Games.Refusal("not_now") }
             s.round = try s.game.start(using: &random)
             // Counted from the points: a round nobody took in time (two players) is played again under its number.
             s.number = s.game.score.you + s.game.score.companion + 1
@@ -121,7 +123,7 @@ enum QuickPawsScreen: GameScreen {
             : L("You {you} · {name} {companion}", ["you": ms(g.lastYouMs ?? 0), "name": o.companion, "companion": ms(g.lastCompanionMs ?? 0)])
         var parts: [BoardPart] = [
             ScreenKit.score(g.score, rounds: Games.QuickPaws.target),
-            .prompt(s.round != nil ? (s.number == 1 ? L("Boop the button the moment it says Boop!") : L("Steady…"))
+            .prompt(s.round != nil ? (s.number == 1 ? L("Boop when it says Boop!") : L("Steady…"))
                         : s.early ? L("Pressed before Boop! That round goes to {name}.", ["name": o.companion])
                         : g.lastYouMs == nil ? L("Too slow! That round goes to {name}.", ["name": o.companion])
                         : g.lastYouMs.map { $0 <= g.lastCompanionMs ?? 0 } == true ? L("You were quicker!") : L("{name} was quicker.", ["name": o.companion]),
@@ -131,15 +133,17 @@ enum QuickPawsScreen: GameScreen {
         ]
         if let best = g.best { parts.append(.facts([(L("Your best"), ms(best))])) }
         if s.number == 1, g.score == Games.Score() { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
-        if let outcome = QuickPawsEngine.outcome(of: s) {
+        // The match was just decided: its last times stay as long as any round's, and the card comes after them.
+        let lastTimes = events.contains { if case .matchOver = $0 { true } else { false } }
+        if let outcome = QuickPawsEngine.outcome(of: s), !lastTimes {
             parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))",
-                                          ribbon: s.record ? L("New best!") : nil, companion: o.companion))
+                                          ribbon: s.record ? L("New best!") : nil, companion: o.companion, margin: g.score.you - g.score.companion))
             parts.append(ScreenKit.levels(g.level))
         }
         var cue = EventCues.cue(events)
         if events.contains(.opened) || events == [.turn(.you)] { cue = Cue(move: "ready", line: events.contains(.opened) ? "hello" : nil, look: "panel") }
         // Between rounds Sidefolk waits a moment on the times, then asks for the next round.
-        let between = s.round == nil && !g.over
-        return Board(parts, companion: cue, over: g.over, afterMs: between ? 2200 : nil)
+        let between = s.round == nil && (!g.over || lastTimes)
+        return Board(parts, companion: cue, over: g.over && !lastTimes, afterMs: between ? 2200 : nil)
     }
 }

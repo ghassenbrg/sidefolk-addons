@@ -72,7 +72,7 @@ enum Paint {
     static let purple = Color.adaptive(light: "#9A7BE8", dark: "#A98BF2")
     /// The beds' palette, for a grid of choices or regions: never a red or the loss tone, which would read as a mistake.
     static let regionLight = ["FFD8D2", "FFE7B8", "FFF3B0", "DDF2C4", "C7EDDC", "C9E9F5", "D4DEFF", "E6D6FA", "F8D4EA", "EBDCC9", "D9E4D0", "E0E0E8"]
-    static let regionDark = ["5A3934", "5A4628", "55502A", "3D5030", "2E5244", "2C4A57", "37406A", "4A3A64", "5A3550", "4D4134", "3E4A38", "44444F"]
+    static let regionDark = ["6B4460", "74562C", "6E6A2E", "3F6A3C", "2E6B5C", "2B6079", "3E4C8C", "5E4488", "7A4470", "6A5640", "4E6248", "505268"]
     static func region(_ i: Int, alpha: String = "") -> Color {
         Color.adaptive(light: "#" + regionLight[i % 12] + alpha, dark: "#" + regionDark[i % 12] + alpha)
     }

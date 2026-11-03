@@ -4,17 +4,22 @@ import SidefolkExtensionKit
 extension BoardDrawing {
     /// In Playtime's words now, as they were in the panel's.
     var footer: String {
+        // A build-up is the board before it a moment longer, keys and all.
+        if ctx.buildUp, let before = ctx.previous {
+            return BoardDrawing(before, StageContext(entry: ctx.entry, fresh: false, local: ctx.local)).footer
+        }
         var parts: [String] = []
-        if let a = board.answersPart, !a.locked {
+        // One line a game, whoever's turn it is: what is said here doesn't come and go with a lock. A main button's moment says that instead.
+        if !ended, board.primary == nil, let a = board.answersPart {
             let caps = Self.keyCaps(a.tiles)
             parts.append(gameTable == .hands ? L("1–{n} to choose", ["n": a.tiles.count]) : a.tiles.contains(where: { $0.key != nil })
                 ? L("{keys} to play", ["keys": caps.joined(separator: " ")])
                 : L("1–{n} to answer", ["n": a.tiles.count]))
         }
-        if let hint = partsFooter { parts.append(hint) }
+        if !ended, board.primary == nil, let hint = partsFooter { parts.append(hint) }
         if let primary = board.primary { parts.append(L("Return: {label}", ["label": primary.label])) }
         // A puzzle's line stays one length as Undo comes and goes: its button says what it is.
-        for b in board.buttons where b.key != nil && !b.disabled && !(board.hasPuzzle && b.move == "undo") { parts.append("\(b.key!.uppercased()): \(b.label)") }
+        for b in board.buttons where b.key != nil && !(board.hasPuzzle && b.move == "undo") { parts.append("\(b.key!.uppercased()): \(b.label)") }
         if ctx.local.dragFrom == nil { parts.append(L("Esc to close")) }
         return parts.joined(separator: " · ")
     }
@@ -22,9 +27,9 @@ extension BoardDrawing {
     /// The keys a part takes.
     private var partsFooter: String? {
         if let own = padsFooter ?? cupsFooter ?? reflexFooter ?? sticksFooter ?? puzzleFooter { return own }
-        if let g = board.gridPart, !g.locked { return g.numpad ? L("1–9 to play") : L("Arrows and Return to pick") }
-        if let n = board.numberPart, !n.locked { return L("Type a number, Return to guess") }
-        if let k = board.keysPart, !k.locked { return k.mode == "spell" ? L("Type a word, Return to try") : L("Type a letter") }
+        if let g = board.gridPart { return g.numpad ? L("1–9 to play") : L("Arrows and Return to pick") }
+        if board.numberPart != nil { return L("Type a number, Return to guess") }
+        if let k = board.keysPart { return k.mode == "spell" ? L("Type a word, Return to try") : L("Type a letter") }
         return nil
     }
 

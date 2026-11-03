@@ -98,20 +98,28 @@ enum CopyMeScreen: GameScreen {
         var parts: [BoardPart] = [
             .prompt(g.phase == .over ? L("Oops, that one was wrong!") : replay ? L("Watch {name}, then copy.", ["name": o.companion]) : L("Your turn: copy it."),
                     eyebrow: L(one: "{count} move · {level}", other: "{count} moves · {level}", count: g.length, ["level": ScreenKit.level(g.level)])),
-            .play(.pads(pads, play: replay ? g.sequence.map { s in g.pads.firstIndex(of: s)! } : [], stepMs: paced(g.stepMs), locked: g.phase == .over, length: g.length, done: replay ? 0 : g.position)),
+            // A wrong press ends it: a locked board's one step is the pad that was right.
+            .play(.pads(pads, play: replay ? g.sequence.map { s in g.pads.firstIndex(of: s)! } : g.phase == .over && !g.perfect ? [g.pads.firstIndex(of: g.sequence[g.position])!] : [],
+                        stepMs: paced(g.stepMs), locked: g.phase == .over, length: g.length, done: replay ? 0 : g.position)),
         ]
         if g.copied == 0, g.phase != .over { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         else if best > 0, g.phase != .over { parts.append(.facts([(L("Your best"), Format.integer(best))])) }
         if g.phase == .over {
             parts.append(ScreenKit.result(s.record ? .won : .draw, figure: Format.integer(g.copied),
-                                          line: s.record ? L(one: "A new best: {count} move!", other: "A new best: {count} moves!", count: g.copied) : L(one: "You copied {count} move.", other: "You copied {count} moves.", count: g.copied),
-                                          ribbon: s.record ? L("New best!") : nil, facts: [(L("Best"), Format.integer(best))], companion: o.companion))
+                                          line: L(one: "You copied {count} move.", other: "You copied {count} moves.", count: g.copied),
+                                          facts: [(L("Best"), Format.integer(best))], companion: o.companion))
             parts.append(ScreenKit.levels(g.level))
         }
         var cue = EventCues.cue(events)
         if events.contains(.opened) { cue = Cue(move: "ready", line: "hello", look: "panel") }
         // A mistake ends it: the companion turned too far and is dizzy, or cheers a new best.
         if events.contains(.mistake) { cue = s.record ? EventCues.cue(for: .newBest(g.copied)) : EventCues.cue(for: .mistake) }
-        return Board(parts, companion: cue, over: g.phase == .over)
+        var out = Board(parts, companion: cue, over: g.phase == .over)
+        if g.phase == .over {
+            // Played alone: nothing to draw with. What is recorded stays as it was.
+            out.endTitle = s.record ? L("New best!") : L("Nice try!")
+            out.endFriendly = !s.record
+        }
+        return out
     }
 }

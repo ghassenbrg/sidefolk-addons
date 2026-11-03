@@ -121,7 +121,7 @@ enum LastStickScreen: GameScreen {
                                title: L("{name}'s secret", ["name": o.companion])))
         }
         if let outcome = LastStickEngine.outcome(of: s) {
-            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(s.wins.you)) – \(Format.integer(s.wins.companion))", companion: o.companion))
+            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(s.wins.you)) – \(Format.integer(s.wins.companion))", companion: o.companion, margin: s.wins.you - s.wins.companion))
             parts.append(ScreenKit.levels(g.level))
         }
         if g.secretOffered, !s.lesson {

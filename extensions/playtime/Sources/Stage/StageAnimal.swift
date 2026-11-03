@@ -5,7 +5,7 @@ import SidefolkExtensionKit
 // their places whatever is asked. The journal stays paper at night, so what is written straight on it stays ink. A wrong guess turns to the page for a new animal: the fields one under another, each opening as the one before it is filled.
 extension BoardDrawing {
     /// A card with a soft torn edge, always the same one: nothing about it depends on what's written.
-    private func tornPaper(_ id: String, w: Double, h: Double) -> Node {
+    func tornPaper(_ id: String, w: Double, h: Double) -> Node {
         // A deckle: small steps along each side from a fixed list, so it's the same shape on every scene.
         let wob = [0.0, 1.6, -0.8, 1.2, -1.4, 0.6, 1.8, -1.0, 0.4, -1.6, 1.0, -0.4]
         var path = "M 8 \(wob[0] + 2) "
@@ -55,7 +55,8 @@ extension BoardDrawing {
         let active = animal?.locked == false ? "animal" : question?.locked == false ? "question" : nil
         func field(_ name: String, symbol: String, part: (label: String?, placeholder: String?, locked: Bool, max: Int)?, done: Bool) {
             guard let part else { return }
-            let labelW = w
+            // Short of the notebook's strap.
+            let labelW = w - 26
             nodes.append(Node.symbol(symbol, color: Paint.coral).symbolLook(weight: "bold").at(x, y + 1).size(16, 16))
             nodes.append(Node.words(part.label ?? "", size: 13.5, weight: "heavy", color: Paint.onCream, minScale: 0.65, x: x + 21, y: y, w: labelW - 21, h: labelH))
             y += labelH + 3
@@ -108,7 +109,15 @@ extension BoardDrawing {
             } else {
                 var b = remember
                 if locked { b.disabled = true }
-                nodes.append(buttonRow([b], id: "teach.remember", width: rememberW).node.at(x, y))
+                if b.disabled {
+                    // Off, it looks as it does while a field is empty: the same navy, fainter.
+                    nodes.append(.box("teach.remember", x: x, y: y, w: rememberW, h: rowH) {
+                        Node.capsule(fill: Paint.action).id("teach.remember.fill").size(rememberW, rowH)
+                        Node.words(b.label, size: 16, weight: "heavy", color: Paint.onAction, align: "center", minScale: 0.6, x: 8, w: rememberW - 16, h: rowH)
+                    }.opacity(0.5))
+                } else {
+                    nodes.append(buttonRow([b], id: "teach.remember", width: rememberW).node.at(x, y))
+                }
             }
         }
         if var skip = buttons.first(where: { $0.style != .primary }) {

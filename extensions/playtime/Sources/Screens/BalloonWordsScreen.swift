@@ -123,7 +123,7 @@ enum BalloonWordsScreen: GameScreen {
         ]
         if let keys = keyboard(g) { parts.append(keys) }
         if let outcome = BalloonWordsEngine.outcome(of: s) {
-            parts.append(ScreenKit.result(outcome, figure: g.entry.word, line: outcome == .won ? L(one: "{count} balloon left.", other: "{count} balloons left.", count: g.left) : nil,
+            parts.append(ScreenKit.result(outcome, figure: g.entry.word, line: outcome == .won ? L(one: "{count} balloon left.", other: "{count} balloons left.", count: g.left) : L("The balloons flew away."),
                                           companion: o.companion))
             parts.append(ScreenKit.levels(BalloonWordsEngine.level(of: s)))
         } else {
@@ -138,6 +138,8 @@ enum BalloonWordsScreen: GameScreen {
         else if cue != nil { cue?.prop = g.lost ? "none" : held }
         if g.won, events.contains(where: { if case .roundOver = $0 { true } else { false } }) { cue?.move = "hop" }
         if g.lost, events.contains(where: { if case .roundOver = $0 { true } else { false } }) { cue?.move = "giggle" }
-        return Board(parts, companion: cue, over: g.over, refused: refused != nil)
+        var out = Board(parts, companion: cue, over: g.over, refused: refused != nil)
+        if g.won { out.endTitle = L("You saved the balloons!") }
+        return out
     }
 }

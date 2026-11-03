@@ -71,9 +71,13 @@ struct StageKey {
 final class BoardDrawing {
     /// The canvas: the same for every board, so the panel never changes size.
     static let width = 400.0, pad = 14.0, inner = 372.0, canvas = 620.0, footerRoom = 26.0
+    /// How long an end card holds the person's moves as it arrives.
+    static let cardHoldMs = 700
 
     /// What the board has to itself, once the header, the stage and the controls have their places. A part sizes itself to this.
     var playRoom = 400.0
+    /// Where the stage starts in the canvas, under the header: a companion has its place in the scene, in canvas points.
+    var stageTop = 96.0
 
     let board: Board
     let ctx: StageContext
@@ -120,6 +124,7 @@ final class BoardDrawing {
         // A part keeps the controls' room whether or not they show now, so the board doesn't move when a button comes or goes.
         let dockHeight = Swift.max(controls?.height ?? 0, dockRoom)
         let bottom = Self.canvas - Self.footerRoom - (dockHeight > 0 ? dockHeight + 8 : 0)
+        stageTop = 4 + head.height
         let said = ended ? nil : stage(text: board.promptPart?.text, chip: board.promptPart?.chip)
         let top = 4 + head.height + (said.map { $0.height + 6 } ?? 0)
         playRoom = bottom - top - 6
@@ -139,8 +144,11 @@ final class BoardDrawing {
             let box = Node.box(ended ? "board.end" : "board", y: top, w: Self.width, h: playRoom) { stacked }
             content.append(gameTable == .hands ? box.z(2) : box)
         }
-        // Over the board: the companion may lean on what it plays on.
-        if let said { content.append(said.node.at(Self.pad, 4 + head.height).z(1)) }
+        // Over the board: the companion may lean on what it plays on. At a table it sits behind what's on it.
+        if let said {
+            let stage = said.node.at(Self.pad, 4 + head.height)
+            if figurePlace?.behindBoard == true { content.insert(stage, at: 1) } else { content.append(stage.z(1)) }
+        }
         if let controls { content.append(controls.node.at(Self.pad, bottom + (dockHeight - controls.height) / 2)) }
         content.append(hintRow().node.at(Self.pad, Self.canvas - Self.footerRoom))
 
@@ -161,6 +169,8 @@ final class BoardDrawing {
         if let after = partAfterMs ?? board.afterMs ?? ctx.afterMs { scene = scene.after(ms: after) }
         if let still = partAfterStillMs { scene = scene.afterStill(ms: still) }
         if ctx.fresh, let words = spoken { scene = scene.announcing(words) }
+        // A card comes in under a hand that may still be clicking what was there: its buttons wait until it can be seen.
+        if ctx.fresh, ended, ctx.previous?.resultPart == nil { scene = scene.inputAfter(ms: Self.cardHoldMs) }
         if board.over, let result = board.resultPart {
             let two = board.scorePart?.players != nil
             scene = scene.over(outcome: two ? nil : Verdict(tone: result.tone).rawValue)
@@ -182,7 +192,7 @@ final class BoardDrawing {
             return out.react(Reaction(move: move)).animating(.sequence([.sound("sounds/\(sound).wav")]))
         }
         // A puzzle's last beat is on its board, and has its own sound (solveMoment).
-        if ctx.buildUp, board.hasPuzzle { return out }
+        if ctx.buildUp, board.hasPuzzle || board.padMissed != nil { return out }
         if ctx.buildUp { return out.react(Reaction(effect: "question")).animating(.sequence([.sound("sounds/tick.wav")])) }
         // A game just come to the table starts with nothing of the last one's above the companion, however it got here.
         let opening = ctx.fresh && ctx.previous == nil
@@ -215,6 +225,8 @@ final class BoardDrawing {
         for part in board.parts {
             if ended, isPlay(part) { continue }
             if ended, case .choice(_, _, .segmented, _, _) = part { continue }
+            // Its numbers are in the card's facts.
+            if ended, case .facts = part { continue }
             if partHoldsRoom, !isPlay(part) { continue }
             if placedElsewhere(part) { continue }
             switch part {

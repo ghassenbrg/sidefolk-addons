@@ -63,7 +63,7 @@ enum PlayMenu {
             Node.words(statsLine(), size: 12, weight: "semibold", color: Paint.inkSoft, align: "center", minScale: 0.7, x: side + 8, y: bubbleH + 2, w: inner - side - 8, h: 16).id("menu.stats")
         }.z(1))
         y += 66
-        nodes.append(sectionPill(L("Play against {name}", ["name": "{companion}"]), width: inner).at(pad, y))
+        nodes.append(sectionPill(L("Play with {name}", ["name": "{companion}"]), width: inner).at(pad, y))
         y += 26
         let w = (inner - 8) / 2
         func card(_ id: String, row: Int, column: Int) -> Node {

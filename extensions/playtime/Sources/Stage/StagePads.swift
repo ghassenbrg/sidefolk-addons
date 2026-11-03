@@ -1,3 +1,4 @@
+import Foundation
 import SidefolkExtensionKit
 
 // Copy Me's pads: large painted tiles on a felt mat, each with its picture, its name and its key. While the companion demonstrates they stand back, faded and not pressable, the state
@@ -23,12 +24,16 @@ extension BoardDrawing {
     static let padsLeadMs = 900
     /// How far a pad stands back while it can't be pressed.
     private static let standBack = 0.55
+    /// A wrong press's moment: the shake, a look at the pad that was right, a breath before the card.
+    static let padMissMs = 1700
 
     func padsPart(_ pads: [Pad], play: [Int], stepMs: Int, locked: Bool, length: Int?, done: Int) -> PartBlock {
         let showing = playing
         let open = !locked && !showing
+        // A wrong press: the one pressed and the one that was right stay forward, and everything else steps back.
+        let right = ctx.buildUp ? board.padMissed : nil, pressed = right == nil ? nil : ctx.local.lit
         let statusH = 30.0, gap = 10.0, pad = 12.0, depth = 5.0
-        let matY = statusH + 6, matH = playRoom - matY - Self.slotHeight - 6
+        let slotH = 38.0, matY = statusH + 6, matH = playRoom - matY - slotH - 6
         let columns = pads.count > 4 ? 3 : 2
         let rows = (pads.count + columns - 1) / columns
         let tileW = (Self.inner - 2 * pad - gap * Double(columns - 1)) / Double(columns)
@@ -54,7 +59,23 @@ extension BoardDrawing {
                 steps += [light(i, on: true, ms: on), .wait(ms: Swift.max(hold, 0)), light(i, on: false, ms: off, rest: Self.standBack), .wait(ms: 40)]
             }
             anims.append(Anim.sequence(steps).essential().blocksInput().named("pads_play"))
+            // "Watch me": the companion bobs with each step of its dance, as far as a track's points reach. Its own run, so it carries on through a redraw; not essential, so Reduce Motion rests it.
+            var bobs: [Anim] = [.wait(ms: Double(Self.padsLeadMs))]
+            for _ in play.prefix(10) {
+                bobs += [.keys("companion.figure", [["t": 0, "y": 0, "sy": 1], ["t": 0.45, "y": -9, "sy": 1.04], ["t": 1, "y": 0, "sy": 1]], ms: Swift.min(step - 40, 300), ease: "in_out"), .wait(ms: Swift.max(step - Swift.min(step - 40, 300), 0))]
+            }
+            anims.append(Anim.sequence(bobs).named("pads_bob"))
             untilPlayed()
+        } else if let right, pads.indices.contains(right) {
+            if ctx.fresh, let pressed, pads.indices.contains(pressed) {
+                // A little calm shake, nothing more: no red, no flash.
+                let frames = (0...12).map { n -> [String: Double] in
+                    let a = Double(n) / 12
+                    return ["t": a, "x": 4 * sin(a * .pi * 6) * (1 - a)]
+                }
+                anims.append(.keys("pad.\(pressed).face", frames, ms: 460))
+            }
+            anims.append(.sequence([.wait(ms: 420), .sound("sounds/note-\(right).wav"), light(right, on: true, ms: 160)]))
         } else if ctx.fresh, !locked || ctx.buildUp, let i = ctx.local.lit, pads.indices.contains(i) {
             // A press lights it a moment; its note came with the press.
             anims.append(.sequence([light(i, on: true, ms: 90, rest: locked ? Self.standBack : 1), light(i, on: false, ms: 140, rest: locked ? Self.standBack : 1)]))
@@ -76,13 +97,13 @@ extension BoardDrawing {
             let row = i / columns, inRow = row == rows - 1 ? pads.count - row * columns : columns
             // A short last row stands in the middle.
             let startX = (Self.inner - Double(inRow) * tileW - Double(inRow - 1) * gap) / 2
-            return padTile(i, one, x: startX + Double(i - row * columns) * (tileW + gap), y: matY + pad + Double(row) * (tileH + gap), w: tileW, h: tileH, depth: depth, open: open, faded: !open)
+            return padTile(i, one, x: startX + Double(i - row * columns) * (tileW + gap), y: matY + pad + Double(row) * (tileH + gap), w: tileW, h: tileH, depth: depth, open: open, faded: !open && i != right && i != pressed)
         }
         return PartBlock(.box("pads", w: Self.inner, h: playRoom) {
             padsStatus(width: Self.inner, height: statusH, showing: showing, open: open, length: length ?? play.count, done: done)
             Node.felt("pads.mat", y: matY, w: Self.inner, h: matH)
             tiles
-            slotRow(y: playRoom - Self.slotHeight)
+            slotRow(y: playRoom - slotH, height: slotH)
         }.leftToRight(), height: playRoom)
     }
 
@@ -147,14 +168,16 @@ extension BoardDrawing {
 
     /// What the bubble says once the dance has played: the board's own words still say to watch until the first press.
     var padsStageWords: String? {
+        if ctx.buildUp, let right = board.padMissed, let pads = board.play({ part -> [Pad]? in if case .pads(let pads, _, _, _, _, _) = part { pads } else { nil } }), pads.indices.contains(right) {
+            return L("Oops! It was {pad}.", ["pad": pads[right].label])
+        }
         guard !playing, let open = board.play({ part -> Bool? in if case .pads(_, _, _, let locked, _, _) = part { !locked } else { nil } }), open else { return nil }
         return L("Your turn: copy it.")
     }
 
     var padsFooter: String? {
-        guard !playing else { return nil }
-        return board.play { part -> String? in
-            if case .pads(let pads, _, _, false, _, _) = part { L("1–{n} to copy", ["n": pads.count]) } else { nil }
+        board.play { part -> String? in
+            if case .pads(let pads, _, _, _, _, _) = part { L("1–{n} to copy", ["n": pads.count]) } else { nil }
         }
     }
 

@@ -131,7 +131,7 @@ enum DailyWordScreen: GameScreen {
                    (L("Solved"), Format.integer(practice?.won ?? 0))]
                 : [(L("Streak"), Format.integer(r.streak)), (L("Best streak"), Format.integer(r.best)), (L("Played"), Format.integer(r.played))]
             // Today's word stays once a day; more words to play come after it, at random and as many as wanted.
-            parts.append(ScreenKit.result(outcome, figure: g.shown ?? "", line: outcome == .won ? L("Solved in {n}!", ["n": g.rows.count]) : missed,
+            parts.append(ScreenKit.result(outcome, figure: g.shown ?? "", line: outcome == .won ? L(one: "In {count} try.", other: "In {count} tries.", count: g.rows.count) : missed,
                                           facts: facts, companion: o.companion,
                                           actions: [GameButton(L("Play another word"), move: "practice", style: .primary, symbol: "arrow.clockwise")]))
         } else {

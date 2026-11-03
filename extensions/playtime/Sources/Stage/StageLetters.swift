@@ -265,7 +265,7 @@ extension BoardDrawing {
     }
 
     /// The stall: Balloon Words' scene is played in, its balloons on the rail painted in it, the companion on its counter.
-    var isStall: Bool { look.name == "balloons" && board.hasLetters }
+    var isStall: Bool { look.name == "balloons" && board.hasLetters && !ended }
 }
 
 /// Korean jamo typed one by one, grouped into the syllables they make (ㅅ ㅏ ㄱ ㅗ ㅏ is 사 과), so a half-typed word is drawn as the blocks it

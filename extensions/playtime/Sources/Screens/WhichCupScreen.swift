@@ -130,7 +130,7 @@ enum WhichCupScreen: GameScreen {
         }
         if g.played == 0, !s.lifted { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = WhichCupEngine.outcome(of: s) {
-            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion))
+            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion, margin: g.score.you - g.score.companion))
             parts.append(ScreenKit.levels(g.level))
         } else if s.lifted {
             parts.append(.button(GameButton(L("Next round"), move: "next", style: .primary, symbol: "arrow.right")))

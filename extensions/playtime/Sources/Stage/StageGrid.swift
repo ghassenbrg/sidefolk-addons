@@ -103,8 +103,8 @@ extension BoardDrawing {
             Node.rect(fill: Paint.inset, corner: 14).id(id + ".rest").size(side, faceH).opacity(cell.mark == "empty" && locked ? 0.75 : 0),
         ]
         if numpad {
-            // The digit that plays here, as on a number pad (7 8 9 on top): quiet, in the corner, and only on a cell that can be played now.
-            inner.append(Node.words("\(r * 3 + c + 1)", size: 12, weight: "bold", color: Paint.inkSoft, align: "center", x: side - 23, y: 5, w: 18, h: 18).id(id + ".digit").opacity(open ? 1 : 0))
+            // The digit that plays here: quiet, in the corner, on every empty cell whoever's turn it is, so it never comes and goes.
+            inner.append(Node.words("\(r * 3 + c + 1)", size: 12, weight: "bold", color: Paint.inkSoft, align: "center", x: side - 23, y: 5, w: 18, h: 18).id(id + ".digit").opacity(cell.mark == "empty" ? 1 : 0))
         }
         if open, let next { inner.append(Node.image(next).id(id + ".ghost").at(inset, inset).size(s, s).opacity(0)) }
         if let piece {

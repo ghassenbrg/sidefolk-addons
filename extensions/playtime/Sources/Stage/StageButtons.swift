@@ -45,7 +45,8 @@ extension BoardDrawing {
         let m = metrics(b, flat: flat)
         let filled = b.style == .primary || (!quietHints && (b.move == "hint" || b.move == "do_hint"))
         // Off, it stays solid and muted, so the scene doesn't show through it and it keeps its place.
-        let ink: Color = b.disabled ? Paint.inkFaint : filled ? Paint.onAction : Paint.ink
+        let off = b.disabled && !b.waiting
+        let ink: Color = off ? Paint.inkFaint : filled ? Paint.onAction : Paint.ink
         // Words first: a narrow button lets its symbol go rather than cut its label.
         let wanted = TextFit.width(b.label, size: m.size, weight: m.weight) + 2
         let symbol = wanted + 24 + 6 + m.size * 1.2 <= w ? b.symbol : nil
@@ -53,7 +54,7 @@ extension BoardDrawing {
         let textW = Swift.min(wanted, Swift.max(w - 16 - (symbol == nil ? 0 : 6 + symbolW), 10))
         let startX = (w - textW - (symbol == nil ? 0 : 6 + symbolW)) / 2
         return Node.box(id, x: x, y: y, w: w, h: m.height) {
-            if b.disabled {
+            if off {
                 Node.capsule(fill: Paint.inset, stroke: Paint.edge, lineWidth: 1.5).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5)
             } else if filled {
                 Node.capsule(fill: Paint.action).id(id + ".fill").at(0.75, 0.75).size(w - 1.5, m.height - 1.5).shadow(Paint.clear("#14275A", 0.22), radius: 4, dx: 0, dy: 2)

@@ -175,7 +175,7 @@ enum TriviaScreen: GameScreen {
         return Board([
             .score(you: s.you, companion: s.companion, streak: s.streak),
             .result(figure: asked == 0 ? "–" : figure,
-                    line: outcome == .won ? L("You beat {name}!", ["name": o.companion]) : outcome == .lost ? L("{name} wins this one.", ["name": o.companion]) : L("A draw!"),
+                    line: outcome == .won ? ScreenKit.beat(o.companion, by: s.you - s.companion) : nil,
                     ribbon: s.record ? L("New best!") : nil, tone: outcome == .won ? .good : outcome == .lost ? .bad : .neutral,
                     facts: [(o.companion, Format.integer(s.companion)), (L("Streak this round"), Format.integer(max(s.bestStreak, 0))),
                             (L("Best streak ever"), Format.integer(records.bestStreak)), (L("Topic"), s.madeTopic ?? topic(s.topic))],

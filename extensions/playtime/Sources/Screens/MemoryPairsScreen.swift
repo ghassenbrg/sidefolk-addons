@@ -129,7 +129,7 @@ enum MemoryPairsScreen: GameScreen {
         ]
         if g.flips == 0 { parts.append(TwoPlayers.opponent(two: false, companion: o.companion)) }
         if let outcome = MemoryPairsEngine.outcome(of: s), !lastPair {
-            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion))
+            parts.append(ScreenKit.result(outcome, figure: "\(Format.integer(g.score.you)) – \(Format.integer(g.score.companion))", companion: o.companion, margin: g.score.you - g.score.companion))
             parts.append(ScreenKit.levels(g.level))
         }
         var cue = EventCues.cue(events)
