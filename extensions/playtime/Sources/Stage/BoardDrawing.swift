@@ -34,7 +34,7 @@ struct LocalParts: Codable, Equatable {
     /// The last letter on the word being typed was just added: it lands, once.
     var justTyped = false
     /// Letters typed while a played row is still turning: they become the next row's word when it has.
-    var typedAhead = ""
+    var typedAhead: String?
     /// The board on the way is the verdict of a build-up that already played its marks landing: they don't land again.
     var builtUp = false
 }

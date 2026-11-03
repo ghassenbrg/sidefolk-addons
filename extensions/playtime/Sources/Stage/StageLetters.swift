@@ -85,13 +85,13 @@ extension BoardDrawing {
     /// A name an animation may carry: node ids have dots, names don't.
     private static func animName(_ kind: String, _ id: String) -> String { kind + "_" + id.replacingOccurrences(of: ".", with: "_") }
 
-    private var typingNow: String { ctx.buildUp ? ctx.local.typedAhead : ctx.local.draft }
+    private var typingNow: String { ctx.buildUp ? ctx.local.typedAhead ?? "" : ctx.local.draft }
 
     /// A played row, the row being typed, or an empty one.
     private func letterRow(_ r: Int, rows: [[LetterTile]], length: Int, draft: Bool, script: String) -> (tiles: [LetterTile], typing: Bool) {
         if rows.indices.contains(r) { return (rows[r], false) }
         // A word just played is its row now, turning: what was typed isn't in the next one any more, only what has been typed since.
-        guard draft, r == rows.count, !ctx.buildUp || !ctx.local.typedAhead.isEmpty else { return ((0..<length).map { LetterTile("", group: $0) }, false) }
+        guard draft, r == rows.count, !ctx.buildUp || ctx.local.typedAhead?.isEmpty == false else { return ((0..<length).map { LetterTile("", group: $0) }, false) }
         let typed = Hangul.split(typingNow, script: script)
         return ((0..<length).map { i in
             i < typed.count ? LetterTile(typed[i].text, group: typed[i].group) : LetterTile("", group: typed.last.map { $0.group + 1 + i - typed.count } ?? i)

@@ -37,6 +37,7 @@ struct PlaytimeTypeAheadTests {
             let during = key(session, "letter", "s")
             let left = try #require(during.json["after_ms"] as? Int)
             #expect(left <= waited, "the turning ends when it would have")
+            #expect(left >= 100, "Sidefolk takes nothing shorter: the wait would never end")
             let names = Set((turning.json["animations"] as? [[String: Any]] ?? []).compactMap { $0["id"] as? String }.filter { $0.hasPrefix("turn_") })
             #expect(names.count == 10, "two named per tile, so typing doesn't restart them")
             #expect(names == Set((during.json["animations"] as? [[String: Any]] ?? []).compactMap { $0["id"] as? String }.filter { $0.hasPrefix("turn_") }))

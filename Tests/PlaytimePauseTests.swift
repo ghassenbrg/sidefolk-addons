@@ -110,4 +110,45 @@ struct PlaytimePauseTests {
             #expect(PlaytimeRecords.load().daily.played == 0, "no streak moved")
         }
     }
+
+    /// Paused while a row is still turning: what was played stands and isn't offered again.
+    @Test func pausingDuringAReveal() throws {
+        clear()
+        defer { clear() }
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            let session = open("daily_word")
+            for c in "crane" { _ = key(session, "letter", String(c)) }
+            _ = key(session, "draft_return")
+            #expect(PlaytimeRecords.load().dailyGame?.rows.count == 1)
+            _ = click(session, PauseMoves.pause)
+            let back = click(session, PauseMoves.resume)
+            #expect(back.json["after_ms"] == nil, "no reveal still waiting")
+            word(session, "slate")
+            #expect(PlaytimeRecords.load().dailyGame?.rows.count == 2, "the next word goes in the next row, and crane isn't typed again")
+        }
+    }
+
+    /// A practice board at another level still goes back to the level today's was being played at.
+    @Test func backToTheLevelTodaysWasAt() throws {
+        clear()
+        defer { clear() }
+        try Language.with("en", strings: PlaytimeGameTests.strings) {
+            let session = open("sudoku")
+            let start = click(session, PauseMoves.pause)
+            #expect(text(start).contains("Today's puzzle"))
+            _ = click(session, "level|hard", area: "choice")
+            let practice = click(session, PauseMoves.newGame)
+            #expect(text(practice).contains(ScreenKit.level(.hard)) && text(practice).contains("Practice"))
+            _ = click(session, PauseMoves.pause)
+            let back = click(session, PauseMoves.today)
+            #expect(text(back).contains(ScreenKit.level(.fair)) && text(back).contains("Today's puzzle"))
+        }
+    }
+
+    /// A game saved by the version before still opens.
+    @Test func aSessionSavedBeforeStillLoads() throws {
+        var json = try #require(try JSONSerialization.jsonObject(with: JSONEncoder().encode(LocalParts())) as? [String: Any])
+        json["typedAhead"] = nil
+        _ = try JSONDecoder().decode(LocalParts.self, from: JSONSerialization.data(withJSONObject: json))
+    }
 }

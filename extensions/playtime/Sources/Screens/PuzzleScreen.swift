@@ -32,6 +32,8 @@ enum PuzzleEngine<K: PuzzleKind>: GameEngine {
         /// The solve was written to the records, and whether its time was a new best.
         var recorded = false
         var newBest = false
+        /// On a practice board: the level of today's board it was dealt from.
+        var todaysLevel: GameLevel?
     }
 
     enum Action { case move(K.Rules.Move), hint, doHint, undo, clear, another(GameLevel?), practice(GameLevel), today, stopClock, startClock }
@@ -84,10 +86,11 @@ enum PuzzleEngine<K: PuzzleKind>: GameEngine {
             (s.hint, s.fresh) = (nil, nil)
         case .practice(let level):
             // Today's board was kept at its last move, and its streak and the level last picked don't change.
-            s = State(game: Games.PuzzleGame(K.Rules.generate(level: level, using: &random), at: t))
+            let todays = s.game.day != nil ? s.game.level : s.todaysLevel
+            s = State(game: Games.PuzzleGame(K.Rules.generate(level: level, using: &random), at: t), todaysLevel: todays)
             return [.turn(.you)]
         case .today:
-            s = State(game: deal(s.game.level, random: &random, at: t))
+            s = State(game: deal(s.todaysLevel ?? s.game.level, random: &random, at: t))
             return [.turn(.you)]
         case .stopClock:
             s.game.pause(at: t)
@@ -178,7 +181,7 @@ enum PuzzleScreen<K: PuzzleKind>: GameScreen {
         }
         var board = Board(parts, companion: cue(events, s), over: g.solved)
         board.calm = K.rules(g)
-        board.todayWaits = g.day == nil && !PlaytimeRecords.puzzle(K.id).solved(g.level, day: DailyWordEngine.today())
+        board.todayWaits = g.day == nil && !PlaytimeRecords.puzzle(K.id).solved(s.todaysLevel ?? g.level, day: DailyWordEngine.today())
         return board
     }
 

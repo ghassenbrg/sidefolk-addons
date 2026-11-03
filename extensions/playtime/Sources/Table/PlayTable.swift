@@ -37,6 +37,8 @@ enum PlayTable {
     private static var shown: [String: Board] = [:]
     /// The build-up on the table and when it ends, for a letter typed during it.
     private static var building: [String: (board: Board, ends: Date)] = [:]
+    /// The shortest `after_ms` Sidefolk takes: below it the wait would never end.
+    private static let shortestWait = 100
     /// How long a game put away is kept, as the frame keeps a surface.
     static let keptFor: TimeInterval = 600
 
@@ -180,13 +182,17 @@ enum PlayTable {
         }
         switch StageMoves.action(move, board: board, local: &session.local) {
         case .back:
+            _ = landBuildUp(board, driver: driver, data: data, entry: entry, session: &session, id: id)
             session.menu = true
             return PlayMenu.scene(selected: PlayMenu.index(of: entry.id).map { session.selected = $0; return $0 } ?? session.selected, kept: session.game)
         case .pause:
+            // A move still being revealed lands first: what was played stands, and a game it ended shows its card.
+            let now = landBuildUp(board, driver: driver, data: data, entry: entry, session: &session, id: id)
+            if now.over { return draw(now, entry: entry, session: session, previous: board, fresh: true, id: id) }
             session.paused = true
             session.pickedLevel = nil
             // A puzzle's clock doesn't run behind the card.
-            if board.hasPuzzle, !session.over, let stopped = driver.move(.button(PauseMoves.stopClock), data, session.options) { session.state = stopped.state }
+            if now.hasPuzzle, let state = session.state, let stopped = driver.move(.button(PauseMoves.stopClock), state, session.options) { session.state = stopped.state }
             return pauseCard(entry: entry, driver: driver, session: session, id: id)
         case .redraw, .ignore:
             return draw(board.clocked(from: session.held == nil && board.hasPuzzle ? driver.board(data, [], session.options) : nil), entry: entry, session: session, previous: board, fresh: false, id: id)
@@ -232,6 +238,18 @@ enum PlayTable {
         }
     }
 
+    /// What a build-up was holding back, landed now, for someone leaving it: its verdict counts and is recorded, as if the wait had ended. The board as it then stands.
+    private static func landBuildUp(_ board: Board, driver: GameTable.Driver, data: Data, entry: GameEntry, session: inout Session, id: String) -> Board {
+        guard let held = session.held else { return board }
+        session.held = nil
+        session.pick = nil
+        building[id] = nil
+        session.local.builtUp = true
+        let next = driver.board(data, held, session.options) ?? board
+        _ = verdict(next, previous: board, entry: entry, session: &session, id: id)
+        return next
+    }
+
     /// The pause card: its own moves, and the game stays exactly as it was until one of them changes it.
     private static func pauseCard(entry: GameEntry, driver: GameTable.Driver, session: Session, id: String) -> Scene {
         guard let data = session.state, let board = driver.board(data, [], session.options) else { return PlayMenu.scene(selected: session.selected, kept: session.game) }
@@ -244,15 +262,13 @@ enum PlayTable {
         let card = PauseCard.board(entry: entry, board: board, level: session.pickedLevel ?? driver.level(data), away: board.todayWaits)
         switch StageMoves.action(move, board: card, local: &session.local) {
         case .back:
-            session.paused = nil
+            // Still paused: its clock stays stopped until it comes back.
             session.menu = true
             return PlayMenu.scene(selected: PlayMenu.index(of: entry.id).map { session.selected = $0; return $0 } ?? session.selected, kept: session.game)
         case .play(.choice(name: "level", value: let value)):
             session.pickedLevel = GameLevel(rawValue: value)
             return pauseCard(entry: entry, driver: driver, session: session, id: id)
         case .play(.button(PauseMoves.resume)):
-            session.paused = nil
-            if board.hasPuzzle, !session.over, let going = driver.move(.button(PauseMoves.startClock), data, session.options) { session.state = going.state }
             return current(&session, id: id, fresh: true)
         case .play(.button(PauseMoves.newGame)):
             return newGame(entry: entry, driver: driver, data: data, board: board, session: &session, id: id)
@@ -273,7 +289,9 @@ enum PlayTable {
         finishRow(&session)
         session.paused = nil
         session.pickedLevel = nil
-        begin(entry.id, level: level, args: Arguments([:]), session: &session, id: id)
+        var options = session.options
+        if board.scorePart?.players != nil { options.twoPlayers = true }
+        begin(entry.id, level: level, args: Arguments([:]), keeping: options, session: &session, id: id)
         return current(&session, id: id, fresh: true)
     }
 
@@ -295,17 +313,19 @@ enum PlayTable {
     /// A letter typed while a played row turns: kept for the next row, and the turning carries on, ending when it would have.
     private static func typedDuring(_ build: (board: Board, ends: Date), key: String, character: String?, board: Board, entry: GameEntry, session: inout Session) -> Scene {
         let length = build.board.keysPart?.length ?? 0
+        var typed = session.local.typedAhead ?? ""
         if key == "draft_delete" {
-            if !session.local.typedAhead.isEmpty { session.local.typedAhead.removeLast() }
+            if !typed.isEmpty { typed.removeLast() }
             session.local.justTyped = false
-        } else if let character, session.local.typedAhead.count < length {
-            session.local.typedAhead += character
+        } else if let character, typed.count < length {
+            typed += character
             session.local.justTyped = true
         }
+        session.local.typedAhead = typed
         var ctx = context(entry, session: session, previous: board, fresh: false)
         ctx.buildUp = true
         ctx.buildingOn = true
-        ctx.afterMs = max(Int(build.ends.timeIntervalSinceNow * 1000), 1)
+        ctx.afterMs = max(Int(build.ends.timeIntervalSinceNow * 1000), Self.shortestWait)
         return BoardDrawing(build.board, ctx).scene()
     }
 
@@ -313,8 +333,8 @@ enum PlayTable {
     private static func verdict(_ next: Board, previous: Board?, entry: GameEntry, session: inout Session, id: String) -> Scene {
         StageMoves.settle(next, local: &session.local)
         // What was typed while the row turned is the next row's, if there is one.
-        if !session.local.typedAhead.isEmpty, !next.over, next.keysPart?.mode == "spell" { session.local.draft = session.local.typedAhead }
-        session.local.typedAhead = ""
+        if let typed = session.local.typedAhead, !typed.isEmpty, !next.over, next.keysPart?.mode == "spell" { session.local.draft = typed }
+        session.local.typedAhead = nil
         session.over = next.over
         if next.over {
             if !session.recorded { record(next, entry: entry, session: &session) }
@@ -337,16 +357,24 @@ enum PlayTable {
 
     /// What is on the table: the menu, the game as it stands (its verdict, if the build-up was left), or nothing.
     private static func current(_ session: inout Session, id: String, fresh: Bool) -> Scene {
-        session.paused = nil
-        guard !session.menu, let game = session.game, let entry = GameCatalog.entry(game), let driver = GameTable.drivers[game], let data = session.state else {
+        guard !session.menu, let game = session.game, let entry = GameCatalog.entry(game), let driver = GameTable.drivers[game], var data = session.state else {
             session.menu = true
             return PlayMenu.scene(selected: session.selected, kept: session.game)
+        }
+        // Back from a pause, however it was left (the card, the menu, a closed panel): a puzzle's clock goes on.
+        if session.paused == true {
+            session.paused = nil
+            session.pickedLevel = nil
+            if let going = driver.move(.button(PauseMoves.startClock), data, session.options) {
+                data = going.state
+                session.state = data
+            }
         }
         let held = session.held ?? []
         session.held = nil
         session.pick = nil
         building[id] = nil
-        session.local.typedAhead = ""
+        session.local.typedAhead = nil
         let board = shown[id].map { $0.hasPuzzle ? $0.clocked(from: driver.board(data, held, session.options)) : $0 } ?? driver.board(data, held, session.options) ?? Board([])
         Playback.cameBack(board, local: &session.local)
         return draw(board, entry: entry, session: session, previous: nil, fresh: fresh, id: id)
@@ -354,9 +382,9 @@ enum PlayTable {
 
     // MARK: Starting
 
-    private static func begin(_ game: String, level: GameLevel?, args: Arguments, session: inout Session, id: String) {
+    private static func begin(_ game: String, level: GameLevel?, args: Arguments, keeping kept: GameOptions? = nil, session: inout Session, id: String) {
         guard let driver = GameTable.drivers[game] else { return }
-        var options = PlayOptions.make(args)
+        var options = kept ?? PlayOptions.make(args)
         let chosen = level ?? PlayOptions.chosenLevel(game)
         options.asked = chosen
         PlaytimeRecords.update { $0.lastOpened = PlaytimeRecords.Opened(game: game, level: chosen?.rawValue) }
@@ -365,6 +393,8 @@ enum PlayTable {
         session.state = started.state
         session.options = options
         session.level = chosen
+        session.paused = nil
+        session.pickedLevel = nil
         session.local = LocalParts()
         session.held = nil
         session.pick = nil
