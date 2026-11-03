@@ -9,6 +9,32 @@ import Testing
 struct PlaytimeStageTests {
     static func entry(_ id: String) -> GameEntry { GameCatalog.entry(id)! }
 
+    /// The founder's complaint: the gem showed beside its cup, then vanished. It stays put on the mat, and goes only after its cup has landed and before any cup moves off.
+    @Test func theGemIsGoneOnlyUnderItsLandedCup() throws {
+        var random = Games.Random(seed: 3)
+        let o = PlaytimeScreensTests.options("en")
+        let state = WhichCupEngine.start(level: .fair, options: o, random: &random)
+        let board = WhichCupScreen.board(state, events: [.opened], options: o)
+        var local = LocalParts()
+        StageMoves.settle(board, local: &local)
+        let scene = BoardDrawing(board, StageContext(entry: Self.entry(WhichCupScreen.id), local: local)).scene()
+        let run = try #require((scene.json["animations"] as? [[String: Any]])?.first { $0["id"] as? String == "cups_shuffle" })
+        let steps = try #require(run["sequence"] as? [[String: Any]])
+        func touches(_ step: [String: Any], _ target: String, _ key: String? = nil) -> Bool {
+            if let list = (step["together"] ?? step["sequence"]) as? [[String: Any]] { return list.contains { touches($0, target, key) } }
+            guard step["target"] as? String == target else { return false }
+            guard let key else { return true }
+            return (step["to"] as? [String: Double])?[key] != nil || (step["keys"] as? [[String: Double]])?.contains { $0[key] != nil } == true
+        }
+        func gemGoes(_ step: [String: Any]) -> Bool { step["target"] as? String == "cups.gem" && (step["to"] as? [String: Double])?["opacity"] == 0 }
+        func swaps(_ step: [String: Any]) -> Bool { (step["together"] as? [[String: Any]])?.contains { ($0["keys"] as? [[String: Double]])?.contains { $0["x"] != nil } == true } == true }
+        let goes = try #require(steps.firstIndex(where: gemGoes))
+        let firstSwap = try #require(steps.firstIndex(where: swaps))
+        let lastLanding = try #require(steps.lastIndex { step in (0..<8).contains { touches(step, "cup.\($0)", "y") } && !swaps(step) })
+        #expect(lastLanding < goes && goes < firstSwap, "cup lands, then the gem goes, then cups move")
+        #expect(!steps.contains { touches($0, "cups.gem", "y") }, "the gem never moves with a cup")
+    }
+
     /// An animation holds its last values, so a move that ends anywhere but where its node rests leaves the node there until the next board: a Tic-tac-toe piece stood at the top of
     /// its cell until the next move. A path's end has to be the node's own place.
     static func landsWhereItRests(_ scene: Scene, _ context: String) {

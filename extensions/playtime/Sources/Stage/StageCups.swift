@@ -30,8 +30,8 @@ extension BoardDrawing {
     }
 
     /// The gem's moment before a shuffle: the cups settle, one lifts to show the gem, it stays a moment, it comes down.
-    private static let settleMs = 300.0, showLiftMs = 350.0, showMs = 900.0, lowerMs = 620.0
-    static let cupsOpenMs = Int(settleMs + showLiftMs + showMs + lowerMs)
+    private static let settleMs = 300.0, showLiftMs = 350.0, showMs = 900.0, lowerMs = 620.0, restMs = 560.0
+    static let cupsOpenMs = Int(settleMs + showLiftMs + showMs + lowerMs + restMs)
     /// A breath between two swaps, so each one reads as its own.
     static let swapRestMs = 80
     private static let swapSamples = 8
@@ -88,9 +88,9 @@ extension BoardDrawing {
         for place in 0..<count { nodes.append(cupPlate(place, table: table, picked: picked == place)) }
         // The gem on the mat: under the cup that shows it first, or where the round left it.
         if let at = shows ? gem : shuffling ? hide : nil {
-            // It is really there: under a cup that hasn't lifted it can't be seen, and the cup uncovers it. Only while the cups shuffle is it taken away, once it can't be seen.
+            // It is really there, on the mat: a cup that hasn't lifted covers it, and a cup lifting uncovers it.
             let glowW = table.gemW + 22, c = table.centre(Double(at))
-            nodes.append(Node.ellipse(fill: Paint.clear("#FFC93C", 0.5)).id("cups.glow").at(c - glowW / 2, table.floor - 8 - 12).size(glowW, 18).opacity(shows ? 1 : 0))
+            nodes.append(Node.ellipse(fill: Paint.clear("#FFC93C", 0.5)).id("cups.glow").at(c - glowW / 2, table.floor - 8 - 12).size(glowW, 18).opacity(revealed ? 1 : 0))
             nodes.append(Node.image("art/game-gem.png").id("cups.gem").at(c - table.gemW / 2, table.gemY).size(table.gemW, table.gemH).anchor(0.5, 1).opacity(shows ? 1 : 0))
         }
         // In a group of their own, so a cup passing behind another goes behind it alone, not behind the table's shadows.
@@ -150,6 +150,7 @@ extension BoardDrawing {
             })
         }
         let gemShows: [Anim] = gem == nil ? [] : [
+            .to("cups.glow", ["opacity": 1], ms: 220, ease: "out").delay(ms: 160),
             .keys("cups.gem", [["t": 0, "scale": 1], ["t": 0.5, "scale": 1.14], ["t": 1, "scale": 1]], ms: 380, ease: "out").delay(ms: 260),
             .stagger(["cups.spark.0", "cups.spark.1", "cups.spark.2"], stepMs: 70, ["opacity": 1], ms: 160, ease: "out").delay(ms: 260),
             .stagger(["cups.spark.0", "cups.spark.1", "cups.spark.2"], stepMs: 70, ["opacity": 0], ms: 260, ease: "in").delay(ms: 620),
@@ -187,22 +188,26 @@ extension BoardDrawing {
         }))
         if let hide {
             let cup = "cup.\(ends[hide])", up = table.restY - table.lift, rest = table.restY
-            // The gem is put on the mat while every cup is down, so the cup uncovers it: nothing fades in.
-            steps.append(.together([.to("cups.gem", ["opacity": 1], ms: 1, ease: "linear"), .to("cups.glow", ["opacity": 1], ms: 1, ease: "linear")]))
+            // The gem is set down while every cup is down, so the lift uncovers it: nothing fades in.
+            steps.append(.to("cups.gem", ["opacity": 1], ms: 1, ease: "linear"))
             steps.append(.together([.to(cup, ["y": up], ms: Self.showLiftMs, ease: "out"),
+                                    .to("cups.glow", ["opacity": 1], ms: 200, ease: "out").delay(ms: 150),
                                     .to(cup + ".shadow", ["sx": 0.7, "opacity": 0.4], ms: Self.showLiftMs, ease: "out")]))
             steps.append(.keys("cups.gem", [["t": 0, "scale": 1], ["t": 0.5, "scale": 1.1], ["t": 1, "scale": 1]], ms: 420, ease: "in_out"))
             steps.append(.wait(ms: Self.showMs - 420))
-            // Coming down: it hangs a moment, drops over the gem, and lands with a little give, all of it covering the gem before the gem is taken away.
+            // Coming down: it hangs a moment, drops over the gem, and lands with a little give. A good while after, with every cup still, the gem is taken away from under it, and
+            // only then do the swaps start: whatever the timing on a busy Mac, nobody ever sees a cup move off a gem, or a gem vanish.
             steps.append(.together([
                 .keys(cup, [["t": 0, "y": up, "sx": 1, "sy": 1], ["t": 0.22, "y": up - 5, "sx": 1, "sy": 1], ["t": 0.74, "y": rest, "sx": 1, "sy": 1], ["t": 0.84, "y": rest, "sx": 1.035, "sy": 0.96], ["t": 1, "y": rest, "sx": 1, "sy": 1]], ms: Self.lowerMs, ease: "in_out"),
                 .keys(cup + ".shadow", [["t": 0, "sx": 0.7, "opacity": 0.4], ["t": 0.22, "sx": 0.7, "opacity": 0.4], ["t": 0.74, "sx": 1, "opacity": 1], ["t": 1, "sx": 1, "opacity": 1]], ms: Self.lowerMs, ease: "in_out"),
                 .keys("cups.glow", [["t": 0, "opacity": 1], ["t": 0.5, "opacity": 0.6], ["t": 0.72, "opacity": 0], ["t": 1, "opacity": 0]], ms: Self.lowerMs),
                 .sequence([.wait(ms: Self.lowerMs * 0.74), .sound("sounds/tick.wav")]),
             ]))
+            steps.append(.wait(ms: Self.restMs * 0.8))
             steps.append(.to("cups.gem", ["opacity": 0], ms: 1, ease: "linear"))
+            steps.append(.wait(ms: Self.restMs * 0.2))
         } else {
-            steps.append(.wait(ms: Self.showLiftMs + Self.showMs + Self.lowerMs))
+            steps.append(.wait(ms: Self.showLiftMs + Self.showMs + Self.lowerMs + Self.restMs))
         }
         var at = Array(0..<count)
         for swap in swaps {
