@@ -79,22 +79,20 @@ struct Nav {
         case home
         case flow(String)
         case run(String)
+        case history
+        case templates
     }
 
     enum Inspecting: Equatable {
+        case nothing
         case trigger
         case step(String)
-        /// The picker, adding after this row (`start`, or a step, or a branch's `then:`/`else:` row).
-        case adding(after: String)
     }
 
-    var search = ""
-    /// What's selected on each flow's rail.
+    /// What's selected on each flow's tree. Nothing to start with: the flow itself and what it will give are what there is to read.
     private var inspected: [String: Inspecting] = [:]
 
-    func inspecting(_ flow: Flow) -> Inspecting {
-        inspected[flow.id] ?? (flow.draft.steps.isEmpty ? .adding(after: "start") : .trigger)
-    }
+    func inspecting(_ flow: Flow) -> Inspecting { inspected[flow.id] ?? .nothing }
 
     mutating func inspect(_ what: Inspecting, in flow: String) { inspected[flow] = what }
 
@@ -102,8 +100,12 @@ struct Nav {
     static func place(_ state: Arguments) -> Place {
         if let run = state.string("run") { return .run(run) }
         if let flow = state.string("flow") { return .flow(flow) }
-        return .home
+        switch state.string("view") {
+        case "history": return .history
+        case "templates": return .templates
+        default: return .home
+        }
     }
 
-    static func open(flow id: String) -> [String: Any] { ["flow": id, "run": NSNull()] }
+    static func open(flow id: String) -> [String: Any] { ["flow": id] }
 }

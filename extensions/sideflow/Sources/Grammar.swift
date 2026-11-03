@@ -10,6 +10,7 @@ enum Grammar {
       {"type":"schedule","days":["mon","tue","wed","thu","fri"],"at":"08:30","catch_up":true}  (catch_up: run once when back if the Mac was off)
       {"type":"schedule","every_minutes":60}  (15 at least)
       {"type":"watch","kind":"url_change|site_status|file_changes|file_appears|folder_new_file|process_exits","target":"https://… or a full path or a program","contains":"words","pattern":"*.pdf"}
+      {"type":"event","event":"reminder.fired|reminder.created|note.saved|calendar.starting|companion.finished|agent.finished|attention.changed|mac.woke","contains":"words"}  ({{trigger}} holds its words)
 
     each step does one thing and may have "id" (a-z 0-9 _, used to refer to its result), "name" (short plain words shown to the person) and "on_failure" ("stop", "carry_on", "retry"):
       {"id":"x","do":"<tool name>","with":{…the tool's values…}}
@@ -18,6 +19,8 @@ enum Grammar {
       {"id":"x","text":"words with {{values}}"}
       {"if":{"value":"{{x}}","test":"contains|not_contains|is|is_not|is_empty|not_empty|more_than|less_than","than":"rain"},"then":[…],"else":[…]}
       {"wait_minutes":30}  (1 to 1440)
+      {"run_flow":"another flow's name"}  (sets it off and carries on)
+      {"id":"x","do":"companion.job","with":{"job":"a whole job in plain words"}}  (the companion does it with all its tools, under the person's trust settings)
 
     {{x}} is step x's result. Also {{trigger}} (what set it off), {{today}}, {{now}}.
     Use list_actions for the tools and their values. To tell the person, use the tool notify.user with title and body.

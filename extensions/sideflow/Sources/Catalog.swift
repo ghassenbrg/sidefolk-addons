@@ -96,7 +96,7 @@ extension FlowBody {
                     refs(input.values.flatMap(\.strings), step)
                     if catalog.loadedAt != nil {
                         if let known = catalog.tool(tool) {
-                            for p in known.parameters where p.required && input[p.name] == nil {
+                            for p in known.parameters where p.required && (input[p.name] == nil || input[p.name]?.string?.trimmed.isEmpty == true) {
                                 out.append(FlowProblem(step: step.id, text: L("“{name}” needs a value.", ["name": p.title])))
                             }
                             for key in input.keys.sorted() where !known.parameters.contains(where: { $0.name == key }) {
@@ -114,6 +114,8 @@ extension FlowBody {
                     walk(then)
                     walk(otherwise)
                 case .wait: break
+                case .flow(let name):
+                    if name.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Pick which flow to run."))) }
                 }
                 if step.hasOutput { seen.insert(step.id) }
             }

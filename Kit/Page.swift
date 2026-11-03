@@ -17,16 +17,28 @@ public struct Page {
     public var back: String?
     /// The page draws its own head: no title row or summary on it. The summary still reaches Today and the sidebar (D105).
     public var bare: Bool
+    /// Bare, and out to the column's edges: the scenes keep their own margins, and draw their own way back (D109).
+    public var bleed: Bool
     public var dress: PageDress?
+    /// What its Today tile draws instead of the summary, at most 720 × 300 (D109). A picture of the summary: a click opens the page.
+    public var tile: Scene?
     /// How wide its column may grow, 640–1320 (D108).
     public var maxWidth: Double?
+    /// Takes the window (D119): `side` sections go in a column at the start, `trailing` ones at the end, each scrolling on its own; Home's sidebar folds while it shows.
+    public var workspace: Bool
+    /// The person's own companion looks in at the page's corner, and stands by what's `active` on a tree (D119). You never read it.
+    public var companion: Bool
 
-    public init(summary: Summary? = nil, sections: [Section] = [], back: String? = nil, bare: Bool = false, dress: PageDress? = nil, maxWidth: Double? = nil) {
+    public init(summary: Summary? = nil, sections: [Section] = [], back: String? = nil, bare: Bool = false, bleed: Bool = false, dress: PageDress? = nil, tile: Scene? = nil, maxWidth: Double? = nil, workspace: Bool = false, companion: Bool = false) {
+        self.workspace = workspace
+        self.companion = companion
         self.summary = summary
         self.sections = sections
         self.back = back
-        self.bare = bare
+        self.bare = bare || bleed || workspace
+        self.bleed = bleed
         self.dress = dress
+        self.tile = tile
         self.maxWidth = maxWidth
     }
 
@@ -35,8 +47,12 @@ public struct Page {
         if let summary { out["summary"] = summary.json }
         if let back { out["back"] = back }
         if bare { out["bare"] = true }
+        if bleed { out["bleed"] = true }
         if let dress { out["dress"] = dress.json }
+        if let tile { out["tile"] = tile.json }
         if let maxWidth { out["max_width"] = maxWidth }
+        if workspace { out["workspace"] = true }
+        if companion { out["companion"] = true }
         return out
     }
 }
@@ -74,7 +90,7 @@ public struct Summary {
 public struct Section {
     /// `side`: in a wide window, in a column beside the main sections at the start edge (a list of devices to pick
     /// from); narrower, in the page's order.
-    public enum Place: String { case main, side, bottom }
+    public enum Place: String { case main, side, bottom, trailing }
 
     public var title: String?
     public var detail: String?
@@ -184,6 +200,8 @@ public enum Block {
     case action(Action)
     /// A switch whose new state goes into the page's state under `key` (D105): a draft, with nothing saved yet.
     case draftToggle(_ label: String, detail: String? = nil, on: Bool, key: String, symbol: String? = nil)
+    /// A switch that does `act` rather than run a tool: flipped on, Sidefolk asks the person (`.allow`), and it stands for what they answered.
+    case actToggle(_ label: String, detail: String? = nil, on: Bool, act: PageAct)
     /// One of a few options, whose pick goes into the page's state under `key` (D105). `style` draws it as a plain choice (nil), or as `.cards`, `.rows`.
     case draftChoice(_ label: String, detail: String? = nil, options: [Option], selected: String, key: String, style: PickerStyle? = nil, disabled: Bool = false)
     /// A text field whose words go into the page's state under `key` (D105). `live`: a moment after they stop typing, and `button` clears it. Otherwise when submitted.
@@ -194,6 +212,16 @@ public enum Block {
     case scene(PageSceneBlock)
     /// Things in order, on a line (D113).
     case steps(StepRail)
+    /// A tree of cards that arranges itself (D118).
+    case tree(CardTree)
+    /// A compact head for a page that draws its own (D119).
+    case bar(PageBar)
+    /// A column of places to go (D119).
+    case nav(PageNav)
+    /// What a person will receive, drawn as it will arrive (D119).
+    case notice(PageNotice)
+    /// A row of recent results (D119).
+    case ticks(PageTicks)
     /// A value edited in place (D113).
     case edit(EditField)
     /// Several of a few options (D113).
@@ -254,6 +282,11 @@ public enum Block {
             return transport.json
         case .scene(let block):
             return block.json
+        case .tree(let tree): return tree.json
+        case .bar(let bar): return bar.json
+        case .nav(let nav): return nav.json
+        case .notice(let notice): return notice.json
+        case .ticks(let ticks): return ticks.json
         case .steps(let rail):
             return rail.json
         case .edit(let field):
@@ -294,6 +327,10 @@ public enum Block {
             return action.json
         case .draftToggle(let label, let detail, let on, let key, let symbol):
             return Self.dropNil(["type": "switch", "label": label, "detail": detail, "on": on, "key": key, "go": [:] as [String: Any], "symbol": symbol])
+        case .actToggle(let label, let detail, let on, let act):
+            var out = Self.dropNil(["type": "switch", "label": label, "detail": detail, "on": on, "input": [:] as [String: Any]])
+            act.fill(&out)
+            return out
         case .draftChoice(let label, let detail, let options, let selected, let key, let style, let disabled):
             return Self.dropNil(["type": "choice", "style": style?.rawValue, "label": label, "detail": detail, "selected": selected, "key": key, "go": [:] as [String: Any],
                                  "disabled": disabled ? true : nil, "options": options.map(\.json)])

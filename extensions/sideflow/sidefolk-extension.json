@@ -12,10 +12,14 @@
   "background": true,
   "permissions": {
     "act": { "purpose": "to run the steps of the flows you make" },
+    "events": { "purpose": "to start the flows you set to run when something happens" },
     "ai": { "purpose": "for flows' steps that write something, and to draft a flow from your words", "daily_cap": 40 }
   },
   "pages": {
     "flows": { "title": "Sideflow", "symbol": "point.3.connected.trianglepath.dotted", "refresh": 3, "widget": true }
+  },
+  "palettes": {
+    "run": { "title": "Run a flow", "hotkey": "ctrl+option+f", "placeholder": "Which flow?" }
   },
   "settings": [
     { "key": "tell", "type": "choice", "title": "Tell me when a flow finishes", "detail": "It always tells you when one stops or needs you.", "segmented": true,

@@ -59,6 +59,28 @@ import SidefolkExtensionKit
                     ["do": "notes.save", "with": ["text": "Week in review\n{{week}}"], "name": L("Save a note")],
                 ],
             ]),
+            Template(id: "meeting", name: L("Before a meeting"), line: L("Five minutes before, what you noted about it, on your desktop."), symbol: "person.2.wave.2", color: "#1FA88A", body: [
+                "trigger": ["type": "event", "event": "calendar.starting"],
+                "steps": [
+                    ["id": "found", "do": "notes.search", "with": ["query": "{{trigger}}"], "name": L("Find my notes on it")],
+                    ["do": "notify.user", "with": ["title": "{{trigger}}", "body": "{{found}}"], "name": L("Tell me")],
+                ],
+            ]),
+            Template(id: "focus", name: L("Focus hour"), line: L("An hour of Focus when you ask, and a word when it's over."), symbol: "circle.lefthalf.filled", color: "#8E6CF0", body: [
+                "trigger": ["type": "manual"],
+                "steps": [
+                    ["do": "attention.set", "with": ["mode": "focus", "minutes": 60], "name": L("Focus for an hour")],
+                    ["wait_minutes": 60],
+                    ["do": "notify.user", "with": ["title": L("Focus is over"), "body": L("Time to look up.")], "name": L("Tell me")],
+                ],
+            ]),
+            Template(id: "tidy", name: L("Let your companion tidy up"), line: L("On Fridays, your companion goes through the week's notes itself."), symbol: "wand.and.stars", color: "#C65CD6", body: [
+                "trigger": ["type": "schedule", "days": ["fri"], "at": "16:00"],
+                "steps": [
+                    ["id": "tidied", "do": "companion.job", "with": ["job": "Look through the notes I saved this week. Tell me which ones still need something from me, in a short list."], "name": L("Let your companion do it")],
+                    ["do": "notify.user", "with": ["title": L("Your week's notes"), "body": "{{tidied}}"], "name": L("Tell me")],
+                ],
+            ]),
         ]
     }
 

@@ -9,6 +9,10 @@ enum Trigger: Equatable, Sendable {
     case every(minutes: Int, catchUp: Bool)
     /// One of Sidefolk's watches, made for this flow: `watch.create`'s own kinds.
     case watch(WatchTrigger)
+    /// Something happening in Sidefolk, as it tells those who asked to hear: a reminder firing, a note saved. `contains`: only when its words say this.
+    case event(String, contains: String?)
+
+    static let events = ["reminder.fired", "reminder.created", "note.saved", "calendar.starting", "companion.finished", "agent.finished", "attention.changed", "mac.woke"]
 }
 
 struct WatchTrigger: Equatable, Sendable {
@@ -59,6 +63,8 @@ struct Step: Equatable, Sendable {
         case text(String)
         case branch(Condition, then: [Step], otherwise: [Step])
         case wait(minutes: Int)
+        /// Sets off another flow, by name, and carries on.
+        case flow(String)
     }
 
     enum OnFailure: String, CaseIterable, Sendable { case stop, carry_on, retry }
@@ -73,7 +79,7 @@ struct Step: Equatable, Sendable {
     var hasOutput: Bool {
         switch kind {
         case .action, .ai, .ask, .text: true
-        case .branch, .wait: false
+        case .branch, .wait, .flow: false
         }
     }
 }
@@ -152,6 +158,10 @@ enum FlowCodec {
             if let c = w.contains { out["contains"] = c }
             if let p = w.pattern { out["pattern"] = p }
             return out
+        case .event(let name, let contains):
+            var out: [String: Any] = ["type": "event", "event": name]
+            if let contains { out["contains"] = contains }
+            return out
         }
     }
 
@@ -173,6 +183,7 @@ enum FlowCodec {
             out["then"] = then.map(json)
             out["else"] = otherwise.map(json)
         case .wait(let minutes): out["wait_minutes"] = minutes
+        case .flow(let name): out["run_flow"] = name
         }
         return out
     }
@@ -192,7 +203,7 @@ enum FlowCodec {
 
     static func trigger(_ any: Any?) throws -> Trigger {
         guard let any else { return .manual }
-        guard let o = any as? [String: Any], let type = o["type"] as? String else { throw Problem(L("“trigger” needs a “type”: manual, schedule or watch.")) }
+        guard let o = any as? [String: Any], let type = o["type"] as? String else { throw Problem(L("“trigger” needs a “type”: manual, schedule, watch or event.")) }
         switch type {
         case "manual":
             try only(o, ["type"], in: "trigger")
@@ -221,8 +232,14 @@ enum FlowCodec {
             }
             guard let target = (o["target"] as? String)?.trimmed, !target.isEmpty else { throw Problem(L("A watch needs “target”: a web address, a full path or a program.")) }
             return .watch(WatchTrigger(kind: kind, target: target, contains: (o["contains"] as? String)?.nonEmpty, pattern: (o["pattern"] as? String)?.nonEmpty))
+        case "event":
+            try only(o, ["type", "event", "contains"], in: "trigger")
+            guard let name = o["event"] as? String, Trigger.events.contains(name) else {
+                throw Problem(L("An event trigger needs “event”, one of {kinds}.", ["kinds": Trigger.events.joined(separator: ", ")]))
+            }
+            return .event(name, contains: (o["contains"] as? String)?.nonEmpty)
         default:
-            throw Problem(L("“trigger” needs a “type”: manual, schedule or watch."))
+            throw Problem(L("“trigger” needs a “type”: manual, schedule, watch or event."))
         }
     }
 
@@ -241,9 +258,9 @@ enum FlowCodec {
 
     static func step(_ any: Any, depth: Int, used: inout Set<String>) throws -> Step {
         guard let o = any as? [String: Any] else { throw Problem(L("Each step is an object.")) }
-        try only(o, ["id", "name", "on_failure", "do", "with", "ai", "ask", "options", "text", "if", "then", "else", "wait_minutes"], in: "step")
-        let kinds = ["do", "ai", "ask", "text", "if", "wait_minutes"].filter { o[$0] != nil }
-        guard kinds.count == 1 else { throw Problem(L("A step does one thing: do, ai, ask, text, if or wait_minutes.")) }
+        try only(o, ["id", "name", "on_failure", "do", "with", "ai", "ask", "options", "text", "if", "then", "else", "wait_minutes", "run_flow"], in: "step")
+        let kinds = ["do", "ai", "ask", "text", "if", "wait_minutes", "run_flow"].filter { o[$0] != nil }
+        guard kinds.count == 1 else { throw Problem(L("A step does one thing: do, ai, ask, text, if, wait_minutes or run_flow.")) }
         var id = (o["id"] as? String)?.trimmed ?? ""
         if id.isEmpty {
             var n = used.count + 1
@@ -282,8 +299,10 @@ enum FlowCodec {
                 throw Problem(L("A wait is 1 to {count} minutes.", ["count": Format.integer(FlowBody.longestWait)]))
             }
             kind = .wait(minutes: minutes)
+        } else if let name = (o["run_flow"] as? String)?.nonEmpty {
+            kind = .flow(name)
         } else {
-            throw Problem(L("A step does one thing: do, ai, ask, text, if or wait_minutes."))
+            throw Problem(L("A step does one thing: do, ai, ask, text, if, wait_minutes or run_flow."))
         }
         return Step(id: id, name: (o["name"] as? String)?.nonEmpty, kind: kind, onFailure: failure)
     }

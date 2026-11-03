@@ -1,15 +1,13 @@
 import Foundation
 import SidefolkExtensionKit
 
-/// What's selected on the rail, as a form: from each tool's own schema, so an extension installed tomorrow has its form with no change here.
+/// What's selected on the tree, as a form: from each tool's own schema, so an extension installed tomorrow has its form with no change here.
 @MainActor enum Inspector {
     static func blocks(_ flow: Flow, _ app: App, problems: [FlowProblem]) -> [Block] {
         switch app.nav.inspecting(flow) {
+        case .nothing: return []
         case .trigger: return trigger(flow)
-        case .adding(let after): return adding(flow, after: after, app)
         case .step(let id):
-            // The rows that open a branch hold nothing of their own: they're where to add.
-            if id.hasPrefix("then:") || id.hasPrefix("else:") { return adding(flow, after: id, app) }
             guard let step = flow.draft.step(id) else { return trigger(flow) }
             return self.step(step, flow, app, problems: problems)
         }
@@ -28,13 +26,16 @@ import SidefolkExtensionKit
         case .days: "days"
         case .every: "every"
         case .watch: "watch"
+        case .event: "event"
         }
-        var out: [Block] = [.picker(L("Sets it off"), style: .cards, [
+        var out: [Block] = [.edit(EditField("name", L("Its name"), value: flow.name, tool: "ui", input: base(flow, "rename")))]
+        out.append(.picker(L("Sets it off"), style: .cards, [
             Option("days", L("On a schedule"), detail: L("Days and a time"), symbol: "calendar.badge.clock"),
             Option("every", L("Every so often"), detail: L("Every so many minutes"), symbol: "clock.arrow.2.circlepath"),
+            Option("event", L("When something happens"), detail: L("A reminder, a note, a meeting"), symbol: "bolt"),
             Option("watch", L("When something changes"), detail: L("A page, a file, a program"), symbol: "eye"),
             Option("manual", L("Only when I ask"), detail: L("A button, or say its name"), symbol: "hand.tap"),
-        ], selected: kind, tool: "ui", input: base(flow, "trigger_kind"), key: "value")]
+        ], selected: kind, tool: "ui", input: base(flow, "trigger_kind"), key: "value"))
         switch t {
         case .manual:
             out.append(.note(L("Run it from here, or say “run {name}”.", ["name": flow.name])))
@@ -58,6 +59,10 @@ import SidefolkExtensionKit
                 out.append(.edit(EditField("pattern", L("Only files like"), value: w.pattern ?? "", placeholder: "*.pdf", tool: "ui", input: base(flow, "watch_pattern"))))
             }
             out.append(.note(L("What it saw goes on to the steps as “What set it off”.")))
+        case .event(let name, let contains):
+            out.append(.choice(L("What happens"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: name, tool: "ui", input: base(flow, "event_kind")))
+            out.append(.edit(EditField("event_contains", L("Only if it mentions"), value: contains ?? "", placeholder: L("Anything"), tool: "ui", input: base(flow, "event_contains"))))
+            out.append(.note(L("Its words go on to the steps as “What set it off”.")))
         }
         return out
     }
@@ -66,46 +71,7 @@ import SidefolkExtensionKit
         .toggle(L("If the Mac was off, run once when it's back"), detail: on ? nil : L("Otherwise it notes that it missed the run."), on: on, tool: "ui", input: base(flow, "catch_up"))
     }
 
-    // MARK: Adding
-
-    /// The whole choice in one place: what Sideflow does itself first, then every tool by what it's for.
-    static func adding(_ flow: Flow, after: String, _ app: App) -> [Block] {
-        let add = base(flow, "add_kind", ["after": after])
-        var out: [Block] = [.picker(L("Sideflow itself"), style: .rows, [
-            Option("tell", L("Tell me"), detail: L("A notice from your companion"), symbol: "bell"),
-            Option("ai", L("Write with AI"), detail: L("Summarise, rewrite, sum up"), symbol: "sparkles"),
-            Option("ask", L("Ask me"), detail: L("A question, and it waits for you"), symbol: "questionmark.bubble"),
-            Option("if", L("If…"), detail: L("Do something only sometimes"), symbol: "arrow.triangle.branch"),
-            Option("text", L("Compose text"), detail: L("Put values together"), symbol: "text.quote"),
-            Option("wait", L("Wait"), detail: L("Up to a day; survives quitting"), symbol: "hourglass"),
-        ], selected: "", tool: "ui", input: add, key: "kind")]
-        out.append(.field(L("Find a tool"), placeholder: app.nav.search.isEmpty ? L("Note, weather, file…") : app.nav.search, button: L("Find"), tool: "ui", input: base(flow, "search")))
-        let words = app.nav.search.lowercased()
-        let tools = app.catalog.tools.filter { $0.name != "notify.user" && $0.name != "ask.user" && (words.isEmpty || ($0.title + " " + $0.name + " " + ($0.fromExtension ?? "")).lowercased().contains(words)) }
-        let order = ["notes", "time", "web", "files", "watch", "system", "extensions", "agents"]
-        for category in order {
-            let group = tools.filter { $0.category == category || (category == "extensions" && $0.fromExtension != nil && !order.dropLast(2).contains($0.category)) }
-            guard !group.isEmpty else { continue }
-            out.append(.picker(categoryName(category), style: .rows, group.prefix(24).map { t in
-                Option("tool:\(t.name)", t.title, detail: t.fromExtension?.capitalizedFirst, symbol: toolSymbol(t))
-            }, selected: "", tool: "ui", input: add, key: "kind"))
-        }
-        if tools.isEmpty, !words.isEmpty { out.append(.note(L("Nothing matches “{words}”.", ["words": app.nav.search]))) }
-        return out
-    }
-
-    static func categoryName(_ c: String) -> String {
-        switch c {
-        case "notes": L("Notes")
-        case "time": L("Time and reminders")
-        case "web": L("The web")
-        case "files": L("Files")
-        case "watch": L("Watches")
-        case "system": L("This Mac")
-        case "agents": L("Agents")
-        default: L("From your extensions")
-        }
-    }
+    // MARK: Parts
 
     static func toolSymbol(_ t: Catalog.Tool) -> String {
         switch t.category {
@@ -123,7 +89,10 @@ import SidefolkExtensionKit
     /// Chips for what earlier steps made, in reading order.
     static func tokens(before id: String, flow: Flow, _ app: App) -> [EditField.Token] {
         var out = [EditField.Token]()
-        if case .watch = flow.draft.trigger { out.append(.init(L("What set it off"), value: "{{trigger}}", symbol: "eye")) }
+        switch flow.draft.trigger {
+        case .watch, .event: out.append(.init(L("What set it off"), value: "{{trigger}}", symbol: "bolt"))
+        default: break
+        }
         for step in flow.draft.allSteps {
             if step.id == id { break }
             if step.hasOutput { out.append(.init(Words.label(step, catalog: app.catalog), value: "{{\(step.id)}}", symbol: Pages.look(step, app).symbol)) }
@@ -171,7 +140,7 @@ import SidefolkExtensionKit
                     default: ""
                     }
                     out.append(.edit(EditField("\(step.id).\(p.name)", p.title + (p.required ? "" : " " + L("(optional)")), value: text, detail: p.detail.map { String($0.prefix(140)) },
-                                               kind: p.name == "text" || p.name == "body" ? .multiline : (p.kind == .integer || p.kind == .number ? .number : .text),
+                                               kind: p.name == "text" || p.name == "body" || p.name == "job" ? .multiline : (p.kind == .integer || p.kind == .number ? .number : .text),
                                                tokens: p.kind == .text ? tokens : [], tool: "ui", input: input("param", ["name": p.name]))))
                 }
             }
@@ -189,6 +158,9 @@ import SidefolkExtensionKit
             if c.test != .is_empty, c.test != .not_empty {
                 out.append(.edit(EditField("\(step.id).than", L("Than"), value: c.than, tool: "ui", input: input("cond_than"))))
             }
+        case .flow(let name):
+            out.append(.choice(L("Which flow"), options: app.store.flows().filter { $0.id != flow.id }.map { ($0.name, $0.name) }, selected: name, tool: "ui", input: input("run_flow")))
+            out.append(.note(L("It sets that flow off and carries on, without waiting for it.")))
         case .wait(let minutes):
             out.append(.edit(EditField("\(step.id).minutes", L("Minutes"), value: String(minutes), detail: L("Up to a day. It carries on after Sidefolk restarts."), kind: .number, tool: "ui", input: input("wait"))))
         }
@@ -198,8 +170,6 @@ import SidefolkExtensionKit
             if step.reads(app.catalog) { failure.append(("retry", L("Try again later"))) }
             out.append(.choice(L("If it fails"), options: failure, selected: step.onFailure.rawValue, tool: "ui", input: input("on_failure")))
         }
-        out.append(.action(Action(L("Move up"), tool: "ui", input: input("up"), style: .plain, symbol: "chevron.up")))
-        out.append(.action(Action(L("Move down"), tool: "ui", input: input("down"), style: .plain, symbol: "chevron.down")))
         out.append(.action(Action(L("Remove this step"), tool: "ui", input: input("remove"), style: .destructive, symbol: "trash")))
         return out
     }

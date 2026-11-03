@@ -158,6 +158,20 @@ import SidefolkExtensionKit
             return await acting(step, tool: tool, input: filled, in: &run)
         case .branch:
             return true
+        case .flow(let name):
+            run.record(.init(step: step.id, status: .running, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
+            if run.mode == .practice {
+                run.record(.init(step: step.id, status: .would, summary: L("Would run {flow}", ["flow": name]), at: clock()))
+            } else if let other = store.find(name), other.id != run.flow {
+                // Each keeps to its own: a flow that isn't On asks at every step, and the runaway stop counts every start, so two can't set each other off for ever.
+                _ = start(other, mode: other.live != nil ? .live : .once, why: L("{flow} set it off.", ["flow": run.flowName]))
+                run.record(.init(step: step.id, status: .done, summary: L("Ran {flow}", ["flow": other.name]), at: clock()))
+            } else {
+                return failed(step, why: L("There's no other flow called “{name}”.", ["name": name]), reads: false, in: &run)
+            }
+            run.pc += 1
+            store.save(run)
+            return true
         }
     }
 
@@ -413,6 +427,16 @@ import SidefolkExtensionKit
         }
     }
 
+    /// Something happened in Sidefolk: every On flow waiting for it goes.
+    func happened(name: String, title: String?, detail: String?) {
+        let words = [title, detail].compactMap(\.self).joined(separator: "\n")
+        for flow in store.flows() where flow.state == .on {
+            guard case .event(let wanted, let contains) = flow.running.trigger, wanted == name else { continue }
+            if let contains, words.range(of: contains, options: [.caseInsensitive, .diacriticInsensitive]) == nil { continue }
+            start(flow, mode: .live, why: Words.trigger(flow.running.trigger), trigger: words)
+        }
+    }
+
     /// A watch this flow made fired.
     func watchFired(title: String, summary: String) {
         guard let flow = store.flows().first(where: { $0.state == .on && $0.watchTitle == title }) else { return }
@@ -571,6 +595,8 @@ extension Run {
         case .action(let tool, _): catalog.tool(tool)?.readsOnly == true
         // Asking again after a stop changes nothing: the person just answers.
         case .ai, .ask, .text, .branch, .wait: true
+        // Setting another flow off twice isn't the same as once.
+        case .flow: false
         }
     }
 }

@@ -7,7 +7,7 @@ enum Schedule {
 
     static func next(_ trigger: Trigger, after: Date, calendar: Calendar = .autoupdatingCurrent) -> Date? {
         switch trigger {
-        case .manual, .watch:
+        case .manual, .watch, .event:
             return nil
         case .every(let minutes, _):
             return after.addingTimeInterval(Double(minutes) * 60)

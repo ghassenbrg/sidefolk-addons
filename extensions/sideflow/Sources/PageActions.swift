@@ -29,12 +29,10 @@ import SidefolkExtensionKit
         switch op {
         case "inspect":
             let target = a.string("target") ?? "start"
-            app.nav.inspect(target == "start" ? .trigger : .step(target), in: try flow().id)
-        case "add":
-            app.nav.inspect(.adding(after: a.string("target") ?? "start"), in: try flow().id)
-            app.nav.search = ""
-        case "search":
-            app.nav.search = text
+            let id = try flow().id
+            // Pressing what's selected puts it away.
+            let chosen: Nav.Inspecting = target == "start" ? .trigger : .step(target)
+            app.nav.inspect(app.store.flow(id).map(app.nav.inspecting) == chosen ? .nothing : chosen, in: id)
         case "add_kind":
             let f = try flow()
             guard let kind = a.string("kind") else { return .stay }
@@ -44,7 +42,7 @@ import SidefolkExtensionKit
         case "remove":
             if let id = a.string("step") {
                 try draft { $0 = Editing.remove(id, from: $0) }
-                app.nav.inspect(.trigger, in: try flow().id)
+                app.nav.inspect(.nothing, in: try flow().id)
             }
         case "reorder":
             if let move = a.values["move"] as? [String: Any], let id = move["id"] as? String {
@@ -99,8 +97,15 @@ import SidefolkExtensionKit
             case "days": try editTrigger { $0 = .days([1, 2, 3, 4, 5], hour: 8, minute: 30, catchUp: true) }
             case "every": try editTrigger { $0 = .every(minutes: 60, catchUp: false) }
             case "watch": try editTrigger { $0 = .watch(WatchTrigger(kind: "url_change", target: "https://example.com")) }
+            case "event": try editTrigger { $0 = .event("reminder.fired", contains: nil) }
             default: break
             }
+        case "event_kind":
+            if let name = a.string("value"), Trigger.events.contains(name) { try editTrigger { if case .event(_, let c) = $0 { $0 = .event(name, contains: c) } } }
+        case "event_contains":
+            try editTrigger { if case .event(let name, _) = $0 { $0 = .event(name, contains: text.nonEmpty) } }
+        case "run_flow":
+            if let name = a.string("value") { try editStep { $0.kind = .flow(name) } }
         case "days":
             let picked = (a.values["values"] as? [String] ?? []).compactMap { FlowCodec.days.firstIndex(of: $0).map { $0 + 1 } }
             guard !picked.isEmpty else { throw Problem(L("A schedule needs at least one day.")) }
@@ -143,9 +148,13 @@ import SidefolkExtensionKit
         case "describe":
             Drafting.start(text, app)
         case "practice":
-            app.engine.practise(try flow())
+            let f = try flow()
+            guard f.draft.problems(app.catalog).isEmpty else { throw Problem(L("Fix what's marked first.")) }
+            app.engine.practise(f)
         case "start":
-            app.engine.turnOn(try flow().id)
+            let f = try flow()
+            guard f.draft.problems(app.catalog).isEmpty else { throw Problem(L("Fix what's marked first.")) }
+            app.engine.turnOn(f.id)
         case "pause":
             app.engine.pause(try flow().id)
         case "resume":
@@ -181,6 +190,10 @@ import SidefolkExtensionKit
             return Step(id: Editing.freshId(body, base: t?.title ?? "step"), kind: .action(tool: name, input: [:]))
         }
         switch kind {
+        case "job":
+            return Step(id: Editing.freshId(body, base: "job"), name: L("Let your companion do it"), kind: .action(tool: "companion.job", input: ["job": .string("")]))
+        case "flow":
+            return Step(id: Editing.freshId(body, base: "flow"), kind: .flow(app.store.flows().first?.name ?? ""))
         case "tell":
             return Step(id: Editing.freshId(body, base: "tell"), name: L("Tell me"), kind: .action(tool: "notify.user", input: ["title": .string(L("Done"))]))
         case "ai": return Step(id: Editing.freshId(body, base: "written"), kind: .ai(prompt: ""))

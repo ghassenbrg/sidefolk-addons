@@ -40,6 +40,22 @@ import SidefolkExtensionKit
                 return L("When a new file lands in {target}", ["target": w.target])
             default: return L("When {target} quits", ["target": w.target])
             }
+        case .event(let name, let contains):
+            let said = eventName(name)
+            return contains.map { L("{event}, if it mentions “{words}”", ["event": said, "words": $0]) } ?? said
+        }
+    }
+
+    static func eventName(_ name: String) -> String {
+        switch name {
+        case "reminder.fired": L("When a reminder fires")
+        case "reminder.created": L("When a reminder is set")
+        case "note.saved": L("When a note is saved")
+        case "calendar.starting": L("Five minutes before a meeting")
+        case "companion.finished": L("When your companion finishes a job")
+        case "agent.finished": L("When a connected agent finishes")
+        case "attention.changed": L("When Focus or Quiet changes")
+        default: L("When your Mac wakes")
         }
     }
 
@@ -72,6 +88,7 @@ import SidefolkExtensionKit
         case .text: return L("Compose text")
         case .branch: return L("If…")
         case .wait(let minutes): return L("Wait {time}", ["time": Format.duration(Double(minutes) * 60)])
+        case .flow(let name): return L("Run {flow}", ["flow": name])
         }
     }
 
@@ -88,6 +105,7 @@ import SidefolkExtensionKit
         case .text(let text): return L("Compose: {text}", ["text": pretty(text, body: body, catalog: catalog)])
         case .branch(let c, _, _): return condition(c, body: body, catalog: catalog)
         case .wait(let minutes): return L("Wait {time}", ["time": Format.duration(Double(minutes) * 60)])
+        case .flow(let name): return L("Run {flow}", ["flow": name])
         }
     }
 
