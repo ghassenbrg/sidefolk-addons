@@ -159,6 +159,8 @@ extension BoardDrawing {
     private func backLink(y: Double, width: Double) -> Node {
         let words = L("Back to games"), w = TextFit.width(words, size: 13, weight: "bold") + 8
         return Node.box("end.back", x: (width - w) / 2, y: y, w: w, h: 22) {
+            // It may stand on any scene, so it brings its own ground.
+            Node.capsule(fill: Paint.card(0.82)).id("end.back.ground").at(-8, -2).size(w + 16, 25)
             Node.words(words, size: 13, weight: "bold", align: "center", w: w, h: 20)
             Node.rect(fill: Paint.ink).at(4, 19).size(w - 8, 1)
         }.area("button", value: Self.backMove, label: words, hover: nil, press: AreaLook(opacity: 0.6), sound: "sounds/tap.wav")
