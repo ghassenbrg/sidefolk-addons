@@ -725,6 +725,23 @@
         "gentle": "Gentle"
       },
       "title": "勝ったとき"
+    },
+    "game_language": {
+      "title": "ゲームの言語",
+      "detail": "Sidefolkの言語に関係なく、Playtimeのメニューとゲームをこの言語にします。",
+      "options": {
+        "auto": "Sidefolkと同じ",
+        "en": "English",
+        "fr": "Français",
+        "es": "Español",
+        "de": "Deutsch",
+        "it": "Italiano",
+        "pt-BR": "Português (Brasil)",
+        "ja": "日本語",
+        "ko": "한국어",
+        "zh-Hans": "简体中文",
+        "ar": "العربية"
+      }
     }
   },
   "surfaces": {
@@ -1374,7 +1391,9 @@
     "Let {name} pick one": "{name}におまかせ",
     "Here we go!": "いくよ！",
     "{name}, pick your toy.": "{name}、おもちゃを選んで。",
-    "1–{n} to choose": "1–{n} で選ぶ"
+    "1–{n} to choose": "1–{n} で選ぶ",
+    "Game language": "ゲームの言語",
+    "Same as Sidefolk": "Sidefolkと同じ"
   },
   "tools": {
     "game_settings": {

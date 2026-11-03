@@ -715,6 +715,23 @@
         "gentle": "Gentle"
       },
       "title": "赢了的时候"
+    },
+    "game_language": {
+      "title": "游戏语言",
+      "detail": "无论 Sidefolk 用什么语言，Playtime 的菜单和游戏都用这种语言。",
+      "options": {
+        "auto": "与 Sidefolk 相同",
+        "en": "English",
+        "fr": "Français",
+        "es": "Español",
+        "de": "Deutsch",
+        "it": "Italiano",
+        "pt-BR": "Português (Brasil)",
+        "ja": "日本語",
+        "ko": "한국어",
+        "zh-Hans": "简体中文",
+        "ar": "العربية"
+      }
     }
   },
   "surfaces": {
@@ -1364,7 +1381,9 @@
     "Let {name} pick one": "让{name}来选",
     "Here we go!": "开始啦！",
     "{name}, pick your toy.": "{name}，选你的玩具。",
-    "1–{n} to choose": "按 1–{n} 选择"
+    "1–{n} to choose": "按 1–{n} 选择",
+    "Game language": "游戏语言",
+    "Same as Sidefolk": "与 Sidefolk 相同"
   },
   "tools": {
     "game_settings": {

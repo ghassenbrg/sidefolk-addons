@@ -42,7 +42,7 @@ enum GameCenterPage {
         let all = badges(totals, entries: entries, record: record, dailies: dailies)
         let earned = all.filter(\.earned).count
         out.append(Section(L("Badges"), [.badges(nil, all.filter(\.earned) + all.filter { !$0.earned })], collapsed: true, detail: L("{n} of {total} earned", ["n": earned, "total": all.count])))
-        out.append(Section(L("Game settings"), [.settings(nil, keys: ["tone", "sounds", "sneaky"], ai: true, aiTitle: L("Make new trivia questions with AI"),
+        out.append(Section(L("Game settings"), [.settings(nil, keys: ["game_language", "tone", "sounds", "sneaky"], ai: true, aiTitle: L("Make new trivia questions with AI"),
                                                           aiDetail: L("Trivia on any topic you name, in your language. Each new topic is one short request to your AI; the questions aren't checked."))], collapsed: true, wide: true))
         let leveled = entries.filter(\.levels)
         var pictures: [String: Picture] = [:]
