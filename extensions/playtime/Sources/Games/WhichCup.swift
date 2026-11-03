@@ -53,9 +53,10 @@ extension Games {
             let r = length > Self.rounds ? played / 2 : played
             let count: Int, ms: Int
             switch level {
-            case .easy: (count, ms) = (4 + r, 600 - 30 * r)
-            case .fair: (count, ms) = (5 + r, 480 - 30 * r)
-            case .hard: (count, ms) = (6 + 2 * r, 380 - 25 * r)
+            // Slow enough to follow with the eye: filmed at each level with cups this size, the old 480 and 380 ms lost a person by the third swap.
+            case .easy: (count, ms) = (4 + r, 700 - 30 * r)
+            case .fair: (count, ms) = (5 + r, 540 - 30 * r)
+            case .hard: (count, ms) = (6 + 2 * r, 420 - 25 * r)
             }
             let hide = rng.below(cups)
             var at = hide

@@ -6,7 +6,8 @@ import SidefolkExtensionKit
 public enum PlayPart {
     /// 2–5 pads; `play` is a sequence Sidefolk shows first (each pad lit for `stepMs`, 250–2000, with its note and the
     /// companion's `move`), then the person presses: `.pad(i)`.
-    case pads([Pad], play: [Int] = [], stepMs: Int = 600, locked: Bool = false)
+    /// `length` and `done`: how long the dance is and how many moves of it are copied, for its dots.
+    case pads([Pad], play: [Int] = [], stepMs: Int = 600, locked: Bool = false, length: Int? = nil, done: Int = 0)
     /// 2–5 cups: the gem shown under `hide`, then `swaps` (pairs of positions, up to 40) at `swapMs` each; a pick is
     /// `.cell(row: 0, column: position)`. After it, `revealed` lifts them, the gem under `gem` (nil: under none).
     case cups(count: Int, hide: Int? = nil, swaps: [[Int]] = [], swapMs: Int = 400, picked: Int? = nil, revealed: Bool = false, gem: Int? = nil,
@@ -47,7 +48,7 @@ public enum PlayPart {
 
     var json: [String: Any] {
         switch self {
-        case .pads(let pads, let play, let step, let locked):
+        case .pads(let pads, let play, let step, let locked, _, _):
             return ["type": "pads", "items": pads.map(\.json), "play": play, "step_ms": step, "locked": locked]
         case .cups(let count, let hide, let swaps, let ms, let picked, let revealed, let gem, let locked):
             var out = drop(["type": "cups", "count": count, "hide": hide, "swaps": swaps, "swap_ms": ms, "picked": picked, "locked": locked])

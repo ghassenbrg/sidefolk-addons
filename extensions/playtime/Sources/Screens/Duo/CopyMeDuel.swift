@@ -92,6 +92,10 @@ struct CopyMeDuel: Codable, Equatable {
                                      : L("{name} copied {n}. {other}'s turn: the same dance.", ["name": d.name(.you), "n": duel.copied[0] ?? 0, "other": d.name(.companion)]),
                                  eyebrow: L("2 players")))
             parts.append(.button(GameButton(L("I'm {name}: ready", ["name": d.name(duel.turn)]), move: "ready", style: .primary, symbol: "play.fill")))
+            // The pads lie ready, not pressable yet, so nothing arrives when the dance begins.
+            parts.append(.play(.pads(duel.game().pads.map { p in
+                Pad(CopyMeScreen.name(p), shape: CopyMeScreen.looks[p]!.shape, color: CopyMeScreen.looks[p]!.color, move: CopyMeScreen.looks[p]!.move, art: CopyMeScreen.looks[p]!.art)
+            }, locked: true)))
         } else {
             let pads = g.pads.map { p in
                 Pad(CopyMeScreen.name(p), shape: CopyMeScreen.looks[p]!.shape, color: CopyMeScreen.looks[p]!.color,
@@ -100,8 +104,8 @@ struct CopyMeDuel: Codable, Equatable {
             let replay = g.phase == .watching
             parts.append(.prompt(replay ? L("Watch {name}, then copy.", ["name": o.companion]) : L("{name}'s turn: copy it.", ["name": d.name(duel.turn)]),
                                  eyebrow: L(one: "{count} move", other: "{count} moves", count: g.length)))
-            parts.append(.play(.pads(pads, play: replay ? g.sequence.map { m in g.pads.firstIndex(of: m)! } : [], stepMs: g.stepMs,
-                                     locked: g.phase == .over)))
+            parts.append(.play(.pads(pads, play: replay ? g.sequence.map { m in g.pads.firstIndex(of: m)! } : [], stepMs: CopyMeScreen.paced(g.stepMs),
+                                     locked: g.phase == .over, length: g.length, done: replay ? 0 : g.position)))
         }
         return Board(parts, companion: TwoPlayers.cue(events), over: duel.over)
     }

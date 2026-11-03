@@ -25,6 +25,8 @@ struct LocalParts: Codable, Equatable {
     var lit: Int?
     /// The reflex was pressed before its signal: "Too soon!" at once, until the verdict's moment.
     var early = false
+    /// The dome was pressed in time: it stays down until the verdict's moment.
+    var boopPressed = false
 }
 
 /// What a board needs from the game round it.
@@ -72,6 +74,8 @@ final class BoardDrawing {
     var timers: [(id: String, ms: Double)] = []
     /// A part asks for the next scene by itself (`untilPlayed`).
     var partAfterMs: Int?
+    /// That, under Reduce Motion, when what it waits for doesn't play.
+    var partAfterStillMs: Int?
     /// What many nodes share, said once: a 9 × 9 board or a played-out word on a kana keyboard runs past the 64 KB a scene may be otherwise.
     var styles: [String: [String: Any]] = [:]
     var look: Look { ctx.entry.look }
@@ -141,6 +145,7 @@ final class BoardDrawing {
         for (name, values) in styles { scene = scene.style(name, values) }
         for k in keys { scene = scene.key(k.key, id: k.id, area: k.area, value: k.value, seat: k.seat, timedFromMs: k.timedFromMs, always: k.always) }
         if let after = partAfterMs ?? board.afterMs ?? ctx.afterMs { scene = scene.after(ms: after) }
+        if let still = partAfterStillMs { scene = scene.afterStill(ms: still) }
         if ctx.fresh, let words = spoken { scene = scene.announcing(words) }
         if board.over, let result = board.resultPart {
             let two = board.scorePart?.players != nil
@@ -178,7 +183,7 @@ final class BoardDrawing {
 
     /// The buttons a game offers during play, at their place under the board. On an end card they are the card's.
     private func dock() -> PartBlock? {
-        guard !ended else { return nil }
+        guard !ended, !partHoldsRoom else { return nil }
         let row = board.parts.compactMap { part -> GameButton? in if case .button(let b) = part, !b.companion { b } else { nil } }
         guard !row.isEmpty || dockExtra != nil else { return nil }
         return buttonRow(row, id: "dock", leading: dockExtra)
@@ -190,6 +195,7 @@ final class BoardDrawing {
         for part in board.parts {
             if ended, isPlay(part) { continue }
             if ended, case .choice(_, _, .segmented, _, _) = part { continue }
+            if partHoldsRoom, !isPlay(part) { continue }
             switch part {
             case .score, .prompt, .button: continue
             default:
@@ -222,7 +228,8 @@ final class BoardDrawing {
 
     private func playBlock(_ part: PlayPart) -> PartBlock {
         switch part {
-        case .pads(let pads, let play, let stepMs, let locked): return onTable(padsPart(pads, play: play, stepMs: stepMs, locked: locked))
+        case .pads(let pads, let play, let stepMs, let locked, let length, let done):
+            return onTable(padsPart(pads, play: play, stepMs: stepMs, locked: locked, length: length, done: done))
         case .cups(let count, let hide, let swaps, let swapMs, let picked, let revealed, let gem, let locked):
             return onTable(cupsPart(count: count, hide: hide, swaps: swaps, swapMs: swapMs, picked: picked, revealed: revealed, gem: gem, locked: locked))
         case .reflex(let after, let window, let wait, let go, let early, let shows, let keys):

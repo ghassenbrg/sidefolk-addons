@@ -1,83 +1,115 @@
 import SidefolkExtensionKit
 
-// Quick Paws' big button (ReflexView): the glossy Boop button with its paw, calm and dimmed while it waits, lit with rings of light at the signal, "Too soon!"
-// at once for an early press, and the game's words on a plate under it. The signal is an animation delayed to one moment of the scene, and presses are timed
-// from that moment by Sidefolk, from the input event's own time. A press on a key seat is the two players' (D96).
+// Quick Paws' machine: the painted body on its felt mat, its lamp on top, the words live on its plate, and the coral dome that sinks when pressed. Three looks that can't be mistaken: waiting
+// (lamp dull, dome dimmed, "Wait for it…"), the signal (lamp lit, the dome bright in a ring of light, "Boop!" large on the plate), the result (lamp dull, the times on the plate, nothing to
+// press). An early press says so at once. The signal is an animation delayed to one moment of the scene, and presses are timed from that moment by Sidefolk, from the input event's own
+// time. A press on a key seat is the two players' (D96).
 extension BoardDrawing {
-    private static let reflexZone = 190.0
+    /// The machine's pieces, read off its art at this size.
+    private enum Machine {
+        static let bodyW = 284.0, bodyH = 322.0, lampW = 54.0, lampH = 47.0, top = 39.0
+        static let bodyX = (BoardDrawing.inner - bodyW) / 2
+        static let plate = (x: bodyX + 52, y: top + 34, w: 187.0, h: 72.0)
+        static let dome = (x: bodyX + 144, y: top + 192, side: 160.0)
+        static let lampX = bodyX + (bodyW - lampW) / 2
+    }
+    private static let domeDim = 0.82, domeSink = 7.0
 
     func reflexPart(afterMs: Int?, windowMs: Int, wait: String, go: String, early: String, shows: String?, keys seats: [String]?) -> PartBlock {
         let armed = afterMs != nil && shows == nil
         let tooSoon = ctx.local.early
         let words = tooSoon ? early : shows ?? (armed ? wait : "…")
-        let plate = reflexPlate(words, early: tooSoon, small: shows != nil && !tooSoon, caps: armed && !tooSoon ? (seats?.map { $0.uppercased() } ?? ["Space"]) : [])
-        let height = Self.reflexZone + 10 + plate.height
-        // Named by what it is: what the signal would have brought goes at once with an early press.
-        let state = armed ? "armed" : "still"
-        // A press ended the signal: it goes as it came.
+        // A press ended the signal: its light goes as it came, and the dome stays down until the verdict.
         let went = !armed && ctx.buildUp && !tooSoon && ctx.previous?.reflexArmed == true
-        if went { anims.append(.to("reflex.went", ["opacity": 0], ms: 180, ease: "out")) }
-        var part = Node.box("reflex", w: Self.inner, h: height) {
-            Node.box("reflex.zone.\(state)", w: Self.inner, h: Self.reflexZone) {
-                Node.art("art/game-boop-\(armed ? "wait" : "rest").webp", x: (Self.inner - 170) / 2, y: 10, w: 170, h: 170)
-                    .shadow(Paint.clear("#000000", 0.25), radius: 6, dx: 0, dy: 4)
-                if armed { signal(go, id: "reflex.go", opacity: 0) }
-                if went { signal(go, id: "reflex.went", opacity: 1) }
-            }
-            plate.node.at(0, Self.reflexZone + 10).id("reflex.plate.\(state)")
+        if went { anims.append(.stagger(["reflex.went.under", "reflex.went.over"], stepMs: 0, ["opacity": 0], ms: 200, ease: "out")) }
+        // Only a press sinks it: a round that ran out of time leaves it where it was.
+        let sunk = ctx.local.boopPressed || tooSoon
+        let c = (x: Machine.dome.x, y: Machine.dome.y), hit = 192.0
+        var press = Node.box("reflex.press", x: c.x - hit / 2, y: c.y - hit / 2, w: hit, h: hit) {
+            Node.art("art/boop-dome.webp", x: (hit - Machine.dome.side) / 2, y: (hit - Machine.dome.side) / 2 + (sunk ? Self.domeSink : 0), w: Machine.dome.side, h: Machine.dome.side)
+                .id("reflex.dome").anchor(0.5, 0.5).scale(sunk ? 0.97 : 1).opacity(sunk && !tooSoon ? 1 : Self.domeDim)
         }
         if let afterMs, armed {
             let moment = Double(afterMs)
             // The signal at its moment: essential (its fade is the game, with its sound), its small pop only for those who keep motion.
-            anims.append(Anim.sequence([.wait(ms: moment), .sound("sounds/boop.wav"), .together([.to("reflex.go", ["opacity": 1], ms: 120, ease: "out"), .to("reflex.plate.armed", ["opacity": 0], ms: 120, ease: "out")])]).essential().named("reflex_signal"))
-            anims.append(.sequence([.wait(ms: moment), .to("reflex.zone.armed", ["scale": 1.06], ms: 180, ease: "spring")]))
+            anims.append(Anim.sequence([.wait(ms: moment), .sound("sounds/boop.wav"), .together([
+                .to("reflex.go.under", ["opacity": 1], ms: 90, ease: "out"), .to("reflex.go.over", ["opacity": 1], ms: 90, ease: "out"),
+                .to("reflex.dome", ["opacity": 1], ms: 90, ease: "out"), .to("reflex.waiting", ["opacity": 0], ms: 90, ease: "out"),
+            ])]).essential().named("reflex_signal"))
+            anims.append(.sequence([.wait(ms: moment), .keys("reflex.go.word", [["t": 0, "scale": 0.7], ["t": 1, "scale": 1]], ms: 220, ease: "spring")]))
             timers.append(("reflex", moment + Double(windowMs)))
             if let seats {
                 for key in seats { keys.append(StageKey(key: key, id: "seat_\(key)", seat: true, timedFromMs: moment)) }
             } else if !tooSoon {
-                part = part.area("boop", label: words, hover: nil, press: nil, sound: "sounds/tap.wav", timedFromMs: moment)
+                press = press.area("boop", label: wait, hover: AreaLook(scale: 1.012), press: AreaLook(scale: 0.97, dy: Self.domeSink), sound: "sounds/tap.wav", timedFromMs: moment)
                 keys.append(StageKey(key: "space", id: "boop_space", area: "boop", timedFromMs: moment))
                 keys.append(StageKey(key: "return", id: "boop_return", area: "boop", timedFromMs: moment))
             }
         }
-        return PartBlock(part, height: height)
+        let part = Node.box("reflex", w: Self.inner, h: playRoom) {
+            Node.felt("reflex.mat", y: Machine.top + Machine.bodyH - 110, w: Self.inner, h: 122)
+            Node.art("art/boop-body.webp", x: Machine.bodyX, y: Machine.top, w: Machine.bodyW, h: Machine.bodyH).id("reflex.body")
+                .shadow(Paint.clear("#3A2A55", 0.25), radius: 6, dx: 0, dy: 4)
+            Node.art("art/boop-lamp-off.webp", x: Machine.lampX, y: Machine.top - 39, w: Machine.lampW, h: Machine.lampH).id("reflex.lamp")
+            reflexPlateWords(words, early: tooSoon, small: shows != nil && !tooSoon).id(armed ? "reflex.waiting" : "reflex.said")
+            if armed { signalUnder(id: "reflex.go.under", opacity: 0) }
+            if went { signalUnder(id: "reflex.went.under", opacity: 1) }
+            press
+            if armed { signalOver(go, id: "reflex.go.over", opacity: 0) }
+            if went { signalOver(go, id: "reflex.went.over", opacity: 1) }
+            if let seats, armed { seatCaps(seats) }
+            slotRow(y: playRoom - 38, height: 38)
+        }.leftToRight()
+        return PartBlock(part, height: playRoom)
     }
 
-    /// The lit button, its rings and the word: over the calm one, reading the same in every language.
-    private func signal(_ go: String, id: String, opacity: Double) -> Node {
-        let c = (x: Self.inner / 2, y: Self.reflexZone / 2)
-        return Node.box(id, w: Self.inner, h: Self.reflexZone) {
-            Node.ellipse(stroke: Paint.clear("#FF5FC8", 0.2), lineWidth: 6).at(c.x - 110, c.y - 110).size(220, 220)
-            Node.ellipse(stroke: Paint.clear("#FF5FC8", 0.45), lineWidth: 7).at(c.x - 94.5, c.y - 94.5).size(189, 189)
-            Node.art("art/game-boop-go.webp", x: c.x - 85, y: c.y - 85, w: 170, h: 170).shadow(Paint.clear("#FF5FC8", 0.8), radius: 22, dx: 0, dy: 0)
-            Node.words(go, size: 34, weight: "black", color: Paint.white, align: "center", minScale: 0.5, y: c.y - 78 - 24, w: Self.inner, h: 48)
-                .id(id + ".word").rotate(-6).shadow(.hex("#9A1F6E"), radius: 0, dx: 0, dy: 3)
-        }.leftToRight().opacity(opacity)
+    /// A ring of light round the dome, in the socket's place: under the dome, over the body.
+    private func signalUnder(id: String, opacity: Double) -> Node {
+        let c = (x: Machine.dome.x, y: Machine.dome.y)
+        return Node.box(id, w: Self.inner, h: playRoom) {
+            Node.ellipse(fill: Paint.clear("#FFD65C", 0.82)).at(c.x - 96, c.y - 96).size(192, 192).shadow(Paint.clear("#FFC93C", 0.9), radius: 24, dx: 0, dy: 0)
+            Node.ellipse(stroke: Paint.clear("#FFF4C2", 0.9), lineWidth: 4).at(c.x - 112, c.y - 112).size(224, 224)
+            Node.ellipse(stroke: Paint.clear("#FFC93C", 0.55), lineWidth: 5).at(c.x - 128, c.y - 128).size(256, 256)
+        }.opacity(opacity)
     }
 
-    /// What it says now, on a dark plate: steady with its keys, too soon with its mark, or the times once played.
-    private func reflexPlate(_ words: String, early: Bool, small: Bool, caps: [String]) -> PartBlock {
-        let size = small ? 16.0 : 20
-        let capWidths = caps.map(Self.keyCapWidth)
-        let extras = (early ? size * 1.25 + 6 : 0) + capWidths.reduce(0) { $0 + $1 + 6 }
-        let room = Self.inner - 32 - extras
+    /// The lamp lit, and the word painted large on a plate glowing warm: navy on butter by day and by night, because the plate itself is the same.
+    private func signalOver(_ go: String, id: String, opacity: Double) -> Node {
+        let p = Machine.plate
+        return Node.box(id, w: Self.inner, h: playRoom) {
+            Node.art("art/boop-lamp-on.webp", x: Machine.lampX, y: Machine.top - 39, w: Machine.lampW, h: Machine.lampH).shadow(Paint.clear("#FFB020", 0.95), radius: 16, dx: 0, dy: 0)
+            Node.capsule(fill: Paint.clear("#FFD65C", 0.72)).at(p.x + 9, p.y + 12).size(p.w - 18, p.h - 22).shadow(Paint.clear("#FFC93C", 0.8), radius: 10, dx: 0, dy: 0)
+            Node.words(go, size: 38, weight: "black", color: Paint.navy, align: "center", minScale: 0.5, x: p.x + 12, y: p.y + 8, w: p.w - 24, h: p.h - 14).id("reflex.go.word").anchor(0.5, 0.5)
+        }.opacity(opacity)
+    }
+
+    /// What it says now, on the plate: wait, too soon with its mark, or the times once played.
+    private func reflexPlateWords(_ words: String, early: Bool, small: Bool) -> Node {
+        let p = Machine.plate
+        let size = small ? 16.0 : early ? 22 : 20
+        let mark = early ? size * 1.1 + 5 : 0
+        let room = p.w - 28 - mark
         let textW = Swift.min(TextFit.width(words, size: size, weight: "heavy"), room)
-        let textH = TextFit.height(words, size: size, weight: "heavy", width: room)
-        let height = Swift.max(textH, 16) + 18
-        var x = (Self.inner - textW - extras) / 2
-        var nodes: [Node] = [Node.rect(fill: Paint.clear("#15103A", 0.88), stroke: Paint.clear("#7A5CFF", 0.5), lineWidth: 1, corner: 16).size(Self.inner, height)]
-        if early {
-            let side = size * 1.25
-            nodes.append(Node.symbol(Verdict.loss.symbol, color: .loss).symbolLook().at(x, (height - side) / 2).size(side, side))
-            x += side + 6
+        let x = p.x + (p.w - textW - mark) / 2
+        return .box(x: 0, y: 0, w: Self.inner, h: Machine.top + 110) {
+            if early {
+                Node.symbol(Verdict.loss.symbol, color: .loss).symbolLook().at(x, p.y + (p.h - size * 1.1) / 2 - 2).size(size * 1.1, size * 1.1)
+            }
+            Node.words(words, size: size, weight: "heavy", color: Paint.navy, align: "center", lines: small ? 2 : 1, minScale: 0.55, x: x + mark, y: p.y + 10, w: textW, h: p.h - 22)
         }
-        nodes.append(Node.words(words, size: size, weight: "heavy", color: Paint.white, align: "center", lines: 4, minScale: 0.6, x: x, y: 9, w: textW, h: height - 18))
-        x += textW + 6
-        for (i, cap) in caps.enumerated() {
-            nodes.append(keyCap(cap, light: true).at(x, (height - 16) / 2))
-            x += capWidths[i] + 6
+    }
+
+    /// Two people: their keys, each on their side of the machine, on the mat.
+    private func seatCaps(_ seats: [String]) -> Node {
+        let side = 32.0, y = Machine.top + Machine.bodyH - 62
+        return .box("reflex.seats", w: Self.inner, h: playRoom) {
+            for (i, seat) in seats.enumerated() {
+                Node.box("reflex.seat.\(i)", x: i == 0 ? 6 : Self.inner - side - 6, y: y, w: side, h: side) {
+                    Node.rect(fill: Paint.card, stroke: Paint.players[i], lineWidth: 2, corner: 8).size(side, side)
+                    Node.words(seat.uppercased(), size: 15, weight: "heavy", align: "center", w: side, h: side)
+                }
+            }
         }
-        return PartBlock(.box(w: Self.inner, h: height) { nodes }, height: height)
     }
 
     var reflexFooter: String? {
@@ -96,12 +128,14 @@ extension BoardDrawing {
         switch move {
         case .next:
             local.early = false
+            local.boopPressed = false
             return nil
         case .click("boop", _, let ms?):
             if ms < 0 {
                 local.early = true
                 return .play(.early)
             }
+            local.boopPressed = true
             return .play(.press(milliseconds: ms))
         case .key(let id, _, let ms?) where id.hasPrefix("seat_"):
             let key = String(id.dropFirst(5))
@@ -109,6 +143,7 @@ extension BoardDrawing {
                 local.early = true
                 return .play(.earlyKey(key))
             }
+            local.boopPressed = true
             return .play(.pressKey(milliseconds: ms, key: key))
         default: return nil
         }
