@@ -172,9 +172,20 @@ import SidefolkExtensionKit
 @MainActor func resuming(_ flow: Flow, _ app: App) async throws -> String {
     guard flow.hasChanges || flow.live == nil || app.engine.nobodyRead(flow) else {
         app.engine.resume(flow.id)
-        let now = app.store.flow(flow.id)
         // A problem on one still On is what stops it next time it runs: "running again" wouldn't be true for long.
-        if now?.state != .on || now?.startProblem != nil { throw Problem(now?.startProblem ?? L("It didn't start.")) }
+        func stopped() -> String? {
+            let now = app.store.flow(flow.id)
+            return now?.state != .on || now?.startProblem != nil ? now?.startProblem ?? L("It didn't start.") : nil
+        }
+        var problem = stopped()
+        // A watch answers a moment later, and its answer can be what stops it.
+        if case .watch = flow.running.trigger {
+            for _ in 0..<8 where problem == nil {
+                try? await Task.sleep(for: .milliseconds(100))
+                problem = stopped()
+            }
+        }
+        if let problem { throw Problem(problem) }
         return L("“{name}” is running by itself again.", ["name": flow.name])
     }
     if let refused = await asking(flow.id, app) { throw Problem(refused) }

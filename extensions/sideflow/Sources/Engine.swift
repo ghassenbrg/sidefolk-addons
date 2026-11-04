@@ -52,8 +52,8 @@ import SidefolkExtensionKit
             changed()
             let told = current
             Task {
-                await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: true)
                 await pauseWatch(told)
+                await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: true)
             }
             return nil
         }
@@ -722,6 +722,8 @@ import SidefolkExtensionKit
         _ = await host?.call("watch.pause", ["id": title], plan: flow.planId, written: nil)
     }
 
+    static var watchUnclear: String { L("Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.") }
+
     private func resumeWatch(_ flow: Flow) async {
         guard let title = flow.watchTitle else {
             // It never started: what they've just put right is what stopped it.
@@ -733,7 +735,12 @@ import SidefolkExtensionKit
         if case .watch = flow.running.trigger { isWatch = true }
         guard isWatch, !flow.watchOutdated else { return await replaceWatch(flow.id, stopping: title) }
         let back = await host?.call("watch.resume", ["id": title], plan: flow.planId, written: nil)
-        guard back?.ok != true, var current = store.flow(flow.id) else { return }
+        if back?.ok == true {
+            // Paused while it was asking: it would go on looking with the flow saying it isn't.
+            if store.flow(flow.id)?.state == .paused { await pauseWatch(flow) }
+            return
+        }
+        guard var current = store.flow(flow.id) else { return }
         // Only what's really not there is made again: a second of the same name would leave neither reachable by name.
         guard back?.notFound == true else {
             switch back?.status {
@@ -742,7 +749,7 @@ import SidefolkExtensionKit
                 current.startProblem = back?.text.nonEmpty ?? L("The watch didn't start.")
                 current.state = .paused
             default:
-                current.startProblem = L("Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.")
+                current.startProblem = Self.watchUnclear
             }
             store.save(current)
             return changed()

@@ -1705,6 +1705,69 @@ import SidefolkExtensionKit
         }
     }
 
+    private func standing(_ app: App, _ flow: Flow) {
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{"n":{"type":"number"}}}"#, mutates: false, readsOnly: true)],
+                                        plans: [Plans.Standing(id: flow.planId, title: flow.name, standing: [])]))
+    }
+
+    @Test func resumeFlowSaysSoWhenTheWatchWontComeBack() async throws {
+        let w = try World()
+        let app = app(w)
+        app.engine.host = w.host
+        var flow = try make(app, [["id": "a", "do": "reads.it"]])
+        flow.draft = FlowBody(trigger: try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": []]).trigger, steps: flow.draft.steps)
+        flow.live = flow.draft
+        flow.state = .paused
+        flow.watchTitle = "Test · Sideflow"
+        app.store.save(flow)
+        standing(app, flow)
+        w.host.answers["watch.resume"] = [Actions.Outcome(status: .denied, text: "No.")]
+        await #expect(throws: Problem.self) { try await resuming(flow, app) }
+        #expect(app.store.flow(flow.id)?.state == .paused)
+    }
+
+    @Test func goingBackToWhatsRunningClearsARefusalsNote() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .on
+        flow.startProblem = "You said no."
+        app.store.save(flow)
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "back_to_live", flow)
+        #expect(app.store.flow(flow.id)?.startProblem == nil)
+        var again = try #require(app.store.flow(flow.id))
+        again.startProblem = "You said no."
+        app.store.save(again)
+        try await page(app, "compose", flow, ["step": "a", "text": "three"])
+        try await page(app, "compose", flow, ["step": "a", "text": "one"])
+        try await page(app, "save", flow)
+        #expect(app.store.flow(flow.id)?.startProblem == nil, "and so does saving what's running")
+    }
+
+    @Test func aNoteThatsStillTrueStaysThroughADiscard() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .on
+        flow.startProblem = Engine.watchUnclear
+        app.store.save(flow)
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "discard", flow)
+        #expect(app.store.flow(flow.id)?.startProblem == Engine.watchUnclear, "nothing said anything more about the watch")
+        var blank = try #require(app.store.flow(flow.id))
+        blank.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        blank.live = blank.draft
+        blank.startProblem = "Say what to write."
+        app.store.save(blank)
+        try await page(app, "compose", flow, ["step": "z", "text": "x"])
+        try await page(app, "add_kind", flow, ["kind": "text"])
+        try await page(app, "discard", flow)
+        #expect(app.store.flow(flow.id)?.startProblem == "Say what to write.", "what's running still says nothing there")
+    }
+
     @Test func aWatchStopsLookingWhenABlankStepPausesItsFlow() async throws {
         let w = try World()
         let app = app(w)
@@ -1729,6 +1792,7 @@ import SidefolkExtensionKit
         flow.live = flow.draft
         flow.state = .on
         app.store.save(flow)
+        standing(app, flow)
         await #expect(throws: Problem.self) { try await resuming(flow, app) }
     }
 
@@ -1748,6 +1812,7 @@ import SidefolkExtensionKit
         blank.live = blank.draft
         blank.state = .paused
         app.store.save(blank)
+        standing(app, blank)
         await #expect(throws: Problem.self) { try await resuming(blank, app) }
         #expect(app.store.flow(flow.id)?.state == .paused)
     }
@@ -1760,6 +1825,7 @@ import SidefolkExtensionKit
         flow.live = flow.draft
         flow.state = .paused
         app.store.save(flow)
+        standing(app, flow)
         do {
             _ = try await resuming(flow, app)
             Issue.record("it isn't running, so it can't say it is")
