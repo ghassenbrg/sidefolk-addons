@@ -1025,5 +1025,56 @@ import SidefolkExtensionKit
         #expect(w.store.flowsNotSaved, "refused, and it says so")
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: file.path)
         #expect((try? String(contentsOf: file, encoding: .utf8)) == "mine")
+/// Pages as Sidefolk would get them, in the states worth looking at: `SIDEFLOW_PAGES_OUT=<folder> swift test --filter sideflowPages`, then
+/// `SidefolkApp --page-json <file> <out.png>` draws each with Sidefolk's own parts, off every screen.
+@MainActor @Suite(.serialized) struct SideflowPageShots {
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["SIDEFLOW_PAGES_OUT"] != nil, "only when asked for"))
+    func sideflowPages() async throws {
+        let out = URL(fileURLWithPath: ProcessInfo.processInfo.environment["SIDEFLOW_PAGES_OUT"]!)
+        try FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("shots-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let app = App(folder: folder)
+        app.catalog.use(Actions.Listing(tools: [
+            Actions.Tool(name: "calendar.today", title: "Today's calendar", description: "Reads today", category: "time", readsOnly: true),
+            Actions.Tool(name: "notes.save", title: "Save to notebook", schema: #"{"properties":{"text":{"type":"string","title":"Text"},"collection":{"type":"string"}},"required":["text"]}"#, category: "notes"),
+            Actions.Tool(name: "notify.user", title: "Notify the user", schema: #"{"properties":{"title":{"type":"string"},"body":{"type":"string"},"level":{"type":"string","enum":["gentle","attention"]}},"required":["title"]}"#),
+        ]))
+        func write(_ page: Page, _ name: String) throws {
+            try JSONSerialization.data(withJSONObject: page.sent, options: [.sortedKeys, .prettyPrinted]).write(to: out.appendingPathComponent(name + ".json"))
+        }
+        let body = try FlowCodec.body(["trigger": ["type": "schedule", "days": ["mon", "tue", "wed", "thu", "fri"], "at": "08:30", "catch_up": true], "steps": [
+            ["id": "plan", "do": "calendar.today", "name": "Get today's plan"],
+            ["id": "c", "if": ["value": "{{plan}}", "test": "contains", "than": "review"], "then": [["id": "w", "ai": "Three short lines about {{plan}}"], ["id": "tell", "do": "notify.user", "with": ["title": "Today: {{w}}"]]],
+             "else": [["id": "save", "do": "notes.save", "with": ["text": "A quiet day"]]]],
+        ]])
+        var flow = app.newFlow(name: "Morning brief", body: body)
+        app.nav.inspect(.step("c"), in: flow.id)
+        app.refreshPreflight(flow.id)
+        try await Task.sleep(for: .milliseconds(30))
+        let state = Arguments(["flow": flow.id])
+        try write(await Pages.make(app, state: state, background: false), "saved-draft")
+        flow.saved = flow.draft
+        flow.draft = Editing.insert(Step(id: "more", kind: .text("One more line")), after: "plan", in: flow.draft)
+        app.store.save(flow)
+        try write(await Pages.make(app, state: state, background: false), "unsaved")
+        flow.saved = nil
+        flow.live = body
+        flow.state = .on
+        app.store.save(flow)
+        try write(await Pages.make(app, state: state, background: false), "on-changes")
+        flow.live = nil
+        flow.state = .draft
+        app.store.save(flow)
+        app.nav.inspect(.step("tell"), in: flow.id)
+        try write(await Pages.make(app, state: state, background: false), "action-form")
+        app.nav.inspect(.trigger, in: flow.id)
+        try write(await Pages.make(app, state: state, background: false), "trigger-form")
+        let fresh = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "plan", "do": "calendar.today"],
+            ["id": "c", "if": ["value": "{{plan}}", "test": "contains", "than": "review", "and": [["value": "{{today}}", "test": "not_empty"]]], "then": [], "else": []]]])
+        let empty = app.newFlow(name: "New condition", body: fresh)
+        app.nav.inspect(.step("c"), in: empty.id)
+        try write(await Pages.make(app, state: Arguments(["flow": empty.id]), background: false), "condition-empty")
     }
 }

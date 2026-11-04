@@ -34,9 +34,20 @@ struct Condition: Equatable, Sendable {
     var value: String
     var test: Test
     var than: String
+    /// More checks after this one, and whether any of them is enough rather than all.
+    var also: [Condition] = []
+    var any = false
+
+    /// This check and those after it, one level: what the words and the form go through.
+    var checks: [Condition] { [self] + also }
+
+    func holds(_ values: Values) -> Bool {
+        let one = checks.map { $0.checkHolds(values) }
+        return any ? one.contains(true) : !one.contains(false)
+    }
 
     /// Numbers read from the first number in the value, so "18 °C" compares as 18.
-    func holds(_ values: Values) -> Bool {
+    private func checkHolds(_ values: Values) -> Bool {
         let left = values.fill(value).trimmingCharacters(in: .whitespacesAndNewlines), right = values.fill(than).trimmingCharacters(in: .whitespacesAndNewlines)
         switch test {
         case .contains: return left.range(of: right, options: [.caseInsensitive, .diacriticInsensitive]) != nil
@@ -224,7 +235,11 @@ enum FlowCodec {
             if !options.isEmpty { out["options"] = options }
         case .text(let text): out["text"] = text
         case .branch(let c, let then, let otherwise):
-            out["if"] = ["value": c.value, "test": c.test.rawValue, "than": c.than]
+            var check: [String: Any] = ["value": c.value, "test": c.test.rawValue, "than": c.than]
+            if !c.also.isEmpty {
+                check[c.any ? "or" : "and"] = c.also.map { ["value": $0.value, "test": $0.test.rawValue, "than": $0.than] as [String: Any] }
+            }
+            out["if"] = check
             out["then"] = then.map(json)
             out["else"] = otherwise.map(json)
         case .wait(let minutes): out["wait_minutes"] = minutes
@@ -343,7 +358,13 @@ enum FlowCodec {
             guard let value = c["value"] as? String, let raw = c["test"] as? String, let test = Condition.Test(rawValue: raw) else {
                 throw Problem(L("“if” needs “value” and “test”: {tests}.", ["tests": Condition.Test.allCases.map(\.rawValue).joined(separator: ", ")]))
             }
-            kind = .branch(Condition(value: value, test: test, than: c["than"] as? String ?? ""),
+            var condition = Condition(value: value, test: test, than: c["than"] as? String ?? "")
+            for raw in (c["and"] ?? c["or"]) as? [[String: Any]] ?? [] {
+                guard let v = raw["value"] as? String, let t = (raw["test"] as? String).flatMap(Condition.Test.init(rawValue:)) else { throw Problem(L("Each check in “and” or “or” needs “value” and “test”.")) }
+                condition.also.append(Condition(value: v, test: t, than: raw["than"] as? String ?? ""))
+            }
+            condition.any = c["or"] != nil
+            kind = .branch(condition,
                            then: try steps(o["then"] ?? [], depth: depth + 1, used: &used), otherwise: try steps(o["else"] ?? [], depth: depth + 1, used: &used))
         } else if let minutes = (o["wait_minutes"] as? NSNumber)?.intValue {
             guard (1...FlowBody.longestWait).contains(minutes) else {

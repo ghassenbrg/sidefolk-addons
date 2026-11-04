@@ -96,11 +96,36 @@ import SidefolkExtensionKit
             }
             try editStep { $0.kind = .wait(minutes: minutes) }
         case "cond_value", "cond_than", "cond_test":
+            // Which check of the condition: the first, or one of those after it.
+            let at = a.int("check") ?? 0
             try editStep { s in
                 guard case .branch(var c, let then, let otherwise) = s.kind else { return }
-                if op == "cond_value" { c.value = text }
-                if op == "cond_than" { c.than = text }
-                if op == "cond_test", let raw = a.string("value"), let test = Condition.Test(rawValue: raw) { c.test = test }
+                func edit(_ check: inout Condition) {
+                    if op == "cond_value" { check.value = text }
+                    if op == "cond_than" { check.than = text }
+                    if op == "cond_test", let raw = a.string("value"), let test = Condition.Test(rawValue: raw) { check.test = test }
+                }
+                if at == 0 { edit(&c) } else if c.also.indices.contains(at - 1) { edit(&c.also[at - 1]) }
+                s.kind = .branch(c, then: then, otherwise: otherwise)
+            }
+        case "cond_add":
+            try editStep { s in
+                guard case .branch(var c, let then, let otherwise) = s.kind else { return }
+                c.also.append(Condition(value: "", test: .contains, than: ""))
+                s.kind = .branch(c, then: then, otherwise: otherwise)
+            }
+        case "cond_remove":
+            let at = a.int("check") ?? 0
+            try editStep { s in
+                guard case .branch(var c, let then, let otherwise) = s.kind, c.also.indices.contains(at - 1) else { return }
+                c.also.remove(at: at - 1)
+                s.kind = .branch(c, then: then, otherwise: otherwise)
+            }
+        case "cond_join":
+            let any = a.string("value") == "any"
+            try editStep { s in
+                guard case .branch(var c, let then, let otherwise) = s.kind else { return }
+                c.any = any
                 s.kind = .branch(c, then: then, otherwise: otherwise)
             }
         case "on_failure":

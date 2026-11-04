@@ -95,6 +95,28 @@ enum Editing {
         return body
     }
 
+    /// The steps sure to have run before this one, in order: on the way to it, and after a condition only what both of its paths made.
+    static func available(before id: String, in body: FlowBody) -> [Step] {
+        /// Walks a list; true when it reached the step, with `sure` as it stands there.
+        func walk(_ list: [Step], _ sure: inout [Step]) -> Bool {
+            for step in list {
+                if step.id == id { return true }
+                if case .branch(_, let then, let otherwise) = step.kind {
+                    var yes = sure, no = sure
+                    if walk(then, &yes) { sure = yes; return true }
+                    if walk(otherwise, &no) { sure = no; return true }
+                    let both = Set(yes.map(\.id)).intersection(no.map(\.id))
+                    sure = yes.filter { both.contains($0.id) }
+                } else if step.hasOutput {
+                    sure.append(step)
+                }
+            }
+            return false
+        }
+        var sure: [Step] = []
+        return walk(body.steps, &sure) ? sure : []
+    }
+
     /// Puts a step where `insert` would put a new one, wherever it was: another branch too. Not inside itself.
     static func place(_ id: String, after: String, in body: FlowBody) -> FlowBody {
         guard let step = body.step(id) else { return body }
@@ -133,6 +155,7 @@ enum Editing {
             case .branch(var c, let then, let otherwise):
                 c.value = remap(c.value)
                 c.than = remap(c.than)
+                c.also = c.also.map { var check = $0; check.value = remap($0.value); check.than = remap($0.than); return check }
                 out.kind = .branch(c, then: then.map(refs), otherwise: otherwise.map(refs))
             case .wait, .flow: break
             }

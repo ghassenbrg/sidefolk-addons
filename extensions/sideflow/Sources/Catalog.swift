@@ -137,7 +137,7 @@ extension FlowBody {
                 case .text(let text): refs([text], step, seen: seen)
                 case .branch(let c, let then, let otherwise):
                     // Looking at something only one path made is how a flow asks whether it ran: only that test may.
-                    if c.test != .is_empty, c.test != .not_empty { refs([c.value, c.than], step, seen: seen) }
+                    for check in c.checks where check.test != .is_empty && check.test != .not_empty { refs([check.value, check.than], step, seen: seen) }
                     var yes = seen, no = seen
                     walk(then, seen: &yes)
                     walk(otherwise, seen: &no)

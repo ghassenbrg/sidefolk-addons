@@ -205,7 +205,7 @@ import SidefolkExtensionKit
                 let look = look(step, app)
                 var branches: [CardTree.Branch] = []
                 if case .branch(_, let then, let otherwise) = step.kind {
-                    branches = [CardTree.Branch("then:\(step.id)", L("Yes"), nodes: nodes(then)), CardTree.Branch("else:\(step.id)", L("No"), nodes: nodes(otherwise))]
+                    branches = [CardTree.Branch("then:\(step.id)", L("If so"), nodes: nodes(then)), CardTree.Branch("else:\(step.id)", L("Otherwise"), nodes: nodes(otherwise))]
                 }
                 return CardTree.Node(step.id, Words.label(step, catalog: app.catalog), symbol: look.symbol, color: look.color, state: pending ? .pending : .none, branches: branches)
             }
@@ -349,7 +349,8 @@ import SidefolkExtensionKit
         let id = ["flow": flow.id]
         var actions: [Action] = [], extra: [Action] = []
         var pill = Badge(stateWord(flow, app).0, tone: stateWord(flow, app).1)
-        var sentence = Words.aloud(flow.draft, catalog: app.catalog)
+        // The board says the rest: when it runs, and how long it is.
+        var sentence = L(one: "{when} · {count} step", other: "{when} · {count} steps", count: flow.draft.allSteps.count, ["when": Words.trigger(flow.draft.trigger)])
         if running, practice?.status == .running {
             pill = Badge(L("Practising"), tone: .info)
             sentence = L("It reads for real and changes nothing.")
@@ -406,9 +407,7 @@ import SidefolkExtensionKit
         main.append(Section(nil, [.tree(tree(flow, app, problems: problems))], wide: true))
         var end: [Section] = []
         if !notes.isEmpty { end.append(Section(nil, notes, place: .trailing)) }
-        if case .nothing = app.nav.inspecting(flow) {} else {
-            end.append(Section(inspectorTitle(flow, app), Inspector.blocks(flow, app, problems: problems), place: .trailing))
-        }
+        end += Inspector.sections(flow, app, problems: problems)
         end += checks(flow, app, problems: problems)
         end.append(Section(L("What you'll get"), [arriving(flow, app)], place: .trailing))
         var page = frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)
@@ -440,32 +439,13 @@ import SidefolkExtensionKit
         return out
     }
 
-    static func inspectorTitle(_ flow: Flow, _ app: App) -> String {
-        switch app.nav.inspecting(flow) {
-        case .trigger, .nothing: return L("When it runs")
-        case .step(let id): return flow.draft.step(id).map { kindWord($0) } ?? L("Step")
-        }
-    }
-
-    static func kindWord(_ step: Step) -> String {
-        switch step.kind {
-        case .action(let tool, _): tool == "companion.job" ? L("Your companion") : L("Action")
-        case .ai: L("Write with AI")
-        case .ask: L("Ask")
-        case .text: L("Compose")
-        case .branch: L("Condition")
-        case .wait: L("Wait")
-        case .flow: L("Another flow")
-        }
-    }
-
     /// What the flow does, its last practice run's results on it while it hasn't changed since.
     static func tree(_ flow: Flow, _ app: App, problems: [FlowProblem]) -> CardTree {
         // An On flow shows how its last real run went; anything else, its practice of what's written now.
         let live = flow.state == .on && !flow.hasChanges && !flow.hasUnsaved
         let run = live ? app.store.runs(of: flow.id).first { $0.mode == .live && $0.body == flow.draft } : practice(flow, app)
         let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges || flow.hasUnsaved ? .pending : .none
-        var first = CardTree.Node("start", Words.trigger(flow.draft.trigger), kind: L("Trigger"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
+        var first = CardTree.Node("start", Words.trigger(flow.draft.trigger), kind: L("It starts"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
         if let check = app.preflight[flow.id]?[App.triggerCheck], check.decision == .deny {
             first.state = .attention
             first.pill = Badge(check.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
@@ -492,9 +472,8 @@ import SidefolkExtensionKit
         steps.map { step in
             let look = look(step, app)
             let check = flow.flatMap { app.preflight[$0.id]?[step.id] }
-            var title = Words.step(step, body: body, catalog: app.catalog)
-            if step.name == nil, case .action = step.kind, let said = check?.summary.nonEmpty { title = Words.pretty(said, body: body, catalog: app.catalog) }
-            var node = CardTree.Node(step.id, title, kind: kindWord(step), symbol: look.symbol, color: look.color, state: untested)
+            let said = Words.card(step, body: body, catalog: app.catalog)
+            var node = CardTree.Node(step.id, said.line, kind: said.head, symbol: look.symbol, color: look.color, state: untested)
             if let problem = problems.first(where: { $0.step == step.id }) {
                 node.state = .attention
                 node.pill = Badge(L("To fix"), tone: .warn)
@@ -526,9 +505,10 @@ import SidefolkExtensionKit
                 let no = tested && (ranNo || (otherwise.isEmpty && !ranYes && !then.isEmpty))
                 @MainActor func one(_ prefix: String, _ label: String, _ tone: Tone, _ list: [Step], taken: Bool) -> CardTree.Branch {
                     CardTree.Branch("\(prefix):\(step.id)", label, tone: tone, taken: tested ? taken : nil,
-                                    nodes: treeNodes(list, body: body, app, run: run, untested: untested, flow: flow, problems: problems, notTaken: notTaken || (tested && !taken)))
+                                    nodes: treeNodes(list, body: body, app, run: run, untested: untested, flow: flow, problems: problems, notTaken: notTaken || (tested && !taken)),
+                                    hint: L("Add a step"))
                 }
-                node.branches = [one("then", L("Yes"), .good, then, taken: yes), one("else", L("No"), .bad, otherwise, taken: no)]
+                node.branches = [one("then", L("If so"), .neutral, then, taken: yes), one("else", L("Otherwise"), .neutral, otherwise, taken: no)]
             }
             return node
         }

@@ -110,16 +110,39 @@ import SidefolkExtensionKit
     }
 
     static func condition(_ c: Condition, body: FlowBody, catalog: Catalog) -> String {
+        let all = c.checks.map { check(of: $0, body: body, catalog: catalog) }
+        guard all.count > 1 else { return L("If {check}", ["check": all[0]]) }
+        return c.any ? L("If any of: {checks}", ["checks": Format.list(all)]) : L("If all of: {checks}", ["checks": Format.list(all)])
+    }
+
+    /// What's said on a step's card: its name or what it is, then what it's about. The sentence it replaces read "Action: Notify: First".
+    static func card(_ step: Step, body: FlowBody, catalog: Catalog, setUp: String? = nil) -> (head: String, line: String) {
+        let name = step.name
+        switch step.kind {
+        case .action(let tool, let input):
+            let title = catalog.tool(tool)?.title ?? tool
+            let main = catalog.tool(tool)?.parameters.compactMap { input[$0.name]?.string }.first { !$0.isEmpty } ?? input.keys.sorted().compactMap { input[$0]?.string }.first { !$0.isEmpty }
+            return (name ?? title, main.map { pretty($0, body: body, catalog: catalog) } ?? (name != nil ? title : setUp ?? L("Nothing to set up")))
+        case .ai(let prompt): return (name ?? L("Write with AI"), prompt.isEmpty ? L("Say what to write") : pretty(prompt, body: body, catalog: catalog))
+        case .ask(let question, _): return (name ?? L("Ask me"), question.isEmpty ? L("Write the question") : pretty(question, body: body, catalog: catalog))
+        case .text(let text): return (name ?? L("Compose text"), text.isEmpty ? L("Write the text") : pretty(text, body: body, catalog: catalog))
+        case .branch(let c, _, _): return (name ?? L("Condition"), c.value.isEmpty ? L("Say what to check") : condition(c, body: body, catalog: catalog))
+        case .wait(let minutes): return (name ?? L("Wait"), Format.duration(Double(minutes) * 60))
+        case .flow(let flow): return (name ?? L("Run another flow"), flow.isEmpty ? L("Pick which flow") : flow)
+        }
+    }
+
+    private static func check(of c: Condition, body: FlowBody, catalog: Catalog) -> String {
         let value = pretty(c.value, body: body, catalog: catalog), than = pretty(c.than, body: body, catalog: catalog)
         switch c.test {
-        case .contains: return L("If {value} mentions “{than}”", ["value": value, "than": than])
-        case .not_contains: return L("If {value} doesn't mention “{than}”", ["value": value, "than": than])
-        case .is: return L("If {value} is “{than}”", ["value": value, "than": than])
-        case .is_not: return L("If {value} isn't “{than}”", ["value": value, "than": than])
-        case .is_empty: return L("If {value} is empty", ["value": value])
-        case .not_empty: return L("If {value} has something", ["value": value])
-        case .more_than: return L("If {value} is more than {than}", ["value": value, "than": than])
-        case .less_than: return L("If {value} is less than {than}", ["value": value, "than": than])
+        case .contains: return L("{value} mentions “{than}”", ["value": value, "than": than])
+        case .not_contains: return L("{value} doesn't mention “{than}”", ["value": value, "than": than])
+        case .is: return L("{value} is “{than}”", ["value": value, "than": than])
+        case .is_not: return L("{value} isn't “{than}”", ["value": value, "than": than])
+        case .is_empty: return L("{value} is empty", ["value": value])
+        case .not_empty: return L("{value} has something", ["value": value])
+        case .more_than: return L("{value} is more than {than}", ["value": value, "than": than])
+        case .less_than: return L("{value} is less than {than}", ["value": value, "than": than])
         }
     }
 

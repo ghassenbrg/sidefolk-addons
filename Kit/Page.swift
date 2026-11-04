@@ -49,6 +49,9 @@ public struct Page {
         self.maxWidth = maxWidth
     }
 
+    /// What Sidefolk is sent, for looking at a page outside it.
+    public var sent: [String: Any] { json }
+
     var json: [String: Any] {
         var out: [String: Any] = ["sections": sections.filter { !$0.blocks.isEmpty || !$0.accessories.isEmpty }.map(\.json)]
         if let summary { out["summary"] = summary.json }
