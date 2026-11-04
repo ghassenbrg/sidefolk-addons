@@ -178,8 +178,10 @@ import SidefolkExtensionKit
             return now?.state != .on || now?.startProblem != nil ? now?.startProblem ?? L("It didn't start.") : nil
         }
         var problem = stopped()
-        // A watch answers a moment later, and its answer can be what stops it.
-        if case .watch = flow.running.trigger {
+        // A watch answers a moment later, and its answer can be what stops it: this flow's now, or an old one that wouldn't stop.
+        var watches = flow.watchTitle != nil
+        if case .watch = flow.running.trigger { watches = true }
+        if watches {
             for _ in 0..<8 where problem == nil {
                 try? await Task.sleep(for: .milliseconds(100))
                 problem = stopped()

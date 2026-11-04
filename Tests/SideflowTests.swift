@@ -1726,6 +1726,22 @@ import SidefolkExtensionKit
         #expect(app.store.flow(flow.id)?.state == .paused)
     }
 
+    @Test func resumeFlowWaitsForAnOldWatchThatStillWontStop() async throws {
+        let w = try World()
+        let app = app(w)
+        app.engine.host = w.host
+        var flow = try make(app, [["id": "a", "do": "reads.it"]])
+        flow.live = flow.draft
+        flow.state = .paused
+        flow.watchTitle = "Test · Sideflow"
+        flow.watchOutdated = true
+        app.store.save(flow)
+        standing(app, flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "no")]
+        await #expect(throws: Problem.self) { try await resuming(flow, app) }
+        #expect(app.store.flow(flow.id)?.state == .paused)
+    }
+
     @Test func goingBackToWhatsRunningClearsARefusalsNote() async throws {
         let w = try World()
         let app = app(w)
