@@ -29,7 +29,7 @@ enum Grammar {
       {"id":"x","ask":"a question for the person","options":["Yes","No"]}
       {"id":"x","text":"words with {{values}}"}
       {"if":{"value":"{{x}}","test":"contains|not_contains|is|is_not|is_empty|not_empty|more_than|less_than","than":"rain"},"then":[…],"else":[…]}
-      {{step}} is what a tool said, everywhere: in a sentence, a for_each, a data step, to a called flow. A tool that gives fields has each as {{step.field}} (list_actions names them): for_each over {{step.items}}, not {{step}}, when the list is a field.
+      {{step}} is what a tool said, everywhere: in a sentence, a for_each, a data step, to a called flow. A tool that gives fields has each as {{step.field}} (list_actions names them): for_each over {{step.items}}, not {{step}}, when the list is a field. What a loop, a repeat, a lane or a called flow gives from such a step is its words too: to keep a field past one, end it with a data step that holds it.
       A field a record doesn't have counts as empty. A condition can't answer is_not or not_contains about it, about a null, or about a step that gave nothing, or anything about a field of plain words: the step fails and says why, unless another check settles it.
       A yes_no value is true or false, and a condition or a choose reads it as yes or no; to a condition, false counts as empty. An empty list counts as empty, and is an answer: not_contains holds on it. A path of a choose goes by a whole word, and one that is exactly the value comes first: write the path as the word appears. Arabic joins "ال" to a word, so "الفاتورة" doesn't mention "فاتورة". A value that matches no path takes "else".
       {"wait_minutes":30}  (1 to 1440)

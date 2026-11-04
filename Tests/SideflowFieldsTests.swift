@@ -124,6 +124,84 @@ import SidefolkExtensionKit
         #expect(run?.status == .done, "it only pretended, so there's nothing to say about a field of that")
     }
 
+    /// What a tool said is what leaves too: a called flow's answer, a lane's, a go's, the list a loop makes. Run pages and `get_run` show these.
+    @Test func aCalledFlowsAnswerIsItsLastToolsWords() async throws {
+        let w = try world(#"{"count": 2}"#)
+        var child = try w.flow([["id": "r", "do": "reads.it"]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "c", "call_flow": "Child"], ["id": "t", "text": "{{c}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.values.value("t") == "Two invoices are due")
+        #expect(run?.record(of: "c")?.output?.contains("count") == false)
+    }
+
+    @Test func aLanesAnswerIsItsLastToolsWords() async throws {
+        let w = try world(#"{"count": 2}"#)
+        let flow = try w.flow([["id": "both", "parallel": [["name": "one", "steps": [["id": "r", "do": "reads.it"]]], ["name": "two", "steps": [["id": "b", "text": "B"]]]]], ["id": "s", "text": "{{both.one}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.values.value("s") == "Two invoices are due")
+        #expect(run?.record(of: "both")?.output?.contains("count") == false)
+    }
+
+    @Test func aRepeatsAnswerIsItsLastToolsWords() async throws {
+        let w = try world(#"{"status": "done"}"#)
+        let flow = try w.flow([["id": "again", "repeat": [["id": "poll", "do": "reads.it"]], "until": ["value": "{{poll.status}}", "test": "is", "than": "done"], "times": 3], ["id": "t", "text": "{{again}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t") == "Two invoices are due")
+        #expect(run?.record(of: "again")?.output?.contains("status") == false)
+    }
+
+    @Test func aLoopsListIsItsToolsWords() async throws {
+        let w = try world(#"{"count": 2}"#)
+        let flow = try w.flow([["id": "e", "for_each": "a", "steps": [["id": "r", "do": "reads.it"]]], ["id": "t", "text": "{{e}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.record(of: "e")?.output?.contains("Two invoices") == true)
+        #expect(run?.record(of: "e")?.output?.contains("count") == false)
+        #expect(run?.values.value("t").contains("count") == false)
+    }
+
+    @Test func aRunsOwnAnswerIsItsLastToolsWords() async throws {
+        let w = try world(#"{"count": 2}"#)
+        let run = await w.settled(w.engine.start(try w.flow([["id": "r", "do": "reads.it"]]), mode: .live, why: "t"))
+        #expect(run?.answer == .string("Two invoices are due"))
+    }
+
+    @Test func aPracticeGoesRoundOnceOverAFieldOfASample() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "each", "for_each": "{{c.items}}", "steps": [["id": "t", "text": "{{item.name}}"]]]], state: .draft)
+        let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.record(of: "t") != nil, "what it does each time round is what a practice is for")
+    }
+
+    @Test func aPracticeChoosesPastAFieldOfASampleAndSaysSo() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "way", "choose": "{{c.kind}}", "paths": [["when": "big", "steps": [["id": "b", "text": "big"]]]], "else": [["id": "o", "text": "other"]]]], state: .draft)
+        let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.record(of: "way")?.summary.contains(L("(sample)")) == true)
+    }
+
+    @Test func aPracticeGoesOnInsideAFieldItsToolSaysAndStopsAtOneItDoesnt() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"}}}"#, outputSchema: #"{"properties":{"who":{}}}"#)]))
+        let inside = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "t", "text": "{{c.who.name}}"]], state: .draft)
+        let run = await w.settled(w.engine.start(inside, mode: .practice, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        let typo = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "t", "text": "{{c.whoo}}"]], state: .draft)
+        let wrong = await w.settled(w.engine.start(typo, mode: .practice, why: "t"))
+        #expect(wrong?.status != .done, "its tool says what it gives, and this isn't one")
+    }
+
+    @Test func aRecordInASentenceIsCutLikeWordsAre() throws {
+        var values = Values()
+        values.set("big", JSON.object(["a": .string(String(repeating: "x", count: Values.wordsKept * 2))]))
+        let filled = values.fill(["text": .string("{{big}}")], wordsIn: ["text"])
+        #expect((filled["text"] as? String)?.count == Values.wordsKept)
+    }
+
     @Test func theGuideSaysHowToReachAField() {
         #expect(Grammar.text.contains("{{step.field}}"))
     }

@@ -94,6 +94,11 @@ struct Values: Equatable, Sendable {
         }
     }
 
+    /// What a step gave as a whole, to go on from it: a tool's words, as `{{step}}` is everywhere; its fields stay with the run that asks for them by name.
+    func whole(_ name: String) -> JSON? {
+        named[name].map { value in said[name].map(JSON.string) ?? value }
+    }
+
     /// `name` with what's after it, or nil when nothing is there.
     func resolve(_ name: String, path: String = "") -> JSON? {
         guard let value = base(name) else { return nil }
@@ -138,8 +143,8 @@ struct Values: Equatable, Sendable {
     }
 
     private static func words(_ value: JSON, _ each: Int) -> String {
-        if case .string(let s) = value, s.count > each { return String(s.prefix(each)) }
-        return text(value)
+        let all = text(value)
+        return all.count > each ? String(all.prefix(each)) : all
     }
 
     /// Whether a path that found nothing stopped at words, which have no fields, rather than at a record or a list that just doesn't have this one.
@@ -250,10 +255,21 @@ struct Values: Equatable, Sendable {
         named[name] = .string(String(text.prefix(Self.keep)))
     }
 
-    /// What a practice's pretending can't answer: a field of a value it made up.
+    /// What a practice's pretending can't answer: a field of a value it made up, however far in. A field its tool doesn't say it gives isn't one.
     func isSampleField(_ name: String) -> Bool {
-        guard let root = name.split(whereSeparator: { $0 == "." || $0 == "[" }).first, let value = base(String(root)) else { return false }
-        return Self.text(value) == L("(sample)")
+        let parts = Self.parts(of: name)
+        guard let root = parts.first, var at = base(root) else { return false }
+        for part in parts.dropFirst() {
+            if Self.text(at) == L("(sample)") { return true }
+            guard let next = Self.walk(at, path: [part]) else { return false }
+            at = next
+        }
+        return false
+    }
+
+    /// What these words use that no step has made and this run has to stop for. A practice only pretended, so a field of that isn't one.
+    func stopsFor(_ texts: [String], practice: Bool) -> String? {
+        missing(in: texts).first { !practice || !isSampleField($0) }
     }
 
     /// A tool's answer: its fields if it gave any it can keep, and always its words.

@@ -10,15 +10,17 @@ extension Engine {
         if case .repeatUntil(_, let times, let steps) = step.kind { return startRepeat(step, times: times, steps: steps, end: end, in: &run) }
         guard case .forEach(let items, let limit, let failure, let steps) = step.kind else { return true }
         if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
-        if let name = run.values.missing(in: [items]).first {
+        if let name = run.values.stopsFor([items], practice: run.mode == .practice) {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }
-        let list: [JSON]
+        var list: [JSON]
         switch Values.structured(run.values.fill(native: .string(items))) {
         case .array(let a): list = a
         case .string(let text): list = text.split(whereSeparator: \.isNewline).map { .string(String($0).trimmed) }.filter { $0 != .string("") }
         case let other: list = [other]
         }
+        // Past the check, anything missing is a field of a sample: once round, since what it does each time is what a practice is for.
+        if !run.values.missing(in: [items]).isEmpty { list = [.string(L("(sample)"))] }
         guard list.count <= limit else {
             return failed(step, why: L("It has {count} items, and this step goes through {limit} at most.", ["count": Format.integer(list.count), "limit": Format.integer(limit)]), reads: false, in: &run)
         }
@@ -62,7 +64,7 @@ extension Engine {
         }
         let inside = FlowBody(steps: steps).allSteps
         // The last that made something: a path not taken at the end of a go made nothing.
-        let made = inside.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }).flatMap { run.values.named[$0.id] } ?? .null
+        let made = inside.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }).flatMap { run.values.whole($0.id) } ?? .null
         let holds = until.holds(run.values)
         let go = run.frames[at].index + 1
         func leave() {
@@ -138,7 +140,7 @@ extension Engine {
         }
         let inside = FlowBody(steps: steps).allSteps
         // What this go gave: what the last step that makes something made. Steps inside start each go with nothing.
-        let made = inside.last(where: { $0.hasOutput }).flatMap { run.values.named[$0.id] } ?? run.frames[at].items[run.frames[at].index]
+        let made = inside.last(where: { $0.hasOutput }).flatMap { run.values.whole($0.id) } ?? run.frames[at].items[run.frames[at].index]
         // Room is left for what the items still to come will say at the least, so the list as a whole is never cut to text.
         let left = run.frames[at].items.count - run.frames[at].index - 1
         let fits = JSONText.write((run.frames[at].results + [made]).map(\.any)).utf8.count + left * 40 <= Values.keepWhole

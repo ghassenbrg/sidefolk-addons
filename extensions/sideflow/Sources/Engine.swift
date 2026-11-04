@@ -190,14 +190,15 @@ import SidefolkExtensionKit
                 }
             case .choose(let step, let targets, let otherwise):
                 guard case .choose(let value, let paths, _) = step.kind else { break }
-                if let why = step.saysNothing ?? run.values.missing(in: [value]).first.map({ L("It uses “{name}”, but that step didn't run this time.", ["name": $0]) }) {
+                if let why = step.saysNothing ?? run.values.stopsFor([value], practice: run.mode == .practice).map({ L("It uses “{name}”, but that step didn't run this time.", ["name": $0]) }) {
                     guard failed(step, why: why, reads: false, in: &run) else {
                         finish(&run)
                         return
                     }
                     break
                 }
-                let seen = run.values.fill(value).trimmed
+                // Past the check, anything missing is a field of a sample: what this way goes by isn't known, and the record says that.
+                let seen = run.values.missing(in: [value]).isEmpty ? run.values.fill(value).trimmed : L("(sample)")
                 // A path that's exactly what it is, before one it only mentions.
                 let written = paths.indices.filter { paths[$0].when.trimmed == run.values.fill(paths[$0].when).trimmed }
                 let way = written.first { paths[$0].when.trimmed.compare(seen, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame } ?? written.first { Condition.mentions(seen, paths[$0].when) }
@@ -248,7 +249,7 @@ import SidefolkExtensionKit
             store.save(run)
             return false
         }
-        if let name = run.values.missing(in: step.usedTexts).first(where: { run.mode != .practice || !run.values.isSampleField($0) }) {
+        if let name = run.values.stopsFor(step.usedTexts, practice: run.mode == .practice) {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }
         switch step.kind {
@@ -575,7 +576,7 @@ import SidefolkExtensionKit
         // A flow's own run holds the flow; one that another waits for doesn't: it's that run's business.
         let holds = run.parent == nil
         // The last that has something to say: a loop's insides are gone by its end, and a path not taken never made anything.
-        if run.output == nil, run.status == .done, let last = run.body.allSteps.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }) { run.output = run.values.resolve(last.id) }
+        if run.output == nil, run.status == .done, let last = run.body.allSteps.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }) { run.output = run.values.whole(last.id) }
         if run.status.isOver {
             run.endedAt = clock()
             _ = store.takeStop(run.id)
