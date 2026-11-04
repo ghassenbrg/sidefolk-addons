@@ -62,7 +62,16 @@ import SidefolkExtensionKit
             Actions.Check(decision: decision, summary: "Sentence for \(tool)", mutates: tool != "reads.it", standing: plan != nil)
         }
 
+        /// As Sidefolk has it: one AI request at a time from an extension, and a second gets refused.
+        var oneAITurn = false
+        private var asking = false
         func write(_ prompt: String, label: String) async -> AI.Result {
+            if oneAITurn {
+                if asking { return .refused("busy") }
+                asking = true
+                try? await Task.sleep(for: .milliseconds(20))
+                asking = false
+            }
             written.append(prompt)
             return aiAnswer
         }

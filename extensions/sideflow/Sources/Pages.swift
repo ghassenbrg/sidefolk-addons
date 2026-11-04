@@ -196,7 +196,7 @@ import SidefolkExtensionKit
         var meta: String
         if let next = Summaries.next(flow) {
             meta = L("Next: {when}", ["when": Format.dateTime(next)])
-        } else if let last = app.store.runs(of: flow.id).first {
+        } else if let last = app.store.latest(of: flow.id) {
             meta = L("Last: {status}, {when}", ["status": Summaries.status(last), "when": Format.dateTime(last.startedAt)])
         } else {
             meta = flow.state == .draft ? L("Nothing runs yet") : L("Waiting for a change")
@@ -498,7 +498,7 @@ import SidefolkExtensionKit
             first.pill = Badge(check.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
         }
         var nodes = [first]
-        nodes += treeNodes(flow.draft.steps, body: flow.draft, app, run: run, untested: untested, flow: flow, problems: problems)
+        nodes += treeNodes(flow.draft.steps, body: flow.draft, app, run: run.map { withLanes($0, app) }, untested: untested, flow: flow, problems: problems)
         let selected: String? = switch app.nav.inspecting(flow) {
         case .trigger: "start"
         case .step(let id): id
@@ -726,7 +726,7 @@ import SidefolkExtensionKit
             end.append(Section(L("What it came to"), [.notice(PageNotice(title: run.flowName, body: output, time: run.endedAt.map { Format.time($0) }))], place: .trailing))
         }
         var nodes = [CardTree.Node("start", run.why, kind: L("It started"), symbol: triggerSymbol(run.body.trigger), color: tile[0], state: .done, fixed: true)]
-        nodes += treeNodes(run.body.steps, body: run.body, app, run: run, untested: .pending, flow: nil, problems: [])
+        nodes += treeNodes(run.body.steps, body: run.body, app, run: withLanes(run, app), untested: .pending, flow: nil, problems: [])
         let selected = app.nav.runStep[run.id]
         if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }
         return frame(app, state: state, here: nil, flow: run.flow, back: run.flowName, [

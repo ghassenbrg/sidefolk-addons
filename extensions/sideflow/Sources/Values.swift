@@ -10,6 +10,8 @@ struct Values: Equatable, Sendable {
     static let reserved: Set<String> = ambient.union(["item", "index", "error", "input"])
     /// Longest text kept per value; what a model is given is bounded again.
     static let keep = 64_000
+    /// What goes to a tool as words, as it always did: what's kept above is for looking inside and for the next step, and a note takes less than a page.
+    static let wordsKept = 8_000
     /// Largest whole value: past this it's cut to text, and the step that used it can see that it was.
     static let keepWhole = 256 * 1024
 
@@ -118,13 +120,22 @@ struct Values: Equatable, Sendable {
                 continue
             }
             if path.isEmpty {
-                if cantSay, Self.text(root).isEmpty { return name }
+                if cantSay, Condition.isBlank(Self.text(root)) { return name }
                 continue
             }
-            guard resolve(name, path: path) == nil else { continue }
+            if let found = resolve(name, path: path) {
+                // Given, and with nothing in it: that isn't "not given".
+                if negative, Condition.isBlank(Self.text(found)) { return name + path }
+                continue
+            }
             if cantSay || Self.endsInWords(root, path: Self.parts(of: path)) { return name + path }
         }
         return nil
+    }
+
+    private static func words(_ value: JSON, _ each: Int) -> String {
+        if case .string(let s) = value, s.count > each { return String(s.prefix(each)) }
+        return text(value)
     }
 
     /// Whether a path that found nothing stopped at words, which have no fields, rather than at a record or a list that just doesn't have this one.
@@ -167,12 +178,13 @@ struct Values: Equatable, Sendable {
         }
     }
 
-    func fill(_ text: String) -> String {
+    /// `each`: how much of a value goes in, where only so much should.
+    func fill(_ text: String, each: Int = .max) -> String {
         var out = "", from = text.startIndex
         for match in Self.slot.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
             guard let whole = Range(match.range, in: text), let name = Range(match.range(at: 1), in: text), let path = Range(match.range(at: 2), in: text) else { continue }
             out += text[from..<whole.lowerBound]
-            out += resolve(String(text[name]), path: String(text[path])).map(Self.text) ?? ""
+            out += resolve(String(text[name]), path: String(text[path])).map { Self.words($0, each) } ?? ""
             from = whole.upperBound
         }
         return out + text[from...]
@@ -202,7 +214,7 @@ struct Values: Equatable, Sendable {
     /// A tool's answer that's a list goes as a list only to a parameter that says it takes one, and only as a whole value: anywhere else it's the words it was, what a card showed.
     func fill(_ input: [String: JSON], wordsIn textual: Set<String>, listsIn lists: Set<String> = []) -> [String: Any] {
         Dictionary(uniqueKeysWithValues: input.map { key, value in
-            if textual.contains(key), case .string(let s) = value { return (key, fill(s) as Any) }
+            if textual.contains(key), case .string(let s) = value { return (key, fill(s, each: Self.wordsKept) as Any) }
             let filled = fill(native: value)
             if lists.contains(key), case .string(let s) = value, Self.isOneSlot(s), case .array(let list) = Self.structured(filled) { return (key, JSON.array(list).any) }
             return (key, filled.any)

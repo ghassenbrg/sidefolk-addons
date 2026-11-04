@@ -32,7 +32,7 @@ import SidefolkExtensionKit
         let w = try World()
         w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: reply, summary: "")]
         let flow = try w.flow([["id": "check", "do": "reads.it"],
-                               ["id": "b", "if": ["value": "{{check.\(field)}}", "test": test, "than": than], "then": [["id": "deploy", "do": "changes.it", "with": ["text": "x"]]]]])
+                               ["id": "b", "if": ["value": field.isEmpty ? "{{check}}" : "{{check.\(field)}}", "test": test, "than": than], "then": [["id": "deploy", "do": "changes.it", "with": ["text": "x"]]]]])
         return (await w.settled(w.engine.start(flow, mode: .live, why: "t")), w)
     }
 
@@ -264,6 +264,143 @@ import SidefolkExtensionKit
         let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
         #expect(run?.status == .done)
         #expect(run?.record(of: "t") != nil)
+    }
+
+    @Test func twoLanesCanBothAskTheAI() async throws {
+        let w = try World()
+        w.host.oneAITurn = true
+        let flow = try w.flow([["id": "p", "parallel": [["name": "One", "steps": [["id": "a", "ai": "first"]]], ["name": "Two", "steps": [["id": "b", "ai": "second"]]]]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .done, "Sidefolk takes one at a time, so they take turns")
+        #expect(w.host.written.count == 2)
+    }
+
+    @Test func aLongAnswerGoesAsWordsAsItDidBefore() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"}}}"#)]))
+        let long = String(repeating: "x", count: 30_000)
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: long, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "{{r}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect((w.host.calls.first { $0.tool == "changes.it" }?.input["text"] as? String)?.count == Values.wordsKept, "a flow saving a page to a note goes on working")
+        #expect(run?.record(of: "r")?.note != nil, "and it says so")
+    }
+
+    @Test func aLongJSONAnswerStillHasItsFields() async throws {
+        let w = try World()
+        let filler = String(repeating: "x", count: 30_000)
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"filler":"\#(filler)","late":"yes"}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "t", "text": "{{r.late}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.record(of: "t")?.output == "yes")
+    }
+
+    @Test(arguments: [#"{"status":null}"#, #"{"status":""}"#])
+    func aFieldThatsThereButEmptyIsntPassedEither(_ reply: String) async throws {
+        let (run, w) = try await deciding(reply, "is_not", than: "down", field: "status")
+        #expect(run?.status == .failed)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func emptyGivenToAFlowIsntPassedEither() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .error, text: "broken", summary: "")]
+        var child = try w.flow([["id": "b", "if": ["value": "{{input.r}}", "test": "is_not", "than": "down"], "then": [["id": "go", "do": "changes.it", "with": ["text": "x"]]]]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "fetch", "do": "reads.it", "on_failure": "carry_on"], ["id": "c", "call_flow": "Child", "inputs": ["r": "{{fetch}}"]]])
+        _ = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test(arguments: ["[]", "{}"])
+    func anEmptyListOrRecordIsEmpty(_ reply: String) async throws {
+        let empty = try await deciding(reply, "is_empty", field: "")
+        #expect(empty.1.host.calls.contains { $0.tool == "changes.it" })
+        let some = try await deciding(reply, "not_empty", field: "")
+        #expect(!some.1.host.calls.contains { $0.tool == "changes.it" }, "there's nothing there")
+    }
+
+    @Test func aFilterWithNoMatchesIsEmpty() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "t", "text": "apple\npear"], ["id": "l", "data": ["op": "lines", "from": "{{t}}"]], ["id": "d", "data": ["op": "filter", "from": "{{l}}", "than": "zzz"]],
+                               ["id": "b", "if": ["value": "{{d}}", "test": "not_empty"], "then": [["id": "yes", "text": "x"]], "else": [["id": "no", "text": "y"]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.record(of: "yes") == nil)
+        #expect(run?.record(of: "no") != nil)
+    }
+
+    @Test func yesAndNoMeanWhatTheySay() {
+        for (left, right, same) in [("true", "yes", true), ("false", "no", true), ("false", "yes", false), ("YES", "true", true), ("true", "true", true), ("maybe", "yes", false)] {
+            #expect(Condition.test(.is, left: left, right: right) == same, "\(left) is \(right)")
+            #expect(Condition.test(.is_not, left: left, right: right) == !same, "\(left) isn't \(right)")
+        }
+        #expect(Condition.test(.contains, left: "true", right: "yes"))
+        #expect(!Condition.test(.not_empty, left: "false", right: ""), "a No isn't something")
+        #expect(Condition.test(.is_empty, left: "false", right: ""))
+    }
+
+    @Test func aNoFromAFormGoesTheWayItSays() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "f", "form": ["title": "T", "fields": [["name": "go", "label": "Go", "kind": "yes_no"]]]],
+                                  ["id": "b", "if": ["value": "{{f.go}}", "test": "is_not", "than": "no"], "then": [["id": "yes", "text": "x"]], "else": [["id": "no", "text": "y"]]],
+                                  ["id": "c", "choose": "{{f.go}}", "paths": [["when": "Yes", "steps": [["id": "p", "text": "x"]]], ["when": "No", "steps": [["id": "q", "text": "y"]]]]]])
+        let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
+        await w.quiet(app.store)
+        try await page(app, "form_field", flow, ["run": run.id, "name": "go", "on": false])
+        try await page(app, "form_send", flow, ["run": run.id])
+        await w.quiet(app.store)
+        let done = try #require(app.store.run(run.id))
+        #expect(done.status == .done)
+        #expect(done.record(of: "yes") == nil)
+        #expect(done.record(of: "no") != nil)
+        #expect(done.record(of: "q") != nil, "not Otherwise")
+    }
+
+    @Test func aPathGoesByTheWordNotPartOfOne() async throws {
+        for (value, took) in [("unpaid", "other"), ("paid", "p"), ("Paid in full", "p"), ("10", "other"), ("1", "o")] {
+            let w = try World()
+            let flow = try w.flow([["id": "t", "text": value],
+                                   ["id": "c", "choose": "{{t}}", "paths": [["when": "paid", "steps": [["id": "p", "text": "x"]]], ["when": "1", "steps": [["id": "o", "text": "x"]]]], "else": [["id": "other", "text": "x"]]]])
+            let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+            #expect(run?.record(of: took) != nil, "\(value) goes to \(took)")
+        }
+        // Writing with no spaces has no words to tell apart.
+        #expect(Condition.mentions("支払い済みです", "支払い"))
+        // An exact path beats one that's only mentioned.
+        let w = try World()
+        let flow = try w.flow([["id": "t", "text": "not paid"],
+                               ["id": "c", "choose": "{{t}}", "paths": [["when": "paid", "steps": [["id": "p", "text": "x"]]], ["when": "not paid", "steps": [["id": "n", "text": "x"]]]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.record(of: "n") != nil)
+    }
+
+    @Test func lanesThatRanArentSaidNotToHave() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "p", "parallel": [["name": "One", "steps": [["id": "a", "text": "x"]]], ["name": "Two", "steps": [["id": "b", "text": "y"]]]]]])
+        let run = try #require(app.engine.start(flow, mode: .practice, why: "t"))
+        await w.quiet(app.store)
+        let done = try #require(app.store.run(run.id))
+        let shown = Pages.withLanes(done, app)
+        #expect(shown.record(of: "a") != nil)
+        #expect(shown.record(of: "b") != nil)
+        #expect(Pages.untried(try #require(app.store.flow(flow.id)), app).isEmpty, "every lane ran")
+        #expect(!drawn(Pages.stepDetail(done, step: "a", scope: nil, app)).contains(L("It didn't get this far in this run, or the path it's on wasn't taken.")))
+    }
+
+    @Test func aLaneIsntTheFlowsLatestRun() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "p", "parallel": [["name": "One", "steps": [["id": "a", "text": "x"]]], ["name": "Two", "steps": [["id": "b", "text": "y"]]]]]])
+        let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
+        await w.quiet(app.store)
+        #expect(app.store.latest(of: flow.id)?.id == run.id)
     }
 
     @Test func askingWhetherAStepRanStillWorks() async throws {

@@ -277,7 +277,11 @@ import SidefolkExtensionKit
         more.append(.edit(EditField("\(step.id).name", L("Call this step"), value: step.name ?? "", placeholder: Words.label(step, catalog: app.catalog), tool: "ui", input: input("step_name"))))
         if step.hasOutput {
             var failure = [("stop", L("Stop the flow")), ("carry_on", L("Carry on"))]
-            if step.reads(app.catalog) { failure.append(("retry", L("Try again later"))) }
+            // Only a step with a tool or an AI to go back to.
+            switch step.kind {
+            case .action, .ai: if step.reads(app.catalog) { failure.append(("retry", L("Try again later"))) }
+            default: break
+            }
             more.append(.choice(L("If it fails"), options: failure, selected: step.onFailure.rawValue, tool: "ui", input: input("on_failure")))
         }
         let said = explanation(step, app)

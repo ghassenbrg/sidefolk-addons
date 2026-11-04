@@ -25,7 +25,8 @@ import SidefolkExtensionKit
     }
 
     /// What's selected on a run's tree: what it was given, what it made, how many tries, and why this and not another.
-    static func stepDetail(_ run: Run, step id: String, scope: String?, _ app: App) -> [Section] {
+    static func stepDetail(_ whole: Run, step id: String, scope: String?, _ app: App) -> [Section] {
+        let run = withLanes(whole, app)
         guard let step = run.body.step(id) else { return [] }
         let all = run.records.filter { $0.step == id }
         guard !all.isEmpty else {
@@ -70,10 +71,19 @@ import SidefolkExtensionKit
     }
 
     /// Which ways through have been seen working in practice, of what's written now: a run takes one way, so the others are still untried.
+    /// A parallel's lanes keep their records in runs of their own: what ran there ran here, as far as anyone reading this run goes.
+    static func withLanes(_ run: Run, _ app: App) -> Run {
+        let lanes = app.store.runs(of: run.flow).filter { $0.parent == run.id }
+        guard !lanes.isEmpty else { return run }
+        var shown = run
+        shown.records += lanes.flatMap { withLanes($0, app).records }
+        return shown
+    }
+
     static func untried(_ flow: Flow, _ app: App) -> [String] {
         let practiced = app.store.runs(of: flow.id).filter { $0.mode == .practice && $0.body == flow.draft }
         guard !practiced.isEmpty else { return [] }
-        let seen = Set(practiced.flatMap { $0.records.map(\.step) })
+        let seen = Set(practiced.flatMap { withLanes($0, app).records.map(\.step) })
         var out: [String] = []
         for step in flow.draft.allSteps where !step.parts.isEmpty {
             guard seen.contains(step.id) else { continue }
