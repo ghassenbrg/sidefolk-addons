@@ -920,7 +920,6 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} は戻りましたが、時間が経ちすぎたため、このステップはあなたが判断してください。",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "{name} を待っています。このルーティンは一時停止中です。このステップはまだ実行していません。戻ったあと、再開すると続きます。",
-    "You approved a version without this step while this run was under way, so it didn't run.": "この実行の途中で、このステップのないバージョンを承認したため、このステップは実行されませんでした。",
     "Add what to do each time round.": "毎回行うことを追加してください。",
     "At most (times)": "最大回数",
     "Each time round": "毎回",
@@ -943,6 +942,7 @@
     },
     "It went round {count} times and it still doesn't hold.": {
       "other": "{count} 回繰り返しましたが、まだ条件を満たしません。"
-    }
+    },
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "この実行の途中で別のバージョンを承認しました。このステップは同じ形では含まれていないため、実行されませんでした。スキップするか、ここで停止してください。"
   }
 }

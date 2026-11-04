@@ -920,7 +920,6 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} 已恢复，但已过去太久，这一步由你决定。",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "正在等待 {name}，此流程已暂停。这一步尚未运行：恢复后，在你继续时接着运行。",
-    "You approved a version without this step while this run was under way, so it didn't run.": "这次运行进行时，你批准了没有这一步的版本，因此这一步没有运行。",
     "Add what to do each time round.": "添加每次要做的事。",
     "At most (times)": "最多（次）",
     "Each time round": "每一次",
@@ -943,6 +942,7 @@
     },
     "It went round {count} times and it still doesn't hold.": {
       "other": "已重复 {count} 次，条件仍不成立。"
-    }
+    },
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "这次运行期间你批准了此流程的另一个版本，其中这一步已不同，因此没有运行。请跳过它或在此停止。"
   }
 }

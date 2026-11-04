@@ -985,7 +985,6 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "عاد {name}، لكن مرّ وقت طويل، فالقرار في هذه الخطوة لك.",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "في انتظار {name}، وهذا الروتين متوقف مؤقتًا. لم تُنفَّذ هذه الخطوة: بعد عودته، يتابع عندما تستأنفه.",
-    "You approved a version without this step while this run was under way, so it didn't run.": "وافقت على نسخة بلا هذه الخطوة أثناء هذا التشغيل، لذا لم تُنفَّذ.",
     "Add what to do each time round.": "أضف ما يجب فعله في كل مرة.",
     "At most (times)": "على الأكثر (مرات)",
     "Each time round": "في كل مرة",
@@ -1018,6 +1017,7 @@
       "few": "تكرر {count} مرات ولم يتحقق بعد.",
       "many": "تكرر {count} مرة ولم يتحقق بعد.",
       "other": "تكرر {count} مرة ولم يتحقق بعد."
-    }
+    },
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "وافقت على نسخة أخرى من هذا الروتين أثناء هذا التشغيل، ولم تعد هذه الخطوة كما كانت فيها، لذا لم تُنفَّذ. تخطَّها أو توقف هنا."
   }
 }

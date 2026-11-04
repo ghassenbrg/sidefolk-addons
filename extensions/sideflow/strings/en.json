@@ -721,7 +721,7 @@
     "Yes": "Yes",
     "Yes or no": "Yes or no",
     "You answered": "You answered",
-    "You approved a version without this step while this run was under way, so it didn't run.": "You approved a version without this step while this run was under way, so it didn't run.",
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.",
     "You asked for a practice run.": "You asked for a practice run.",
     "You asked for it.": "You asked for it.",
     "You ended what you'd allowed in Settings, so it asks again before running.": "You ended what you'd allowed in Settings, so it asks again before running.",

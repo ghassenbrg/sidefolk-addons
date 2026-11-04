@@ -242,9 +242,10 @@ import SidefolkExtensionKit
         // Sidefolk checks an action against what they read last at each call. Nothing checks these two, so it's looked at here: a run under way when they approved an edit that took one out.
         switch step.kind {
         case .ai, .flow, .call:
-            if run.mode == .live, let current = store.flow(run.flow), current.live != nil, !current.running.allSteps.contains(where: { $0.id == step.id && $0.kind == step.kind }) {
+            // Not a call coming back with its answer: that already ran.
+            if run.mode == .live, run.waitingOn.isEmpty, let current = store.flow(run.flow), current.live != nil, !current.running.allSteps.contains(where: { $0.id == step.id && $0.kind == step.kind }) {
                 run.status = .needs_you
-                run.problem = L("You approved a version without this step while this run was under way, so it didn't run.")
+                run.problem = L("You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.")
                 run.record(.init(step: step.id, status: .needs_you, summary: step.name ?? Words.step(step, body: run.body, catalog: catalog), note: run.problem, at: clock()))
                 store.save(run)
                 return false
@@ -789,7 +790,7 @@ import SidefolkExtensionKit
         for run in store.unfinished() where run.status == .waiting {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
             // Unless it's been paused: what goes by itself waits for Resume, as it would to start.
-            if let waited = run.connection, !Connections.isMissing(waited.tool, catalog), waited.until > now, run.mode != .live || !([run.flow] + run.lineage).contains(where: { store.flow($0)?.state == .paused }) {
+            if let waited = run.connection, !Connections.isMissing(waited.tool, catalog), waited.until > now, !heldByPause(run) {
                 Task { await advance(run.id) }
             } else if let at = run.resumeAt, at <= now {
                 Task { await advance(run.id) }
@@ -1037,6 +1038,11 @@ import SidefolkExtensionKit
         store.save(flow)
         changed()
         Task { await resumeWatch(flow) }
+    }
+
+    /// What goes by itself waits for Resume: its own flow or a flow that called it is paused.
+    func heldByPause(_ run: Run) -> Bool {
+        run.mode == .live && ([run.flow] + run.lineage).contains { store.flow($0)?.state == .paused }
     }
 
     /// On from before a blank step was marked: pausing says so once, where running would do what comes before it each time and then stop. Whether it has one.

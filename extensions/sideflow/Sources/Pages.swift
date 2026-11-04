@@ -60,7 +60,7 @@ import SidefolkExtensionKit
         if let first = stuck.first {
             return Summary(L(one: "{count} flow needs you", other: "{count} flows need you", count: Set(stuck.map(\.flow)).count), detail: first.flowName, tone: .warn, symbol: "exclamationmark.bubble")
         }
-        if let waiting = app.store.unfinished().first(where: { $0.connection != nil && app.store.flow($0.flow)?.state != .paused }), let id = waiting.connection.flatMap({ Connections.id(of: $0.tool) }) {
+        if let waiting = app.store.unfinished().first(where: { $0.connection != nil && !app.engine.heldByPause($0) }), let id = waiting.connection.flatMap({ Connections.id(of: $0.tool) }) {
             return Summary(L("{flow} is waiting for {name}", ["flow": waiting.flowName, "name": Connections.title(id, app.catalog, app.store)]), detail: L("It goes on by itself once it's back."), tone: .warn, symbol: "link")
         }
         if let failed = app.store.runs().first(where: { $0.mode == .live }), failed.status == .failed {
@@ -754,7 +754,7 @@ import SidefolkExtensionKit
             }
         case .waiting where run.connection != nil:
             let name = run.connection.flatMap { Connections.id(of: $0.tool) }.map { Connections.title($0, app.catalog, app.store) } ?? ""
-            detail = run.mode == .live && app.store.flow(run.flow)?.state == .paused
+            detail = app.engine.heldByPause(run)
                 ? L("Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.", ["name": name])
                 : L("Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.", ["name": name])
             end.append(choices(L("Don't want to wait?"), [

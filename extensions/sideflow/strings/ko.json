@@ -920,7 +920,6 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name}이(가) 돌아왔지만 시간이 너무 지나 이 단계는 직접 정해 주세요.",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "{name}을(를) 기다리고 있으며 이 루틴은 일시 중지되었습니다. 이 단계는 아직 실행되지 않았습니다. 돌아온 뒤 다시 시작하면 계속됩니다.",
-    "You approved a version without this step while this run was under way, so it didn't run.": "이 실행이 진행되는 동안 이 단계가 없는 버전을 승인했으므로 이 단계는 실행되지 않았습니다.",
     "Add what to do each time round.": "매번 할 일을 추가하세요.",
     "At most (times)": "최대 횟수",
     "Each time round": "매번",
@@ -943,6 +942,7 @@
     },
     "It went round {count} times and it still doesn't hold.": {
       "other": "{count}번 반복했지만 아직 만족하지 않습니다."
-    }
+    },
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "이 실행 중에 이 루틴의 다른 버전을 승인했으며 이 단계가 그대로 포함되어 있지 않아 실행되지 않았습니다. 건너뛰거나 여기서 멈추세요."
   }
 }
