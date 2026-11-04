@@ -73,7 +73,7 @@ import SidefolkExtensionKit
     /// Which ways through have been seen working in practice, of what's written now: a run takes one way, so the others are still untried.
     /// A parallel's lanes keep their records in runs of their own: what ran there ran here, as far as anyone reading this run goes.
     static func withLanes(_ run: Run, _ app: App) -> Run {
-        let lanes = app.store.runs(of: run.flow).filter { $0.parent == run.id }
+        let lanes = app.store.runs(of: run.flow).filter { $0.parent == run.id }.sorted { $0.startedAt < $1.startedAt }
         guard !lanes.isEmpty else { return run }
         var shown = run
         shown.records += lanes.flatMap { withLanes($0, app).records }

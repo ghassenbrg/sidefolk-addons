@@ -228,7 +228,7 @@ import SidefolkExtensionKit
     static func line(_ flow: Flow, _ app: App) -> String {
         var parts = ["\(flow.name) [\(stateWord(flow))]", Words.trigger(flow.running.trigger)]
         if let next = next(flow) { parts.append(L("Next: {when}", ["when": Format.dateTime(next)])) }
-        if let last = app.store.runs(of: flow.id).first { parts.append(L("Last: {status}", ["status": status(last)])) }
+        if let last = app.store.latest(of: flow.id) { parts.append(L("Last: {status}", ["status": status(last)])) }
         return parts.joined(separator: " · ")
     }
 

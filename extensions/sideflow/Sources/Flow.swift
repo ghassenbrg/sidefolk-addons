@@ -47,7 +47,10 @@ struct Condition: Equatable, Sendable {
     }
 
     func checkHolds(_ values: Values) -> Bool {
-        Self.test(test, left: values.fill(value), right: values.fill(than))
+        let left = values.fill(value)
+        // A No from a form or a tool isn't something to a condition, though the word "no" is, and a list of them keeps them.
+        if test == .is_empty || test == .not_empty, left.trimmed == "false" { return test == .is_empty }
+        return Self.test(test, left: left, right: values.fill(than))
     }
 
     /// Numbers read from the first number in the value, so "18 °C" compares as 18.
@@ -70,7 +73,7 @@ struct Condition: Equatable, Sendable {
         if let a = answer(seen), let b = answer(word) { return a == b }
         let fold: (String) -> String = { $0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
         let (text, wanted) = (fold(seen), fold(word))
-        let noSpaces = wanted.unicodeScalars.contains { (0x3040...0x30FF).contains($0.value) || (0x3400...0x9FFF).contains($0.value) || (0xAC00...0xD7AF).contains($0.value) || (0x0E00...0x0E7F).contains($0.value) }
+        let noSpaces = (text + wanted).unicodeScalars.contains { (0x3040...0x30FF).contains($0.value) || (0x3400...0x9FFF).contains($0.value) || (0xAC00...0xD7AF).contains($0.value) || (0x0E00...0x0E7F).contains($0.value) }
         if noSpaces { return text.contains(wanted) }
         return text.range(of: #"(?<![\p{L}\p{N}])"# + NSRegularExpression.escapedPattern(for: wanted) + #"(?![\p{L}\p{N}])"#, options: .regularExpression) != nil
     }
@@ -82,9 +85,8 @@ struct Condition: Equatable, Sendable {
         case .not_contains: return !has(left, right)
         case .is: return same(left, right)
         case .is_not: return !same(left, right)
-        // A No isn't something, and an empty list isn't either.
-        case .is_empty: return isBlank(left) || answer(left) == "no"
-        case .not_empty: return !isBlank(left) && answer(left) != "no"
+        case .is_empty: return isBlank(left)
+        case .not_empty: return !isBlank(left)
         case .more_than, .less_than:
             guard let a = number(left), let b = number(right) else { return false }
             return test == .more_than ? a > b : a < b
@@ -93,8 +95,8 @@ struct Condition: Equatable, Sendable {
 
     private static func has(_ left: String, _ right: String) -> Bool {
         let found = left.range(of: right, options: [.caseInsensitive, .diacriticInsensitive]) != nil
-        guard !found, let said = answer(left) else { return found }
-        return said.range(of: answer(right) ?? right, options: .caseInsensitive) != nil
+        guard !found, let said = answer(left), let wanted = answer(right) else { return found }
+        return said == wanted
     }
 
     private static func same(_ left: String, _ right: String) -> Bool {

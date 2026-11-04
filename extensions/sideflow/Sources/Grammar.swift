@@ -28,8 +28,8 @@ enum Grammar {
       {"id":"x","ask":"a question for the person","options":["Yes","No"]}
       {"id":"x","text":"words with {{values}}"}
       {"if":{"value":"{{x}}","test":"contains|not_contains|is|is_not|is_empty|not_empty|more_than|less_than","than":"rain"},"then":[…],"else":[…]}
-      A field a record doesn't have counts as empty. A condition can't answer is_not or not_contains about it, or anything about a field of plain words: the step fails and says why, unless another check settles it.
-      A yes_no value is true or false, and a condition or a choose reads it as yes or no. An empty list counts as empty. A path of a choose goes by a whole word, and one that is exactly the value comes first.
+      A field a record doesn't have counts as empty. A condition can't answer is_not or not_contains about it, about a null, or about a step that gave nothing, or anything about a field of plain words: the step fails and says why, unless another check settles it.
+      A yes_no value is true or false, and a condition or a choose reads it as yes or no; to a condition, false counts as empty. An empty list counts as empty, and is an answer: not_contains holds on it. A path of a choose goes by a whole word, and one that is exactly the value comes first.
       {"wait_minutes":30}  (1 to 1440)
       {"run_flow":"another flow's name"}  (sets it off and carries on)
       {"id":"x","do":"companion.job","with":{"job":"a whole job in plain words"}}  (the companion does it with all its tools, under the person's trust settings)

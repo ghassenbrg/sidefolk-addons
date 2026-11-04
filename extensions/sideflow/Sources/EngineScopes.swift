@@ -264,7 +264,8 @@ extension Engine {
             }
             if text.isEmpty {
                 guard !field.required else { throw Problem(L("“{field}” needs an answer.", ["field": field.label])) }
-                kept[field.name] = .null
+                // Left empty is an answer.
+                kept[field.name] = .string("")
                 continue
             }
             switch field.kind {

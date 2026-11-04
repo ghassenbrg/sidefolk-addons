@@ -352,7 +352,7 @@ import SidefolkExtensionKit
     }
 
     /// Sidefolk takes one AI request at a time from an extension and refuses a second, so lanes and other flows take turns here.
-    private func askingAI(_ prompt: String, label: String) async -> AI.Result {
+    func askingAI(_ prompt: String, label: String) async -> AI.Result {
         if aiInUse { await withCheckedContinuation { aiWaiting.append($0) } }
         aiInUse = true
         defer {

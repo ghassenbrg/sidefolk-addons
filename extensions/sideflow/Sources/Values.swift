@@ -120,12 +120,13 @@ struct Values: Equatable, Sendable {
                 continue
             }
             if path.isEmpty {
-                if cantSay, Condition.isBlank(Self.text(root)) { return name }
+                // A step that gave nothing, not one that found nothing: an empty list is an answer.
+                if cantSay, Self.text(root).isEmpty { return name }
                 continue
             }
             if let found = resolve(name, path: path) {
-                // Given, and with nothing in it: that isn't "not given".
-                if negative, Condition.isBlank(Self.text(found)) { return name + path }
+                // A field said to be nothing says nothing. An empty one is an answer, except what a flow was given: that may be a step that gave nothing, passed along.
+                if negative, found == .null || (name == "input" && Self.text(found).isEmpty) { return name + path }
                 continue
             }
             if cantSay || Self.endsInWords(root, path: Self.parts(of: path)) { return name + path }

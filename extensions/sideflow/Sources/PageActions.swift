@@ -470,7 +470,7 @@ import SidefolkExtensionKit
 
             Request: \(words)
             """
-            switch await app.host.write(String(prompt.prefix(7800)), label: L("Draft a flow")) {
+            switch await app.engine.askingAI(String(prompt.prefix(7800)), label: L("Draft a flow")) {
             case .answer(let text, _):
                 guard let start = text.firstIndex(of: "{"), let end = text.lastIndex(of: "}"),
                       let o = JSONText.read(String(text[start...end])) as? [String: Any], let body = try? FlowCodec.body(o["flow"]) else {

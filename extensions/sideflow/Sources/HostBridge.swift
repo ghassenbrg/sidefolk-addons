@@ -13,7 +13,8 @@ import SidefolkExtensionKit
 
     func write(_ prompt: String, label: String) async -> AI.Result {
         guard AI.available != nil else { return .refused("off") }
-        return await AI.ask(prompt, label: label)
+        // Past Sidefolk's own limit: given up on sooner, its request would still be in the air and the next turn refused.
+        return await AI.ask(prompt, label: label, seconds: 130)
     }
 
     func approve(_ plan: Plan) async -> Plans.Answer { await Plans.approve(plan) }

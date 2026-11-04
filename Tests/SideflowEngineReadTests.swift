@@ -298,11 +298,48 @@ import SidefolkExtensionKit
         #expect(run?.record(of: "t")?.output == "yes")
     }
 
-    @Test(arguments: [#"{"status":null}"#, #"{"status":""}"#])
-    func aFieldThatsThereButEmptyIsntPassedEither(_ reply: String) async throws {
-        let (run, w) = try await deciding(reply, "is_not", than: "down", field: "status")
+    @Test func aFieldSaidToBeNothingCantBeSaidToBeSomethingElse() async throws {
+        let (run, w) = try await deciding(#"{"status":null}"#, "is_not", than: "down", field: "status")
         #expect(run?.status == .failed)
         #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func anEmptyAnswerIsAnAnswer() async throws {
+        let field = try await deciding(#"{"status":""}"#, "is_not", than: "down", field: "status")
+        #expect(field.1.host.calls.contains { $0.tool == "changes.it" }, "it said it's empty, and empty isn't down")
+        for empty in ["[]", "{}"] {
+            let found = try await deciding(empty, "not_contains", than: "P0", field: "")
+            #expect(found.0?.status == .done, "nothing found has no P0 in it")
+            #expect(found.1.host.calls.contains { $0.tool == "changes.it" })
+        }
+    }
+
+    @Test func anOptionalFieldLeftEmptyIsAnAnswer() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "f", "form": ["title": "T", "fields": [["name": "note", "label": "Note", "kind": "text", "required": false]]]],
+                                  ["id": "b", "if": ["value": "{{f.note}}", "test": "not_contains", "than": "urgent"], "then": [["id": "calm", "text": "x"]]]])
+        let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
+        await w.quiet(app.store)
+        try await page(app, "form_send", flow, ["run": run.id])
+        await w.quiet(app.store)
+        let done = try #require(app.store.run(run.id))
+        #expect(done.status == .done)
+        #expect(done.record(of: "calm") != nil)
+    }
+
+    @Test func aFilterKeepsNoAndFalse() throws {
+        let filter = DataStep(op: .filter, from: "", test: .not_empty, than: "")
+        let rows = JSON.array([.string("No"), .string("false"), .string("NO"), .string("yes"), .string("")])
+        let made = try filter.apply(to: rows, than: "")
+        guard case .array(let kept) = made else { Issue.record("not a list"); return }
+        #expect(kept.count == 4, "only what's really empty goes")
+    }
+
+    @Test func aChoiceInWritingWithNoSpacesFindsAWordInIt() {
+        #expect(Condition.mentions("GitHubの通知", "GitHub"))
+        #expect(Condition.mentions("3件", "3"))
+        #expect(!Condition.mentions("unpaid bills", "paid"))
     }
 
     @Test func emptyGivenToAFlowIsntPassedEither() async throws {
@@ -340,8 +377,13 @@ import SidefolkExtensionKit
             #expect(Condition.test(.is_not, left: left, right: right) == !same, "\(left) isn't \(right)")
         }
         #expect(Condition.test(.contains, left: "true", right: "yes"))
-        #expect(!Condition.test(.not_empty, left: "false", right: ""), "a No isn't something")
-        #expect(Condition.test(.is_empty, left: "false", right: ""))
+        #expect(!Condition.test(.contains, left: "true", right: "s"), "it doesn't spell yes")
+        #expect(!Condition.test(.contains, left: "false", right: "n"))
+        let values = Values()
+        #expect(!Condition(value: "false", test: .not_empty, than: "").holds(values), "a condition doesn't take a No for something")
+        #expect(Condition(value: "false", test: .is_empty, than: "").holds(values))
+        #expect(Condition(value: "No", test: .not_empty, than: "").holds(values), "the word is a word")
+        #expect(Condition(value: "NO", test: .not_empty, than: "").holds(values), "and it's a country")
     }
 
     @Test func aNoFromAFormGoesTheWayItSays() async throws {
