@@ -109,6 +109,8 @@ struct Run: Equatable, Sendable, Identifiable {
     var form: WaitingForm?
     /// Another flow's step started it, rather than someone asking.
     var setOff = false
+    /// Stopped between steps at the person's asking, to go on when they say.
+    var paused = false
     /// A lane's item and its number, from the loop it's in.
     var startItem: JSON?
     var startIndex: JSON?

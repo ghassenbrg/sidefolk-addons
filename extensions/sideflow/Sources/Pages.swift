@@ -752,6 +752,12 @@ import SidefolkExtensionKit
             if let asking = run.waitingOn.compactMap({ app.store.run($0) }).first(where: { $0.form != nil }) {
                 end.append(Section(nil, [.action(go(L("Fill it in"), place(["run": asking.id]), style: .accent, symbol: "square.and.pencil"))], place: .trailing))
             }
+        case .waiting where run.paused:
+            detail = L("Paused between steps. Nothing more runs until you say.")
+            end.append(choices(L("What now?"), [
+                Option("try_again", L("Go on"), detail: L("Carries on from the next step."), symbol: "play"),
+                Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop"),
+            ]))
         case .waiting where run.connection != nil:
             let name = run.connection.flatMap { Connections.id(of: $0.tool) }.map { Connections.title($0, app.catalog, app.store) } ?? ""
             detail = app.engine.pausedFlow(holding: run).map { L("Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.", ["name": name, "flow": $0.name]) }
@@ -775,6 +781,13 @@ import SidefolkExtensionKit
         default:
             break
         } }
+        if app.engine.canGoOn(from: run) {
+            let again = app.engine.stepsFromHere(run).map { Words.label($0, catalog: app.catalog) }
+            end.append(Section(L("Try again from here"), [
+                .note(L("Keeps what it made before this. These run again, for real: {steps}", ["steps": Format.list(again)])),
+                .action(button(L("Try again from here"), "run_again", ["run": run.id, "here": true], symbol: "arrow.uturn.forward")),
+            ], place: .trailing))
+        }
         if run.mode == .practice { end.append(Section(nil, [.note(L("Practice run: nothing was changed."))], place: .trailing)) }
         if let output = run.records.reversed().first(where: { $0.output?.nonEmpty != nil })?.output?.clipped(Engine.keptOutput) {
             end.append(Section(L("What it came to"), [.notice(PageNotice(title: run.flowName, body: output, time: run.endedAt.map { Format.time($0) }))], place: .trailing))
@@ -785,7 +798,8 @@ import SidefolkExtensionKit
         if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }
         return frame(app, state: state, here: nil, flow: run.flow, back: run.flowName, [
             Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail, actions: run.status == .running || run.status == .waiting
-                ? [button(run.status == .running ? L("Stop after this step") : L("Stop"), "stop_run", id, symbol: "stop.fill")] : []))]),
+                ? (run.status == .running && run.mode != .practice ? [button(L("Pause after this step"), "pause_run", id, symbol: "pause.fill")] : []) + [button(L("Stop"), "stop_run", id, symbol: "stop.fill")]
+                : run.status.isOver ? [button(L("Run again"), "run_again", id, symbol: "arrow.clockwise")] : []))]),
             Section(nil, [.tree(CardTree(nodes, selected: selected, select: .init(tool: "ui", input: ui("inspect_run", ["run": run.id]), key: "target"), line: line))], wide: true),
         ], end: end)
     }

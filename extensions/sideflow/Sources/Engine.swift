@@ -150,6 +150,14 @@ extension FlowHost {
                 finish(&run)
                 return
             }
+            // Asked to pause: here, between steps, where nothing is half done.
+            if store.takeStop(Self.pauseKey(id)) {
+                run.status = .waiting
+                run.paused = true
+                store.save(run)
+                finish(&run)
+                return
+            }
             switch program.ops[run.pc] {
             case .jump(let to):
                 run.pc = to
@@ -261,8 +269,15 @@ extension FlowHost {
             store.save(run)
             return false
         }
+<<<<<<< HEAD
         if let name = run.values.stopsFor(step.usedTexts, practice: run.mode == .practice) {
             return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
+=======
+        // "Use this if it's empty" is for just that.
+        let looksPastMissing = if case .data(let data) = step.kind { data.op == .fallback } else { false }
+        if !looksPastMissing, let name = run.values.stopsFor(step.usedTexts, practice: run.mode == .practice) {
+            return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
+>>>>>>> fe758ff (Sideflow: batches, groups and fallbacks; make a step its own flow; pause, run again, try again from here)
         }
         // Before it's done: for a repeat, which can't tell from a value alone what going round would do again.
         if step.doesSomething(catalog) { for i in run.frames.indices { run.frames[i].wrote = true } }
@@ -763,6 +778,7 @@ extension FlowHost {
         case .try_again:
             run.retries = 0
             run.resumeAt = nil
+            run.paused = false
             run.problem = nil
             store.save(run)
             if run.parent == nil { active.insert(run.flow) }
@@ -786,6 +802,52 @@ extension FlowHost {
             if run.parent == nil { active.insert(run.flow) }
             Task { await advance(id) }
         }
+    }
+
+    static func pauseKey(_ id: String) -> String { "pause:\(id)" }
+
+    /// Stops it at the next step, kept where it is. Nothing is cut short: the step under way finishes.
+    func pause(run id: String) {
+        guard let run = store.run(id), run.status == .running else { return }
+        store.askStop(Self.pauseKey(id))
+        changed()
+    }
+
+    /// Whether a run that ended can go on from where it ended: only from a step in the flow's main line, because a loop's place isn't kept once it's over, and only from
+    /// what's still what it ran.
+    func canGoOn(from run: Run) -> Bool {
+        guard run.status == .failed || run.status == .stopped, run.mode != .practice, run.parent == nil, let flow = store.flow(run.flow), !isRunning(run.flow) else { return false }
+        guard run.body == (run.mode == .live ? flow.running : flow.draft) else { return false }
+        let program = FlowProgram(run.body)
+        guard run.pc < program.ops.count, case .step(let step) = program.ops[run.pc] else { return false }
+        return run.body.steps.contains { $0.id == step.id }
+    }
+
+    /// The steps that would run again from where it ended, and what's kept from before: what the person weighs up before pressing it.
+    func stepsFromHere(_ run: Run) -> [Step] {
+        let program = FlowProgram(run.body)
+        guard run.pc < program.ops.count, case .step(let step) = program.ops[run.pc], let at = run.body.steps.firstIndex(where: { $0.id == step.id }) else { return [] }
+        return Array(run.body.steps[at...])
+    }
+
+    /// A new run: from the start with what set it off the last time, or from where the last one ended with what it had made. The person asked, so nothing here is by itself,
+    /// and each action goes through Sidefolk as any does.
+    func runAgain(_ id: String, fromHere: Bool) -> Run? {
+        guard let old = store.run(id), old.status.isOver, let flow = store.flow(old.flow) else { return nil }
+        let mode: Run.Mode = old.mode == .practice ? .practice : flow.live != nil ? .live : .once
+        guard fromHere else {
+            let trigger = old.values.named["trigger"].map(Values.text)
+            return start(flow, mode: mode, why: L("You ran it again."), trigger: trigger)
+        }
+        guard canGoOn(from: old), let started = start(flow, mode: old.mode, why: L("You tried again from where it ended.")) else { return nil }
+        // The start's own walk hasn't begun: it picks up from here instead.
+        guard var run = store.run(started.id) else { return nil }
+        run.values = old.values
+        run.pc = old.pc
+        let again = Set(FlowBody(steps: stepsFromHere(old)).allSteps.map(\.id))
+        run.records = old.records.filter { !again.contains($0.step) }
+        store.save(run)
+        return run
     }
 
     // MARK: The clock
@@ -819,12 +881,14 @@ extension FlowHost {
         for var flow in store.flows() where flow.state == .on {
             var clock = calendar
             if let zone = flow.running.timeZone.flatMap(TimeZone.init(identifier:)) { clock.timeZone = zone }
-            guard let from = flow.lastFire else { continue }
-            let due = flow.running.triggers.compactMap { trigger in Schedule.due(trigger, last: from, now: now, calendar: clock).map { (trigger: trigger, latest: $0.latest) } }
+            let due = flow.running.triggers.compactMap { trigger in flow.countsFrom(trigger).flatMap { Schedule.due(trigger, last: $0, now: now, calendar: clock) }.map { (trigger: trigger, latest: $0.latest) } }
             guard let latest = due.map(\.latest).max() else { continue }
-            flow.lastFire = latest
+            // What hasn't come round yet goes on counting from where it was.
+            for case .every(let minutes, _) in flow.running.triggers where flow.lastEvery[minutes] == nil { flow.lastEvery[minutes] = flow.lastFire }
+            flow.lastFire = max(flow.lastFire ?? latest, latest)
             var starts: [String] = []
             for one in due {
+                if case .every(let minutes, _) = one.trigger { flow.lastEvery[minutes] = one.latest }
                 let late = now.timeIntervalSince(one.latest) > Schedule.onTime
                 if late, !Schedule.catchesUp(one.trigger) {
                     flow.missed = Array((flow.missed + [one.latest]).suffix(8))
@@ -966,8 +1030,7 @@ extension FlowHost {
             }
         }
         // Sidefolk shows so much of this and no more. What a flow sets off appears nowhere else on the card, so a long address gives way to it.
-        let said = Words.triggers(flow.kept)
-        var when = said.count > Self.longestTriggerWords ? said.prefix(Self.longestTriggerWords) + "…" : said
+        var when = Words.triggers(flow.kept, room: Self.longestTriggerWords)
         // Whose clock it goes by is what it does too: changing only that has to read differently on the card.
         if let zone = flow.kept.timeZone?.nonEmpty { when = L("{when}, by the clock of {zone}", ["when": when, "zone": zone]) }
         if flow.kept.allSteps.contains(where: { if case .ai = $0.kind { true } else { false } }) {
@@ -990,8 +1053,8 @@ extension FlowHost {
     }
 
     static let loopsPerDay = 1000
-    static let longestSetsOff = 300
-    static let longestTriggerWords = 160
+    static let longestSetsOff = 180
+    static let longestTriggerWords = 280
 
     /// There's something to read before it runs by itself. Only a flow someone starts by hand that does nothing but work on its own values has nothing to say.
     static func needsCard(_ body: FlowBody) -> Bool {
@@ -1053,6 +1116,7 @@ extension FlowHost {
                 current.state = .on
                 current.pausedBecause = nil
                 current.lastFire = clock()
+                current.lastEvery = [:]
                 current.startProblem = nil
                 store.save(current)
                 // A new name too: the card's lines go by it, and every call to the watch from now on has to fit them.
@@ -1092,6 +1156,7 @@ extension FlowHost {
         flow.pausedBecause = nil
         flow.startProblem = nil
         flow.lastFire = clock()
+        flow.lastEvery = [:]
         store.save(flow)
         changed()
         Task { await resumeWatch(flow) }

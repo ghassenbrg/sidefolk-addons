@@ -777,7 +777,6 @@
     "Sort": "排序",
     "Split into lines": "按行拆分",
     "Stop": "停止",
-    "Stop after this step": "在这一步之后停止",
     "Take a field": "取一个字段",
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "那个流程开始时不需要任何东西。流程要在步骤里使用“{{input.name}}”才会要求输入。",
     "That form has been answered already.": "那个表单已经回答过了。",
@@ -948,23 +947,6 @@
     "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "“{name}”还没有答案，再循环一次会把一切重做一遍，所以在此停止。",
     "It uses “{name}”, but that step's answer doesn't have it.": "它用到了“{name}”，但那个步骤的回答里没有。",
     "It would use what an earlier step gave, and practice only pretended that.": "它会使用之前步骤给出的内容，而练习只是假定了这些内容。",
-    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "再循环一次也不会改变“{name}”，还会把一切重做一遍，所以在此停止。",
-    "A flow can have {count} steps: move some into a flow of their own.": "一个流程最多可以有 {count} 个步骤：把其中一些移到单独的流程里。",
-    "All checks hold": "所有检查都成立",
-    "Any check holds": "任一检查成立",
-    "Run “If so” when": "在以下情况运行“如果是”",
-    "Say what the AI should write.": "说明 AI 要写什么。",
-    "Say what to test.": "说明要测试什么。",
-    "Write the question.": "写下问题。",
-    "{count} changes, only here so far. What's running hasn't changed.": {
-      "other": "有 {count} 处改动，目前只在这里。正在运行的内容没有变化。"
-    },
-    "{count} changes, only here so far. ⌘S keeps them, ⌘Z steps back.": {
-      "other": "有 {count} 处改动，目前只在这里。⌘S 保留改动，⌘Z 后退一步。"
-    },
-    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "无法打开你的流程文件。它未被改动，在能打开之前不会运行或保存任何内容。",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "它需要 {name}，目前不在。未做任何事，恢复后自动继续。",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "正在等待 {name}。未做任何事，恢复后自动继续。",
     "Working: {how}": "进行中：{how}",
     "A flow can start {count} ways at most.": "一个流程最多有 {count} 种启动方式。",
     "Also at a time": "也在某个时间",
@@ -973,6 +955,25 @@
     "Also when": "也在以下情况",
     "Also when something happens": "也在发生某事时",
     "Remove this": "移除",
-    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "“also_when”用于时间和事件。监视只能作为第一个启动方式。"
+    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "“also_when”用于时间和事件。监视只能作为第一个启动方式。",
+    "Carries on from the next step.": "从下一步继续。",
+    "Go on": "继续",
+    "Group by a field": "按字段分组",
+    "How many in each": "每批数量",
+    "It becomes a flow you can reuse, and this step calls it.": "它会成为可重用的流程，由此步骤调用。",
+    "It has a step that ends the flow, which would then end only the new one. Take that out first.": "其中有结束流程的步骤，届时只会结束新流程。请先移除它。",
+    "Keeps what it made before this. These run again, for real: {steps}": "保留之前的结果。这些步骤会真实地再次运行：{steps}",
+    "Make this its own flow": "变成独立流程",
+    "Otherwise use": "否则使用",
+    "Pause after this step": "此步骤后暂停",
+    "Paused between steps. Nothing more runs until you say.": "已在步骤之间暂停。在你说之前不会继续运行。",
+    "Run again": "再次运行",
+    "Split into batches": "分成批次",
+    "That step is gone.": "该步骤已不存在。",
+    "Then go through them with For each: each item is one batch.": "然后用“对每一项”处理：每一项是一批。",
+    "Try again from here": "从这里重试",
+    "Use this if it's empty": "为空时使用此项",
+    "You ran it again.": "你再次运行了它。",
+    "You tried again from where it ended.": "你从结束处重试了。"
   }
 }

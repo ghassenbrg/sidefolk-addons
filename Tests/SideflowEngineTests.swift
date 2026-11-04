@@ -1970,6 +1970,48 @@ extension JSON {
         #expect(w.store.runs(of: made.id).count == 1)
     }
 
+    @Test func eachEverySoOftenCountsFromItsOwnLastTime() async throws {
+        let w = try World()
+        let made = try flow(w, ["type": "schedule", "every_minutes": 60], also: [["type": "schedule", "every_minutes": 90]])
+        w.now = w.now.addingTimeInterval(60 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 1)
+        #expect(Summaries.next(try #require(w.store.flow(made.id))) == w.now.addingTimeInterval(30 * 60), "the other one comes first, not an hour from now")
+        w.now = w.now.addingTimeInterval(30 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 2, "starting for one way doesn't put the other off")
+        w.restart()
+        w.now = w.now.addingTimeInterval(30 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 3, "a restart remembers: the hourly one is due again, counted from its own last time")
+    }
+
+    @Test func turningOnAgainCountsEachFromThen() async throws {
+        let w = try World()
+        var made = try flow(w, ["type": "schedule", "every_minutes": 60], also: [["type": "schedule", "every_minutes": 90]])
+        made.lastEvery = [90: w.now.addingTimeInterval(-3 * 3600)]
+        w.store.save(made)
+        w.engine.pause(made.id)
+        w.engine.resume(made.id)
+        await w.quiet()
+        #expect(w.store.flow(made.id)?.state == .on)
+        #expect(w.store.flow(made.id)?.lastEvery.isEmpty == true)
+    }
+
+    @Test func theCardNamesEveryWayEvenBesideALongAddress() throws {
+        let w = try World()
+        let long = "https://x.example/" + String(repeating: "a", count: 400)
+        let also: [[String: Any]] = (1...7).map { ["type": "schedule", "every_minutes": 20 + $0] }
+        let made = try flow(w, ["type": "watch", "kind": "url_change", "target": long], also: also)
+        let when = w.engine.livePlan(made).when
+        for n in 1...7 { #expect(when.contains(Format.integer(20 + n)), "the way read last is as much on the card as the first") }
+        #expect(when.contains("https://x.example/"))
+        #expect(when.count < 300)
+    }
+
     @Test func twoDueTogetherAreOneRun() async throws {
         let w = try World()
         let made = try flow(w, ["type": "schedule", "every_minutes": 60], also: [["type": "schedule", "every_minutes": 30]])
@@ -2045,6 +2087,168 @@ extension JSON {
         #expect(app.store.flow(made.id)?.draft.alsoWhen.count == 1)
         let sections = Inspector.trigger(try #require(app.store.flow(made.id)))
         #expect(!sections.isEmpty)
+    }
+}
+
+@MainActor @Suite(.serialized) struct SideflowMoreTests {
+    typealias World = SideflowTests.World
+
+    private func data(_ op: DataStep.Op, _ from: JSON, than: String = "", count: Int? = nil, field: String? = nil) throws -> JSON {
+        var step = DataStep(op: op, from: "")
+        step.count = count
+        step.field = field
+        return try step.apply(to: from, than: than)
+    }
+
+    @Test func batchesGroupsAndFallbacks() throws {
+        let items = JSON.array((1...5).map { .number(Double($0)) })
+        guard case .array(let batches) = try data(.batches, items, count: 2) else { Issue.record("not a list"); return }
+        #expect(batches.count == 3)
+        #expect(batches.last == .array([.number(5)]))
+        #expect(try data(.batches, .array([]), count: 2) == .array([]))
+        #expect(throws: Problem.self) { _ = try data(.batches, .string("x"), count: 2) }
+        let people = JSON.array([.object(["team": .string("a")]), .object(["team": .string("b")]), .object(["team": .string("a")])])
+        guard case .object(let groups) = try data(.group, people, field: "team") else { Issue.record("not a record"); return }
+        #expect(groups.count == 2)
+        #expect(groups["a"].map { if case .array(let a) = $0 { a.count } else { 0 } } == 2)
+        #expect(try data(.fallback, .string("  "), than: "none") == .string("none"))
+        #expect(try data(.fallback, .null, than: "none") == .string("none"))
+        #expect(try data(.fallback, .array([]), than: "none") == .string("none"))
+        #expect(try data(.fallback, .string("here"), than: "none") == .string("here"))
+    }
+
+    @Test func aFallbackLooksPastAStepThatDidntRun() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "c", "if": ["value": "a", "test": "is", "than": "b"], "then": [["id": "x", "text": "made"]], "else": []],
+                               ["id": "d", "data": ["op": "fallback", "from": "{{x}}", "than": "nothing"]], ["id": "t", "text": "{{d}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t") == "nothing")
+    }
+
+    @Test func pauseHoldsBetweenStepsAndGoesOn() async throws {
+        let w = try World()
+        w.host.hold = "reads.it"
+        w.host.honoursCancel = false
+        let flow = try w.flow([["id": "a", "text": "x"], ["id": "b", "wait_minutes": 1], ["id": "c", "text": "y"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.stop(run: run.id)
+        await w.quiet()
+        let second = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        w.engine.pause(run: second.id)
+        await w.quiet()
+        let paused = try #require(w.store.run(second.id))
+        #expect(paused.status == .waiting)
+        #expect(paused.paused)
+        w.restart()
+        w.engine.recover()
+        w.now = w.now.addingTimeInterval(9000)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(second.id)?.status == .waiting, "only the person goes on")
+        w.engine.proceed(second.id, .try_again)
+        await w.quiet()
+        #expect(w.store.run(second.id)?.paused == false)
+    }
+
+    @Test func pauseOnlyOnWhatsRunning() async throws {
+        let w = try World()
+        let done = await w.settled(w.engine.start(try w.flow([["id": "a", "text": "x"]]), mode: .live, why: "t"))
+        w.engine.pause(run: done!.id)
+        #expect(!w.store.takeStop(Engine.pauseKey(done!.id)))
+    }
+
+    @Test func runAgainUsesWhatSetItOffAndGoesFromTheStart() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "text": "{{trigger}}"]])
+        let first = await w.settled(w.engine.start(flow, mode: .live, why: "t", trigger: "bread"))
+        let second = try #require(w.engine.runAgain(first!.id, fromHere: false))
+        let done = await w.settled(second)
+        #expect(done?.values.value("a") == "bread")
+        #expect(second.id != first!.id)
+    }
+
+    @Test func tryingAgainFromHereKeepsWhatCameBeforeAndRepeatsOnlyWhatFailed() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "first read", summary: "")]
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "{{r}}"]], ["id": "t", "text": "after {{r}}"]])
+        let failed = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(failed?.status == .failed)
+        #expect(w.engine.canGoOn(from: failed!))
+        #expect(w.engine.stepsFromHere(failed!).map(\.id) == ["c", "t"], "what's shown before pressing")
+        let again = try #require(w.engine.runAgain(failed!.id, fromHere: true))
+        let done = await w.settled(again)
+        #expect(done?.status == .done, "\(done?.problem ?? "")")
+        #expect(done?.values.value("t") == "after first read")
+        #expect(w.host.calls.filter { $0.tool == "reads.it" }.count == 1, "what came before isn't repeated")
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 2)
+    }
+
+    @Test func tryingAgainFromHereIsntOfferedWhenItWouldntBeTrue() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken")]
+        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        let failed = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(w.engine.canGoOn(from: failed!))
+        flow.live = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "reads.it"]]])
+        w.store.save(flow)
+        #expect(!w.engine.canGoOn(from: failed!), "what's on isn't what ran")
+        #expect(w.engine.runAgain(failed!.id, fromHere: true) == nil)
+        let inLoop = try w.flow([["id": "each", "for_each": "a\nb", "steps": [["id": "c", "do": "changes.it", "with": ["text": "x"]]]]])
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken")]
+        let looped = await w.settled(w.engine.start(inLoop, mode: .live, why: "t"))
+        #expect(!w.engine.canGoOn(from: looped!), "a loop's place isn't kept")
+    }
+
+    @Test func aStepBecomesItsOwnFlowAndReadsTheSame() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", mutates: false, readsOnly: true)]))
+        var flow = app.newFlow(name: "Outer", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "r", "text": "bread"],
+            ["id": "w", "text": "buy {{r}}", "name": "Say what to buy"],
+            ["id": "s", "text": "said {{w}}"],
+        ]]))
+        _ = try await Actions_UI.handle(Arguments(["op": "extract", "flow": flow.id, "step": "w"]), app)
+        flow = try #require(app.store.flow(flow.id))
+        guard case .call(let name, let inputs)? = flow.draft.step("w")?.kind else { Issue.record("not a call"); return }
+        #expect(name == "Say what to buy")
+        #expect(inputs == ["r": "{{r}}"])
+        var made = try #require(app.store.named(name))
+        #expect(made.draft.step("w")?.kind == .text("buy {{input.r}}"))
+        #expect(made.state == .draft)
+        made.live = made.draft
+        made.state = .on
+        app.store.save(made)
+        let body = flow.draft
+        var on = flow
+        on.live = body
+        on.state = .on
+        app.store.save(on)
+        let run = try #require(app.engine.start(on, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        #expect(app.store.run(run.id)?.status == .done, "\(app.store.run(run.id)?.problem ?? "")")
+        #expect(app.store.run(run.id)?.values.value("s") == "said buy bread", "what used its result still does")
+    }
+
+    @Test func aLoopCarriesItsOwnItemIntoTheNewFlow() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "l", "text": "a"], ["id": "each", "for_each": "{{l}}", "steps": [["id": "t", "text": "{{item}} of {{trigger}}"]]]]])
+        let (outer, inner) = try Editing.extract("each", in: body, named: "New")
+        #expect(inner.step("t")?.kind == .text("{{item}} of {{input.trigger}}"))
+        guard case .forEach(let items, _, _, _)? = inner.step("each")?.kind, case .call(_, let inputs)? = outer.step("each")?.kind else { Issue.record("shape"); return }
+        #expect(items == "{{input.l}}")
+        #expect(Set(inputs.keys) == ["l", "trigger"])
+    }
+
+    @Test func aStepThatEndsTheFlowCantBeLifted() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        let flow = app.newFlow(name: "Outer", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "t", "try": [["id": "f", "finish": "x"]], "recover": [], "always": []]]]))
+        await #expect(throws: Problem.self) { _ = try await Actions_UI.handle(Arguments(["op": "extract", "flow": flow.id, "step": "t"]), app) }
+        #expect(app.store.flows().count == 1, "and leaves no empty flow behind")
     }
 }
 

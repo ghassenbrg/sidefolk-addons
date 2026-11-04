@@ -23,7 +23,7 @@ enum Grammar {
       {"id":"both","parallel":[{"name":"first","steps":[…]},{"name":"second","steps":[…]}]}  ({{both.first}}: 2 to 4 lanes)
       {"id":"r","call_flow":"its name","inputs":{"name":"{{value}}"}}  (waits for it; {{r}} is its result. Inside the flow: {{input.name}})
       {"finish":"{{value}}"}  (ends here with this result)
-      {"id":"d","data":{"op":"parse_json|parse_csv|lines|join|field|filter|sort|unique|count|first|sum|number","from":"{{x}}","field":"a.b","test":"contains","than":"words","descending":true,"count":3,"separator":", "}}
+      {"id":"d","data":{"op":"parse_json|parse_csv|lines|join|field|filter|sort|unique|count|first|sum|number|batches|group|fallback","from":"{{x}}","field":"a.b","test":"contains","than":"words","descending":true,"count":3,"separator":", "}}
       {"id":"f","form":{"title":"Check this","hours":72,"fields":[{"name":"ok","label":"Is it right?","kind":"text|number|yes_no|choice","options":["a","b"],"required":true}]}}  (waits on this page; {{f.ok}})
       {"id":"e","wait_for":{"event":"note.saved","contains":"words","minutes":60}}  (fails if it doesn't happen in time)
       {"id":"x","ai":"what the person's AI should write, with {{values}}"}  (no tools; it only writes text)

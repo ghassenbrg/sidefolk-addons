@@ -106,7 +106,7 @@ struct FormStep: Equatable, Sendable {
 /// One thing done to data, with no code and nothing outside the run.
 struct DataStep: Equatable, Sendable {
     enum Op: String, Equatable, Sendable, CaseIterable {
-        case parse_json, parse_csv, lines, join, field, filter, sort, unique, count, first, sum, number
+        case parse_json, parse_csv, lines, join, field, filter, sort, unique, count, first, sum, number, batches, group, fallback
     }
 
     var op: Op
@@ -169,6 +169,22 @@ struct DataStep: Equatable, Sendable {
         case .number:
             guard let n = Condition.number(Values.text(value)) else { throw Problem(L("There's no number in that.")) }
             return .number(n)
+        case .batches:
+            let size = max(count ?? 10, 1), items = try list()
+            return .array(stride(from: 0, to: items.count, by: size).map { .array(Array(items[$0..<min($0 + size, items.count)])) })
+        case .group:
+            var groups: [String: [JSON]] = [:]
+            for item in try list() { groups[at(item).map(Values.text) ?? "", default: []].append(item) }
+            return .object(groups.mapValues { .array($0) })
+        case .fallback:
+            // Nothing there, or nothing in it: the words given instead.
+            let empty = switch value {
+            case .null: true
+            case .string(let s): s.trimmed.isEmpty
+            case .array(let a): a.isEmpty
+            default: false
+            }
+            return empty ? .string(resolved) : value
         }
     }
 }

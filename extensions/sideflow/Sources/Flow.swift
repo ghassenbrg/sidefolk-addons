@@ -288,6 +288,13 @@ struct Flow: Equatable, Sendable, Identifiable {
     var updatedAt: Date
     /// Scheduled up to here: what the clock counts on from.
     var lastFire: Date?
+    /// When each "every so often" last came round, by its minutes: starting for another way doesn't put it off.
+    var lastEvery: [Int: Date] = [:]
+    func countsFrom(_ trigger: Trigger) -> Date? {
+        guard let lastFire else { return nil }
+        if case .every(let minutes, _) = trigger, let own = lastEvery[minutes] { return own }
+        return lastFire
+    }
     /// The watch this flow made, by its title.
     var watchTitle: String?
     /// That watch looks at what's no longer on and wouldn't stop. Resume tries again, rather than bringing it back.

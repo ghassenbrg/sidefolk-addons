@@ -279,7 +279,7 @@ import SidefolkExtensionKit
         case .data(let data):
             main.append(.picker(L("What to do"), style: .menu, DataStep.Op.allCases.map { Option($0.rawValue, Words.dataName($0)) }, selected: data.op.rawValue, tool: "ui", input: input("data_op")))
             main.append(.edit(EditField("\(step.id).from", L("From"), value: data.from, placeholder: L("Which value"), tokens: tokens, tool: "ui", input: input("data_from"))))
-            if [.field, .filter, .sort, .unique, .sum].contains(data.op) {
+            if [.field, .filter, .sort, .unique, .sum, .group].contains(data.op) {
                 main.append(.edit(EditField("\(step.id).field", L("The field in each"), value: data.field ?? "", detail: L("A name, or a.b for one inside another. Empty for the item itself."), tool: "ui", input: input("data_field"))))
             }
             switch data.op {
@@ -290,6 +290,10 @@ import SidefolkExtensionKit
                 main.append(.toggle(L("Largest or last first"), on: data.descending, tool: "ui", input: input("data_descending")))
             case .first:
                 main.append(.edit(EditField("\(step.id).count", L("How many"), value: String(data.count ?? 1), kind: .number, tool: "ui", input: input("data_count"))))
+            case .batches:
+                main.append(.edit(EditField("\(step.id).count", L("How many in each"), value: String(data.count ?? 10), detail: L("Then go through them with For each: each item is one batch."), kind: .number, tool: "ui", input: input("data_count"))))
+            case .fallback:
+                main.append(.edit(EditField("\(step.id).than", L("Otherwise use"), value: data.than ?? "", tokens: tokens, tool: "ui", input: input("data_than"))))
             case .join:
                 main.append(.edit(EditField("\(step.id).separator", L("Between each"), value: data.separator ?? ", ", tool: "ui", input: input("data_separator"))))
             default: break
@@ -326,6 +330,7 @@ import SidefolkExtensionKit
         return [Section(said.title, main, place: .trailing, detail: said.detail),
                 Section(L("More options"), more, place: .trailing, collapsed: true),
                 Section(nil, [.action(Action(L("Duplicate this step"), tool: "ui", input: input("dup_step"), style: .plain, symbol: "plus.square.on.square")),
+                              .action(Action(L("Make this its own flow"), tool: "ui", input: input("extract"), style: .plain, symbol: "rectangle.portrait.and.arrow.right", detail: L("It becomes a flow you can reuse, and this step calls it."))),
                               .action(Action(L("Remove this step"), tool: "ui", input: input("remove"), style: .destructive, symbol: "trash"))], place: .trailing)]
     }
 

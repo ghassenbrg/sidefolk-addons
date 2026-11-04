@@ -172,6 +172,7 @@ import SidefolkExtensionKit
             switch try await Actions_UI.handle(args, app) {
             case .stay: return ToolReply("").row(L("Changed something in Sideflow"))
             case .flow(let id): return ToolReply("").opening(page: "flows", state: Nav.open(flow: id), push: true)
+            case .run(let id): return ToolReply("").opening(page: "flows", state: ["run": id], push: true)
             case .home: return ToolReply("").opening(page: "flows", state: ["flow": NSNull(), "run": NSNull()])
             }
         })
@@ -233,8 +234,8 @@ import SidefolkExtensionKit
     }
 
     static func next(_ flow: Flow) -> Date? {
-        guard flow.state == .on, let from = flow.lastFire else { return nil }
-        return flow.running.triggers.compactMap { Schedule.next($0, after: from) }.min()
+        guard flow.state == .on else { return nil }
+        return flow.running.triggers.compactMap { trigger in flow.countsFrom(trigger).flatMap { Schedule.next(trigger, after: $0) } }.min()
     }
 
     static func status(_ run: Run) -> String {

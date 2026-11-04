@@ -778,7 +778,6 @@
     "Sort": "並べ替え",
     "Split into lines": "行に分ける",
     "Stop": "停止",
-    "Stop after this step": "このステップのあとで停止",
     "Take a field": "項目を取り出す",
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "そのルーティンは、開始時に何も求めません。ルーティンがステップの中で「{{input.name}}」を使うと、何かを求めます。",
     "That form has been answered already.": "そのフォームにはすでに答えがあります。",
@@ -948,23 +947,6 @@
     "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "「{name}」にはまだ答えがなく、もう一周するとすべてをやり直すことになるため、ここで止まりました。",
     "It uses “{name}”, but that step's answer doesn't have it.": "「{name}」を使っていますが、そのステップの答えには含まれていません。",
     "It would use what an earlier step gave, and practice only pretended that.": "前のステップの結果を使いますが、練習ではそれを仮定しただけです。",
-    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "もう一周しても「{name}」は変わらず、すべてをやり直すことになるため、ここで止まりました。",
-    "A flow can have {count} steps: move some into a flow of their own.": "ルーティンのステップは最大{count}個です。いくつかを別のルーティンに移してください。",
-    "All checks hold": "すべてのチェックが成り立つ",
-    "Any check holds": "どれかのチェックが成り立つ",
-    "Run “If so” when": "「そうなら」を実行する条件",
-    "Say what the AI should write.": "AIに何を書かせるか入力してください。",
-    "Say what to test.": "何をテストするか書いてください。",
-    "Write the question.": "質問を入力してください。",
-    "{count} changes, only here so far. What's running hasn't changed.": {
-      "other": "変更が{count}件あります。まだここだけです。動いているものは変わっていません。"
-    },
-    "{count} changes, only here so far. ⌘S keeps them, ⌘Z steps back.": {
-      "other": "変更が{count}件あります。まだここだけです。⌘Sで保存、⌘Zで一つ戻ります。"
-    },
-    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "ルーティンのファイルを開けません。ファイルはそのままで、開けるようになるまで実行も保存も行いません。",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "{name} が必要ですが、今はありません。何も実行されておらず、戻ると自動的に続きます。",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "{name} を待っています。何も実行されておらず、戻ると自動的に続きます。",
     "Working: {how}": "作業中: {how}",
     "A flow can start {count} ways at most.": "ルーティンの開始方法は最大 {count} 個です。",
     "Also at a time": "時刻でも開始",
@@ -973,6 +955,25 @@
     "Also when": "次のときにも",
     "Also when something happens": "何かが起きたときにも開始",
     "Remove this": "削除",
-    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "「also_when」は時刻と出来事に使います。監視は最初の開始条件にしかできません。"
+    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "「also_when」は時刻と出来事に使います。監視は最初の開始条件にしかできません。",
+    "Carries on from the next step.": "次のステップから続けます。",
+    "Go on": "続ける",
+    "Group by a field": "フィールドでグループ化",
+    "How many in each": "各グループの数",
+    "It becomes a flow you can reuse, and this step calls it.": "再利用できるルーティンになり、このステップがそれを呼び出します。",
+    "It has a step that ends the flow, which would then end only the new one. Take that out first.": "ルーティンを終了するステップが含まれており、新しいルーティンだけが終了してしまいます。先に取り除いてください。",
+    "Keeps what it made before this. These run again, for real: {steps}": "前の結果は保持します。次のステップは実際にもう一度実行されます: {steps}",
+    "Make this its own flow": "独立したルーティンにする",
+    "Otherwise use": "空の場合に使う値",
+    "Pause after this step": "このステップの後で一時停止",
+    "Paused between steps. Nothing more runs until you say.": "ステップの間で一時停止中です。指示するまで何も実行されません。",
+    "Run again": "もう一度実行",
+    "Split into batches": "バッチに分割",
+    "That step is gone.": "そのステップはもうありません。",
+    "Then go through them with For each: each item is one batch.": "その後「それぞれについて」で処理します。各項目が 1 つのバッチです。",
+    "Try again from here": "ここからやり直す",
+    "Use this if it's empty": "空の場合はこれを使う",
+    "You ran it again.": "もう一度実行しました。",
+    "You tried again from where it ended.": "止まった場所からやり直しました。"
   }
 }

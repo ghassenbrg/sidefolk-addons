@@ -106,7 +106,7 @@ import SidefolkExtensionKit
         if ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).contains(where: { $0.hasPrefix("flows-damaged-") }) { hasFileAside = true }
         if let data = try? Data(contentsOf: eventsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] { seenEvents = list }
         if let data = try? Data(contentsOf: stopsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] {
-            stopsAsked = Set(list.filter { runsById[$0]?.status.isOver == false })
+            stopsAsked = Set(list.filter { runsById[$0.replacingOccurrences(of: "pause:", with: "")]?.status.isOver == false })
         }
     }
 
@@ -239,7 +239,7 @@ import SidefolkExtensionKit
     static func json(_ flow: Flow) -> [String: Any] {
         let out: [String: Any?] = [
             "id": flow.id, "name": flow.name, "draft": FlowCodec.json(flow.draft), "saved": flow.saved.map(FlowCodec.json), "live": flow.live.map(FlowCodec.json), "state": flow.state.rawValue,
-            "created": time(flow.createdAt), "updated": time(flow.updatedAt), "watch_outdated": flow.watchOutdated ? true : nil, "last_fire": time(flow.lastFire), "watch": flow.watchTitle,
+            "created": time(flow.createdAt), "updated": time(flow.updatedAt), "watch_outdated": flow.watchOutdated ? true : nil, "last_fire": time(flow.lastFire), "last_every": flow.lastEvery.isEmpty ? nil : Dictionary(uniqueKeysWithValues: flow.lastEvery.map { (String($0.key), $0.value.timeIntervalSince1970) }), "watch": flow.watchTitle,
             "missed": flow.missed.map(\.timeIntervalSince1970), "start_problem": flow.startProblem, "paused_because": flow.pausedBecause,
             "practiced": flow.practiced.map(FlowCodec.json), "waiting_starts": flow.waitingStarts.isEmpty ? nil : flow.waitingStarts,
             "revisions": flow.revisions.isEmpty ? nil : flow.revisions.map { ["at": $0.at.timeIntervalSince1970, "body": FlowCodec.json($0.body)] as [String: Any] },
@@ -262,6 +262,9 @@ import SidefolkExtensionKit
         }
         flow.state = Flow.State(rawValue: o["state"] as? String ?? "") ?? .draft
         flow.lastFire = date(o["last_fire"])
+        for (minutes, at) in o["last_every"] as? [String: Any] ?? [:] {
+            if let minutes = Int(minutes), let at = date(at) { flow.lastEvery[minutes] = at }
+        }
         flow.watchTitle = o["watch"] as? String
         flow.watchOutdated = o["watch_outdated"] as? Bool ?? false
         flow.missed = (o["missed"] as? [Double] ?? []).map(Date.init(timeIntervalSince1970:))
@@ -281,7 +284,7 @@ import SidefolkExtensionKit
             "id": run.id, "flow": run.flow, "flow_name": run.flowName, "mode": run.mode.rawValue, "status": run.status.rawValue, "why": run.why,
             "started": time(run.startedAt), "ended": time(run.endedAt), "body": FlowCodec.json(run.body), "pc": run.pc, "values": run.values.named.mapValues(\.any), "said": run.values.said.isEmpty ? nil : run.values.said,
             "today": run.values.today, "now": run.values.now, "records": run.records.map(json), "resume_at": time(run.resumeAt), "retries": run.retries, "problem": run.problem, "frames": run.frames.isEmpty ? nil : run.frames.map(json), "parent": run.parent, "lineage": run.lineage.isEmpty ? nil : run.lineage,
-            "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
+            "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "paused": run.paused ? true : nil, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
             "connection": run.connection.map { ["tool": $0.tool, "until": $0.until.timeIntervalSince1970] as [String: Any] },
         ]
         return out.compactMapValues { $0 }
@@ -308,6 +311,7 @@ import SidefolkExtensionKit
         run.waitingOn = o["waiting_on"] as? [String] ?? []
         run.output = o["output"].map { JSON($0) }
         run.setOff = o["set_off"] as? Bool ?? false
+        run.paused = o["paused"] as? Bool ?? false
         run.startItem = o["start_item"].map { JSON($0) }
         run.startIndex = o["start_index"].map { JSON($0) }
         if let form = o["form"] as? [String: Any], let step = form["step"] as? String {

@@ -163,40 +163,69 @@ enum Editing {
         func remap(_ text: String) -> String {
             Values.replacingSlots(in: text) { name, path in "{{\(renamed[name] ?? name)\(path)}}" }
         }
-        func refs(_ step: Step) -> Step {
-            var out = step.mappingParts { $0.map(refs) }
-            switch out.kind {
-            case .action(let tool, let input): out.kind = .action(tool: tool, input: input.mapValues { $0.mapStrings(remap) })
-            case .ai(let prompt): out.kind = .ai(prompt: remap(prompt))
-            case .ask(let question, let options): out.kind = .ask(question: remap(question), options: options)
-            case .text(let text): out.kind = .text(remap(text))
-            case .branch(var c, let then, let otherwise):
-                c.value = remap(c.value)
-                c.than = remap(c.than)
-                c.also = c.also.map { var check = $0; check.value = remap($0.value); check.than = remap($0.than); return check }
-                out.kind = .branch(c, then: then, otherwise: otherwise)
-            case .forEach(let items, let limit, let failure, let steps): out.kind = .forEach(items: remap(items), limit: limit, onFailure: failure, steps: steps)
-            case .repeatUntil(var c, let times, let steps):
-                c.value = remap(c.value)
-                c.than = remap(c.than)
-                c.also = c.also.map { var check = $0; check.value = remap($0.value); check.than = remap($0.than); return check }
-                out.kind = .repeatUntil(until: c, times: times, steps: steps)
-            case .choose(let value, let paths, let otherwise): out.kind = .choose(value: remap(value), paths: paths, otherwise: otherwise)
-            case .call(let flow, let inputs): out.kind = .call(flow: flow, inputs: inputs.mapValues(remap))
-            case .finish(let value): out.kind = .finish(remap(value))
-            case .data(var data):
-                data.from = remap(data.from)
-                data.than = data.than.map(remap)
-                out.kind = .data(data)
-            case .form(var form):
-                form.title = remap(form.title)
-                out.kind = .form(form)
-            case .wait, .flow, .attempt, .parallel, .waitFor: break
-            }
-            return out
-        }
-        let copied = refs(copy(step))
+        let copied = rewriting(copy(step), remap)
         return (insert(copied, after: id, in: body), copied.id)
+    }
+
+    /// The same step with every value it uses put through `remap`.
+    static func rewriting(_ step: Step, _ remap: (String) -> String) -> Step {
+        var out = step.mappingParts { $0.map { rewriting($0, remap) } }
+        switch out.kind {
+        case .action(let tool, let input): out.kind = .action(tool: tool, input: input.mapValues { $0.mapStrings(remap) })
+        case .ai(let prompt): out.kind = .ai(prompt: remap(prompt))
+        case .ask(let question, let options): out.kind = .ask(question: remap(question), options: options)
+        case .text(let text): out.kind = .text(remap(text))
+        case .branch(var c, let then, let otherwise):
+            c.value = remap(c.value)
+            c.than = remap(c.than)
+            c.also = c.also.map { var check = $0; check.value = remap($0.value); check.than = remap($0.than); return check }
+            out.kind = .branch(c, then: then, otherwise: otherwise)
+        case .forEach(let items, let limit, let failure, let steps): out.kind = .forEach(items: remap(items), limit: limit, onFailure: failure, steps: steps)
+        case .repeatUntil(var c, let times, let steps):
+            c.value = remap(c.value)
+            c.than = remap(c.than)
+            c.also = c.also.map { var check = $0; check.value = remap($0.value); check.than = remap($0.than); return check }
+            out.kind = .repeatUntil(until: c, times: times, steps: steps)
+        case .choose(let value, let paths, let otherwise): out.kind = .choose(value: remap(value), paths: paths, otherwise: otherwise)
+        case .call(let flow, let inputs): out.kind = .call(flow: flow, inputs: inputs.mapValues(remap))
+        case .finish(let value): out.kind = .finish(remap(value))
+        case .data(var data):
+            data.from = remap(data.from)
+            data.than = data.than.map(remap)
+            out.kind = .data(data)
+        case .form(var form):
+            form.title = remap(form.title)
+            out.kind = .form(form)
+        case .wait, .flow, .attempt, .parallel, .waitFor: break
+        }
+        return out
+    }
+
+    /// A step lifted into a flow of its own, and what's left calling it. What it read from around it comes in as inputs, under the same names, so the
+    /// step reads as it did and the caller shows what it hands over. Its id stays, so whatever used its result still does.
+    static func extract(_ id: String, in body: FlowBody, named name: String) throws -> (outer: FlowBody, inner: FlowBody) {
+        guard let step = body.step(id) else { throw Problem(L("That step is gone.")) }
+        let inside = FlowBody(steps: [step]).allSteps
+        if inside.contains(where: { if case .finish = $0.kind { true } else { false } }) {
+            throw Problem(L("It has a step that ends the flow, which would then end only the new one. Take that out first."))
+        }
+        // What set the caller off isn't what sets the new flow off, so that comes in as an input too.
+        var own = Set(inside.map(\.id)).union(["today", "now"])
+        if inside.contains(where: { switch $0.kind { case .forEach, .repeatUntil: true; default: false } }) { own.formUnion(["item", "index"]) }
+        if inside.contains(where: { if case .attempt = $0.kind { true } else { false } }) { own.insert("error") }
+        var outside: Set<String> = []
+        let inner = rewriting(step) { text in
+            Values.replacingSlots(in: text) { name, path in
+                guard !own.contains(name) else { return "{{\(name)\(path)}}" }
+                outside.insert(name)
+                return "{{input.\(name)\(path)}}"
+            }
+        }
+        var called = step
+        called.kind = .call(flow: name, inputs: Dictionary(uniqueKeysWithValues: outside.map { ($0, "{{\($0)}}") }))
+        var innerBody = FlowBody(steps: [inner])
+        innerBody.triggerSample = nil
+        return (change(id, in: body) { $0 = called }, innerBody)
     }
 
     /// What differs between two versions, in words: for reading before saving or applying.

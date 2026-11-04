@@ -4,7 +4,7 @@ import SidefolkExtensionKit
 /// What a click on the page does: the one tool `ui`, as the person (never offered to a model). Every change goes to the draft.
 @MainActor enum Actions_UI {
     /// Where the click leaves the page.
-    enum Leaves { case stay, flow(String), home }
+    enum Leaves { case stay, flow(String), run(String), home }
 
     static func handle(_ a: Arguments, _ app: App) async throws -> Leaves {
         let op = a.string("op") ?? ""
@@ -413,6 +413,25 @@ import SidefolkExtensionKit
             app.store.save(f)
             app.refreshPreflight(f.id)
             if case .step(let id) = app.nav.inspecting(f), other.step(id) == nil { app.nav.inspect(.nothing, in: f.id) }
+        case "extract":
+            let f = try flow()
+            guard let id = a.string("step"), let step = f.draft.step(id) else { return .stay }
+            // Named now, because the step that calls it goes by its name, and made only once nothing can refuse.
+            let shell = app.newFlow(name: Words.label(step, catalog: app.catalog), body: FlowBody())
+            do {
+                let (outer, inner) = try Editing.extract(id, in: f.draft, named: shell.name)
+                var made = shell
+                made.draft = inner
+                app.store.save(made)
+                try draft { $0 = outer }
+            } catch {
+                app.store.remove(flow: shell.id)
+                throw error
+            }
+        case "pause_run":
+            if let id = a.string("run") { app.engine.pause(run: id) }
+        case "run_again":
+            if let id = a.string("run"), let started = app.engine.runAgain(id, fromHere: a.bool("here") == true) { return .run(started.id) }
         case "dup_step":
             let f = try flow()
             guard let id = a.string("step") ?? { if case .step(let s) = app.nav.inspecting(f) { s } else { nil } }(), let (body, new) = Editing.duplicate(id, in: f.draft) else { break }

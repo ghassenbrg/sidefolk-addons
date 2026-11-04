@@ -119,6 +119,9 @@ import SidefolkExtensionKit
         case .first: L("Keep the first few")
         case .sum: L("Add up")
         case .number: L("Read a number")
+        case .batches: L("Split into batches")
+        case .group: L("Group by a field")
+        case .fallback: L("Use this if it's empty")
         }
     }
 
@@ -194,6 +197,19 @@ import SidefolkExtensionKit
     /// Every way it starts, read aloud.
     static func triggers(_ body: FlowBody) -> String {
         Format.list(body.triggers.map(trigger), or: true)
+    }
+
+    /// The same, in about `room` characters. Each way keeps its share, so the ones read last don't fall off the end, and a long address gives way before a short time.
+    static func triggers(_ body: FlowBody, room: Int) -> String {
+        var said = body.triggers.map(trigger)
+        var left = room, waiting = said.count
+        for i in said.indices.sorted(by: { said[$0].count < said[$1].count }) {
+            let share = left / waiting
+            if said[i].count > share { said[i] = said[i].prefix(share) + "…" }
+            left -= min(said[i].count, share)
+            waiting -= 1
+        }
+        return Format.list(said, or: true)
     }
 
     static func branch(_ c: Condition, holds: Bool, body: FlowBody, catalog: Catalog) -> String {
