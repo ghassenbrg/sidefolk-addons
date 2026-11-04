@@ -46,7 +46,11 @@ import SidefolkExtensionKit
             }
         case "reorder":
             if let move = a.values["move"] as? [String: Any], let id = move["id"] as? String {
-                try draft { $0 = Editing.move(id, before: (move["before"] as? String)?.nonEmpty, in: $0) }
+                if let after = (move["after"] as? String)?.nonEmpty {
+                    try draft { $0 = Editing.place(id, after: after, in: $0) }
+                } else {
+                    try draft { $0 = Editing.move(id, before: (move["before"] as? String)?.nonEmpty, in: $0) }
+                }
             }
         case "up", "down":
             if let id = a.string("step") { try draft { $0 = Editing.nudge(id, by: op == "up" ? -1 : 1, in: $0) } }
@@ -127,13 +131,18 @@ import SidefolkExtensionKit
                 default: break
                 }
             }
-        case "watch_kind", "watch_target", "watch_contains", "watch_pattern":
+        case "watch_kind", "watch_target", "watch_contains", "watch_pattern", "watch_every", "watch_rest":
+            let number = Int(text.trimmed)
+            if op == "watch_every", !text.trimmed.isEmpty, (number ?? 0) < 1 { throw Problem(L("Write how many seconds, or leave it empty.")) }
+            if op == "watch_rest", !text.trimmed.isEmpty, (number ?? -1) < 0 { throw Problem(L("Write how many minutes, or leave it empty.")) }
             try editTrigger { t in
                 guard case .watch(var w) = t else { return }
                 switch op {
                 case "watch_kind": w.kind = a.string("value") ?? w.kind
                 case "watch_target": w.target = text.trimmed
                 case "watch_contains": w.contains = text.nonEmpty
+                case "watch_every": w.everySeconds = number
+                case "watch_rest": w.restMinutes = number
                 default: w.pattern = text.nonEmpty
                 }
                 t = .watch(w)

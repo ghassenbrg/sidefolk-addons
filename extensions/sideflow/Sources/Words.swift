@@ -33,11 +33,11 @@ import SidefolkExtensionKit
                 if let c = w.contains { return L("When {target} says “{words}”", ["target": w.target, "words": c]) }
                 return L("When {target} changes", ["target": w.target])
             case "site_status": return L("When {target} goes down or comes back", ["target": w.target])
-            case "file_changes": return L("When {target} changes", ["target": w.target])
-            case "file_appears": return L("When {target} appears", ["target": w.target])
+            case "file_changes": return L("When {target} changes", ["target": Paths.show(w.target)])
+            case "file_appears": return L("When {target} appears", ["target": Paths.show(w.target)])
             case "folder_new_file":
-                if let p = w.pattern { return L("When a new {pattern} lands in {target}", ["pattern": p, "target": w.target]) }
-                return L("When a new file lands in {target}", ["target": w.target])
+                if let p = w.pattern { return L("When a new {pattern} lands in {target}", ["pattern": p, "target": Paths.show(w.target)]) }
+                return L("When a new file lands in {target}", ["target": Paths.show(w.target)])
             default: return L("When {target} quits", ["target": w.target])
             }
         case .event(let name, let contains):

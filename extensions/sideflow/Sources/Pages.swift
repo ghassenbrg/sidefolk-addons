@@ -329,9 +329,12 @@ import SidefolkExtensionKit
         return .tabs(selected: chosen == "runs" || chosen == "activity" ? chosen : "builder", [builder, runs, activity])
     }
 
-    static func head(_ flow: Flow, _ app: App, ready: Bool) -> PageBar {
+    static func head(_ flow: Flow, _ app: App, ready: Bool, startable: Bool = true) -> PageBar {
         let practice = practice(flow, app), running = app.engine.isRunning(flow.id)
         let fix = ready ? nil : L("Fix what's marked first.")
+        // What sets it off can't start yet: it may still practise, which makes no watch.
+        let cantStart = fix ?? (startable ? nil : L("Sort out what sets it off first."))
+        let canStart = ready && startable
         let id = ["flow": flow.id]
         var actions: [Action] = [], extra: [Action] = []
         var pill = Badge(stateWord(flow, app).0, tone: stateWord(flow, app).1)
@@ -345,18 +348,18 @@ import SidefolkExtensionKit
             case .draft:
                 if practised(flow, app) != nil {
                     actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
-                               button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: fix ?? L("You read what it will do first."), disabled: !ready)]
+                               button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? L("You read what it will do first."), disabled: !canStart)]
                 } else {
                     actions = [button(L("Practice run"), "practice", id, style: .primary, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready)]
-                    extra.append(button(L("Turn on without practising"), "start", id, symbol: "power", detail: fix ?? L("You read what it will do first."), disabled: !ready))
+                    extra.append(button(L("Turn on without practising"), "start", id, symbol: "power", detail: cantStart ?? L("You read what it will do first."), disabled: !canStart))
                 }
             case .on:
                 actions = flow.hasChanges
-                    ? [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Apply changes"), "start", id, style: .primary, symbol: "checkmark", detail: fix, disabled: !ready)]
+                    ? [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Apply changes"), "start", id, style: .primary, symbol: "checkmark", detail: cantStart, disabled: !canStart)]
                     : [button(L("Run now"), "run", id, symbol: "play.fill"), button(L("Pause"), "pause", id, symbol: "pause.fill")]
                 if flow.hasChanges { extra.append(button(L("Discard changes"), "discard", id, symbol: "arrow.uturn.backward")) }
             case .paused:
-                actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Resume"), "resume", id, style: .primary, symbol: "play.fill", detail: fix, disabled: !ready)]
+                actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Resume"), "resume", id, style: .primary, symbol: "play.fill", detail: cantStart, disabled: !canStart)]
             }
         }
         if flow.hasChanges, !running { sentence = L("On, as before. Your changes aren't live.") }
@@ -367,9 +370,10 @@ import SidefolkExtensionKit
     }
 
     static func flowPage(_ flow: Flow, _ app: App, state: Arguments) -> Page {
-        if app.preflight[flow.id] == nil { app.refreshPreflight(flow.id) }
+        app.refreshPreflightIfOld(flow.id)
         let problems = flow.draft.problems(app.catalog)
-        var main = [Section(nil, [.bar(head(flow, app, ready: problems.isEmpty)), tabs(flow, state: state)])]
+        let trigger = app.preflight[flow.id]?[App.triggerCheck]
+        var main = [Section(nil, [.bar(head(flow, app, ready: problems.isEmpty, startable: trigger?.decision != .deny)), tabs(flow, state: state)])]
         var notes: [Block] = []
         if let why = flow.pausedBecause { notes.append(.note(why, tone: .warn)) }
         if let why = flow.startProblem { notes.append(.note(why, tone: .warn)) }
@@ -412,7 +416,12 @@ import SidefolkExtensionKit
         let live = flow.state == .on && !flow.hasChanges
         let run = live ? app.store.runs(of: flow.id).first { $0.mode == .live && $0.body == flow.draft } : practice(flow, app)
         let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges ? .pending : .none
-        var nodes = [CardTree.Node("start", Words.trigger(flow.draft.trigger), kind: L("Trigger"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested)]
+        var first = CardTree.Node("start", Words.trigger(flow.draft.trigger), kind: L("Trigger"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
+        if let check = app.preflight[flow.id]?[App.triggerCheck], check.decision == .deny {
+            first.state = .attention
+            first.pill = Badge(check.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
+        }
+        var nodes = [first]
         nodes += treeNodes(flow.draft.steps, body: flow.draft, app, run: run, untested: untested, flow: flow, problems: problems)
         let selected: String? = switch app.nav.inspecting(flow) {
         case .trigger: "start"
@@ -423,7 +432,7 @@ import SidefolkExtensionKit
         func quick(_ label: String, _ kind: String, _ symbol: String) -> Action { button(label, "add_kind", ["flow": flow.id, "after": last, "kind": kind], symbol: symbol) }
         return CardTree(nodes, selected: selected, select: .init(tool: "ui", input: ui("inspect", ["flow": flow.id]), key: "target"),
                         insert: .init(tool: "ui", input: ui("add_kind", ["flow": flow.id]), key: "after", label: L("Add a step")),
-                        reorder: .init(tool: "ui", input: ui("reorder", ["flow": flow.id]), key: "move"), picker: picker(app),
+                        reorder: .init(tool: "ui", input: ui("reorder", ["flow": flow.id]), key: "move"), remove: .init(tool: "ui", input: ui("remove", ["flow": flow.id]), key: "step"), picker: picker(app),
                         tools: [quick(L("Add a condition"), "if", "arrow.triangle.branch"), quick(L("Write with AI"), "ai", "sparkles"), quick(L("Tell me"), "tell", "bell"),
                                 button(L("Practice run"), "practice", ["flow": flow.id], symbol: "play", disabled: !problems.isEmpty)], line: line)
     }
@@ -441,7 +450,7 @@ import SidefolkExtensionKit
                 node.title = problem.text
             } else if check?.decision == .deny {
                 node.state = .attention
-                node.pill = Badge(L("Not allowed"), tone: .warn)
+                node.pill = Badge(check?.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
             } else if let r = run?.record(of: step.id) {
                 (node.state, node.pill) = result(r)
             } else if notTaken {

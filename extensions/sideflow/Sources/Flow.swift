@@ -22,6 +22,10 @@ struct WatchTrigger: Equatable, Sendable {
     var target: String
     var contains: String?
     var pattern: String?
+    /// How often it looks, when not at Sidefolk's usual pace for this kind. Sidefolk keeps to the shortest it allows.
+    var everySeconds: Int?
+    /// How long it stays quiet after it fires. By default it looks again at its next check.
+    var restMinutes: Int?
 }
 
 struct Condition: Equatable, Sendable {
@@ -157,6 +161,8 @@ enum FlowCodec {
             var out: [String: Any] = ["type": "watch", "kind": w.kind, "target": w.target]
             if let c = w.contains { out["contains"] = c }
             if let p = w.pattern { out["pattern"] = p }
+            if let every = w.everySeconds { out["every_seconds"] = every }
+            if let rest = w.restMinutes { out["rest_minutes"] = rest }
             return out
         case .event(let name, let contains):
             var out: [String: Any] = ["type": "event", "event": name]
@@ -226,12 +232,14 @@ enum FlowCodec {
             guard !picked.isEmpty else { throw Problem(L("A schedule needs at least one day.")) }
             return .days(Array(Set(picked)).sorted(), hour: hour, minute: minute, catchUp: catchUp)
         case "watch":
-            try only(o, ["type", "kind", "target", "contains", "pattern"], in: "trigger")
+            try only(o, ["type", "kind", "target", "contains", "pattern", "every_seconds", "rest_minutes"], in: "trigger")
             guard let kind = o["kind"] as? String, WatchTrigger.kinds.contains(kind) else {
                 throw Problem(L("A watch needs “kind”, one of {kinds}.", ["kinds": WatchTrigger.kinds.joined(separator: ", ")]))
             }
             guard let target = (o["target"] as? String)?.trimmed, !target.isEmpty else { throw Problem(L("A watch needs “target”: a web address, a full path or a program.")) }
-            return .watch(WatchTrigger(kind: kind, target: target, contains: (o["contains"] as? String)?.nonEmpty, pattern: (o["pattern"] as? String)?.nonEmpty))
+            return .watch(WatchTrigger(kind: kind, target: target, contains: (o["contains"] as? String)?.nonEmpty, pattern: (o["pattern"] as? String)?.nonEmpty,
+                                       everySeconds: ((o["every_seconds"] as? NSNumber)?.intValue).flatMap { $0 > 0 ? $0 : nil },
+                                       restMinutes: ((o["rest_minutes"] as? NSNumber)?.intValue).flatMap { $0 >= 0 ? $0 : nil }))
         case "event":
             try only(o, ["type", "event", "contains"], in: "trigger")
             guard let name = o["event"] as? String, Trigger.events.contains(name) else {

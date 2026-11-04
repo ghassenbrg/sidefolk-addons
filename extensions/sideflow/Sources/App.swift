@@ -10,6 +10,9 @@ import SidefolkExtensionKit
     var nav = Nav()
     /// What Guard says of each step now: its sentence and whether it would ask.
     var preflight: [String: [String: Actions.Check]] = [:]
+    private var preflightAt: [String: Date] = [:]
+    /// Where what sets a flow off sits among its steps' checks.
+    static let triggerCheck = "start"
     /// A request to the AI to draft a flow, while it runs, and what came of the last.
     var drafting: String?
     var draftProblem: String?
@@ -55,6 +58,11 @@ import SidefolkExtensionKit
     }
 
     /// What Guard would say of each action now, for the rail: refreshed after any change. Values to fill in are checked with a stand-in.
+    /// The rail reads Guard again while a flow is open: a folder shared since, or a trust setting changed, shows without touching the flow.
+    func refreshPreflightIfOld(_ id: String) {
+        if preflightAt[id].map({ Date().timeIntervalSince($0) > 2 }) ?? true { refreshPreflight(id) }
+    }
+
     func refreshPreflight(_ id: String) {
         guard let flow = store.flow(id) else { return }
         Task {
@@ -68,7 +76,16 @@ import SidefolkExtensionKit
                 guard case .action(let tool, let input) = step.kind else { continue }
                 if let check = await host.check(tool, values.fill(input), plan: plan) { out[step.id] = check }
             }
+            // What sets it off is asked about too: a watch on a folder that isn't shared wouldn't start.
+            if case .watch(let w) = flow.draft.trigger, let check = await host.check("watch.create", Engine.watchInput(w, title: Engine.watchTitle(flow)), plan: plan) {
+                out[Self.triggerCheck] = check
+                if check.decision != .deny, var current = store.flow(id), current.startProblem != nil, current.state != .on {
+                    current.startProblem = nil
+                    store.save(current)
+                }
+            }
             preflight[id] = out
+            preflightAt[id] = Date()
         }
     }
 }

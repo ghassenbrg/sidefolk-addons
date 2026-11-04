@@ -91,6 +91,17 @@ enum Editing {
         return body
     }
 
+    /// Puts a step where `insert` would put a new one, wherever it was: another branch too. Not inside itself.
+    static func place(_ id: String, after: String, in body: FlowBody) -> FlowBody {
+        guard let step = body.step(id) else { return body }
+        func inside(_ step: Step) -> [String] {
+            guard case .branch(_, let then, let otherwise) = step.kind else { return [step.id] }
+            return [step.id, "then:\(step.id)", "else:\(step.id)"] + (then + otherwise).flatMap(inside)
+        }
+        guard !inside(step).contains(after) else { return body }
+        return insert(step, after: after, in: remove(id, from: body))
+    }
+
     /// One place up or down among its own.
     static func nudge(_ id: String, by delta: Int, in body: FlowBody) -> FlowBody {
         var body = body

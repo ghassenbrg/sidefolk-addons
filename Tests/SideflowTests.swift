@@ -170,6 +170,35 @@ import SidefolkExtensionKit
         #expect(Editing.freshId(body, base: "予定") == "step")
     }
 
+    @Test func aDraggedStepGoesAnywhereButInsideItself() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "a", "text": "x"],
+            ["id": "b", "if": ["value": "{{a}}", "test": "not_empty"], "then": [["id": "c", "text": "y"]], "else": []],
+            ["id": "d", "text": "z"],
+        ]])
+        #expect(Editing.place("d", after: "start", in: body).steps.map(\.id) == ["d", "a", "b"])
+        let inBranch = Editing.place("d", after: "then:b", in: body)
+        #expect(inBranch.steps.map(\.id) == ["a", "b"])
+        #expect(inBranch.allSteps.map(\.id) == ["a", "b", "d", "c"])
+        #expect(Editing.place("c", after: "a", in: body).steps.map(\.id) == ["a", "c", "b", "d"], "out of a branch")
+        #expect(Editing.place("b", after: "c", in: body) == body, "not inside itself")
+        #expect(Editing.place("b", after: "else:b", in: body) == body)
+        #expect(Editing.place("nothing", after: "a", in: body) == body)
+    }
+
+    @Test func aWatchSaysHowOftenAndHowLongItRestsOnlyIfAsked() throws {
+        let plain = WatchTrigger(kind: "file_changes", target: "~/a.txt")
+        #expect(Engine.watchInput(plain, title: "t")["interval_minutes"] == nil)
+        #expect(Engine.watchInput(plain, title: "t")["cooldown_minutes"] == nil, "by default it looks again at its next check")
+        var asked = plain
+        asked.everySeconds = 30
+        asked.restMinutes = 2
+        #expect(Engine.watchInput(asked, title: "t")["interval_minutes"] as? Double == 0.5)
+        #expect(Engine.watchInput(asked, title: "t")["cooldown_minutes"] as? Int == 2)
+        let back = try FlowCodec.body(["trigger": FlowCodec.json(.watch(asked)), "steps": []])
+        #expect(back.trigger == .watch(asked))
+    }
+
     @Test func aFlowSurvivesARestartWithAllOfIt() throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it", "with": ["q": "x"]]], trigger: ["type": "schedule", "every_minutes": 60])

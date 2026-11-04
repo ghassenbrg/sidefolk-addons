@@ -520,6 +520,8 @@ import SidefolkExtensionKit
         var input: [String: Any] = ["kind": w.kind, "target": w.target, "title": title, "mode": "repeat", "level": "gentle"]
         if let c = w.contains { input["contains"] = c }
         if let p = w.pattern { input["pattern"] = p }
+        if let every = w.everySeconds { input["interval_minutes"] = Double(every) / 60 }
+        if let rest = w.restMinutes { input["cooldown_minutes"] = rest }
         return input
     }
 

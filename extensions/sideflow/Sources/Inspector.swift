@@ -6,9 +6,9 @@ import SidefolkExtensionKit
     static func blocks(_ flow: Flow, _ app: App, problems: [FlowProblem]) -> [Block] {
         switch app.nav.inspecting(flow) {
         case .nothing: return []
-        case .trigger: return trigger(flow)
+        case .trigger: return trigger(flow, check: app.preflight[flow.id]?[App.triggerCheck])
         case .step(let id):
-            guard let step = flow.draft.step(id) else { return trigger(flow) }
+            guard let step = flow.draft.step(id) else { return trigger(flow, check: app.preflight[flow.id]?[App.triggerCheck]) }
             return self.step(step, flow, app, problems: problems)
         }
     }
@@ -19,7 +19,15 @@ import SidefolkExtensionKit
 
     // MARK: When
 
-    static func trigger(_ flow: Flow) -> [Block] {
+    /// What Guard says of it, with the way forward: never only that it can't.
+    static func refusal(_ check: Actions.Check?) -> [Block] {
+        guard let check, check.decision == .deny else { return [] }
+        guard let folder = check.share else { return [.note(check.why ?? L("Sidefolk doesn't allow this."), tone: .warn)] }
+        return [.note(L("{folder} isn't shared with Sidefolk yet.", ["folder": Paths.show(folder)]), tone: .warn),
+                .action(Action(L("Share this folder…"), act: .share(path: folder), style: .accent, symbol: "folder.badge.plus"))]
+    }
+
+    static func trigger(_ flow: Flow, check: Actions.Check? = nil) -> [Block] {
         let t = flow.draft.trigger
         let kind: String = switch t {
         case .manual: "manual"
@@ -28,7 +36,9 @@ import SidefolkExtensionKit
         case .watch: "watch"
         case .event: "event"
         }
-        var out: [Block] = [.edit(EditField("name", L("Its name"), value: flow.name, tool: "ui", input: base(flow, "rename")))]
+        // First, so it's seen: this is what stands between the flow and running.
+        var out: [Block] = refusal(check)
+        out.append(.edit(EditField("name", L("Its name"), value: flow.name, tool: "ui", input: base(flow, "rename"))))
         out.append(.picker(L("Sets it off"), style: .rows, [
             Option("days", L("On a schedule"), detail: L("Days and a time"), symbol: "calendar.badge.clock"),
             Option("every", L("Every so often"), detail: L("Every so many minutes"), symbol: "clock.arrow.2.circlepath"),
@@ -52,12 +62,21 @@ import SidefolkExtensionKit
                                                              ("file_appears", L("A file appears")), ("folder_new_file", L("A new file in a folder")), ("process_exits", L("A program quits"))],
                                selected: w.kind, tool: "ui", input: base(flow, "watch_kind")))
             out.append(.edit(EditField("target", L("Where"), value: w.target, detail: L("A web address, a full path or a program's name."), tool: "ui", input: base(flow, "watch_target"))))
+            if check?.decision == .ask, w.target.contains("/.") {
+                out.append(.note(L("This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.")))
+            }
             if w.kind == "url_change" {
                 out.append(.edit(EditField("contains", L("Only when it says"), value: w.contains ?? "", placeholder: L("Any change"), tool: "ui", input: base(flow, "watch_contains"))))
             }
             if w.kind == "folder_new_file" {
                 out.append(.edit(EditField("pattern", L("Only files like"), value: w.pattern ?? "", placeholder: "*.pdf", tool: "ui", input: base(flow, "watch_pattern"))))
             }
+            if w.kind != "process_exits" {
+                out.append(.edit(EditField("every", L("Look every (seconds)"), value: w.everySeconds.map(String.init) ?? "", detail: L("Files: 15 at the least. Sites: 60. Web pages: 300."),
+                                           placeholder: L("Sidefolk's usual pace"), kind: .number, tool: "ui", input: base(flow, "watch_every"))))
+            }
+            out.append(.edit(EditField("rest", L("Then rest (minutes)"), value: w.restMinutes.map(String.init) ?? "", detail: L("After it sets the flow off, for something that keeps changing."),
+                                       placeholder: L("No rest"), kind: .number, tool: "ui", input: base(flow, "watch_rest"))))
             out.append(.note(L("What it saw goes on to the steps as “What set it off”.")))
         case .event(let name, let contains):
             out.append(.choice(L("What happens"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: name, tool: "ui", input: base(flow, "event_kind")))
@@ -107,6 +126,7 @@ import SidefolkExtensionKit
         let tokens = tokens(before: step.id, flow: flow, app)
         var out: [Block] = []
         for p in problems where p.step == step.id { out.append(.note(p.text, tone: .warn)) }
+        out += refusal(app.preflight[flow.id]?[step.id])
         if case .action(let name, _) = step.kind, app.catalog.tool(name)?.risk == "high" {
             out.append(.note(L("Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.")))
         } else if Hints.asksEachTime(step) {

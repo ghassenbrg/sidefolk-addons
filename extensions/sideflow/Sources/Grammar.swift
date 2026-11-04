@@ -9,7 +9,7 @@ enum Grammar {
       {"type":"manual"}
       {"type":"schedule","days":["mon","tue","wed","thu","fri"],"at":"08:30","catch_up":true}  (catch_up: run once when back if the Mac was off)
       {"type":"schedule","every_minutes":60}  (15 at least)
-      {"type":"watch","kind":"url_change|site_status|file_changes|file_appears|folder_new_file|process_exits","target":"https://… or a full path or a program","contains":"words","pattern":"*.pdf"}
+      {"type":"watch","kind":"url_change|site_status|file_changes|file_appears|folder_new_file|process_exits","target":"https://… or a full path or a program","contains":"words","pattern":"*.pdf","every_seconds":30,"rest_minutes":5}  (the last two only if asked for)
       {"type":"event","event":"reminder.fired|reminder.created|note.saved|calendar.starting|companion.finished|agent.finished|attention.changed|mac.woke","contains":"words"}  ({{trigger}} holds its words)
 
     each step does one thing and may have "id" (a-z 0-9 _, used to refer to its result), "name" (short plain words shown to the person) and "on_failure" ("stop", "carry_on", "retry"):
