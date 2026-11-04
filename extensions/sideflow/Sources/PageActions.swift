@@ -349,6 +349,7 @@ import SidefolkExtensionKit
         case "save":
             var f = try flow()
             f.saved = nil
+            f.settleNote()
             app.store.save(f)
             // Typing again afterwards is a step of its own: what was saved stays one to come back to.
             app.history[f.id]?.breakTyping()
@@ -359,6 +360,7 @@ import SidefolkExtensionKit
             app.history[f.id, default: Editing.History()].record(f.draft, key: nil, at: Date())
             f.draft = kept
             f.saved = nil
+            f.settleNote()
             app.store.save(f)
             app.refreshPreflight(f.id)
         case "back_to_live":
@@ -368,6 +370,7 @@ import SidefolkExtensionKit
             f.hold(f.draft)
             f.draft = live
             f.saved = nil
+            f.settleNote()
             app.store.save(f)
             app.refreshPreflight(f.id)
         case "undo", "redo":

@@ -243,6 +243,12 @@ struct Flow: Equatable, Sendable, Identifiable {
     /// Saved, not live yet.
     var hasChanges: Bool { live != nil && live != kept }
 
+    /// Back to what's running: what stopped an edit going on is no longer anything to fix. What's still true stays: a step of what's running that says nothing, or a watch nobody can vouch for.
+    @MainActor mutating func settleNote() {
+        guard state == .on, !hasChanges, !watchOutdated, running.unfinished == nil, startProblem != Engine.watchUnclear else { return }
+        startProblem = nil
+    }
+
     /// Moves what's on the screen to this, keeping straight what's saved: undo, redo, a version brought back.
     mutating func show(_ body: FlowBody) {
         let keptBefore = kept

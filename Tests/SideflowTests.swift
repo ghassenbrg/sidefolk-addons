@@ -1727,6 +1727,151 @@ import SidefolkExtensionKit
         }
     }
 
+    private func standing(_ app: App, _ flow: Flow) {
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{"n":{"type":"number"}}}"#, mutates: false, readsOnly: true)],
+                                        plans: [Plans.Standing(id: flow.planId, title: flow.name, standing: [])]))
+    }
+
+    @Test func resumeFlowSaysSoWhenTheWatchWontComeBack() async throws {
+        let w = try World()
+        let app = app(w)
+        app.engine.host = w.host
+        var flow = try make(app, [["id": "a", "do": "reads.it"]])
+        flow.draft = FlowBody(trigger: try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": []]).trigger, steps: flow.draft.steps)
+        flow.live = flow.draft
+        flow.state = .paused
+        flow.watchTitle = "Test · Sideflow"
+        app.store.save(flow)
+        standing(app, flow)
+        w.host.answers["watch.resume"] = [Actions.Outcome(status: .denied, text: "No.")]
+        await #expect(throws: Problem.self) { try await resuming(flow, app) }
+        #expect(app.store.flow(flow.id)?.state == .paused)
+    }
+
+    @Test func resumeFlowWaitsForAnOldWatchThatStillWontStop() async throws {
+        let w = try World()
+        let app = app(w)
+        app.engine.host = w.host
+        var flow = try make(app, [["id": "a", "do": "reads.it"]])
+        flow.live = flow.draft
+        flow.state = .paused
+        flow.watchTitle = "Test · Sideflow"
+        flow.watchOutdated = true
+        app.store.save(flow)
+        standing(app, flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "no")]
+        await #expect(throws: Problem.self) { try await resuming(flow, app) }
+        #expect(app.store.flow(flow.id)?.state == .paused)
+    }
+
+    @Test func goingBackToWhatsRunningClearsARefusalsNote() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .on
+        flow.startProblem = "You said no."
+        app.store.save(flow)
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "back_to_live", flow)
+        #expect(app.store.flow(flow.id)?.startProblem == nil)
+        var again = try #require(app.store.flow(flow.id))
+        again.startProblem = "You said no."
+        app.store.save(again)
+        try await page(app, "compose", flow, ["step": "a", "text": "three"])
+        try await page(app, "compose", flow, ["step": "a", "text": "one"])
+        try await page(app, "save", flow)
+        #expect(app.store.flow(flow.id)?.startProblem == nil, "and so does saving what's running")
+    }
+
+    @Test func aNoteThatsStillTrueStaysThroughADiscard() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .on
+        flow.startProblem = Engine.watchUnclear
+        app.store.save(flow)
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "discard", flow)
+        #expect(app.store.flow(flow.id)?.startProblem == Engine.watchUnclear, "nothing said anything more about the watch")
+        var blank = try #require(app.store.flow(flow.id))
+        blank.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        blank.live = blank.draft
+        blank.startProblem = "Say what to write."
+        app.store.save(blank)
+        try await page(app, "compose", flow, ["step": "z", "text": "x"])
+        try await page(app, "add_kind", flow, ["kind": "text"])
+        try await page(app, "discard", flow)
+        #expect(app.store.flow(flow.id)?.startProblem == "Say what to write.", "what's running still says nothing there")
+    }
+
+    @Test func aWatchStopsLookingWhenABlankStepPausesItsFlow() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.draft = FlowBody(trigger: try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": []]).trigger, steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        flow.live = flow.draft
+        flow.state = .on
+        flow.watchTitle = "Test · Sideflow"
+        app.store.save(flow)
+        app.engine.host = w.host
+        #expect(app.engine.start(flow, mode: .live, why: "t") == nil)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(app.store.flow(flow.id)?.state == .paused)
+        #expect(w.host.calls.contains { $0.tool == "watch.pause" }, "or it goes on looking with the flow saying it's paused")
+    }
+
+    @Test func resumeFlowOnAnOnFlowWithABlankStepSaysSo() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        standing(app, flow)
+        await #expect(throws: Problem.self) { try await resuming(flow, app) }
+    }
+
+    @Test func resumeFlowOnlySaysItsRunningWhenItIs() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .paused
+        app.store.save(flow)
+        let said = try await resuming(flow, app)
+        #expect(said.contains("running by itself again"))
+        #expect(app.store.flow(flow.id)?.state == .on)
+
+        var blank = try #require(app.store.flow(flow.id))
+        blank.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        blank.live = blank.draft
+        blank.state = .paused
+        app.store.save(blank)
+        standing(app, blank)
+        await #expect(throws: Problem.self) { try await resuming(blank, app) }
+        #expect(app.store.flow(flow.id)?.state == .paused)
+    }
+
+    @Test func resumeFlowSaysWhatStoppedIt() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        flow.live = flow.draft
+        flow.state = .paused
+        app.store.save(flow)
+        standing(app, flow)
+        do {
+            _ = try await resuming(flow, app)
+            Issue.record("it isn't running, so it can't say it is")
+        } catch let problem as Problem {
+            #expect(problem.message == L("Say what to write."))
+        }
+    }
+
     @Test func anOnFlowWithABlankStepPausesInsteadOfRunningPartWay() async throws {
         let w = try World()
         let flow = try onFlow(w, .ai(prompt: ""), first: false)
@@ -1751,6 +1896,34 @@ import SidefolkExtensionKit
         w.store.save(flow)
         let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
         #expect(run?.status == .done, "it was read on a card, and each action is still checked")
+    }
+
+    @Test func aRunDoesntSayItRanAFlowThatDidnt() async throws {
+        let w = try World()
+        var other = try w.flow([["id": "z", "text": "x"]])
+        other.name = "Other"
+        other.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        other.live = other.draft
+        w.store.save(other)
+        let flow = try w.flow([["id": "a", "run_flow": "Other"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .failed)
+        #expect(run?.records.contains { $0.summary.hasPrefix("Ran") } == false)
+        #expect(w.store.flow(other.id)?.state == .paused)
+    }
+
+    @Test func discardingBackToWhatsRunningClearsARefusalsNote() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .on
+        flow.startProblem = "Say what to write."
+        app.store.save(flow)
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "discard", flow)
+        #expect(app.store.flow(flow.id)?.hasChanges == false)
+        #expect(app.store.flow(flow.id)?.startProblem == nil)
     }
 
     @Test func aRefusalsNoteGoesOnceItsFixed() async throws {
