@@ -199,11 +199,19 @@ struct Values: Equatable, Sendable {
     }
 
     /// For a tool: what it wants as words stays words, whatever the value is; a list or a number goes as itself only where the tool takes one.
-    func fill(_ input: [String: JSON], wordsIn textual: Set<String>) -> [String: Any] {
+    /// A tool's answer that's a list goes as a list only to a parameter that says it takes one, and only as a whole value: anywhere else it's the words it was, what a card showed.
+    func fill(_ input: [String: JSON], wordsIn textual: Set<String>, listsIn lists: Set<String> = []) -> [String: Any] {
         Dictionary(uniqueKeysWithValues: input.map { key, value in
             if textual.contains(key), case .string(let s) = value { return (key, fill(s) as Any) }
-            return (key, Self.structured(fill(native: value)).any)
+            let filled = fill(native: value)
+            if lists.contains(key), case .string(let s) = value, Self.isOneSlot(s), case .array(let list) = Self.structured(filled) { return (key, JSON.array(list).any) }
+            return (key, filled.any)
         })
+    }
+
+    private static func isOneSlot(_ text: String) -> Bool {
+        let whole = NSRange(text.startIndex..., in: text)
+        return slot.firstMatch(in: text, range: whole)?.range == whole
     }
 
     /// Whether it can be kept as it is, or would be cut.

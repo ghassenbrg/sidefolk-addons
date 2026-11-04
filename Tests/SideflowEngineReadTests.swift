@@ -224,6 +224,28 @@ import SidefolkExtensionKit
         #expect(sent["text"] as? String == #"["a","b"]"#, "and words stay words")
     }
 
+    @Test func onlyAParameterThatTakesAListGetsOne() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"body":{"anyOf":[{"type":"string"},{"type":"null"}]},"anything":{},"labels":{"type":"array"}}}"#)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"a":1}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["body": "{{r}}", "anything": "{}", "labels": "[1] {{r}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["body"] as? String == #"{"a":1}"#, "a string went before, and it may not take a record")
+        #expect(sent["anything"] as? String == "{}", "what the card showed")
+        #expect(sent["labels"] is String, "only a value that's all one slot")
+    }
+
+    @Test func aToolThatIsntListedKeepsItsWords() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: []))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"["a"]"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "notes.save", "with": ["text": "{{r}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(w.host.calls.first { $0.tool == "notes.save" }?.input["text"] as? String == #"["a"]"#)
+    }
+
     @Test func plainWordsGivenToAFlowHaveNoFieldsEither() async throws {
         let w = try World()
         var child = try w.flow([["id": "b", "if": ["value": "{{input.r.errors}}", "test": "is_empty"], "then": [["id": "deploy", "do": "changes.it", "with": ["text": "x"]]]]])
