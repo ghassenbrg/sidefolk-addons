@@ -330,7 +330,7 @@ import SidefolkExtensionKit
         return [Section(said.title, main, place: .trailing, detail: said.detail),
                 Section(L("More options"), more, place: .trailing, collapsed: true),
                 Section(nil, [.action(Action(L("Duplicate this step"), tool: "ui", input: input("dup_step"), style: .plain, symbol: "plus.square.on.square")),
-                              .action(Action(L("Make this its own flow"), tool: "ui", input: input("extract"), style: .plain, symbol: "rectangle.portrait.and.arrow.right", detail: L("It becomes a flow you can reuse, and this step calls it."))),
+                              .action(Action(L("Make this its own flow"), tool: "ui", input: input("extract"), style: .plain, symbol: "rectangle.portrait.and.arrow.right", detail: L("It becomes a flow of its own, off until you turn it on, and this step calls it."))),
                               .action(Action(L("Remove this step"), tool: "ui", input: input("remove"), style: .destructive, symbol: "trash"))], place: .trailing)]
     }
 

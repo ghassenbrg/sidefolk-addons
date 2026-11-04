@@ -2330,9 +2330,93 @@ extension JSON {
         parent.draft = outer
         parent.live = outer
         w.store.save(parent)
-        let run = await w.settled(w.engine.start(parent, mode: .live, why: "t"))
+        let started = try #require(w.engine.start(parent, mode: .live, why: "t"))
+        await w.quiet()
+        let run = w.store.run(started.id)
         #expect(run?.status == .done, "\(run?.problem ?? "")")
         #expect(run?.record(of: "e")?.output?.contains("a!") == true)
+    }
+
+    @Test func tryingAgainFromHereIsntOfferedForWhatAnotherRunDid() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .error, text: "broken")]
+        var child = try w.flow([["id": "r", "do": "reads.it"]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "c", "call_flow": "Child"]])
+        let failed = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(failed?.status == .failed)
+        #expect(!w.engine.canGoOn(from: failed!), "the child may have done some of it")
+        let lanes = try w.flow([["id": "both", "parallel": [["name": "one", "steps": [["id": "r", "do": "reads.it"]]], ["name": "two", "steps": [["id": "b", "text": "B"]]]]]])
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .error, text: "broken")]
+        let lanesFailed = await w.settled(w.engine.start(lanes, mode: .live, why: "t"))
+        #expect(lanesFailed?.status == .failed)
+        #expect(!w.engine.canGoOn(from: lanesFailed!))
+    }
+
+    @Test func tryingAgainFromHereIsntOfferedOnceItsApprovalEnded() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken")]
+        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        let failed = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(w.engine.canGoOn(from: failed!))
+        flow.live = nil
+        w.store.save(flow)
+        #expect(!w.engine.canGoOn(from: failed!), "a run for real goes by what was approved, and nothing is now")
+    }
+
+    @Test func tryingAgainGoesByWhatARunFromTheKeptVersionRan() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken")]
+        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]], state: .draft)
+        let kept = flow.draft
+        flow.saved = kept
+        flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "other"]], ["id": "d", "text": "more"]]])
+        w.store.save(flow)
+        let failed = await w.settled(w.engine.start(flow, mode: .once, why: "t"))
+        #expect(failed?.status == .failed)
+        #expect(failed?.body == flow.kept)
+        #expect(w.engine.canGoOn(from: failed!), "what's on the page isn't what it ran, and doesn't matter")
+    }
+
+    @Test func aPauseAskedOfAStepThatEndsNeedingYouIsntTheAnswerToThat() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        w.host.honoursCancel = true
+        w.host.releaseQuietly = true
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .lost, text: "", summary: "")]
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]], ["id": "b", "text": "after"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.pause(run: run.id)
+        w.host.cancelled = true
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .interrupted)
+        #expect(w.store.takeStop(Engine.pauseKey(run.id)) == false)
+    }
+
+    @Test func aFieldOfAToolsAnswerCantLeaveWithAStepMadeItsOwnFlow() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "fetch", "do": "reads.it"], ["id": "t", "text": "{{fetch.count}}"]]])
+        #expect(throws: Problem.self) { _ = try Editing.extract("fetch", in: body, named: "New") }
+        let words = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "fetch", "do": "reads.it"], ["id": "t", "text": "{{fetch}}"]]])
+        #expect((try? Editing.extract("fetch", in: words, named: "New")) != nil)
+        let ai = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "read", "ai": "x", "fields": ["total": "number"]], ["id": "t", "text": "{{read.total}}"]]])
+        #expect((try? Editing.extract("read", in: ai, named: "New")) != nil, "what an AI gives as fields it hands back as fields")
+    }
+
+    @Test func aRunWithACallToAFlowThatsOffDoesNothingAtAll() async throws {
+        let w = try World()
+        var child = try w.flow([["id": "t", "text": "x"]], state: .draft)
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "first", "do": "changes.it", "with": ["text": "x"]], ["id": "c", "call_flow": "Child"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .failed)
+        #expect(run?.problem?.contains("Child") == true)
+        #expect(w.host.calls.isEmpty, "not halfway through")
+        #expect(!w.engine.isRunning(flow.id))
+        let practice = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        #expect(practice?.status == .done, "\(practice?.problem ?? "")")
     }
 
     @Test func aStepBecomesItsOwnFlowAndReadsTheSame() async throws {

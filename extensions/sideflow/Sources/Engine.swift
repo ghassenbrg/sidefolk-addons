@@ -92,6 +92,17 @@ extension FlowHost {
         if let trigger { run.values.set("trigger", trigger) }
         if mode == .practice, trigger == nil, let sample = run.body.triggerSample { run.values.set("trigger", sample) }
         run.setOff = setOff
+        // It would fail there, after what comes before it has been done.
+        if mode != .practice, let off = run.body.allSteps.lazy.compactMap({ step -> String? in
+            guard case .call(let name, _) = step.kind, let other = self.store.named(name), other.id != flow.id, other.state != .on else { return nil }
+            return name
+        }).first {
+            run.status = .failed
+            run.problem = L("“{name}” isn't on, so it can't run by itself.", ["name": off])
+            active.insert(flow.id)
+            finish(&run)
+            return run
+        }
         store.save(run)
         active.insert(flow.id)
         startedHere.insert(run.id)
@@ -627,6 +638,8 @@ extension FlowHost {
             if holds { active.remove(run.flow) }
         }
         if holds, run.status == .needs_you || run.status == .interrupted { active.remove(run.flow) }
+        // It stopped by itself and the person chooses from there: a pause asked for before isn't the answer to that.
+        if run.status == .needs_you || run.status == .interrupted { _ = store.takeStop(Self.pauseKey(run.id)) }
         store.save(run)
         changed()
         let ended = run
@@ -811,11 +824,17 @@ extension FlowHost {
     /// what's still what it ran.
     func canGoOn(from run: Run) -> Bool {
         guard run.status == .failed || run.status == .stopped, run.mode != .practice, run.parent == nil, let flow = store.flow(run.flow), !isRunning(run.flow) else { return false }
-        guard run.body == (run.mode == .live ? flow.running : flow.draft) else { return false }
+        // What it ran is what's still there, read as `start` reads it: a run for real has only what was approved.
+        guard run.body == (run.mode == .live ? flow.live : flow.kept) else { return false }
         let program = FlowProgram(run.body)
         guard run.pc < program.ops.count, case .step(let step) = program.ops[run.pc] else { return false }
         // It may have happened: doing it again is the person's to decide knowing that, on the run's own page, not a button's to assume.
         guard run.record(of: step.id)?.status != .unknown else { return false }
+        // Another run did that part, and may still be at it or have done some: going from here would do it all a second time.
+        switch step.kind {
+        case .call, .parallel: return false
+        default: break
+        }
         return run.body.steps.contains { $0.id == step.id }
     }
 

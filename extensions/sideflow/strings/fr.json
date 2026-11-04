@@ -990,6 +990,8 @@
     "Use this if it's empty": "Utiliser ceci si c'est vide",
     "You ran it again.": "Vous l'avez relancée.",
     "You tried again from where it ended.": "Vous avez réessayé à partir de là où elle s'est arrêtée.",
-    "Say what to use instead.": "Dites quoi utiliser à la place."
+    "Say what to use instead.": "Dites quoi utiliser à la place.",
+    "It becomes a flow of its own, off until you turn it on, and this step calls it.": "Elle devient une routine à part, désactivée tant que vous ne l'activez pas, et cette étape l'appelle.",
+    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "Des étapes suivantes utilisent son champ « {name} », or une routine ne renvoie que ses mots. Modifiez-les d'abord."
   }
 }

@@ -975,6 +975,8 @@
     "Use this if it's empty": "空の場合はこれを使う",
     "You ran it again.": "もう一度実行しました。",
     "You tried again from where it ended.": "止まった場所からやり直しました。",
-    "Say what to use instead.": "代わりに使うものを指定してください。"
+    "Say what to use instead.": "代わりに使うものを指定してください。",
+    "It becomes a flow of its own, off until you turn it on, and this step calls it.": "独立したルーティンになります。オンにするまでは動かず、このステップがそれを呼び出します。",
+    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "後のステップがフィールド「{name}」を使っていますが、ルーティンが返すのは言葉だけです。先にそれらを変更してください。"
   }
 }

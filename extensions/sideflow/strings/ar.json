@@ -1050,6 +1050,8 @@
     "Use this if it's empty": "استخدم هذا إذا كان فارغًا",
     "You ran it again.": "شغّلته مرة أخرى.",
     "You tried again from where it ended.": "أعدت المحاولة من حيث انتهى.",
-    "Say what to use instead.": "حدّد ما يُستخدم بدلًا منه."
+    "Say what to use instead.": "حدّد ما يُستخدم بدلًا منه.",
+    "It becomes a flow of its own, off until you turn it on, and this step calls it.": "يصبح روتينًا مستقلًا، متوقفًا حتى تشغّله، وتستدعيه هذه الخطوة.",
+    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "تستخدم الخطوات التالية حقله «{name}»، والروتين لا يعيد سوى كلماته. غيّرها أولًا."
   }
 }
