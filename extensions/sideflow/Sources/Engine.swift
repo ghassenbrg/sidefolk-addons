@@ -391,8 +391,7 @@ import SidefolkExtensionKit
     /// changes nothing is ever run: an extension's own word that a tool only reads isn't enough.
     private func practicing(_ step: Step, tool: String, input: [String: Any], in run: inout Run) async -> Bool {
         if let sample = step.sample {
-            let made: JSON = JSONText.read(sample).map { JSON($0) } ?? .string(sample)
-            run.values.set(step.id, made)
+            run.values.set(step.id, sample)
             run.record(.init(step: step.id, status: .would, summary: L("Would: {what}", ["what": Words.step(step, body: run.body, catalog: catalog)]), output: sample, note: L("Pretending it gave what you wrote for practice."), at: clock()))
             run.pc += 1
             store.save(run)
@@ -404,7 +403,7 @@ import SidefolkExtensionKit
         if readsOnly, check?.decision == .allow {
             let outcome = await host?.call(tool, input, plan: run.flowPractice, written: nil)
             if let outcome, outcome.ok {
-                run.values.set(step.id, Values.answer(outcome.text))
+                run.values.set(step.id, outcome.text)
                 run.record(.init(step: step.id, status: .done, summary: sentence, output: outcome.text.clipped(Self.keptOutput), at: clock()))
                 run.pc += 1
                 store.save(run)
@@ -441,7 +440,7 @@ import SidefolkExtensionKit
         let said = outcome.summary.nonEmpty.map { Words.resolved($0, values: run.values) } ?? sentence
         switch outcome.status {
         case .ok:
-            run.values.set(step.id, Values.answer(outcome.text))
+            run.values.set(step.id, outcome.text)
             // Cut for keeping: it says so, rather than a list that looks whole.
             let cut = outcome.text.count > Values.keep ? L("Its answer was long: only the first {count} characters were kept.", ["count": Format.integer(Values.keep)]) : nil
             // What a notice answers ("shown", "held for now") is for a model, not for the person's story.
@@ -1130,6 +1129,7 @@ import SidefolkExtensionKit
         if made?.ok == true, after.state == .paused { await pauseWatch(after) }
         // Changed and approved while this one was being asked for: it's looking at what they replaced.
         if made?.ok == true, after.state == .on, !Self.watchInputs(was: flow.running, now: after.running) || Self.watchTitle(after) != title {
+            makingWatch.remove(id)
             await replaceWatch(id, stopping: title)
         }
     }

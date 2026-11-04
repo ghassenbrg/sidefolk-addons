@@ -157,6 +157,11 @@ import SidefolkExtensionKit
             }
         case "lane_name", "lane_remove", "lane_add":
             let at = a.int("lane") ?? 0
+            // Two that go by the same name would quietly swap what a step's `{{step.name}}` means.
+            if op == "lane_name", case .parallel(let lanes)? = try flow().draft.step(a.string("step") ?? "")?.kind,
+               lanes.enumerated().contains(where: { $0.offset != at && Engine.key($0.element.name) == Engine.key(text) }) {
+                throw Problem(L("Another lane already goes by that name."))
+            }
             try editStep { s in
                 guard case .parallel(var lanes) = s.kind else { return }
                 if op == "lane_add" {

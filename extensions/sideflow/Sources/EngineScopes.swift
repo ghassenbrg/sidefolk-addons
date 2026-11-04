@@ -13,7 +13,7 @@ extension Engine {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }
         let list: [JSON]
-        switch run.values.fill(native: .string(items)) {
+        switch Values.structured(run.values.fill(native: .string(items))) {
         case .array(let a): list = a
         case .string(let text): list = text.split(whereSeparator: \.isNewline).map { .string(String($0).trimmed) }.filter { $0 != .string("") }
         case let other: list = [other]
@@ -232,8 +232,13 @@ extension Engine {
     static func keys(_ lanes: [Step.Lane]) -> [String] {
         var used = Set<String>()
         return lanes.enumerated().map { at, lane in
-            let key = key(lane.name)
-            return used.insert(key).inserted ? key : { used.insert($0); return $0 }("\(key.prefix(36))_\(at + 1)")
+            var key = key(lane.name), suffix = at + 1
+            let plain = key
+            while !used.insert(key).inserted {
+                key = "\(plain.prefix(36))_\(suffix)"
+                suffix += 1
+            }
+            return key
         }
     }
 

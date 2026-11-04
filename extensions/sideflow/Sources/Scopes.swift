@@ -121,7 +121,7 @@ struct DataStep: Equatable, Sendable {
     /// What it does to a value. A wrong shape is said, never guessed around: a list is a list, text is text, and text that looks like a number stays text until asked.
     func apply(to value: JSON, than resolved: String) throws -> JSON {
         func list() throws -> [JSON] {
-            guard case .array(let items) = value else { throw Problem(L("It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.")) }
+            guard case .array(let items) = Values.structured(value) else { throw Problem(L("It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.")) }
             return items
         }
         func at(_ item: JSON) -> JSON? { field?.nonEmpty.map { Values.walk(item, path: Values.parts(of: $0)) } ?? item }
@@ -138,8 +138,9 @@ struct DataStep: Equatable, Sendable {
         case .join:
             return .string(try list().map(Values.text).joined(separator: separator ?? ", "))
         case .field:
-            if case .array(let items) = value { return .array(items.map { at($0) ?? .null }) }
-            guard let found = at(value) else { throw Problem(L("It has no “{field}”.", ["field": field ?? ""])) }
+            let shaped = Values.structured(value)
+            if case .array(let items) = shaped { return .array(items.map { at($0) ?? .null }) }
+            guard let found = at(shaped) else { throw Problem(L("It has no “{field}”.", ["field": field ?? ""])) }
             return found
         case .filter:
             // What the page shows selected before anyone picks. Looking for nothing would look like an answer: an empty list.
@@ -156,7 +157,7 @@ struct DataStep: Equatable, Sendable {
             var seen = Set<String>()
             return .array(try list().filter { seen.insert(at($0).map(Values.text) ?? "").inserted })
         case .count:
-            if case .array(let items) = value { return .number(Double(items.count)) }
+            if case .array(let items) = Values.structured(value) { return .number(Double(items.count)) }
             return .number(Double(Values.text(value).count))
         case .first:
             return .array(Array(try list().prefix(max(count ?? 1, 0))))

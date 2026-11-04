@@ -95,6 +95,8 @@ import SidefolkExtensionKit
                                ["id": "first", "if": ["value": "{{r[9]}}", "test": "not_empty"], "then": [["id": "u", "text": "x"]]]])
         let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
         #expect(run?.status == .done)
+        #expect(run?.records.filter { $0.step == "t" }.count == 1, "only the one with an address")
+        #expect(run?.record(of: "u") == nil)
     }
 
     @Test func carryingOnFromAConditionSkipsBothWays() async throws {
@@ -106,6 +108,82 @@ import SidefolkExtensionKit
         #expect(run?.status == .done)
         #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "not knowing which way isn't a way")
         #expect(run?.record(of: "after") != nil)
+    }
+
+    @Test func aToolsWordsStayAsItSaidThem() async throws {
+        let w = try World()
+        let said = #"{"status": "ok", "b": 10.0, "a": 12345678901234567}"#
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: said, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"],
+                               ["id": "b", "if": ["value": "{{r}}", "test": "contains", "than": #""status": "ok""#], "then": [["id": "t", "text": "{{r}}"]]],
+                               ["id": "u", "text": "{{r.status}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(run?.record(of: "t")?.output == said, "looking inside doesn't rewrite it")
+        #expect(run?.record(of: "u")?.output == "ok")
+    }
+
+    @Test func aToolsListAnswerGoesRoundAndWorksWithData() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"[{"n":"a"},{"n":"b"}]"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"],
+                               ["id": "e", "for_each": "{{r}}", "steps": [["id": "t", "text": "got {{item.n}}"]]],
+                               ["id": "d", "data": ["op": "count", "from": "{{r}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "the same as with a sample in a practice")
+        #expect(run?.records.filter { $0.step == "t" }.count == 2)
+        #expect(run?.record(of: "d")?.output == "2")
+    }
+
+    @Test(arguments: [#"{"data":"Service unavailable"}"#, #"{"data":["down"]}"#])
+    func wordsDeeperDownHaveNoFieldsEither(_ reply: String) async throws {
+        let (run, w) = try await deciding(reply, "is_empty", field: reply.contains("[") ? "data[0].errors" : "data.errors")
+        #expect(run?.status == .failed)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test(arguments: ["is_not", "not_contains"])
+    func whatGaveNothingIsntPassedByAskingWhatItIsnt(_ test: String) async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .error, text: "broken", summary: "")]
+        let flow = try w.flow([["id": "fetch", "do": "reads.it", "on_failure": "carry_on"],
+                               ["id": "b", "if": ["value": "{{fetch}}", "test": test, "than": "down"], "then": [["id": "go", "do": "changes.it", "with": ["text": "x"]]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .failed)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func whatATestIgnoresDoesntStopIt() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "r", "text": "words"],
+                               ["id": "b", "if": ["value": "{{r}}", "test": "not_empty", "than": "{{r.left_over}}"], "then": [["id": "t", "text": "x"]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(run?.record(of: "t") != nil)
+    }
+
+    @Test func aNewAddressApprovedWhileAWatchIsBeingMadeEndsWithIt() async throws {
+        let w = try World()
+        let x: [String: Any] = ["type": "watch", "kind": "url_change", "target": "https://x.example"]
+        let y: [String: Any] = ["type": "watch", "kind": "url_change", "target": "https://y.example"]
+        let flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: x, state: .draft)
+        w.host.hold = "watch.create"
+        w.host.honoursCancel = true
+        w.host.releaseQuietly = true
+        w.engine.turnOn(flow.id)
+        for _ in 0..<200 where !w.host.calls.contains(where: { $0.tool == "watch.create" }) { try await Task.sleep(for: .milliseconds(5)) }
+        var moved = try #require(w.store.flow(flow.id))
+        moved.draft = try FlowCodec.body(["trigger": y, "steps": [["id": "a", "do": "reads.it"]]])
+        w.store.save(moved)
+        w.engine.turnOn(flow.id)
+        for _ in 0..<40 { await Task.yield() }
+        w.host.hold = nil
+        w.host.cancelled = true
+        await w.quiet()
+        let after = try #require(w.store.flow(flow.id))
+        #expect(after.state == .on)
+        #expect(after.watchTitle != nil, "not On with nothing looking")
+        #expect(w.host.calls.filter { $0.tool == "watch.create" }.last?.input["target"] as? String == "https://y.example")
     }
 
     @Test func askingWhetherAStepRanStillWorks() async throws {
@@ -223,6 +301,24 @@ import SidefolkExtensionKit
         let keys = Engine.keys([Step.Lane(name: "First", steps: []), Step.Lane(name: "first!", steps: []), Step.Lane(name: "FIRST", steps: [])])
         #expect(Set(keys).count == 3)
         #expect(keys[0] == "first")
+        #expect(Set(Engine.keys([Step.Lane(name: "a", steps: []), Step.Lane(name: "a_3", steps: []), Step.Lane(name: "a", steps: [])])).count == 3)
+    }
+
+    @Test func bothLanesResultsCanBeReachedAfterARun() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "p", "parallel": [["name": "First", "steps": [["id": "a", "finish": "one"]]], ["name": "first!", "steps": [["id": "b", "finish": "two"]]]]],
+                               ["id": "t", "text": "{{p.first}} {{p.first_2}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(run?.record(of: "t")?.output == "one two")
+    }
+
+    @Test func aLaneCantTakeANameAnotherGoesBy() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "p", "parallel": [["name": "First", "steps": [["id": "a", "text": "x"]]], ["name": "Second", "steps": [["id": "b", "text": "y"]]]]]])
+        await #expect(throws: Problem.self) { try await self.page(app, "lane_name", flow, ["step": "p", "lane": 0, "text": "second"]) }
+        if case .parallel(let lanes)? = app.store.flow(flow.id)?.draft.step("p")?.kind { #expect(lanes[0].name == "First") } else { Issue.record("not lanes") }
     }
 
     @Test func aFilterGivenNothingToLookForSaysSo() async throws {
@@ -240,6 +336,7 @@ import SidefolkExtensionKit
         let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
         await w.quiet(app.store)
         let now = try #require(app.store.run(run.id))
+        #expect(!w.host.notices.isEmpty)
         #expect(w.host.notices.allSatisfy { ($0.body?.count ?? 0) < 300 })
         #expect((Pages.formSection(now)?.title?.count ?? 0) < 300)
     }

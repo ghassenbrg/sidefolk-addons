@@ -899,6 +899,7 @@
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "Ele usa “{name}”, que essa etapa não fornece. Talvez tenha sido renomeado.",
     "There's no other flow to run yet.": "Ainda não há outra rotina para executar.",
     "{when}, by the clock of {zone}": "{when}, no horário de {zone}",
-    "Only the first {count} goes can be picked here.": "Aqui só é possível escolher as primeiras {count} passagens."
+    "Only the first {count} goes can be picked here.": "Aqui só é possível escolher as primeiras {count} passagens.",
+    "Another lane already goes by that name.": "Outra faixa já tem esse nome."
   }
 }

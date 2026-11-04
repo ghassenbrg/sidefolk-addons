@@ -943,6 +943,7 @@
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "يستخدم «{name}» الذي لا تقدّمه تلك الخطوة. ربما أُعيدت تسميته.",
     "There's no other flow to run yet.": "لا يوجد روتين آخر لتشغيله بعد.",
     "{when}, by the clock of {zone}": "{when}، حسب توقيت {zone}",
-    "Only the first {count} goes can be picked here.": "لا يمكن هنا اختيار سوى أول {count} مرات."
+    "Only the first {count} goes can be picked here.": "لا يمكن هنا اختيار سوى أول {count} مرات.",
+    "Another lane already goes by that name.": "يوجد ممر آخر بهذا الاسم بالفعل."
   }
 }

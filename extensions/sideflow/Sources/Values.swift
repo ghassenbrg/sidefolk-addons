@@ -41,12 +41,13 @@ struct Values: Equatable, Sendable {
         path.replacingOccurrences(of: "[", with: ".").replacingOccurrences(of: "]", with: "").split(separator: ".").map(String.init)
     }
 
-    /// What a tool answered: a record or a list if that's what the words are, so its fields can be read by name; words otherwise. Numbers and the like stay words, as they were said.
-    static func answer(_ text: String) -> JSON {
-        switch JSONText.read(text).map({ JSON($0) }) {
-        case .object(let o)?: .object(o)
-        case .array(let a)?: .array(a)
-        default: .string(text)
+    /// Words that are a record or a list, as one, for what looks inside them: a tool's answer stays as it said it, and only a field asked for, a loop or a data step reads it this way.
+    static func structured(_ value: JSON) -> JSON {
+        guard case .string(let text) = value, let parsed = JSONText.read(text) else { return value }
+        switch JSON(parsed) {
+        case .object(let o): return .object(o)
+        case .array(let a): return .array(a)
+        default: return value
         }
     }
 
@@ -89,7 +90,8 @@ struct Values: Equatable, Sendable {
 
     /// `name` with what's after it, or nil when nothing is there.
     func resolve(_ name: String, path: String = "") -> JSON? {
-        base(name).flatMap { Self.walk($0, path: Self.parts(of: path)) }
+        guard let value = base(name) else { return nil }
+        return path.isEmpty ? value : Self.walk(Self.structured(value), path: Self.parts(of: path))
     }
 
     /// Each `{{name.path}}` in a text, path and all.
@@ -100,26 +102,44 @@ struct Values: Equatable, Sendable {
         }
     }
 
-    /// What one check can't answer from what's there. A record without a field has nothing there, and a step that gave nothing or never ran is the same, so "is empty" and "mentions" can say so.
+    /// What one check can't answer from what's there. A record without a field has nothing there, and a step that never ran is the same, so "is empty" and "mentions" can say so.
     /// Two things can't be said: that something isn't what it was never seen to be ("is not", "doesn't mention"), and anything about a field of plain words,
     /// where "Service unavailable" would read as a reply saying there are no errors.
     private func blind(_ check: Condition) -> String? {
         let negative = check.test == .is_not || check.test == .not_contains
-        for (name, path) in Self.slots(check.value) + Self.slots(check.than) where name != "input" {
+        let ignoresThan = check.test == .is_empty || check.test == .not_empty
+        for (name, path) in Self.slots(check.value) + (ignoresThan ? [] : Self.slots(check.than)) where name != "input" {
             if Self.ambient.contains(name), path.isEmpty { continue }
-            guard let root = resolve(name, path: "") else {
+            guard let root = base(name) else {
                 if negative { return name + path }
                 continue
             }
-            guard !path.isEmpty, resolve(name, path: path) == nil else { continue }
-            var words = false
-            switch root {
-            case .object, .array, .null: break
-            default: words = !Self.text(root).isEmpty
+            if path.isEmpty {
+                if negative, Self.text(root).isEmpty { return name }
+                continue
             }
-            if negative || words { return name + path }
+            guard resolve(name, path: path) == nil else { continue }
+            if negative || Self.endsInWords(Self.structured(root), path: Self.parts(of: path)) { return name + path }
         }
         return nil
+    }
+
+    /// Whether a path that found nothing stopped at words, which have no fields, rather than at a record or a list that just doesn't have this one.
+    private static func endsInWords(_ value: JSON, path: [String]) -> Bool {
+        var at = value
+        for part in path {
+            switch at {
+            case .object(let o):
+                guard let next = o[part] else { return false }
+                at = next
+            case .array(let a):
+                guard let i = Int(part), a.indices.contains(i) else { return false }
+                at = a[i]
+            default:
+                return !text(at).isEmpty
+            }
+        }
+        return false
     }
 
     /// What keeps a condition from deciding, if anything does: a check that can answer for all of them settles it, the first to hold in "any of", the first to fail in "all of".
