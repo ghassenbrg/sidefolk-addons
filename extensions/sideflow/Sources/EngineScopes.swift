@@ -14,7 +14,7 @@ extension Engine {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }
         let list: [JSON]
-        switch run.values.loopable(items) {
+        switch Values.structured(run.values.fill(native: .string(items))) {
         case .array(let a): list = a
         case .string(let text): list = text.split(whereSeparator: \.isNewline).map { .string(String($0).trimmed) }.filter { $0 != .string("") }
         case let other: list = [other]

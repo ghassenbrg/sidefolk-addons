@@ -248,7 +248,7 @@ import SidefolkExtensionKit
             store.save(run)
             return false
         }
-        if let name = run.values.missing(in: step.usedTexts).first {
+        if let name = run.values.missing(in: step.usedTexts).first(where: { run.mode != .practice || !run.values.isSampleField($0) }) {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }
         switch step.kind {
@@ -423,6 +423,15 @@ import SidefolkExtensionKit
 
     /// Reads for real what Sidefolk would let through without a card, and says what everything else would do. Only what Sidefolk itself says
     /// changes nothing is ever run: an extension's own word that a tool only reads isn't enough.
+    private func setSample(_ step: Step, tool: String, in run: inout Run) {
+        let fields = catalog.tool(tool)?.outputFields ?? []
+        if fields.isEmpty {
+            run.values.set(step.id, L("(sample)"))
+        } else {
+            run.values.set(step.id, answer: L("(sample)"), fields: JSONText.write(Dictionary(uniqueKeysWithValues: fields.map { ($0, L("(sample)") as Any) })))
+        }
+    }
+
     private func practicing(_ step: Step, tool: String, input: [String: Any], in run: inout Run) async -> Bool {
         if let sample = step.sample {
             run.values.set(step.id, sample)
@@ -445,7 +454,7 @@ import SidefolkExtensionKit
             }
             let note = outcome?.text.nonEmpty ?? L("It didn't work.")
             run.record(.init(step: step.id, status: .failed, summary: sentence, note: note, at: clock()))
-            run.values.set(step.id, L("(sample)"))
+            setSample(step, tool: tool, in: &run)
             run.pc += 1
             store.save(run)
             return true
@@ -456,13 +465,8 @@ import SidefolkExtensionKit
         default: readsOnly ? L("It would read this; you didn't allow it for practice.") : nil
         }
         run.record(.init(step: step.id, status: check?.decision == .deny || check == nil ? .failed : .would, summary: L("Would: {what}", ["what": sentence]), note: note, at: clock()))
-        // Its fields too, if it says it has any: what a menu offered shouldn't stop a run for having only pretended.
-        let fields = catalog.tool(tool)?.outputFields ?? []
-        if fields.isEmpty {
-            run.values.set(step.id, L("(sample)"))
-        } else {
-            run.values.set(step.id, answer: L("(sample)"), fields: JSONText.write(Dictionary(uniqueKeysWithValues: fields.map { ($0, L("(sample)") as Any) })))
-        }
+        // What a menu offered shouldn't stop a run for having only pretended.
+        setSample(step, tool: tool, in: &run)
         run.pc += 1
         store.save(run)
         return true

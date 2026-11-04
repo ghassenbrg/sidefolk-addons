@@ -18,7 +18,7 @@ import SidefolkExtensionKit
             guard !tools.isEmpty else { return L("Nothing matches. Sideflow can use Sidefolk's tools and other extensions' tools when they're on.") }
             return tools.prefix(60).map { t in
                 let values = t.parameters.map { "\($0.name)\($0.required ? "*" : "")" }.joined(separator: ", ")
-                return "\(t.name): \(t.title)\(t.readsOnly ? " (only reads)" : "")\(values.isEmpty ? "" : " (\(values))")"
+                return "\(t.name): \(t.title)\(t.readsOnly ? " (only reads)" : "")\(values.isEmpty ? "" : " (\(values))")\(t.outputFields.isEmpty ? "" : " gives: \(t.outputFields.joined(separator: ", "))")"
             }.joined(separator: "\n")
         }
 

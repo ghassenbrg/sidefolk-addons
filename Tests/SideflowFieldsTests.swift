@@ -92,4 +92,40 @@ import SidefolkExtensionKit
         #expect(run?.status == .done, "a menu picked it: a practice can't stop because it only pretended")
     }
 
+
+    /// `{{r}}` is what the tool said, everywhere; `{{r.field}}` is the field.
+    @Test func aBareValueIsTheWordsEverywhere() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "alice\nbob", summary: "", data: #"{"count":2}"#)]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "l", "data": ["op": "lines", "from": "{{r}}"]], ["id": "c", "text": "{{r.count}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.record(of: "l")?.output?.contains("alice") == true)
+        #expect(run?.record(of: "l")?.output?.contains("count") == false, "the same two lines a loop would go through")
+        #expect(run?.record(of: "c")?.output == "2")
+    }
+
+    @Test func aCalledFlowGetsTheWordsToo() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Two invoices", summary: "", data: #"{"count":2}"#)]
+        var child = try w.flow([["id": "t", "text": "got {{input.x}}"]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "call_flow": "Child", "inputs": ["x": "{{r}}"]]])
+        _ = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let ran = try #require(w.store.runs(of: child.id).first)
+        #expect(ran.record(of: "t")?.output == "got Two invoices", "not its fields written out")
+    }
+
+    @Test func aPracticeGoesOnPastAFieldOfASample() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "l", "text": "x"], ["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "t", "text": "{{c.anything}}"]], state: .draft)
+        let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        #expect(run?.status == .done, "it only pretended, so there's nothing to say about a field of that")
+    }
+
+    @Test func theGuideSaysHowToReachAField() {
+        #expect(Grammar.text.contains("{{step.field}}"))
+    }
+
 }

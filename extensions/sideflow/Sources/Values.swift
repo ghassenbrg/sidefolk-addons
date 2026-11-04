@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 
 /// What a run knows so far: each step's output by its id, and `trigger`, what set the run off. Values keep their type: a list stays a list, text that looks like a number stays text,
 /// and something never made is told from something empty. A value reaches a tool only where a flow's definition put `{{name}}`: outside words never choose a tool, and the host
@@ -205,7 +206,11 @@ struct Values: Equatable, Sendable {
         case .string(let s):
             let range = NSRange(s.startIndex..., in: s)
             if let match = Self.slot.firstMatch(in: s, range: range), match.range == range, let n = Range(match.range(at: 1), in: s), let p = Range(match.range(at: 2), in: s),
-               let found = resolve(String(s[n]), path: String(s[p])) { return found }
+               let found = resolve(String(s[n]), path: String(s[p])) {
+                // A tool's `{{step}}` is what it said, wherever it goes; its fields are asked for by name.
+                if p.isEmpty, let words = said[String(s[n])] { return .string(words) }
+                return found
+            }
             return .string(fill(s))
         case .array(let a): return .array(a.map(fill(native:)))
         case .object(let o): return .object(o.mapValues(fill(native:)))
@@ -245,12 +250,10 @@ struct Values: Equatable, Sendable {
         named[name] = .string(String(text.prefix(Self.keep)))
     }
 
-    /// What a loop goes through for a value: a tool that gave fields beside its words still has its words as the list, as it did before it gave fields. A record goes round once, with whatever's inside it acting on all of it.
-    func loopable(_ items: String) -> JSON {
-        let filled = fill(native: .string(items))
-        let slots = Self.slots(items)
-        if slots.count == 1, slots[0].path.isEmpty, Self.isOneSlot(items), let words = said[slots[0].name] { return Self.structured(.string(words)) }
-        return Self.structured(filled)
+    /// What a practice's pretending can't answer: a field of a value it made up.
+    func isSampleField(_ name: String) -> Bool {
+        guard let root = name.split(whereSeparator: { $0 == "." || $0 == "[" }).first, let value = base(String(root)) else { return false }
+        return Self.text(value) == L("(sample)")
     }
 
     /// A tool's answer: its fields if it gave any it can keep, and always its words.
