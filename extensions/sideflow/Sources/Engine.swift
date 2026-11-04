@@ -33,8 +33,8 @@ import SidefolkExtensionKit
     var resuming: Set<String> = []
     /// Started this time round: `recover` is for what the last time left behind.
     var startedHere: Set<String> = []
-    private var syncing: Set<String> = []
-    private var syncAgain: Set<String> = []
+    /// Watches being made: a card can be up for one, and pausing and resuming meanwhile would ask for a second of the same name.
+    private var makingWatch: Set<String> = []
 
     init(store: FlowStore, catalog: Catalog) {
         self.store = store
@@ -50,21 +50,7 @@ import SidefolkExtensionKit
     func start(_ flow: Flow, mode: Run.Mode, why: String, trigger: String? = nil, setOff: Bool = false) -> Run? {
         // With the file held nothing here can be kept, and a run that can't save isn't one to start.
         guard !store.flowsFileIsHeld, store.flow(flow.id) != nil else { return nil }
-        // On from before a blank step was marked: pausing says so once, where running would do what comes before it each time and then stop.
-        if mode == .live || setOff, let wrong = flow.running.blank {
-            guard var current = store.flow(flow.id), current.state == .on else { return nil }
-            current.state = .paused
-            current.startProblem = wrong
-            current.pausedBecause = L("It has a step that says nothing, so it's paused until that's fixed.")
-            store.save(current)
-            changed()
-            let told = current
-            Task {
-                await pauseWatch(told)
-                await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: true)
-            }
-            return nil
-        }
+        if mode == .live || setOff, pauseIfBlank(flow) { return nil }
         if active.contains(flow.id) {
             // Waiting in line runs under its plan when its turn comes, so only a run that has one may join it.
             guard mode == .live else { return nil }
@@ -154,8 +140,18 @@ import SidefolkExtensionKit
             case .jump(let to):
                 run.pc = to
             case .branch(let step, let condition, let otherwise):
+                let unknown = run.values.undecided(condition)
+                let why = unknown.map { L("It looks at “{name}”, which isn't there this time, so it can't tell which way to go.", ["name": $0]) }
+                // A practice goes on, and says so: that's what it's for.
+                if let why, run.mode != .practice {
+                    guard failed(step, why: why, reads: false, in: &run) else {
+                        finish(&run)
+                        return
+                    }
+                    break
+                }
                 let holds = condition.holds(run.values)
-                run.record(.init(step: step.id, status: .done, summary: Words.branch(condition, holds: holds, body: run.body, catalog: catalog), at: clock()))
+                run.record(.init(step: step.id, status: .done, summary: Words.branch(condition, holds: holds, body: run.body, catalog: catalog), note: why, at: clock()))
                 run.pc = holds ? run.pc + 1 : otherwise
                 store.save(run)
             case .step(let written):
@@ -184,8 +180,8 @@ import SidefolkExtensionKit
                 nextInLoop(step, in: &run)
             case .choose(let step, let targets, let otherwise):
                 guard case .choose(let value, let paths, _) = step.kind else { break }
-                if let name = run.values.missing(in: [value]).first {
-                    guard failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run) else {
+                if let why = step.saysNothing ?? run.values.missing(in: [value]).first.map({ L("It uses “{name}”, but that step didn't run this time.", ["name": $0]) }) {
+                    guard failed(step, why: why, reads: false, in: &run) else {
                         finish(&run)
                         return
                     }
@@ -229,6 +225,8 @@ import SidefolkExtensionKit
 
     /// One step. False stops the walk: the run is over, or it waits for something and comes back here.
     private func perform(_ step: Step, in run: inout Run) async -> Bool {
+        // Reached only by a flow that went on before this was marked: nothing goes to the AI or the person for a step that says nothing.
+        if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
         if let name = run.values.missing(in: step.usedTexts).first {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }
@@ -295,11 +293,6 @@ import SidefolkExtensionKit
             run.pc += 1
             store.save(run)
             return true
-        // Reached only by a flow that went on before this was marked: nothing goes to the AI or the person for a step that says nothing.
-        case .ai(let prompt) where prompt.trimmed.isEmpty:
-            return failed(step, why: L("Say what to write."), reads: false, in: &run)
-        case .ask(let question, _) where question.trimmed.isEmpty:
-            return failed(step, why: L("Say what to ask."), reads: false, in: &run)
         case .ai(let prompt):
             return await writing(step, prompt: prompt, in: &run)
         case .ask(let question, let options):
@@ -870,6 +863,8 @@ import SidefolkExtensionKit
         // Sidefolk shows so much of this and no more. What a flow sets off appears nowhere else on the card, so a long address gives way to it.
         let said = Words.trigger(flow.kept.trigger)
         var when = said.count > Self.longestTriggerWords ? said.prefix(Self.longestTriggerWords) + "…" : said
+        // Whose clock it goes by is what it does too: changing only that has to read differently on the card.
+        if let zone = flow.kept.timeZone?.nonEmpty { when = L("{when}, by the clock of {zone}", ["when": when, "zone": zone]) }
         if flow.kept.allSteps.contains(where: { if case .ai = $0.kind { true } else { false } }) {
             when = L("{when}. What its steps read goes to your AI, to write from.", ["when": when])
         }
@@ -997,6 +992,23 @@ import SidefolkExtensionKit
         Task { await resumeWatch(flow) }
     }
 
+    /// On from before a blank step was marked: pausing says so once, where running would do what comes before it each time and then stop. Whether it has one.
+    @discardableResult func pauseIfBlank(_ flow: Flow) -> Bool {
+        guard let wrong = flow.running.blank else { return false }
+        guard var current = store.flow(flow.id), current.state == .on else { return true }
+        current.state = .paused
+        current.startProblem = wrong
+        current.pausedBecause = L("It has a step that says nothing, so it's paused until that's fixed.")
+        store.save(current)
+        changed()
+        let told = current
+        Task {
+            await pauseWatch(told)
+            await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: true)
+        }
+        return true
+    }
+
     func delete(_ id: String) {
         guard let flow = store.flow(id) else { return }
         for run in store.unfinished() where run.flow == id { stop(run: run.id) }
@@ -1097,7 +1109,8 @@ import SidefolkExtensionKit
     }
 
     private func makeWatch(_ id: String) async {
-        guard let flow = store.flow(id), flow.state == .on, case .watch(let w) = flow.running.trigger else { return }
+        guard let flow = store.flow(id), flow.state == .on, case .watch(let w) = flow.running.trigger, makingWatch.insert(id).inserted else { return }
+        defer { makingWatch.remove(id) }
         let title = Self.watchTitle(flow)
         let made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: flow.planId, written: nil)
         guard var after = store.flow(id) else {

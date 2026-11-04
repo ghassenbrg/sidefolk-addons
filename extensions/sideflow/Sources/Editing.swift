@@ -180,7 +180,10 @@ enum Editing {
                 data.from = remap(data.from)
                 data.than = data.than.map(remap)
                 out.kind = .data(data)
-            case .wait, .flow, .attempt, .parallel, .form, .waitFor: break
+            case .form(var form):
+                form.title = remap(form.title)
+                out.kind = .form(form)
+            case .wait, .flow, .attempt, .parallel, .waitFor: break
             }
             return out
         }
@@ -192,6 +195,9 @@ enum Editing {
     @MainActor static func changes(from old: FlowBody, to new: FlowBody, catalog: Catalog) -> [String] {
         var out: [String] = []
         if old.trigger != new.trigger { out.append(L("What sets it off: {what}", ["what": Words.trigger(new.trigger)])) }
+        if old.overlap != new.overlap { out.append(L("Changed: {step}", ["step": L("If it's set off while running")])) }
+        if old.timeZone != new.timeZone { out.append(L("Changed: {step}", ["step": L("By the clock of")])) }
+        if old.triggerSample != new.triggerSample { out.append(L("Changed: {step}", ["step": L("In practice, what set it off")])) }
         let before = Dictionary(old.allSteps.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         let after = Dictionary(new.allSteps.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         for step in new.allSteps where before[step.id] == nil { out.append(L("Added: {step}", ["step": Words.label(step, catalog: catalog)])) }

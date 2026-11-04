@@ -83,6 +83,27 @@ struct Values: Equatable, Sendable {
         base(name).flatMap { Self.walk($0, path: Self.parts(of: path)) }
     }
 
+    /// Each `{{name.path}}` in a text, path and all.
+    static func slots(_ text: String) -> [(name: String, path: String)] {
+        slot.matches(in: text, range: NSRange(text.startIndex..., in: text)).compactMap { match in
+            guard let n = Range(match.range(at: 1), in: text), let p = Range(match.range(at: 2), in: text) else { return nil }
+            return (String(text[n]), String(text[p]))
+        }
+    }
+
+    /// What a condition looks at that isn't there, so it can't decide. Asking whether a step ran at all is what "is empty" is for, and what wasn't given to a flow is the same;
+    /// a field missing from what a step did give is neither: filled in as nothing, a reply without `errors` would read as a reply saying there are none.
+    func undecided(_ condition: Condition) -> String? {
+        for check in condition.checks {
+            if check.test == .is_empty || check.test == .not_empty {
+                for (name, path) in Self.slots(check.value) where !path.isEmpty && name != "input" && resolve(name, path: "") != nil && resolve(name, path: path) == nil { return name + path }
+            } else if let name = missing(in: [check.value, check.than]).first {
+                return name
+            }
+        }
+        return nil
+    }
+
     /// What these words use that no step has made: a step on the path not taken, a field that isn't there. Filling it in as nothing would give a real action an empty value.
     func missing(in texts: [String]) -> [String] {
         texts.flatMap { text -> [String] in

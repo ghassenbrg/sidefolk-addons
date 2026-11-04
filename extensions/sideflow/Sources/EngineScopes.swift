@@ -8,6 +8,7 @@ extension Engine {
     /// A list of things as they are, or lines of text if it's text: never guessed from words that look like a list.
     func startLoop(_ step: Step, end: Int, in run: inout Run) -> Bool {
         guard case .forEach(let items, let limit, let failure, let steps) = step.kind else { return true }
+        if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
         if let name = run.values.missing(in: [items]).first {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }
@@ -154,6 +155,9 @@ extension Engine {
         guard practicing || other.state == .on else {
             return failed(step, why: L("“{name}” isn't on, so it can't run by itself.", ["name": name]), reads: false, in: &run)
         }
+        if !practicing, pauseIfBlank(other) {
+            return failed(step, why: L("It has a step that says nothing, so it's paused until that's fixed."), reads: false, in: &run)
+        }
         var values = Values()
         (values.today, values.now) = (run.values.today, run.values.now)
         values.set("input", JSON.object(inputs.mapValues { run.values.fill(native: .string($0)) }))
@@ -218,8 +222,10 @@ extension Engine {
 
     /// A lane's name as a value is reached by: `{{step.first_lane}}`.
     static func key(_ name: String) -> String {
-        let clean = String(name.lowercased().map { $0.isLetter || $0.isNumber ? $0 : "_" }).trimmingCharacters(in: CharacterSet(charactersIn: "_"))
-        return clean.isEmpty ? "lane" : clean
+        // In the letters a value's name can have, whatever language the lane is named in.
+        let latin = name.applyingTransform(.toLatin, reverse: false)?.applyingTransform(.stripDiacritics, reverse: false) ?? name
+        let clean = String(latin.lowercased().map { $0.isASCII && ($0.isLetter || $0.isNumber) ? $0 : "_" }).trimmingCharacters(in: CharacterSet(charactersIn: "_"))
+        return clean.isEmpty ? "lane" : String(clean.prefix(40))
     }
 
     static let deepestCalls = 6
@@ -287,14 +293,15 @@ extension Engine {
             // Back here with no answer: its time ran out.
             run.form = nil
             run.resumeAt = nil
-            return failed(step, why: L("Nobody filled in “{title}” in time.", ["title": form.title]), reads: false, in: &run)
+            return failed(step, why: L("Nobody filled in “{title}” in time.", ["title": run.values.fill(form.title)]), reads: false, in: &run)
         }
         run.form = Run.WaitingForm(step: step.id)
         run.resumeAt = clock().addingTimeInterval(Double(form.hours) * 3600)
         run.status = .waiting
-        run.record(.init(step: step.id, status: .waiting, summary: L("Waiting for you to fill in: {title}", ["title": form.title]), at: clock()))
+        let filled = run.values.fill(form.title)
+        run.record(.init(step: step.id, status: .waiting, summary: L("Waiting for you to fill in: {title}", ["title": filled]), at: clock()))
         store.save(run)
-        let (name, title) = (run.flowName, form.title)
+        let (name, title) = (run.flowName, filled)
         Task { await host?.notify(title: L("{flow} needs you", ["flow": name]), body: title, attention: true) }
         return false
     }

@@ -776,7 +776,6 @@
     "Say what it asks": "Di’ cosa chiede",
     "Say what to look at": "Di’ cosa guardare",
     "Say what to look at.": "Di’ cosa guardare.",
-    "Say what to test.": "Di’ cosa verificare.",
     "Say which list": "Di’ quale lista",
     "Say which list to go through.": "Di’ quale lista scorrere.",
     "Second": "Seconda",
@@ -894,6 +893,11 @@
       "one": "{count} esecuzione attende una routine che ora non si può leggere. Riprende se torna.",
       "other": "{count} esecuzioni attendono routine che ora non si possono leggere. Riprendono se tornano."
     },
-    "Look at": "Guarda"
+    "Look at": "Guarda",
+    "A choice in a form needs at least two answers.": "Una scelta in un modulo richiede almeno due risposte.",
+    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "Guarda «{name}», che stavolta non c'è, quindi non può sapere che strada prendere.",
+    "It uses “{name}”, which that step doesn't give. It may have been renamed.": "Usa «{name}», che quel passaggio non fornisce. Forse è stato rinominato.",
+    "There's no other flow to run yet.": "Non c'è ancora un'altra routine da avviare.",
+    "{when}, by the clock of {zone}": "{when}, secondo l'ora di {zone}"
   }
 }

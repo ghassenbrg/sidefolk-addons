@@ -812,7 +812,6 @@
     "Say what it asks": "اكتب ما يسأل عنه",
     "Say what to look at": "اكتب ما يُنظر إليه",
     "Say what to look at.": "اكتب ما يُنظر إليه.",
-    "Say what to test.": "اكتب ما يُختبر.",
     "Say which list": "اكتب أي قائمة",
     "Say which list to go through.": "اكتب أي قائمة يُمر عليها.",
     "Second": "الثاني",
@@ -938,6 +937,11 @@
       "many": "{count} تشغيلًا ينتظر روتينات يتعذر قراءتها الآن. تتابع إذا عادت.",
       "other": "{count} تشغيل ينتظر روتينات يتعذر قراءتها الآن. تتابع إذا عادت."
     },
-    "Look at": "انظر إلى"
+    "Look at": "انظر إلى",
+    "A choice in a form needs at least two answers.": "يحتاج الاختيار في النموذج إلى إجابتين على الأقل.",
+    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "ينظر في «{name}» الذي لا يوجد هذه المرة، لذا لا يمكنه تحديد الطريق.",
+    "It uses “{name}”, which that step doesn't give. It may have been renamed.": "يستخدم «{name}» الذي لا تقدّمه تلك الخطوة. ربما أُعيدت تسميته.",
+    "There's no other flow to run yet.": "لا يوجد روتين آخر لتشغيله بعد.",
+    "{when}, by the clock of {zone}": "{when}، حسب توقيت {zone}"
   }
 }

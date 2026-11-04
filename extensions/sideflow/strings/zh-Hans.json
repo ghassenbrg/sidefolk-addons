@@ -767,7 +767,6 @@
     "Say what it asks": "说明要问什么",
     "Say what to look at": "说明要查看什么",
     "Say what to look at.": "说明要查看什么。",
-    "Say what to test.": "说明要测试什么。",
     "Say which list": "说明是哪个列表",
     "Say which list to go through.": "说明要遍历哪个列表。",
     "Second": "第二个",
@@ -883,6 +882,11 @@
     "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
       "other": "{count} 次运行正在等待目前无法读取的流程。流程恢复后会继续。"
     },
-    "Look at": "查看"
+    "Look at": "查看",
+    "A choice in a form needs at least two answers.": "表单中的选项至少需要两个答案。",
+    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "它要查看“{name}”，但这次没有，因此无法判断走哪条路。",
+    "It uses “{name}”, which that step doesn't give. It may have been renamed.": "它使用了“{name}”，但那一步不提供它。可能已被重命名。",
+    "There's no other flow to run yet.": "还没有其他可运行的流程。",
+    "{when}, by the clock of {zone}": "{when}（按 {zone} 时间）"
   }
 }

@@ -45,7 +45,7 @@ import SidefolkExtensionKit
         case "add_kind":
             let f = try flow()
             guard let kind = a.string("kind") else { return .stay }
-            let new = newStep(kind, in: f.draft, app)
+            let new = newStep(kind, in: f.draft, of: f.id, app)
             try draft { $0 = Editing.insert(new, after: a.string("after") ?? "start", in: $0) }
             app.nav.inspect(.step(new.id), in: f.id)
         case "remove":
@@ -147,7 +147,9 @@ import SidefolkExtensionKit
             let at = a.int("path") ?? 0
             try editStep { s in
                 guard case .choose(let value, var paths, let otherwise) = s.kind else { return }
-                if op == "path_add" { paths.append(Step.Path(when: "", steps: [])) }
+                if op == "path_add" {
+                    if paths.count < FlowBody.mostPaths { paths.append(Step.Path(when: "", steps: [])) }
+                }
                 else if paths.indices.contains(at) {
                     if op == "path_when" { paths[at].when = text } else if paths.count > 1 { paths.remove(at: at) }
                 }
@@ -157,7 +159,9 @@ import SidefolkExtensionKit
             let at = a.int("lane") ?? 0
             try editStep { s in
                 guard case .parallel(var lanes) = s.kind else { return }
-                if op == "lane_add" { lanes.append(Step.Lane(name: L("Lane {count}", ["count": Format.integer(lanes.count + 1)]), steps: [])) }
+                if op == "lane_add" {
+                    if lanes.count < FlowBody.mostLanes { lanes.append(Step.Lane(name: L("Lane {count}", ["count": Format.integer(lanes.count + 1)]), steps: [])) }
+                }
                 else if lanes.indices.contains(at) {
                     if op == "lane_name" { lanes[at].name = text.nonEmpty ?? lanes[at].name } else if lanes.count > 2 { lanes.remove(at: at) }
                 }
@@ -181,7 +185,7 @@ import SidefolkExtensionKit
                 case "data_test": d.test = a.string("value").flatMap(Condition.Test.init(rawValue:))
                 case "data_than": d.than = text
                 case "data_descending": d.descending = a.bool("on") ?? false
-                case "data_count": d.count = Int(text.trimmed)
+                case "data_count": d.count = Int(text.trimmed).map { max(1, $0) }
                 default: d.separator = text
                 }
                 s.kind = .data(d)
@@ -405,7 +409,9 @@ import SidefolkExtensionKit
         return .stay
     }
 
-    static func newStep(_ kind: String, in body: FlowBody, _ app: App) -> Step {
+    static func newStep(_ kind: String, in body: FlowBody, of flow: String, _ app: App) -> Step {
+        // Another flow, if there is one: run on itself it can only fail. With none it stays to be picked, and it's marked.
+        let other = app.store.flows().first { $0.id != flow }?.name ?? ""
         if kind.hasPrefix("tool:") {
             let name = String(kind.dropFirst(5))
             let t = app.catalog.tool(name)
@@ -415,7 +421,7 @@ import SidefolkExtensionKit
         case "job":
             return Step(id: Editing.freshId(body, base: "job"), name: L("Let your companion do it"), kind: .action(tool: "companion.job", input: ["job": .string("")]))
         case "flow":
-            return Step(id: Editing.freshId(body, base: "flow"), kind: .flow(app.store.flows().first?.name ?? ""))
+            return Step(id: Editing.freshId(body, base: "flow"), kind: .flow(other))
         case "tell":
             return Step(id: Editing.freshId(body, base: "tell"), name: L("Tell me"), kind: .action(tool: "notify.user", input: ["title": .string(L("Done"))]))
         case "ai": return Step(id: Editing.freshId(body, base: "written"), kind: .ai(prompt: ""))
@@ -426,7 +432,7 @@ import SidefolkExtensionKit
         case "choose": return Step(id: Editing.freshId(body, base: "choose"), kind: .choose(value: "", paths: [Step.Path(when: "", steps: []), Step.Path(when: "", steps: [])], otherwise: []))
         case "try": return Step(id: Editing.freshId(body, base: "try"), kind: .attempt(steps: [], recover: [], always: []))
         case "parallel": return Step(id: Editing.freshId(body, base: "together"), kind: .parallel(lanes: [Step.Lane(name: L("First"), steps: []), Step.Lane(name: L("Second"), steps: [])]))
-        case "call": return Step(id: Editing.freshId(body, base: "called"), kind: .call(flow: app.store.flows().first?.name ?? "", inputs: [:]))
+        case "call": return Step(id: Editing.freshId(body, base: "called"), kind: .call(flow: other, inputs: [:]))
         case "finish": return Step(id: Editing.freshId(body, base: "finish"), kind: .finish(""))
         case "data": return Step(id: Editing.freshId(body, base: "data"), kind: .data(DataStep(op: .lines, from: "")))
         case "form": return Step(id: Editing.freshId(body, base: "form"), kind: .form(FormStep(title: "", fields: [FormStep.Field(name: "answer", label: L("Your answer"), kind: .text)], hours: 24)))

@@ -406,9 +406,10 @@ extension JSON {
         let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
         await w.quiet(app.store)
         let done = try #require(app.store.run(run.id))
-        let second = Pages.stepDetail(done, step: "t", scope: "2", app)
-        #expect(JSONText.write(second.map { $0.blocks.map { "\($0)" } }).contains("got b"))
-        #expect(!JSONText.write(second.map { $0.blocks.map { "\($0)" } }).contains("got a"))
+        // The first, not the second: with the scope ignored it would show the last go.
+        let first = Pages.stepDetail(done, step: "t", scope: "1", app)
+        #expect(JSONText.write(first.map { $0.blocks.map { "\($0)" } }).contains("got a"))
+        #expect(!JSONText.write(first.map { $0.blocks.map { "\($0)" } }).contains("got b"))
     }
 
     /// What was live comes back as a draft, to read, and nothing runs differently until it's applied.
@@ -935,7 +936,7 @@ extension JSON {
     @Test func endingThePlanStopsItsWatchAndKeepsWhatWasOn() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         w.store.save(flow)
         w.engine.planEnded(flow.id)
         await w.quiet()
@@ -950,7 +951,7 @@ extension JSON {
     @Test func deletingStopsTheWatchWhileThePlanStillStands() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         w.store.save(flow)
         w.engine.delete(flow.id)
         await w.quiet()
@@ -1144,7 +1145,7 @@ extension JSON {
     @Test func anUnclearResumeDoesntMakeASecondWatch() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .paused)
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         w.store.save(flow)
         w.host.answers["watch.resume"] = [Actions.Outcome(status: .lost, text: "")]
         w.engine.resume(flow.id)
@@ -1156,7 +1157,7 @@ extension JSON {
     @Test func aFlowThatStopsBeingAWatchTakesItsWatchWithIt() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         flow.draft = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "do": "reads.it"]]])
         w.store.save(flow)
         #expect(w.engine.livePlan(flow).steps.contains { $0.tool == "watch.stop" }, "on the card")
@@ -1190,7 +1191,7 @@ extension JSON {
     @Test func aWatchStopThatDidntWorkKeepsTheName() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         flow.draft = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "do": "reads.it"]]])
         w.store.save(flow)
         w.engine.busyPause = 0
@@ -1198,7 +1199,7 @@ extension JSON {
         w.engine.turnOn(flow.id)
         await w.quiet()
         #expect(w.host.calls.filter { $0.tool == "watch.stop" }.count == 2, "it waited once")
-        #expect(w.store.flow(flow.id)?.watchTitle == "T", "still the way to reach it")
+        #expect(w.store.flow(flow.id)?.watchTitle == "Test · Sideflow", "still the way to reach it")
         #expect(w.store.flow(flow.id)?.state == .paused, "and a way out on the page")
     }
 
@@ -1206,7 +1207,7 @@ extension JSON {
         for status in [Actions.Outcome.Status.denied, .unanswered, .lost, .failed, .error] {
             let w = try World()
             var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .paused)
-            flow.watchTitle = "T"
+            flow.watchTitle = "Test · Sideflow"
             w.store.save(flow)
             w.host.answers["watch.resume"] = [Actions.Outcome(status: status, text: "")]
             w.engine.resume(flow.id)
@@ -1325,12 +1326,12 @@ extension JSON {
         let w = try World()
         w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken")]
         var target = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]]])
-        target.name = "T"
+        target.name = "Other"
         w.store.save(target)
-        let draft = try w.flow([["id": "go", "run_flow": "T"]], state: .draft)
+        let draft = try w.flow([["id": "go", "run_flow": "Other"]], state: .draft)
         _ = await w.settled(w.engine.start(draft, mode: .once, why: "t"))
         await w.quiet()
-        #expect(w.host.notices.contains { $0.title.contains("T") })
+        #expect(w.host.notices.contains { $0.title.contains("Other") })
     }
 
     @Test func practiceSaysWhenItCouldntRunForReal() async throws {
@@ -1442,7 +1443,7 @@ extension JSON {
             let w = try World()
             let trigger: [String: Any] = ["type": "watch", "kind": "url_change", "target": "https://x.example"]
             var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: trigger)
-            flow.watchTitle = "T"
+            flow.watchTitle = "Test · Sideflow"
             flow.draft = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://y.example"], "steps": [["id": "a", "do": "reads.it"]]])
             w.store.save(flow)
             w.host.answers["watch.stop"] = [Actions.Outcome(status: status, text: "")]
@@ -1452,7 +1453,7 @@ extension JSON {
             let after = try #require(w.store.flow(flow.id))
             #expect(after.state == .paused)
             #expect(after.startProblem != nil)
-            #expect(after.watchTitle == "T")
+            #expect(after.watchTitle == "Test · Sideflow")
         }
     }
 
@@ -1460,7 +1461,7 @@ extension JSON {
         let w = try World()
         w.engine.busyPause = 0
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         flow.draft = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://y.example"], "steps": [["id": "a", "do": "reads.it"]]])
         w.store.save(flow)
         w.host.answers["watch.stop"] = [Actions.Outcome(status: .busy, text: "")]
@@ -1474,7 +1475,7 @@ extension JSON {
     @Test func aWatchThatsAlreadyGoneLetsTheNameGo() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         flow.draft = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "do": "reads.it"]]])
         w.store.save(flow)
         w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "gone", notFound: true)]
@@ -1487,7 +1488,7 @@ extension JSON {
     @Test func anOldWatchNoLongerSetsOffAFlowThatStoppedBeingOne() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "schedule", "every_minutes": 60])
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         w.store.save(flow)
         w.engine.watchFired(title: "T", summary: "changed")
         await w.quiet()
@@ -1497,7 +1498,7 @@ extension JSON {
     @Test func aResumeThatFoundNothingMakesItAgain() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .paused)
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         w.store.save(flow)
         w.host.answers["watch.resume"] = [Actions.Outcome(status: .failed, text: "gone", notFound: true)]
         w.engine.resume(flow.id)
@@ -1510,7 +1511,7 @@ extension JSON {
         for status in [Actions.Outcome.Status.denied, .unanswered] {
             let w = try World()
             var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .paused)
-            flow.watchTitle = "T"
+            flow.watchTitle = "Test · Sideflow"
             w.store.save(flow)
             w.host.answers["watch.resume"] = [Actions.Outcome(status: status, text: "No")]
             w.engine.resume(flow.id)
@@ -1603,7 +1604,7 @@ extension JSON {
 
     private func applied(_ w: World, from: [String: Any] = x, to: [String: Any]) throws -> Flow {
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: from)
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         flow.draft = try FlowCodec.body(["trigger": to, "steps": [["id": "a", "do": "reads.it"]]])
         w.store.save(flow)
         return flow
@@ -1710,7 +1711,7 @@ extension JSON {
     @Test func aFlowFromBeforeThisKeepsItsWatchOnResume() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: Self.x, state: .paused)
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         w.store.save(flow)
         w.engine.resume(flow.id)
         await w.quiet()
@@ -1721,7 +1722,7 @@ extension JSON {
         let w = try World()
         w.engine.busyPause = 0
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: Self.x, state: .paused)
-        flow.watchTitle = "T"
+        flow.watchTitle = "Test · Sideflow"
         w.store.save(flow)
         w.host.answers["watch.resume"] = [Actions.Outcome(status: .busy, text: ""), Actions.Outcome(status: .busy, text: "")]
         w.engine.resume(flow.id)

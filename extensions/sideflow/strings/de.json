@@ -776,7 +776,6 @@
     "Say what it asks": "Sag, was er fragt",
     "Say what to look at": "Sag, was angesehen werden soll",
     "Say what to look at.": "Sag, was angesehen werden soll.",
-    "Say what to test.": "Sag, was getestet werden soll.",
     "Say which list": "Sag, welche Liste",
     "Say which list to go through.": "Sag, welche Liste durchgegangen werden soll.",
     "Second": "Zweite",
@@ -894,6 +893,11 @@
       "one": "{count} Durchlauf wartet auf einen Ablauf, der sich gerade nicht lesen lässt. Er läuft weiter, wenn er zurückkommt.",
       "other": "{count} Durchläufe warten auf Abläufe, die sich gerade nicht lesen lassen. Sie laufen weiter, wenn sie zurückkommen."
     },
-    "Look at": "Ansehen"
+    "Look at": "Ansehen",
+    "A choice in a form needs at least two answers.": "Eine Auswahl im Formular braucht mindestens zwei Antworten.",
+    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "Er prüft „{name}“, das diesmal fehlt, und kann deshalb nicht entscheiden, welcher Weg gilt.",
+    "It uses “{name}”, which that step doesn't give. It may have been renamed.": "Er verwendet „{name}“, das dieser Schritt nicht liefert. Vielleicht wurde es umbenannt.",
+    "There's no other flow to run yet.": "Es gibt noch keinen anderen Ablauf zum Starten.",
+    "{when}, by the clock of {zone}": "{when}, nach der Uhrzeit von {zone}"
   }
 }

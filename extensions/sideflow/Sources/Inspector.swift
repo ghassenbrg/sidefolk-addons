@@ -207,7 +207,7 @@ import SidefolkExtensionKit
         case .branch(let c, _, _):
             main += conditionForm(c, step: step, tokens: tokens, input: input)
         case .flow(let name):
-            main.append(.choice(L("Which flow"), options: app.store.flows().filter { $0.id != flow.id }.map { ($0.name, $0.name) }, selected: name, tool: "ui", input: input("run_flow")))
+            main.append(flowPicker(flow, selected: name, app, input: input("run_flow")))
         case .wait(let minutes):
             main.append(.edit(EditField("\(step.id).minutes", L("Minutes"), value: String(minutes), kind: .number, tool: "ui", input: input("wait"))))
         case .forEach(let items, let limit, let failure, _):
@@ -230,7 +230,7 @@ import SidefolkExtensionKit
             }
             if lanes.count < FlowBody.mostLanes { main.append(.action(Action(L("Add a lane"), tool: "ui", input: input("lane_add"), style: .plain, symbol: "plus.circle"))) }
         case .call(let name, let inputs):
-            main.append(.choice(L("Which flow"), options: app.store.flows().filter { $0.id != flow.id }.map { ($0.name, $0.name) }, selected: name, tool: "ui", input: input("call_flow")))
+            main.append(flowPicker(flow, selected: name, app, input: input("call_flow")))
             let wanted = app.store.named(name).map { Self.inputs(of: $0.running) } ?? []
             for key in wanted {
                 main.append(.edit(EditField("\(step.id).input.\(key)", key.replacingOccurrences(of: "_", with: " ").capitalizedFirst, value: inputs[key] ?? "", tokens: tokens, tool: "ui", input: input("call_input", ["name": key]))))
@@ -239,7 +239,7 @@ import SidefolkExtensionKit
         case .finish(let value):
             main.append(.edit(EditField("\(step.id).value", L("Its result"), value: value, placeholder: L("Nothing"), tokens: tokens, tool: "ui", input: input("finish_value"))))
         case .data(let data):
-            main.append(.choice(L("What to do"), options: DataStep.Op.allCases.map { ($0.rawValue, Words.dataName($0)) }, selected: data.op.rawValue, tool: "ui", input: input("data_op")))
+            main.append(.picker(L("What to do"), style: .menu, DataStep.Op.allCases.map { Option($0.rawValue, Words.dataName($0)) }, selected: data.op.rawValue, tool: "ui", input: input("data_op")))
             main.append(.edit(EditField("\(step.id).from", L("From"), value: data.from, placeholder: L("Which value"), tokens: tokens, tool: "ui", input: input("data_from"))))
             if [.field, .filter, .sort, .unique, .sum].contains(data.op) {
                 main.append(.edit(EditField("\(step.id).field", L("The field in each"), value: data.field ?? "", detail: L("A name, or a.b for one inside another. Empty for the item itself."), tool: "ui", input: input("data_field"))))
@@ -271,7 +271,7 @@ import SidefolkExtensionKit
             main.append(.edit(EditField("\(step.id).contains", L("Only if it mentions"), value: contains ?? "", placeholder: L("Anything"), tool: "ui", input: input("wait_contains"))))
             main.append(.edit(EditField("\(step.id).minutes", L("For up to (minutes)"), value: String(minutes), kind: .number, tool: "ui", input: input("wait_minutes"))))
         }
-        if step.hasOutput {
+        if case .action = step.kind {
             more.append(.edit(EditField("\(step.id).sample", L("In practice, pretend it gives"), value: step.sample ?? "", detail: L("A practice run uses this instead of running it, to try a way a real answer would take. JSON stays JSON."), kind: .multiline, tool: "ui", input: input("sample"))))
         }
         more.append(.edit(EditField("\(step.id).name", L("Call this step"), value: step.name ?? "", placeholder: Words.label(step, catalog: app.catalog), tool: "ui", input: input("step_name"))))
@@ -309,6 +309,13 @@ import SidefolkExtensionKit
                                    kind: p.name == "text" || p.name == "body" || p.name == "job" ? .multiline : (p.kind == .integer || p.kind == .number ? .number : .text),
                                    tokens: p.kind == .text ? tokens : [], tool: "ui", input: args))
         }
+    }
+
+    /// The other flows: as a menu, since there can be one or many. None to pick is said, not left blank.
+    private static func flowPicker(_ flow: Flow, selected: String, _ app: App, input: [String: Any]) -> Block {
+        let others = app.store.flows().filter { $0.id != flow.id }
+        guard !others.isEmpty else { return .note(L("There's no other flow to run yet."), tone: .warn) }
+        return .picker(L("Which flow"), style: .menu, others.map { Option($0.name, $0.name) }, selected: selected, tool: "ui", input: input)
     }
 
     /// “If [this] [mentions] [that]”, as many as it takes, then where its two paths are.

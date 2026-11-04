@@ -106,6 +106,22 @@ struct Step: Equatable, Sendable {
     enum OnFailure: String, CaseIterable, Sendable { case stop, carry_on, retry }
 
     /// The words of this step that may name other steps' results.
+    /// What it needs before it can do anything: a page saves as it goes, so it can be halfway through being written.
+    var saysNothing: String? {
+        switch kind {
+        case .ai(let prompt) where prompt.trimmed.isEmpty: L("Say what to write.")
+        case .ask(let question, _) where question.trimmed.isEmpty: L("Say what to ask.")
+        case .flow(let name) where name.trimmed.isEmpty: L("Pick which flow to run.")
+        case .call(let name, _) where name.trimmed.isEmpty: L("Pick which flow to run.")
+        case .forEach(let items, _, _, _) where items.trimmed.isEmpty: L("Say which list to go through.")
+        case .choose(let value, _, _) where value.trimmed.isEmpty: L("Say what to look at.")
+        case .data(let data) where data.from.trimmed.isEmpty: L("Say what from")
+        case .form(let form) where form.fields.isEmpty: L("Add something for the form to ask.")
+        case .form(let form) where form.fields.contains { $0.kind == .choice && $0.options.count < 2 }: L("A choice in a form needs at least two answers.")
+        default: nil
+        }
+    }
+
     var usedTexts: [String] {
         switch kind {
         case .action(_, let input): input.values.flatMap(\.strings)
@@ -512,7 +528,7 @@ enum FlowCodec {
             kind = .wait(minutes: minutes)
         } else if let name = o["run_flow"] as? String, saved || !name.trimmed.isEmpty {
             kind = .flow(name)
-        } else if let items = o["for_each"] as? String {
+        } else if let items = o["for_each"] as? String, saved || !items.trimmed.isEmpty {
             let limit = (o["limit"] as? NSNumber)?.intValue ?? FlowBody.longestLoop
             guard (1...FlowBody.longestLoop).contains(limit) else { throw Problem(L("“limit” is 1 to {count} items.", ["count": Format.integer(FlowBody.longestLoop)])) }
             var failure = Step.LoopFailure.stop
@@ -521,9 +537,9 @@ enum FlowCodec {
                 failure = f
             }
             kind = .forEach(items: items, limit: limit, onFailure: failure, steps: try steps(o["steps"] ?? [], depth: depth + 1, used: &used))
-        } else if let value = o["choose"] as? String {
+        } else if let value = o["choose"] as? String, saved || !value.trimmed.isEmpty {
             let raw = o["paths"] as? [[String: Any]] ?? []
-            guard (1...FlowBody.mostPaths).contains(raw.count) else { throw Problem(L("“paths” are 1 to {count} ways to go.", ["count": Format.integer(FlowBody.mostPaths)])) }
+            guard saved || (1...FlowBody.mostPaths).contains(raw.count) else { throw Problem(L("“paths” are 1 to {count} ways to go.", ["count": Format.integer(FlowBody.mostPaths)])) }
             let paths = try raw.map { p -> Step.Path in
                 guard let when = p["when"] as? String else { throw Problem(L("Each path says “when”.")) }
                 return Step.Path(when: when, steps: try steps(p["steps"] ?? [], depth: depth + 1, used: &used))
@@ -532,7 +548,7 @@ enum FlowCodec {
         } else if o["try"] != nil {
             kind = .attempt(steps: try steps(o["try"], depth: depth + 1, used: &used), recover: try steps(o["recover"] ?? [], depth: depth + 1, used: &used), always: try steps(o["always"] ?? [], depth: depth + 1, used: &used))
         } else if let raw = o["parallel"] as? [[String: Any]] {
-            guard (2...FlowBody.mostLanes).contains(raw.count) else { throw Problem(L("“parallel” is 2 to {count} lanes.", ["count": Format.integer(FlowBody.mostLanes)])) }
+            guard saved || (2...FlowBody.mostLanes).contains(raw.count) else { throw Problem(L("“parallel” is 2 to {count} lanes.", ["count": Format.integer(FlowBody.mostLanes)])) }
             kind = .parallel(lanes: try raw.enumerated().map { at, lane in
                 Step.Lane(name: (lane["name"] as? String)?.nonEmpty ?? L("Lane {count}", ["count": Format.integer(at + 1)]), steps: try steps(lane["steps"] ?? [], depth: depth + 1, used: &used))
             })
@@ -541,7 +557,7 @@ enum FlowCodec {
         } else if let value = o["finish"] as? String {
             kind = .finish(value)
         } else if let raw = o["data"] as? [String: Any] {
-            guard let op = (raw["op"] as? String).flatMap(DataStep.Op.init(rawValue:)), let from = raw["from"] as? String else {
+            guard let op = (raw["op"] as? String).flatMap(DataStep.Op.init(rawValue:)), let from = raw["from"] as? String, saved || !from.trimmed.isEmpty else {
                 throw Problem(L("“data” needs “from” and “op”: {ops}.", ["ops": DataStep.Op.allCases.map(\.rawValue).joined(separator: ", ")]))
             }
             var test: Condition.Test?

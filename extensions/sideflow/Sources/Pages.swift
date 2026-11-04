@@ -409,10 +409,11 @@ import SidefolkExtensionKit
         }
         if flow.hasChanges, !running { sentence = L("On, as before. Your changes aren't live.") }
         // Unsaved comes first: the one thing to do is keep or drop them, and the mark and the button say so wherever the flow stands.
-        if saveFirst, !running {
+        // A run that's under way has what it was given, so it doesn't stand in the way: one in a wait can be there for a day. A practice has the bar to itself until it stops.
+        if saveFirst, !(running && practice?.status == .running) {
             pill = Badge(L("Unsaved changes"), tone: .warn)
             sentence = flow.state == .on ? L("Only here so far. What's running hasn't changed.") : L("Only here so far. ⌘S keeps them, ⌘Z steps back.")
-            actions = [button(L("Discard"), "discard", id, style: .plain), button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
+            actions = [button(L("Discard"), "discard", id, style: .plain), button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready || running),
                        button(L("Save"), "save", id, style: .primary, symbol: "checkmark", detail: L("⌘S"))]
             extra.removeAll { $0.label == L("Turn on without practicing") }
         } else if !running {
@@ -693,7 +694,7 @@ import SidefolkExtensionKit
         }
         let current = currentStep(run)
         let said = current.flatMap { run.record(of: $0)?.summary } ?? ""
-        if app.store.isHeldBack(flow: run.flow) { detail = L("Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.") }
+        if app.store.isHeldBack(flow: run.flow), !run.status.isOver { detail = L("Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.") }
         else { switch run.status {
         case .interrupted:
             detail = L("Sidefolk stopped in the middle of this: {step}. It may have happened already.", ["step": said])

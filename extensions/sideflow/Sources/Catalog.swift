@@ -99,16 +99,7 @@ extension FlowBody {
 
     /// A step that says nothing: a page saves as it goes, so it can be halfway through being written.
     var blank: String? {
-        for step in allSteps {
-            switch step.kind {
-            case .ai(let prompt) where prompt.trimmed.isEmpty: return L("Say what to write.")
-            case .ask(let question, _) where question.trimmed.isEmpty: return L("Say what to ask.")
-            case .flow(let name) where name.trimmed.isEmpty: return L("Pick which flow to run.")
-            case .call(let name, _) where name.trimmed.isEmpty: return L("Pick which flow to run.")
-            default: break
-            }
-        }
-        return nil
+        allSteps.lazy.compactMap(\.saysNothing).first
     }
 
     /// What keeps it from running at all, whoever asks.
@@ -129,7 +120,19 @@ extension FlowBody {
         }
         /// What only one path of a condition made: there, but not for sure.
         var onOnePath = Set<String>()
+        /// What the steps that give several things give: a renamed lane or a removed field would otherwise be found out only when it runs.
+        let gives: [String: Set<String>] = Dictionary(allSteps.compactMap { step -> (String, Set<String>)? in
+            switch step.kind {
+            case .parallel(let lanes): (step.id, Set(lanes.map { Engine.key($0.name) }))
+            case .form(let form): (step.id, Set(form.fields.map(\.name)))
+            default: nil
+            }
+        }, uniquingKeysWith: { a, _ in a })
         func refs(_ strings: [String], _ step: Step, seen: Set<String>) {
+            for (name, path) in strings.flatMap(Values.slots) {
+                guard let known = gives[name], let field = path.dropFirst().split(whereSeparator: { $0 == "." || $0 == "[" }).first.map(String.init), !known.contains(field) else { continue }
+                out.append(FlowProblem(step: step.id, text: L("It uses “{name}”, which that step doesn't give. It may have been renamed.", ["name": name + path])))
+            }
             for name in strings.flatMap(Values.references) where !seen.contains(name) {
                 out.append(FlowProblem(step: step.id, text: onOnePath.contains(name)
                     ? L("It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.", ["name": name])
@@ -153,6 +156,9 @@ extension FlowBody {
                 if flow.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Pick which flow to run."))) } else if !catalog.findsFlow(flow) { out.append(FlowProblem(step: step.id, text: L("There's no one flow called “{name}”. Pick it again.", ["name": flow]))) }
             case .form(let form):
                 if form.fields.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add something for the form to ask."))) }
+                else if let wrong = step.saysNothing { out.append(FlowProblem(step: step.id, text: wrong)) }
+            case .data(let data):
+                if data.from.trimmed.isEmpty, let wrong = step.saysNothing { out.append(FlowProblem(step: step.id, text: wrong)) }
             default: break
             }
         }

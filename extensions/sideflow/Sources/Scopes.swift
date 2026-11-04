@@ -142,8 +142,8 @@ struct DataStep: Equatable, Sendable {
             guard let found = at(value) else { throw Problem(L("It has no “{field}”.", ["field": field ?? ""])) }
             return found
         case .filter:
-            guard let test else { throw Problem(L("Say what to test.")) }
-            return .array(try list().filter { item in Condition.test(test, left: at(item).map(Values.text) ?? "", right: resolved) })
+            // What the page shows selected before anyone picks.
+            return .array(try list().filter { item in Condition.test(test ?? .contains, left: at(item).map(Values.text) ?? "", right: resolved) })
         case .sort:
             let sorted = try list().sorted { a, b in
                 let (x, y) = (at(a).map(Values.text) ?? "", at(b).map(Values.text) ?? "")
