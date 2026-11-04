@@ -124,7 +124,7 @@ import SidefolkExtensionKit
         ext.tool("run_flow", "Run a flow now", "Runs a flow once, now. An On flow runs under what the person allowed; a draft runs for real, every action on its own card. Returns at once: the result is in get_run.",
                  input: Schema.object(["flow": flowParam, "input": Schema.string("Words for this run, if the person gave any: its steps read them as {{trigger}}.")], required: ["flow"])) { args in
             let flow = try app.flow(named: try args.required("flow"))
-            let problems = (flow.state == .draft ? flow.draft : flow.running).problems(app.catalog).map(\.text)
+            let problems = (flow.live == nil ? flow.kept : flow.running).problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             let mode: Run.Mode = flow.live != nil ? .live : .once
             guard app.engine.start(flow, mode: mode, why: L("You asked for it."), trigger: args.string("input")) != nil else {

@@ -17,10 +17,10 @@ import SidefolkExtensionKit
             var f = try flow()
             let before = f.draft
             try change(&f.draft)
-            // Here, where it can be said: a flow's size is checked when it's written in, not when it's read back.
-            if f.draft.allSteps.count > FlowBody.maxSteps { throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)])) }
+            // Here, where it can be said. Only for an edit that grows it: one already past a limit, from before there was one, can always be brought back.
+            if f.draft.allSteps.count > FlowBody.maxSteps, f.draft.allSteps.count > before.allSteps.count { throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)])) }
             guard f.draft != before else { return }
-            guard f.draft.depth <= FlowBody.maxDepth else { throw Problem(L("An “if” can hold another “if”, but no deeper.")) }
+            guard f.draft.depth <= FlowBody.maxDepth || f.draft.depth <= before.depth else { throw Problem(L("An “if” can hold another “if”, but no deeper.")) }
             // Typing in a field is one step back: the same field, moments apart.
             let typing = ["step_name", "ai_prompt", "compose", "question", "options", "param", "cond_value", "cond_than", "watch_target", "watch_contains", "watch_pattern", "event_contains"].contains(op)
             app.history[f.id, default: Editing.History()].record(before, key: typing ? "\(op)|\(a.string("step") ?? "")|\(a.string("name") ?? "")" : nil, at: Date())
@@ -212,6 +212,8 @@ import SidefolkExtensionKit
             var f = try flow()
             f.saved = nil
             app.store.save(f)
+            // Typing again afterwards is a step of its own: what was saved stays one to come back to.
+            app.history[f.id]?.breakTyping()
         case "discard":
             // Back to what Save last kept. Undo brings it back.
             var f = try flow()

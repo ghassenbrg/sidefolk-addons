@@ -268,7 +268,7 @@ import SidefolkExtensionKit
         flow.watchTitle = "Gone · Sideflow"
         flow.state = .paused
         w.store.save(flow)
-        w.host.answers["watch.resume"] = [Actions.Outcome(status: .failed, text: "a watcher called “Gone”", summary: "")]
+        w.host.answers["watch.resume"] = [Actions.Outcome(status: .failed, text: "a watcher called “Gone”", summary: "", notFound: true)]
         w.engine.resume(flow.id)
         await w.quiet()
         #expect(w.host.calls.map(\.tool).contains("watch.create"))
@@ -1376,5 +1376,190 @@ import SidefolkExtensionKit
         let flowPage = await Pages.make(app, state: Arguments(["flow": flow.id]), background: false)
         #expect(String(describing: flowPage.sent).contains(paused.pausedBecause ?? "—"), "and on the flow")
         #expect(Pages.stateWord(paused, app).0 != L("On"))
+    }
+}
+
+/// What reading the editing landing a second time found.
+@MainActor @Suite(.serialized) struct SideflowEditingSecondReadTests {
+    typealias World = SideflowTests.World
+
+    private func app(_ w: World) -> App {
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        return app
+    }
+
+    private func page(_ app: App, _ op: String, _ flow: Flow, _ extra: [String: Any] = [:]) async throws {
+        var input: [String: Any] = ["op": op, "flow": flow.id]
+        input.merge(extra) { _, new in new }
+        _ = try await Actions_UI.handle(Arguments(input), app)
+    }
+
+    @Test func aFlowAlreadyOverTheLimitCanBeEditedBackUnder() async throws {
+        let w = try World()
+        let app = app(w)
+        let steps: [[String: Any]] = (0..<FlowBody.maxSteps).map { ["id": "s\($0)", "text": "x"] }
+        let flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": steps]))
+        var big = try #require(app.store.flow(flow.id))
+        for n in 0..<3 { big.draft.steps.append(Step(id: "e\(n)", kind: .text("x"))) }
+        big.saved = nil
+        app.store.save(big)
+        try await page(app, "remove", flow, ["step": "e0"])
+        #expect(app.store.flow(flow.id)?.draft.allSteps.count == FlowBody.maxSteps + 2)
+        try await page(app, "compose", flow, ["step": "e1", "text": "changed"])
+        #expect(app.store.flow(flow.id)?.draft.step("e1")?.kind == .text("changed"))
+        await #expect(throws: Problem.self) { try await self.page(app, "add_kind", flow, ["kind": "text"]) }
+    }
+
+    @Test func nothingBlankOrOverTheLimitGoesOnByAnyRoute() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "z", "text": "x"]], state: .paused)
+        let blank = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "ai": ""]]], saved: true)
+        flow.draft = blank
+        flow.saved = nil
+        w.store.save(flow)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.state == .paused)
+        #expect(w.store.flow(flow.id)?.startProblem != nil)
+        var same = try #require(w.store.flow(flow.id))
+        same.live = blank
+        w.store.save(same)
+        w.engine.resume(flow.id)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.state == .paused, "the same with nothing changed")
+    }
+
+    @Test func aBlankStepInAnOnFlowCallsNothing() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "z", "text": "x"]])
+        let body = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: "")), Step(id: "b", kind: .action(tool: "changes.it", input: ["text": .string("x")]))])
+        flow.draft = body
+        flow.live = body
+        w.store.save(flow)
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .failed)
+        #expect(w.host.written.isEmpty)
+        #expect(w.host.calls.isEmpty)
+    }
+
+    @Test func aWatchMovedToAnotherAddressMakesNoSecondWatchIfTheOldOneWontStop() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "Test · Sideflow"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://y.example"], "steps": [["id": "a", "do": "reads.it"]]])
+        w.store.save(flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "no")]
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "watch.create" })
+        let held = try #require(w.store.flow(flow.id))
+        #expect(held.state == .paused)
+        #expect(held.startProblem != nil)
+        #expect(held.watchTitle == "Test · Sideflow")
+        // Resume tries again, and ends with the address they read, not the old one back.
+        w.engine.resume(flow.id)
+        await w.quiet()
+        let after = try #require(w.store.flow(flow.id))
+        #expect(after.state == .on)
+        #expect(after.startProblem == nil)
+        #expect(!w.host.calls.contains { $0.tool == "watch.resume" })
+        #expect(w.host.calls.first { $0.tool == "watch.create" }?.input["target"] as? String == "https://y.example")
+    }
+
+    @Test func resumeMakesAWatchAgainOnlyIfItsReallyGone() async throws {
+        for (outcome, makes) in [(Actions.Outcome(status: .failed, text: "gone", notFound: true), true), (Actions.Outcome(status: .failed, text: "two match"), false), (Actions.Outcome(status: .lost, text: ""), false)] {
+            let w = try World()
+            var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .paused)
+            flow.watchTitle = "T"
+            w.store.save(flow)
+            w.host.answers["watch.resume"] = [outcome]
+            w.engine.resume(flow.id)
+            await w.quiet()
+            #expect(w.host.calls.contains { $0.tool == "watch.create" } == makes, "\(outcome.status)")
+            if !makes { #expect(w.store.flow(flow.id)?.startProblem != nil) }
+        }
+    }
+
+    @Test func aLeftoverWatchsNoteGoesWhenItsGone() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "T"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "text": "x"]]])
+        w.store.save(flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "no")]
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.startProblem != nil)
+        w.engine.pause(flow.id)
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "watch.pause" }, "no card to pause what's on its way out")
+        w.engine.resume(flow.id)
+        await w.quiet()
+        let after = try #require(w.store.flow(flow.id))
+        #expect(after.watchTitle == nil)
+        #expect(after.startProblem == nil)
+    }
+
+    @Test func aBlankThanIsMarkedWhereItWouldDecideNothing() throws {
+        let w = try World()
+        for test in [Condition.Test.contains, .not_contains, .more_than, .less_than] {
+            let body = FlowBody(steps: [Step(id: "c", kind: .branch(Condition(value: "a", test: test, than: ""), then: [], otherwise: []))])
+            #expect(body.problems(w.catalog).contains { $0.step == "c" }, "\(test)")
+        }
+        for test in [Condition.Test.is_empty, .not_empty, .is, .is_not] {
+            let body = FlowBody(steps: [Step(id: "c", kind: .branch(Condition(value: "a", test: test, than: ""), then: [], otherwise: []))])
+            #expect(!body.problems(w.catalog).contains { $0.step == "c" }, "\(test)")
+        }
+    }
+
+    @Test func typingAgainAfterASaveKeepsTheSavedVersionForUndo() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "one"]]]))
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "save", flow)
+        try await page(app, "compose", flow, ["step": "a", "text": "three"])
+        try await page(app, "undo", flow)
+        #expect(app.store.flow(flow.id)?.draft.step("a")?.kind == .text("two"))
+    }
+}
+
+@MainActor @Suite(.serialized) struct SideflowWatchNameTests {
+    typealias World = SideflowTests.World
+
+    @Test func aReapprovedNewNameMovesTheWatchToIt() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "Old · Sideflow"
+        flow.name = "New"
+        w.store.save(flow)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.host.calls.contains { $0.tool == "watch.stop" }, "its card's lines go by the new name")
+        #expect(w.store.flow(flow.id)?.watchTitle == "New · Sideflow")
+    }
+
+    @Test func anUnchangedApplyKeepsItsWatch() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "Test · Sideflow"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": [["id": "a", "do": "reads.it"], ["id": "b", "do": "reads.it"]]])
+        w.store.save(flow)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "watch.stop" || $0.tool == "watch.create" })
+    }
+
+    @Test func aChangedAddressUnderTheSameNameIsAReplacement() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "Test · Sideflow"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://y.example"], "steps": [["id": "a", "do": "reads.it"]]])
+        w.store.save(flow)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.host.calls.filter { $0.tool == "watch.stop" }.count == 1)
+        #expect(w.host.calls.first { $0.tool == "watch.create" }?.input["target"] as? String == "https://y.example")
     }
 }

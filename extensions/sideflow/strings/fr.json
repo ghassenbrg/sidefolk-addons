@@ -631,9 +631,11 @@
     "{when}. What its steps read goes to your AI, to write from.": "{when}. Ce que lisent ses étapes va à votre IA, pour qu'elle écrive à partir de cela.",
     "“{name}” is on.": "« {name} » est activée.",
     "A condition is “and” or “or”, not both.": "Une condition est « and » ou « or », pas les deux.",
-    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "Son ancienne surveillance ne s'est pas arrêtée. Elle ne déclenche plus cette routine, mais elle continue de regarder. Arrêtez-la depuis les surveillances dans Accueil, ou mettez cette routine en pause puis reprenez-la pour réessayer.",
     "Say what each check looks at.": "Dites ce que chaque vérification regarde.",
     "Say what to ask.": "Dites quoi demander.",
-    "Say what to write.": "Dites quoi écrire."
+    "Say what to write.": "Dites quoi écrire.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "Son ancienne surveillance ne s'est pas arrêtée : cette routine est donc en pause. Reprenez-la pour réessayer.",
+    "Say what to compare it with.": "Dites avec quoi comparer.",
+    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "Sidefolk n'a pas dit si sa surveillance a repris. Si elle ne se déclenche pas, mettez-la en pause puis reprenez-la."
   }
 }

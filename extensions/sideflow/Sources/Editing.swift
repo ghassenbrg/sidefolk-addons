@@ -224,6 +224,8 @@ enum Editing {
         var canUndo: Bool { !undo.isEmpty }
         var canRedo: Bool { !redo.isEmpty }
 
+        mutating func breakTyping() { (lastKey, lastAt) = (nil, nil) }
+
         mutating func record(_ before: FlowBody, key: String?, at now: Date) {
             redo = []
             if let key, key == lastKey, let lastAt, now.timeIntervalSince(lastAt) < Self.typingGap {

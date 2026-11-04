@@ -631,9 +631,11 @@
     "{when}. What its steps read goes to your AI, to write from.": "{when}. Ciò che leggono i suoi passaggi va alla tua IA, per scriverne.",
     "“{name}” is on.": "«{name}» è attiva.",
     "A condition is “and” or “or”, not both.": "Una condizione è «and» o «or», non entrambe.",
-    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "Il vecchio controllo non si è fermato. Non avvia più questa routine, ma continua a guardare. Fermalo dai controlli in Home, oppure metti in pausa e riprendi questa routine per riprovare.",
     "Say what each check looks at.": "Di' cosa guarda ogni verifica.",
     "Say what to ask.": "Di' cosa chiedere.",
-    "Say what to write.": "Di' cosa scrivere."
+    "Say what to write.": "Di' cosa scrivere.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "Il vecchio controllo non si è fermato, quindi questa routine è in pausa. Riprendila per riprovare.",
+    "Say what to compare it with.": "Di' con cosa confrontarlo.",
+    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "Sidefolk non ha detto se il controllo è ripartito. Se non scatta, mettilo in pausa e riprendilo."
   }
 }

@@ -622,9 +622,11 @@
     "{when}. What its steps read goes to your AI, to write from.": "{when}。其步骤读取的内容会发送给你的 AI，供其写作。",
     "“{name}” is on.": "“{name}”已开启。",
     "A condition is “and” or “or”, not both.": "条件只能是“and”或“or”，不能同时使用。",
-    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "旧的监视没有停止。它不再启动此流程，但仍在查看。请在主页的监视中停止它，或暂停后恢复此流程以重试。",
     "Say what each check looks at.": "说明每项检查查看什么。",
     "Say what to ask.": "说明要问什么。",
-    "Say what to write.": "说明要写什么。"
+    "Say what to write.": "说明要写什么。",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "旧的监视没有停止，因此此流程已暂停。恢复它以重试。",
+    "Say what to compare it with.": "说明要与什么比较。",
+    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "Sidefolk 没有说明监视是否已恢复。如果没有触发，请暂停后再恢复。"
   }
 }

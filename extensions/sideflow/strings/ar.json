@@ -667,9 +667,11 @@
     "{when}. What its steps read goes to your AI, to write from.": "{when}. ما تقرؤه خطواته يذهب إلى ذكائك الاصطناعي ليكتب منه.",
     "“{name}” is on.": "«{name}» قيد التشغيل.",
     "A condition is “and” or “or”, not both.": "الشرط إما «and» أو «or»، لا كلاهما.",
-    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "لم تتوقف مراقبته القديمة. لم تعد تبدأ هذا الروتين لكنها ما زالت تراقب. أوقفها من المراقبات في الرئيسية، أو أوقف هذا الروتين مؤقتًا ثم استأنفه للمحاولة مجددًا.",
     "Say what each check looks at.": "حدد ما ينظر إليه كل فحص.",
     "Say what to ask.": "حدد ما يجب طرحه.",
-    "Say what to write.": "حدد ما يجب كتابته."
+    "Say what to write.": "حدد ما يجب كتابته.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "لم تتوقف مراقبته القديمة، لذا هذا الروتين متوقف مؤقتًا. استأنفه للمحاولة مجددًا.",
+    "Say what to compare it with.": "حدد ما يجب المقارنة به.",
+    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "لم يذكر Sidefolk ما إذا كانت المراقبة قد استؤنفت. إن لم تعمل فأوقفها مؤقتًا ثم استأنفها."
   }
 }

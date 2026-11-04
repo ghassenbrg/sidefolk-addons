@@ -130,7 +130,7 @@ import SidefolkExtensionKit
     static func json(_ flow: Flow) -> [String: Any] {
         let out: [String: Any?] = [
             "id": flow.id, "name": flow.name, "draft": FlowCodec.json(flow.draft), "saved": flow.saved.map(FlowCodec.json), "live": flow.live.map(FlowCodec.json), "state": flow.state.rawValue,
-            "created": time(flow.createdAt), "updated": time(flow.updatedAt), "last_fire": time(flow.lastFire), "watch": flow.watchTitle,
+            "created": time(flow.createdAt), "updated": time(flow.updatedAt), "watch_outdated": flow.watchOutdated ? true : nil, "last_fire": time(flow.lastFire), "watch": flow.watchTitle,
             "missed": flow.missed.map(\.timeIntervalSince1970), "start_problem": flow.startProblem, "paused_because": flow.pausedBecause,
             "practiced": flow.practiced.map(FlowCodec.json),
         ]
@@ -153,6 +153,7 @@ import SidefolkExtensionKit
         flow.state = Flow.State(rawValue: o["state"] as? String ?? "") ?? .draft
         flow.lastFire = date(o["last_fire"])
         flow.watchTitle = o["watch"] as? String
+        flow.watchOutdated = o["watch_outdated"] as? Bool ?? false
         flow.missed = (o["missed"] as? [Double] ?? []).map(Date.init(timeIntervalSince1970:))
         flow.startProblem = o["start_problem"] as? String
         flow.pausedBecause = o["paused_because"] as? String
