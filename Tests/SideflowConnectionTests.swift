@@ -119,6 +119,73 @@ import SidefolkExtensionKit
         #expect(w.store.run(run.id)?.status == .done, "the list says it's here, and this time it answers")
     }
 
+    @Test func aPausedFlowsRunWaitsOnWhenItsToolComesBack() async throws {
+        let w = try World()
+        gone(w)
+        let flow = try flow(w)
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.pause(flow.id)
+        await w.quiet()
+        back(w)
+        w.engine.tick()
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "ext.gh.pr" }, "Pause means it: nothing goes without them")
+        #expect(w.store.run(run.id)?.connection != nil)
+        w.engine.resume(flow.id)
+        await w.quiet()
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.host.calls.contains { $0.tool == "ext.gh.pr" })
+    }
+
+    @Test func aPausedFlowSaysPausedWhileItsRunWaits() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Self.tools[0]]))
+        var flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "pr", "do": "ext.gh.pr"]]]))
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        _ = try #require(app.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        app.engine.pause(flow.id)
+        await w.quiet(app.store)
+        #expect(Pages.stateWord(try #require(app.store.flow(flow.id)), app).0 == L("Paused"))
+    }
+
+    @Test func aToolGoneFromAnExtensionThatsStillHereIsNoMissingConnection() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Self.tools[0], Actions.Tool(name: "ext.gh.other", title: "Other", mutates: false, readsOnly: true, extensionName: "gh", extensionTitle: "GitHub")]))
+        w.host.answers["ext.gh.pr"] = [Actions.Outcome(status: .unavailable, text: "It isn't here.")]
+        let flow = try flow(w)
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .needs_you, "it won't come back by waiting a week")
+        #expect(w.store.run(run.id)?.connection == nil)
+        let said = flow.running.problems(w.catalog).map(\.text).joined()
+        #expect(!said.contains("isn't here"))
+    }
+
+    @Test func aFlowsOwnToolIsNoConnection() async throws {
+        #expect(Connections.id(of: "ext.sideflow.run_flow") == nil)
+        #expect(Connections.id(of: "ext.gh.pr") == "gh")
+    }
+
+    @Test func aWaitThatRanOutAsksEvenIfTheToolIsBack() async throws {
+        let w = try World()
+        gone(w)
+        let run = try #require(w.engine.start(try flow(w), mode: .live, why: "t"))
+        await w.quiet()
+        w.now = w.now.addingTimeInterval(Connections.longestWait + 1)
+        back(w)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .needs_you, "three weeks on, it's for them to say")
+        #expect(!w.host.calls.contains { $0.tool == "ext.gh.pr" })
+    }
+
     @Test func sidefolksOwnToolIsNoConnection() async throws {
         let w = try World()
         w.host.answers["notes.save"] = [Actions.Outcome(status: .unavailable, text: "Not here")]

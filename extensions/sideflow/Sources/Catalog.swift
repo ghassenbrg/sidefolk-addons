@@ -46,6 +46,9 @@ import SidefolkExtensionKit
         self.tool(tool)?.title ?? rememberedTools[tool] ?? tool.split(separator: ".").last.map { $0.replacingOccurrences(of: "_", with: " ").capitalizedFirst } ?? tool
     }
 
+    /// Whether anything of this connection is offered now: one tool gone from an extension that's here won't come back by waiting.
+    func offers(connection id: String) -> Bool { tools.contains { $0.fromExtension == id } }
+
     func connectionTitle(_ id: String) -> String {
         tools.first { $0.fromExtension == id }?.fromTitle ?? rememberedNames[id] ?? id.replacingOccurrences(of: "-", with: " ").capitalizedFirst
     }
@@ -195,7 +198,7 @@ extension FlowBody {
                                 out.append(FlowProblem(step: step.id, text: L("“{tool}” has no value called “{name}”.", ["tool": known.title, "name": key])))
                             }
                         } else {
-                            out.append(FlowProblem(step: step.id, text: Connections.id(of: tool).map { L("It needs {name}, which isn't here now.", ["name": catalog.connectionTitle($0)]) } ?? L("“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.", ["tool": catalog.title(of: tool)])))
+                            out.append(FlowProblem(step: step.id, text: (Connections.isMissing(tool, catalog) ? Connections.id(of: tool) : nil).map { L("It needs {name}, which isn't here now.", ["name": catalog.connectionTitle($0)]) } ?? L("“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.", ["tool": catalog.title(of: tool)])))
                         }
                     }
                 case .ai(let prompt):

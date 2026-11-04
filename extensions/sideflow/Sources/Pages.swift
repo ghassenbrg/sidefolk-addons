@@ -144,8 +144,10 @@ import SidefolkExtensionKit
 
     /// A flow's state in one word and its colour, always together (D78).
     static func stateWord(_ flow: Flow, _ app: App) -> (String, Tone) {
-        if app.store.unfinished().contains(where: { $0.flow == flow.id && $0.connection != nil }) { return (L("Waiting for a connection"), .warn) }
-        if app.engine.isRunning(flow.id) { return (L("Running now"), .info) }
+        let waiting = app.store.unfinished().filter { $0.flow == flow.id }
+        let onlyWaitingForAConnection = !waiting.isEmpty && waiting.allSatisfy { $0.connection != nil }
+        if flow.state != .paused, waiting.contains(where: { $0.connection != nil }) { return (L("Waiting for a connection"), .warn) }
+        if app.engine.isRunning(flow.id), flow.state != .paused || !onlyWaitingForAConnection { return (L("Running now"), .info) }
         if flow.hasUnsaved { return (L("Unsaved changes"), .warn) }
         switch flow.state {
         case .on: return flow.hasChanges ? (L("On · changes to apply"), .info) : (L("On"), .good)

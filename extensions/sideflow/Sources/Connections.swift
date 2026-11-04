@@ -22,7 +22,8 @@ struct Connection: Equatable {
     static func id(of tool: String) -> String? {
         guard tool.hasPrefix("ext.") else { return nil }
         let name = tool.dropFirst(4).prefix { $0 != "." }
-        return name.isEmpty ? nil : String(name)
+        // Its own tools aren't something to wait for.
+        return name.isEmpty || name == "sideflow" ? nil : String(name)
     }
 
     /// The name it goes by: its own while it's here, what it was called while it was, else made from its id.
@@ -30,7 +31,8 @@ struct Connection: Equatable {
 
     /// A step's tool that isn't offered now. Only once the list has been read at all: at the start it just isn't known yet.
     static func isMissing(_ tool: String, _ catalog: Catalog) -> Bool {
-        id(of: tool) != nil && catalog.loadedAt != nil && catalog.tool(tool) == nil
+        guard let id = id(of: tool), catalog.loadedAt != nil, catalog.tool(tool) == nil else { return false }
+        return !catalog.offers(connection: id)
     }
 
     /// Who this flow leans on, in either what's written or what's on.

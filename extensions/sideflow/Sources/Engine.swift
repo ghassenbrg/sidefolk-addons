@@ -316,7 +316,9 @@ import SidefolkExtensionKit
             written["question"] = question
             return await acting(step, tool: "ask.user", input: input, written: written, in: &run)
         case .action(let tool, let input):
-            if run.mode != .practice, Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
+            // Back or not, a wait that ran out is for the person: it could be weeks since they read the card.
+            let ranOut = run.connection.map { $0.tool == tool && $0.until <= clock() } ?? false
+            if run.mode != .practice, ranOut || Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
             run.connection = nil
             let wordy = Set(catalog.tool(tool)?.parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name) ?? [])
             let lists = Set(catalog.tool(tool)?.parameters.filter { $0.kind == .list }.map(\.name) ?? [])
@@ -467,7 +469,8 @@ import SidefolkExtensionKit
             run.retries = 0
             store.save(run)
             return true
-        case .unavailable where Connections.id(of: tool) != nil:
+        // Told it's gone though the list says it's here, it left since the last look.
+        case .unavailable where Connections.id(of: tool).map { catalog.tool(tool) != nil || !catalog.offers(connection: $0) } == true:
             return waitingForConnection(step, tool: tool, in: &run)
         case .denied, .unanswered, .unavailable:
             // Nothing happened, and only the person can change that.
@@ -768,7 +771,8 @@ import SidefolkExtensionKit
         }
         for run in store.unfinished() where run.status == .waiting {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
-            if let waited = run.connection, catalog.tool(waited.tool) != nil {
+            // Unless it's been paused: what goes by itself waits for Resume, as it would to start.
+            if let waited = run.connection, catalog.tool(waited.tool) != nil, waited.until > now, run.mode != .live || store.flow(run.flow)?.state != .paused {
                 Task { await advance(run.id) }
             } else if let at = run.resumeAt, at <= now {
                 Task { await advance(run.id) }
