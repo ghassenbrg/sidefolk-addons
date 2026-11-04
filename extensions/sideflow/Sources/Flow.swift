@@ -66,16 +66,16 @@ struct Condition: Equatable, Sendable {
         }
     }
 
-    /// Whether words mention this as a word of its own: "unpaid" doesn't mention "paid". Writing with no spaces has no words to tell apart, so there it's anywhere in the text.
+    /// Whether words mention this as a word of its own: "unpaid" doesn't mention "paid".
     static func mentions(_ seen: String, _ word: String) -> Bool {
         let word = word.trimmed
         guard !word.isEmpty else { return false }
         if let a = answer(seen), let b = answer(word) { return a == b }
         let fold: (String) -> String = { $0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
         let (text, wanted) = (fold(seen), fold(word))
-        let noSpaces = (text + wanted).unicodeScalars.contains { (0x3040...0x30FF).contains($0.value) || (0x3400...0x9FFF).contains($0.value) || (0xAC00...0xD7AF).contains($0.value) || (0x0E00...0x0E7F).contains($0.value) }
-        if noSpaces { return text.contains(wanted) }
-        return text.range(of: #"(?<![\p{L}\p{N}])"# + NSRegularExpression.escapedPattern(for: wanted) + #"(?![\p{L}\p{N}])"#, options: .regularExpression) != nil
+        // A letter of writing with no spaces doesn't join a word, nor does one of its words end at the next: "支払い済み" mentions "支払い", "GitHubの" mentions "GitHub".
+        let joins = #"[\p{L}\p{N}&&[^\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}]]"#
+        return text.range(of: "(?<!\(joins))" + NSRegularExpression.escapedPattern(for: wanted) + "(?!\(joins))", options: .regularExpression) != nil
     }
 
     static func test(_ test: Test, left: String, right: String) -> Bool {

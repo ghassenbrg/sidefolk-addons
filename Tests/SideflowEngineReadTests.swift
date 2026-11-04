@@ -328,6 +328,22 @@ import SidefolkExtensionKit
         #expect(done.record(of: "calm") != nil)
     }
 
+    @Test func aBlankFormFieldIsNotGivenToANumberOrAChoice() async throws {
+        let w = try World()
+        let app = app(w)
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"n":{"type":"number"},"pick":{"type":"string","enum":["a","b"]},"text":{"type":"string"}}}"#)]))
+        let flow = try make(app, [["id": "f", "form": ["title": "T", "fields": [["name": "n", "label": "N", "kind": "number", "required": false]]]],
+                                  ["id": "c", "do": "changes.it", "with": ["n": "{{f.n}}", "pick": "{{f.n}}", "text": "{{f.n}}"]]])
+        let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
+        await w.quiet(app.store)
+        try await page(app, "form_send", flow, ["run": run.id])
+        await w.quiet(app.store)
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["n"] is NSNull, "absent, as it was, not an empty string a number can't be")
+        #expect(sent["pick"] is NSNull)
+        #expect(sent["text"] as? String == "")
+    }
+
     @Test func aFilterKeepsNoAndFalse() throws {
         let filter = DataStep(op: .filter, from: "", test: .not_empty, than: "")
         let rows = JSON.array([.string("No"), .string("false"), .string("NO"), .string("yes"), .string("")])
@@ -340,6 +356,11 @@ import SidefolkExtensionKit
         #expect(Condition.mentions("GitHubの通知", "GitHub"))
         #expect(Condition.mentions("3件", "3"))
         #expect(!Condition.mentions("unpaid bills", "paid"))
+        #expect(!Condition.mentions("unpaid invoice from 田中", "paid"), "one name in other writing doesn't change the rest")
+        #expect(Condition.mentions("unpaid invoice from 田中", "unpaid"))
+        #expect(!Condition.mentions("13件", "3"))
+        #expect(Condition.mentions("13件", "13"))
+        #expect(Condition.mentions("C++ tools", "C++"))
     }
 
     @Test func emptyGivenToAFlowIsntPassedEither() async throws {

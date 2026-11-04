@@ -217,6 +217,8 @@ struct Values: Equatable, Sendable {
         Dictionary(uniqueKeysWithValues: input.map { key, value in
             if textual.contains(key), case .string(let s) = value { return (key, fill(s, each: Self.wordsKept) as Any) }
             let filled = fill(native: value)
+            // A field left blank isn't given: an empty string is something a number or a choice can't be.
+            if filled == .string(""), case .string(let s) = value, Self.isOneSlot(s), Self.slots(s).first?.path.isEmpty == false { return (key, JSON.null.any) }
             if lists.contains(key), case .string(let s) = value, Self.isOneSlot(s), case .array(let list) = Self.structured(filled) { return (key, JSON.array(list).any) }
             return (key, filled.any)
         })
