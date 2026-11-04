@@ -16,6 +16,8 @@ struct Values: Equatable, Sendable {
     static let keepWhole = 256 * 1024
 
     var named: [String: JSON] = [:]
+    /// What a tool said in words beside the fields it gave: `{{step}}` in a sentence reads this, `{{step.field}}` the field.
+    var said: [String: String] = [:]
     var today = ""
     var now = ""
 
@@ -185,10 +187,16 @@ struct Values: Equatable, Sendable {
         for match in Self.slot.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
             guard let whole = Range(match.range, in: text), let name = Range(match.range(at: 1), in: text), let path = Range(match.range(at: 2), in: text) else { continue }
             out += text[from..<whole.lowerBound]
-            out += resolve(String(text[name]), path: String(text[path])).map { Self.words($0, each) } ?? ""
+            out += words(String(text[name]), path: String(text[path]), each)
             from = whole.upperBound
         }
         return out + text[from...]
+    }
+
+    /// A value in a sentence. What a tool said beats its fields written out.
+    private func words(_ name: String, path: String, _ each: Int = .max) -> String {
+        if path.isEmpty, named[name] != nil, let said = said[name] { return String(said.prefix(each)) }
+        return resolve(name, path: path).map { Self.words($0, each) } ?? ""
     }
 
     /// What goes to a tool for a value as written. A field that is exactly one value gets that value, its own type and all: a list into a list, not JSON-shaped words.
@@ -205,7 +213,7 @@ struct Values: Equatable, Sendable {
         }
     }
 
-    func value(_ name: String) -> String { resolve(name).map(Self.text) ?? "" }
+    func value(_ name: String) -> String { words(name, path: "") }
 
     func fill(_ input: [String: JSON]) -> [String: Any] {
         input.mapValues { fill(native: $0).any }
@@ -233,11 +241,20 @@ struct Values: Equatable, Sendable {
     func fits(_ value: JSON) -> Bool { JSONText.write(value.any).utf8.count <= Self.keepWhole }
 
     mutating func set(_ name: String, _ text: String) {
+        said[name] = nil
         named[name] = .string(String(text.prefix(Self.keep)))
+    }
+
+    /// A tool's answer: its fields if it gave any it can keep, and always its words.
+    mutating func set(_ name: String, answer words: String, fields: String?) {
+        guard let fields, let raw = JSONText.read(fields) else { return set(name, words) }
+        set(name, JSON(raw))
+        said[name] = String(words.prefix(Self.keep))
     }
 
     mutating func set(_ name: String, _ value: JSON) {
         if case .string(let s) = value { return set(name, s) }
+        said[name] = nil
         let size = JSONText.write(value.any).utf8.count
         named[name] = size <= Self.keepWhole ? value : .string(String(Self.text(value).prefix(Self.keep)))
     }

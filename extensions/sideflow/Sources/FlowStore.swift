@@ -266,7 +266,7 @@ import SidefolkExtensionKit
     static func json(_ run: Run) -> [String: Any] {
         let out: [String: Any?] = [
             "id": run.id, "flow": run.flow, "flow_name": run.flowName, "mode": run.mode.rawValue, "status": run.status.rawValue, "why": run.why,
-            "started": time(run.startedAt), "ended": time(run.endedAt), "body": FlowCodec.json(run.body), "pc": run.pc, "values": run.values.named.mapValues(\.any),
+            "started": time(run.startedAt), "ended": time(run.endedAt), "body": FlowCodec.json(run.body), "pc": run.pc, "values": run.values.named.mapValues(\.any), "said": run.values.said.isEmpty ? nil : run.values.said,
             "today": run.values.today, "now": run.values.now, "records": run.records.map(json), "resume_at": time(run.resumeAt), "retries": run.retries, "problem": run.problem, "frames": run.frames.isEmpty ? nil : run.frames.map(json), "parent": run.parent, "lineage": run.lineage.isEmpty ? nil : run.lineage,
             "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
             "connection": run.connection.map { ["tool": $0.tool, "until": $0.until.timeIntervalSince1970] as [String: Any] },
@@ -282,6 +282,7 @@ import SidefolkExtensionKit
         run.endedAt = date(o["ended"])
         run.pc = (o["pc"] as? NSNumber)?.intValue ?? 0
         run.values.named = (o["values"] as? [String: Any] ?? [:]).mapValues { JSON($0) }
+        run.values.said = o["said"] as? [String: String] ?? [:]
         run.values.today = o["today"] as? String ?? ""
         run.values.now = o["now"] as? String ?? ""
         run.records = (o["records"] as? [[String: Any]] ?? []).compactMap(Self.record)

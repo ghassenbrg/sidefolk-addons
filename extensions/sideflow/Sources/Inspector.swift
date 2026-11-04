@@ -132,6 +132,7 @@ import SidefolkExtensionKit
             out.append(.init(Words.label(step, catalog: app.catalog), value: "{{\(step.id)}}", symbol: Pages.look(step, app).symbol, group: earlier))
             // A record's fields, each its own: nobody has to write a path.
             let label = Words.label(step, catalog: app.catalog), symbol = Pages.look(step, app).symbol
+            if case .action(let tool, _) = step.kind { for name in app.catalog.tool(tool)?.outputFields ?? [] { out.append(.init("\(label) › \(name)", value: "{{\(step.id).\(name)}}", symbol: symbol, group: earlier)) } }
             if let fields = step.fields { for name in fields.keys.sorted() { out.append(.init("\(label) › \(name)", value: "{{\(step.id).\(name)}}", symbol: symbol, group: earlier)) } }
             if case .form(let form) = step.kind { for field in form.fields { out.append(.init("\(label) › \(field.label)", value: "{{\(step.id).\(field.name)}}", symbol: symbol, group: earlier)) } }
             if case .parallel(let lanes) = step.kind { for (lane, key) in zip(lanes, Engine.keys(lanes)) { out.append(.init("\(label) › \(lane.name)", value: "{{\(step.id).\(key)}}", symbol: symbol, group: earlier)) } }

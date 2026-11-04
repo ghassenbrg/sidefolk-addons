@@ -437,7 +437,7 @@ import SidefolkExtensionKit
         if readsOnly, check?.decision == .allow {
             let outcome = await host?.call(tool, input, plan: run.flowPractice, written: nil)
             if let outcome, outcome.ok {
-                run.values.set(step.id, outcome.text)
+                run.values.set(step.id, answer: outcome.text, fields: outcome.data)
                 run.record(.init(step: step.id, status: .done, summary: sentence, output: outcome.text.clipped(Self.keptOutput), at: clock()))
                 run.pc += 1
                 store.save(run)
@@ -474,7 +474,7 @@ import SidefolkExtensionKit
         let said = outcome.summary.nonEmpty.map { Words.resolved($0, values: run.values) } ?? sentence
         switch outcome.status {
         case .ok:
-            run.values.set(step.id, outcome.text)
+            run.values.set(step.id, answer: outcome.text, fields: outcome.data)
             // Cut for keeping: it says so, rather than a list that looks whole.
             let cut = outcome.text.count > Values.wordsKept ? L("Its answer was long: only the first {count} characters were kept.", ["count": Format.integer(Values.wordsKept)]) : nil
             // What a notice answers ("shown", "held for now") is for a model, not for the person's story.

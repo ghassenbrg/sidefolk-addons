@@ -24,6 +24,8 @@ import SidefolkExtensionKit
         var category: String
         var fromExtension: String?
         var parameters: [Parameter]
+        /// The fields its answer says it holds, each usable by name.
+        var outputFields: [String] = []
         /// Who offers it, in their own name, and whether that's an MCP server the person added.
         var fromTitle: String?
         var fromServer = false
@@ -75,6 +77,11 @@ import SidefolkExtensionKit
         use(listing)
     }
 
+    private static func fields(_ schema: String?) -> [String] {
+        guard let schema, let o = JSONText.read(schema) as? [String: Any], let properties = o["properties"] as? [String: Any] else { return [] }
+        return properties.keys.filter { $0.range(of: #"^[A-Za-z0-9_-]{1,60}$"#, options: .regularExpression) != nil }.sorted()
+    }
+
     static func tool(_ t: Actions.Tool) -> Tool {
         let schema = JSONText.read(t.schema) as? [String: Any] ?? [:]
         let properties = schema["properties"] as? [String: Any] ?? [:]
@@ -97,7 +104,7 @@ import SidefolkExtensionKit
             return Parameter(name: name, kind: kind, required: required.contains(name), detail: (p["description"] as? String)?.nonEmpty,
                              title: (p["title"] as? String)?.nonEmpty ?? name.replacingOccurrences(of: "_", with: " ").capitalizedFirst)
         }
-        return Tool(name: t.name, title: t.title, description: t.description, mutates: t.mutates, readsOnly: t.readsOnly, risk: t.risk, category: t.category, fromExtension: t.extensionName, parameters: parameters, fromTitle: t.extensionTitle, fromServer: t.fromServer)
+        return Tool(name: t.name, title: t.title, description: t.description, mutates: t.mutates, readsOnly: t.readsOnly, risk: t.risk, category: t.category, fromExtension: t.extensionName, parameters: parameters, outputFields: Self.fields(t.outputSchema), fromTitle: t.extensionTitle, fromServer: t.fromServer)
     }
 }
 
