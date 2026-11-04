@@ -15,8 +15,14 @@ import SidefolkExtensionKit
         /// Changes the draft and looks again at what Guard would say of it.
         func draft(_ change: (inout FlowBody) throws -> Void) throws {
             var f = try flow()
+            let before = f.draft
             try change(&f.draft)
+            guard f.draft != before else { return }
             guard f.draft.depth <= FlowBody.maxDepth else { throw Problem(L("An “if” can hold another “if”, but no deeper.")) }
+            // Typing in a field is one step back: the same field, moments apart.
+            let typing = ["step_name", "ai_prompt", "compose", "question", "options", "param", "cond_value", "cond_than", "watch_target", "watch_contains", "watch_pattern", "event_contains"].contains(op)
+            app.history[f.id, default: Editing.History()].record(before, key: typing ? "\(op)|\(a.string("step") ?? "")|\(a.string("name") ?? "")" : nil, at: Date())
+            f.hold(before)
             app.store.save(f)
             app.refreshPreflight(f.id)
         }
@@ -166,7 +172,7 @@ import SidefolkExtensionKit
             app.engine.practise(f)
         case "start":
             let f = try flow()
-            guard f.draft.problems(app.catalog).isEmpty else { throw Problem(L("Fix what's marked first.")) }
+            guard f.kept.problems(app.catalog).isEmpty else { throw Problem(L("Fix what's marked first.")) }
             app.engine.turnOn(f.id)
         case "pause":
             app.engine.pause(try flow().id)
@@ -175,11 +181,43 @@ import SidefolkExtensionKit
         case "run":
             let f = try flow()
             app.engine.start(f, mode: f.live != nil ? .live : .once, why: L("You asked for it."))
-        case "discard":
+        case "save":
             var f = try flow()
-            if let live = f.live { f.draft = live }
+            f.saved = nil
+            app.store.save(f)
+        case "discard":
+            // Back to what Save last kept. Undo brings it back.
+            var f = try flow()
+            guard let kept = f.saved else { break }
+            app.history[f.id, default: Editing.History()].record(f.draft, key: nil, at: Date())
+            f.draft = kept
+            f.saved = nil
             app.store.save(f)
             app.refreshPreflight(f.id)
+        case "back_to_live":
+            var f = try flow()
+            guard let live = f.live else { break }
+            app.history[f.id, default: Editing.History()].record(f.draft, key: nil, at: Date())
+            f.hold(f.draft)
+            f.draft = live
+            f.saved = nil
+            app.store.save(f)
+            app.refreshPreflight(f.id)
+        case "undo", "redo":
+            var f = try flow()
+            let current = f.draft
+            guard let other = op == "undo" ? app.history[f.id]?.back(from: current) : app.history[f.id]?.forward(from: current) else { break }
+            f.hold(current)
+            f.draft = other
+            if f.saved == other { f.saved = nil }
+            app.store.save(f)
+            app.refreshPreflight(f.id)
+            if case .step(let id) = app.nav.inspecting(f), other.step(id) == nil { app.nav.inspect(.nothing, in: f.id) }
+        case "dup_step":
+            let f = try flow()
+            guard let id = a.string("step") ?? { if case .step(let s) = app.nav.inspecting(f) { s } else { nil } }(), let (body, new) = Editing.duplicate(id, in: f.draft) else { break }
+            try draft { $0 = body }
+            app.nav.inspect(.step(new), in: f.id)
         case "delete":
             app.engine.delete(try flow().id)
             return .home

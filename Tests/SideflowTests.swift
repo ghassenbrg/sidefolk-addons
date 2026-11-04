@@ -363,6 +363,78 @@ import SidefolkExtensionKit
         #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "never again by itself")
     }
 
+    // MARK: Editing
+
+    @Test func typingInOneFieldIsOneStepBack() throws {
+        var h = Editing.History()
+        let (a, b, c) = (try actions(1), try actions(2), try actions(3))
+        let t = Date(timeIntervalSince1970: 1000)
+        h.record(a, key: "field", at: t)
+        h.record(b, key: "field", at: t.addingTimeInterval(1))
+        #expect(h.back(from: c) == a, "moments apart in one field: back to before the typing")
+        #expect(h.back(from: a) == nil)
+        #expect(h.forward(from: a) == c)
+        h.record(a, key: "field", at: t)
+        h.record(b, key: "field", at: t.addingTimeInterval(5))
+        #expect(h.back(from: c) == b, "later typing is a step of its own")
+        h.record(b, key: nil, at: t)
+        #expect(!h.canRedo, "a new edit ends what could be redone")
+    }
+
+    @Test func savingAndComingBackToWhatWasSaved() throws {
+        let body = try actions(1), edited = try actions(2)
+        var flow = Flow(id: "f", name: "F", draft: body, createdAt: Date(), updatedAt: Date())
+        #expect(!flow.hasUnsaved)
+        flow.draft = edited
+        flow.hold(body)
+        #expect(flow.hasUnsaved)
+        #expect(flow.kept == body)
+        flow.draft = body
+        flow.hold(edited)
+        #expect(!flow.hasUnsaved, "came back to what was saved: nothing to save")
+    }
+
+    @Test func whatTurnsOnIsWhatWasSavedNotWhatsUnsaved() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "saved"]]], state: .draft)
+        let saved = flow.draft
+        flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "changes.it", "with": ["text": "unsaved"]]]])
+        flow.saved = saved
+        w.store.save(flow)
+        w.engine.turnOn(flow.id)
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(w.store.flow(flow.id)?.live == saved)
+        #expect(w.store.flow(flow.id)?.hasUnsaved == true, "still there to save or discard")
+        w.restart()
+        #expect(w.store.flow(flow.id)?.saved == saved, "and across a restart")
+    }
+
+    @Test func aDuplicateIsAWholeCopyThatUsesItsOwnValues() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x"], ["id": "c", "if": ["value": "{{a}}", "test": "not_empty"], "then": [["id": "m", "text": "y"], ["id": "n", "text": "{{m}} {{a}}"]], "else": []]]])
+        let (copy, id) = try #require(Editing.duplicate("c", in: body))
+        #expect(copy.steps.map(\.id) == ["a", "c", id])
+        #expect(Set(copy.allSteps.map(\.id)).count == copy.allSteps.count, "no id twice")
+        let inside = try #require(copy.step(id))
+        guard case .branch(let cond, let then, _) = inside.kind, case .text(let words)? = then.last?.kind, let made = then.first?.id else { Issue.record("not a copy"); return }
+        #expect(cond.value == "{{a}}", "what it used from outside stays")
+        #expect(words == "{{\(made)}} {{a}}")
+        #expect(copy.depth == body.depth)
+    }
+
+    @Test func whatChangedIsSaidInWords() throws {
+        let w = try World()
+        let old = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x", "name": "A"], ["id": "b", "text": "y", "name": "B"], ["id": "c", "text": "z", "name": "C"]]])
+        let new = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "b", "text": "y", "name": "B"], ["id": "a", "text": "changed", "name": "A"], ["id": "d", "text": "q", "name": "D"]]])
+        let said = Editing.changes(from: old, to: new, catalog: w.catalog)
+        #expect(said.contains { $0.hasPrefix("What sets it off") })
+        #expect(said.contains { $0.hasPrefix("Added") && $0.contains("D") })
+        #expect(said.contains { $0.hasPrefix("Removed") && $0.contains("C") })
+        #expect(said.contains { $0.hasPrefix("Changed") && $0.contains("A") })
+        #expect(Editing.changes(from: old, to: old, catalog: w.catalog).isEmpty)
+        let moved = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "b", "text": "y", "name": "B"], ["id": "a", "text": "x", "name": "A"], ["id": "c", "text": "z", "name": "C"]]])
+        #expect(Editing.changes(from: old, to: moved, catalog: w.catalog).contains { $0.hasPrefix("Moved") })
+    }
+
     @Test func aFlowSurvivesARestartWithAllOfIt() throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it", "with": ["q": "x"]]], trigger: ["type": "schedule", "every_minutes": 60])

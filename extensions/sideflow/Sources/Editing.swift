@@ -106,6 +106,127 @@ enum Editing {
         return insert(step, after: after, in: remove(id, from: body))
     }
 
+    /// A copy right after the step, branches and all, with new ids. What's inside it that used a value made inside it uses the copy's; everything else is as it was.
+    static func duplicate(_ id: String, in body: FlowBody) -> (FlowBody, String)? {
+        guard let step = body.step(id) else { return nil }
+        var used = body
+        var renamed: [String: String] = [:]
+        func copy(_ step: Step) -> Step {
+            let fresh = freshId(used, base: step.id)
+            renamed[step.id] = fresh
+            used.steps.append(Step(id: fresh, kind: .text("")))
+            var out = step
+            out.id = fresh
+            if case .branch(let c, let then, let otherwise) = step.kind { out.kind = .branch(c, then: then.map(copy), otherwise: otherwise.map(copy)) }
+            return out
+        }
+        func remap(_ text: String) -> String {
+            renamed.reduce(text) { $0.replacingOccurrences(of: "{{\($1.key)}}", with: "{{\($1.value)}}") }
+        }
+        func refs(_ step: Step) -> Step {
+            var out = step
+            switch step.kind {
+            case .action(let tool, let input): out.kind = .action(tool: tool, input: input.mapValues { $0.mapStrings(remap) })
+            case .ai(let prompt): out.kind = .ai(prompt: remap(prompt))
+            case .ask(let question, let options): out.kind = .ask(question: remap(question), options: options)
+            case .text(let text): out.kind = .text(remap(text))
+            case .branch(var c, let then, let otherwise):
+                c.value = remap(c.value)
+                c.than = remap(c.than)
+                out.kind = .branch(c, then: then.map(refs), otherwise: otherwise.map(refs))
+            case .wait, .flow: break
+            }
+            return out
+        }
+        let copied = refs(copy(step))
+        return (insert(copied, after: id, in: body), copied.id)
+    }
+
+    /// What differs between two versions, in words: for reading before saving or applying.
+    @MainActor static func changes(from old: FlowBody, to new: FlowBody, catalog: Catalog) -> [String] {
+        var out: [String] = []
+        if old.trigger != new.trigger { out.append(L("What sets it off: {what}", ["what": Words.trigger(new.trigger)])) }
+        let before = Dictionary(old.allSteps.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let after = Dictionary(new.allSteps.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        for step in new.allSteps where before[step.id] == nil { out.append(L("Added: {step}", ["step": Words.label(step, catalog: catalog)])) }
+        for step in old.allSteps where after[step.id] == nil { out.append(L("Removed: {step}", ["step": Words.label(step, catalog: catalog)])) }
+        /// A step without what hangs from it: moving what's inside a branch isn't changing the branch.
+        func own(_ step: Step) -> Step {
+            var out = step
+            if case .branch(let c, _, _) = step.kind { out.kind = .branch(c, then: [], otherwise: []) }
+            return out
+        }
+        /// Where each step stands among those both versions have: what it's in, and the one before it there.
+        func places(_ body: FlowBody) -> [String: String] {
+            var out: [String: String] = [:]
+            func walk(_ list: [Step], _ inside: String) {
+                var previous = ""
+                for step in list {
+                    guard before[step.id] != nil, after[step.id] != nil else { continue }
+                    out[step.id] = "\(inside)|\(previous)"
+                    previous = step.id
+                }
+                for step in list {
+                    if case .branch(_, let then, let otherwise) = step.kind {
+                        walk(then, "then:\(step.id)")
+                        walk(otherwise, "else:\(step.id)")
+                    }
+                }
+            }
+            walk(body.steps, "")
+            return out
+        }
+        let (was, now) = (places(old), places(new))
+        for step in new.allSteps {
+            guard let earlier = before[step.id] else { continue }
+            if own(earlier) != own(step) {
+                out.append(L("Changed: {step}", ["step": Words.label(step, catalog: catalog)]))
+            } else if was[step.id] != now[step.id] {
+                out.append(L("Moved: {step}", ["step": Words.label(step, catalog: catalog)]))
+            }
+        }
+        return out
+    }
+
+    /// Undo and redo for what's being edited. Typing in one field is one step back, however many times it was handed over. Only the draft: nothing here reverses anything a run did.
+    struct History {
+        static let longest = 100
+        static let typingGap: TimeInterval = 2
+
+        private(set) var undo: [FlowBody] = []
+        private(set) var redo: [FlowBody] = []
+        private var lastKey: String?
+        private var lastAt: Date?
+
+        var canUndo: Bool { !undo.isEmpty }
+        var canRedo: Bool { !redo.isEmpty }
+
+        mutating func record(_ before: FlowBody, key: String?, at now: Date) {
+            redo = []
+            if let key, key == lastKey, let lastAt, now.timeIntervalSince(lastAt) < Self.typingGap {
+                self.lastAt = now
+                return
+            }
+            undo.append(before)
+            if undo.count > Self.longest { undo.removeFirst() }
+            (lastKey, lastAt) = (key, now)
+        }
+
+        mutating func back(from current: FlowBody) -> FlowBody? {
+            guard let last = undo.popLast() else { return nil }
+            redo.append(current)
+            (lastKey, lastAt) = (nil, nil)
+            return last
+        }
+
+        mutating func forward(from current: FlowBody) -> FlowBody? {
+            guard let next = redo.popLast() else { return nil }
+            undo.append(current)
+            (lastKey, lastAt) = (nil, nil)
+            return next
+        }
+    }
+
     /// One place up or down among its own.
     static func nudge(_ id: String, by delta: Int, in body: FlowBody) -> FlowBody {
         var body = body

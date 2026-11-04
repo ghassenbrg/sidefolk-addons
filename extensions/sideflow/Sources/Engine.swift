@@ -548,10 +548,10 @@ import SidefolkExtensionKit
 
     /// Everything the draft may do, as the person will read it.
     func livePlan(_ flow: Flow) -> Plan {
-        let steps = Self.planSteps(flow.draft, title: Self.watchTitle(flow), oldWatch: flow.watchTitle)
+        let steps = Self.planSteps(flow.kept, title: Self.watchTitle(flow), oldWatch: flow.watchTitle)
         // Setting another flow off needs no tool of its own, so the card says it here.
-        let others = flow.draft.allSteps.compactMap { step -> String? in if case .flow(let name) = step.kind { name } else { nil } }
-        let when = others.isEmpty ? Words.trigger(flow.draft.trigger) : L("{when}. Also sets off: {flows}", ["when": Words.trigger(flow.draft.trigger), "flows": others.joined(separator: ", ")])
+        let others = flow.kept.allSteps.compactMap { step -> String? in if case .flow(let name) = step.kind { name } else { nil } }
+        let when = others.isEmpty ? Words.trigger(flow.kept.trigger) : L("{when}. Also sets off: {flows}", ["when": Words.trigger(flow.kept.trigger), "flows": others.joined(separator: ", ")])
         return Plan(id: flow.planId, title: flow.name, when: when, steps: steps)
     }
 
@@ -580,7 +580,7 @@ import SidefolkExtensionKit
         changed()
         let plan = livePlan(flow)
         // What they read is what goes live: anything changed while the card waits stays in the draft.
-        let reviewed = flow.draft, reviewedTitle = Self.watchTitle(flow)
+        let reviewed = flow.kept, reviewedTitle = Self.watchTitle(flow)
         Task {
             // With no action to allow there's nothing to read on a card, and Sidefolk has none for it.
             let answer: Plans.Answer? = plan.steps.isEmpty ? .allowed(standing: []) : await host?.approve(plan)

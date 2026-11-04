@@ -73,6 +73,8 @@ import SidefolkExtensionKit
         ext.tool("update_flow", "Change a flow", "Replaces a flow's definition, name, or both. An On flow keeps running as it was until the person applies the change on a card.",
                  input: Schema.object(["flow": flowParam, "definition": definition, "name": Schema.string("A new name.", maxLength: 60)], required: ["flow"])) { args in
             var flow = try app.flow(named: try args.required("flow"))
+            // Someone's in the middle of it on the page: their changes aren't to be written over.
+            guard !flow.hasUnsaved else { throw Problem(L("This flow has unsaved changes on its page. Ask the person to save or discard them first.")) }
             if let raw = args.values["definition"] { flow.draft = try FlowCodec.body(raw) }
             if let name = args.string("name") { flow.name = name }
             app.store.save(flow)
@@ -95,7 +97,7 @@ import SidefolkExtensionKit
         ext.tool("start_flow", "Turn a flow on", "Asks the person, on a card, to let a flow run by itself as it's written now. It's on only once they say yes; say that a card is waiting.",
                  input: Schema.object(["flow": flowParam], required: ["flow"]), reply: { args in
             let flow = try app.flow(named: try args.required("flow"))
-            let problems = flow.draft.problems(app.catalog).map(\.text)
+            let problems = flow.kept.problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             if let refused = await asking(flow.id, app) { throw Problem(refused) }
             return ToolReply(L("There's a card asking to turn on “{name}”. It starts once you say yes.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)

@@ -8,6 +8,8 @@ import SidefolkExtensionKit
     let engine: Engine
     let host = SidefolkHost()
     var nav = Nav()
+    /// Undo and redo, by flow, while the program runs.
+    var history: [String: Editing.History] = [:]
     /// What Guard says of each step now: its sentence and whether it would ask.
     var preflight: [String: [String: Actions.Check]] = [:]
     private var preflightAsked: [String: Date] = [:]

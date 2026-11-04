@@ -137,13 +137,15 @@ struct FlowBody: Equatable, Sendable {
     }
 }
 
-/// A flow's life: `draft` is what's being edited; `live` what runs, once the person allowed it. Editing an On flow changes only the draft.
+/// A flow's life: `draft` is what's on the person's screen, `saved` what Save last kept when that differs, `live` what runs, once the person allowed it. Editing changes only the draft.
 struct Flow: Equatable, Sendable, Identifiable {
     enum State: String, Sendable { case draft, on, paused }
 
     var id: String
     var name: String
     var draft: FlowBody
+    /// What Save last kept, while the draft has moved on from it.
+    var saved: FlowBody?
     var live: FlowBody?
     var state: State = .draft
     var createdAt: Date
@@ -161,7 +163,19 @@ struct Flow: Equatable, Sendable, Identifiable {
     /// What practice showed, for the draft it practised: nil once it changed.
     var practiced: FlowBody?
 
-    var hasChanges: Bool { live != nil && live != draft }
+    /// What a Save last kept: what turning on or applying uses.
+    var kept: FlowBody { saved ?? draft }
+    /// On the screen, not saved yet.
+    var hasUnsaved: Bool { saved != nil }
+    /// Saved, not live yet.
+    var hasChanges: Bool { live != nil && live != kept }
+
+    /// After an edit: remembers what was saved, or says there's nothing to save if the edit came back to it.
+    mutating func hold(_ before: FlowBody) {
+        if saved == nil { saved = before }
+        if saved == draft { saved = nil }
+    }
+
     var running: FlowBody { live ?? draft }
     var planId: String { "flow-\(id)" }
     var practiceId: String { "practice-\(id)" }

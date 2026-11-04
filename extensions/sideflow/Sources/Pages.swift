@@ -131,8 +131,9 @@ import SidefolkExtensionKit
     /// A flow's state in one word and its colour, always together (D78).
     static func stateWord(_ flow: Flow, _ app: App) -> (String, Tone) {
         if app.engine.isRunning(flow.id) { return (L("Running now"), .info) }
+        if flow.hasUnsaved { return (L("Unsaved changes"), .warn) }
         switch flow.state {
-        case .on: return flow.hasChanges ? (L("On · changes waiting"), .info) : (L("On"), .good)
+        case .on: return flow.hasChanges ? (L("On · changes to apply"), .info) : (L("On"), .good)
         case .paused: return (L("Paused"), .neutral)
         case .draft: return practised(flow, app) != nil ? (L("Practised"), .info) : (L("Draft"), .neutral)
         }
@@ -344,6 +345,7 @@ import SidefolkExtensionKit
         // What sets it off can't start yet: it may still practise, which makes no watch.
         let cantStart = fix ?? (startable ? nil : L("Sort out what sets it off first."))
         let canStart = ready && startable
+        let saveFirst = flow.hasUnsaved
         let id = ["flow": flow.id]
         var actions: [Action] = [], extra: [Action] = []
         var pill = Badge(stateWord(flow, app).0, tone: stateWord(flow, app).1)
@@ -366,12 +368,22 @@ import SidefolkExtensionKit
                 actions = flow.hasChanges
                     ? [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Apply changes"), "start", id, style: .primary, symbol: "checkmark", detail: cantStart, disabled: !canStart)]
                     : [button(L("Run now"), "run", id, symbol: "play.fill"), button(L("Pause"), "pause", id, symbol: "pause.fill")]
-                if flow.hasChanges { extra.append(button(L("Discard changes"), "discard", id, symbol: "arrow.uturn.backward")) }
+                if flow.hasChanges { extra.append(button(L("Go back to what's running"), "back_to_live", id, symbol: "arrow.uturn.backward")) }
             case .paused:
                 actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Resume"), "resume", id, style: .primary, symbol: "play.fill", detail: cantStart, disabled: !canStart)]
             }
         }
         if flow.hasChanges, !running { sentence = L("On, as before. Your changes aren't live.") }
+        // Unsaved comes first: the one thing to do is keep or drop them, and the mark and the button say so wherever the flow stands.
+        if saveFirst, !running {
+            pill = Badge(L("Unsaved changes"), tone: .warn)
+            sentence = flow.state == .on ? L("Only here so far. What's running hasn't changed.") : L("Only here so far. ⌘S keeps them, ⌘Z steps back.")
+            actions = [button(L("Discard"), "discard", id, style: .plain), button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
+                       button(L("Save"), "save", id, style: .primary, symbol: "checkmark", detail: L("⌘S"))]
+            extra.removeAll { $0.label == L("Turn on without practising") }
+        } else if !running {
+            actions.insert(Action(L("Saved"), tool: "ui", input: ui("save", id), style: .plain, symbol: "checkmark", disabled: true), at: 0)
+        }
         extra += [button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
                   Action(L("Copy it in words"), act: .copy(Words.aloud(flow.draft, catalog: app.catalog)), symbol: "doc.on.doc"),
                   button(L("Delete this flow"), "delete", id, style: .destructive, symbol: "trash")]
@@ -383,6 +395,7 @@ import SidefolkExtensionKit
         let problems = flow.draft.problems(app.catalog)
         let trigger = app.preflight[flow.id]?[App.triggerCheck]
         var main = [Section(nil, [.bar(head(flow, app, ready: problems.isEmpty, startable: trigger?.decision != .deny)), tabs(flow, state: state)])]
+
         var notes: [Block] = []
         if let why = flow.pausedBecause { notes.append(.note(why, tone: .warn)) }
         if let why = flow.startProblem { notes.append(.note(why, tone: .warn)) }
@@ -396,8 +409,35 @@ import SidefolkExtensionKit
         if case .nothing = app.nav.inspecting(flow) {} else {
             end.append(Section(inspectorTitle(flow, app), Inspector.blocks(flow, app, problems: problems), place: .trailing))
         }
+        end += checks(flow, app, problems: problems)
         end.append(Section(L("What you'll get"), [arriving(flow, app)], place: .trailing))
-        return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)
+        var page = frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)
+        let id = ["flow": flow.id]
+        page.shortcuts = [PageShortcut("cmd+z", L("Undo"), tool: "ui", input: ui("undo", id)), PageShortcut("shift+cmd+z", L("Redo"), tool: "ui", input: ui("redo", id)),
+                          PageShortcut("cmd+d", L("Duplicate this step"), tool: "ui", input: ui("dup_step", id))]
+        if flow.hasUnsaved { page.shortcuts.append(PageShortcut("cmd+s", L("Save"), tool: "ui", input: ui("save", id))) }
+        if problems.isEmpty, !app.engine.isRunning(flow.id) { page.shortcuts.append(PageShortcut("cmd+return", L("Practice run"), tool: "ui", input: ui("practice", id))) }
+        return page
+    }
+
+    /// How it stands: what's in the way of turning it on, and what's different from what was saved and from what's running. Read before saving or applying, nothing done.
+    static func checks(_ flow: Flow, _ app: App, problems: [FlowProblem]) -> [Section] {
+        var out: [Section] = []
+        let denied = app.preflight[flow.id]?.filter { $0.value.decision == .deny }.count ?? 0
+        let count = problems.count + denied
+        let blocks: [Block] = count == 0
+            ? [.note(L("Nothing to fix. Everything it needs is allowed or will ask you."), tone: .good)]
+            : problems.map { .note($0.text, tone: .warn) } + (denied > 0 ? [.note(L(one: "Sidefolk wouldn't allow {count} step as it stands: it's marked on the board.", other: "Sidefolk wouldn't allow {count} steps as they stand: they're marked on the board.", count: denied), tone: .warn)] : [])
+        out.append(Section(count == 0 ? L("Check") : L(one: "Check: {count} thing to fix", other: "Check: {count} things to fix", count: count), blocks, place: .trailing, collapsed: count == 0))
+        func changes(_ title: String, from: FlowBody, to: FlowBody) {
+            let lines = Editing.changes(from: from, to: to, catalog: app.catalog)
+            guard !lines.isEmpty else { return }
+            let shown = lines.prefix(12).joined(separator: "\n") + (lines.count > 12 ? "\n" + L(one: "and {count} more", other: "and {count} more", count: lines.count - 12) : "")
+            out.append(Section(title, [.note(shown)], place: .trailing, collapsed: false))
+        }
+        if let saved = flow.saved { changes(L("Changed since you saved"), from: saved, to: flow.draft) }
+        if let live = flow.live, live != flow.kept { changes(L("Different from what's running"), from: live, to: flow.kept) }
+        return out
     }
 
     static func inspectorTitle(_ flow: Flow, _ app: App) -> String {
@@ -422,9 +462,9 @@ import SidefolkExtensionKit
     /// What the flow does, its last practice run's results on it while it hasn't changed since.
     static func tree(_ flow: Flow, _ app: App, problems: [FlowProblem]) -> CardTree {
         // An On flow shows how its last real run went; anything else, its practice of what's written now.
-        let live = flow.state == .on && !flow.hasChanges
+        let live = flow.state == .on && !flow.hasChanges && !flow.hasUnsaved
         let run = live ? app.store.runs(of: flow.id).first { $0.mode == .live && $0.body == flow.draft } : practice(flow, app)
-        let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges ? .pending : .none
+        let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges || flow.hasUnsaved ? .pending : .none
         var first = CardTree.Node("start", Words.trigger(flow.draft.trigger), kind: L("Trigger"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
         if let check = app.preflight[flow.id]?[App.triggerCheck], check.decision == .deny {
             first.state = .attention
@@ -443,7 +483,9 @@ import SidefolkExtensionKit
                         insert: .init(tool: "ui", input: ui("add_kind", ["flow": flow.id]), key: "after", label: L("Add a step")),
                         reorder: .init(tool: "ui", input: ui("reorder", ["flow": flow.id]), key: "move"), remove: .init(tool: "ui", input: ui("remove", ["flow": flow.id]), key: "step"), picker: picker(app),
                         tools: [quick(L("Add a condition"), "if", "arrow.triangle.branch"), quick(L("Write with AI"), "ai", "sparkles"), quick(L("Tell me"), "tell", "bell"),
-                                button(L("Practice run"), "practice", ["flow": flow.id], symbol: "play", disabled: !problems.isEmpty)], line: line)
+                                button(L("Practice run"), "practice", ["flow": flow.id], symbol: "play", disabled: !problems.isEmpty),
+                                button(L("Undo"), "undo", ["flow": flow.id], symbol: "arrow.uturn.backward", detail: L("Undo (⌘Z)"), disabled: app.history[flow.id]?.canUndo != true),
+                                button(L("Redo"), "redo", ["flow": flow.id], symbol: "arrow.uturn.forward", detail: L("Redo (⇧⌘Z)"), disabled: app.history[flow.id]?.canRedo != true)], line: line)
     }
 
     static func treeNodes(_ steps: [Step], body: FlowBody, _ app: App, run: Run?, untested: CardTree.Node.State, flow: Flow?, problems: [FlowProblem], notTaken: Bool = false) -> [CardTree.Node] {

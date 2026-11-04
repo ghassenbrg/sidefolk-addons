@@ -192,6 +192,7 @@ import SidefolkExtensionKit
             if step.reads(app.catalog) { failure.append(("retry", L("Try again later"))) }
             out.append(.choice(L("If it fails"), options: failure, selected: step.onFailure.rawValue, tool: "ui", input: input("on_failure")))
         }
+        out.append(.action(Action(L("Duplicate this step"), tool: "ui", input: input("dup_step"), style: .plain, symbol: "plus.square.on.square")))
         out.append(.action(Action(L("Remove this step"), tool: "ui", input: input("remove"), style: .destructive, symbol: "trash")))
         return out
     }

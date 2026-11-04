@@ -129,7 +129,7 @@ import SidefolkExtensionKit
 
     static func json(_ flow: Flow) -> [String: Any] {
         let out: [String: Any?] = [
-            "id": flow.id, "name": flow.name, "draft": FlowCodec.json(flow.draft), "live": flow.live.map(FlowCodec.json), "state": flow.state.rawValue,
+            "id": flow.id, "name": flow.name, "draft": FlowCodec.json(flow.draft), "saved": flow.saved.map(FlowCodec.json), "live": flow.live.map(FlowCodec.json), "state": flow.state.rawValue,
             "created": time(flow.createdAt), "updated": time(flow.updatedAt), "last_fire": time(flow.lastFire), "watch": flow.watchTitle,
             "missed": flow.missed.map(\.timeIntervalSince1970), "start_problem": flow.startProblem, "paused_because": flow.pausedBecause,
             "practiced": flow.practiced.map(FlowCodec.json),
@@ -144,6 +144,11 @@ import SidefolkExtensionKit
         if let raw = o["live"] {
             guard let live = try? FlowCodec.body(raw, saved: true) else { return nil }
             flow.live = live
+        }
+        // A saved version that can't be read keeps the flow aside too, rather than the unsaved draft being what turning on uses.
+        if let raw = o["saved"] {
+            guard let saved = try? FlowCodec.body(raw, saved: true) else { return nil }
+            flow.saved = saved
         }
         flow.state = Flow.State(rawValue: o["state"] as? String ?? "") ?? .draft
         flow.lastFire = date(o["last_fire"])
