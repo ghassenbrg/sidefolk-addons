@@ -74,8 +74,13 @@ extension Engine {
             run.records.removeAll { $0.step == step.id && $0.scope == "0" }
         }
         // What it can't see won't change by asking again. Nor can it go round on a write that gave nothing, one carried on past or that may have happened: that could send it twice. A read that gave nothing is what a poll asks again.
-        let looksAt = Set(until.checks.flatMap { check in Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }.map(\.name))
-        let gaveNothing = inside.first { looksAt.contains($0.id) && !$0.reads(catalog) && run.values.named[$0.id].map { Values.text($0).isEmpty } == true }
+        // So can a field a write's answer doesn't have: going round won't make a misspelt one appear.
+        let looksAt = until.checks.flatMap { check in Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }
+        let gaveNothing = inside.first { step in
+            !step.reads(catalog) && looksAt.contains { slot in
+                slot.name == step.id && (run.values.named[step.id].map { Values.text($0).isEmpty } == true || (!slot.path.isEmpty && run.values.resolve(slot.name, path: slot.path) == nil))
+            }
+        }
         if run.mode != .practice, let unknown = run.values.undecided(until) ?? (holds ? nil : gaveNothing?.id) {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)

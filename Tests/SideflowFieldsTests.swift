@@ -202,6 +202,42 @@ import SidefolkExtensionKit
         #expect((filled["text"] as? String)?.count == Values.wordsKept)
     }
 
+    @Test func aRepeatWontSendAWriteAgainOverAFieldItDoesntGive() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = (0..<5).map { _ in Actions.Outcome(status: .ok, text: "Queued", summary: "", data: #"{"status": "queued"}"#) }
+        let flow = try w.flow([["id": "again", "repeat": [["id": "send", "do": "changes.it", "with": ["text": "x"]]], "until": ["value": "{{send.statsu}}", "test": "is", "than": "done"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "asking again can't make a misspelt field appear, and it would send it again")
+    }
+
+    @Test func aRepeatStillPollsAReadForAFieldThatIsntThereYet() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Wait", summary: "", data: #"{"state": "working"}"#), Actions.Outcome(status: .ok, text: "Done", summary: "", data: #"{"status": "done"}"#)]
+        let flow = try w.flow([["id": "again", "repeat": [["id": "poll", "do": "reads.it"]], "until": ["value": "{{poll.status}}", "test": "is", "than": "done"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(w.host.calls.filter { $0.tool == "reads.it" }.count == 2)
+    }
+
+    @Test func aPracticeGoesOnPastADataStepOverASample() async throws {
+        let w = try World()
+        for from in ["{{c.items}}", "{{c}}"] {
+            let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "d", "data": ["op": "first", "from": from]], ["id": "t", "text": "got {{d}}"]], state: .draft)
+            let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+            #expect(run?.status == .done, "\(from): \(run?.problem ?? "")")
+            #expect(run?.record(of: "d")?.status == .would)
+            #expect(run?.record(of: "t") != nil)
+        }
+    }
+
+    @Test func aRealRunStillFailsADataStepOverWordsThatArentAList() async throws {
+        let w = try world(nil)
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "d", "data": ["op": "number", "from": "{{r}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+    }
+
     @Test func theGuideSaysHowToReachAField() {
         #expect(Grammar.text.contains("{{step.field}}"))
     }

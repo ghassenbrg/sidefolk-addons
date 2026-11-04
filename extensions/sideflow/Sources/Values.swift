@@ -267,6 +267,11 @@ struct Values: Equatable, Sendable {
         return false
     }
 
+    /// Whether these words come only from what a practice made up, so there's nothing in them to work anything out from.
+    func pretends(_ text: String) -> Bool {
+        missing(in: [text]).contains(where: isSampleField) || fill(text).trimmed == L("(sample)")
+    }
+
     /// What these words use that no step has made and this run has to stop for. A practice only pretended, so a field of that isn't one.
     func stopsFor(_ texts: [String], practice: Bool) -> String? {
         missing(in: texts).first { !practice || !isSampleField($0) }

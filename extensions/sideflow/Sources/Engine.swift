@@ -268,6 +268,13 @@ import SidefolkExtensionKit
             store.save(run)
             return true
         case .data(let data):
+            if run.mode == .practice, run.values.pretends(data.from) || run.values.pretends(data.than ?? "") {
+                run.values.set(step.id, L("(sample)"))
+                run.record(.init(step: step.id, status: .would, summary: L("Would: {what}", ["what": Words.step(step, body: run.body, catalog: catalog)]), output: L("(sample)"), at: clock()))
+                run.pc += 1
+                store.save(run)
+                return true
+            }
             do {
                 let from = run.values.fill(native: .string(data.from))
                 let made = try data.apply(to: from, than: run.values.fill(data.than ?? ""))
