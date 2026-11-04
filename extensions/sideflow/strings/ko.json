@@ -944,6 +944,7 @@
     },
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "이 실행 중에 이 루틴의 다른 버전을 승인했으며 이 단계가 그대로 포함되어 있지 않아 실행되지 않았습니다. 건너뛰거나 여기서 멈추세요.",
     "Inside it": "안쪽",
-    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "{name}을(를) 기다리고 있으며 {flow}이(가) 일시 중지되었습니다. 이 단계는 아직 실행되지 않았습니다. 돌아온 뒤 {flow}을(를) 다시 시작하면 계속됩니다."
+    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "{name}을(를) 기다리고 있으며 {flow}이(가) 일시 중지되었습니다. 이 단계는 아직 실행되지 않았습니다. 돌아온 뒤 {flow}을(를) 다시 시작하면 계속됩니다.",
+    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "다시 반복해도 “{name}”은(는) 바뀌지 않고 모든 작업을 다시 하게 되므로 여기서 멈췄습니다."
   }
 }

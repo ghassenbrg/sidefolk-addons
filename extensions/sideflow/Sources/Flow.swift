@@ -167,7 +167,8 @@ struct Step: Equatable, Sendable {
     /// Whether doing it again would do something again. Another run counts, whatever it does.
     @MainActor func doesSomething(_ catalog: Catalog) -> Bool {
         switch kind {
-        case .action: !reads(catalog)
+        // A tool that's away did nothing yet, and it comes back through here if it comes back.
+        case .action(let tool, _): catalog.tool(tool) != nil && !reads(catalog)
         case .call, .parallel, .flow: true
         default: false
         }

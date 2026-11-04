@@ -70,6 +70,39 @@ import SidefolkExtensionKit
         #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
     }
 
+    @Test func whatGoingRoundCantChangeDoesntSendAgainEvenIfItSaysSomething() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "pending", summary: "")]
+        w.host.answers["changes.it"] = (0..<9).map { _ in Actions.Outcome(status: .ok, text: "Sent", summary: "") }
+        let flow = try w.flow([["id": "check", "do": "reads.it"], ["id": "again", "repeat": [Self.send], "until": ["value": "{{check}}", "test": "contains", "than": "done"], "times": 4]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
+        #expect(run?.problem?.contains("check") == true, "\(run?.problem ?? "")")
+    }
+
+    @Test func oneCheckThatCanChangeIsEnoughEvenBesideOneThatSaysNothing() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .ok, text: "pending", summary: ""), Actions.Outcome(status: .ok, text: "done", summary: "")]
+        let flow = try w.flow([["id": "again", "repeat": [Self.send], "until": ["value": "{{send}}", "test": "contains", "than": "done", "or": [["value": "{{input.cancel}}", "test": "is", "than": "yes"]]], "times": 4]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 2)
+    }
+
+    @Test func aGoThatCountsCanSayHowManyTimes() async throws {
+        let (run, sent) = try await sends([Self.send], until: ["value": "{{index}}", "test": "is", "than": "2"])
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(sent == 2)
+    }
+
+    @Test func aReadOfAToolThatsAwayIsntSomethingDone() throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: []))
+        let step = try #require(try FlowCodec.body(["trigger": ["type": "manual"], "steps": [Self.send]]).step("send"))
+        #expect(!step.doesSomething(w.catalog))
+    }
+
     @Test func aFlowSetOffFromInsideCountsAsSomethingDone() async throws {
         let w = try World()
         var other = try w.flow([["id": "t", "text": "x"]])

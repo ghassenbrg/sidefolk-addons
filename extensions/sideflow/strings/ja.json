@@ -944,6 +944,7 @@
     },
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "この実行の途中で別のバージョンを承認しました。このステップは同じ形では含まれていないため、実行されませんでした。スキップするか、ここで停止してください。",
     "Inside it": "この中",
-    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "{name} を待っています。{flow} は一時停止中です。このステップはまだ実行していません。戻ったあと、{flow} を再開すると続きます。"
+    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "{name} を待っています。{flow} は一時停止中です。このステップはまだ実行していません。戻ったあと、{flow} を再開すると続きます。",
+    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "もう一周しても「{name}」は変わらず、すべてをやり直すことになるため、ここで止まりました。"
   }
 }

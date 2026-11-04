@@ -73,16 +73,23 @@ extension Engine {
             setItem(in: &run)
             run.records.removeAll { $0.step == step.id && $0.scope == "0" }
         }
-        // What it can't see won't change by asking again. Nor will going round make something appear when this go did something and what it looks at says nothing: gone with
-        // a loop inside, a misspelt name, a write that answered with nothing. It could only do it all again. A go that only read is what a poll asks again.
-        let looksAt = until.checks.flatMap { check in Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }
-        let saysNothing = run.frames[at].wrote ? looksAt.first { slot in
-            // A tool's `{{step}}` is its words, whatever fields came beside them.
-            (slot.path.isEmpty ? run.values.whole(slot.name) ?? run.values.resolve(slot.name) : run.values.resolve(slot.name, path: slot.path)).map { Condition.isBlank(Values.text($0).trimmed) } ?? true
-        }.map { $0.name + $0.path } : nil
-        if run.mode != .practice, let unknown = run.values.undecided(until) ?? (holds ? nil : saysNothing) {
+        if run.mode != .practice, let unknown = run.values.undecided(until) {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
+        }
+        // What it can't see won't change by asking again. A go that only read is what a poll asks again, but one that did something would do it again, so one of its checks has
+        // to be able to come out differently: something this go answered, or which go this is. Not an earlier value, a name gone with a loop inside, a misspelt one, or a blank.
+        let answeredHere = Set(inside.map(\.id)).union(["index"])
+        let canChange = until.checks.contains { check in
+            (Values.slots(check.value) + Values.slots(check.than)).contains { slot in
+                // A tool's `{{step}}` is its words, whatever fields came beside them.
+                answeredHere.contains(slot.name) && (slot.path.isEmpty ? run.values.whole(slot.name) ?? run.values.resolve(slot.name) : run.values.resolve(slot.name, path: slot.path)).map { !Condition.isBlank(Values.text($0).trimmed) } == true
+            }
+        }
+        if run.mode != .practice, !holds, run.frames[at].wrote, !canChange {
+            let name = until.checks.flatMap { Values.slots($0.value) }.first.map { $0.name + $0.path } ?? until.checks.first?.value ?? ""
+            leave()
+            return failed(step, why: L("Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.", ["name": name]), reads: false, in: &run)
         }
         if holds || run.mode == .practice {
             leave()
