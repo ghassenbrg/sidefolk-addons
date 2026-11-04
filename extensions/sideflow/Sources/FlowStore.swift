@@ -154,6 +154,9 @@ import SidefolkExtensionKit
         runsById.values.filter { (flow == nil || $0.flow == flow) && (since == nil || $0.startedAt >= since!) }.sorted { $0.startedAt > $1.startedAt }
     }
 
+    /// The last run someone would call this flow's: a parallel's lanes are parts of one.
+    func latest(of flow: String) -> Run? { runs(of: flow).first { run in run.parent.flatMap { self.run($0)?.flow } != flow } }
+
     func unfinished() -> [Run] { runsById.values.filter { !$0.status.isOver }.sorted { $0.startedAt < $1.startedAt } }
 
     /// Whether it reached the disk: the engine won't act on a run it couldn't write down. What's in memory is current either way, for the page to show.

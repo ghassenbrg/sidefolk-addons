@@ -37,7 +37,7 @@ import SidefolkExtensionKit
                 "trigger": ["type": "manual"],
                 "steps": [
                     ["id": "list", "ask": L("What's the list? One per line."), "name": L("Ask me for the list")],
-                    ["id": "each", "for_each": "{{list}}", "limit": 50, "item_failure": "collect", "name": L("For each one"), "steps": [
+                    ["id": "each", "for_each": "{{list}}", "limit": 40, "item_failure": "collect", "name": L("For each one"), "steps": [
                         ["id": "line", "ai": "In one short line, say something useful about: {{item}}", "name": L("Write a line with the AI")],
                     ]],
                     ["id": "all", "data": ["op": "join", "from": "{{each}}", "separator": "\n"], "name": L("Put them together")],

@@ -47,23 +47,61 @@ struct Condition: Equatable, Sendable {
     }
 
     func checkHolds(_ values: Values) -> Bool {
-        Self.test(test, left: values.fill(value), right: values.fill(than))
+        let left = values.fill(value)
+        // A No from a form or a tool isn't something to a condition, though the word "no" is, and a list of them keeps them.
+        if test == .is_empty || test == .not_empty, left.trimmed == "false" { return test == .is_empty }
+        return Self.test(test, left: left, right: values.fill(than))
     }
 
     /// Numbers read from the first number in the value, so "18 °C" compares as 18.
+    /// Nothing there, however it's written: an empty list reads as "[]".
+    static func isBlank(_ text: String) -> Bool { text.isEmpty || text == "[]" || text == "{}" }
+
+    /// Yes or no, however a form, a tool or a person says it.
+    private static func answer(_ text: String) -> String? {
+        switch text.trimmed.lowercased() {
+        case "true", "yes", L("Yes").lowercased(): "yes"
+        case "false", "no", L("No").lowercased(): "no"
+        default: nil
+        }
+    }
+
+    /// Whether words mention this as a word of its own: "unpaid" doesn't mention "paid".
+    static func mentions(_ seen: String, _ word: String) -> Bool {
+        let word = word.trimmed
+        guard !word.isEmpty else { return false }
+        if let a = answer(seen), let b = answer(word) { return a == b }
+        let fold: (String) -> String = { $0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
+        let (text, wanted) = (fold(seen), fold(word))
+        // A letter of writing with no spaces doesn't join a word, nor does one of its words end at the next: "支払い済み" mentions "支払い", "GitHubの" mentions "GitHub".
+        let joins = #"[\p{L}\p{N}&&[^\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}]]"#
+        return text.range(of: "(?<!\(joins))" + NSRegularExpression.escapedPattern(for: wanted) + "(?!\(joins))", options: .regularExpression) != nil
+    }
+
     static func test(_ test: Test, left: String, right: String) -> Bool {
         let left = left.trimmingCharacters(in: .whitespacesAndNewlines), right = right.trimmingCharacters(in: .whitespacesAndNewlines)
         switch test {
-        case .contains: return left.range(of: right, options: [.caseInsensitive, .diacriticInsensitive]) != nil
-        case .not_contains: return left.range(of: right, options: [.caseInsensitive, .diacriticInsensitive]) == nil
-        case .is: return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
-        case .is_not: return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) != .orderedSame
-        case .is_empty: return left.isEmpty
-        case .not_empty: return !left.isEmpty
+        case .contains: return has(left, right)
+        case .not_contains: return !has(left, right)
+        case .is: return same(left, right)
+        case .is_not: return !same(left, right)
+        case .is_empty: return isBlank(left)
+        case .not_empty: return !isBlank(left)
         case .more_than, .less_than:
             guard let a = number(left), let b = number(right) else { return false }
             return test == .more_than ? a > b : a < b
         }
+    }
+
+    private static func has(_ left: String, _ right: String) -> Bool {
+        let found = left.range(of: right, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+        guard !found, let said = answer(left), let wanted = answer(right) else { return found }
+        return said == wanted
+    }
+
+    private static func same(_ left: String, _ right: String) -> Bool {
+        if let a = answer(left), let b = answer(right) { return a == b }
+        return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
     private static let digits = try! NSRegularExpression(pattern: #"-?\d+(?:[.,]\d+)?"#)

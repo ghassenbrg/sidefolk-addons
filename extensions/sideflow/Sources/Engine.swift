@@ -33,6 +33,8 @@ import SidefolkExtensionKit
     var resuming: Set<String> = []
     /// Started this time round: `recover` is for what the last time left behind.
     var startedHere: Set<String> = []
+    private var aiInUse = false
+    private var aiWaiting: [CheckedContinuation<Void, Never>] = []
     /// Watches being made: a card can be up for one, and pausing and resuming meanwhile would ask for a second of the same name.
     private var makingWatch: Set<String> = []
 
@@ -189,7 +191,9 @@ import SidefolkExtensionKit
                     break
                 }
                 let seen = run.values.fill(value).trimmed
-                let way = paths.firstIndex { $0.when.trimmed.compare(run.values.fill($0.when).trimmed, options: []) == .orderedSame && seen.range(of: $0.when.trimmed, options: [.caseInsensitive, .diacriticInsensitive]) != nil }
+                // A path that's exactly what it is, before one it only mentions.
+                let written = paths.indices.filter { paths[$0].when.trimmed == run.values.fill(paths[$0].when).trimmed }
+                let way = written.first { paths[$0].when.trimmed.compare(seen, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame } ?? written.first { Condition.mentions(seen, paths[$0].when) }
                 run.record(.init(step: step.id, status: .done, summary: way.map { L("“{value}”: {way}", ["value": String(seen.prefix(60)), "way": paths[$0].when]) } ?? L("“{value}”: none of them, so the rest", ["value": String(seen.prefix(60))]), at: clock()))
                 run.pc = way.map { targets[$0] } ?? otherwise
                 store.save(run)
@@ -350,13 +354,23 @@ import SidefolkExtensionKit
         }
     }
 
+    /// Sidefolk takes one AI request at a time from an extension and refuses a second, so lanes and other flows take turns here.
+    func askingAI(_ prompt: String, label: String) async -> AI.Result {
+        if aiInUse { await withCheckedContinuation { aiWaiting.append($0) } }
+        aiInUse = true
+        defer {
+            if aiWaiting.isEmpty { aiInUse = false } else { aiWaiting.removeFirst().resume() }
+        }
+        return await host?.write(prompt, label: label) ?? .refused("off")
+    }
+
     private func writing(_ step: Step, prompt: String, in run: inout Run, secondLook: Bool = false) async -> Bool {
         let filled = String(run.values.fill(prompt).prefix(7000))
         run.record(.init(step: step.id, status: .running, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
         store.save(run)
         changed()
         let asked = step.fields.map { filled + "\n\n" + AIFields.instruction($0) } ?? filled
-        switch await host?.write(asked, label: run.flowName) ?? .refused("off") {
+        switch await askingAI(asked, label: run.flowName) {
         case .answer(let text, let madeBy):
             if let fields = step.fields {
                 guard let record = AIFields.read(text, fields) else {
@@ -446,7 +460,7 @@ import SidefolkExtensionKit
         case .ok:
             run.values.set(step.id, outcome.text)
             // Cut for keeping: it says so, rather than a list that looks whole.
-            let cut = outcome.text.count > Values.keep ? L("Its answer was long: only the first {count} characters were kept.", ["count": Format.integer(Values.keep)]) : nil
+            let cut = outcome.text.count > Values.wordsKept ? L("Its answer was long: only the first {count} characters were kept.", ["count": Format.integer(Values.wordsKept)]) : nil
             // What a notice answers ("shown", "held for now") is for a model, not for the person's story.
             run.record(.init(step: step.id, status: .done, summary: step.name ?? said, output: tool == "notify.user" ? nil : outcome.text.clipped(Self.keptOutput), note: cut, at: clock()))
             run.pc += 1
