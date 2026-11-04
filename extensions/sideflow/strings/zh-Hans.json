@@ -944,6 +944,7 @@
     },
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "这次运行期间你批准了此流程的另一个版本，其中这一步已不同，因此没有运行。请跳过它或在此停止。",
     "Inside it": "内部",
-    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "正在等待 {name}，{flow} 已暂停。这一步尚未运行：恢复后，在你继续 {flow} 时接着运行。"
+    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "正在等待 {name}，{flow} 已暂停。这一步尚未运行：恢复后，在你继续 {flow} 时接着运行。",
+    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "再循环一次也不会改变“{name}”，还会把一切重做一遍，所以在此停止。"
   }
 }
