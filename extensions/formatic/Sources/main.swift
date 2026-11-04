@@ -16,6 +16,7 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
          ], required: [])) { args -> ToolReply in
     let files = args.strings("files") + (args.string("path").map { [$0] } ?? [])
     guard !files.isEmpty else { throw Problem(L("Choose a file first.")) }
+    Convert.clearLeftovers()
     let small = args.bool("small") ?? false
     let removeLocation = ExtensionSettings.bool("remove_location") ?? true
     var reply = ToolReply(""), lines: [String] = [], madeAny = false
@@ -52,16 +53,15 @@ ext.tool("clear_recent", "Clear the list of recent files", "Forgets the recent f
 
 ext.page("main") { _ in
     let recent = Recent.all()
-    let hero = Hero("Formatic", detail: L("Turns a file into the format you need. New files appear beside the originals, which never change."),
-                    actions: [Action(L("Choose a file…"), act: .file(tool: "convert", param: "path", types: [], input: [:]), style: .secondary)],
+    let hero = Hero("Formatic", detail: L("Turns a file into the format you need. Originals never change."),
+                    actions: [Action(L("Choose a file…"), act: .dropCard, style: .secondary)],
                     scene: Picture.pack("hero.png"))
     var sections = [
         Section(nil, [.hero(hero)]),
-        Section(L("How to use it"), [.list(nil, [
-            Row(L("Drag a file onto your companion"), detail: L("Let go on it, then choose on the card."), symbol: "hand.point.up.left"),
-            Row(L("Or right-click it in Finder"), detail: L("Send to Sidefolk, under Services, opens the card."), symbol: "contextualmenu.and.cursorarrow"),
-            Row(L("Or choose a file here"), detail: L("Makes the most common format, with no card."), symbol: "folder"),
-        ])]),
+        Section(L("Quick ways in"), [
+            .list(nil, [Row(L("Drag a file onto your companion"), detail: L("Let go on it, then choose on the card."), symbol: "hand.point.up.left")]),
+            .fileWays,
+        ]),
     ]
     if !recent.isEmpty {
         sections.append(Section(L("Lately"), [.list(nil, recent.map {

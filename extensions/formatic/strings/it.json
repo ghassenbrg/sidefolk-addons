@@ -27,23 +27,81 @@
     },
     "photo_small": {
       "title": "Leggera per le e-mail",
-      "detail": "Al massimo 2.000 pixel di larghezza."
+      "detail": "Al massimo 2.000 pixel di larghezza.",
+      "menu_title": "Un altro formato",
+      "menu": {
+        "PNG": "Conserva ogni dettaglio",
+        "HEIC": "Più leggero, stesso aspetto",
+        "AVIF": "Il più leggero per il web",
+        "TIFF": "Per la stampa",
+        "GIF": "Immagine semplice"
+      }
+    },
+    "photo_pdf": {
+      "title": "Un PDF",
+      "detail": "L'immagine intera, su una pagina."
     },
     "pdf_pages": {
       "title": "Un'immagine per pagina",
       "detail": "Un file PNG per pagina."
     },
+    "pdf_jpeg": {
+      "title": "Immagini più leggere",
+      "detail": "Un file JPEG per pagina.",
+      "menu_title": "Un altro formato",
+      "menu": {
+        "TIFF": "Per la stampa"
+      }
+    },
     "audio_any": {
-      "title": "Un altro formato audio",
-      "detail": "M4A, o FLAC se è già M4A."
+      "title": "Si ascolta ovunque",
+      "detail": "AAC in un file M4A."
     },
-    "data": {
-      "title": "Un altro formato di tabella",
-      "detail": "CSV, o JSON se è già CSV."
+    "audio_lossless": {
+      "title": "Nessun'altra perdita",
+      "detail": "FLAC conserva tutto ciò che il file contiene."
     },
-    "archive": {
-      "title": "Gli stessi file, ricompressi",
-      "detail": "ZIP, o 7Z se è già uno ZIP."
+    "audio_wav": {
+      "title": "Per il montaggio",
+      "detail": "WAV, non compresso.",
+      "menu_title": "Un altro formato",
+      "menu": {
+        "AIFF": "Per le app Mac",
+        "Apple Lossless": "Per dispositivi Apple",
+        "Opus": "Molto leggero, come CAF"
+      }
+    },
+    "data_csv": {
+      "title": "Un foglio di calcolo",
+      "detail": "CSV, da un elenco di voci."
+    },
+    "data_json": {
+      "title": "Per il codice",
+      "detail": "JSON, un elenco di voci."
+    },
+    "data_tsv": {
+      "title": "Separato da tabulazioni",
+      "detail": "TSV, da un elenco di voci.",
+      "menu_title": "Un altro formato",
+      "menu": {
+        "PLIST": "Per le app Apple"
+      }
+    },
+    "archive_zip": {
+      "title": "Uno ZIP che si apre ovunque",
+      "detail": "Gli stessi file in uno ZIP."
+    },
+    "archive_7z": {
+      "title": "Più compresso",
+      "detail": "Gli stessi file in un 7Z."
+    },
+    "archive_targz": {
+      "title": "Per Linux e server",
+      "detail": "Gli stessi file in un TAR.GZ.",
+      "menu_title": "Un altro formato",
+      "menu": {
+        "TAR": "Non compresso"
+      }
     }
   },
   "text": {
@@ -76,11 +134,7 @@
     "{file} isn't a list of records, so it was left as it is.": "{file} non è un elenco di record, quindi è rimasto com’è.",
     "{from} to {to}": "Da {from} a {to}",
     "{percent}% smaller": "{percent}% più piccolo",
-    "Turns a file into the format you need. New files appear beside the originals, which never change.": "Trasforma un file nel formato che ti serve. I nuovi file compaiono accanto agli originali, che non cambiano mai.",
-    "How to use it": "Come si usa",
     "Drag a file onto your companion": "Trascina un file sul tuo compagno",
-    "Or right-click it in Finder": "Oppure clic destro nel Finder",
-    "Or choose a file here": "Oppure scegli un file qui",
     "What it can make": "Cosa può creare",
     "Photos": "Foto",
     "PDF pages": "Pagine PDF",
@@ -95,8 +149,8 @@
     "{file} is already in that format, so it was left as it is.": "{file} è già in quel formato, quindi è rimasto com'era.",
     "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formatic lavora con foto, PDF, audio, tabelle e archivi. {file} non è tra questi, quindi è rimasto com'era.",
     "Let go on it, then choose on the card.": "Rilascialo lì e scegli nella scheda.",
-    "Send to Sidefolk, under Services, opens the card.": "Send to Sidefolk, in Servizi, apre la scheda.",
-    "Makes the most common format, with no card.": "Crea il formato più comune, senza scheda.",
-    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A, FLAC, WAV, AIFF, ALAC o Opus (come CAF)"
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A, FLAC, WAV, AIFF, ALAC o Opus (come CAF)",
+    "Quick ways in": "Vie rapide",
+    "Turns a file into the format you need. Originals never change.": "Trasforma un file nel formato che ti serve. Gli originali non cambiano mai."
   }
 }

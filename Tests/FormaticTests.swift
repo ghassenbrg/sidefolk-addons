@@ -50,6 +50,21 @@ import UniformTypeIdentifiers
         }
     }
 
+    /// A menu's choices are left out for the format they'd make from it, and every picture has eight ways to go on the ring.
+    @Test func menusSkipTheFormatTheFileIsAlreadyIn() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let data = try Data(contentsOf: root.appendingPathComponent("extensions/formatic/sidefolk-extension.json"))
+        let manifest = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        for drop in try #require(manifest["drops"] as? [[String: Any]]) {
+            for item in drop["menu"] as? [[String: Any]] ?? [] {
+                guard let target = (item["input"] as? [String: Any])?["target"] as? String, target != "alac" else { continue }
+                for pattern in drop["patterns"] as? [String] ?? [] where Convert.same("a" + pattern.dropFirst(), target, small: false) {
+                    #expect((item["skip"] as? [String])?.contains(pattern) == true, "\(drop["id"] ?? "") \(target) should skip \(pattern)")
+                }
+            }
+        }
+    }
+
     /// Every file kind still has a row when two kinds of it are dropped together.
     @Test(arguments: [("a.csv", "b.json"), ("a.m4a", "b.flac"), ("a.zip", "b.tar"), ("a.zip", "b.7z"), ("a.png", "b.jpg")])
     func aMixedBatchStillHasAnOffer(first: String, second: String) throws {

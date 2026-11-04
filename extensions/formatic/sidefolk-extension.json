@@ -143,9 +143,15 @@
         "target": "jpg",
         "small": true
       },
+      "menu_title": "Another format",
       "menu": [
         {
           "title": "PNG",
+          "tag": "PNG",
+          "detail": "Keeps every detail",
+          "skip": [
+            "*.png"
+          ],
           "input": {
             "target": "png",
             "small": false
@@ -153,6 +159,12 @@
         },
         {
           "title": "HEIC",
+          "tag": "HEIC",
+          "detail": "Smaller, same look",
+          "skip": [
+            "*.heic",
+            "*.heif"
+          ],
           "input": {
             "target": "heic",
             "small": false
@@ -160,6 +172,11 @@
         },
         {
           "title": "AVIF",
+          "tag": "AVIF",
+          "detail": "Smallest for the web",
+          "skip": [
+            "*.avif"
+          ],
           "input": {
             "target": "avif",
             "small": false
@@ -167,6 +184,12 @@
         },
         {
           "title": "TIFF",
+          "tag": "TIFF",
+          "detail": "For print",
+          "skip": [
+            "*.tif",
+            "*.tiff"
+          ],
           "input": {
             "target": "tiff",
             "small": false
@@ -174,19 +197,50 @@
         },
         {
           "title": "GIF",
+          "tag": "GIF",
+          "detail": "Simple image",
+          "skip": [
+            "*.gif"
+          ],
           "input": {
             "target": "gif",
             "small": false
           }
-        },
-        {
-          "title": "PDF",
-          "input": {
-            "target": "pdf",
-            "small": false
-          }
         }
       ]
+    },
+    {
+      "id": "photo_pdf",
+      "tag": "PDF",
+      "mark": "glass-pair.png",
+      "title": "A PDF",
+      "detail": "The full picture, one page.",
+      "symbol": "doc.richtext",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.jpg",
+        "*.jpeg",
+        "*.heic",
+        "*.heif",
+        "*.png",
+        "*.tif",
+        "*.tiff",
+        "*.webp",
+        "*.avif",
+        "*.bmp",
+        "*.gif",
+        "*.dng",
+        "*.cr2",
+        "*.nef",
+        "*.arw"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "pdf"
+      }
     },
     {
       "id": "pdf_pages",
@@ -205,16 +259,33 @@
       "input": {
         "files": "{values}",
         "target": "png"
+      }
+    },
+    {
+      "id": "pdf_jpeg",
+      "tag": "JPEG",
+      "mark": "glass-document.png",
+      "title": "Smaller pictures of each page",
+      "detail": "One JPEG file for each page.",
+      "symbol": "photo",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.pdf"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "jpg"
       },
+      "menu_title": "Another format",
       "menu": [
         {
-          "title": "JPEG",
-          "input": {
-            "target": "jpg"
-          }
-        },
-        {
           "title": "TIFF",
+          "tag": "TIFF",
+          "detail": "For print",
+          "skip": [],
           "input": {
             "target": "tiff"
           }
@@ -223,16 +294,16 @@
     },
     {
       "id": "audio_any",
+      "tag": "M4A",
       "mark": "glass-audio.png",
-      "title": "Another sound format",
-      "detail": "M4A, or FLAC if it's already M4A.",
+      "title": "Plays anywhere",
+      "detail": "AAC in an M4A file.",
       "symbol": "waveform",
       "kinds": [
         "file"
       ],
       "patterns": [
         "*.mp3",
-        "*.m4a",
         "*.aac",
         "*.wav",
         "*.aif",
@@ -244,41 +315,91 @@
       ],
       "tool": "convert",
       "input": {
-        "files": "{values}"
+        "files": "{values}",
+        "target": "m4a"
+      }
+    },
+    {
+      "id": "audio_lossless",
+      "tag": "FLAC",
+      "mark": "glass-audio.png",
+      "title": "No further loss",
+      "detail": "FLAC keeps everything the file holds.",
+      "symbol": "waveform",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.mp3",
+        "*.m4a",
+        "*.aac",
+        "*.wav",
+        "*.aif",
+        "*.aiff",
+        "*.caf",
+        "*.opus",
+        "*.ogg"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "flac"
+      }
+    },
+    {
+      "id": "audio_wav",
+      "tag": "WAV",
+      "mark": "glass-audio.png",
+      "title": "For editing",
+      "detail": "WAV, uncompressed.",
+      "symbol": "waveform",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.mp3",
+        "*.m4a",
+        "*.aac",
+        "*.aif",
+        "*.aiff",
+        "*.flac",
+        "*.caf",
+        "*.opus",
+        "*.ogg"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "wav"
       },
+      "menu_title": "Another format",
       "menu": [
         {
-          "title": "M4A",
-          "input": {
-            "target": "m4a"
-          }
-        },
-        {
-          "title": "FLAC",
-          "input": {
-            "target": "flac"
-          }
-        },
-        {
-          "title": "WAV",
-          "input": {
-            "target": "wav"
-          }
-        },
-        {
           "title": "AIFF",
+          "tag": "AIFF",
+          "detail": "For Mac apps",
+          "skip": [
+            "*.aif",
+            "*.aiff"
+          ],
           "input": {
             "target": "aiff"
           }
         },
         {
           "title": "Apple Lossless",
+          "detail": "For Apple devices",
+          "skip": [],
           "input": {
             "target": "alac"
           }
         },
         {
           "title": "Opus",
+          "detail": "Very small, saved as CAF",
+          "skip": [
+            "*.opus"
+          ],
           "input": {
             "target": "opus"
           }
@@ -286,10 +407,11 @@
       ]
     },
     {
-      "id": "data",
+      "id": "data_csv",
+      "tag": "CSV",
       "mark": "glass-data.png",
-      "title": "Another table format",
-      "detail": "CSV, or JSON if it's already CSV.",
+      "title": "A spreadsheet",
+      "detail": "CSV, from a list of records.",
       "symbol": "tablecells",
       "kinds": [
         "file"
@@ -297,34 +419,64 @@
       "patterns": [
         "*.json",
         "*.tsv",
-        "*.plist",
-        "*.csv"
+        "*.plist"
       ],
       "tool": "convert",
       "input": {
-        "files": "{values}"
+        "files": "{values}",
+        "target": "csv"
+      }
+    },
+    {
+      "id": "data_json",
+      "tag": "JSON",
+      "mark": "glass-data.png",
+      "title": "For code",
+      "detail": "JSON, a list of records.",
+      "symbol": "curlybraces",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.csv",
+        "*.tsv",
+        "*.plist"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "json"
+      }
+    },
+    {
+      "id": "data_tsv",
+      "tag": "TSV",
+      "mark": "glass-data.png",
+      "title": "Tab-separated",
+      "detail": "TSV, from a list of records.",
+      "symbol": "tablecells",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.csv",
+        "*.json",
+        "*.plist"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "tsv"
       },
+      "menu_title": "Another format",
       "menu": [
         {
-          "title": "CSV",
-          "input": {
-            "target": "csv"
-          }
-        },
-        {
-          "title": "JSON",
-          "input": {
-            "target": "json"
-          }
-        },
-        {
-          "title": "TSV",
-          "input": {
-            "target": "tsv"
-          }
-        },
-        {
           "title": "PLIST",
+          "tag": "PLIST",
+          "detail": "For Apple apps",
+          "skip": [
+            "*.plist"
+          ],
           "input": {
             "target": "plist"
           }
@@ -332,10 +484,11 @@
       ]
     },
     {
-      "id": "archive",
+      "id": "archive_zip",
+      "tag": "ZIP",
       "mark": "glass-archive.png",
-      "title": "The same files, packed again",
-      "detail": "ZIP, or 7Z if it's already a ZIP.",
+      "title": "A ZIP that opens anywhere",
+      "detail": "The same files in a ZIP.",
       "symbol": "archivebox",
       "kinds": [
         "file"
@@ -348,36 +501,75 @@
         "*.tar.gz",
         "*.tar.xz",
         "*.tar.bz2",
+        "*.iso"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "zip"
+      }
+    },
+    {
+      "id": "archive_7z",
+      "tag": "7Z",
+      "mark": "glass-archive.png",
+      "title": "Packed tighter",
+      "detail": "The same files in a 7Z.",
+      "symbol": "archivebox",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.rar",
+        "*.tar",
+        "*.tgz",
+        "*.tar.gz",
+        "*.tar.xz",
+        "*.tar.bz2",
         "*.iso",
         "*.zip"
       ],
       "tool": "convert",
       "input": {
-        "files": "{values}"
+        "files": "{values}",
+        "target": "7z"
+      }
+    },
+    {
+      "id": "archive_targz",
+      "tag": "TAR.GZ",
+      "mark": "glass-archive.png",
+      "title": "For Linux and servers",
+      "detail": "The same files in a TAR.GZ.",
+      "symbol": "archivebox",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.7z",
+        "*.rar",
+        "*.tar",
+        "*.tar.xz",
+        "*.tar.bz2",
+        "*.iso",
+        "*.zip"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "tar.gz"
       },
+      "menu_title": "Another format",
       "menu": [
         {
-          "title": "ZIP",
-          "input": {
-            "target": "zip"
-          }
-        },
-        {
-          "title": "7Z",
-          "input": {
-            "target": "7z"
-          }
-        },
-        {
           "title": "TAR",
+          "tag": "TAR",
+          "detail": "Not compressed",
+          "skip": [
+            "*.tar"
+          ],
           "input": {
             "target": "tar"
-          }
-        },
-        {
-          "title": "TAR.GZ",
-          "input": {
-            "target": "tar.gz"
           }
         }
       ]
