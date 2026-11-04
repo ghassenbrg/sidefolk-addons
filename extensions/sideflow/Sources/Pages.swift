@@ -754,9 +754,8 @@ import SidefolkExtensionKit
             }
         case .waiting where run.connection != nil:
             let name = run.connection.flatMap { Connections.id(of: $0.tool) }.map { Connections.title($0, app.catalog, app.store) } ?? ""
-            detail = app.engine.heldByPause(run)
-                ? L("Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.", ["name": name])
-                : L("Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.", ["name": name])
+            detail = app.engine.pausedFlow(holding: run).map { L("Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.", ["name": name, "flow": $0.name]) }
+                ?? L("Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.", ["name": name])
             end.append(choices(L("Don't want to wait?"), [
                 Option("carry_on", L("Skip this step"), detail: L("Goes on without it."), symbol: "forward"),
                 Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop"),

@@ -15,6 +15,7 @@ import SidefolkExtensionKit
         var planWait: Duration?
         var forgotten: [String] = []
         var forward: [String] = []
+        var forwardOptions: [String] = []
         var notices: [(title: String, body: String?, attention: Bool)] = []
         var decision: Actions.Check.Decision = .allow
         /// Held until released: a call in the air, for a stop in the middle.
@@ -34,6 +35,7 @@ import SidefolkExtensionKit
             // Asking the way forward isn't a step of the flow.
             if tool == "ask.user", input["options"] as? [String] != nil, (input["question"] as? String)?.contains("{") == false, answers[tool]?.isEmpty != false {
                 forward.append(input["question"] as? String ?? "")
+                forwardOptions = input["options"] as? [String] ?? []
                 if !slowAnswers.isEmpty {
                     let answer = slowAnswers.removeFirst()
                     try? await Task.sleep(for: .milliseconds(80))

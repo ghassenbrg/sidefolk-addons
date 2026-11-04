@@ -196,6 +196,11 @@ import SidefolkExtensionKit
         let words = page.sections.map { "\($0)" }.joined()
         #expect(words.contains("resume"))
         #expect(!words.contains("goes on by itself"))
+        // Without the marks that keep a name's direction.
+        #expect(words.filter { $0 != "\u{2068}" && $0 != "\u{2069}" }.contains("and Caller is paused"), "Child is on, with no Resume of its own: it has to say which")
+        // And Home doesn't say it goes on by itself either.
+        let home = await Pages.make(app, state: Arguments([:]), background: false)
+        #expect(!"\(home.summary as Any)".contains("waiting for"))
     }
 
     @Test func aPausedFlowWithALaneWaitingSaysPaused() async throws {

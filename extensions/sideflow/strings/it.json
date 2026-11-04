@@ -932,7 +932,6 @@
       "other": "{count} esecuzioni la attendono"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} è tornato, ma è passato così tanto tempo che questo passaggio spetta a te.",
-    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "In attesa di {name}, e questa routine è in pausa. Questo passaggio non è stato eseguito: quando torna, prosegue se la riprendi.",
     "Add what to do each time round.": "Aggiungi cosa fare a ogni giro.",
     "At most (times)": "Al massimo (volte)",
     "Each time round": "A ogni giro",
@@ -959,6 +958,7 @@
       "other": "{count} giri e non è ancora vero."
     },
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Hai approvato un'altra versione di questa routine durante l'esecuzione e questo passaggio non è più lo stesso, quindi non è stato eseguito. Saltalo o fermati qui.",
-    "Inside it": "Al suo interno"
+    "Inside it": "Al suo interno",
+    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "In attesa di {name}, e {flow} è in pausa. Questo passaggio non è stato eseguito: quando torna, prosegue se riprendi {flow}."
   }
 }

@@ -608,6 +608,10 @@ import SidefolkExtensionKit
         let words = page.sections.map { "\($0)" }.joined()
         #expect(!words.contains(L("Try again")), "it would ask the same again")
         #expect(words.contains(L("Skip this step")))
+        // And the question on the Sidecard, by the same rule.
+        await w.quiet(app.store)
+        #expect(!w.host.forwardOptions.isEmpty)
+        #expect(!w.host.forwardOptions.contains(L("Try again")))
     }
 
     @Test func aStepThatsStillThereGoesOnAfterAnEdit() async throws {

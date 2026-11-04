@@ -1053,8 +1053,12 @@ import SidefolkExtensionKit
     }
 
     /// What goes by itself waits for Resume: its own flow or a flow that called it is paused.
-    func heldByPause(_ run: Run) -> Bool {
-        run.mode == .live && ([run.flow] + run.lineage).contains { store.flow($0)?.state == .paused }
+    func heldByPause(_ run: Run) -> Bool { pausedFlow(holding: run) != nil }
+
+    /// Which: a called flow can be on itself, with no Resume of its own to press.
+    func pausedFlow(holding run: Run) -> Flow? {
+        guard run.mode == .live else { return nil }
+        return ([run.flow] + run.lineage).lazy.compactMap { self.store.flow($0) }.first { $0.state == .paused }
     }
 
     /// On from before a blank step was marked: pausing says so once, where running would do what comes before it each time and then stop. Whether it has one.
