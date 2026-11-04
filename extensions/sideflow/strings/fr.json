@@ -893,6 +893,7 @@
     "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
       "one": "{count} exécution attend une routine illisible pour l'instant. Elle reprend si la routine revient.",
       "other": "{count} exécutions attendent des routines illisibles pour l'instant. Elles reprennent si les routines reviennent."
-    }
+    },
+    "Look at": "Regarder"
   }
 }

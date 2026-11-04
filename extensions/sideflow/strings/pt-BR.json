@@ -893,6 +893,7 @@
     "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
       "one": "{count} execução está esperando uma rotina que não pode ser lida agora. Continua se ela voltar.",
       "other": "{count} execuções estão esperando rotinas que não podem ser lidas agora. Continuam se elas voltarem."
-    }
+    },
+    "Look at": "Olhar"
   }
 }

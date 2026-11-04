@@ -893,6 +893,7 @@
     "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
       "one": "{count} esecuzione attende una routine che ora non si può leggere. Riprende se torna.",
       "other": "{count} esecuzioni attendono routine che ora non si possono leggere. Riprendono se tornano."
-    }
+    },
+    "Look at": "Guarda"
   }
 }

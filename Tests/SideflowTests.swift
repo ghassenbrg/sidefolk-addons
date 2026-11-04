@@ -1560,6 +1560,45 @@ import SidefolkExtensionKit
         #expect(!w.host.calls.contains { $0.tool == "watch.stop" || $0.tool == "watch.create" })
     }
 
+    @Test func aPausedWatchComesBackWhenAnEditIsApproved() async throws {
+        let w = try World()
+        let trigger: [String: Any] = ["type": "watch", "kind": "url_change", "target": "https://x.example"]
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: trigger)
+        flow.watchTitle = "Test · Sideflow"
+        flow.state = .paused
+        flow.draft = try FlowCodec.body(["trigger": trigger, "steps": [["id": "a", "do": "reads.it"], ["id": "b", "text": "x"]]])
+        w.store.save(flow)
+        w.engine.resume(flow.id)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.state == .on)
+        #expect(w.host.calls.contains { $0.tool == "watch.resume" }, "or it says On and never fires")
+        #expect(!w.host.calls.contains { $0.tool == "watch.create" }, "the one it has is the one it wants")
+    }
+
+    @Test func aWatchThatWouldntStopIsStillReplacedAfterAnotherEdit() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "Test · Sideflow"
+        let moved: [String: Any] = ["type": "watch", "kind": "url_change", "target": "https://y.example"]
+        flow.draft = try FlowCodec.body(["trigger": moved, "steps": [["id": "a", "do": "reads.it"]]])
+        w.store.save(flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "no")]
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        var held = try #require(w.store.flow(flow.id))
+        #expect(held.watchOutdated)
+        // Changed again before trying again: what's live and what's approved now say the same address, and the old watch is still on the other.
+        held.draft = try FlowCodec.body(["trigger": moved, "steps": [["id": "a", "do": "reads.it"], ["id": "b", "text": "x"]]])
+        w.store.save(held)
+        w.engine.resume(flow.id)
+        await w.quiet()
+        let after = try #require(w.store.flow(flow.id))
+        #expect(after.state == .on)
+        #expect(!after.watchOutdated)
+        #expect(w.host.calls.filter { $0.tool == "watch.stop" }.count == 2)
+        #expect(w.host.calls.first { $0.tool == "watch.create" }?.input["target"] as? String == "https://y.example")
+    }
+
     @Test func aChangedAddressUnderTheSameNameIsAReplacement() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])

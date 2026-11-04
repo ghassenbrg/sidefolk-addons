@@ -893,6 +893,7 @@
     "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
       "one": "{count} Durchlauf wartet auf einen Ablauf, der sich gerade nicht lesen lässt. Er läuft weiter, wenn er zurückkommt.",
       "other": "{count} Durchläufe warten auf Abläufe, die sich gerade nicht lesen lassen. Sie laufen weiter, wenn sie zurückkommen."
-    }
+    },
+    "Look at": "Ansehen"
   }
 }

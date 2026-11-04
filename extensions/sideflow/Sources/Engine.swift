@@ -937,7 +937,7 @@ import SidefolkExtensionKit
             guard let answer, var current = store.flow(id) else { return }
             switch answer {
             case .allowed:
-                let oldWatch = current.watchTitle, wasLive = current.live
+                let oldWatch = current.watchTitle, wasLive = current.live, wasOn = current.state == .on
                 if let was = current.live, was != reviewed {
                     current.revisions.append(Flow.Revision(at: clock(), body: was))
                     current.revisions = Array(current.revisions.suffix(Flow.keptRevisions))
@@ -953,6 +953,9 @@ import SidefolkExtensionKit
                     await replaceWatch(id, stopping: oldWatch)
                 } else if oldWatch == nil, case .watch = reviewed.trigger {
                     await makeWatch(id)
+                } else if !wasOn || current.watchOutdated {
+                    // Paused, or on its way out: approving an edit is what brings it back, the same as Resume.
+                    await resumeWatch(current)
                 }
             case .refused(let reason):
                 current.startProblem = Words.planRefusal(reason)
