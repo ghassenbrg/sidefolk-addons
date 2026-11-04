@@ -269,15 +269,10 @@ extension FlowHost {
             store.save(run)
             return false
         }
-<<<<<<< HEAD
-        if let name = run.values.stopsFor(step.usedTexts, practice: run.mode == .practice) {
-            return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
-=======
         // "Use this if it's empty" is for just that.
         let looksPastMissing = if case .data(let data) = step.kind { data.op == .fallback } else { false }
         if !looksPastMissing, let name = run.values.stopsFor(step.usedTexts, practice: run.mode == .practice) {
-            return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
->>>>>>> fe758ff (Sideflow: batches, groups and fallbacks; make a step its own flow; pause, run again, try again from here)
+            return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
         }
         // Before it's done: for a repeat, which can't tell from a value alone what going round would do again.
         if step.doesSomething(catalog) { for i in run.frames.indices { run.frames[i].wrote = true } }
