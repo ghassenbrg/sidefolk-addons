@@ -73,7 +73,9 @@ extension Engine {
         }
         // What it can't see won't change by asking again. Nor can it go round on a write that gave nothing, one carried on past or that may have happened: that could send it twice. A read that gave nothing is what a poll asks again.
         let looksAt = Set(until.checks.flatMap { check in Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }.map(\.name))
-        let gaveNothing = inside.first { looksAt.contains($0.id) && !$0.reads(catalog) && run.values.named[$0.id].map { Values.text($0).isEmpty } == true }
+        // One inside a loop or lane in here is gone by now, whether it ran or not: going round can't ever make it answer, and may send it again.
+        let outOfSight = Set(inside.filter { switch $0.kind { case .forEach, .repeatUntil, .parallel: true; default: false } }.flatMap { holder in FlowBody(steps: [holder]).allSteps.dropFirst().map(\.id) })
+        let gaveNothing = inside.first { looksAt.contains($0.id) && !$0.reads(catalog) && (outOfSight.contains($0.id) || run.values.named[$0.id].map { Values.text($0).isEmpty } == true) }
         if run.mode != .practice, let unknown = run.values.undecided(until) ?? (holds ? nil : gaveNothing?.id) {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
