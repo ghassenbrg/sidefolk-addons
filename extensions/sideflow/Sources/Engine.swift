@@ -817,20 +817,24 @@ extension FlowHost {
         guard !store.flowsFileIsHeld else { return }
         let now = clock()
         for var flow in store.flows() where flow.state == .on {
-            let trigger = flow.running.trigger
             var clock = calendar
             if let zone = flow.running.timeZone.flatMap(TimeZone.init(identifier:)) { clock.timeZone = zone }
-            guard let from = flow.lastFire, let due = Schedule.due(trigger, last: from, now: now, calendar: clock) else { continue }
-            flow.lastFire = due.latest
-            let late = now.timeIntervalSince(due.latest) > Schedule.onTime
-            if late, !Schedule.catchesUp(trigger) {
-                flow.missed = Array((flow.missed + [due.latest]).suffix(8))
-                store.save(flow)
-                continue
+            guard let from = flow.lastFire else { continue }
+            let due = flow.running.triggers.compactMap { trigger in Schedule.due(trigger, last: from, now: now, calendar: clock).map { (trigger: trigger, latest: $0.latest) } }
+            guard let latest = due.map(\.latest).max() else { continue }
+            flow.lastFire = latest
+            var starts: [String] = []
+            for one in due {
+                let late = now.timeIntervalSince(one.latest) > Schedule.onTime
+                if late, !Schedule.catchesUp(one.trigger) {
+                    flow.missed = Array((flow.missed + [one.latest]).suffix(8))
+                    continue
+                }
+                starts.append(late ? L("Meant for {time}; Sidefolk or your Mac was off then.", ["time": Format.dateTime(one.latest)]) : Words.trigger(one.trigger))
             }
             store.save(flow)
-            let why = late ? L("Meant for {time}; Sidefolk or your Mac was off then.", ["time": Format.dateTime(due.latest)]) : Words.trigger(trigger)
-            start(flow, mode: .live, why: why)
+            // Two ways due together are still one moment: it runs for the first, however many said so.
+            if let why = starts.first { start(flow, mode: .live, why: why) }
         }
         for run in store.unfinished() where run.status == .waiting {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
@@ -844,13 +848,19 @@ extension FlowHost {
     }
 
     /// Something happened in Sidefolk: every On flow waiting for it goes.
-    func happened(name: String, title: String?, detail: String?) {
+    func happened(name: String, title: String?, detail: String?, id: String? = nil) {
+        // Told twice is still once: a restart of either side mustn't run things again.
+        if let id, !store.firstTimeSeeing(event: id) { return }
         let words = [title, detail].compactMap(\.self).joined(separator: "\n")
         wakeWaiting(name: name, words: words)
         for flow in store.flows() where flow.state == .on {
-            guard case .event(let wanted, let contains) = flow.running.trigger, wanted == name else { continue }
-            if let contains, words.range(of: contains, options: [.caseInsensitive, .diacriticInsensitive]) == nil { continue }
-            start(flow, mode: .live, why: Words.trigger(flow.running.trigger), trigger: words)
+            // One happening starts it once, however many of its ways match.
+            let matching = flow.running.triggers.first { trigger in
+                guard case .event(let wanted, let contains) = trigger, wanted == name else { return false }
+                return contains.map { words.range(of: $0, options: [.caseInsensitive, .diacriticInsensitive]) != nil } ?? true
+            }
+            guard let matching else { continue }
+            start(flow, mode: .live, why: Words.trigger(matching), trigger: words)
         }
     }
 
@@ -956,7 +966,7 @@ extension FlowHost {
             }
         }
         // Sidefolk shows so much of this and no more. What a flow sets off appears nowhere else on the card, so a long address gives way to it.
-        let said = Words.trigger(flow.kept.trigger)
+        let said = Words.triggers(flow.kept)
         var when = said.count > Self.longestTriggerWords ? said.prefix(Self.longestTriggerWords) + "…" : said
         // Whose clock it goes by is what it does too: changing only that has to read differently on the card.
         if let zone = flow.kept.timeZone?.nonEmpty { when = L("{when}, by the clock of {zone}", ["when": when, "zone": zone]) }
@@ -985,7 +995,7 @@ extension FlowHost {
 
     /// There's something to read before it runs by itself. Only a flow someone starts by hand that does nothing but work on its own values has nothing to say.
     static func needsCard(_ body: FlowBody) -> Bool {
-        if case .manual = body.trigger {} else { return true }
+        if case .manual = body.trigger, body.alsoWhen.isEmpty {} else { return true }
         return !planSteps(body, title: "").isEmpty || body.allSteps.contains { switch $0.kind { case .flow, .call, .ai: true; default: false } }
     }
 

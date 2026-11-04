@@ -534,7 +534,7 @@ import SidefolkExtensionKit
         let live = flow.state == .on && !flow.hasChanges && !flow.hasUnsaved
         let run = live ? app.store.runs(of: flow.id).first { $0.mode == .live && $0.body == flow.draft } : practice(flow, app)
         let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges || flow.hasUnsaved ? .pending : .none
-        var first = CardTree.Node("start", Words.trigger(flow.draft.trigger), kind: L("It starts"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
+        var first = CardTree.Node("start", Words.triggers(flow.draft), kind: L("It starts"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
         if let check = app.preflight[flow.id]?[App.triggerCheck], check.decision == .deny {
             first.state = .attention
             first.pill = Badge(check.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)

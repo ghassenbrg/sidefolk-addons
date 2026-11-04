@@ -191,6 +191,11 @@ import SidefolkExtensionKit
         }
     }
 
+    /// Every way it starts, read aloud.
+    static func triggers(_ body: FlowBody) -> String {
+        Format.list(body.triggers.map(trigger), or: true)
+    }
+
     static func branch(_ c: Condition, holds: Bool, body: FlowBody, catalog: Catalog) -> String {
         let said = condition(c, body: body, catalog: catalog)
         return holds ? L("{condition}: yes", ["condition": said]) : L("{condition}: no", ["condition": said])
@@ -214,7 +219,7 @@ import SidefolkExtensionKit
                 return out
             }
         }
-        return Format.sentences([trigger(body.trigger) + ":"] + said(body.steps))
+        return Format.sentences([triggers(body) + ":"] + said(body.steps))
     }
 
     static func aiRefusal(_ reason: String) -> String {

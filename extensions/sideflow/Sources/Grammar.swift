@@ -5,6 +5,7 @@ enum Grammar {
     static let text = """
     A flow is JSON: {"trigger": …, "steps": […]}.
 
+    "also_when":[…] adds more ways to start: schedules or events, up to 7, never a watch or manual. It starts once for each moment, however many match.
     trigger, one of:
       {"type":"manual"}
       {"type":"schedule","days":["mon","tue","wed","thu","fri"],"at":"08:30","catch_up":true}  (catch_up: run once when back if the Mac was off)

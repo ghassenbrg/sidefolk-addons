@@ -223,6 +223,8 @@ struct FlowBody: Equatable, Sendable {
     }
 
     var trigger: Trigger = .manual
+    /// More times or happenings that set it off. A watch has a name of its own to look after, so it's only ever the first.
+    var alsoWhen: [Trigger] = []
     var steps: [Step] = []
     var overlap: Overlap = .one_more
     /// For a schedule: a place's clock instead of this Mac's, like `Europe/Paris`.
@@ -240,6 +242,7 @@ struct FlowBody: Equatable, Sendable {
     static let maxDepth = 4
     static let shortestEvery = 15
     static let longestEvery = 7 * 24 * 60
+    static let mostTriggers = 8
     static let longestWait = 1440
 
     /// Depth first, in reading order.
@@ -249,6 +252,8 @@ struct FlowBody: Equatable, Sendable {
     }
 
     func step(_ id: String) -> Step? { allSteps.first { $0.id == id } }
+
+    var triggers: [Trigger] { [trigger] + alsoWhen }
 
     func calling(_ old: String, instead name: String) -> FlowBody {
         var out = self
@@ -344,6 +349,7 @@ enum FlowCodec {
 
     static func json(_ body: FlowBody) -> [String: Any] {
         var out: [String: Any] = ["trigger": json(body.trigger), "steps": body.steps.map(json)]
+        if !body.alsoWhen.isEmpty { out["also_when"] = body.alsoWhen.map(json) }
         if body.overlap != .one_more { out["overlap"] = body.overlap.rawValue }
         if let zone = body.timeZone { out["time_zone"] = zone }
         if let sample = body.triggerSample { out["trigger_sample"] = sample }
@@ -467,9 +473,18 @@ enum FlowCodec {
 
     static func body(_ any: Any?, saved: Bool = false) throws -> FlowBody {
         guard let o = any as? [String: Any] else { throw Problem(L("A flow is an object with “trigger” and “steps”.")) }
-        try only(o, ["trigger", "steps", "overlap", "time_zone", "trigger_sample"], in: "flow")
+        try only(o, ["trigger", "also_when", "steps", "overlap", "time_zone", "trigger_sample"], in: "flow")
         var used = Set<String>()
         var made = FlowBody(trigger: try trigger(o["trigger"], saved: saved), steps: try steps(o["steps"] ?? [], depth: saved ? -64 : 1, used: &used))
+        let also = o["also_when"] as? [Any] ?? []
+        guard also.count < FlowBody.mostTriggers else { throw Problem(L("A flow can start {count} ways at most.", ["count": Format.integer(FlowBody.mostTriggers)])) }
+        made.alsoWhen = try also.map { raw in
+            let more = try trigger(raw, saved: saved)
+            switch more {
+            case .days, .every, .event: return more
+            case .manual, .watch: throw Problem(L("“also_when” is for times and things that happen. A watch can only be what first sets it off."))
+            }
+        }
         if let raw = o["overlap"] as? String {
             guard let overlap = FlowBody.Overlap(rawValue: raw) else { throw Problem(L("“overlap” is one_more, queue or skip.")) }
             made.overlap = overlap

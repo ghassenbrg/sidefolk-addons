@@ -982,6 +982,14 @@
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "Die Datei deiner Abläufe lässt sich nicht öffnen. Sie bleibt unberührt, und nichts läuft oder speichert, bis das geht.",
     "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Er braucht {name}, gerade nicht da. Nichts wurde getan, und er läuft von selbst weiter, sobald es zurück ist.",
     "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "Wartet auf {name}. Nichts wurde getan, und er läuft von selbst weiter, sobald es zurück ist.",
-    "Working: {how}": "In Arbeit: {how}"
+    "Working: {how}": "In Arbeit: {how}",
+    "A flow can start {count} ways at most.": "Ein Ablauf kann auf höchstens {count} Arten starten.",
+    "Also at a time": "Auch zu einer Uhrzeit",
+    "Also every (minutes)": "Auch alle (Minuten)",
+    "Also on": "Auch am",
+    "Also when": "Auch wenn",
+    "Also when something happens": "Auch wenn etwas passiert",
+    "Remove this": "Entfernen",
+    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "„also_when“ ist für Zeiten und Ereignisse. Eine Überwachung kann nur der erste Auslöser sein."
   }
 }

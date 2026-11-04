@@ -1938,3 +1938,113 @@ extension JSON {
     }
 }
 
+@MainActor @Suite(.serialized) struct SideflowTriggersTests {
+    typealias World = SideflowTests.World
+
+    private func flow(_ w: World, _ trigger: [String: Any] = ["type": "manual"], also: [[String: Any]], state: Flow.State = .on) throws -> Flow {
+        let body = try FlowCodec.body(["trigger": trigger, "also_when": also, "steps": [["id": "a", "text": "x"]]])
+        var made = try w.flow([["id": "a", "text": "x"]], trigger: trigger, state: state)
+        made.draft = body
+        if state != .draft { made.live = body }
+        w.store.save(made)
+        return made
+    }
+
+    @Test func itReadsBackAndRefusesWhatItCantDo() throws {
+        let also: [[String: Any]] = [["type": "schedule", "every_minutes": 60], ["type": "event", "event": "note.saved"]]
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "also_when": also, "steps": [["id": "a", "text": "x"]]])
+        #expect(body.alsoWhen.count == 2)
+        #expect(try FlowCodec.body(FlowCodec.json(body)) == body)
+        #expect(throws: Problem.self) { _ = try FlowCodec.body(["trigger": ["type": "manual"], "also_when": [["type": "watch", "kind": "url_change", "target": "https://x.example"]], "steps": []]) }
+        #expect(throws: Problem.self) { _ = try FlowCodec.body(["trigger": ["type": "manual"], "also_when": [["type": "manual"]], "steps": []]) }
+        let many = Array(repeating: ["type": "schedule", "every_minutes": 60] as [String: Any], count: FlowBody.mostTriggers)
+        #expect(throws: Problem.self) { _ = try FlowCodec.body(["trigger": ["type": "manual"], "also_when": many, "steps": []]) }
+    }
+
+    @Test func aSecondScheduleSetsItOff() async throws {
+        let w = try World()
+        let made = try flow(w, also: [["type": "schedule", "every_minutes": 60]])
+        w.now = w.now.addingTimeInterval(61 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 1)
+    }
+
+    @Test func twoDueTogetherAreOneRun() async throws {
+        let w = try World()
+        let made = try flow(w, ["type": "schedule", "every_minutes": 60], also: [["type": "schedule", "every_minutes": 30]])
+        w.now = w.now.addingTimeInterval(61 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 1)
+    }
+
+    @Test func aHappeningSetsItOffOnceHoweverManyMatch() async throws {
+        let w = try World()
+        let made = try flow(w, ["type": "event", "event": "note.saved"], also: [["type": "event", "event": "note.saved", "contains": "bread"]])
+        w.engine.happened(name: "note.saved", title: "bread", detail: nil)
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 1)
+    }
+
+    @Test func theSameEventTwiceIsOnce() async throws {
+        let w = try World()
+        let made = try flow(w, ["type": "event", "event": "note.saved"], also: [])
+        w.engine.happened(name: "note.saved", title: "a", detail: nil, id: "e1")
+        await w.quiet()
+        w.engine.happened(name: "note.saved", title: "a", detail: nil, id: "e1")
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 1)
+        w.restart()
+        w.engine.happened(name: "note.saved", title: "a", detail: nil, id: "e1")
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 1, "nor after a restart")
+        w.engine.happened(name: "note.saved", title: "a", detail: nil, id: "e2")
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).count == 2, "another one does")
+    }
+
+    @Test func aManualFlowWithAScheduleOnTheSideStillNeedsACardAndItSaysSo() throws {
+        let w = try World()
+        let made = try flow(w, also: [["type": "schedule", "every_minutes": 60]], state: .draft)
+        #expect(Engine.needsCard(made.kept))
+        let when = w.engine.livePlan(made).when
+        #expect(when.contains(Words.trigger(.every(minutes: 60, catchUp: false))))
+    }
+
+    @Test func aBadOneOfManyIsMarkedAndNeverDue() async throws {
+        let w = try World()
+        var made = try flow(w, also: [["type": "schedule", "every_minutes": 60]])
+        made.draft.alsoWhen = [.every(minutes: 3, catchUp: false)]
+        made.live = made.draft
+        w.store.save(made)
+        w.restart()
+        let back = try #require(w.store.flow(made.id))
+        #expect(!back.draft.problems(w.catalog).isEmpty)
+        w.now = w.now.addingTimeInterval(9000)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.runs(of: made.id).isEmpty)
+    }
+
+    @Test func thePageAddsEditsAndRemovesThem() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        let made = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x"]]]))
+        func op(_ name: String, _ extra: [String: Any]) async throws {
+            var input: [String: Any] = ["op": name, "flow": made.id]
+            input.merge(extra) { _, new in new }
+            _ = try await Actions_UI.handle(Arguments(input), app)
+        }
+        try await op("also_add", ["kind": "days"])
+        try await op("also_add", ["kind": "event"])
+        try await op("at", ["also": 0, "text": "18:15"])
+        guard case .days(_, 18, 15, _)? = app.store.flow(made.id)?.draft.alsoWhen.first else { Issue.record("not edited"); return }
+        #expect(app.store.flow(made.id)?.draft.trigger == .manual, "the first way wasn't touched")
+        try await op("also_remove", ["also": 0])
+        #expect(app.store.flow(made.id)?.draft.alsoWhen.count == 1)
+        let sections = Inspector.trigger(try #require(app.store.flow(made.id)))
+        #expect(!sections.isEmpty)
+    }
+}
+

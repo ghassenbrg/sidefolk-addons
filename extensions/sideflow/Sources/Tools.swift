@@ -226,7 +226,7 @@ import SidefolkExtensionKit
     }
 
     static func line(_ flow: Flow, _ app: App) -> String {
-        var parts = ["\(flow.name) [\(stateWord(flow))]", Words.trigger(flow.running.trigger)]
+        var parts = ["\(flow.name) [\(stateWord(flow))]", Words.triggers(flow.running)]
         if let next = next(flow) { parts.append(L("Next: {when}", ["when": Format.dateTime(next)])) }
         if let last = app.store.latest(of: flow.id) { parts.append(L("Last: {status}", ["status": status(last)])) }
         return parts.joined(separator: " · ")
@@ -234,7 +234,7 @@ import SidefolkExtensionKit
 
     static func next(_ flow: Flow) -> Date? {
         guard flow.state == .on, let from = flow.lastFire else { return nil }
-        return Schedule.next(flow.running.trigger, after: from)
+        return flow.running.triggers.compactMap { Schedule.next($0, after: from) }.min()
     }
 
     static func status(_ run: Run) -> String {

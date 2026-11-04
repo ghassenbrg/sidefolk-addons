@@ -965,6 +965,14 @@
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "ルーティンのファイルを開けません。ファイルはそのままで、開けるようになるまで実行も保存も行いません。",
     "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "{name} が必要ですが、今はありません。何も実行されておらず、戻ると自動的に続きます。",
     "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "{name} を待っています。何も実行されておらず、戻ると自動的に続きます。",
-    "Working: {how}": "作業中: {how}"
+    "Working: {how}": "作業中: {how}",
+    "A flow can start {count} ways at most.": "ルーティンの開始方法は最大 {count} 個です。",
+    "Also at a time": "時刻でも開始",
+    "Also every (minutes)": "次の間隔でも開始（分）",
+    "Also on": "この曜日にも",
+    "Also when": "次のときにも",
+    "Also when something happens": "何かが起きたときにも開始",
+    "Remove this": "削除",
+    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "「also_when」は時刻と出来事に使います。監視は最初の開始条件にしかできません。"
   }
 }

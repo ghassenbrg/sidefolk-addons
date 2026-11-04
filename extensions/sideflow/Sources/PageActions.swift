@@ -32,7 +32,16 @@ import SidefolkExtensionKit
             guard let id = a.string("step") else { return }
             try draft { $0 = Editing.change(id, in: $0, edit) }
         }
-        func editTrigger(_ edit: (inout Trigger) -> Void) throws { try draft { edit(&$0.trigger) } }
+        /// Which way it starts: the first, or one of those `also` names.
+        func editTrigger(_ edit: (inout Trigger) -> Void) throws {
+            try draft { body in
+                if let at = a.int("also") {
+                    if body.alsoWhen.indices.contains(at) { edit(&body.alsoWhen[at]) }
+                } else {
+                    edit(&body.trigger)
+                }
+            }
+        }
         /// A condition's checks, whichever step holds them.
         func editCondition(_ edit: (inout Condition) -> Void) throws {
             try editStep { s in
@@ -284,6 +293,15 @@ import SidefolkExtensionKit
             }
         case "on_failure":
             if let raw = a.string("value"), let f = Step.OnFailure(rawValue: raw) { try editStep { $0.onFailure = f } }
+        case "also_add":
+            try draft { body in
+                guard body.triggers.count < FlowBody.mostTriggers else { throw Problem(L("A flow can start {count} ways at most.", ["count": Format.integer(FlowBody.mostTriggers)])) }
+                body.alsoWhen.append(a.string("kind") == "event" ? .event("reminder.fired", contains: nil) : .days([1, 2, 3, 4, 5], hour: 17, minute: 0, catchUp: false))
+            }
+        case "also_remove":
+            try draft { body in
+                if let at = a.int("also"), body.alsoWhen.indices.contains(at) { body.alsoWhen.remove(at: at) }
+            }
         case "trigger_kind":
             switch a.string("value") {
             case "manual": try editTrigger { $0 = .manual }

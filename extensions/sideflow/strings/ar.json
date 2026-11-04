@@ -1050,6 +1050,14 @@
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "تعذر فتح ملف روتيناتك. لم يُمس، ولن يعمل أو يُحفظ شيء حتى يمكن فتحه.",
     "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "يحتاج إلى {name}، غير موجود الآن. لم يُفعل شيء، ويتابع وحده عند عودته.",
     "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "في انتظار {name}. لم يُفعل شيء، ويتابع وحده عند عودته.",
-    "Working: {how}": "قيد العمل: {how}"
+    "Working: {how}": "قيد العمل: {how}",
+    "A flow can start {count} ways at most.": "يمكن أن يبدأ الروتين بـ {count} طرق على الأكثر.",
+    "Also at a time": "أيضًا في وقت محدد",
+    "Also every (minutes)": "أيضًا كل (دقائق)",
+    "Also on": "أيضًا في",
+    "Also when": "أيضًا عندما",
+    "Also when something happens": "أيضًا عندما يحدث شيء",
+    "Remove this": "إزالة",
+    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "«also_when» للأوقات والأحداث. لا يمكن للمراقبة أن تكون إلا أول ما يبدأه."
   }
 }

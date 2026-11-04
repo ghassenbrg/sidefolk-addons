@@ -85,6 +85,7 @@ import SidefolkExtensionKit
             main.append(.edit(EditField("event_contains", L("Only if it mentions"), value: contains ?? "", placeholder: L("Anything"), tool: "ui", input: base(flow, "event_contains"))))
             main.append(.note(L("Later steps can use its words: “What set it off”.")))
         }
+        main += alsoWhen(flow)
         more.append(.edit(EditField("name", L("This flow's name"), value: flow.name, tool: "ui", input: base(flow, "rename"))))
         if case .manual = t {} else {
             more.append(.choice(L("If it's set off while running"), options: [("one_more", L("Run once more after")), ("queue", L("Run each in turn")), ("skip", L("Let it go"))], selected: flow.draft.overlap.rawValue, tool: "ui", input: base(flow, "overlap")))
@@ -98,6 +99,32 @@ import SidefolkExtensionKit
         }
         return [Section(L("When it runs"), main, place: .trailing, detail: L("What sets this flow off, without you pressing anything.")),
                 Section(L("More options"), more, place: .trailing, collapsed: true)]
+    }
+
+    /// The other ways it starts, each with what it takes, and room for more.
+    private static func alsoWhen(_ flow: Flow) -> [Block] {
+        var out: [Block] = []
+        for (at, more) in flow.draft.alsoWhen.enumerated() {
+            func input(_ op: String) -> [String: Any] { base(flow, op, ["also": at]) }
+            switch more {
+            case .days(let days, let hour, let minute, _):
+                let names = [("mon", L("Mon")), ("tue", L("Tue")), ("wed", L("Wed")), ("thu", L("Thu")), ("fri", L("Fri")), ("sat", L("Sat")), ("sun", L("Sun"))]
+                out.append(.several(MultiChoice(L("Also on"), options: names, selected: days.map { FlowCodec.days[$0 - 1] }, tool: "ui", input: input("days"))))
+                out.append(.edit(EditField("also.\(at).at", L("At"), value: String(format: "%02d:%02d", hour, minute), placeholder: "17:00", kind: .time, tool: "ui", input: input("at"))))
+            case .every(let minutes, _):
+                out.append(.edit(EditField("also.\(at).every", L("Also every (minutes)"), value: String(minutes), kind: .number, tool: "ui", input: input("every"))))
+            case .event(let name, let contains):
+                out.append(.choice(L("Also when"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: name, tool: "ui", input: input("event_kind")))
+                out.append(.edit(EditField("also.\(at).contains", L("Only if it mentions"), value: contains ?? "", placeholder: L("Anything"), tool: "ui", input: input("event_contains"))))
+            case .manual, .watch: break
+            }
+            out.append(.action(Action(L("Remove this"), tool: "ui", input: input("also_remove"), style: .plain, symbol: "minus.circle")))
+        }
+        if flow.draft.triggers.count < FlowBody.mostTriggers {
+            out.append(.action(Action(L("Also at a time"), tool: "ui", input: base(flow, "also_add", ["kind": "days"]), style: .plain, symbol: "plus.circle")))
+            out.append(.action(Action(L("Also when something happens"), tool: "ui", input: base(flow, "also_add", ["kind": "event"]), style: .plain, symbol: "plus.circle")))
+        }
+        return out
     }
 
     private static func catchUpSwitch(_ flow: Flow, _ on: Bool) -> Block {

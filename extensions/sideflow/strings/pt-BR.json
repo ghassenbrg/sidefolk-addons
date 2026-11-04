@@ -982,6 +982,14 @@
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "O arquivo das suas rotinas não abre. Ele está intacto, e nada roda nem salva até que abra.",
     "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Precisa de {name}, ausente agora. Nada foi feito, e continua sozinha quando voltar.",
     "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "Esperando {name}. Nada foi feito, e continua sozinha quando voltar.",
-    "Working: {how}": "Em andamento: {how}"
+    "Working: {how}": "Em andamento: {how}",
+    "A flow can start {count} ways at most.": "Uma rotina pode começar de {count} formas no máximo.",
+    "Also at a time": "Também em um horário",
+    "Also every (minutes)": "Também a cada (minutos)",
+    "Also on": "Também em",
+    "Also when": "Também quando",
+    "Also when something happens": "Também quando algo acontecer",
+    "Remove this": "Remover",
+    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "“also_when” é para horários e acontecimentos. Uma vigilância só pode ser o primeiro início."
   }
 }

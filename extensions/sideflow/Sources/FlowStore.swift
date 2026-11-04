@@ -17,6 +17,8 @@ import SidefolkExtensionKit
     private(set) var flowsNotSaved = false
     /// Stops asked for and not done yet, on disk: a step under way finishes first, and Sidefolk may quit before it does.
     private var stopsAsked: Set<String> = []
+    private var seenEvents: [String] = []
+    private static let keptEvents = 300
     /// Runs removed this time: one mid-step can't save itself back after.
     private var goneRuns: Set<String> = []
     /// The flows file is there and can't be read or moved aside: nothing writes over it.
@@ -102,12 +104,14 @@ import SidefolkExtensionKit
             runsById[run.id] = run
         }
         if ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).contains(where: { $0.hasPrefix("flows-damaged-") }) { hasFileAside = true }
+        if let data = try? Data(contentsOf: eventsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] { seenEvents = list }
         if let data = try? Data(contentsOf: stopsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] {
             stopsAsked = Set(list.filter { runsById[$0]?.status.isOver == false })
         }
     }
 
     private var flowsFile: URL { folder.appendingPathComponent("flows.json") }
+    private var eventsFile: URL { folder.appendingPathComponent("events.json") }
     private var stopsFile: URL { folder.appendingPathComponent("stops.json") }
     private var connectionsFile: URL { folder.appendingPathComponent("connections.json") }
     private var runsFolder: URL { folder.appendingPathComponent("runs", isDirectory: true) }
@@ -171,6 +175,15 @@ import SidefolkExtensionKit
         let mine = runs(of: run.flow).filter { $0.parent == nil }
         for old in mine.dropFirst(Self.keptRuns) where old.status.isOver { removeRun(old.id) }
         return saved
+    }
+
+    /// Events already acted on, on disk, the last few hundred.
+    func firstTimeSeeing(event id: String) -> Bool {
+        guard !seenEvents.contains(id) else { return false }
+        seenEvents.append(id)
+        if seenEvents.count > Self.keptEvents { seenEvents.removeFirst(seenEvents.count - Self.keptEvents) }
+        write(seenEvents, to: eventsFile)
+        return true
     }
 
     func askStop(_ id: String) {

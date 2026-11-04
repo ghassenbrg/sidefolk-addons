@@ -202,7 +202,7 @@ enum Editing {
     /// What differs between two versions, in words: for reading before saving or applying.
     @MainActor static func changes(from old: FlowBody, to new: FlowBody, catalog: Catalog) -> [String] {
         var out: [String] = []
-        if old.trigger != new.trigger { out.append(L("What sets it off: {what}", ["what": Words.trigger(new.trigger)])) }
+        if old.triggers != new.triggers { out.append(L("What sets it off: {what}", ["what": Words.triggers(new)])) }
         if old.overlap != new.overlap { out.append(L("Changed: {step}", ["step": L("If it's set off while running")])) }
         if old.timeZone != new.timeZone { out.append(L("Changed: {step}", ["step": L("By the clock of")])) }
         if old.triggerSample != new.triggerSample { out.append(L("Changed: {step}", ["step": L("In practice, what set it off")])) }

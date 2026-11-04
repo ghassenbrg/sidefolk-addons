@@ -121,7 +121,9 @@ struct FlowProblem: Equatable {
 
 extension FlowBody {
     /// What's wrong with what sets it off: a page saves as it goes, so it can be halfway through being written.
-    var triggerProblem: String? {
+    var triggerProblem: String? { triggers.lazy.compactMap(Self.problem).first }
+
+    private static func problem(_ trigger: Trigger) -> String? {
         switch trigger {
         case .every(let minutes, _) where minutes < FlowBody.shortestEvery || minutes > FlowBody.longestEvery:
             L("“every_minutes” must be from {least} to {most}.", ["least": Format.integer(FlowBody.shortestEvery), "most": Format.integer(FlowBody.longestEvery)])

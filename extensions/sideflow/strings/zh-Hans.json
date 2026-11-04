@@ -965,6 +965,14 @@
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "无法打开你的流程文件。它未被改动，在能打开之前不会运行或保存任何内容。",
     "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "它需要 {name}，目前不在。未做任何事，恢复后自动继续。",
     "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "正在等待 {name}。未做任何事，恢复后自动继续。",
-    "Working: {how}": "进行中：{how}"
+    "Working: {how}": "进行中：{how}",
+    "A flow can start {count} ways at most.": "一个流程最多有 {count} 种启动方式。",
+    "Also at a time": "也在某个时间",
+    "Also every (minutes)": "也每隔（分钟）",
+    "Also on": "也在",
+    "Also when": "也在以下情况",
+    "Also when something happens": "也在发生某事时",
+    "Remove this": "移除",
+    "“also_when” is for times and things that happen. A watch can only be what first sets it off.": "“also_when”用于时间和事件。监视只能作为第一个启动方式。"
   }
 }
