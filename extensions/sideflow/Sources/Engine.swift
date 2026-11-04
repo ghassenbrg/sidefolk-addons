@@ -68,7 +68,8 @@ import SidefolkExtensionKit
         flow.pausedBecause = L("It set off {count} times in an hour, so I paused it.", ["count": Format.integer(runawayLimit)])
         store.save(flow)
         Task {
-            await stopWatch(flow)
+            // Paused, not stopped: Resume brings the same watch back.
+            await pauseWatch(flow)
             await host?.notify(title: L("{flow} is paused", ["flow": flow.name]), body: flow.pausedBecause, attention: true)
         }
         changed()
@@ -605,7 +606,15 @@ import SidefolkExtensionKit
 
     private func resumeWatch(_ flow: Flow) async {
         guard let title = flow.watchTitle else { return }
-        _ = await host?.call("watch.resume", ["id": title], plan: flow.planId, written: nil)
+        let back = await host?.call("watch.resume", ["id": title], plan: flow.planId, written: nil)
+        guard back?.ok != true else { return }
+        // The watch has gone: an earlier version stopped it when it paused for setting off too often, or the person stopped it in Home.
+        guard case .watch(let w) = flow.running.trigger else { return }
+        let made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: flow.planId, written: nil)
+        guard made?.ok != true, var current = store.flow(flow.id) else { return }
+        current.startProblem = made?.text.nonEmpty ?? L("The watch didn't start.")
+        store.save(current)
+        changed()
     }
 }
 

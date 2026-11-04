@@ -26,7 +26,7 @@ enum Editing {
         }
     }
 
-    /// Adds after `after`: `start`, a step's id, or `then:<id>` / `else:<id>` for the start of a branch.
+    /// Adds after `after`: `start`, a step's id, or `then:<id>` / `else:<id>` for the start of a branch. Whatever isn't there now puts it last: a page a moment old loses nothing.
     static func insert(_ new: Step, after: String, in body: FlowBody) -> FlowBody {
         var body = body
         if after == "start" {
@@ -35,6 +35,10 @@ enum Editing {
         }
         if after.hasPrefix("then:") || after.hasPrefix("else:") {
             let inThen = after.hasPrefix("then:"), id = String(after.dropFirst(5))
+            guard case .branch? = body.step(id)?.kind else {
+                body.steps.append(new)
+                return body
+            }
             body.steps = mapLists(body.steps) { list in
                 list.map { step in
                     guard step.id == id, case .branch(let c, var then, var otherwise) = step.kind else { return step }

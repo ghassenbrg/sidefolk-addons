@@ -8,13 +8,17 @@ import SidefolkExtensionKit
     private let folder: URL
     private var flowsById: [String: Flow] = [:]
     private var runsById: [String: Run] = [:]
+    /// Flows this version can't read: written back as they were, so a mistake here never loses one.
+    private var unreadable: [[String: Any]] = []
 
     init(folder: URL) {
         self.folder = folder
         let fm = FileManager.default
         try? fm.createDirectory(at: runsFolder, withIntermediateDirectories: true)
         if let data = try? Data(contentsOf: flowsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [[String: Any]] {
-            for raw in list { if let flow = Self.flow(raw) { flowsById[flow.id] = flow } }
+            for raw in list {
+                if let flow = Self.flow(raw) { flowsById[flow.id] = flow } else { unreadable.append(raw) }
+            }
         }
         for name in (try? fm.contentsOfDirectory(atPath: runsFolder.path)) ?? [] where name.hasSuffix(".json") {
             guard let data = try? Data(contentsOf: runsFolder.appendingPathComponent(name)),
@@ -45,12 +49,12 @@ import SidefolkExtensionKit
         var flow = flow
         if flowsById[flow.id] != nil, flowsById[flow.id] != flow { flow.updatedAt = Date() }
         flowsById[flow.id] = flow
-        write(flows().map(Self.json), to: flowsFile)
+        write(flows().map(Self.json) + unreadable, to: flowsFile)
     }
 
     func remove(flow id: String) {
         flowsById[id] = nil
-        write(flows().map(Self.json), to: flowsFile)
+        write(flows().map(Self.json) + unreadable, to: flowsFile)
         for run in runsById.values where run.flow == id { removeRun(run.id) }
     }
 
@@ -101,16 +105,16 @@ import SidefolkExtensionKit
     }
 
     static func flow(_ o: [String: Any]) -> Flow? {
-        guard let id = o["id"] as? String, let name = o["name"] as? String, let draft = try? FlowCodec.body(o["draft"]) else { return nil }
+        guard let id = o["id"] as? String, let name = o["name"] as? String, let draft = try? FlowCodec.body(o["draft"], saved: true) else { return nil }
         var flow = Flow(id: id, name: name, draft: draft, createdAt: date(o["created"]) ?? Date(), updatedAt: date(o["updated"]) ?? Date())
-        flow.live = o["live"].flatMap { try? FlowCodec.body($0) }
+        flow.live = o["live"].flatMap { try? FlowCodec.body($0, saved: true) }
         flow.state = Flow.State(rawValue: o["state"] as? String ?? "") ?? .draft
         flow.lastFire = date(o["last_fire"])
         flow.watchTitle = o["watch"] as? String
         flow.missed = (o["missed"] as? [Double] ?? []).map(Date.init(timeIntervalSince1970:))
         flow.startProblem = o["start_problem"] as? String
         flow.pausedBecause = o["paused_because"] as? String
-        flow.practiced = o["practiced"].flatMap { try? FlowCodec.body($0) }
+        flow.practiced = o["practiced"].flatMap { try? FlowCodec.body($0, saved: true) }
         return flow
     }
 
@@ -124,7 +128,7 @@ import SidefolkExtensionKit
     }
 
     static func run(_ o: [String: Any]) -> Run? {
-        guard let id = o["id"] as? String, let flow = o["flow"] as? String, let body = try? FlowCodec.body(o["body"]),
+        guard let id = o["id"] as? String, let flow = o["flow"] as? String, let body = try? FlowCodec.body(o["body"], saved: true),
               let mode = Run.Mode(rawValue: o["mode"] as? String ?? ""), let status = Run.Status(rawValue: o["status"] as? String ?? "") else { return nil }
         var run = Run(id: id, flow: flow, flowName: o["flow_name"] as? String ?? "", mode: mode, status: status, why: o["why"] as? String ?? "",
                       startedAt: date(o["started"]) ?? Date(), body: body)

@@ -22,9 +22,9 @@ import SidefolkExtensionKit
     /// What Guard says of it, with the way forward: never only that it can't.
     static func refusal(_ check: Actions.Check?) -> [Block] {
         guard let check, check.decision == .deny else { return [] }
-        guard let folder = check.share else { return [.note(check.why ?? L("Sidefolk doesn't allow this."), tone: .warn)] }
-        return [.note(L("{folder} isn't shared with Sidefolk yet.", ["folder": Paths.show(folder)]), tone: .warn),
-                .action(Action(L("Share this folder…"), act: .share(path: folder), style: .accent, symbol: "folder.badge.plus"))]
+        guard let share = check.share else { return [.note(check.why ?? L("Sidefolk doesn't allow this."), tone: .warn)] }
+        return [.note(L("The folder {path} is in isn't shared with Sidefolk yet.", ["path": Paths.show(share.path)]), tone: .warn),
+                .action(Action(L("Share this folder…"), act: .share(path: share.path, write: share.write), style: .accent, symbol: "folder.badge.plus"))]
     }
 
     static func trigger(_ flow: Flow, check: Actions.Check? = nil) -> [Block] {
