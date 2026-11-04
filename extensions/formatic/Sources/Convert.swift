@@ -30,6 +30,24 @@ enum Convert {
         return nil
     }
 
+    /// What a stopped conversion left half made. Sidefolk takes a finished result straight away, so anything an hour old is abandoned.
+    static func clearLeftovers() {
+        let folder = Paths.data + "/" + holding
+        for name in (try? FileManager.default.contentsOfDirectory(atPath: folder)) ?? [] {
+            let path = folder + "/" + name
+            if let made = (try? FileManager.default.attributesOfItem(atPath: path))?[.modificationDate] as? Date, Date().timeIntervalSince(made) > 3600 {
+                try? FileManager.default.removeItem(atPath: path)
+            }
+        }
+    }
+
+    /// What the file is, as a person says it: a double ending is one.
+    static func endingName(of path: String) -> String {
+        let name = path.lowercased()
+        for double in ["tar.gz", "tar.xz", "tar.bz2"] where name.hasSuffix("." + double) { return double.uppercased() }
+        return (path as NSString).pathExtension.uppercased()
+    }
+
     /// The format most people want from this file, and the next one when the file already is it.
     static func usual(for path: String) -> String {
         let order: [String] = switch kind(of: path) {

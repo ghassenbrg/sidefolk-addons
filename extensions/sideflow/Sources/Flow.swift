@@ -73,9 +73,10 @@ struct Condition: Equatable, Sendable {
         if let a = answer(seen), let b = answer(word) { return a == b }
         let fold: (String) -> String = { $0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
         let (text, wanted) = (fold(seen), fold(word))
-        // A letter of writing with no spaces doesn't join a word, nor does one of its words end at the next: "支払い済み" mentions "支払い", "GitHubの" mentions "GitHub".
-        let joins = #"[\p{L}\p{N}&&[^\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}]]"#
-        return text.range(of: "(?<!\(joins))" + NSRegularExpression.escapedPattern(for: wanted) + "(?!\(joins))", options: .regularExpression) != nil
+        // A word has an edge only where it's written with spaces: "unpaid" doesn't mention "paid", but "Slack通知" mentions "通知" and "GitHubの" mentions "GitHub".
+        let joins = #"[\p{L}\p{M}\p{N}&&[^\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}\u30FC]]"#
+        func edged(_ letter: Character?) -> Bool { letter.map { String($0).range(of: joins, options: .regularExpression) != nil } ?? false }
+        return text.range(of: (edged(wanted.first) ? "(?<!\(joins))" : "") + NSRegularExpression.escapedPattern(for: wanted) + (edged(wanted.last) ? "(?!\(joins))" : ""), options: .regularExpression) != nil
     }
 
     static func test(_ test: Test, left: String, right: String) -> Bool {

@@ -27,23 +27,98 @@
     },
     "photo_small": {
       "title": "صغير بما يكفي للبريد",
-      "detail": "بعرض 2,000 بكسل على الأكثر."
+      "detail": "بعرض 2,000 بكسل على الأكثر.",
+      "menu_title": "صيغة أخرى",
+      "menu": {
+        "PNG": "يحتفظ بكل التفاصيل",
+        "HEIC": "أصغر بالمظهر نفسه",
+        "AVIF": "الأصغر للويب",
+        "TIFF": "للطباعة",
+        "GIF": "صورة بسيطة"
+      }
+    },
+    "photo_pdf": {
+      "title": "ملف PDF",
+      "detail": "الصورة كاملة في صفحة واحدة."
     },
     "pdf_pages": {
       "title": "صورة لكل صفحة",
       "detail": "ملف PNG لكل صفحة."
     },
+    "pdf_jpeg": {
+      "title": "صور أخف لكل صفحة",
+      "detail": "ملف JPEG لكل صفحة.",
+      "menu_title": "صيغة أخرى",
+      "menu": {
+        "TIFF": "للطباعة"
+      }
+    },
     "audio_any": {
-      "title": "صيغة صوت أخرى",
-      "detail": "M4A، أو FLAC إذا كان M4A بالفعل."
+      "title": "يعمل في كل مكان",
+      "detail": "AAC في ملف M4A."
     },
-    "data": {
-      "title": "صيغة جدول أخرى",
-      "detail": "CSV، أو JSON إذا كان CSV بالفعل."
+    "audio_lossless": {
+      "title": "دون فقد إضافي",
+      "detail": "يحتفظ FLAC بكل ما في الملف."
     },
-    "archive": {
-      "title": "الملفات نفسها، مضغوطة من جديد",
-      "detail": "ZIP، أو 7Z إذا كان ZIP بالفعل."
+    "audio_wav": {
+      "title": "للتحرير",
+      "detail": "WAV دون ضغط.",
+      "menu_title": "صيغة أخرى",
+      "menu": {
+        "AIFF": "لتطبيقات Mac",
+        "Apple Lossless": "لأجهزة Apple",
+        "Opus": "صغير جدًا، بصيغة CAF"
+      }
+    },
+    "data_csv": {
+      "title": "جدول بيانات",
+      "detail": "CSV من قائمة سجلات."
+    },
+    "data_json": {
+      "title": "للبرمجة",
+      "detail": "JSON، قائمة سجلات."
+    },
+    "data_tsv": {
+      "title": "مفصول بعلامات جدولة",
+      "detail": "TSV من قائمة سجلات.",
+      "menu_title": "صيغة أخرى",
+      "menu": {
+        "PLIST": "لتطبيقات Apple"
+      }
+    },
+    "archive_zip": {
+      "title": "ملف ZIP يُفتح في كل مكان",
+      "detail": "الملفات نفسها في ZIP."
+    },
+    "archive_7z": {
+      "title": "ضغط أكبر",
+      "detail": "الملفات نفسها في 7Z."
+    },
+    "archive_targz": {
+      "title": "لنظام Linux والخوادم",
+      "detail": "الملفات نفسها في TAR.GZ.",
+      "menu_title": "صيغة أخرى",
+      "menu": {
+        "TAR": "دون ضغط"
+      }
+    },
+    "audio_more": {
+      "title": "لأجهزة Apple",
+      "detail": "Apple Lossless في ملف M4A.",
+      "menu_title": "صيغة أخرى",
+      "menu": {
+        "AIFF": "لتطبيقات Mac",
+        "Opus": "صغير جدًا، بصيغة CAF"
+      }
+    },
+    "data_more": {
+      "title": "لتطبيقات Apple",
+      "detail": "PLIST من قائمة سجلات."
+    },
+    "archive_more": {
+      "title": "دون ضغط",
+      "detail": "الملفات نفسها في TAR."
     }
   },
   "text": {
@@ -80,11 +155,7 @@
     "{file} isn't a list of records, so it was left as it is.": "{file} ليس قائمة سجلات، لذا تُرك كما هو.",
     "{from} to {to}": "{from} إلى {to}",
     "{percent}% smaller": "أصغر بنسبة {percent}%",
-    "Turns a file into the format you need. New files appear beside the originals, which never change.": "يحوّل الملف إلى الصيغة التي تحتاجها. تظهر الملفات الجديدة بجانب الأصلية، ولا تتغير الأصلية أبدًا.",
-    "How to use it": "طريقة الاستخدام",
     "Drag a file onto your companion": "اسحب ملفًا إلى رفيقك",
-    "Or right-click it in Finder": "أو انقر بزر الفأرة الأيمن في Finder",
-    "Or choose a file here": "أو اختر ملفًا من هنا",
     "What it can make": "ما يمكنه إنشاؤه",
     "Photos": "الصور",
     "PDF pages": "صفحات PDF",
@@ -99,8 +170,8 @@
     "{file} is already in that format, so it was left as it is.": "{file} بهذه الصيغة بالفعل، لذا تُرك كما هو.",
     "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "يعمل Formatic مع الصور وملفات PDF والصوت والجداول والأرشيفات. {file} ليس منها، لذا تُرك كما هو.",
     "Let go on it, then choose on the card.": "أفلته فوقه ثم اختر من البطاقة.",
-    "Send to Sidefolk, under Services, opens the card.": "يفتح Send to Sidefolk في الخدمات البطاقة.",
-    "Makes the most common format, with no card.": "ينشئ الصيغة الأكثر شيوعًا دون بطاقة.",
-    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A أو FLAC أو WAV أو AIFF أو ALAC أو Opus (بصيغة CAF)"
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A أو FLAC أو WAV أو AIFF أو ALAC أو Opus (بصيغة CAF)",
+    "Quick ways in": "طرق سريعة",
+    "Turns a file into the format you need. Originals never change.": "يحوّل الملف إلى الصيغة التي تحتاجها. لا تتغير الأصلية أبدًا."
   }
 }

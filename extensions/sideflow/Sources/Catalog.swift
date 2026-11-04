@@ -59,6 +59,15 @@ import SidefolkExtensionKit
         loadedAt = now
     }
 
+    /// What goes to a tool for a step's values: one way, so a page's mark and a run agree.
+    func filled(_ name: String, _ input: [String: JSON], from values: Values) -> [String: Any] {
+        let parameters = tool(name)?.parameters ?? []
+        let wordy = Set(parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name))
+        let lists = Set(parameters.filter { $0.kind == .list }.map(\.name))
+        let absent = Set(parameters.filter { switch $0.kind { case .number, .integer, .boolean: true; case .choice(let answers): !answers.contains(""); default: false } }.map(\.name))
+        return values.fill(input, wordsIn: wordy, listsIn: lists, absentIn: absent)
+    }
+
     func plan(_ id: String) -> Plans.Standing? { plans.first { $0.id == id } }
 
     func refresh() async {

@@ -104,8 +104,7 @@ import SidefolkExtensionKit
             let plan = flow.state == .draft ? nil : flow.planId
             for step in flow.draft.allSteps {
                 guard case .action(let tool, let input) = step.kind else { continue }
-                let wordy = Set(catalog.tool(tool)?.parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name) ?? [])
-                if let check = await host.check(tool, values.fill(input, wordsIn: wordy), plan: plan) { out[step.id] = check }
+                if let check = await host.check(tool, catalog.filled(tool, input, from: values), plan: plan) { out[step.id] = check }
             }
             // What sets it off is asked about too: a watch on a folder that isn't shared wouldn't start.
             if case .watch(let w) = flow.draft.trigger, let check = await host.check("watch.create", Engine.watchInput(w, title: Engine.watchTitle(flow)), plan: plan) {

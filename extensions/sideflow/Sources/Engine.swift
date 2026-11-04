@@ -320,9 +320,7 @@ import SidefolkExtensionKit
             let ranOut = run.connection.map { $0.tool == tool && $0.until <= clock() } ?? false
             if run.mode != .practice, ranOut || Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
             run.connection = nil
-            let wordy = Set(catalog.tool(tool)?.parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name) ?? [])
-            let lists = Set(catalog.tool(tool)?.parameters.filter { $0.kind == .list }.map(\.name) ?? [])
-            let filled = run.values.fill(input, wordsIn: wordy, listsIn: lists)
+            let filled = catalog.filled(tool, input, from: run.values)
             if run.mode == .practice { return await practicing(step, tool: tool, input: filled, in: &run) }
             return await acting(step, tool: tool, input: filled, written: input.mapValues(\.any), in: &run)
         case .branch:

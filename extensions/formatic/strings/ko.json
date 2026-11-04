@@ -27,23 +27,98 @@
     },
     "photo_small": {
       "title": "메일에 맞는 크기",
-      "detail": "너비 최대 2,000픽셀."
+      "detail": "너비 최대 2,000픽셀.",
+      "menu_title": "다른 형식",
+      "menu": {
+        "PNG": "모든 디테일 유지",
+        "HEIC": "더 작고 똑같이 보임",
+        "AVIF": "웹용으로 가장 작게",
+        "TIFF": "인쇄용",
+        "GIF": "단순한 이미지"
+      }
+    },
+    "photo_pdf": {
+      "title": "PDF",
+      "detail": "사진 전체를 한 페이지에."
     },
     "pdf_pages": {
       "title": "페이지별 그림",
       "detail": "페이지마다 PNG 파일 하나."
     },
+    "pdf_jpeg": {
+      "title": "더 가벼운 페이지 그림",
+      "detail": "페이지마다 JPEG 파일 하나.",
+      "menu_title": "다른 형식",
+      "menu": {
+        "TIFF": "인쇄용"
+      }
+    },
     "audio_any": {
-      "title": "다른 소리 형식",
-      "detail": "M4A, 이미 M4A이면 FLAC."
+      "title": "어디서나 재생됨",
+      "detail": "M4A 파일의 AAC."
     },
-    "data": {
-      "title": "다른 표 형식",
-      "detail": "CSV, 이미 CSV이면 JSON."
+    "audio_lossless": {
+      "title": "더 이상 손실 없음",
+      "detail": "FLAC은 파일의 내용을 모두 유지합니다."
     },
-    "archive": {
-      "title": "같은 파일을 다시 압축",
-      "detail": "ZIP, 이미 ZIP이면 7Z."
+    "audio_wav": {
+      "title": "편집용",
+      "detail": "WAV, 압축 없음.",
+      "menu_title": "다른 형식",
+      "menu": {
+        "AIFF": "Mac 앱용",
+        "Apple Lossless": "Apple 기기용",
+        "Opus": "매우 작음(CAF)"
+      }
+    },
+    "data_csv": {
+      "title": "스프레드시트",
+      "detail": "레코드 목록에서 만든 CSV."
+    },
+    "data_json": {
+      "title": "코드용",
+      "detail": "JSON, 레코드 목록."
+    },
+    "data_tsv": {
+      "title": "탭으로 구분",
+      "detail": "레코드 목록에서 만든 TSV.",
+      "menu_title": "다른 형식",
+      "menu": {
+        "PLIST": "Apple 앱용"
+      }
+    },
+    "archive_zip": {
+      "title": "어디서나 열리는 ZIP",
+      "detail": "같은 파일을 ZIP으로."
+    },
+    "archive_7z": {
+      "title": "더 작게 압축",
+      "detail": "같은 파일을 7Z로."
+    },
+    "archive_targz": {
+      "title": "Linux와 서버용",
+      "detail": "같은 파일을 TAR.GZ로.",
+      "menu_title": "다른 형식",
+      "menu": {
+        "TAR": "압축 없음"
+      }
+    },
+    "audio_more": {
+      "title": "Apple 기기용",
+      "detail": "M4A 파일의 Apple Lossless.",
+      "menu_title": "다른 형식",
+      "menu": {
+        "AIFF": "Mac 앱용",
+        "Opus": "매우 작음(CAF)"
+      }
+    },
+    "data_more": {
+      "title": "Apple 앱용",
+      "detail": "레코드 목록에서 만든 PLIST."
+    },
+    "archive_more": {
+      "title": "압축 없음",
+      "detail": "같은 파일을 TAR로."
     }
   },
   "text": {
@@ -75,11 +150,7 @@
     "{file} isn't a list of records, so it was left as it is.": "{file}은(는) 항목 목록이 아니라서 그대로 두었어요.",
     "{from} to {to}": "{from}에서 {to}로",
     "{percent}% smaller": "{percent}% 더 작아졌어요",
-    "Turns a file into the format you need. New files appear beside the originals, which never change.": "파일을 필요한 형식으로 바꿉니다. 새 파일은 원본 옆에 생기고 원본은 바뀌지 않습니다.",
-    "How to use it": "사용 방법",
     "Drag a file onto your companion": "파일을 동반자에게 끌어다 놓기",
-    "Or right-click it in Finder": "또는 Finder에서 오른쪽 클릭",
-    "Or choose a file here": "또는 여기서 파일 선택",
     "What it can make": "만들 수 있는 것",
     "Photos": "사진",
     "PDF pages": "PDF 페이지",
@@ -94,8 +165,8 @@
     "{file} is already in that format, so it was left as it is.": "{file}은(는) 이미 그 형식이라 그대로 두었습니다.",
     "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formatic은 사진, PDF, 소리, 표, 압축 파일을 다룹니다. {file}은(는) 여기에 해당하지 않아 그대로 두었습니다.",
     "Let go on it, then choose on the card.": "그 위에 놓고 카드에서 고르세요.",
-    "Send to Sidefolk, under Services, opens the card.": "서비스의 Send to Sidefolk로 카드가 열립니다.",
-    "Makes the most common format, with no card.": "가장 흔한 형식을 카드 없이 만듭니다.",
-    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A, FLAC, WAV, AIFF, ALAC 또는 Opus(CAF)"
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A, FLAC, WAV, AIFF, ALAC 또는 Opus(CAF)",
+    "Quick ways in": "빠른 방법",
+    "Turns a file into the format you need. Originals never change.": "파일을 필요한 형식으로 바꿉니다. 원본은 바뀌지 않습니다."
   }
 }

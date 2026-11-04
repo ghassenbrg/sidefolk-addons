@@ -27,23 +27,98 @@
     },
     "photo_small": {
       "title": "メールに添付できる大きさ",
-      "detail": "幅は最大2,000ピクセル。"
+      "detail": "幅は最大2,000ピクセル。",
+      "menu_title": "別の形式",
+      "menu": {
+        "PNG": "細部まで保つ",
+        "HEIC": "小さく、同じ見た目",
+        "AVIF": "ウェブ向けに最小",
+        "TIFF": "印刷用",
+        "GIF": "シンプルな画像"
+      }
+    },
+    "photo_pdf": {
+      "title": "PDF",
+      "detail": "画像全体を1ページに。"
     },
     "pdf_pages": {
       "title": "ページごとの画像",
       "detail": "ページごとにPNGファイルを1つ。"
     },
+    "pdf_jpeg": {
+      "title": "軽いページ画像",
+      "detail": "ページごとにJPEGファイルを1つ。",
+      "menu_title": "別の形式",
+      "menu": {
+        "TIFF": "印刷用"
+      }
+    },
     "audio_any": {
-      "title": "別の音声形式",
-      "detail": "M4A。すでにM4AならFLAC。"
+      "title": "どこでも再生できる",
+      "detail": "M4AファイルのAAC。"
     },
-    "data": {
-      "title": "別の表形式",
-      "detail": "CSV。すでにCSVならJSON。"
+    "audio_lossless": {
+      "title": "これ以上劣化しない",
+      "detail": "FLACはファイルの内容をすべて保ちます。"
     },
-    "archive": {
-      "title": "同じファイルを詰め直す",
-      "detail": "ZIP。すでにZIPなら7Z。"
+    "audio_wav": {
+      "title": "編集用",
+      "detail": "WAV、非圧縮。",
+      "menu_title": "別の形式",
+      "menu": {
+        "AIFF": "Macアプリ用",
+        "Apple Lossless": "Appleデバイス用",
+        "Opus": "とても小さい(CAF)"
+      }
+    },
+    "data_csv": {
+      "title": "スプレッドシート",
+      "detail": "レコードのリストからCSVに。"
+    },
+    "data_json": {
+      "title": "コード用",
+      "detail": "JSON、レコードのリスト。"
+    },
+    "data_tsv": {
+      "title": "タブ区切り",
+      "detail": "レコードのリストからTSVに。",
+      "menu_title": "別の形式",
+      "menu": {
+        "PLIST": "Appleアプリ用"
+      }
+    },
+    "archive_zip": {
+      "title": "どこでも開けるZIP",
+      "detail": "同じファイルをZIPに。"
+    },
+    "archive_7z": {
+      "title": "より小さく圧縮",
+      "detail": "同じファイルを7Zに。"
+    },
+    "archive_targz": {
+      "title": "Linuxやサーバー用",
+      "detail": "同じファイルをTAR.GZに。",
+      "menu_title": "別の形式",
+      "menu": {
+        "TAR": "圧縮なし"
+      }
+    },
+    "audio_more": {
+      "title": "Appleデバイス用",
+      "detail": "M4AファイルのApple Lossless。",
+      "menu_title": "別の形式",
+      "menu": {
+        "AIFF": "Macアプリ用",
+        "Opus": "とても小さい(CAF)"
+      }
+    },
+    "data_more": {
+      "title": "Appleアプリ用",
+      "detail": "レコードのリストからPLISTに。"
+    },
+    "archive_more": {
+      "title": "圧縮なし",
+      "detail": "同じファイルをTARに。"
     }
   },
   "text": {
@@ -75,11 +150,7 @@
     "{file} isn't a list of records, so it was left as it is.": "{file}は項目の一覧ではないので、そのままにしてあります。",
     "{from} to {to}": "{from}から{to}へ",
     "{percent}% smaller": "{percent}%小さくなりました",
-    "Turns a file into the format you need. New files appear beside the originals, which never change.": "ファイルを必要な形式に変換します。新しいファイルは元のファイルの隣に作られ、元のファイルは変わりません。",
-    "How to use it": "使い方",
     "Drag a file onto your companion": "ファイルをコンパニオンにドラッグ",
-    "Or right-click it in Finder": "またはFinderで右クリック",
-    "Or choose a file here": "またはここでファイルを選択",
     "What it can make": "作れるもの",
     "Photos": "写真",
     "PDF pages": "PDFのページ",
@@ -94,8 +165,8 @@
     "{file} is already in that format, so it was left as it is.": "{file} はすでにその形式なので、そのままにしました。",
     "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formaticが扱えるのは写真、PDF、音声、表、アーカイブです。{file} はそのどれでもないので、そのままにしました。",
     "Let go on it, then choose on the card.": "その上で離し、カードで選びます。",
-    "Send to Sidefolk, under Services, opens the card.": "「サービス」の Send to Sidefolk でカードが開きます。",
-    "Makes the most common format, with no card.": "最も一般的な形式を、カードなしで作ります。",
-    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A、FLAC、WAV、AIFF、ALAC、Opus(CAF)"
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A、FLAC、WAV、AIFF、ALAC、Opus(CAF)",
+    "Quick ways in": "すばやく使う",
+    "Turns a file into the format you need. Originals never change.": "ファイルを必要な形式に変換します。元のファイルは変わりません。"
   }
 }

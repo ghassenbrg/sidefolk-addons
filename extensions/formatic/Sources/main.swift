@@ -16,10 +16,13 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
          ], required: [])) { args -> ToolReply in
     let files = args.strings("files") + (args.string("path").map { [$0] } ?? [])
     guard !files.isEmpty else { throw Problem(L("Choose a file first.")) }
+    Convert.clearLeftovers()
     let small = args.bool("small") ?? false
     let removeLocation = ExtensionSettings.bool("remove_location") ?? true
     var reply = ToolReply(""), lines: [String] = [], madeAny = false
     var pace = Pace()
+    // Listed only once the whole call is done: a stopped one never saved anything.
+    var recents: [(RecentFile, String)] = []
     for path in files {
         do {
             // The page's own button has no card to choose on, so it makes the format most people want from that kind of file.
@@ -28,9 +31,9 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
             madeAny = madeAny || !made.isEmpty
             for one in made { reply = reply.saving(data: one.data, as: one.name, beside: path) }
             let before = Convert.size(of: path), after = made.reduce(Int64(0)) { $0 + Convert.size(of: Paths.data + "/" + $1.data) }
-            let from = (path as NSString).pathExtension.uppercased(), to = target == "tar.gz" ? "TAR.GZ" : ((made.first?.name ?? "") as NSString).pathExtension.uppercased()
+            let from = Convert.endingName(of: path), to = target == "tar.gz" ? "TAR.GZ" : ((made.first?.name ?? "") as NSString).pathExtension.uppercased()
             let saved = before > 0 && after < before ? L("{percent}% smaller", ["percent": Int((1 - Double(after) / Double(before)) * 100)]) : Format.bytes(after)
-            Recent.add(RecentFile(name: (path as NSString).lastPathComponent, change: L("{from} to {to}", ["from": from, "to": to]), result: saved, at: Date()), from: path)
+            recents.append((RecentFile(name: (path as NSString).lastPathComponent, change: L("{from} to {to}", ["from": from, "to": to]), result: saved, at: Date()), path))
             lines += made.compactMap(\.note)
         } catch let problem as Problem {
             lines.append(problem.message)
@@ -41,6 +44,7 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
     }
     // Nothing made is an error the person should see; a batch with some made reports the rest beside them.
     guard madeAny else { throw Problem(lines.joined(separator: "\n")) }
+    for (entry, path) in recents { Recent.add(entry, from: path) }
     reply.text = lines.joined(separator: "\n")
     return reply
 }
@@ -52,16 +56,15 @@ ext.tool("clear_recent", "Clear the list of recent files", "Forgets the recent f
 
 ext.page("main") { _ in
     let recent = Recent.all()
-    let hero = Hero("Formatic", detail: L("Turns a file into the format you need. New files appear beside the originals, which never change."),
-                    actions: [Action(L("Choose a file…"), act: .file(tool: "convert", param: "path", types: [], input: [:]), style: .secondary)],
+    let hero = Hero("Formatic", detail: L("Turns a file into the format you need. Originals never change."),
+                    actions: [Action(L("Choose a file…"), act: .dropCard, style: .secondary)],
                     scene: Picture.pack("hero.png"))
     var sections = [
         Section(nil, [.hero(hero)]),
-        Section(L("How to use it"), [.list(nil, [
-            Row(L("Drag a file onto your companion"), detail: L("Let go on it, then choose on the card."), symbol: "hand.point.up.left"),
-            Row(L("Or right-click it in Finder"), detail: L("Send to Sidefolk, under Services, opens the card."), symbol: "contextualmenu.and.cursorarrow"),
-            Row(L("Or choose a file here"), detail: L("Makes the most common format, with no card."), symbol: "folder"),
-        ])]),
+        Section(L("Quick ways in"), [
+            .list(nil, [Row(L("Drag a file onto your companion"), detail: L("Let go on it, then choose on the card."), symbol: "hand.point.up.left")]),
+            .fileWays,
+        ]),
     ]
     if !recent.isEmpty {
         sections.append(Section(L("Lately"), [.list(nil, recent.map {

@@ -344,6 +344,44 @@ import SidefolkExtensionKit
         #expect(sent["text"] as? String == "")
     }
 
+    @Test func aBlankIsNotGivenOnlyWhereEmptyIsntAllowed() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"i":{"type":"integer"},"b":{"type":"boolean"},"level":{"type":"string","enum":["","low"]}}}"#)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"x":""}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["i": "{{r.x}}", "b": "{{r.x}}", "level": "{{r.x}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["i"] is NSNull)
+        #expect(sent["b"] is NSNull)
+        #expect(sent["level"] as? String == "", "empty is one of its answers")
+    }
+
+    /// A page's check and a run both go through `Catalog.filled`, so this is what each sends for a value not known yet.
+    @Test func whatAPageChecksIsWhatARunSends() throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"n":{"type":"number"},"pick":{"type":"string","enum":["a","b"]},"text":{"type":"string"}}}"#)]))
+        var values = Values()
+        values.set("r", "…")
+        let sent = w.catalog.filled("changes.it", ["n": .string("{{r.n}}"), "pick": .string("{{r.pick}}"), "text": .string("{{r.text}}")], from: values)
+        #expect(sent["n"] is NSNull)
+        #expect(sent["pick"] is NSNull)
+        #expect(sent["text"] as? String == "")
+    }
+
+    @Test func anEmptyValueCanStillClearWhatTakesWords() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"who":{"anyOf":[{"type":"string"},{"type":"null"}]},"anything":{}}}"#)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"who":""}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["who": "{{r.who}}", "anything": "{{r.who}}"]], ["id": "u", "do": "notes.save", "with": ["text": "{{r.who}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["who"] as? String == "", "“leave it” isn't what an empty value said")
+        #expect(sent["anything"] as? String == "")
+        #expect(w.host.calls.first { $0.tool == "notes.save" }?.input["text"] as? String == "", "a tool that isn't listed: words")
+    }
+
     @Test func aFilterKeepsNoAndFalse() throws {
         let filter = DataStep(op: .filter, from: "", test: .not_empty, than: "")
         let rows = JSON.array([.string("No"), .string("false"), .string("NO"), .string("yes"), .string("")])
@@ -361,6 +399,11 @@ import SidefolkExtensionKit
         #expect(!Condition.mentions("13件", "3"))
         #expect(Condition.mentions("13件", "13"))
         #expect(Condition.mentions("C++ tools", "C++"))
+        #expect(Condition.mentions("サーバーOK", "OK"), "the long vowel mark doesn't join a word")
+        #expect(!Condition.mentions("बेकार", "कार"), "a vowel sign is part of the word")
+        for (seen, word) in [("Slack通知が来た", "通知"), ("API障害", "障害"), ("404エラー", "エラー"), ("注文123", "注文"), ("GitHub알림", "알림"), ("サーバー障害", "障害"), ("データ", "データ")] {
+            #expect(Condition.mentions(seen, word), "\(seen) mentions \(word)")
+        }
     }
 
     @Test func emptyGivenToAFlowIsntPassedEither() async throws {
@@ -588,9 +631,11 @@ import SidefolkExtensionKit
         let w = try World()
         let flow = try w.flow([["id": "p", "parallel": [["name": "First", "steps": [["id": "a", "finish": "one"]]], ["name": "first!", "steps": [["id": "b", "finish": "two"]]]]],
                                ["id": "t", "text": "{{p.first}} {{p.first_2}}"]])
-        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
-        #expect(run?.status == .done)
-        #expect(run?.record(of: "t")?.output == "one two")
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let done = try #require(w.store.run(run.id))
+        #expect(done.status == .done, "it waited for its lanes")
+        #expect(done.record(of: "t")?.output == "one two")
     }
 
     @Test func aLaneCantTakeANameAnotherGoesBy() async throws {
