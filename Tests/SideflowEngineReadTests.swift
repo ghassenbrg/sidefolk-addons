@@ -344,6 +344,19 @@ import SidefolkExtensionKit
         #expect(sent["text"] as? String == "")
     }
 
+    @Test func aBlankIsNotGivenOnlyWhereEmptyIsntAllowed() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"i":{"type":"integer"},"b":{"type":"boolean"},"level":{"type":"string","enum":["","low"]}}}"#)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"x":""}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["i": "{{r.x}}", "b": "{{r.x}}", "level": "{{r.x}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["i"] is NSNull)
+        #expect(sent["b"] is NSNull)
+        #expect(sent["level"] as? String == "", "empty is one of its answers")
+    }
+
     @Test func anEmptyValueCanStillClearWhatTakesWords() async throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
@@ -374,6 +387,8 @@ import SidefolkExtensionKit
         #expect(!Condition.mentions("13件", "3"))
         #expect(Condition.mentions("13件", "13"))
         #expect(Condition.mentions("C++ tools", "C++"))
+        #expect(Condition.mentions("サーバーOK", "OK"), "the long vowel mark doesn't join a word")
+        #expect(!Condition.mentions("बेकार", "कार"), "a vowel sign is part of the word")
         for (seen, word) in [("Slack通知が来た", "通知"), ("API障害", "障害"), ("404エラー", "エラー"), ("注文123", "注文"), ("GitHub알림", "알림"), ("サーバー障害", "障害"), ("データ", "データ")] {
             #expect(Condition.mentions(seen, word), "\(seen) mentions \(word)")
         }

@@ -74,7 +74,7 @@ struct Condition: Equatable, Sendable {
         let fold: (String) -> String = { $0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
         let (text, wanted) = (fold(seen), fold(word))
         // A word has an edge only where it's written with spaces: "unpaid" doesn't mention "paid", but "Slack通知" mentions "通知" and "GitHubの" mentions "GitHub".
-        let joins = #"[\p{L}\p{N}&&[^\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}\u30FC]]"#
+        let joins = #"[\p{L}\p{M}\p{N}&&[^\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}\u30FC]]"#
         func edged(_ letter: Character?) -> Bool { letter.map { String($0).range(of: joins, options: .regularExpression) != nil } ?? false }
         return text.range(of: (edged(wanted.first) ? "(?<!\(joins))" : "") + NSRegularExpression.escapedPattern(for: wanted) + (edged(wanted.last) ? "(?!\(joins))" : ""), options: .regularExpression) != nil
     }
