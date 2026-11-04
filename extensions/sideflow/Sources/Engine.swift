@@ -770,7 +770,7 @@ import SidefolkExtensionKit
         for run in store.unfinished() where run.status == .waiting {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
             // Unless it's been paused: what goes by itself waits for Resume, as it would to start.
-            if let waited = run.connection, !Connections.isMissing(waited.tool, catalog), waited.until > now, run.mode != .live || store.flow(run.flow)?.state != .paused {
+            if let waited = run.connection, !Connections.isMissing(waited.tool, catalog), waited.until > now, run.mode != .live || !([run.flow] + run.lineage).contains(where: { store.flow($0)?.state == .paused }) {
                 Task { await advance(run.id) }
             } else if let at = run.resumeAt, at <= now {
                 Task { await advance(run.id) }

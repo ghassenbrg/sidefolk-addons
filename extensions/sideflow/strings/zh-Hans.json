@@ -898,7 +898,7 @@
     "Here": "可用",
     "It goes on by itself once it's back.": "恢复后自动继续。",
     "It needs {name}, which isn't here now.": "它需要 {name}，目前不在。",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "它需要 {name}，目前不在。未做任何事，恢复后自动继续。",
+    "It needs {name}, which isn't here now. This step hasn't run, and it goes on by itself once it's back.": "它需要 {name}，目前不在。这一步尚未运行，恢复后自动继续。",
     "MCP server": "MCP 服务器",
     "Missing": "缺失",
     "None of your flows uses an extension or a server yet.": "你的流程还没有使用扩展或服务器。",
@@ -907,7 +907,7 @@
     "See connections": "查看连接",
     "Used by {flows}": "{flows} 在使用",
     "Waiting for a connection": "正在等待连接",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "正在等待 {name}。未做任何事，恢复后自动继续。",
+    "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.": "正在等待 {name}。这一步尚未运行，恢复后自动继续。",
     "What your flows reach beyond Sidefolk: extensions and MCP servers.": "你的流程在 Sidefolk 之外用到的内容：扩展和 MCP 服务器。",
     "{count} missing": "缺失 {count} 个",
     "{flow} is waiting for {name}": "{flow} 正在等待 {name}",
@@ -919,6 +919,6 @@
       "other": "{count} 次运行正在等待"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} 已恢复，但已过去太久，这一步由你决定。",
-    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "正在等待 {name}，此流程已暂停。尚未执行任何操作：恢复后，在你继续时接着运行。"
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "正在等待 {name}，此流程已暂停。这一步尚未运行：恢复后，在你继续时接着运行。"
   }
 }

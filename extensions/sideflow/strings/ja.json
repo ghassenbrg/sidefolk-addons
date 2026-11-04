@@ -898,7 +898,7 @@
     "Here": "あり",
     "It goes on by itself once it's back.": "戻ると自動的に続きます。",
     "It needs {name}, which isn't here now.": "{name} が必要ですが、今はありません。",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "{name} が必要ですが、今はありません。何も実行されておらず、戻ると自動的に続きます。",
+    "It needs {name}, which isn't here now. This step hasn't run, and it goes on by itself once it's back.": "{name} が必要ですが、今はありません。このステップはまだ実行されておらず、戻ると自動的に続きます。",
     "MCP server": "MCP サーバー",
     "Missing": "なし",
     "None of your flows uses an extension or a server yet.": "拡張機能やサーバーを使っているルーティンはまだありません。",
@@ -907,7 +907,7 @@
     "See connections": "接続を見る",
     "Used by {flows}": "{flows} が使用",
     "Waiting for a connection": "接続を待っています",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "{name} を待っています。何も実行されておらず、戻ると自動的に続きます。",
+    "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.": "{name} を待っています。このステップはまだ実行されておらず、戻ると自動的に続きます。",
     "What your flows reach beyond Sidefolk: extensions and MCP servers.": "ルーティンが Sidefolk の外で使うもの: 拡張機能と MCP サーバー。",
     "{count} missing": "{count} 件なし",
     "{flow} is waiting for {name}": "{flow} は {name} を待っています",
@@ -919,6 +919,6 @@
       "other": "{count} 件の実行が待機中"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} は戻りましたが、時間が経ちすぎたため、このステップはあなたが判断してください。",
-    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "{name} を待っています。このルーティンは一時停止中です。まだ何も行っていません。戻ったあと、再開すると続きます。"
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "{name} を待っています。このルーティンは一時停止中です。このステップはまだ実行していません。戻ったあと、再開すると続きます。"
   }
 }

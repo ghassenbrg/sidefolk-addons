@@ -953,7 +953,7 @@
     "Here": "موجود",
     "It goes on by itself once it's back.": "يتابع وحده عند عودته.",
     "It needs {name}, which isn't here now.": "يحتاج إلى {name}، غير موجود الآن.",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "يحتاج إلى {name}، غير موجود الآن. لم يُفعل شيء، ويتابع وحده عند عودته.",
+    "It needs {name}, which isn't here now. This step hasn't run, and it goes on by itself once it's back.": "يحتاج إلى {name}، غير موجود الآن. لم تُنفَّذ هذه الخطوة، ويتابع وحده عند عودته.",
     "MCP server": "خادم MCP",
     "Missing": "مفقود",
     "None of your flows uses an extension or a server yet.": "لا يستخدم أي من روتيناتك إضافة أو خادمًا بعد.",
@@ -962,7 +962,7 @@
     "See connections": "عرض الاتصالات",
     "Used by {flows}": "يستخدمه {flows}",
     "Waiting for a connection": "في انتظار اتصال",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "في انتظار {name}. لم يُفعل شيء، ويتابع وحده عند عودته.",
+    "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.": "في انتظار {name}. لم تُنفَّذ هذه الخطوة، ويتابع وحده عند عودته.",
     "What your flows reach beyond Sidefolk: extensions and MCP servers.": "ما تصل إليه روتيناتك خارج Sidefolk: الإضافات وخوادم MCP.",
     "{count} missing": "{count} مفقود",
     "{flow} is waiting for {name}": "{flow} ينتظر {name}",
@@ -984,6 +984,6 @@
       "other": "{count} عملية تشغيل في الانتظار"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "عاد {name}، لكن مرّ وقت طويل، فالقرار في هذه الخطوة لك.",
-    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "في انتظار {name}، وهذا الروتين متوقف مؤقتًا. لم يُنفَّذ شيء: بعد عودته، يتابع عندما تستأنفه."
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "في انتظار {name}، وهذا الروتين متوقف مؤقتًا. لم تُنفَّذ هذه الخطوة: بعد عودته، يتابع عندما تستأنفه."
   }
 }

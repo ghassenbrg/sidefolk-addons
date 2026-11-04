@@ -273,8 +273,9 @@ import SidefolkExtensionKit
         let all = Connections.all(app.catalog, app.store), unused = Connections.unused(app.catalog, app.store)
         let addons = Action(L("Open Add-ons"), act: .settings("addons"), symbol: "puzzlepiece.extension")
         let cards = all.map { c -> Card in
+            // What's waiting first: Sidefolk shows only so much of this, and a long list of flows shouldn't take it.
             var lines = [L("Used by {flows}", ["flows": Format.list(c.flows)])]
-            if !c.waiting.isEmpty { lines.append(L(one: "{count} run waiting for it", other: "{count} runs waiting for it", count: c.waiting.count)) }
+            if !c.waiting.isEmpty { lines.insert(L(one: "{count} run waiting for it", other: "{count} runs waiting for it", count: c.waiting.count), at: 0) }
             let kind = c.server ? L("MCP server") : L("Extension")
             return Card(c.title, detail: ([kind] + lines).joined(separator: " · "), symbol: c.server ? "server.rack" : "puzzlepiece.extension", color: tile[0],
                         badge: c.isHere ? Badge(L("Here"), tone: .good) : Badge(L("Missing"), tone: .warn), press: c.waiting.first.map { go(L("Open"), place(["run": $0])) })
@@ -751,8 +752,8 @@ import SidefolkExtensionKit
         case .waiting where run.connection != nil:
             let name = run.connection.flatMap { Connections.id(of: $0.tool) }.map { Connections.title($0, app.catalog, app.store) } ?? ""
             detail = run.mode == .live && app.store.flow(run.flow)?.state == .paused
-                ? L("Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.", ["name": name])
-                : L("Waiting for {name}. Nothing was done, and it goes on by itself once it's back.", ["name": name])
+                ? L("Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.", ["name": name])
+                : L("Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.", ["name": name])
             end.append(choices(L("Don't want to wait?"), [
                 Option("carry_on", L("Skip this step"), detail: L("Goes on without it."), symbol: "forward"),
                 Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop"),

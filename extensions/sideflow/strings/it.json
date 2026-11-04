@@ -909,7 +909,7 @@
     "Here": "Presente",
     "It goes on by itself once it's back.": "Riparte da sola al suo ritorno.",
     "It needs {name}, which isn't here now.": "Le serve {name}, ora assente.",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Le serve {name}, ora assente. Non è stato fatto nulla, e riparte da sola al suo ritorno.",
+    "It needs {name}, which isn't here now. This step hasn't run, and it goes on by itself once it's back.": "Le serve {name}, ora assente. Questo passaggio non è stato eseguito, e riparte da sola al suo ritorno.",
     "MCP server": "Server MCP",
     "Missing": "Mancante",
     "None of your flows uses an extension or a server yet.": "Nessuna delle tue routine usa ancora un'estensione o un server.",
@@ -918,7 +918,7 @@
     "See connections": "Vedi le connessioni",
     "Used by {flows}": "Usata da {flows}",
     "Waiting for a connection": "In attesa di una connessione",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "In attesa di {name}. Non è stato fatto nulla, e riparte da sola al suo ritorno.",
+    "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.": "In attesa di {name}. Questo passaggio non è stato eseguito, e riparte da sola al suo ritorno.",
     "What your flows reach beyond Sidefolk: extensions and MCP servers.": "Ciò che le tue routine raggiungono oltre Sidefolk: estensioni e server MCP.",
     "{count} missing": "{count} mancanti",
     "{flow} is waiting for {name}": "{flow} attende {name}",
@@ -932,6 +932,6 @@
       "other": "{count} esecuzioni la attendono"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} è tornato, ma è passato così tanto tempo che questo passaggio spetta a te.",
-    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "In attesa di {name}, e questa routine è in pausa. Non è stato fatto nulla: quando torna, prosegue se la riprendi."
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "In attesa di {name}, e questa routine è in pausa. Questo passaggio non è stato eseguito: quando torna, prosegue se la riprendi."
   }
 }

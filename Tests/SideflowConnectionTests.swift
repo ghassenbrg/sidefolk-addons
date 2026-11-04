@@ -171,7 +171,7 @@ import SidefolkExtensionKit
         let page = await Pages.make(app, state: Arguments(["run": run.id]), background: false)
         let words = page.sections.map { "\($0)" }.joined()
         #expect(words.contains("resume"), "“by itself” wouldn't be true")
-        #expect(!words.contains(L("It goes on by itself once it's back.")))
+        #expect(!words.contains("goes on by itself"))
     }
 
     @Test func aPausedFlowWithALaneWaitingSaysPaused() async throws {
@@ -209,6 +209,30 @@ import SidefolkExtensionKit
         let draft = try w.flow([["id": "pr", "do": "ext.gh.pr"]], state: .draft)
         let run = await w.settled(w.engine.start(draft, mode: .practice, why: "t"))
         #expect(run?.record(of: "pr")?.note?.contains("isn't here") == false)
+    }
+
+    @Test func pausingACallerHoldsWhatItCalled() async throws {
+        let w = try World()
+        gone(w)
+        var child = try flow(w)
+        child.name = "Child"
+        w.store.save(child)
+        let caller = try w.flow([["id": "c", "call_flow": "Child"], ["id": "next", "do": "changes.it", "with": ["text": "x"]]])
+        let run = try #require(w.engine.start(caller, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.pause(caller.id)
+        await w.quiet()
+        back(w)
+        w.engine.tick()
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "ext.gh.pr" }, "the child's own flow is on, but it's running for one that's paused")
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+        #expect(w.store.run(run.id)?.status == .waiting)
+        w.engine.resume(caller.id)
+        await w.quiet()
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.host.calls.contains { $0.tool == "ext.gh.pr" })
     }
 
     @Test func aToolGoneFromAnExtensionThatsStillHereIsNoMissingConnection() async throws {

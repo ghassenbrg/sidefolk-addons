@@ -909,7 +909,7 @@
     "Here": "Présente",
     "It goes on by itself once it's back.": "Elle reprend d'elle-même à son retour.",
     "It needs {name}, which isn't here now.": "Il lui faut {name}, absent pour l'instant.",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Il lui faut {name}, absent pour l'instant. Rien n'a été fait, et elle reprend d'elle-même à son retour.",
+    "It needs {name}, which isn't here now. This step hasn't run, and it goes on by itself once it's back.": "Il lui faut {name}, absent pour l'instant. Cette étape n'a pas été exécutée, et elle reprend d'elle-même à son retour.",
     "MCP server": "Serveur MCP",
     "Missing": "Manquante",
     "None of your flows uses an extension or a server yet.": "Aucune de vos routines n'utilise d'extension ni de serveur pour l'instant.",
@@ -918,7 +918,7 @@
     "See connections": "Voir les connexions",
     "Used by {flows}": "Utilisée par {flows}",
     "Waiting for a connection": "En attente d'une connexion",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "En attente de {name}. Rien n'a été fait, et elle reprend d'elle-même à son retour.",
+    "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.": "En attente de {name}. Cette étape n'a pas été exécutée, et elle reprend d'elle-même à son retour.",
     "What your flows reach beyond Sidefolk: extensions and MCP servers.": "Ce que vos routines atteignent au-delà de Sidefolk : extensions et serveurs MCP.",
     "{count} missing": "{count} manquantes",
     "{flow} is waiting for {name}": "{flow} attend {name}",
@@ -932,6 +932,6 @@
       "other": "{count} exécutions l'attendent"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} est de retour, mais cela fait si longtemps que cette étape vous revient.",
-    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "En attente de {name}, et cette routine est en pause. Rien n'a été fait : une fois de retour, elle continue quand vous la reprenez."
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "En attente de {name}, et cette routine est en pause. Cette étape n'a pas été exécutée : une fois de retour, elle continue quand vous la reprenez."
   }
 }

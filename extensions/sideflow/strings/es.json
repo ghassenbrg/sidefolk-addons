@@ -909,7 +909,7 @@
     "Here": "Disponible",
     "It goes on by itself once it's back.": "Sigue sola cuando vuelve.",
     "It needs {name}, which isn't here now.": "Necesita {name}, que no está ahora.",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Necesita {name}, que no está ahora. No se hizo nada, y sigue sola cuando vuelve.",
+    "It needs {name}, which isn't here now. This step hasn't run, and it goes on by itself once it's back.": "Necesita {name}, que no está ahora. Este paso no se ejecutó, y sigue sola cuando vuelve.",
     "MCP server": "Servidor MCP",
     "Missing": "Falta",
     "None of your flows uses an extension or a server yet.": "Ninguna de tus rutinas usa una extensión o un servidor todavía.",
@@ -918,7 +918,7 @@
     "See connections": "Ver conexiones",
     "Used by {flows}": "La usa {flows}",
     "Waiting for a connection": "Esperando una conexión",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "Esperando {name}. No se hizo nada, y sigue sola cuando vuelve.",
+    "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.": "Esperando {name}. Este paso no se ejecutó, y sigue sola cuando vuelve.",
     "What your flows reach beyond Sidefolk: extensions and MCP servers.": "Lo que tus rutinas alcanzan más allá de Sidefolk: extensiones y servidores MCP.",
     "{count} missing": "Faltan {count}",
     "{flow} is waiting for {name}": "{flow} está esperando {name}",
@@ -932,6 +932,6 @@
       "other": "{count} ejecuciones la esperan"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} ha vuelto, pero ha pasado tanto tiempo que este paso te toca decidirlo a ti.",
-    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "Esperando a {name}, y esta rutina está en pausa. No se hizo nada: cuando vuelva, seguirá al reanudarla."
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "Esperando a {name}, y esta rutina está en pausa. Este paso no se ejecutó: cuando vuelva, seguirá al reanudarla."
   }
 }

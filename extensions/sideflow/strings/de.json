@@ -909,7 +909,7 @@
     "Here": "Da",
     "It goes on by itself once it's back.": "Er läuft von selbst weiter, sobald sie zurück ist.",
     "It needs {name}, which isn't here now.": "Er braucht {name}, gerade nicht da.",
-    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Er braucht {name}, gerade nicht da. Nichts wurde getan, und er läuft von selbst weiter, sobald es zurück ist.",
+    "It needs {name}, which isn't here now. This step hasn't run, and it goes on by itself once it's back.": "Er braucht {name}, gerade nicht da. Dieser Schritt lief noch nicht, und er läuft von selbst weiter, sobald es zurück ist.",
     "MCP server": "MCP-Server",
     "Missing": "Fehlt",
     "None of your flows uses an extension or a server yet.": "Noch keiner deiner Abläufe nutzt eine Erweiterung oder einen Server.",
@@ -918,7 +918,7 @@
     "See connections": "Verbindungen ansehen",
     "Used by {flows}": "Genutzt von {flows}",
     "Waiting for a connection": "Wartet auf eine Verbindung",
-    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "Wartet auf {name}. Nichts wurde getan, und er läuft von selbst weiter, sobald es zurück ist.",
+    "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.": "Wartet auf {name}. Dieser Schritt lief noch nicht, und er läuft von selbst weiter, sobald es zurück ist.",
     "What your flows reach beyond Sidefolk: extensions and MCP servers.": "Was deine Abläufe über Sidefolk hinaus erreichen: Erweiterungen und MCP-Server.",
     "{count} missing": "{count} fehlen",
     "{flow} is waiting for {name}": "{flow} wartet auf {name}",
@@ -932,6 +932,6 @@
       "other": "{count} Durchläufe warten darauf"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} ist wieder da, aber es ist so lange her, dass du über diesen Schritt entscheidest.",
-    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "Wartet auf {name}, und dieser Ablauf ist pausiert. Es ist nichts passiert: Sobald es wieder da ist, geht es weiter, wenn du ihn fortsetzt."
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "Wartet auf {name}, und dieser Ablauf ist pausiert. Dieser Schritt lief noch nicht: Sobald es wieder da ist, geht es weiter, wenn du ihn fortsetzt."
   }
 }

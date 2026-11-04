@@ -362,7 +362,7 @@ extension Engine {
         run.connection = Run.WaitingConnection(tool: tool, until: until)
         run.resumeAt = until
         run.status = .waiting
-        run.record(.init(step: step.id, status: .waiting, summary: sentence, note: L("It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.", ["name": name]), at: clock()))
+        run.record(.init(step: step.id, status: .waiting, summary: sentence, note: L("It needs {name}, which isn't here now. This step hasn't run, and it goes on by itself once it's back.", ["name": name]), at: clock()))
         store.save(run)
         if first {
             let flow = run.flowName
