@@ -233,17 +233,13 @@ import SidefolkExtensionKit
         // Reached only by a flow that went on before this was marked: nothing goes to the AI or the person for a step that says nothing.
         if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
         // Sidefolk checks an action against what they read last at each call. Nothing checks these two, so it's looked at here: a run under way when they approved an edit that took one out.
-        switch step.kind {
-        case .ai, .flow, .call:
-            // Not a call coming back with its answer: that already ran.
-            if run.mode == .live, run.waitingOn.isEmpty, let current = store.flow(run.flow), current.live != nil, !current.running.allSteps.contains(where: { $0.id == step.id && $0.kind == step.kind }) {
-                run.status = .needs_you
-                run.problem = L("You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.")
-                run.record(.init(step: step.id, status: .needs_you, summary: step.name ?? Words.step(step, body: run.body, catalog: catalog), note: run.problem, at: clock()))
-                store.save(run)
-                return false
-            }
-        default: break
+        // Not a call coming back with its answer: that already ran.
+        if run.waitingOn.isEmpty, isLeftBehind(step, in: run) {
+            run.status = .needs_you
+            run.problem = L("You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.")
+            run.record(.init(step: step.id, status: .needs_you, summary: step.name ?? Words.step(step, body: run.body, catalog: catalog), note: run.problem, at: clock()))
+            store.save(run)
+            return false
         }
         if let name = run.values.missing(in: step.usedTexts).first {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
@@ -620,7 +616,7 @@ import SidefolkExtensionKit
             : L("{flow} needs you. {why}", ["flow": run.flowName, "why": run.problem ?? step])
         let choices: [(words: String, how: Forward)] = run.status == .interrupted
             ? [(L("It didn't: try again"), .try_again), (L("It did: carry on"), .carry_on), (L("Stop here"), .stop)]
-            : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
+            : (stepLeftBehind(run) ? [] : [(L("Try again"), .try_again)]) + [(L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
         guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil, written: nil), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
@@ -1031,6 +1027,22 @@ import SidefolkExtensionKit
         store.save(flow)
         changed()
         Task { await resumeWatch(flow) }
+    }
+
+    /// An AI step or a set-off that what's on now doesn't have as it was. An action is checked against what they read last at each call; nothing checks these two.
+    private func isLeftBehind(_ step: Step, in run: Run) -> Bool {
+        switch step.kind {
+        case .ai, .flow, .call: break
+        default: return false
+        }
+        guard run.mode == .live, let current = store.flow(run.flow), current.live != nil else { return false }
+        return !current.running.allSteps.contains { $0.id == step.id && $0.kind == step.kind }
+    }
+
+    /// Stopped at such a step, where trying again would only ask the same.
+    func stepLeftBehind(_ run: Run) -> Bool {
+        guard run.status == .needs_you, FlowProgram(run.body).ops.indices.contains(run.pc), case .step(let step) = FlowProgram(run.body).ops[run.pc] else { return false }
+        return isLeftBehind(step, in: run)
     }
 
     /// What goes by itself waits for Resume: its own flow or a flow that called it is paused.
