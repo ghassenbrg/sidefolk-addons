@@ -919,7 +919,7 @@
       "other": "{count} 次运行正在等待"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} 已恢复，但已过去太久，这一步由你决定。",
-    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "正在等待 {name}，此流程已暂停。这一步尚未运行：恢复后，在你继续时接着运行。",
+    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "正在等待 {name}，{flow} 已暂停。这一步尚未运行：恢复后，在你继续 {flow} 时接着运行。",
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "这次运行期间你批准了此流程的另一个版本，其中这一步已不同，因此没有运行。请跳过它或在此停止。"
   }
 }

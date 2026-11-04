@@ -932,7 +932,7 @@
       "other": "{count} exécutions l'attendent"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} est de retour, mais cela fait si longtemps que cette étape vous revient.",
-    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "En attente de {name}, et cette routine est en pause. Cette étape n'a pas été exécutée : une fois de retour, elle continue quand vous la reprenez.",
+    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "En attente de {name}, et {flow} est en pause. Cette étape n'a pas été exécutée : une fois de retour, elle continue quand vous reprenez {flow}.",
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Vous avez approuvé une autre version de cette routine pendant cette exécution, et cette étape n'y est plus telle quelle : elle n'a donc pas été exécutée. Ignorez-la ou arrêtez ici."
   }
 }

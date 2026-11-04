@@ -610,7 +610,7 @@
     "Waiting for a connection": "Waiting for a connection",
     "Waiting for you to fill in: {title}": "Waiting for you to fill in: {title}",
     "Waiting for {flow}": "Waiting for {flow}",
-    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.",
+    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.",
     "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.": "Waiting for {name}. This step hasn't run, and it goes on by itself once it's back.",
     "Waiting until {time}": "Waiting until {time}",
     "Watches": "Watches",

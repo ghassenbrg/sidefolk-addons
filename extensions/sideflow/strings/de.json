@@ -932,7 +932,7 @@
       "other": "{count} Durchläufe warten darauf"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} ist wieder da, aber es ist so lange her, dass du über diesen Schritt entscheidest.",
-    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "Wartet auf {name}, und dieser Ablauf ist pausiert. Dieser Schritt lief noch nicht: Sobald es wieder da ist, geht es weiter, wenn du ihn fortsetzt.",
+    "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "Wartet auf {name}, und {flow} ist pausiert. Dieser Schritt lief noch nicht: Sobald es wieder da ist, geht es weiter, wenn du {flow} fortsetzt.",
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Du hast während dieses Durchlaufs eine andere Version dieses Ablaufs genehmigt, und dieser Schritt ist darin nicht mehr so enthalten, deshalb wurde er nicht ausgeführt. Überspringe ihn oder stoppe hier."
   }
 }
