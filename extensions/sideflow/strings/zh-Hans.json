@@ -917,6 +917,8 @@
     },
     "{count} runs waiting for it": {
       "other": "{count} 次运行正在等待"
-    }
+    },
+    "{name} is back, but it's been so long that this step is for you to say.": "{name} 已恢复，但已过去太久，这一步由你决定。",
+    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "正在等待 {name}，此流程已暂停。尚未执行任何操作：恢复后，在你继续时接着运行。"
   }
 }

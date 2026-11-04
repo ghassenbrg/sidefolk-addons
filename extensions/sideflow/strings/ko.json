@@ -917,6 +917,8 @@
     },
     "{count} runs waiting for it": {
       "other": "실행 {count}개가 기다리는 중"
-    }
+    },
+    "{name} is back, but it's been so long that this step is for you to say.": "{name}이(가) 돌아왔지만 시간이 너무 지나 이 단계는 직접 정해 주세요.",
+    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "{name}을(를) 기다리고 있으며 이 루틴은 일시 중지되었습니다. 아무것도 하지 않았습니다. 돌아온 뒤 다시 시작하면 계속됩니다."
   }
 }

@@ -930,6 +930,8 @@
     "{count} runs waiting for it": {
       "one": "{count} exécution l'attend",
       "other": "{count} exécutions l'attendent"
-    }
+    },
+    "{name} is back, but it's been so long that this step is for you to say.": "{name} est de retour, mais cela fait si longtemps que cette étape vous revient.",
+    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "En attente de {name}, et cette routine est en pause. Rien n'a été fait : une fois de retour, elle continue quand vous la reprenez."
   }
 }

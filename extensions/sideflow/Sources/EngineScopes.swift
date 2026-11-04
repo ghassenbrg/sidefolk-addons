@@ -352,7 +352,7 @@ extension Engine {
             run.connection = nil
             run.resumeAt = nil
             run.status = .needs_you
-            run.problem = L("{name} still isn't here, so this step didn't run.", ["name": name])
+            run.problem = catalog.tool(tool) != nil ? L("{name} is back, but it's been so long that this step is for you to say.", ["name": name]) : L("{name} still isn't here, so this step didn't run.", ["name": name])
             run.record(.init(step: step.id, status: .needs_you, summary: sentence, note: run.problem, at: clock()))
             store.save(run)
             return false

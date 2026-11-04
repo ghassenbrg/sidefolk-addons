@@ -155,6 +155,62 @@ import SidefolkExtensionKit
         #expect(Pages.stateWord(try #require(app.store.flow(flow.id)), app).0 == L("Paused"))
     }
 
+    @Test func aPausedFlowsPageSaysResumeIsWhatItWaitsFor() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Self.tools[0]]))
+        var flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "pr", "do": "ext.gh.pr"]]]))
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        let run = try #require(app.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        app.engine.pause(flow.id)
+        await w.quiet(app.store)
+        let page = await Pages.make(app, state: Arguments(["run": run.id]), background: false)
+        let words = page.sections.map { "\($0)" }.joined()
+        #expect(words.contains("resume"), "“by itself” wouldn't be true")
+        #expect(!words.contains(L("It goes on by itself once it's back.")))
+    }
+
+    @Test func aPausedFlowWithALaneWaitingSaysPaused() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Self.tools[0]]))
+        var flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "p", "parallel": [["name": "A", "steps": [["id": "a", "do": "ext.gh.pr"]]], ["name": "B", "steps": [["id": "b", "text": "x"]]]]]]]))
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        _ = try #require(app.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        app.engine.pause(flow.id)
+        await w.quiet(app.store)
+        #expect(Pages.stateWord(try #require(app.store.flow(flow.id)), app).0 == L("Paused"))
+    }
+
+    @Test func anExtensionBackWithoutThatToolStillWakesTheRun() async throws {
+        let w = try World()
+        gone(w)
+        let run = try #require(w.engine.start(try flow(w), mode: .live, why: "t"))
+        await w.quiet()
+        w.catalog.use(Actions.Listing(tools: [Self.tools[0], Actions.Tool(name: "ext.gh.other", title: "Other", mutates: false, readsOnly: true, extensionName: "gh", extensionTitle: "GitHub tools", fromServer: true)]))
+        w.host.answers["ext.gh.pr"] = [Actions.Outcome(status: .unavailable, text: "It isn't here.")]
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .needs_you, "not seven days of a page saying it's here and a run saying it isn't")
+    }
+
+    @Test func aPracticeOfAToolGoneFromAnExtensionThatsHereSaysThat() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Self.tools[0], Actions.Tool(name: "ext.gh.other", title: "Other", mutates: false, readsOnly: true, extensionName: "gh", extensionTitle: "GitHub tools", fromServer: true)]))
+        w.host.decision = .unknown
+        let draft = try w.flow([["id": "pr", "do": "ext.gh.pr"]], state: .draft)
+        let run = await w.settled(w.engine.start(draft, mode: .practice, why: "t"))
+        #expect(run?.record(of: "pr")?.note?.contains("isn't here") == false)
+    }
+
     @Test func aToolGoneFromAnExtensionThatsStillHereIsNoMissingConnection() async throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Self.tools[0], Actions.Tool(name: "ext.gh.other", title: "Other", mutates: false, readsOnly: true, extensionName: "gh", extensionTitle: "GitHub")]))
@@ -183,6 +239,7 @@ import SidefolkExtensionKit
         w.engine.tick()
         await w.quiet()
         #expect(w.store.run(run.id)?.status == .needs_you, "three weeks on, it's for them to say")
+        #expect(w.store.run(run.id)?.problem?.contains("isn't here") == false, "it is, so it doesn't say otherwise")
         #expect(!w.host.calls.contains { $0.tool == "ext.gh.pr" })
     }
 

@@ -982,6 +982,8 @@
       "few": "{count} عمليات تشغيل في الانتظار",
       "many": "{count} عملية تشغيل في الانتظار",
       "other": "{count} عملية تشغيل في الانتظار"
-    }
+    },
+    "{name} is back, but it's been so long that this step is for you to say.": "عاد {name}، لكن مرّ وقت طويل، فالقرار في هذه الخطوة لك.",
+    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "في انتظار {name}، وهذا الروتين متوقف مؤقتًا. لم يُنفَّذ شيء: بعد عودته، يتابع عندما تستأنفه."
   }
 }

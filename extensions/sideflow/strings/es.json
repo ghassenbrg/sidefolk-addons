@@ -930,6 +930,8 @@
     "{count} runs waiting for it": {
       "one": "{count} ejecución la espera",
       "other": "{count} ejecuciones la esperan"
-    }
+    },
+    "{name} is back, but it's been so long that this step is for you to say.": "{name} ha vuelto, pero ha pasado tanto tiempo que este paso te toca decidirlo a ti.",
+    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "Esperando a {name}, y esta rutina está en pausa. No se hizo nada: cuando vuelva, seguirá al reanudarla."
   }
 }

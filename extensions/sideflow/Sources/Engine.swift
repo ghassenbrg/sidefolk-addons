@@ -438,7 +438,7 @@ import SidefolkExtensionKit
         }
         let note: String? = switch check?.decision {
         case .deny?: check?.why ?? L("Sidefolk wouldn't allow this.")
-        case nil, .unknown?: Connections.id(of: tool).map { L("It needs {name}, which isn't here now.", ["name": Connections.title($0, catalog, store)]) } ?? L("Sidefolk doesn't offer this now.")
+        case nil, .unknown?: (Connections.isMissing(tool, catalog) ? Connections.id(of: tool) : nil).map { L("It needs {name}, which isn't here now.", ["name": Connections.title($0, catalog, store)]) } ?? L("Sidefolk doesn't offer this now.")
         default: readsOnly ? L("It would read this; you didn't allow it for practice.") : nil
         }
         run.record(.init(step: step.id, status: check?.decision == .deny || check == nil ? .failed : .would, summary: L("Would: {what}", ["what": sentence]), note: note, at: clock()))
@@ -772,7 +772,7 @@ import SidefolkExtensionKit
         for run in store.unfinished() where run.status == .waiting {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
             // Unless it's been paused: what goes by itself waits for Resume, as it would to start.
-            if let waited = run.connection, catalog.tool(waited.tool) != nil, waited.until > now, run.mode != .live || store.flow(run.flow)?.state != .paused {
+            if let waited = run.connection, !Connections.isMissing(waited.tool, catalog), waited.until > now, run.mode != .live || store.flow(run.flow)?.state != .paused {
                 Task { await advance(run.id) }
             } else if let at = run.resumeAt, at <= now {
                 Task { await advance(run.id) }

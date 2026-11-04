@@ -917,6 +917,8 @@
     },
     "{count} runs waiting for it": {
       "other": "{count} 件の実行が待機中"
-    }
+    },
+    "{name} is back, but it's been so long that this step is for you to say.": "{name} は戻りましたが、時間が経ちすぎたため、このステップはあなたが判断してください。",
+    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "{name} を待っています。このルーティンは一時停止中です。まだ何も行っていません。戻ったあと、再開すると続きます。"
   }
 }

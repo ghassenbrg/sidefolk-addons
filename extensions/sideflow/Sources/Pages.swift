@@ -60,7 +60,7 @@ import SidefolkExtensionKit
         if let first = stuck.first {
             return Summary(L(one: "{count} flow needs you", other: "{count} flows need you", count: Set(stuck.map(\.flow)).count), detail: first.flowName, tone: .warn, symbol: "exclamationmark.bubble")
         }
-        if let waiting = app.store.unfinished().first(where: { $0.connection != nil }), let id = waiting.connection.flatMap({ Connections.id(of: $0.tool) }) {
+        if let waiting = app.store.unfinished().first(where: { $0.connection != nil && app.store.flow($0.flow)?.state != .paused }), let id = waiting.connection.flatMap({ Connections.id(of: $0.tool) }) {
             return Summary(L("{flow} is waiting for {name}", ["flow": waiting.flowName, "name": Connections.title(id, app.catalog, app.store)]), detail: L("It goes on by itself once it's back."), tone: .warn, symbol: "link")
         }
         if let failed = app.store.runs().first(where: { $0.mode == .live }), failed.status == .failed {
@@ -145,9 +145,9 @@ import SidefolkExtensionKit
     /// A flow's state in one word and its colour, always together (D78).
     static func stateWord(_ flow: Flow, _ app: App) -> (String, Tone) {
         let waiting = app.store.unfinished().filter { $0.flow == flow.id }
-        let onlyWaitingForAConnection = !waiting.isEmpty && waiting.allSatisfy { $0.connection != nil }
         if flow.state != .paused, waiting.contains(where: { $0.connection != nil }) { return (L("Waiting for a connection"), .warn) }
-        if app.engine.isRunning(flow.id), flow.state != .paused || !onlyWaitingForAConnection { return (L("Running now"), .info) }
+        // Paused with a run in a wait, that run isn't what's going on.
+        if app.engine.isRunning(flow.id), flow.state != .paused || waiting.contains(where: { $0.status == .running }) { return (L("Running now"), .info) }
         if flow.hasUnsaved { return (L("Unsaved changes"), .warn) }
         switch flow.state {
         case .on: return flow.hasChanges ? (L("On · changes to apply"), .info) : (L("On"), .good)
@@ -750,7 +750,9 @@ import SidefolkExtensionKit
             }
         case .waiting where run.connection != nil:
             let name = run.connection.flatMap { Connections.id(of: $0.tool) }.map { Connections.title($0, app.catalog, app.store) } ?? ""
-            detail = L("Waiting for {name}. Nothing was done, and it goes on by itself once it's back.", ["name": name])
+            detail = run.mode == .live && app.store.flow(run.flow)?.state == .paused
+                ? L("Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.", ["name": name])
+                : L("Waiting for {name}. Nothing was done, and it goes on by itself once it's back.", ["name": name])
             end.append(choices(L("Don't want to wait?"), [
                 Option("carry_on", L("Skip this step"), detail: L("Goes on without it."), symbol: "forward"),
                 Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop"),

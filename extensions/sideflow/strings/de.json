@@ -930,6 +930,8 @@
     "{count} runs waiting for it": {
       "one": "{count} Durchlauf wartet darauf",
       "other": "{count} Durchläufe warten darauf"
-    }
+    },
+    "{name} is back, but it's been so long that this step is for you to say.": "{name} ist wieder da, aber es ist so lange her, dass du über diesen Schritt entscheidest.",
+    "Waiting for {name}, and this flow is paused. Nothing was done: once it's back, it goes on when you resume it.": "Wartet auf {name}, und dieser Ablauf ist pausiert. Es ist nichts passiert: Sobald es wieder da ist, geht es weiter, wenn du ihn fortsetzt."
   }
 }
