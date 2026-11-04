@@ -616,7 +616,9 @@ import SidefolkExtensionKit
             : L("{flow} needs you. {why}", ["flow": run.flowName, "why": run.problem ?? step])
         let choices: [(words: String, how: Forward)] = run.status == .interrupted
             ? [(L("It didn't: try again"), .try_again), (L("It did: carry on"), .carry_on), (L("Stop here"), .stop)]
-            : (stepLeftBehind(run) ? [] : [(L("Try again"), .try_again)]) + [(L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
+            // Left behind by an edit, going on means more of a version they replaced: stopping comes first, and trying again would ask the same.
+            : stepLeftBehind(run) ? [(L("Stop here"), .stop), (L("Skip this step"), .carry_on)]
+            : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
         guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil, written: nil), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
