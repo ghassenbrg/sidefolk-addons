@@ -582,6 +582,34 @@ import SidefolkExtensionKit
         #expect(held.problem?.contains("Skip") == true, "and Try again would ask the same")
     }
 
+    @Test func aStepLeftBehindDoesntOfferToTryAgain() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "w", "wait_minutes": 1], ["id": "a", "ai": "write"]])
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        let run = try #require(app.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        flow = try #require(app.store.flow(flow.id))
+        let approved = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "wait_minutes": 1]]])
+        flow.draft = approved
+        flow.live = approved
+        app.store.save(flow)
+        var late = try #require(app.store.run(run.id))
+        late.resumeAt = Date().addingTimeInterval(-1)
+        app.store.save(late)
+        app.engine.tick()
+        await w.quiet(app.store)
+        let held = try #require(app.store.run(run.id))
+        #expect(held.status == .needs_you)
+        #expect(app.engine.stepLeftBehind(held))
+        let page = await Pages.make(app, state: Arguments(["run": run.id]), background: false)
+        let words = page.sections.map { "\($0)" }.joined()
+        #expect(!words.contains(L("Try again")), "it would ask the same again")
+        #expect(words.contains(L("Skip this step")))
+    }
+
     @Test func aStepThatsStillThereGoesOnAfterAnEdit() async throws {
         let w = try World()
         var flow = try w.flow([["id": "w", "wait_minutes": 1], ["id": "a", "ai": "write"]])
