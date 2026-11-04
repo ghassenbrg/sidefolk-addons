@@ -31,14 +31,12 @@ import SidefolkExtensionKit
     func run() async {
         try? await Task.sleep(for: .seconds(startDelay))
         await catalog.refresh()
-        // Before anything goes on: what nobody read doesn't get one more step first. Only with the list in hand: without it, it would look as if nothing had been allowed.
-        var looked = catalog.loadedAt != nil
-        if looked { engine.pauseWhatNobodyRead() }
-        engine.recover()
+        var lookedForWhatNobodyRead = firstLook()
         while !Task.isCancelled {
             await catalog.refresh()
-            if !looked, catalog.loadedAt != nil {
-                looked = true
+            // Once, with the list in hand: without it, it would look as if nothing had been allowed.
+            if !lookedForWhatNobodyRead, catalog.loadedAt != nil {
+                lookedForWhatNobodyRead = true
                 engine.pauseWhatNobodyRead()
             }
             engine.tick()
@@ -48,6 +46,13 @@ import SidefolkExtensionKit
 
     /// An agent changed it from outside: steps back on the page would go past that, with nothing to say so.
     func saved(byAnAgent id: String) { history[id] = nil }
+    /// Whether what nobody read got looked for. Before anything goes on, so it doesn't get one more step first.
+    @discardableResult func firstLook() -> Bool {
+        let can = catalog.loadedAt != nil
+        if can { engine.pauseWhatNobodyRead() }
+        engine.recover()
+        return can
+    }
 
     func flow(named words: String) throws -> Flow {
         guard let flow = store.find(words) else {
@@ -58,8 +63,7 @@ import SidefolkExtensionKit
 
     func newFlow(name: String, body: FlowBody) -> Flow {
         var base = name.nonEmpty ?? L("New flow"), n = 2
-        let names = Set(store.flows().map(\.name))
-        while names.contains(base) {
+        while store.nameInUse(base) {
             base = "\(name.nonEmpty ?? L("New flow")) \(n)"
             n += 1
         }
@@ -67,6 +71,16 @@ import SidefolkExtensionKit
         let flow = Flow(id: String(UUID().uuidString.lowercased().prefix(8)), name: base, draft: body, createdAt: now, updatedAt: now)
         store.save(flow)
         return flow
+    }
+
+    /// A new name, and every step that names it goes with it: what sets a flow off or calls it finds it by name, and it's still the same flow.
+    func rename(_ flow: inout Flow, to name: String) throws {
+        if store.nameInUse(name, except: flow.id) { throw Problem(L("There's already a flow called “{name}”.", ["name": name])) }
+        let old = flow.name
+        // Only if the steps that name it could only have meant this one.
+        let wasTheOne = store.named(old)?.id == flow.id
+        flow.name = name
+        if wasTheOne { store.rewriteCalls(from: old, to: name, except: flow.id) }
     }
 
     /// What Guard would say of each action now, for the rail: refreshed after any change. Values to fill in are checked with a stand-in.
@@ -88,7 +102,8 @@ import SidefolkExtensionKit
             let plan = flow.state == .draft ? nil : flow.planId
             for step in flow.draft.allSteps {
                 guard case .action(let tool, let input) = step.kind else { continue }
-                if let check = await host.check(tool, values.fill(input), plan: plan) { out[step.id] = check }
+                let wordy = Set(catalog.tool(tool)?.parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name) ?? [])
+                if let check = await host.check(tool, values.fill(input, wordsIn: wordy), plan: plan) { out[step.id] = check }
             }
             // What sets it off is asked about too: a watch on a folder that isn't shared wouldn't start.
             if case .watch(let w) = flow.draft.trigger, let check = await host.check("watch.create", Engine.watchInput(w, title: Engine.watchTitle(flow)), plan: plan) {
@@ -121,6 +136,12 @@ struct Nav {
     private var inspected: [String: Inspecting] = [:]
 
     func inspecting(_ flow: Flow) -> Inspecting { inspected[flow.id] ?? .nothing }
+
+    /// The flow whose definition is showing to copy.
+    var exporting: String?
+    /// What's selected on a run's tree, and which go of a loop.
+    var runStep: [String: String] = [:]
+    var runScope: [String: String] = [:]
 
     mutating func inspect(_ what: Inspecting, in flow: String) { inspected[flow] = what }
 

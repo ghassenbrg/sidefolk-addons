@@ -20,9 +20,9 @@ import SidefolkExtensionKit
             // Here, where it can be said. Only for an edit that grows it: one already past a limit, from before there was one, can always be brought back.
             if f.draft.allSteps.count > FlowBody.maxSteps, f.draft.allSteps.count > before.allSteps.count { throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)])) }
             guard f.draft != before else { return }
-            guard f.draft.depth <= FlowBody.maxDepth || f.draft.depth <= before.depth else { throw Problem(L("An “if” can hold another “if”, but no deeper.")) }
+            guard f.draft.depth <= FlowBody.maxDepth || f.draft.depth <= before.depth else { throw Problem(L("That goes too deep: a flow can hold steps inside steps {count} levels down.", ["count": Format.integer(FlowBody.maxDepth)])) }
             // Typing in a field is one step back: the same field, moments apart.
-            let typing = ["step_name", "ai_prompt", "compose", "question", "options", "param", "cond_value", "cond_than", "watch_target", "watch_contains", "watch_pattern", "event_contains"].contains(op)
+            let typing = ["step_name", "ai_prompt", "compose", "question", "options", "param", "cond_value", "cond_than", "watch_target", "watch_contains", "watch_pattern", "event_contains", "each_items", "choose_value", "path_when", "lane_name", "call_input", "finish_value", "data_from", "data_field", "data_than", "data_separator", "form_title", "form_label", "form_options", "wait_contains", "sample", "trigger_sample", "time_zone"].contains(op)
             app.history[f.id, default: Editing.History()].record(before, key: typing ? "\(op)|\(a.string("step") ?? "")|\(a.string("name") ?? "")" : nil, at: Date())
             f.hold(before)
             app.store.save(f)
@@ -65,7 +65,9 @@ import SidefolkExtensionKit
             if let id = a.string("step") { try draft { $0 = Editing.nudge(id, by: op == "up" ? -1 : 1, in: $0) } }
         case "rename":
             var f = try flow()
-            if let name = text.nonEmpty { f.name = String(name.prefix(60)) }
+            if let name = text.nonEmpty.map({ String($0.prefix(60)) }) {
+                try app.rename(&f, to: name)
+            }
             app.store.save(f)
         case "param":
             let f = try flow()
@@ -129,6 +131,142 @@ import SidefolkExtensionKit
                 guard case .branch(var c, let then, let otherwise) = s.kind else { return }
                 c.any = any
                 s.kind = .branch(c, then: then, otherwise: otherwise)
+            }
+        case "each_items":
+            try editStep { if case .forEach(_, let limit, let failure, let steps) = $0.kind { $0.kind = .forEach(items: text, limit: limit, onFailure: failure, steps: steps) } }
+        case "each_limit":
+            guard let limit = Int(text.trimmed), (1...FlowBody.longestLoop).contains(limit) else { throw Problem(L("“limit” is 1 to {count} items.", ["count": Format.integer(FlowBody.longestLoop)])) }
+            try editStep { if case .forEach(let items, _, let failure, let steps) = $0.kind { $0.kind = .forEach(items: items, limit: limit, onFailure: failure, steps: steps) } }
+        case "each_failure":
+            if let failure = a.string("value").flatMap(Step.LoopFailure.init(rawValue:)) {
+                try editStep { if case .forEach(let items, let limit, _, let steps) = $0.kind { $0.kind = .forEach(items: items, limit: limit, onFailure: failure, steps: steps) } }
+            }
+        case "choose_value":
+            try editStep { if case .choose(_, let paths, let otherwise) = $0.kind { $0.kind = .choose(value: text, paths: paths, otherwise: otherwise) } }
+        case "path_when", "path_remove", "path_add":
+            let at = a.int("path") ?? 0
+            try editStep { s in
+                guard case .choose(let value, var paths, let otherwise) = s.kind else { return }
+                if op == "path_add" { paths.append(Step.Path(when: "", steps: [])) }
+                else if paths.indices.contains(at) {
+                    if op == "path_when" { paths[at].when = text } else if paths.count > 1 { paths.remove(at: at) }
+                }
+                s.kind = .choose(value: value, paths: paths, otherwise: otherwise)
+            }
+        case "lane_name", "lane_remove", "lane_add":
+            let at = a.int("lane") ?? 0
+            try editStep { s in
+                guard case .parallel(var lanes) = s.kind else { return }
+                if op == "lane_add" { lanes.append(Step.Lane(name: L("Lane {count}", ["count": Format.integer(lanes.count + 1)]), steps: [])) }
+                else if lanes.indices.contains(at) {
+                    if op == "lane_name" { lanes[at].name = text.nonEmpty ?? lanes[at].name } else if lanes.count > 2 { lanes.remove(at: at) }
+                }
+                s.kind = .parallel(lanes: lanes)
+            }
+        case "call_flow":
+            if let name = a.string("value") { try editStep { if case .call(_, let inputs) = $0.kind { $0.kind = .call(flow: name, inputs: inputs) } } }
+        case "call_input":
+            if let name = a.string("name") {
+                try editStep { if case .call(let flow, var inputs) = $0.kind { inputs[name] = text.nonEmpty; $0.kind = .call(flow: flow, inputs: inputs) } }
+            }
+        case "finish_value":
+            try editStep { if case .finish = $0.kind { $0.kind = .finish(text) } }
+        case "data_op", "data_from", "data_field", "data_test", "data_than", "data_descending", "data_count", "data_separator":
+            try editStep { s in
+                guard case .data(var d) = s.kind else { return }
+                switch op {
+                case "data_op": if let o = a.string("value").flatMap(DataStep.Op.init(rawValue:)) { d.op = o }
+                case "data_from": d.from = text
+                case "data_field": d.field = text.nonEmpty
+                case "data_test": d.test = a.string("value").flatMap(Condition.Test.init(rawValue:))
+                case "data_than": d.than = text
+                case "data_descending": d.descending = a.bool("on") ?? false
+                case "data_count": d.count = Int(text.trimmed)
+                default: d.separator = text
+                }
+                s.kind = .data(d)
+            }
+        case "form_title", "form_hours", "form_label", "form_kind", "form_options", "form_remove", "form_add":
+            if op == "form_hours", (Int(text.trimmed) ?? 0) < 1 || (Int(text.trimmed) ?? 0) > FormStep.longestHours {
+                throw Problem(L("A form waits 1 to {count} hours.", ["count": Format.integer(FormStep.longestHours)]))
+            }
+            let at = a.int("field") ?? 0
+            try editStep { s in
+                guard case .form(var f) = s.kind else { return }
+                switch op {
+                case "form_title": f.title = text
+                case "form_hours": f.hours = Int(text.trimmed) ?? f.hours
+                case "form_add" where f.fields.count < 12:
+                    var n = f.fields.count + 1
+                    while f.fields.contains(where: { $0.name == "field_\(n)" }) { n += 1 }
+                    f.fields.append(FormStep.Field(name: "field_\(n)", label: L("Field {count}", ["count": Format.integer(n)]), kind: .text))
+                case "form_label" where f.fields.indices.contains(at): f.fields[at].label = text.nonEmpty ?? f.fields[at].label
+                case "form_kind" where f.fields.indices.contains(at): if let k = a.string("value").flatMap(FormStep.Field.Kind.init(rawValue:)) { f.fields[at].kind = k }
+                case "form_options" where f.fields.indices.contains(at): f.fields[at].options = text.split(separator: ",").map { String($0).trimmed }.filter { !$0.isEmpty }
+                case "form_remove" where f.fields.indices.contains(at) && f.fields.count > 1: f.fields.remove(at: at)
+                default: break
+                }
+                s.kind = .form(f)
+            }
+        case "end_held":
+            app.engine.endHeldRuns()
+        case "stop_run":
+            if let id = a.string("run") { app.engine.stop(run: id) }
+        case "export":
+            app.nav.exporting = try flow().id
+        case "export_done":
+            app.nav.exporting = nil
+        case "inspect_run":
+            if let id = a.string("run"), let target = a.string("target") {
+                // Pressing what's selected puts it away, as on the board.
+                app.nav.runStep[id] = app.nav.runStep[id] == target || target == "start" ? nil : target
+                app.nav.runScope[id] = nil
+            }
+        case "inspect_scope":
+            if let id = a.string("run"), let value = a.string("value") { app.nav.runScope[id] = value }
+        case "bring_back":
+            var f = try flow()
+            guard let at = a.int("revision"), f.revisions.indices.contains(at) else { break }
+            app.history[f.id, default: Editing.History()].record(f.draft, key: nil, at: Date())
+            f.show(f.revisions[at].body)
+            app.store.save(f)
+            app.refreshPreflight(f.id)
+        case "import":
+            guard let o = JSONText.read(text) as? [String: Any], let raw = o["flow"], let body = try? FlowCodec.body(raw) else {
+                throw Problem(L("That isn't a flow's definition. Use “Copy as a definition” on a flow."))
+            }
+            let made = app.newFlow(name: (o["name"] as? String) ?? L("New flow"), body: body)
+            app.refreshPreflight(made.id)
+            return .flow(made.id)
+        case "overlap":
+            if let raw = a.string("value"), let overlap = FlowBody.Overlap(rawValue: raw) { try draft { $0.overlap = overlap } }
+        case "time_zone":
+            guard text.trimmed.isEmpty || TimeZone(identifier: text.trimmed) != nil else { throw Problem(L("“{zone}” isn't a time zone: use a name like Europe/Paris.", ["zone": text.trimmed])) }
+            try draft { $0.timeZone = text.nonEmpty }
+        case "sample":
+            try editStep { $0.sample = text.nonEmpty }
+        case "trigger_sample":
+            try draft { $0.triggerSample = text.nonEmpty }
+        case "form_field":
+            // Typed so far: kept with the run, so a restart doesn't lose it.
+            if let id = a.string("run"), let name = a.string("name"), var run = app.store.run(id), run.form != nil {
+                run.form?.answers[name] = a.values["value"] != nil ? JSON(a.values["value"]) : (a.bool("on").map { JSON.bool($0) } ?? JSON.string(text))
+                app.store.save(run)
+            }
+        case "form_send":
+            if let id = a.string("run") { try app.engine.answer(run: id, form: [:]) }
+        case "wait_event", "wait_contains", "wait_minutes":
+            if op == "wait_minutes", (Int(text.trimmed) ?? 0) < 1 || (Int(text.trimmed) ?? 0) > FlowBody.longestWait * 30 {
+                throw Problem(L("A wait is 1 to {count} minutes.", ["count": Format.integer(FlowBody.longestWait * 30)]))
+            }
+            try editStep { s in
+                guard case .waitFor(var event, var contains, var minutes) = s.kind else { return }
+                switch op {
+                case "wait_event": if let name = a.string("value"), Trigger.events.contains(name) { event = name }
+                case "wait_contains": contains = text.nonEmpty
+                default: minutes = Int(text.trimmed) ?? minutes
+                }
+                s.kind = .waitFor(event: event, contains: contains, minutes: minutes)
             }
         case "on_failure":
             if let raw = a.string("value"), let f = Step.OnFailure(rawValue: raw) { try editStep { $0.onFailure = f } }
@@ -254,7 +392,10 @@ import SidefolkExtensionKit
             app.refreshPreflight(copy.id)
             return .flow(copy.id)
         case "proceed":
-            if let id = a.string("run"), let how = a.string("how").flatMap(Engine.Forward.init(rawValue:)) { app.engine.proceed(id, how) }
+            if let id = a.string("run"), let how = a.string("how").flatMap(Engine.Forward.init(rawValue:)) {
+                // Stop works while it's running too, between steps.
+                if how == .stop { app.engine.stop(run: id) } else { app.engine.proceed(id, how) }
+            }
         default:
             break
         }
@@ -278,6 +419,15 @@ import SidefolkExtensionKit
         case "ask": return Step(id: Editing.freshId(body, base: "answer"), kind: .ask(question: "", options: [L("Yes"), L("No")]))
         case "text": return Step(id: Editing.freshId(body, base: "text"), kind: .text(""))
         case "wait": return Step(id: Editing.freshId(body, base: "wait"), kind: .wait(minutes: 30))
+        case "for_each": return Step(id: Editing.freshId(body, base: "each"), kind: .forEach(items: "", limit: FlowBody.longestLoop, onFailure: .stop, steps: []))
+        case "choose": return Step(id: Editing.freshId(body, base: "choose"), kind: .choose(value: "", paths: [Step.Path(when: "", steps: []), Step.Path(when: "", steps: [])], otherwise: []))
+        case "try": return Step(id: Editing.freshId(body, base: "try"), kind: .attempt(steps: [], recover: [], always: []))
+        case "parallel": return Step(id: Editing.freshId(body, base: "together"), kind: .parallel(lanes: [Step.Lane(name: L("First"), steps: []), Step.Lane(name: L("Second"), steps: [])]))
+        case "call": return Step(id: Editing.freshId(body, base: "called"), kind: .call(flow: app.store.flows().first?.name ?? "", inputs: [:]))
+        case "finish": return Step(id: Editing.freshId(body, base: "finish"), kind: .finish(""))
+        case "data": return Step(id: Editing.freshId(body, base: "data"), kind: .data(DataStep(op: .lines, from: "")))
+        case "form": return Step(id: Editing.freshId(body, base: "form"), kind: .form(FormStep(title: "", fields: [FormStep.Field(name: "answer", label: L("Your answer"), kind: .text)], hours: 24)))
+        case "wait_for": return Step(id: Editing.freshId(body, base: "event"), kind: .waitFor(event: Trigger.events[0], contains: nil, minutes: 60))
         default:
             let last = body.allSteps.last { $0.hasOutput }.map { "{{\($0.id)}}" } ?? ""
             return Step(id: Editing.freshId(body, base: "check"), kind: .branch(Condition(value: last, test: .contains, than: ""), then: [], otherwise: []))

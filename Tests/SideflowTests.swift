@@ -19,6 +19,11 @@ import SidefolkExtensionKit
         var decision: Actions.Check.Decision = .allow
         /// Held until released: a call in the air, for a stop in the middle.
         var hold: String?
+        /// Let go when `cancel` is called, as a tool told to stop or, with `releaseQuietly`, one that simply finished.
+        var honoursCancel = false
+        var releaseQuietly = false
+        var cancelled = false
+        func cancel(run: String) { cancelled = true }
         var written: [String] = []
         /// What they answer when a stopped run asks the way forward: by default nobody does.
         var wayForward: String?
@@ -38,7 +43,12 @@ import SidefolkExtensionKit
             }
             calls.append((tool, input, plan))
             if tool == hold {
-                try? await Task.sleep(for: .seconds(3600))
+                if honoursCancel {
+                    while !cancelled { try? await Task.sleep(for: .milliseconds(5)) }
+                    if !releaseQuietly { return Actions.Outcome(status: .failed, text: "Stopped", summary: "") }
+                } else {
+                    try? await Task.sleep(for: .seconds(3600))
+                }
             }
             if var list = answers[tool], !list.isEmpty {
                 let first = list.removeFirst()
@@ -119,14 +129,15 @@ import SidefolkExtensionKit
         }
 
         /// Until nothing has moved for a while. A call to the host hops off this actor, which can take longer than any fixed
-        /// wait on a busy Mac, and a wait that ran out reads as a failed step. Counted in looks, not time: tests beside this one can hold
-        /// the main actor past any length of time, and each look queues behind what's waiting for it.
+        /// wait on a busy Mac, and a wait that ran out reads as a failed step.
         func quiet(_ other: FlowStore? = nil, seconds: Double = 10) async {
             func state() -> String {
-                let runs = (other ?? store).runs().map { "\($0.id) \($0.status) \($0.records.count)" }.sorted()
+                let runs = (other ?? store).runs().map { "\($0.id) \($0.status) \($0.records.count) \($0.waitingOn)" }.sorted()
                 return "\(runs) \(host.calls.count) \(host.plans.count) \(host.notices.count) \(host.forward.count) \((other ?? store).flows().map(\.updatedAt))"
             }
             let deadline = Date().addingTimeInterval(seconds)
+            // Counted in looks, not time: tests beside this one can hold the main actor past any length of time, and each look
+            // queues behind what's waiting for it.
             var seen = state(), still = 0
             while Date() < deadline, still < 20 {
                 try? await Task.sleep(for: .milliseconds(10))
@@ -235,11 +246,11 @@ import SidefolkExtensionKit
 
     @Test func aStepGoesNoDeeperThanAFlowCanBeWritten() throws {
         let deeper: [[String: Any]] = [["id": "a", "if": ["value": "x", "test": "not_empty"], "then": [
-            ["id": "b", "if": ["value": "y", "test": "not_empty"], "then": [["id": "c", "if": ["value": "z", "test": "not_empty"], "then": [], "else": []]], "else": []],
+            ["id": "b", "if": ["value": "y", "test": "not_empty"], "then": [["id": "c", "if": ["value": "z", "test": "not_empty"], "then": [["id": "d", "if": ["value": "z", "test": "not_empty"], "then": [], "else": []]], "else": []]], "else": []],
         ], "else": []]]
         #expect(throws: Problem.self) { try FlowCodec.body(["trigger": ["type": "manual"], "steps": deeper]) }
         let kept = try FlowCodec.body(["trigger": ["type": "manual"], "steps": deeper], saved: true)
-        #expect(kept.depth == 4, "what was saved before the limit still reads")
+        #expect(kept.depth == 5, "what was saved before the limit still reads")
     }
 
     @Test func aFlowThisVersionCantReadIsKeptNotDropped() throws {
@@ -898,6 +909,7 @@ import SidefolkExtensionKit
         w.engine.delete(flow.id)
         #expect(w.store.flow(flow.id) == nil)
         #expect(w.store.runs(of: flow.id).isEmpty)
+        await w.quiet()
         #expect(Set(w.host.forgotten) == [flow.planId, flow.practiceId])
     }
 
@@ -941,6 +953,70 @@ import SidefolkExtensionKit
     }
 }
 
+/// Pages as Sidefolk would get them, in the states worth looking at: `SIDEFLOW_PAGES_OUT=<folder> swift test --filter sideflowPages`, then
+/// `SidefolkApp --page-json <file> <out.png>` draws each with Sidefolk's own parts, off every screen.
+@MainActor @Suite(.serialized) struct SideflowPageShots {
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["SIDEFLOW_PAGES_OUT"] != nil, "only when asked for"))
+    func sideflowPages() async throws {
+        let out = URL(fileURLWithPath: ProcessInfo.processInfo.environment["SIDEFLOW_PAGES_OUT"]!)
+        try FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("shots-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let app = App(folder: folder)
+        app.catalog.use(Actions.Listing(tools: [
+            Actions.Tool(name: "calendar.today", title: "Today's calendar", description: "Reads today", category: "time", readsOnly: true),
+            Actions.Tool(name: "notes.save", title: "Save to notebook", schema: #"{"properties":{"text":{"type":"string","title":"Text"},"collection":{"type":"string"}},"required":["text"]}"#, category: "notes"),
+            Actions.Tool(name: "notify.user", title: "Notify the user", schema: #"{"properties":{"title":{"type":"string"},"body":{"type":"string"},"level":{"type":"string","enum":["gentle","attention"]}},"required":["title"]}"#),
+        ]))
+        func write(_ page: Page, _ name: String) throws {
+            try JSONSerialization.data(withJSONObject: page.sent, options: [.sortedKeys, .prettyPrinted]).write(to: out.appendingPathComponent(name + ".json"))
+        }
+        let body = try FlowCodec.body(["trigger": ["type": "schedule", "days": ["mon", "tue", "wed", "thu", "fri"], "at": "08:30", "catch_up": true], "steps": [
+            ["id": "plan", "do": "calendar.today", "name": "Get today's plan"],
+            ["id": "c", "if": ["value": "{{plan}}", "test": "contains", "than": "review"], "then": [["id": "w", "ai": "Three short lines about {{plan}}"], ["id": "tell", "do": "notify.user", "with": ["title": "Today: {{w}}"]]],
+             "else": [["id": "save", "do": "notes.save", "with": ["text": "A quiet day"]]]],
+        ]])
+        var flow = app.newFlow(name: "Morning brief", body: body)
+        app.nav.inspect(.step("c"), in: flow.id)
+        app.refreshPreflight(flow.id)
+        try await Task.sleep(for: .milliseconds(200))
+        let state = Arguments(["flow": flow.id])
+        try write(await Pages.make(app, state: state, background: false), "saved-draft")
+        flow.saved = flow.draft
+        flow.draft = Editing.insert(Step(id: "more", kind: .text("One more line")), after: "plan", in: flow.draft)
+        app.store.save(flow)
+        try write(await Pages.make(app, state: state, background: false), "unsaved")
+        flow.saved = nil
+        flow.live = body
+        flow.state = .on
+        app.store.save(flow)
+        try write(await Pages.make(app, state: state, background: false), "on-changes")
+        flow.live = nil
+        flow.state = .draft
+        app.store.save(flow)
+        app.nav.inspect(.step("tell"), in: flow.id)
+        try write(await Pages.make(app, state: state, background: false), "action-form")
+        app.nav.inspect(.trigger, in: flow.id)
+        try write(await Pages.make(app, state: state, background: false), "trigger-form")
+        let wide = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "list", "ask": "What's the list?"],
+            ["id": "each", "for_each": "{{list}}", "name": "For each invoice", "steps": [
+                ["id": "read", "ai": "Read {{item}}", "fields": ["total": "number"], "name": "Read it"],
+                ["id": "way", "choose": "{{read.total}}", "name": "By amount", "paths": [["when": "big", "steps": [["id": "ok", "form": ["title": "Check this one", "fields": [["name": "fine", "label": "Fine?", "kind": "yes_no"]]]]]], ["when": "small", "steps": []]], "else": []],
+            ]],
+            ["id": "t", "try": [["id": "s", "do": "notes.save", "with": ["text": "{{each}}"]]], "recover": [["id": "n", "do": "notify.user", "with": ["title": "{{error}}"]]], "always": []],
+        ]])
+        let big = app.newFlow(name: "Invoices", body: wide)
+        app.nav.inspect(.step("each"), in: big.id)
+        try write(await Pages.make(app, state: Arguments(["flow": big.id]), background: false), "scopes")
+        let fresh = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "plan", "do": "calendar.today"],
+            ["id": "c", "if": ["value": "{{plan}}", "test": "contains", "than": "review", "and": [["value": "{{today}}", "test": "not_empty"]]], "then": [], "else": []]]])
+        let empty = app.newFlow(name: "New condition", body: fresh)
+        app.nav.inspect(.step("c"), in: empty.id)
+        try write(await Pages.make(app, state: Arguments(["flow": empty.id]), background: false), "condition-empty")
+    }
+}
 /// What 1202 must not do to a person's flows.
 @MainActor @Suite(.serialized) struct SideflowFlowsAreKeptTests {
     typealias World = SideflowTests.World
@@ -1043,60 +1119,6 @@ import SidefolkExtensionKit
         #expect(w.store.flowsNotSaved, "refused, and it says so")
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: file.path)
         #expect((try? String(contentsOf: file, encoding: .utf8)) == "mine")
-    }
-}
-
-/// Pages as Sidefolk would get them, in the states worth looking at: `SIDEFLOW_PAGES_OUT=<folder> swift test --filter sideflowPages`, then
-/// `SidefolkApp --page-json <file> <out.png>` draws each with Sidefolk's own parts, off every screen.
-@MainActor @Suite(.serialized) struct SideflowPageShots {
-    @Test(.enabled(if: ProcessInfo.processInfo.environment["SIDEFLOW_PAGES_OUT"] != nil, "only when asked for"))
-    func sideflowPages() async throws {
-        let out = URL(fileURLWithPath: ProcessInfo.processInfo.environment["SIDEFLOW_PAGES_OUT"]!)
-        try FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
-        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("shots-\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: folder) }
-        let app = App(folder: folder)
-        app.catalog.use(Actions.Listing(tools: [
-            Actions.Tool(name: "calendar.today", title: "Today's calendar", description: "Reads today", category: "time", readsOnly: true),
-            Actions.Tool(name: "notes.save", title: "Save to notebook", schema: #"{"properties":{"text":{"type":"string","title":"Text"},"collection":{"type":"string"}},"required":["text"]}"#, category: "notes"),
-            Actions.Tool(name: "notify.user", title: "Notify the user", schema: #"{"properties":{"title":{"type":"string"},"body":{"type":"string"},"level":{"type":"string","enum":["gentle","attention"]}},"required":["title"]}"#),
-        ]))
-        func write(_ page: Page, _ name: String) throws {
-            try JSONSerialization.data(withJSONObject: page.sent, options: [.sortedKeys, .prettyPrinted]).write(to: out.appendingPathComponent(name + ".json"))
-        }
-        let body = try FlowCodec.body(["trigger": ["type": "schedule", "days": ["mon", "tue", "wed", "thu", "fri"], "at": "08:30", "catch_up": true], "steps": [
-            ["id": "plan", "do": "calendar.today", "name": "Get today's plan"],
-            ["id": "c", "if": ["value": "{{plan}}", "test": "contains", "than": "review"], "then": [["id": "w", "ai": "Three short lines about {{plan}}"], ["id": "tell", "do": "notify.user", "with": ["title": "Today: {{w}}"]]],
-             "else": [["id": "save", "do": "notes.save", "with": ["text": "A quiet day"]]]],
-        ]])
-        var flow = app.newFlow(name: "Morning brief", body: body)
-        app.nav.inspect(.step("c"), in: flow.id)
-        app.refreshPreflight(flow.id)
-        try await Task.sleep(for: .milliseconds(200))
-        let state = Arguments(["flow": flow.id])
-        try write(await Pages.make(app, state: state, background: false), "saved-draft")
-        flow.saved = flow.draft
-        flow.draft = Editing.insert(Step(id: "more", kind: .text("One more line")), after: "plan", in: flow.draft)
-        app.store.save(flow)
-        try write(await Pages.make(app, state: state, background: false), "unsaved")
-        flow.saved = nil
-        flow.live = body
-        flow.state = .on
-        app.store.save(flow)
-        try write(await Pages.make(app, state: state, background: false), "on-changes")
-        flow.live = nil
-        flow.state = .draft
-        app.store.save(flow)
-        app.nav.inspect(.step("tell"), in: flow.id)
-        try write(await Pages.make(app, state: state, background: false), "action-form")
-        app.nav.inspect(.trigger, in: flow.id)
-        try write(await Pages.make(app, state: state, background: false), "trigger-form")
-        let fresh = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "plan", "do": "calendar.today"],
-            ["id": "c", "if": ["value": "{{plan}}", "test": "contains", "than": "review", "and": [["value": "{{today}}", "test": "not_empty"]]], "then": [], "else": []]]])
-        let empty = app.newFlow(name: "New condition", body: fresh)
-        app.nav.inspect(.step("c"), in: empty.id)
-        try write(await Pages.make(app, state: Arguments(["flow": empty.id]), background: false), "condition-empty")
     }
 }
 

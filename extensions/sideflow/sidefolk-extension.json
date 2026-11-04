@@ -23,7 +23,9 @@
   },
   "settings": [
     { "key": "tell", "type": "choice", "title": "Tell me when a flow finishes", "detail": "It always tells you when one stops or needs you.", "segmented": true,
-      "options": [{ "value": "always", "title": "Always, with its result" }, { "value": "problems", "title": "Only problems" }], "default": "problems" }
+      "options": [{ "value": "always", "title": "Always, with its result" }, { "value": "problems", "title": "Only problems" }], "default": "problems" },
+    { "key": "keep_runs", "type": "choice", "title": "Runs to keep for each flow", "detail": "Older ones go. What a flow did stays in History.", "segmented": true,
+      "options": [{ "value": "40", "title": "40" }, { "value": "100", "title": "100" }, { "value": "400", "title": "400" }], "default": "40" }
   ],
   "examples": ["what flows do i have", "run morning brief", "every weekday at 8:30 tell me what's on today"],
   "entries": [

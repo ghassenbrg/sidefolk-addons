@@ -57,6 +57,7 @@ import SidefolkExtensionKit
                 body = try FlowCodec.body(args.values["definition"] ?? ["steps": [Any]()])
             }
             let flow = app.newFlow(name: name, body: body)
+            if app.store.flowsNotSaved { throw Problem(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.")) }
             app.refreshPreflight(flow.id)
             let problems = body.problems(app.catalog).map(\.text)
             if args.bool("start") == true, problems.isEmpty {
@@ -77,9 +78,12 @@ import SidefolkExtensionKit
             // Someone's in the middle of it on the page: their changes aren't to be written over.
             guard !flow.hasUnsaved else { throw Problem(L("This flow has unsaved changes on its page. Ask the person to save or discard them first.")) }
             if let raw = args.values["definition"] { flow.draft = try FlowCodec.body(raw) }
-            if let name = args.string("name") { flow.name = name }
+            if let name = args.string("name") {
+                try app.rename(&flow, to: name)
+            }
             app.store.save(flow)
             app.saved(byAnAgent: flow.id)
+            if app.store.flowsNotSaved { throw Problem(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.")) }
             app.refreshPreflight(flow.id)
             let problems = flow.draft.problems(app.catalog).map(\.text)
             var text = flow.state == .draft ? L("Changed the draft.") : L("Changed. It keeps running as before until you apply this.")
@@ -125,6 +129,9 @@ import SidefolkExtensionKit
         ext.tool("run_flow", "Run a flow now", "Runs a flow once, now. An On flow runs under what the person allowed; a draft runs for real, every action on its own card. Returns at once: the result is in get_run.",
                  input: Schema.object(["flow": flowParam, "input": Schema.string("Words for this run, if the person gave any: its steps read them as {{trigger}}.")], required: ["flow"])) { args in
             let flow = try app.flow(named: try args.required("flow"))
+            // Paused is the person's word. Going on from it is theirs too.
+            guard flow.state != .paused else { throw Problem(L("“{name}” is paused. Ask the person to resume it first.", ["name": flow.name])) }
+            if app.store.flowsFileIsHeld { throw Problem(L("Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.")) }
             let problems = (flow.live == nil ? flow.kept : flow.running).problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             let mode: Run.Mode = flow.live != nil ? .live : .once
@@ -153,6 +160,9 @@ import SidefolkExtensionKit
                  input: Schema.object(["run": Schema.string("The run's id."), "how": Schema.string("What to do.", oneOf: ["try_again", "carry_on", "stop"])], required: ["run", "how"])) { args in
             guard let run = app.store.run(try args.required("run")), !run.status.isOver else { throw Problem(L("That run has already ended.")) }
             guard let how = Engine.Forward(rawValue: try args.required("how")) else { throw Problem(L("That isn't a way forward.")) }
+            // A form or another run it's waiting for isn't a stop to go past: only the person's answer moves a form on.
+            guard run.status == .needs_you || run.status == .interrupted || how == .stop else { throw Problem(L("That run isn't stopped: it's waiting for something.")) }
+            if how != .stop, app.store.isHeldBack(flow: run.flow) { throw Problem(L("Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.")) }
             app.engine.proceed(run.id, how)
             return L("Done. See how it goes with get_run.")
         }

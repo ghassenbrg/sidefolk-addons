@@ -31,11 +31,8 @@ ext.palette("run", query: { words in
     return PaletteChoice(close: true, message: L("Running “{name}”.", ["name": flow.name]))
 })
 Plans.ended = { plan in
-    guard plan.hasPrefix("flow-"), var flow = app.store.flow(String(plan.dropFirst(5))) else { return }
-    flow.state = .paused
-    flow.pausedBecause = L("You ended what you'd allowed in Settings, so it asks again before running.")
-    flow.live = nil
-    app.store.save(flow)
+    guard plan.hasPrefix("flow-") else { return }
+    app.engine.planEnded(String(plan.dropFirst(5)))
 }
 
 ext.background { await app.run() }

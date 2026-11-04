@@ -86,6 +86,16 @@ import SidefolkExtensionKit
             main.append(.note(L("Later steps can use its words: “What set it off”.")))
         }
         more.append(.edit(EditField("name", L("This flow's name"), value: flow.name, tool: "ui", input: base(flow, "rename"))))
+        if case .manual = t {} else {
+            more.append(.choice(L("If it's set off while running"), options: [("one_more", L("Run once more after")), ("queue", L("Run each in turn")), ("skip", L("Let it go"))], selected: flow.draft.overlap.rawValue, tool: "ui", input: base(flow, "overlap")))
+        }
+        switch t {
+        case .days, .every:
+            more.append(.edit(EditField("zone", L("By the clock of"), value: flow.draft.timeZone ?? "", detail: L("A time zone, like Europe/Paris. Empty for this Mac's."), placeholder: L("This Mac"), tool: "ui", input: base(flow, "time_zone"))))
+        case .watch, .event:
+            more.append(.edit(EditField("sample", L("In practice, what set it off"), value: flow.draft.triggerSample ?? "", detail: L("Words for a practice run to go on."), kind: .multiline, tool: "ui", input: base(flow, "trigger_sample"))))
+        case .manual: break
+        }
         return [Section(L("When it runs"), main, place: .trailing, detail: L("What sets this flow off, without you pressing anything.")),
                 Section(L("More options"), more, place: .trailing, collapsed: true)]
     }
@@ -111,8 +121,20 @@ import SidefolkExtensionKit
     static func tokens(before id: String, flow: Flow, _ app: App) -> [EditField.Token] {
         let earlier = L("From earlier steps"), always = L("Always there")
         var out = [EditField.Token]()
+        let around = Editing.around(id, in: flow.draft)
+        for name in inputs(of: flow.draft) { out.append(.init(L("It was given: {name}", ["name": name]), value: "{{input.\(name)}}", symbol: "arrow.down.circle", group: earlier)) }
+        if around.contains(.loop) {
+            out.append(.init(L("This item"), value: "{{item}}", symbol: "repeat", group: earlier))
+            out.append(.init(L("Its number"), value: "{{index}}", symbol: "number", group: earlier))
+        }
+        if around.contains(.recover) { out.append(.init(L("What went wrong"), value: "{{error}}", symbol: "exclamationmark.triangle", group: earlier)) }
         for step in Editing.available(before: id, in: flow.draft) {
             out.append(.init(Words.label(step, catalog: app.catalog), value: "{{\(step.id)}}", symbol: Pages.look(step, app).symbol, group: earlier))
+            // A record's fields, each its own: nobody has to write a path.
+            let label = Words.label(step, catalog: app.catalog), symbol = Pages.look(step, app).symbol
+            if let fields = step.fields { for name in fields.keys.sorted() { out.append(.init("\(label) › \(name)", value: "{{\(step.id).\(name)}}", symbol: symbol, group: earlier)) } }
+            if case .form(let form) = step.kind { for field in form.fields { out.append(.init("\(label) › \(field.label)", value: "{{\(step.id).\(field.name)}}", symbol: symbol, group: earlier)) } }
+            if case .parallel(let lanes) = step.kind { for lane in lanes { out.append(.init("\(label) › \(lane.name)", value: "{{\(step.id).\(Engine.key(lane.name))}}", symbol: symbol, group: earlier)) } }
         }
         switch flow.draft.trigger {
         case .watch, .event: out.append(.init(L("What set it off"), value: "{{trigger}}", symbol: "bolt", group: always))
@@ -137,6 +159,15 @@ import SidefolkExtensionKit
         case .branch: return (L("Condition"), L("It checks something, then takes one of two paths: “If so” or “Otherwise”."))
         case .wait: return (L("Wait"), L("Up to a day. It carries on after Sidefolk restarts."))
         case .flow: return (L("Run another flow"), L("It sets that flow off and carries on, without waiting for it."))
+        case .forEach: return (L("For each"), L("It goes through a list, doing the steps inside once per item."))
+        case .choose: return (L("Choose a path"), L("It looks at one value and takes the first path whose words it mentions, or “Otherwise”."))
+        case .attempt: return (L("Try"), L("If a step under “Try” fails, the steps under “If it fails” run instead. The steps under “Either way” run in any case."))
+        case .parallel: return (L("At the same time"), L("Each lane runs at once, and it carries on when all are done. If one fails, the step fails."))
+        case .call: return (L("Run a flow and wait"), L("It runs another flow from start to end, then carries on with its result."))
+        case .finish: return (L("Finish here"), L("The flow ends at this step. A flow that called this one gets the result."))
+        case .data: return (L("Work with data"), L("It changes a value into another, with nothing outside this run."))
+        case .form: return (L("A form for you"), L("It stops and waits for you to fill this in on this page, for days if need be, and carries on after a restart."))
+        case .waitFor: return (L("Wait for something"), L("It waits until this happens, or fails when the time runs out."))
         }
     }
 
@@ -179,6 +210,69 @@ import SidefolkExtensionKit
             main.append(.choice(L("Which flow"), options: app.store.flows().filter { $0.id != flow.id }.map { ($0.name, $0.name) }, selected: name, tool: "ui", input: input("run_flow")))
         case .wait(let minutes):
             main.append(.edit(EditField("\(step.id).minutes", L("Minutes"), value: String(minutes), kind: .number, tool: "ui", input: input("wait"))))
+        case .forEach(let items, let limit, let failure, _):
+            main.append(.edit(EditField("\(step.id).items", L("The list"), value: items, detail: L("A list from an earlier step, or text with one item per line. Inside, “This item” is the one it's on."), placeholder: L("Which list"), tokens: tokens, tool: "ui", input: input("each_items"))))
+            more.append(.edit(EditField("\(step.id).limit", L("At most (items)"), value: String(limit), kind: .number, tool: "ui", input: input("each_limit"))))
+            more.append(.choice(L("If one item fails"), options: [("stop", L("Stop the flow")), ("collect", L("Note it and go on"))], selected: failure.rawValue, tool: "ui", input: input("each_failure")))
+        case .choose(let value, let paths, _):
+            main.append(.edit(EditField("\(step.id).value", L("Look at"), value: value, placeholder: L("What to look at"), tokens: tokens, tool: "ui", input: input("choose_value"))))
+            for (at, path) in paths.enumerated() {
+                main.append(.edit(EditField("\(step.id).when.\(at)", L("Path {count}: when it mentions", ["count": Format.integer(at + 1)]), value: path.when, placeholder: L("Words"), tool: "ui", input: input("path_when", ["path": at]))))
+                if paths.count > 1 { main.append(.action(Action(L("Remove this path"), tool: "ui", input: input("path_remove", ["path": at]), style: .plain, symbol: "minus.circle"))) }
+            }
+            if paths.count < FlowBody.mostPaths { main.append(.action(Action(L("Add a path"), tool: "ui", input: input("path_add"), style: .plain, symbol: "plus.circle"))) }
+        case .attempt:
+            main.append(.note(L("Add the steps on the board. Under “If it fails”, “What went wrong” says why.")))
+        case .parallel(let lanes):
+            for (at, lane) in lanes.enumerated() {
+                main.append(.edit(EditField("\(step.id).lane.\(at)", L("Lane {count}", ["count": Format.integer(at + 1)]), value: lane.name, tool: "ui", input: input("lane_name", ["lane": at]))))
+                if lanes.count > 2 { main.append(.action(Action(L("Remove this lane"), tool: "ui", input: input("lane_remove", ["lane": at]), style: .plain, symbol: "minus.circle"))) }
+            }
+            if lanes.count < FlowBody.mostLanes { main.append(.action(Action(L("Add a lane"), tool: "ui", input: input("lane_add"), style: .plain, symbol: "plus.circle"))) }
+        case .call(let name, let inputs):
+            main.append(.choice(L("Which flow"), options: app.store.flows().filter { $0.id != flow.id }.map { ($0.name, $0.name) }, selected: name, tool: "ui", input: input("call_flow")))
+            let wanted = app.store.named(name).map { Self.inputs(of: $0.running) } ?? []
+            for key in wanted {
+                main.append(.edit(EditField("\(step.id).input.\(key)", key.replacingOccurrences(of: "_", with: " ").capitalizedFirst, value: inputs[key] ?? "", tokens: tokens, tool: "ui", input: input("call_input", ["name": key]))))
+            }
+            if wanted.isEmpty { main.append(.note(L("That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps."))) }
+        case .finish(let value):
+            main.append(.edit(EditField("\(step.id).value", L("Its result"), value: value, placeholder: L("Nothing"), tokens: tokens, tool: "ui", input: input("finish_value"))))
+        case .data(let data):
+            main.append(.choice(L("What to do"), options: DataStep.Op.allCases.map { ($0.rawValue, Words.dataName($0)) }, selected: data.op.rawValue, tool: "ui", input: input("data_op")))
+            main.append(.edit(EditField("\(step.id).from", L("From"), value: data.from, placeholder: L("Which value"), tokens: tokens, tool: "ui", input: input("data_from"))))
+            if [.field, .filter, .sort, .unique, .sum].contains(data.op) {
+                main.append(.edit(EditField("\(step.id).field", L("The field in each"), value: data.field ?? "", detail: L("A name, or a.b for one inside another. Empty for the item itself."), tool: "ui", input: input("data_field"))))
+            }
+            switch data.op {
+            case .filter:
+                main.append(.choice(L("It"), options: Condition.Test.allCases.map { ($0.rawValue, testName($0)) }, selected: (data.test ?? .contains).rawValue, tool: "ui", input: input("data_test")))
+                main.append(.edit(EditField("\(step.id).than", L("This"), value: data.than ?? "", tokens: tokens, tool: "ui", input: input("data_than"))))
+            case .sort:
+                main.append(.toggle(L("Largest or last first"), on: data.descending, tool: "ui", input: input("data_descending")))
+            case .first:
+                main.append(.edit(EditField("\(step.id).count", L("How many"), value: String(data.count ?? 1), kind: .number, tool: "ui", input: input("data_count"))))
+            case .join:
+                main.append(.edit(EditField("\(step.id).separator", L("Between each"), value: data.separator ?? ", ", tool: "ui", input: input("data_separator"))))
+            default: break
+            }
+        case .form(let form):
+            main.append(.edit(EditField("\(step.id).title", L("What it asks"), value: form.title, placeholder: L("Check this invoice"), tokens: tokens, tool: "ui", input: input("form_title"))))
+            for (at, field) in form.fields.enumerated() {
+                main.append(.edit(EditField("\(step.id).label.\(at)", L("Field {count}", ["count": Format.integer(at + 1)]), value: field.label, tool: "ui", input: input("form_label", ["field": at]))))
+                main.append(.choice(L("Kind"), options: [("text", L("Words")), ("number", L("A number")), ("yes_no", L("Yes or no")), ("choice", L("One of a few"))], selected: field.kind.rawValue, tool: "ui", input: input("form_kind", ["field": at])))
+                if field.kind == .choice { main.append(.edit(EditField("\(step.id).options.\(at)", L("The choices"), value: field.options.joined(separator: ", "), detail: L("With commas between them."), tool: "ui", input: input("form_options", ["field": at])))) }
+                if form.fields.count > 1 { main.append(.action(Action(L("Remove this field"), tool: "ui", input: input("form_remove", ["field": at]), style: .plain, symbol: "minus.circle"))) }
+            }
+            main.append(.action(Action(L("Add a field"), tool: "ui", input: input("form_add"), style: .plain, symbol: "plus.circle")))
+            more.append(.edit(EditField("\(step.id).hours", L("Wait for (hours)"), value: String(form.hours), detail: L("Then it counts as this step failing."), kind: .number, tool: "ui", input: input("form_hours"))))
+        case .waitFor(let event, let contains, let minutes):
+            main.append(.choice(L("What happens"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: event, tool: "ui", input: input("wait_event")))
+            main.append(.edit(EditField("\(step.id).contains", L("Only if it mentions"), value: contains ?? "", placeholder: L("Anything"), tool: "ui", input: input("wait_contains"))))
+            main.append(.edit(EditField("\(step.id).minutes", L("For up to (minutes)"), value: String(minutes), kind: .number, tool: "ui", input: input("wait_minutes"))))
+        }
+        if step.hasOutput {
+            more.append(.edit(EditField("\(step.id).sample", L("In practice, pretend it gives"), value: step.sample ?? "", detail: L("A practice run uses this instead of running it, to try a way a real answer would take. JSON stays JSON."), kind: .multiline, tool: "ui", input: input("sample"))))
         }
         more.append(.edit(EditField("\(step.id).name", L("Call this step"), value: step.name ?? "", placeholder: Words.label(step, catalog: app.catalog), tool: "ui", input: input("step_name"))))
         if step.hasOutput {
@@ -235,6 +329,18 @@ import SidefolkExtensionKit
             out.append(.choice(L("It takes"), options: [("all", L("All of these")), ("any", L("Any of these"))], selected: c.any ? "any" : "all", tool: "ui", input: input("cond_join", [:])))
         }
         out.append(.note(L("Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.")))
+        return out
+    }
+
+    /// What a flow asks to be given: every `{{input.name}}` it uses, in order. Its interface is what it uses, so it can't say one thing and do another.
+    static func inputs(of body: FlowBody) -> [String] {
+        var out: [String] = []
+        let pattern = try! NSRegularExpression(pattern: #"\{\{\s*input\.([A-Za-z0-9_]{1,40})"#)
+        for text in body.allSteps.flatMap(\.usedTexts) {
+            for match in pattern.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+                if let r = Range(match.range(at: 1), in: text), !out.contains(String(text[r])) { out.append(String(text[r])) }
+            }
+        }
         return out
     }
 

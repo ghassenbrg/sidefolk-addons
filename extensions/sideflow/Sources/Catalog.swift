@@ -29,6 +29,8 @@ import SidefolkExtensionKit
     private(set) var tools: [Tool] = []
     private(set) var plans: [Plans.Standing] = []
     private(set) var loadedAt: Date?
+    /// Whether exactly one flow goes by this name, as a step finds it. The engine says.
+    var findsFlow: (String) -> Bool = { _ in true }
 
     func tool(_ name: String) -> Tool? { tools.first { $0.name == name } }
 
@@ -102,6 +104,7 @@ extension FlowBody {
             case .ai(let prompt) where prompt.trimmed.isEmpty: return L("Say what to write.")
             case .ask(let question, _) where question.trimmed.isEmpty: return L("Say what to ask.")
             case .flow(let name) where name.trimmed.isEmpty: return L("Pick which flow to run.")
+            case .call(let name, _) where name.trimmed.isEmpty: return L("Pick which flow to run.")
             default: break
             }
         }
@@ -133,6 +136,26 @@ extension FlowBody {
                     : L("It uses “{name}”, which no earlier step makes.", ["name": name])))
             }
         }
+        /// What a step of the kinds that hold others needs of itself.
+        func checkKind(_ step: Step) {
+            switch step.kind {
+            case .forEach(let items, _, _, let steps):
+                if items.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say which list to go through."))) }
+                if steps.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add what to do with each item."))) }
+            case .choose(let value, let paths, _):
+                if value.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say what to look at."))) }
+                if paths.contains(where: { $0.when.trimmed.isEmpty }) { out.append(FlowProblem(step: step.id, text: L("Say what each path is for."))) }
+            case .attempt(let steps, _, _):
+                if steps.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add the steps to try."))) }
+            case .parallel(let lanes):
+                if lanes.contains(where: { $0.steps.isEmpty }) { out.append(FlowProblem(step: step.id, text: L("Each lane needs a step."))) }
+            case .call(let flow, _):
+                if flow.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Pick which flow to run."))) } else if !catalog.findsFlow(flow) { out.append(FlowProblem(step: step.id, text: L("There's no one flow called “{name}”. Pick it again.", ["name": flow]))) }
+            case .form(let form):
+                if form.fields.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add something for the form to ask."))) }
+            default: break
+            }
+        }
         func walk(_ list: [Step], seen: inout Set<String>) {
             for step in list {
                 switch step.kind {
@@ -160,7 +183,7 @@ extension FlowBody {
                     if question.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say what to ask."))) }
                     refs([question], step, seen: seen)
                 case .text(let text): refs([text], step, seen: seen)
-                case .branch(let c, let then, let otherwise):
+                case .branch(let c, _, _):
                     if c.checks.contains(where: { $0.value.trimmed.isEmpty }) { out.append(FlowProblem(step: step.id, text: L("Say what each check looks at."))) }
                     // "Contains nothing" or "more than nothing" decides nothing, and it's how a new one starts.
                     if c.checks.contains(where: { [.contains, .not_contains, .more_than, .less_than].contains($0.test) && $0.than.trimmed.isEmpty }) {
@@ -168,19 +191,33 @@ extension FlowBody {
                     }
                     // Looking at something only one path made is how a flow asks whether it ran: only that test may.
                     for check in c.checks where check.test != .is_empty && check.test != .not_empty { refs([check.value, check.than], step, seen: seen) }
-                    var yes = seen, no = seen
-                    walk(then, seen: &yes)
-                    walk(otherwise, seen: &no)
-                    onOnePath.formUnion(yes.symmetricDifference(no))
-                    seen = yes.intersection(no)
+                case .forEach, .choose, .call, .finish, .data, .form:
+                    refs(step.usedTexts, step, seen: seen)
+                case .attempt, .parallel, .waitFor: break
                 case .wait: break
                 case .flow(let name):
-                    if name.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Pick which flow to run."))) }
+                    if name.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Pick which flow to run."))) } else if !catalog.findsFlow(name) { out.append(FlowProblem(step: step.id, text: L("There's no one flow called “{name}”. Pick it again.", ["name": name]))) }
+                }
+                checkKind(step)
+                if !step.parts.isEmpty {
+                    var ways: [Set<String>] = []
+                    for part in step.parts {
+                        var inside = seen
+                        if case .forEach = step.kind { inside.formUnion(["item", "index"]) }
+                        if part.id == "recover" { inside.insert("error") }
+                        walk(part.steps, seen: &inside)
+                        ways.append(inside)
+                    }
+                    if step.after == .common {
+                        let both = ways.dropFirst().reduce(ways[0]) { $0.intersection($1) }
+                        onOnePath.formUnion(Set(ways.flatMap { $0 }).subtracting(both))
+                        seen = both
+                    }
                 }
                 if step.hasOutput { seen.insert(step.id) }
             }
         }
-        var seen: Set<String> = Values.reserved
+        var seen: Set<String> = Values.ambient.union(["input"])
         walk(steps, seen: &seen)
         return out
     }
