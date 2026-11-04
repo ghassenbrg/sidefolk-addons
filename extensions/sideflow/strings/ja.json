@@ -919,6 +919,7 @@
       "other": "{count} 件の実行が待機中"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} は戻りましたが、時間が経ちすぎたため、このステップはあなたが判断してください。",
-    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "{name} を待っています。このルーティンは一時停止中です。このステップはまだ実行していません。戻ったあと、再開すると続きます。"
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "{name} を待っています。このルーティンは一時停止中です。このステップはまだ実行していません。戻ったあと、再開すると続きます。",
+    "You approved a version without this step while this run was under way, so it didn't run.": "この実行の途中で、このステップのないバージョンを承認したため、このステップは実行されませんでした。"
   }
 }

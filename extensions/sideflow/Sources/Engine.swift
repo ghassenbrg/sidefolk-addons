@@ -232,6 +232,18 @@ import SidefolkExtensionKit
     private func perform(_ step: Step, in run: inout Run) async -> Bool {
         // Reached only by a flow that went on before this was marked: nothing goes to the AI or the person for a step that says nothing.
         if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
+        // Sidefolk checks an action against what they read last at each call. Nothing checks these two, so it's looked at here: a run under way when they approved an edit that took one out.
+        switch step.kind {
+        case .ai, .flow, .call:
+            if run.mode == .live, let current = store.flow(run.flow), current.live != nil, !current.running.allSteps.contains(where: { $0.id == step.id && $0.kind == step.kind }) {
+                run.status = .needs_you
+                run.problem = L("You approved a version without this step while this run was under way, so it didn't run.")
+                run.record(.init(step: step.id, status: .needs_you, summary: step.name ?? Words.step(step, body: run.body, catalog: catalog), note: run.problem, at: clock()))
+                store.save(run)
+                return false
+            }
+        default: break
+        }
         if let name = run.values.missing(in: step.usedTexts).first {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }

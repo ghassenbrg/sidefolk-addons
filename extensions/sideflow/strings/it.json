@@ -932,6 +932,7 @@
       "other": "{count} esecuzioni la attendono"
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} è tornato, ma è passato così tanto tempo che questo passaggio spetta a te.",
-    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "In attesa di {name}, e questa routine è in pausa. Questo passaggio non è stato eseguito: quando torna, prosegue se la riprendi."
+    "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "In attesa di {name}, e questa routine è in pausa. Questo passaggio non è stato eseguito: quando torna, prosegue se la riprendi.",
+    "You approved a version without this step while this run was under way, so it didn't run.": "Hai approvato una versione senza questo passaggio mentre l'esecuzione era in corso, quindi non è stato eseguito."
   }
 }

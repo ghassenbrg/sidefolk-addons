@@ -509,6 +509,55 @@ import SidefolkExtensionKit
         #expect(app.store.latest(of: flow.id)?.id == run.id)
     }
 
+    private func editedWhileWaiting(_ w: World, _ second: [String: Any]) async throws -> (Run, Flow) {
+        var flow = try w.flow([["id": "w", "wait_minutes": 1], second])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        flow = try #require(w.store.flow(flow.id))
+        let approved = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "wait_minutes": 1]]])
+        flow.draft = approved
+        flow.live = approved
+        w.store.save(flow)
+        w.now = w.now.addingTimeInterval(120)
+        w.engine.tick()
+        await w.quiet()
+        return (try #require(w.store.run(run.id)), flow)
+    }
+
+    @Test func anAIStepAnApprovedEditRemovedDoesntRun() async throws {
+        let w = try World()
+        let (run, _) = try await editedWhileWaiting(w, ["id": "a", "ai": "write"])
+        #expect(w.host.written.isEmpty, "what they read last doesn't have it")
+        #expect(run.status == .needs_you)
+    }
+
+    @Test func aSetOffAnApprovedEditRemovedDoesntRun() async throws {
+        let w = try World()
+        var other = try w.flow([["id": "x", "do": "reads.it"]])
+        other.name = "Other"
+        w.store.save(other)
+        let (run, _) = try await editedWhileWaiting(w, ["id": "o", "run_flow": "Other"])
+        #expect(!w.host.calls.contains { $0.tool == "reads.it" })
+        #expect(run.status == .needs_you)
+    }
+
+    @Test func aStepThatsStillThereGoesOnAfterAnEdit() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "w", "wait_minutes": 1], ["id": "a", "ai": "write"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        flow = try #require(w.store.flow(flow.id))
+        let approved = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "wait_minutes": 1], ["id": "a", "ai": "write"], ["id": "t", "text": "more"]]])
+        flow.draft = approved
+        flow.live = approved
+        w.store.save(flow)
+        w.now = w.now.addingTimeInterval(120)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.host.written.count == 1)
+        #expect(w.store.run(run.id)?.status == .done)
+    }
+
     @Test func askingWhetherAStepRanStillWorks() async throws {
         let w = try World()
         let flow = try w.flow([["id": "first", "if": ["value": "a", "test": "contains", "than": "b"], "then": [["id": "made", "text": "x"]]],
