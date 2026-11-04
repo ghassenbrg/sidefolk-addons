@@ -186,6 +186,64 @@ import SidefolkExtensionKit
         #expect(w.host.calls.filter { $0.tool == "watch.create" }.last?.input["target"] as? String == "https://y.example")
     }
 
+    @Test func aToolsAnswerPassedToACalledFlowCanStillBeLookedIn() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"errors":["bad"]}"#, summary: "")]
+        var child = try w.flow([["id": "b", "if": ["value": "{{input.r.errors}}", "test": "is_empty"], "then": [["id": "deploy", "do": "changes.it", "with": ["text": "x"]]]]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "call_flow": "Child", "inputs": ["r": "{{r}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(run?.status == .done)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "there are errors")
+    }
+
+    @Test func whatALoopCollectedFromAToolHasItsFields() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"price":2}"#, summary: ""), Actions.Outcome(status: .ok, text: #"{"price":3}"#, summary: "")]
+        let flow = try w.flow([["id": "e", "for_each": "a\nb", "steps": [["id": "r", "do": "reads.it"]]],
+                               ["id": "d", "data": ["op": "sum", "from": "{{e}}", "field": "price"]],
+                               ["id": "t", "text": "{{e[0].price}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(run?.record(of: "d")?.output == "5", "not 0")
+        #expect(run?.record(of: "t")?.output == "2")
+    }
+
+    @Test func aToolsListGoesToAParameterThatTakesAList() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"labels":{"type":"array","items":{"type":"string"}},"text":{"type":"string"}}}"#)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"["a","b"]"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["labels": "{{r}}", "text": "{{r}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["labels"] as? [String] == ["a", "b"], "not one string split on its commas")
+        #expect(sent["text"] as? String == #"["a","b"]"#, "and words stay words")
+    }
+
+    @Test func plainWordsGivenToAFlowHaveNoFieldsEither() async throws {
+        let w = try World()
+        var child = try w.flow([["id": "b", "if": ["value": "{{input.r.errors}}", "test": "is_empty"], "then": [["id": "deploy", "do": "changes.it", "with": ["text": "x"]]]]])
+        child.name = "Child"
+        w.store.save(child)
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Service unavailable", summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "call_flow": "Child", "inputs": ["r": "{{r}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func whatWasntGivenToAFlowIsStillNothing() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "b", "if": ["value": "{{input.mode}}", "test": "is_not", "than": "fast"], "then": [["id": "t", "text": "slow"]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(run?.record(of: "t") != nil)
+    }
+
     @Test func askingWhetherAStepRanStillWorks() async throws {
         let w = try World()
         let flow = try w.flow([["id": "first", "if": ["value": "a", "test": "contains", "than": "b"], "then": [["id": "made", "text": "x"]]],
@@ -319,6 +377,10 @@ import SidefolkExtensionKit
         let flow = try make(app, [["id": "p", "parallel": [["name": "First", "steps": [["id": "a", "text": "x"]]], ["name": "Second", "steps": [["id": "b", "text": "y"]]]]]])
         await #expect(throws: Problem.self) { try await self.page(app, "lane_name", flow, ["step": "p", "lane": 0, "text": "second"]) }
         if case .parallel(let lanes)? = app.store.flow(flow.id)?.draft.step("p")?.kind { #expect(lanes[0].name == "First") } else { Issue.record("not lanes") }
+        // Names that make no key of their own aren't the same name.
+        try await page(app, "lane_name", flow, ["step": "p", "lane": 0, "text": "🍎"])
+        try await page(app, "lane_name", flow, ["step": "p", "lane": 1, "text": "🍌"])
+        if case .parallel(let lanes)? = app.store.flow(flow.id)?.draft.step("p")?.kind { #expect(lanes.map(\.name) == ["🍎", "🍌"]) } else { Issue.record("not lanes") }
     }
 
     @Test func aFilterGivenNothingToLookForSaysSo() async throws {

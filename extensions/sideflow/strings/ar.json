@@ -939,7 +939,7 @@
     },
     "Look at": "انظر إلى",
     "A choice in a form needs at least two answers.": "يحتاج الاختيار في النموذج إلى إجابتين على الأقل.",
-    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "ينظر في «{name}» الذي لا يوجد هذه المرة، لذا لا يمكنه تحديد الطريق.",
+    "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.": "ينظر في «{name}» الفارغ أو غير الموجود هذه المرة، لذا لا يمكنه تحديد الطريق.",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "يستخدم «{name}» الذي لا تقدّمه تلك الخطوة. ربما أُعيدت تسميته.",
     "There's no other flow to run yet.": "لا يوجد روتين آخر لتشغيله بعد.",
     "{when}, by the clock of {zone}": "{when}، حسب توقيت {zone}",

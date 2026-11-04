@@ -141,7 +141,7 @@ import SidefolkExtensionKit
                 run.pc = to
             case .branch(let step, let condition, let otherwise):
                 let unknown = run.values.undecided(condition)
-                let why = unknown.map { L("It looks at “{name}”, which isn't there this time, so it can't tell which way to go.", ["name": $0]) }
+                let why = unknown.map { L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": $0]) }
                 // A practice goes on, and says so: that's what it's for.
                 if let why, run.mode != .practice {
                     guard failed(step, why: why, reads: false, in: &run) else {

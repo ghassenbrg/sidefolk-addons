@@ -884,7 +884,7 @@
     },
     "Look at": "查看",
     "A choice in a form needs at least two answers.": "表单中的选项至少需要两个答案。",
-    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "它要查看“{name}”，但这次没有，因此无法判断走哪条路。",
+    "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.": "它要查看“{name}”，但这次为空或不存在，因此无法判断走哪条路。",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "它使用了“{name}”，但那一步不提供它。可能已被重命名。",
     "There's no other flow to run yet.": "还没有其他可运行的流程。",
     "{when}, by the clock of {zone}": "{when}（按 {zone} 时间）",

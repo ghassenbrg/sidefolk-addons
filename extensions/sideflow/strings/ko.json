@@ -884,7 +884,7 @@
       "other": "실행 {count}개가 지금 읽을 수 없는 루틴을 기다리고 있습니다. 루틴이 돌아오면 계속합니다."
     },
     "A choice in a form needs at least two answers.": "양식의 선택 항목에는 답변이 두 개 이상 필요합니다.",
-    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "“{name}”을(를) 확인하지만 이번에는 없어서 어느 쪽으로 갈지 정할 수 없습니다.",
+    "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.": "“{name}”을(를) 확인하지만 이번에는 비어 있거나 없어서 어느 쪽으로 갈지 정할 수 없습니다.",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "“{name}”을(를) 사용하지만 그 단계에서는 제공하지 않습니다. 이름이 바뀌었을 수 있습니다.",
     "There's no other flow to run yet.": "아직 실행할 다른 루틴이 없습니다.",
     "{when}, by the clock of {zone}": "{when}, {zone} 시간 기준",

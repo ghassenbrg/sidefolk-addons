@@ -55,7 +55,8 @@ struct Values: Equatable, Sendable {
     static func walk(_ value: JSON, path: [String]) -> JSON? {
         var at = value
         for part in path {
-            switch at {
+            // A tool's answer stays words wherever it's been passed to: in a list a loop made, in what a called flow was given.
+            switch structured(at) {
             case .object(let o):
                 guard let next = o[part] else { return nil }
                 at = next
@@ -91,7 +92,7 @@ struct Values: Equatable, Sendable {
     /// `name` with what's after it, or nil when nothing is there.
     func resolve(_ name: String, path: String = "") -> JSON? {
         guard let value = base(name) else { return nil }
-        return path.isEmpty ? value : Self.walk(Self.structured(value), path: Self.parts(of: path))
+        return Self.walk(value, path: Self.parts(of: path))
     }
 
     /// Each `{{name.path}}` in a text, path and all.
@@ -108,18 +109,20 @@ struct Values: Equatable, Sendable {
     private func blind(_ check: Condition) -> String? {
         let negative = check.test == .is_not || check.test == .not_contains
         let ignoresThan = check.test == .is_empty || check.test == .not_empty
-        for (name, path) in Self.slots(check.value) + (ignoresThan ? [] : Self.slots(check.than)) where name != "input" {
+        for (name, path) in Self.slots(check.value) + (ignoresThan ? [] : Self.slots(check.than)) {
             if Self.ambient.contains(name), path.isEmpty { continue }
+            // What wasn't given to a flow is nothing, the one way to have it optional. Words given to it still have no fields.
+            let cantSay = negative && name != "input"
             guard let root = base(name) else {
-                if negative { return name + path }
+                if cantSay { return name + path }
                 continue
             }
             if path.isEmpty {
-                if negative, Self.text(root).isEmpty { return name }
+                if cantSay, Self.text(root).isEmpty { return name }
                 continue
             }
             guard resolve(name, path: path) == nil else { continue }
-            if negative || Self.endsInWords(Self.structured(root), path: Self.parts(of: path)) { return name + path }
+            if cantSay || Self.endsInWords(root, path: Self.parts(of: path)) { return name + path }
         }
         return nil
     }
@@ -128,6 +131,7 @@ struct Values: Equatable, Sendable {
     private static func endsInWords(_ value: JSON, path: [String]) -> Bool {
         var at = value
         for part in path {
+            at = structured(at)
             switch at {
             case .object(let o):
                 guard let next = o[part] else { return false }
@@ -198,7 +202,7 @@ struct Values: Equatable, Sendable {
     func fill(_ input: [String: JSON], wordsIn textual: Set<String>) -> [String: Any] {
         Dictionary(uniqueKeysWithValues: input.map { key, value in
             if textual.contains(key), case .string(let s) = value { return (key, fill(s) as Any) }
-            return (key, fill(native: value).any)
+            return (key, Self.structured(fill(native: value)).any)
         })
     }
 

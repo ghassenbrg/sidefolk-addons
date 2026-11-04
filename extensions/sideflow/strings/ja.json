@@ -884,7 +884,7 @@
       "other": "{count} 件の実行が、現在読み込めないルーティンを待っています。ルーティンが戻ると続行します。"
     },
     "A choice in a form needs at least two answers.": "フォームの選択肢には回答が2つ以上必要です。",
-    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "「{name}」を確認しますが今回は存在しないため、どちらに進むか判断できません。",
+    "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.": "「{name}」を確認しますが今回は空か存在しないため、どちらに進むか判断できません。",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "「{name}」を使っていますが、そのステップからは得られません。名前が変わった可能性があります。",
     "There's no other flow to run yet.": "実行できる別のルーティンはまだありません。",
     "{when}, by the clock of {zone}": "{when}（{zone} の時刻）",

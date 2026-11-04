@@ -230,7 +230,7 @@
     "It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.": "It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.",
     "It has {count} items, and this step goes through {limit} at most.": "It has {count} items, and this step goes through {limit} at most.",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.",
-    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.",
+    "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.": "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.",
     "It made: {what}": "It made: {what}",
     "It may only do what you read when you turned it on. You can end that in Settings › Add-ons.": "It may only do what you read when you turned it on. You can end that in Settings › Add-ons.",
     "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.": {

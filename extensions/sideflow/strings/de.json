@@ -895,7 +895,7 @@
     },
     "Look at": "Ansehen",
     "A choice in a form needs at least two answers.": "Eine Auswahl im Formular braucht mindestens zwei Antworten.",
-    "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "Er prüft „{name}“, das diesmal fehlt, und kann deshalb nicht entscheiden, welcher Weg gilt.",
+    "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.": "Er prüft „{name}“, das diesmal leer ist oder fehlt, und kann deshalb nicht entscheiden, welcher Weg gilt.",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "Er verwendet „{name}“, das dieser Schritt nicht liefert. Vielleicht wurde es umbenannt.",
     "There's no other flow to run yet.": "Es gibt noch keinen anderen Ablauf zum Starten.",
     "{when}, by the clock of {zone}": "{when}, nach der Uhrzeit von {zone}",
