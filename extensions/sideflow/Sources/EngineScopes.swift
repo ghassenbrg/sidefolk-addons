@@ -76,12 +76,13 @@ extension Engine {
         // What it can't see won't change by asking again. Nor can it go round on a write that gave nothing, one carried on past or that may have happened: that could send it twice. A read that gave nothing is what a poll asks again.
         // So can a field a write's answer doesn't have: going round won't make a misspelt one appear.
         let looksAt = until.checks.flatMap { check in Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }
-        let gaveNothing = inside.first { step in
-            !step.reads(catalog) && looksAt.contains { slot in
-                slot.name == step.id && (run.values.named[step.id].map { Values.text($0).isEmpty } == true || (!slot.path.isEmpty && run.values.resolve(slot.name, path: slot.path) == nil))
-            }
-        }
-        if run.mode != .practice, let unknown = run.values.undecided(until) ?? (holds ? nil : gaveNothing?.id) {
+        // A write on a path not taken this time made nothing and sent nothing: going round is what it's for.
+        let gaveNothing = looksAt.first { slot in
+            guard let made = run.values.named[slot.name], inside.contains(where: { $0.id == slot.name && !$0.reads(catalog) }) else { return false }
+            if Values.text(made).isEmpty { return true }
+            return !slot.path.isEmpty && [nil, JSON.null].contains(run.values.resolve(slot.name, path: slot.path))
+        }.map { $0.name + $0.path }
+        if run.mode != .practice, let unknown = run.values.undecided(until) ?? (holds ? nil : gaveNothing) {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
         }

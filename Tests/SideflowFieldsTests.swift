@@ -211,6 +211,28 @@ import SidefolkExtensionKit
         #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "asking again can't make a misspelt field appear, and it would send it again")
     }
 
+    @Test func aRepeatSaysWhichFieldItCantFindAndDoesntResendOverOneThatSaysNothing() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = (0..<5).map { _ in Actions.Outcome(status: .ok, text: "Queued", summary: "", data: #"{"id": null}"#) }
+        let flow = try w.flow([["id": "again", "repeat": [["id": "send", "do": "changes.it", "with": ["text": "x"]]], "until": ["value": "{{send.id}}", "test": "not_empty"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(run?.problem?.contains("send.id") == true, "\(run?.problem ?? "")")
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
+    }
+
+    @Test func aRepeatGoesRoundWhenAWriteWasntReachedYet() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Wait", summary: "", data: #"{"ready": "no"}"#), Actions.Outcome(status: .ok, text: "Go", summary: "", data: #"{"ready": "yes"}"#)]
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .ok, text: "Sent", summary: "", data: #"{"id": "1"}"#)]
+        let flow = try w.flow([["id": "again", "repeat": [["id": "poll", "do": "reads.it"],
+                                                          ["id": "maybe", "if": ["value": "{{poll.ready}}", "test": "is", "than": "yes"], "then": [["id": "send", "do": "changes.it", "with": ["text": "x"]]], "else": []]],
+                                "until": ["value": "{{send.id}}", "test": "not_empty"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
+    }
+
     @Test func aRepeatStillPollsAReadForAFieldThatIsntThereYet() async throws {
         let w = try World()
         w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Wait", summary: "", data: #"{"state": "working"}"#), Actions.Outcome(status: .ok, text: "Done", summary: "", data: #"{"status": "done"}"#)]
