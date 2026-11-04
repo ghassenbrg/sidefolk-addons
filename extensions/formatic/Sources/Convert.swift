@@ -30,6 +30,31 @@ enum Convert {
         return nil
     }
 
+    /// The format most people want from this file, and the next one when the file already is it.
+    static func usual(for path: String) -> String {
+        let order: [String] = switch kind(of: path) {
+        case .picture: ["jpg", "png"]
+        case .pdf: ["png"]
+        case .sound: ["m4a", "flac"]
+        case .data: ["csv", "json"]
+        case .archive: ["zip", "7z"]
+        case nil: ["jpg"]
+        }
+        return order.first { !same(path, $0, small: false) } ?? order[0]
+    }
+
+    /// What its row on the page shows when it has no small picture.
+    static func symbol(for name: String) -> String {
+        switch kind(of: name) {
+        case .pdf: "doc.richtext"
+        case .sound: "waveform"
+        case .data: "tablecells"
+        case .archive: "archivebox"
+        case .picture: "photo"
+        case nil: "doc"
+        }
+    }
+
     static func size(of path: String) -> Int64 {
         (try? FileManager.default.attributesOfItem(atPath: path)[.size] as? Int64) ?? 0
     }
@@ -49,8 +74,8 @@ enum Convert {
     }
 
     static func make(_ path: String, target: String, small: Bool, removeLocation: Bool) async throws -> [Made] {
-        guard let kind = kind(of: path) else { throw Problem(L("{file} isn't a kind of file Formatic knows.", ["file": (path as NSString).lastPathComponent])) }
-        guard !same(path, target, small: small) else { throw Problem(L("{file} is already that kind of file. Drop it again and pick another format.", ["file": (path as NSString).lastPathComponent])) }
+        guard let kind = kind(of: path) else { throw Problem(L("Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.", ["file": (path as NSString).lastPathComponent])) }
+        guard !same(path, target, small: small) else { throw Problem(L("{file} is already in that format, so it was left as it is.", ["file": (path as NSString).lastPathComponent])) }
         let folder = Paths.data + "/" + holding
         try FileManager.default.createDirectory(atPath: folder, withIntermediateDirectories: true)
         let stem = stem(of: path)

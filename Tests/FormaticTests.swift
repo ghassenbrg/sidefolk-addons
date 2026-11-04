@@ -31,6 +31,46 @@ import UniformTypeIdentifiers
         return (try #require(CGImageSourceCreateImageAtIndex(source, 0, nil)), CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any] ?? [:])
     }
 
+    private func offers() throws -> [(id: String, target: String, patterns: [String])] {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let data = try Data(contentsOf: root.appendingPathComponent("extensions/formatic/sidefolk-extension.json"))
+        let manifest = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        return try #require(manifest["drops"] as? [[String: Any]]).map {
+            let input = $0["input"] as? [String: Any]
+            return ($0["id"] as? String ?? "", input?["target"] as? String ?? "", $0["patterns"] as? [String] ?? [])
+        }
+    }
+
+    /// The offer is a promise: its row never names the format the file is already in, unless it makes it smaller.
+    @Test func noRowOffersAFileItsOwnFormat() throws {
+        for offer in try offers() where offer.id != "photo_small" {
+            for pattern in offer.patterns {
+                #expect(!Convert.same("a" + pattern.dropFirst(), offer.target, small: false), "\(offer.id) offers \(pattern) its own format")
+            }
+        }
+    }
+
+    /// Every file kind still has a row when two kinds of it are dropped together.
+    @Test(arguments: [("a.csv", "b.json"), ("a.m4a", "b.flac"), ("a.zip", "b.tar"), ("a.zip", "b.7z"), ("a.png", "b.jpg")])
+    func aMixedBatchStillHasAnOffer(first: String, second: String) throws {
+        func fits(_ name: String, _ patterns: [String]) -> Bool {
+            patterns.contains { name.lowercased().hasSuffix(String($0.dropFirst())) }
+        }
+        #expect(try offers().contains { fits(first, $0.patterns) && fits(second, $0.patterns) })
+    }
+
+    @Test func thePageButtonMakesAUsefulFormatFromEveryKind() {
+        #expect(Convert.usual(for: "/a.png") == "jpg")
+        #expect(Convert.usual(for: "/a.JPEG") == "png")
+        #expect(Convert.usual(for: "/a.pdf") == "png")
+        #expect(Convert.usual(for: "/a.mp3") == "m4a")
+        #expect(Convert.usual(for: "/a.m4a") == "flac")
+        #expect(Convert.usual(for: "/a.json") == "csv")
+        #expect(Convert.usual(for: "/a.csv") == "json")
+        #expect(Convert.usual(for: "/a.tar") == "zip")
+        #expect(Convert.usual(for: "/a.zip") == "7z")
+    }
+
     @Test func aTransparentPictureBecomesAJPEGOnWhite() throws {
         let dir = try folder(), source = dir + "/a.png", made = dir + "/a.jpg"
         try picture(at: source)

@@ -22,39 +22,37 @@
   },
   "drops": {
     "photo_any": {
-      "title": "S’ouvre partout",
-      "detail": "JPEG. Toute transparence devient blanche."
+      "title": "S'ouvre partout",
+      "detail": "La transparence devient blanche."
     },
     "photo_small": {
       "title": "Assez léger pour un e-mail",
-      "detail": "JPEG, 2 000 pixels de large au plus."
+      "detail": "2 000 pixels de large au plus."
     },
     "pdf_pages": {
       "title": "Une image par page",
-      "detail": "PNG, un fichier par page."
+      "detail": "Un fichier PNG par page."
     },
     "audio_any": {
-      "title": "Se lit partout",
-      "detail": "AAC dans un fichier M4A."
+      "title": "Un autre format audio",
+      "detail": "M4A, ou FLAC si c'est déjà du M4A."
     },
     "data": {
-      "title": "Un tableur",
-      "detail": "CSV, à partir d’une liste de données."
+      "title": "Un autre format de tableau",
+      "detail": "CSV, ou JSON si c'est déjà du CSV."
     },
     "archive": {
-      "title": "Un ZIP qui s’ouvre partout",
-      "detail": "Les mêmes fichiers dans un ZIP."
+      "title": "Les mêmes fichiers, réemballés",
+      "detail": "ZIP, ou 7Z si c'est déjà un ZIP."
     }
   },
   "text": {
     "A page couldn't be read.": "Une page n’a pas pu être lue.",
-    "Any file, in the form you need.": "N’importe quel fichier, dans la forme qu’il vous faut.",
     "Choose a file first.": "Choisissez d’abord un fichier.",
     "Choose a file…": "Choisir un fichier…",
     "Clear this list": "Vider cette liste",
     "Cleared.": "Liste vidée.",
     "Defaults": "Par défaut",
-    "Drop files on your companion. Originals never change.": "Déposez des fichiers sur votre compagnon. Les originaux ne changent jamais.",
     "Formatic can't make that kind of archive.": "Formatic ne sait pas créer ce type d’archive.",
     "Formatic can't make that kind of file.": "Formatic ne sait pas créer ce type de fichier.",
     "Formatic can't make that kind of picture.": "Formatic ne sait pas créer ce type d’image.",
@@ -74,11 +72,31 @@
     "{file} couldn't be read, so it was left as it is.": "Impossible de lire {file} : rien n’a été changé.",
     "{file} holds several pictures, and this is the first.": "{file} contient plusieurs images, voici la première.",
     "{file} is already small enough, so it was left as it is.": "Pas besoin de réduire {file} : rien n’a été changé.",
-    "{file} is already that kind of file. Drop it again and pick another format.": "{file} est déjà de ce type. Déposez-le à nouveau et choisissez un autre format.",
     "{file} is too large to open here.": "{file} dépasse la taille qu’on peut ouvrir ici.",
-    "{file} isn't a kind of file Formatic knows.": "{file} n’est pas un type de fichier que Formatic connaît.",
     "{file} isn't a list of records, so it was left as it is.": "{file} n’est pas une liste d’enregistrements : rien n’a été changé.",
     "{from} to {to}": "{from} en {to}",
-    "{percent}% smaller": "{percent} % plus petit"
+    "{percent}% smaller": "{percent} % plus petit",
+    "Turns a file into the format you need. New files appear beside the originals, which never change.": "Met un fichier au format qu'il vous faut. Les nouveaux fichiers apparaissent à côté des originaux, qui ne changent jamais.",
+    "How to use it": "Comment l'utiliser",
+    "Drag a file onto your companion": "Faites glisser un fichier sur votre compagnon",
+    "Or right-click it in Finder": "Ou faites un clic droit dans le Finder",
+    "Or choose a file here": "Ou choisissez un fichier ici",
+    "What it can make": "Ce qu'il peut créer",
+    "Photos": "Photos",
+    "PDF pages": "Pages PDF",
+    "PNG, JPEG or TIFF, one file for each page": "PNG, JPEG ou TIFF, un fichier par page",
+    "JPEG, PNG, HEIC, AVIF, TIFF, GIF or PDF": "JPEG, PNG, HEIC, AVIF, TIFF, GIF ou PDF",
+    "Sound": "Son",
+    "Tables": "Tableaux",
+    "CSV, JSON, TSV or PLIST": "CSV, JSON, TSV ou PLIST",
+    "Archives": "Archives",
+    "ZIP, 7Z, TAR or TAR.GZ": "ZIP, 7Z, TAR ou TAR.GZ",
+    "Not yet: video, and documents like Word files.": "Pas encore : la vidéo et les documents comme les fichiers Word.",
+    "{file} is already in that format, so it was left as it is.": "{file} est déjà dans ce format et reste tel quel.",
+    "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formatic traite les photos, PDF, sons, tableaux et archives. {file} n'en fait pas partie et reste tel quel.",
+    "Let go on it, then choose on the card.": "Lâchez-le dessus, puis choisissez sur la carte.",
+    "Send to Sidefolk, under Services, opens the card.": "Send to Sidefolk, dans Services, ouvre la carte.",
+    "Makes the most common format, with no card.": "Crée le format le plus courant, sans carte.",
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A, FLAC, WAV, AIFF, ALAC ou Opus (en CAF)"
   }
 }

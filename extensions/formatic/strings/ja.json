@@ -23,38 +23,36 @@
   "drops": {
     "photo_any": {
       "title": "どこでも開ける",
-      "detail": "JPEG。透明な部分は白になります。"
+      "detail": "透明な部分は白になります。"
     },
     "photo_small": {
-      "title": "メールで送れるサイズに",
-      "detail": "JPEG。幅は最大2,000ピクセル。"
+      "title": "メールに添付できる大きさ",
+      "detail": "幅は最大2,000ピクセル。"
     },
     "pdf_pages": {
       "title": "ページごとの画像",
-      "detail": "PNG。ページごとに1ファイル。"
+      "detail": "ページごとにPNGファイルを1つ。"
     },
     "audio_any": {
-      "title": "どこでも再生できる",
-      "detail": "M4Aファイル（AAC）。"
+      "title": "別の音声形式",
+      "detail": "M4A。すでにM4AならFLAC。"
     },
     "data": {
-      "title": "表計算シート",
-      "detail": "CSV。項目の一覧から作ります。"
+      "title": "別の表形式",
+      "detail": "CSV。すでにCSVならJSON。"
     },
     "archive": {
-      "title": "どこでも開けるZIP",
-      "detail": "同じファイルをZIPにまとめます。"
+      "title": "同じファイルを詰め直す",
+      "detail": "ZIP。すでにZIPなら7Z。"
     }
   },
   "text": {
     "A page couldn't be read.": "読み取れないページがありました。",
-    "Any file, in the form you need.": "どんなファイルも、必要な形式に。",
     "Choose a file first.": "先にファイルを選んでください。",
     "Choose a file…": "ファイルを選択…",
     "Clear this list": "この一覧を消去",
     "Cleared.": "消去しました。",
     "Defaults": "初期設定",
-    "Drop files on your companion. Originals never change.": "コンパニオンにファイルをドロップ。元のファイルは変わりません。",
     "Formatic can't make that kind of archive.": "Formaticでは、その種類のアーカイブは作れません。",
     "Formatic can't make that kind of file.": "Formaticでは、その種類のファイルは作れません。",
     "Formatic can't make that kind of picture.": "Formaticでは、その種類の画像は作れません。",
@@ -73,11 +71,31 @@
     "{file} couldn't be read, so it was left as it is.": "{file}を読み取れなかったので、そのままにしてあります。",
     "{file} holds several pictures, and this is the first.": "{file}には複数の画像があり、これは最初の1枚です。",
     "{file} is already small enough, so it was left as it is.": "{file}はすでに十分小さいので、そのままにしてあります。",
-    "{file} is already that kind of file. Drop it again and pick another format.": "{file}はすでにその形式です。もう一度ドロップして、別の形式を選んでください。",
     "{file} is too large to open here.": "{file}は大きすぎて、ここでは開けません。",
-    "{file} isn't a kind of file Formatic knows.": "{file}は、Formaticが知らない種類のファイルです。",
     "{file} isn't a list of records, so it was left as it is.": "{file}は項目の一覧ではないので、そのままにしてあります。",
     "{from} to {to}": "{from}から{to}へ",
-    "{percent}% smaller": "{percent}%小さくなりました"
+    "{percent}% smaller": "{percent}%小さくなりました",
+    "Turns a file into the format you need. New files appear beside the originals, which never change.": "ファイルを必要な形式に変換します。新しいファイルは元のファイルの隣に作られ、元のファイルは変わりません。",
+    "How to use it": "使い方",
+    "Drag a file onto your companion": "ファイルをコンパニオンにドラッグ",
+    "Or right-click it in Finder": "またはFinderで右クリック",
+    "Or choose a file here": "またはここでファイルを選択",
+    "What it can make": "作れるもの",
+    "Photos": "写真",
+    "PDF pages": "PDFのページ",
+    "PNG, JPEG or TIFF, one file for each page": "PNG、JPEG、TIFF(ページごとに1ファイル)",
+    "JPEG, PNG, HEIC, AVIF, TIFF, GIF or PDF": "JPEG、PNG、HEIC、AVIF、TIFF、GIF、PDF",
+    "Sound": "音声",
+    "Tables": "表",
+    "CSV, JSON, TSV or PLIST": "CSV、JSON、TSV、PLIST",
+    "Archives": "アーカイブ",
+    "ZIP, 7Z, TAR or TAR.GZ": "ZIP、7Z、TAR、TAR.GZ",
+    "Not yet: video, and documents like Word files.": "動画とWordなどの書類にはまだ対応していません。",
+    "{file} is already in that format, so it was left as it is.": "{file} はすでにその形式なので、そのままにしました。",
+    "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formaticが扱えるのは写真、PDF、音声、表、アーカイブです。{file} はそのどれでもないので、そのままにしました。",
+    "Let go on it, then choose on the card.": "その上で離し、カードで選びます。",
+    "Send to Sidefolk, under Services, opens the card.": "「サービス」の Send to Sidefolk でカードが開きます。",
+    "Makes the most common format, with no card.": "最も一般的な形式を、カードなしで作ります。",
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A、FLAC、WAV、AIFF、ALAC、Opus(CAF)"
   }
 }

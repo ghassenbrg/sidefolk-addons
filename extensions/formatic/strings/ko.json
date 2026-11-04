@@ -22,39 +22,37 @@
   },
   "drops": {
     "photo_any": {
-      "title": "어디서나 열려요",
-      "detail": "JPEG. 투명한 부분은 흰색이 돼요."
+      "title": "어디서나 열림",
+      "detail": "투명한 부분은 흰색이 됩니다."
     },
     "photo_small": {
-      "title": "이메일로 보내기 좋게",
-      "detail": "JPEG, 가로 최대 2,000픽셀."
+      "title": "메일에 맞는 크기",
+      "detail": "너비 최대 2,000픽셀."
     },
     "pdf_pages": {
-      "title": "페이지마다 이미지 한 장",
-      "detail": "PNG, 페이지마다 파일 하나."
+      "title": "페이지별 그림",
+      "detail": "페이지마다 PNG 파일 하나."
     },
     "audio_any": {
-      "title": "어디서나 재생돼요",
-      "detail": "M4A 파일에 담긴 AAC."
+      "title": "다른 소리 형식",
+      "detail": "M4A, 이미 M4A이면 FLAC."
     },
     "data": {
-      "title": "스프레드시트",
-      "detail": "CSV, 항목 목록으로 만들어요."
+      "title": "다른 표 형식",
+      "detail": "CSV, 이미 CSV이면 JSON."
     },
     "archive": {
-      "title": "어디서나 열리는 ZIP",
-      "detail": "같은 파일을 ZIP으로 묶어요."
+      "title": "같은 파일을 다시 압축",
+      "detail": "ZIP, 이미 ZIP이면 7Z."
     }
   },
   "text": {
     "A page couldn't be read.": "읽을 수 없는 페이지가 있어요.",
-    "Any file, in the form you need.": "어떤 파일이든 필요한 형식으로.",
     "Choose a file first.": "먼저 파일을 골라 주세요.",
     "Choose a file…": "파일 선택…",
     "Clear this list": "이 목록 지우기",
     "Cleared.": "지웠어요.",
     "Defaults": "기본값",
-    "Drop files on your companion. Originals never change.": "컴패니언에 파일을 끌어다 놓으세요. 원본은 바뀌지 않아요.",
     "Formatic can't make that kind of archive.": "Formatic은 그런 종류의 압축 파일은 만들 수 없어요.",
     "Formatic can't make that kind of file.": "Formatic은 그런 종류의 파일은 만들 수 없어요.",
     "Formatic can't make that kind of picture.": "Formatic은 그런 종류의 이미지는 만들 수 없어요.",
@@ -73,11 +71,31 @@
     "{file} couldn't be read, so it was left as it is.": "{file}을(를) 읽지 못해서 그대로 두었어요.",
     "{file} holds several pictures, and this is the first.": "{file}에는 이미지가 여러 개 있어서 첫 번째만 사용했어요.",
     "{file} is already small enough, so it was left as it is.": "{file}은(는) 이미 충분히 작아서 그대로 두었어요.",
-    "{file} is already that kind of file. Drop it again and pick another format.": "{file}은(는) 이미 그 형식이에요. 다시 끌어다 놓고 다른 형식을 고르세요.",
     "{file} is too large to open here.": "{file}은(는) 너무 커서 여기서 열 수 없어요.",
-    "{file} isn't a kind of file Formatic knows.": "{file}은(는) Formatic이 모르는 종류의 파일이에요.",
     "{file} isn't a list of records, so it was left as it is.": "{file}은(는) 항목 목록이 아니라서 그대로 두었어요.",
     "{from} to {to}": "{from}에서 {to}로",
-    "{percent}% smaller": "{percent}% 더 작아졌어요"
+    "{percent}% smaller": "{percent}% 더 작아졌어요",
+    "Turns a file into the format you need. New files appear beside the originals, which never change.": "파일을 필요한 형식으로 바꿉니다. 새 파일은 원본 옆에 생기고 원본은 바뀌지 않습니다.",
+    "How to use it": "사용 방법",
+    "Drag a file onto your companion": "파일을 동반자에게 끌어다 놓기",
+    "Or right-click it in Finder": "또는 Finder에서 오른쪽 클릭",
+    "Or choose a file here": "또는 여기서 파일 선택",
+    "What it can make": "만들 수 있는 것",
+    "Photos": "사진",
+    "PDF pages": "PDF 페이지",
+    "PNG, JPEG or TIFF, one file for each page": "PNG, JPEG 또는 TIFF, 페이지마다 파일 하나",
+    "JPEG, PNG, HEIC, AVIF, TIFF, GIF or PDF": "JPEG, PNG, HEIC, AVIF, TIFF, GIF 또는 PDF",
+    "Sound": "소리",
+    "Tables": "표",
+    "CSV, JSON, TSV or PLIST": "CSV, JSON, TSV 또는 PLIST",
+    "Archives": "압축 파일",
+    "ZIP, 7Z, TAR or TAR.GZ": "ZIP, 7Z, TAR 또는 TAR.GZ",
+    "Not yet: video, and documents like Word files.": "아직 안 됨: 동영상과 Word 같은 문서.",
+    "{file} is already in that format, so it was left as it is.": "{file}은(는) 이미 그 형식이라 그대로 두었습니다.",
+    "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formatic은 사진, PDF, 소리, 표, 압축 파일을 다룹니다. {file}은(는) 여기에 해당하지 않아 그대로 두었습니다.",
+    "Let go on it, then choose on the card.": "그 위에 놓고 카드에서 고르세요.",
+    "Send to Sidefolk, under Services, opens the card.": "서비스의 Send to Sidefolk로 카드가 열립니다.",
+    "Makes the most common format, with no card.": "가장 흔한 형식을 카드 없이 만듭니다.",
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A, FLAC, WAV, AIFF, ALAC 또는 Opus(CAF)"
   }
 }

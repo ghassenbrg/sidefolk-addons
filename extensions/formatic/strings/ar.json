@@ -22,39 +22,37 @@
   },
   "drops": {
     "photo_any": {
-      "title": "يُفتح في أي مكان",
-      "detail": "JPEG. أي شفافية تصبح بيضاء."
+      "title": "يُفتح في كل مكان",
+      "detail": "تصبح الشفافية بيضاء."
     },
     "photo_small": {
       "title": "صغير بما يكفي للبريد",
-      "detail": "JPEG، بعرض 2000 بكسل كحد أقصى."
+      "detail": "بعرض 2,000 بكسل على الأكثر."
     },
     "pdf_pages": {
       "title": "صورة لكل صفحة",
-      "detail": "PNG، ملف لكل صفحة."
+      "detail": "ملف PNG لكل صفحة."
     },
     "audio_any": {
-      "title": "يُشغَّل في أي مكان",
-      "detail": "AAC داخل ملف M4A."
+      "title": "صيغة صوت أخرى",
+      "detail": "M4A، أو FLAC إذا كان M4A بالفعل."
     },
     "data": {
-      "title": "جدول بيانات",
-      "detail": "CSV، من قائمة سجلات."
+      "title": "صيغة جدول أخرى",
+      "detail": "CSV، أو JSON إذا كان CSV بالفعل."
     },
     "archive": {
-      "title": "ملف ZIP يُفتح في أي مكان",
-      "detail": "الملفات نفسها داخل ZIP."
+      "title": "الملفات نفسها، مضغوطة من جديد",
+      "detail": "ZIP، أو 7Z إذا كان ZIP بالفعل."
     }
   },
   "text": {
     "A page couldn't be read.": "تعذّرت قراءة إحدى الصفحات.",
-    "Any file, in the form you need.": "أي ملف، بالصيغة التي تحتاجها.",
     "Choose a file first.": "اختر ملفًا أولًا.",
     "Choose a file…": "اختر ملفًا…",
     "Clear this list": "مسح هذه القائمة",
     "Cleared.": "تم المسح.",
     "Defaults": "الإعدادات الافتراضية",
-    "Drop files on your companion. Originals never change.": "أفلت الملفات على رفيقك. لا تتغيّر الملفات الأصلية أبدًا.",
     "Formatic can't make that kind of archive.": "لا يستطيع Formatic إنشاء هذا النوع من الأرشيفات.",
     "Formatic can't make that kind of file.": "لا يستطيع Formatic إنشاء هذا النوع من الملفات.",
     "Formatic can't make that kind of picture.": "لا يستطيع Formatic إنشاء هذا النوع من الصور.",
@@ -78,11 +76,31 @@
     "{file} couldn't be read, so it was left as it is.": "تعذّرت قراءة {file}، لذا تُرك كما هو.",
     "{file} holds several pictures, and this is the first.": "يحتوي {file} على عدة صور، وهذه هي الأولى.",
     "{file} is already small enough, so it was left as it is.": "{file} صغير بما يكفي أصلًا، لذا تُرك كما هو.",
-    "{file} is already that kind of file. Drop it again and pick another format.": "{file} من هذا النوع بالفعل. أفلته مرة أخرى واختر تنسيقًا آخر.",
     "{file} is too large to open here.": "{file} كبير جدًا بحيث لا يُفتح هنا.",
-    "{file} isn't a kind of file Formatic knows.": "{file} ليس نوع ملف يعرفه Formatic.",
     "{file} isn't a list of records, so it was left as it is.": "{file} ليس قائمة سجلات، لذا تُرك كما هو.",
     "{from} to {to}": "{from} إلى {to}",
-    "{percent}% smaller": "أصغر بنسبة {percent}%"
+    "{percent}% smaller": "أصغر بنسبة {percent}%",
+    "Turns a file into the format you need. New files appear beside the originals, which never change.": "يحوّل الملف إلى الصيغة التي تحتاجها. تظهر الملفات الجديدة بجانب الأصلية، ولا تتغير الأصلية أبدًا.",
+    "How to use it": "طريقة الاستخدام",
+    "Drag a file onto your companion": "اسحب ملفًا إلى رفيقك",
+    "Or right-click it in Finder": "أو انقر بزر الفأرة الأيمن في Finder",
+    "Or choose a file here": "أو اختر ملفًا من هنا",
+    "What it can make": "ما يمكنه إنشاؤه",
+    "Photos": "الصور",
+    "PDF pages": "صفحات PDF",
+    "PNG, JPEG or TIFF, one file for each page": "PNG أو JPEG أو TIFF، ملف لكل صفحة",
+    "JPEG, PNG, HEIC, AVIF, TIFF, GIF or PDF": "JPEG أو PNG أو HEIC أو AVIF أو TIFF أو GIF أو PDF",
+    "Sound": "الصوت",
+    "Tables": "الجداول",
+    "CSV, JSON, TSV or PLIST": "CSV أو JSON أو TSV أو PLIST",
+    "Archives": "الأرشيفات",
+    "ZIP, 7Z, TAR or TAR.GZ": "ZIP أو 7Z أو TAR أو TAR.GZ",
+    "Not yet: video, and documents like Word files.": "ليس بعد: الفيديو والمستندات مثل ملفات Word.",
+    "{file} is already in that format, so it was left as it is.": "{file} بهذه الصيغة بالفعل، لذا تُرك كما هو.",
+    "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "يعمل Formatic مع الصور وملفات PDF والصوت والجداول والأرشيفات. {file} ليس منها، لذا تُرك كما هو.",
+    "Let go on it, then choose on the card.": "أفلته فوقه ثم اختر من البطاقة.",
+    "Send to Sidefolk, under Services, opens the card.": "يفتح Send to Sidefolk في الخدمات البطاقة.",
+    "Makes the most common format, with no card.": "ينشئ الصيغة الأكثر شيوعًا دون بطاقة.",
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A أو FLAC أو WAV أو AIFF أو ALAC أو Opus (بصيغة CAF)"
   }
 }

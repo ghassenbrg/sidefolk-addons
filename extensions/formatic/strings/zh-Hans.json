@@ -23,38 +23,36 @@
   "drops": {
     "photo_any": {
       "title": "到处都能打开",
-      "detail": "JPEG。透明部分会变成白色。"
+      "detail": "透明部分变为白色。"
     },
     "photo_small": {
-      "title": "小到能发邮件",
-      "detail": "JPEG，宽度最多 2,000 像素。"
+      "title": "小到可以发邮件",
+      "detail": "宽度最多 2,000 像素。"
     },
     "pdf_pages": {
       "title": "每页一张图片",
-      "detail": "PNG，每页一个文件。"
+      "detail": "每页一个 PNG 文件。"
     },
     "audio_any": {
-      "title": "到处都能播放",
-      "detail": "M4A 文件，AAC 编码。"
+      "title": "其他声音格式",
+      "detail": "M4A;如果已是 M4A,则为 FLAC。"
     },
     "data": {
-      "title": "电子表格",
-      "detail": "CSV，由记录列表生成。"
+      "title": "其他表格格式",
+      "detail": "CSV;如果已是 CSV,则为 JSON。"
     },
     "archive": {
-      "title": "到处都能打开的 ZIP",
-      "detail": "同样的文件，打包成 ZIP。"
+      "title": "相同文件,重新打包",
+      "detail": "ZIP;如果已是 ZIP,则为 7Z。"
     }
   },
   "text": {
     "A page couldn't be read.": "有一页无法读取。",
-    "Any file, in the form you need.": "任何文件，都能变成你需要的格式。",
     "Choose a file first.": "请先选一个文件。",
     "Choose a file…": "选择文件…",
     "Clear this list": "清空此列表",
     "Cleared.": "已清空。",
     "Defaults": "默认设置",
-    "Drop files on your companion. Originals never change.": "把文件拖到你的伙伴身上。原文件不会改变。",
     "Formatic can't make that kind of archive.": "Formatic 无法制作这种压缩包。",
     "Formatic can't make that kind of file.": "Formatic 无法制作这种文件。",
     "Formatic can't make that kind of picture.": "Formatic 无法制作这种图片。",
@@ -73,11 +71,31 @@
     "{file} couldn't be read, so it was left as it is.": "{file} 无法读取，所以保持原样。",
     "{file} holds several pictures, and this is the first.": "{file} 里有多张图片，这是第一张。",
     "{file} is already small enough, so it was left as it is.": "{file} 已经足够小了，所以保持原样。",
-    "{file} is already that kind of file. Drop it again and pick another format.": "{file} 已经是这种类型。请再次拖入并选择其他格式。",
     "{file} is too large to open here.": "{file} 太大，无法在这里打开。",
-    "{file} isn't a kind of file Formatic knows.": "{file} 不是 Formatic 认识的文件类型。",
     "{file} isn't a list of records, so it was left as it is.": "{file} 不是记录列表，所以保持原样。",
     "{from} to {to}": "{from}转{to}",
-    "{percent}% smaller": "小了 {percent}%"
+    "{percent}% smaller": "小了 {percent}%",
+    "Turns a file into the format you need. New files appear beside the originals, which never change.": "把文件变成你需要的格式。新文件出现在原文件旁边,原文件不会改变。",
+    "How to use it": "使用方法",
+    "Drag a file onto your companion": "把文件拖到你的伙伴身上",
+    "Or right-click it in Finder": "或在访达中右键点按",
+    "Or choose a file here": "或在这里选择文件",
+    "What it can make": "可以生成什么",
+    "Photos": "照片",
+    "PDF pages": "PDF 页面",
+    "PNG, JPEG or TIFF, one file for each page": "PNG、JPEG 或 TIFF,每页一个文件",
+    "JPEG, PNG, HEIC, AVIF, TIFF, GIF or PDF": "JPEG、PNG、HEIC、AVIF、TIFF、GIF 或 PDF",
+    "Sound": "声音",
+    "Tables": "表格",
+    "CSV, JSON, TSV or PLIST": "CSV、JSON、TSV 或 PLIST",
+    "Archives": "压缩包",
+    "ZIP, 7Z, TAR or TAR.GZ": "ZIP、7Z、TAR 或 TAR.GZ",
+    "Not yet: video, and documents like Word files.": "暂不支持:视频,以及 Word 等文档。",
+    "{file} is already in that format, so it was left as it is.": "{file} 已经是这种格式,所以保持原样。",
+    "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formatic 处理照片、PDF、声音、表格和压缩包。{file} 不属于这些,所以保持原样。",
+    "Let go on it, then choose on the card.": "在它身上松开,然后在卡片上选择。",
+    "Send to Sidefolk, under Services, opens the card.": "“服务”中的 Send to Sidefolk 会打开卡片。",
+    "Makes the most common format, with no card.": "直接生成最常用的格式,不显示卡片。",
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A、FLAC、WAV、AIFF、ALAC 或 Opus(CAF)"
   }
 }

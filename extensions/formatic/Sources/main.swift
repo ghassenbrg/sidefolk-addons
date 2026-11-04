@@ -16,12 +16,14 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
          ], required: [])) { args -> ToolReply in
     let files = args.strings("files") + (args.string("path").map { [$0] } ?? [])
     guard !files.isEmpty else { throw Problem(L("Choose a file first.")) }
-    let target = args.string("target") ?? "jpg", small = args.bool("small") ?? false
+    let small = args.bool("small") ?? false
     let removeLocation = ExtensionSettings.bool("remove_location") ?? true
     var reply = ToolReply(""), lines: [String] = [], madeAny = false
     var pace = Pace()
     for path in files {
         do {
+            // The page's own button has no card to choose on, so it makes the format most people want from that kind of file.
+            let target = args.string("target") ?? Convert.usual(for: path)
             let made = try await Convert.make(path, target: target, small: small, removeLocation: removeLocation)
             madeAny = madeAny || !made.isEmpty
             for one in made { reply = reply.saving(data: one.data, as: one.name, beside: path) }
@@ -50,18 +52,33 @@ ext.tool("clear_recent", "Clear the list of recent files", "Forgets the recent f
 
 ext.page("main") { _ in
     let recent = Recent.all()
+    let hero = Hero("Formatic", detail: L("Turns a file into the format you need. New files appear beside the originals, which never change."),
+                    actions: [Action(L("Choose a file…"), act: .file(tool: "convert", param: "path", types: [], input: [:]), style: .secondary)],
+                    scene: Picture.pack("hero.png"))
     var sections = [
-        Section(nil, [.hero(Hero(L("Any file, in the form you need."),
-                                 detail: L("Drop files on your companion. Originals never change."),
-                                 actions: [Action(L("Choose a file…"), act: .file(tool: "convert", param: "path", types: [], input: [:]), style: .secondary)],
-                                 scene: Picture.pack("glass-pair.png")))]),
+        Section(nil, [.hero(hero)]),
+        Section(L("How to use it"), [.list(nil, [
+            Row(L("Drag a file onto your companion"), detail: L("Let go on it, then choose on the card."), symbol: "hand.point.up.left"),
+            Row(L("Or right-click it in Finder"), detail: L("Send to Sidefolk, under Services, opens the card."), symbol: "contextualmenu.and.cursorarrow"),
+            Row(L("Or choose a file here"), detail: L("Makes the most common format, with no card."), symbol: "folder"),
+        ])]),
     ]
     if !recent.isEmpty {
         sections.append(Section(L("Lately"), [.list(nil, recent.map {
-            Row($0.name, detail: "\($0.change) · \($0.result) · \(Format.date($0.at))", image: $0.picture, symbol: $0.picture == nil ? "doc" : nil)
+            Row($0.name, detail: "\($0.change) · \($0.result) · \(Format.date($0.at))", image: $0.picture, symbol: $0.picture == nil ? Convert.symbol(for: $0.name) : nil)
         })]))
         sections.append(Section(nil, [.button(L("Clear this list"), tool: "clear_recent", input: [:], style: .plain)]))
     }
+    sections.append(Section(L("What it can make"), [
+        .list(nil, [
+            Row(L("Photos"), detail: L("JPEG, PNG, HEIC, AVIF, TIFF, GIF or PDF"), symbol: "photo"),
+            Row(L("PDF pages"), detail: L("PNG, JPEG or TIFF, one file for each page"), symbol: "doc.richtext"),
+            Row(L("Sound"), detail: L("M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)"), symbol: "waveform"),
+            Row(L("Tables"), detail: L("CSV, JSON, TSV or PLIST"), symbol: "tablecells"),
+            Row(L("Archives"), detail: L("ZIP, 7Z, TAR or TAR.GZ"), symbol: "archivebox"),
+        ]),
+        .note(L("Not yet: video, and documents like Word files."), symbol: "info.circle", style: .plain),
+    ]))
     sections.append(Section(L("Defaults"), [.settings(nil, keys: ["remove_location"])]))
     return Page(summary: Summary(recent.isEmpty ? L("Ready when you are") : L(one: "{count} file made lately", other: "{count} files made lately", count: recent.count),
                                  detail: L("Originals are never changed."), symbol: "doc.on.doc"), sections: sections)
