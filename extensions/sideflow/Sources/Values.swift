@@ -213,12 +213,12 @@ struct Values: Equatable, Sendable {
 
     /// For a tool: what it wants as words stays words, whatever the value is; a list or a number goes as itself only where the tool takes one.
     /// A tool's answer that's a list goes as a list only to a parameter that says it takes one, and only as a whole value: anywhere else it's the words it was, what a card showed.
-    func fill(_ input: [String: JSON], wordsIn textual: Set<String>, listsIn lists: Set<String> = []) -> [String: Any] {
+    /// `absentIn`: what can't be empty, a number or a choice: a field left blank isn't given to it.
+    func fill(_ input: [String: JSON], wordsIn textual: Set<String>, listsIn lists: Set<String> = [], absentIn absent: Set<String> = []) -> [String: Any] {
         Dictionary(uniqueKeysWithValues: input.map { key, value in
             if textual.contains(key), case .string(let s) = value { return (key, fill(s, each: Self.wordsKept) as Any) }
             let filled = fill(native: value)
-            // A field left blank isn't given: an empty string is something a number or a choice can't be.
-            if filled == .string(""), case .string(let s) = value, Self.isOneSlot(s), Self.slots(s).first?.path.isEmpty == false { return (key, JSON.null.any) }
+            if absent.contains(key), filled == .string(""), case .string(let s) = value, Self.isOneSlot(s), Self.slots(s).first?.path.isEmpty == false { return (key, JSON.null.any) }
             if lists.contains(key), case .string(let s) = value, Self.isOneSlot(s), case .array(let list) = Self.structured(filled) { return (key, JSON.array(list).any) }
             return (key, filled.any)
         })
