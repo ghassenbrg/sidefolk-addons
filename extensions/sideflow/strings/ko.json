@@ -627,6 +627,8 @@
     "Say what to write.": "무엇을 쓸지 정하세요.",
     "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "이전 감시가 멈추지 않아 이 루틴을 일시 중지했습니다. 다시 시작하면 다시 시도합니다.",
     "Say what to compare it with.": "무엇과 비교할지 정하세요.",
-    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "감시가 다시 시작되었는지 Sidefolk이 알려 주지 않았습니다. 작동하지 않으면 일시 중지 후 다시 시작하세요."
+    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "감시가 다시 시작되었는지 Sidefolk이 알려 주지 않았습니다. 작동하지 않으면 일시 중지 후 다시 시작하세요.",
+    "It didn't start.": "시작하지 않았습니다.",
+    "It has a step that says nothing, so it's paused until that's fixed.": "내용이 없는 단계가 있어 고칠 때까지 일시 중지됩니다."
   }
 }

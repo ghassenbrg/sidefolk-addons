@@ -636,6 +636,8 @@
     "Say what to write.": "Di' cosa scrivere.",
     "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "Il vecchio controllo non si è fermato, quindi questa routine è in pausa. Riprendila per riprovare.",
     "Say what to compare it with.": "Di' con cosa confrontarlo.",
-    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "Sidefolk non ha detto se il controllo è ripartito. Se non scatta, mettilo in pausa e riprendilo."
+    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "Sidefolk non ha detto se il controllo è ripartito. Se non scatta, mettilo in pausa e riprendilo.",
+    "It didn't start.": "Non è partita.",
+    "It has a step that says nothing, so it's paused until that's fixed.": "Ha un passaggio che non dice nulla, quindi resta in pausa finché non viene corretto."
   }
 }

@@ -95,10 +95,8 @@ extension FlowBody {
         }
     }
 
-    /// What keeps it from running at all, whoever asks: a page saves as it goes, so it can be halfway through being written.
-    var unfinished: String? {
-        if let wrong = triggerProblem { return wrong }
-        if allSteps.count > FlowBody.maxSteps { return L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]) }
+    /// A step that says nothing: a page saves as it goes, so it can be halfway through being written.
+    var blank: String? {
         for step in allSteps {
             switch step.kind {
             case .ai(let prompt) where prompt.trimmed.isEmpty: return L("Say what to write.")
@@ -108,6 +106,13 @@ extension FlowBody {
             }
         }
         return nil
+    }
+
+    /// What keeps it from running at all, whoever asks.
+    var unfinished: String? {
+        if let wrong = triggerProblem { return wrong }
+        if allSteps.count > FlowBody.maxSteps { return L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]) }
+        return blank
     }
 
     @MainActor func problems(_ catalog: Catalog) -> [FlowProblem] {

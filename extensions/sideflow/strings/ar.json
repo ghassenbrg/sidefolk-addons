@@ -672,6 +672,8 @@
     "Say what to write.": "حدد ما يجب كتابته.",
     "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "لم تتوقف مراقبته القديمة، لذا هذا الروتين متوقف مؤقتًا. استأنفه للمحاولة مجددًا.",
     "Say what to compare it with.": "حدد ما يجب المقارنة به.",
-    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "لم يذكر Sidefolk ما إذا كانت المراقبة قد استؤنفت. إن لم تعمل فأوقفها مؤقتًا ثم استأنفها."
+    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "لم يذكر Sidefolk ما إذا كانت المراقبة قد استؤنفت. إن لم تعمل فأوقفها مؤقتًا ثم استأنفها.",
+    "It didn't start.": "لم يبدأ.",
+    "It has a step that says nothing, so it's paused until that's fixed.": "فيه خطوة لا تقول شيئًا، لذا هو متوقف مؤقتًا حتى إصلاحها."
   }
 }

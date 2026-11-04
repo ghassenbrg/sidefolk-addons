@@ -1430,19 +1430,6 @@ import SidefolkExtensionKit
         #expect(w.store.flow(flow.id)?.state == .paused, "the same with nothing changed")
     }
 
-    @Test func aBlankStepInAnOnFlowCallsNothing() async throws {
-        let w = try World()
-        var flow = try w.flow([["id": "z", "text": "x"]])
-        let body = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: "")), Step(id: "b", kind: .action(tool: "changes.it", input: ["text": .string("x")]))])
-        flow.draft = body
-        flow.live = body
-        w.store.save(flow)
-        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
-        #expect(run?.status == .failed)
-        #expect(w.host.written.isEmpty)
-        #expect(w.host.calls.isEmpty)
-    }
-
     @Test func aWatchMovedToAnotherAddressMakesNoSecondWatchIfTheOldOneWontStop() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
@@ -1561,5 +1548,193 @@ import SidefolkExtensionKit
         await w.quiet()
         #expect(w.host.calls.filter { $0.tool == "watch.stop" }.count == 1)
         #expect(w.host.calls.first { $0.tool == "watch.create" }?.input["target"] as? String == "https://y.example")
+    }
+}
+
+/// What a page can save has to read back, and drawing it can't stop the program.
+@MainActor @Suite(.serialized) struct SideflowPageSavesTests {
+    typealias World = SideflowTests.World
+
+    private func app(_ w: World) -> App {
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{"n":{"type":"number"}}}"#, mutates: false, readsOnly: true)]))
+        return app
+    }
+
+    private func again(_ w: World) -> App { App(folder: w.folder.appendingPathComponent("app")) }
+
+    private func page(_ app: App, _ op: String, _ flow: Flow, _ extra: [String: Any] = [:]) async throws {
+        var input: [String: Any] = ["op": op, "flow": flow.id]
+        input.merge(extra) { _, new in new }
+        _ = try await Actions_UI.handle(Arguments(input), app)
+    }
+
+    private func make(_ app: App, _ steps: [[String: Any]]) throws -> Flow {
+        app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": steps]))
+    }
+
+    @Test func clearingAnAIStepOrAQuestionLosesNothing() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "ai": "Write"], ["id": "b", "ask": "Sure?"]])
+        try await page(app, "ai_prompt", flow, ["step": "a", "text": ""])
+        try await page(app, "question", flow, ["step": "b", "text": ""])
+        let later = again(w)
+        let back = try #require(later.store.flow(flow.id), "still there at the next launch")
+        #expect(later.store.unreadableCount == 0)
+        #expect(back.draft.problems(app.catalog).filter { $0.step == "a" || $0.step == "b" }.count == 2, "and each marked to fix")
+    }
+
+    @Test func aNewAIStepOrQuestionAddedFromThePageLosesNothing() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "text": "x"]])
+        for kind in ["ai", "ask"] { try await page(app, "add_kind", flow, ["kind": kind]) }
+        let later = again(w)
+        #expect(later.store.flow(flow.id) != nil)
+        #expect(later.store.unreadableCount == 0)
+    }
+
+    @Test func aModelStillCantWriteAnEmptyStep() {
+        #expect(throws: Problem.self) { _ = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "ai": ""]]]) }
+        #expect(throws: Problem.self) { _ = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "ask": "  "]]]) }
+    }
+
+    @Test func aBlankStepOrABlankFlowNameIsMarked() throws {
+        let w = try World()
+        for kind in [Step.Kind.ai(prompt: ""), .ask(question: " ", options: []), .flow("")] {
+            #expect(!FlowBody(steps: [Step(id: "a", kind: kind)]).problems(w.catalog).isEmpty, "\(kind)")
+        }
+    }
+
+    @Test func aBlankStepInsideAPathReadsBack() throws {
+        let raw: [String: Any] = ["trigger": ["type": "manual"], "steps": [["id": "c", "if": ["value": "a", "test": "is", "than": "b"], "then": [["id": "x", "ai": ""]], "else": [["id": "y", "run_flow": ""]]]]]
+        let body = try FlowCodec.body(raw, saved: true)
+        #expect(body.allSteps.count == 3)
+        #expect(throws: Problem.self) { _ = try FlowCodec.body(raw) }
+    }
+
+    @Test func aBlankStepIsNotTurnedOnByAnyRoute() async throws {
+        for steps in [[["id": "a", "ai": ""]], [["id": "a", "ask": ""]], [["id": "a", "do": "reads.it"], ["id": "b", "ai": ""]]] as [[[String: Any]]] {
+            let w = try World()
+            let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": steps], saved: true)
+            var flow = try w.flow([["id": "z", "text": "x"]], state: .draft)
+            flow.draft = body
+            w.store.save(flow)
+            w.engine.turnOn(flow.id)
+            try await Task.sleep(for: .milliseconds(200))
+            let after = try #require(w.store.flow(flow.id))
+            #expect(after.state != .on)
+            #expect(after.live == nil)
+            #expect(after.startProblem != nil, "and it says why")
+            #expect(w.host.plans.isEmpty)
+        }
+    }
+
+    @Test func aPausedFlowWithABlankStepDoesntResume() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "z", "text": "x"]], state: .paused)
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "ai": ""]]], saved: true)
+        flow.draft = body
+        flow.live = body
+        w.store.save(flow)
+        w.engine.resume(flow.id)
+        try await Task.sleep(for: .milliseconds(200))
+        #expect(w.store.flow(flow.id)?.state == .paused)
+        #expect(w.store.flow(flow.id)?.startProblem != nil)
+    }
+
+    private func onFlow(_ w: World, _ kind: Step.Kind, first: Bool = true) throws -> Flow {
+        var flow = try w.flow([["id": "z", "text": "x"]])
+        let blank = Step(id: "a", kind: kind), action = Step(id: "b", kind: .action(tool: "changes.it", input: ["text": .string("x")]))
+        let body = FlowBody(steps: first ? [blank, action] : [action, blank])
+        flow.draft = body
+        flow.live = body
+        w.store.save(flow)
+        return flow
+    }
+
+    @Test func aBlankStepWhenARunGetsThereFailsAndCallsNothing() async throws {
+        for kind in [Step.Kind.ai(prompt: ""), .ask(question: "", options: [])] {
+            let w = try World()
+            // By a route that doesn't look first: what was under way at a restart.
+            let flow = try onFlow(w, kind)
+            let run = await w.settled(w.engine.start(flow, mode: .once, why: "t"))
+            #expect(run?.status == .failed)
+            #expect(w.host.written.isEmpty)
+            #expect(w.host.calls.isEmpty)
+        }
+    }
+
+    @Test func anOnFlowWithABlankStepPausesInsteadOfRunningPartWay() async throws {
+        let w = try World()
+        let flow = try onFlow(w, .ai(prompt: ""), first: false)
+        #expect(w.engine.start(flow, mode: .live, why: "t") == nil)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(w.host.calls.isEmpty, "the step before it doesn't run for nothing")
+        let after = try #require(w.store.flow(flow.id))
+        #expect(after.state == .paused)
+        #expect(after.startProblem != nil)
+        #expect(w.host.notices.count == 1, "said once")
+        #expect(w.engine.start(after, mode: .live, why: "t") == nil)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(w.host.notices.count == 1)
+    }
+
+    @Test func aFlowOverTheLimitThatsOnKeepsRunning() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "z", "text": "x"]])
+        let body = FlowBody(steps: (0...FlowBody.maxSteps).map { Step(id: "s\($0)", kind: .text("x")) })
+        flow.draft = body
+        flow.live = body
+        w.store.save(flow)
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "it was read on a card, and each action is still checked")
+    }
+
+    @Test func aRefusalsNoteGoesOnceItsFixed() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "text": "x"]], state: .paused)
+        flow.startProblem = "Say what to write."
+        w.store.save(flow)
+        w.engine.resume(flow.id)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(w.store.flow(flow.id)?.state == .on)
+        #expect(w.store.flow(flow.id)?.startProblem == nil)
+    }
+
+    @Test func aFlowCantGrowPastTheLimitFromThePageAndNeverVanishes() async throws {
+        let w = try World()
+        let app = app(w)
+        let steps: [[String: Any]] = (0..<FlowBody.maxSteps).map { ["id": "s\($0)", "text": "x"] }
+        let flow = try make(app, steps)
+        await #expect(throws: Problem.self) { try await self.page(app, "add_kind", flow, ["kind": "text"]) }
+        #expect(again(w).store.flow(flow.id) != nil)
+        // One already past it, written by an earlier version, reads back, is marked, and can be brought back under.
+        var big = try #require(app.store.flow(flow.id))
+        big.draft.steps.append(Step(id: "extra", kind: .text("x")))
+        big.draft.steps.append(Step(id: "extra2", kind: .text("x")))
+        big.draft.steps.append(Step(id: "extra3", kind: .text("x")))
+        app.store.save(big)
+        let later = again(w)
+        let back = try #require(later.store.flow(flow.id))
+        #expect(back.draft.problems(later.catalog).contains { $0.text.contains(String(FlowBody.maxSteps)) })
+        // Three over: taking one away, or changing a word, still works on the way back under.
+        try await page(later, "remove", back, ["step": "extra"])
+        #expect(later.store.flow(flow.id)?.draft.allSteps.count == FlowBody.maxSteps + 2, "removing is always allowed")
+        try await page(later, "compose", back, ["step": "extra2", "text": "changed"])
+        #expect(later.store.flow(flow.id)?.draft.step("extra2")?.kind == .text("changed"))
+        await #expect(throws: Problem.self) { try await self.page(later, "add_kind", back, ["kind": "text"]) }
+    }
+
+    @Test func aVeryLargeNumberDoesntStopTheProgram() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "do": "reads.it"]])
+        try await page(app, "param", flow, ["step": "a", "name": "n", "text": "1e30"])
+        let now = try #require(app.store.flow(flow.id))
+        app.nav.inspect(.step("a"), in: now.id)
+        let drawn = await Pages.make(app, state: Arguments(["flow": now.id]), background: false)
+        #expect(!drawn.sections.isEmpty, "drawing its form")
     }
 }

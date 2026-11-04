@@ -627,6 +627,8 @@
     "Say what to write.": "何を書くか指定してください。",
     "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "以前の監視が止まらなかったため、このルーティンは一時停止中です。再開するともう一度試します。",
     "Say what to compare it with.": "何と比べるか指定してください。",
-    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "監視が再開したかどうか Sidefolk から返答がありません。作動しない場合は一時停止して再開してください。"
+    "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "監視が再開したかどうか Sidefolk から返答がありません。作動しない場合は一時停止して再開してください。",
+    "It didn't start.": "開始しませんでした。",
+    "It has a step that says nothing, so it's paused until that's fixed.": "内容のないステップがあるため、直すまで一時停止しています。"
   }
 }

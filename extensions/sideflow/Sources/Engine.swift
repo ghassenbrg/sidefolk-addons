@@ -42,6 +42,18 @@ import SidefolkExtensionKit
     /// Starts a run unless the flow is at one; one more waits behind it at most, so a flood of triggers can't pile up.
     @discardableResult
     func start(_ flow: Flow, mode: Run.Mode, why: String, trigger: String? = nil) -> Run? {
+        // On from before a blank step was marked: pausing says so once, where running would do what comes before it each time and then stop.
+        if mode == .live, let wrong = flow.running.blank {
+            guard var current = store.flow(flow.id), current.state == .on else { return nil }
+            current.state = .paused
+            current.startProblem = wrong
+            current.pausedBecause = L("It has a step that says nothing, so it's paused until that's fixed.")
+            store.save(current)
+            changed()
+            let told = current
+            Task { await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: true) }
+            return nil
+        }
         if active.contains(flow.id) {
             if mode == .live { queued[flow.id] = .some(trigger) }
             return nil
