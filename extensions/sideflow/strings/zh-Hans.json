@@ -229,6 +229,7 @@
     "It gets only these words and has no tools. Each use counts toward your AI's usage.": "它只会收到这些文字，没有任何工具。每次使用都计入你的 AI 用量。",
     "It happened: carry on": "发生了：继续",
     "It has no steps yet.": "它还没有步骤。",
+    "It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.": "算上监视的内容，共有 {count} 项需要允许。一个流程最多 {limit} 项：请把一些移到单独的流程中。",
     "It may only do what you read when you turned it on. You can end that in Settings › Add-ons.": "它只能做你开启时读过的内容。你可以在设置 › 附加组件中结束这一许可。",
     "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.": {
       "other": "它错过了 {count} 次运行，最近一次在 {time}：Sidefolk 或你的 Mac 当时是关着的。"
@@ -237,7 +238,9 @@
     "It set off {count} times in an hour, so I paused it.": "它在一小时内触发了 {count} 次，所以我把它暂停了。",
     "It sets that flow off and carries on, without waiting for it.": "它会触发那个流程，不等它结束就继续往下走。",
     "It stopped midway. It needs one answer from you.": "它在中途停下了，需要你回答一个问题。",
+    "It uses “{name}”, but that step didn't run this time.": "它用到了“{name}”，但这一步这次没有运行。",
     "It uses “{name}”, which no earlier step makes.": "它用到了“{name}”，但前面没有步骤生成它。",
+    "It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.": "它用到了“{name}”，而只有前面条件的一条路径会产生它。请在该路径内使用，或在两条路径都产生它。",
     "It was set off again while it ran.": "运行时它又被触发了一次。",
     "It would read this; you didn't allow it for practice.": "它会读取这个；但你没有允许在试运行中这样做。",
     "Its name": "名称",
@@ -349,6 +352,7 @@
     "Sideflow has used its AI requests for today.": "Sideflow 已用完今天的 AI 请求。",
     "Sideflow is open in Home.": "Sideflow 已在主页中打开。",
     "Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.": "Sidefolk 无法保证这一项会做什么，所以无论你允许了什么，每次都会问你。",
+    "Sidefolk couldn't save this run's progress, so it stopped before this step. Nothing was done.": "Sidefolk 无法保存这次运行的进度，所以在这一步之前停止了。什么都没有做。",
     "Sidefolk didn't accept the plan.": "Sidefolk 没有接受这个方案。",
     "Sidefolk doesn't allow this.": "Sidefolk 不允许这样做。",
     "Sidefolk doesn't offer this now.": "Sidefolk 现在不提供这个。",
@@ -403,6 +407,7 @@
     "There's no template “{id}”.": "没有名为“{id}”的模板。",
     "This Mac": "这台 Mac",
     "This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.": "此文件在隐藏文件夹中。Sideflow 只能看到它何时变化，看不到其内容。",
+    "This step didn't finish. It may or may not have happened.": "这一步没有完成。它可能已经发生，也可能没有。",
     "This step wasn't allowed, so it didn't run.": "这一步未被允许，所以没有运行。",
     "This tool isn't here now: {tool}.": "这个工具现在不在：{tool}。",
     "Three short lines about {{agenda}}": "关于 {{agenda}} 的简短三行",

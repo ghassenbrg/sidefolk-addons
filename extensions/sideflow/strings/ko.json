@@ -229,6 +229,7 @@
     "It gets only these words and has no tools. Each use counts toward your AI's usage.": "AI에는 이 글만 전달되고 도구는 없습니다. 쓸 때마다 AI 사용량에 포함됩니다.",
     "It happened: carry on": "일어났습니다: 계속",
     "It has no steps yet.": "아직 단계가 없습니다.",
+    "It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.": "지켜보는 것을 포함해 허용할 항목이 {count}개 있습니다. 루틴에는 {limit}개까지 넣을 수 있으니 일부를 별도 루틴으로 옮기세요.",
     "It may only do what you read when you turned it on. You can end that in Settings › Add-ons.": "켤 때 읽어 본 내용만 실행할 수 있습니다. 설정 › 애드온에서 끝낼 수 있습니다.",
     "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.": {
       "other": "실행 {count}번을 놓쳤습니다. 마지막은 {time}이며, Sidefolk 또는 Mac이 꺼져 있었습니다."
@@ -237,7 +238,9 @@
     "It set off {count} times in an hour, so I paused it.": "1시간에 {count}번 실행되어서 일시 정지했어요.",
     "It sets that flow off and carries on, without waiting for it.": "그 루틴을 시작시키고, 기다리지 않고 이어서 진행합니다.",
     "It stopped midway. It needs one answer from you.": "중간에 멈췄습니다. 답변이 하나 필요합니다.",
+    "It uses “{name}”, but that step didn't run this time.": "“{name}”을(를) 사용하지만 이번에는 그 단계가 실행되지 않았습니다.",
     "It uses “{name}”, which no earlier step makes.": "‘{name}’을(를) 쓰는데, 앞선 단계에서는 만들지 않습니다.",
+    "It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.": "“{name}”을(를) 사용하지만 앞 조건의 한쪽 경로에서만 만들어집니다. 그 경로 안에서 사용하거나 양쪽 모두에서 만드세요.",
     "It was set off again while it ran.": "실행 중에 다시 실행되었습니다.",
     "It would read this; you didn't allow it for practice.": "이것을 읽으려 했지만, 연습 실행에서는 허용하지 않았습니다.",
     "Its name": "이름",
@@ -349,6 +352,7 @@
     "Sideflow has used its AI requests for today.": "Sideflow가 오늘 쓸 수 있는 AI 요청을 모두 썼습니다.",
     "Sideflow is open in Home.": "Sideflow가 홈에 열려 있습니다.",
     "Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.": "이 동작이 무엇을 하는지 Sidefolk가 보증할 수 없어서, 허용해 둔 내용과 관계없이 매번 묻습니다.",
+    "Sidefolk couldn't save this run's progress, so it stopped before this step. Nothing was done.": "이 실행의 진행 상황을 저장하지 못해 이 단계 전에 멈췄습니다. 아무것도 실행하지 않았습니다.",
     "Sidefolk didn't accept the plan.": "Sidefolk가 이 계획을 받아들이지 않았습니다.",
     "Sidefolk doesn't allow this.": "Sidefolk에서 허용하지 않습니다.",
     "Sidefolk doesn't offer this now.": "Sidefolk가 지금은 이것을 제공하지 않습니다.",
@@ -403,6 +407,7 @@
     "There's no template “{id}”.": "‘{id}’ 템플릿이 없습니다.",
     "This Mac": "이 Mac",
     "This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.": "이 파일은 숨김 폴더에 있습니다. Sideflow는 바뀌었을 때만 알 수 있고 내용은 보지 못합니다.",
+    "This step didn't finish. It may or may not have happened.": "이 단계가 끝나지 않았습니다. 실행되었을 수도, 아닐 수도 있습니다.",
     "This step wasn't allowed, so it didn't run.": "이 단계는 허용되지 않아서 실행되지 않았습니다.",
     "This tool isn't here now: {tool}.": "이 도구는 지금 없습니다: {tool}.",
     "Three short lines about {{agenda}}": "{{agenda}}에 대해 짧게 세 줄",

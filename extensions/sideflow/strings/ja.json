@@ -229,6 +229,7 @@
     "It gets only these words and has no tools. Each use counts toward your AI's usage.": "AIには、この言葉だけが渡され、ツールは使えません。使うたびに、AIの利用量に数えられます。",
     "It happened: carry on": "起きた：続ける",
     "It has no steps yet.": "まだステップがありません。",
+    "It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.": "見守る対象を含めて許可が必要なものが {count} 個あります。ルーティンに入れられるのは {limit} 個までです。いくつかを別のルーティンに移してください。",
     "It may only do what you read when you turned it on. You can end that in Settings › Add-ons.": "オンにしたときに読んだ内容のことだけ実行できます。設定 › アドオンで終了できます。",
     "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.": {
       "other": "{count}回の実行を逃しました。最後は{time}：Sidefolk か Mac がオフでした。"
@@ -237,7 +238,9 @@
     "It set off {count} times in an hour, so I paused it.": "1時間に{count}回動いたので、一時停止しました。",
     "It sets that flow off and carries on, without waiting for it.": "そのルーティンを起動して、待たずに続けます。",
     "It stopped midway. It needs one answer from you.": "途中で止まりました。答えが1つ必要です。",
+    "It uses “{name}”, but that step didn't run this time.": "“{name}” を使っていますが、そのステップは今回実行されませんでした。",
     "It uses “{name}”, which no earlier step makes.": "「{name}」を使っていますが、前のステップでは作られません。",
+    "It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.": "“{name}” を使っていますが、これは前の条件の片方の経路でしか作られません。その経路の中で使うか、両方の経路で作ってください。",
     "It was set off again while it ran.": "実行中に、もう一度起動されました。",
     "It would read this; you didn't allow it for practice.": "これを読み取りますが、練習実行では許可されていません。",
     "Its name": "名前",
@@ -349,6 +352,7 @@
     "Sideflow has used its AI requests for today.": "Sideflowは、今日のAIリクエストを使い切りました。",
     "Sideflow is open in Home.": "Sideflowはホームで開いています。",
     "Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.": "これが何をするかSidefolkには保証できないため、許可の設定にかかわらず、毎回確認します。",
+    "Sidefolk couldn't save this run's progress, so it stopped before this step. Nothing was done.": "この実行の進み具合を保存できなかったため、このステップの前で止めました。何も実行していません。",
     "Sidefolk didn't accept the plan.": "Sidefolkはこのプランを受け付けませんでした。",
     "Sidefolk doesn't allow this.": "Sidefolkでは許可されていません。",
     "Sidefolk doesn't offer this now.": "Sidefolkは、いまこれを提供していません。",
@@ -403,6 +407,7 @@
     "There's no template “{id}”.": "テンプレート「{id}」はありません。",
     "This Mac": "このMac",
     "This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.": "このファイルは隠しフォルダにあります。Sideflowにわかるのは変更されたことだけで、中身は見えません。",
+    "This step didn't finish. It may or may not have happened.": "このステップは完了しませんでした。実行されたかどうかはわかりません。",
     "This step wasn't allowed, so it didn't run.": "このステップは許可されなかったため、実行されませんでした。",
     "This tool isn't here now: {tool}.": "このツールはいま使えません：{tool}。",
     "Three short lines about {{agenda}}": "{{agenda}}について短く3行",

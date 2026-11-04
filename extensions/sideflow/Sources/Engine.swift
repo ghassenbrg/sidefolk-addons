@@ -111,6 +111,9 @@ import SidefolkExtensionKit
 
     /// One step. False stops the walk: the run is over, or it waits for something and comes back here.
     private func perform(_ step: Step, in run: inout Run) async -> Bool {
+        if let name = run.values.missing(in: step.usedTexts).first {
+            return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
+        }
         switch step.kind {
         case .wait(let minutes):
             if run.mode == .practice {
@@ -167,6 +170,8 @@ import SidefolkExtensionKit
             run.record(.init(step: step.id, status: .running, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
             if run.mode == .practice {
                 run.record(.init(step: step.id, status: .would, summary: L("Would run {flow}", ["flow": name]), at: clock()))
+            } else if !store.save(run) {
+                return cantSave(step, summary: Words.step(step, body: run.body, catalog: catalog), in: &run)
             } else if let other = store.find(name), other.id != run.flow, other.state == .on {
                 // Each keeps to its own, and the runaway stop counts every start, so two can't set each other off for ever.
                 _ = start(other, mode: .live, why: L("{flow} set it off.", ["flow": run.flowName]))
@@ -244,7 +249,8 @@ import SidefolkExtensionKit
     private func acting(_ step: Step, tool: String, input: [String: Any], written: [String: Any]? = nil, in run: inout Run) async -> Bool {
         let sentence = Words.step(step, body: run.body, catalog: catalog)
         run.record(.init(step: step.id, status: .running, summary: sentence, at: clock()))
-        store.save(run)
+        // Written down first, or not done: after a stop, the run must know what it may have done.
+        guard store.save(run) else { return cantSave(step, summary: sentence, in: &run) }
         changed()
         let reads = step.reads(catalog)
         let plan = run.mode == .live ? "flow-\(run.flow)" : nil
@@ -266,9 +272,31 @@ import SidefolkExtensionKit
             run.record(.init(step: step.id, status: .needs_you, summary: step.name ?? said, note: run.problem, at: clock()))
             store.save(run)
             return false
-        case .error, .failed, .lost:
+        case .failed, .lost:
+            // It may have happened. That's for the person to look at unless they said to carry on, and never to repeat by itself.
+            guard !reads, step.onFailure != .carry_on else {
+                return failed(step, why: outcome.text.nonEmpty ?? L("It didn't work."), reads: reads, in: &run, said: step.name ?? said)
+            }
+            run.status = .interrupted
+            let didntFinish = L("This step didn't finish. It may or may not have happened.")
+            run.problem = outcome.text.nonEmpty.map { "\(didntFinish) \($0)" } ?? didntFinish
+            run.record(.init(step: step.id, status: .unknown, summary: step.name ?? said, note: run.problem, at: clock()))
+            store.save(run)
+            return false
+        case .error:
             return failed(step, why: outcome.text.nonEmpty ?? L("It didn't work."), reads: reads, in: &run, said: step.name ?? said)
         }
+    }
+
+    /// The disk won't take the run's progress: it stops here, with nothing done, and says so where it can.
+    private func cantSave(_ step: Step, summary: String, in run: inout Run) -> Bool {
+        run.status = .needs_you
+        run.problem = L("Sidefolk couldn't save this run's progress, so it stopped before this step. Nothing was done.")
+        run.record(.init(step: step.id, status: .needs_you, summary: summary, note: run.problem, at: clock()))
+        store.save(run)
+        let (name, why) = (run.flowName, run.problem)
+        Task { await host?.notify(title: L("{flow} stopped", ["flow": name]), body: why, attention: true) }
+        return false
     }
 
     /// What a failure does, as the step says. Trying again is only for what changes nothing: repeating an action that may have happened
@@ -489,26 +517,38 @@ import SidefolkExtensionKit
         }
     }
 
-    /// Everything the draft may do, as the person will read it.
-    func livePlan(_ flow: Flow) -> Plan {
+    /// What a definition asks to be allowed, one line each, the same line once: what the card shows and what Sidefolk's limit on a plan counts.
+    static func planSteps(_ body: FlowBody, title: String, oldWatch: String? = nil) -> [PlanStep] {
         var steps: [PlanStep] = []
-        for step in flow.draft.allSteps {
+        var seen = Set<String>()
+        func add(_ tool: String, _ input: [String: Any]) {
+            let key = tool + JSONText.write(input)
+            if seen.insert(key).inserted { steps.append(PlanStep(tool, input)) }
+        }
+        for step in body.allSteps {
             switch step.kind {
-            case .action(let tool, let input): steps.append(PlanStep(tool, input.mapValues(\.any)))
+            case .action(let tool, let input): add(tool, input.mapValues(\.any))
             case .ask(let question, let options):
                 var input: [String: Any] = ["question": question, "timeout_seconds": 300]
                 if !options.isEmpty { input["options"] = options }
-                steps.append(PlanStep("ask.user", input))
+                add("ask.user", input)
             default: break
             }
         }
-        if case .watch(let w) = flow.draft.trigger {
-            let title = Self.watchTitle(flow)
-            steps.append(PlanStep("watch.create", Self.watchInput(w, title: title)))
-            steps.append(PlanStep("watch.stop", ["id": title]))
-            steps.append(PlanStep("watch.pause", ["id": title]))
-            steps.append(PlanStep("watch.resume", ["id": title]))
+        if case .watch(let w) = body.trigger {
+            add("watch.create", watchInput(w, title: title))
+            add("watch.stop", ["id": title])
+            add("watch.pause", ["id": title])
+            add("watch.resume", ["id": title])
+            // Named differently before: the one it replaces goes too.
+            if let oldWatch, oldWatch != title { add("watch.stop", ["id": oldWatch]) }
         }
+        return steps
+    }
+
+    /// Everything the draft may do, as the person will read it.
+    func livePlan(_ flow: Flow) -> Plan {
+        let steps = Self.planSteps(flow.draft, title: Self.watchTitle(flow), oldWatch: flow.watchTitle)
         // Setting another flow off needs no tool of its own, so the card says it here.
         let others = flow.draft.allSteps.compactMap { step -> String? in if case .flow(let name) = step.kind { name } else { nil } }
         let when = others.isEmpty ? Words.trigger(flow.draft.trigger) : L("{when}. Also sets off: {flows}", ["when": Words.trigger(flow.draft.trigger), "flows": others.joined(separator: ", ")])
@@ -533,20 +573,23 @@ import SidefolkExtensionKit
         store.save(flow)
         changed()
         let plan = livePlan(flow)
+        // What they read is what goes live: anything changed while the card waits stays in the draft.
+        let reviewed = flow.draft, reviewedTitle = Self.watchTitle(flow)
         Task {
-            guard let answer = await host?.approve(plan) else { return }
-            guard var current = store.flow(id) else { return }
+            // With no action to allow there's nothing to read on a card, and Sidefolk has none for it.
+            let answer: Plans.Answer? = plan.steps.isEmpty ? .allowed(standing: []) : await host?.approve(plan)
+            guard let answer, var current = store.flow(id) else { return }
             switch answer {
             case .allowed:
                 let oldWatch = current.watchTitle
-                current.live = current.draft
+                current.live = reviewed
                 current.state = .on
                 current.pausedBecause = nil
                 current.lastFire = clock()
                 current.startProblem = nil
                 store.save(current)
-                if case .watch(let w) = current.draft.trigger {
-                    let title = Self.watchTitle(current)
+                if case .watch(let w) = reviewed.trigger {
+                    let title = reviewedTitle
                     if oldWatch != nil { await stopWatch(current) }
                     let made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: current.planId, written: nil)
                     guard var after = store.flow(id) else { return }

@@ -85,17 +85,24 @@ extension FlowBody {
     @MainActor func problems(_ catalog: Catalog) -> [FlowProblem] {
         var out: [FlowProblem] = []
         if steps.isEmpty { out.append(FlowProblem(step: nil, text: L("It has no steps yet."))) }
-        var seen: Set<String> = Values.reserved
-        func refs(_ strings: [String], _ step: Step) {
+        let actions = Engine.planSteps(self, title: "").count
+        if actions > Plans.maxSteps {
+            out.append(FlowProblem(step: nil, text: L("It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.", ["count": Format.integer(actions), "limit": Format.integer(Plans.maxSteps)])))
+        }
+        /// What only one path of a condition made: there, but not for sure.
+        var onOnePath = Set<String>()
+        func refs(_ strings: [String], _ step: Step, seen: Set<String>) {
             for name in strings.flatMap(Values.references) where !seen.contains(name) {
-                out.append(FlowProblem(step: step.id, text: L("It uses “{name}”, which no earlier step makes.", ["name": name])))
+                out.append(FlowProblem(step: step.id, text: onOnePath.contains(name)
+                    ? L("It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.", ["name": name])
+                    : L("It uses “{name}”, which no earlier step makes.", ["name": name])))
             }
         }
-        func walk(_ list: [Step]) {
+        func walk(_ list: [Step], seen: inout Set<String>) {
             for step in list {
                 switch step.kind {
                 case .action(let tool, let input):
-                    refs(input.values.flatMap(\.strings), step)
+                    refs(input.values.flatMap(\.strings), step, seen: seen)
                     if tool == "companion.job", (input["job"]?.string?.count ?? 0) > 200 {
                         out.append(FlowProblem(step: step.id, text: L("A job is at most {count} characters, so a card can show all of it.", ["count": Format.integer(200)])))
                     }
@@ -111,13 +118,17 @@ extension FlowBody {
                             out.append(FlowProblem(step: step.id, text: L("“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.", ["tool": tool])))
                         }
                     }
-                case .ai(let prompt): refs([prompt], step)
-                case .ask(let question, _): refs([question], step)
-                case .text(let text): refs([text], step)
+                case .ai(let prompt): refs([prompt], step, seen: seen)
+                case .ask(let question, _): refs([question], step, seen: seen)
+                case .text(let text): refs([text], step, seen: seen)
                 case .branch(let c, let then, let otherwise):
-                    refs([c.value, c.than], step)
-                    walk(then)
-                    walk(otherwise)
+                    // Looking at something only one path made is how a flow asks whether it ran: only that test may.
+                    if c.test != .is_empty, c.test != .not_empty { refs([c.value, c.than], step, seen: seen) }
+                    var yes = seen, no = seen
+                    walk(then, seen: &yes)
+                    walk(otherwise, seen: &no)
+                    onOnePath.formUnion(yes.symmetricDifference(no))
+                    seen = yes.intersection(no)
                 case .wait: break
                 case .flow(let name):
                     if name.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Pick which flow to run."))) }
@@ -125,7 +136,8 @@ extension FlowBody {
                 if step.hasOutput { seen.insert(step.id) }
             }
         }
-        walk(steps)
+        var seen: Set<String> = Values.reserved
+        walk(steps, seen: &seen)
         return out
     }
 }
