@@ -27,23 +27,98 @@
     },
     "photo_small": {
       "title": "小到可以发邮件",
-      "detail": "宽度最多 2,000 像素。"
+      "detail": "宽度最多 2,000 像素。",
+      "menu_title": "其他格式",
+      "menu": {
+        "PNG": "保留所有细节",
+        "HEIC": "更小,观感不变",
+        "AVIF": "网页用,最小",
+        "TIFF": "用于打印",
+        "GIF": "简单图片"
+      }
+    },
+    "photo_pdf": {
+      "title": "PDF",
+      "detail": "整张图片,一页。"
     },
     "pdf_pages": {
       "title": "每页一张图片",
       "detail": "每页一个 PNG 文件。"
     },
+    "pdf_jpeg": {
+      "title": "每页一张较小的图片",
+      "detail": "每页一个 JPEG 文件。",
+      "menu_title": "其他格式",
+      "menu": {
+        "TIFF": "用于打印"
+      }
+    },
     "audio_any": {
-      "title": "其他声音格式",
-      "detail": "M4A;如果已是 M4A,则为 FLAC。"
+      "title": "到处都能播放",
+      "detail": "M4A 文件中的 AAC。"
     },
-    "data": {
-      "title": "其他表格格式",
-      "detail": "CSV;如果已是 CSV,则为 JSON。"
+    "audio_lossless": {
+      "title": "不再损失",
+      "detail": "FLAC 保留文件的全部内容。"
     },
-    "archive": {
-      "title": "相同文件,重新打包",
-      "detail": "ZIP;如果已是 ZIP,则为 7Z。"
+    "audio_wav": {
+      "title": "用于编辑",
+      "detail": "WAV,未压缩。",
+      "menu_title": "其他格式",
+      "menu": {
+        "AIFF": "用于 Mac 应用",
+        "Apple Lossless": "用于 Apple 设备",
+        "Opus": "很小,存为 CAF"
+      }
+    },
+    "data_csv": {
+      "title": "电子表格",
+      "detail": "由记录列表生成的 CSV。"
+    },
+    "data_json": {
+      "title": "用于代码",
+      "detail": "JSON,记录列表。"
+    },
+    "data_tsv": {
+      "title": "制表符分隔",
+      "detail": "由记录列表生成的 TSV。",
+      "menu_title": "其他格式",
+      "menu": {
+        "PLIST": "用于 Apple 应用"
+      }
+    },
+    "archive_zip": {
+      "title": "到处都能打开的 ZIP",
+      "detail": "相同的文件,放进 ZIP。"
+    },
+    "archive_7z": {
+      "title": "压缩得更小",
+      "detail": "相同的文件,放进 7Z。"
+    },
+    "archive_targz": {
+      "title": "用于 Linux 和服务器",
+      "detail": "相同的文件,放进 TAR.GZ。",
+      "menu_title": "其他格式",
+      "menu": {
+        "TAR": "未压缩"
+      }
+    },
+    "audio_more": {
+      "title": "用于 Apple 设备",
+      "detail": "M4A 文件中的 Apple Lossless。",
+      "menu_title": "其他格式",
+      "menu": {
+        "AIFF": "用于 Mac 应用",
+        "Opus": "很小,存为 CAF"
+      }
+    },
+    "data_more": {
+      "title": "用于 Apple 应用",
+      "detail": "由记录列表生成的 PLIST。"
+    },
+    "archive_more": {
+      "title": "未压缩",
+      "detail": "相同的文件,放进 TAR。"
     }
   },
   "text": {
@@ -75,11 +150,7 @@
     "{file} isn't a list of records, so it was left as it is.": "{file} 不是记录列表，所以保持原样。",
     "{from} to {to}": "{from}转{to}",
     "{percent}% smaller": "小了 {percent}%",
-    "Turns a file into the format you need. New files appear beside the originals, which never change.": "把文件变成你需要的格式。新文件出现在原文件旁边,原文件不会改变。",
-    "How to use it": "使用方法",
     "Drag a file onto your companion": "把文件拖到你的伙伴身上",
-    "Or right-click it in Finder": "或在访达中右键点按",
-    "Or choose a file here": "或在这里选择文件",
     "What it can make": "可以生成什么",
     "Photos": "照片",
     "PDF pages": "PDF 页面",
@@ -94,8 +165,8 @@
     "{file} is already in that format, so it was left as it is.": "{file} 已经是这种格式,所以保持原样。",
     "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formatic 处理照片、PDF、声音、表格和压缩包。{file} 不属于这些,所以保持原样。",
     "Let go on it, then choose on the card.": "在它身上松开,然后在卡片上选择。",
-    "Send to Sidefolk, under Services, opens the card.": "“服务”中的 Send to Sidefolk 会打开卡片。",
-    "Makes the most common format, with no card.": "直接生成最常用的格式,不显示卡片。",
-    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A、FLAC、WAV、AIFF、ALAC 或 Opus(CAF)"
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A、FLAC、WAV、AIFF、ALAC 或 Opus(CAF)",
+    "Quick ways in": "快捷方式",
+    "Turns a file into the format you need. Originals never change.": "把文件变成你需要的格式。原文件不会改变。"
   }
 }

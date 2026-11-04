@@ -27,23 +27,98 @@
     },
     "photo_small": {
       "title": "Assez léger pour un e-mail",
-      "detail": "2 000 pixels de large au plus."
+      "detail": "2 000 pixels de large au plus.",
+      "menu_title": "Un autre format",
+      "menu": {
+        "PNG": "Garde chaque détail",
+        "HEIC": "Plus léger, même rendu",
+        "AVIF": "Le plus léger pour le web",
+        "TIFF": "Pour l'impression",
+        "GIF": "Image simple"
+      }
+    },
+    "photo_pdf": {
+      "title": "Un PDF",
+      "detail": "L'image entière, sur une page."
     },
     "pdf_pages": {
       "title": "Une image par page",
       "detail": "Un fichier PNG par page."
     },
+    "pdf_jpeg": {
+      "title": "Des images plus légères",
+      "detail": "Un fichier JPEG par page.",
+      "menu_title": "Un autre format",
+      "menu": {
+        "TIFF": "Pour l'impression"
+      }
+    },
     "audio_any": {
-      "title": "Un autre format audio",
-      "detail": "M4A, ou FLAC si c'est déjà du M4A."
+      "title": "Se lit partout",
+      "detail": "AAC dans un fichier M4A."
     },
-    "data": {
-      "title": "Un autre format de tableau",
-      "detail": "CSV, ou JSON si c'est déjà du CSV."
+    "audio_lossless": {
+      "title": "Sans autre perte",
+      "detail": "FLAC garde tout ce que contient le fichier."
     },
-    "archive": {
-      "title": "Les mêmes fichiers, réemballés",
-      "detail": "ZIP, ou 7Z si c'est déjà un ZIP."
+    "audio_wav": {
+      "title": "Pour le montage",
+      "detail": "WAV, non compressé.",
+      "menu_title": "Un autre format",
+      "menu": {
+        "AIFF": "Pour les apps Mac",
+        "Apple Lossless": "Pour les appareils Apple",
+        "Opus": "Très léger, en CAF"
+      }
+    },
+    "data_csv": {
+      "title": "Un tableur",
+      "detail": "CSV, à partir d'une liste d'entrées."
+    },
+    "data_json": {
+      "title": "Pour le code",
+      "detail": "JSON, une liste d'entrées."
+    },
+    "data_tsv": {
+      "title": "Séparé par tabulations",
+      "detail": "TSV, à partir d'une liste d'entrées.",
+      "menu_title": "Un autre format",
+      "menu": {
+        "PLIST": "Pour les apps Apple"
+      }
+    },
+    "archive_zip": {
+      "title": "Un ZIP qui s'ouvre partout",
+      "detail": "Les mêmes fichiers dans un ZIP."
+    },
+    "archive_7z": {
+      "title": "Plus compressé",
+      "detail": "Les mêmes fichiers dans un 7Z."
+    },
+    "archive_targz": {
+      "title": "Pour Linux et les serveurs",
+      "detail": "Les mêmes fichiers dans un TAR.GZ.",
+      "menu_title": "Un autre format",
+      "menu": {
+        "TAR": "Non compressé"
+      }
+    },
+    "audio_more": {
+      "title": "Pour les appareils Apple",
+      "detail": "Apple Lossless dans un fichier M4A.",
+      "menu_title": "Un autre format",
+      "menu": {
+        "AIFF": "Pour les apps Mac",
+        "Opus": "Très léger, en CAF"
+      }
+    },
+    "data_more": {
+      "title": "Pour les apps Apple",
+      "detail": "PLIST, à partir d'une liste d'entrées."
+    },
+    "archive_more": {
+      "title": "Non compressé",
+      "detail": "Les mêmes fichiers dans un TAR."
     }
   },
   "text": {
@@ -76,11 +151,7 @@
     "{file} isn't a list of records, so it was left as it is.": "{file} n’est pas une liste d’enregistrements : rien n’a été changé.",
     "{from} to {to}": "{from} en {to}",
     "{percent}% smaller": "{percent} % plus petit",
-    "Turns a file into the format you need. New files appear beside the originals, which never change.": "Met un fichier au format qu'il vous faut. Les nouveaux fichiers apparaissent à côté des originaux, qui ne changent jamais.",
-    "How to use it": "Comment l'utiliser",
     "Drag a file onto your companion": "Faites glisser un fichier sur votre compagnon",
-    "Or right-click it in Finder": "Ou faites un clic droit dans le Finder",
-    "Or choose a file here": "Ou choisissez un fichier ici",
     "What it can make": "Ce qu'il peut créer",
     "Photos": "Photos",
     "PDF pages": "Pages PDF",
@@ -95,8 +166,8 @@
     "{file} is already in that format, so it was left as it is.": "{file} est déjà dans ce format et reste tel quel.",
     "Formatic works with photos, PDFs, sound, tables and archives. {file} isn't one of those, so it was left as it is.": "Formatic traite les photos, PDF, sons, tableaux et archives. {file} n'en fait pas partie et reste tel quel.",
     "Let go on it, then choose on the card.": "Lâchez-le dessus, puis choisissez sur la carte.",
-    "Send to Sidefolk, under Services, opens the card.": "Send to Sidefolk, dans Services, ouvre la carte.",
-    "Makes the most common format, with no card.": "Crée le format le plus courant, sans carte.",
-    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A, FLAC, WAV, AIFF, ALAC ou Opus (en CAF)"
+    "M4A, FLAC, WAV, AIFF, ALAC or Opus (as CAF)": "M4A, FLAC, WAV, AIFF, ALAC ou Opus (en CAF)",
+    "Quick ways in": "Accès rapides",
+    "Turns a file into the format you need. Originals never change.": "Met un fichier au format qu'il vous faut. Les originaux ne changent jamais."
   }
 }
