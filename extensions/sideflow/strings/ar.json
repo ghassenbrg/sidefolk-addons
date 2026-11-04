@@ -568,6 +568,18 @@
     "“{name}” is running by itself again.": "«{name}» يعمل من تلقاء نفسه مجددًا.",
     "“{name}” needs a value.": "«{name}» يحتاج إلى قيمة.",
     "“{tool}” has no value called “{name}”.": "ليس في «{tool}» قيمة اسمها «{name}».",
-    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» غير متاح الآن. قد تكون إضافته متوقفة أو اختفت، أو لا يسمح Sidefolk للإضافات باستخدامه."
+    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» غير متاح الآن. قد تكون إضافته متوقفة أو اختفت، أو لا يسمح Sidefolk للإضافات باستخدامه.",
+    "“every_minutes” must be from {least} to {most}.": "يجب أن تكون «every_minutes» من {least} إلى {most}.",
+    "That isn't a number.": "هذا ليس رقمًا.",
+    "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "تعذر حفظ روتيناتك على القرص. قد تضيع تغييراتك عند إغلاق Sidefolk.",
+    "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "تعذرت قراءة ملف روتيناتك، لذا حُفظ جانبًا باسم {file} وستبدأ من دونها.",
+    "{count} flows can't be read by this version. They're kept, not shown.": {
+      "zero": "لا روتين غير مقروء.",
+      "one": "لا يمكن لهذا الإصدار قراءة روتين واحد. إنه محفوظ لكنه غير معروض.",
+      "two": "لا يمكن لهذا الإصدار قراءة روتينين. إنهما محفوظان لكنهما غير معروضين.",
+      "few": "لا يمكن لهذا الإصدار قراءة {count} روتينات. إنها محفوظة لكنها غير معروضة.",
+      "many": "لا يمكن لهذا الإصدار قراءة {count} روتينًا. إنها محفوظة لكنها غير معروضة.",
+      "other": "لا يمكن لهذا الإصدار قراءة {count} روتين. إنها محفوظة لكنها غير معروضة."
+    }
   }
 }

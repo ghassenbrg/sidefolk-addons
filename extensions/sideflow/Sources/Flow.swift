@@ -55,7 +55,8 @@ struct Condition: Equatable, Sendable {
 
     static func number(_ text: String) -> Double? {
         guard let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
-        return Double(text[range].replacingOccurrences(of: ",", with: "."))
+        // Hundreds of digits come out as infinity, which no file can hold.
+        return Double(text[range].replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil }
     }
 }
 
@@ -108,6 +109,7 @@ struct FlowBody: Equatable, Sendable {
     /// Top level, inside an `if`, inside an `if` within that.
     static let maxDepth = 3
     static let shortestEvery = 15
+    static let longestEvery = 7 * 24 * 60
     static let longestWait = 1440
 
     /// Depth first, in reading order.
@@ -224,14 +226,16 @@ enum FlowCodec {
         guard let o = any as? [String: Any] else { throw Problem(L("A flow is an object with “trigger” and “steps”.")) }
         try only(o, ["trigger", "steps"], in: "flow")
         var used = Set<String>()
-        let made = FlowBody(trigger: try trigger(o["trigger"]), steps: try steps(o["steps"] ?? [], depth: saved ? -64 : 1, used: &used))
+        let made = FlowBody(trigger: try trigger(o["trigger"], saved: saved), steps: try steps(o["steps"] ?? [], depth: saved ? -64 : 1, used: &used))
         if made.allSteps.count > FlowBody.maxSteps {
             throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))
         }
         return made
     }
 
-    static func trigger(_ any: Any?) throws -> Trigger {
+    /// `saved`: what's on disk. A page saves as it goes, so a target cleared is a trigger being written: it reads back as it is and is marked to fix,
+    /// rather than losing the flow.
+    static func trigger(_ any: Any?, saved: Bool = false) throws -> Trigger {
         guard let any else { return .manual }
         guard let o = any as? [String: Any], let type = o["type"] as? String else { throw Problem(L("“trigger” needs a “type”: manual, schedule, watch or event.")) }
         switch type {
@@ -242,7 +246,7 @@ enum FlowCodec {
             try only(o, ["type", "days", "at", "every_minutes", "catch_up"], in: "trigger")
             let catchUp = o["catch_up"] as? Bool ?? true
             if let minutes = (o["every_minutes"] as? NSNumber)?.intValue {
-                guard minutes >= FlowBody.shortestEvery, minutes <= 7 * 24 * 60 else {
+                guard saved || (minutes >= FlowBody.shortestEvery && minutes <= FlowBody.longestEvery) else {
                     throw Problem(L("“every_minutes” must be at least {count}.", ["count": Format.integer(FlowBody.shortestEvery)]))
                 }
                 return .every(minutes: minutes, catchUp: catchUp)
@@ -253,14 +257,15 @@ enum FlowCodec {
                 guard let i = days.firstIndex(of: name.lowercased().prefixString(3)) else { throw Problem(L("“{day}” isn't a day: use mon, tue, wed, thu, fri, sat or sun.", ["day": name])) }
                 return i + 1
             }
-            guard !picked.isEmpty else { throw Problem(L("A schedule needs at least one day.")) }
+            guard saved || !picked.isEmpty else { throw Problem(L("A schedule needs at least one day.")) }
             return .days(Array(Set(picked)).sorted(), hour: hour, minute: minute, catchUp: catchUp)
         case "watch":
             try only(o, ["type", "kind", "target", "contains", "pattern", "every_seconds", "rest_minutes"], in: "trigger")
             guard let kind = o["kind"] as? String, WatchTrigger.kinds.contains(kind) else {
                 throw Problem(L("A watch needs “kind”, one of {kinds}.", ["kinds": WatchTrigger.kinds.joined(separator: ", ")]))
             }
-            guard let target = (o["target"] as? String)?.trimmed, !target.isEmpty else { throw Problem(L("A watch needs “target”: a web address, a full path or a program.")) }
+            let target = (o["target"] as? String)?.trimmed ?? ""
+            guard saved || !target.isEmpty else { throw Problem(L("A watch needs “target”: a web address, a full path or a program.")) }
             return .watch(WatchTrigger(kind: kind, target: target, contains: (o["contains"] as? String)?.nonEmpty, pattern: (o["pattern"] as? String)?.nonEmpty,
                                        everySeconds: ((o["every_seconds"] as? NSNumber)?.intValue).flatMap { $0 > 0 ? $0 : nil },
                                        restMinutes: ((o["rest_minutes"] as? NSNumber)?.intValue).flatMap { $0 >= 0 ? $0 : nil }))

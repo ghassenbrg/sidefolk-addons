@@ -73,8 +73,17 @@ import SidefolkExtensionKit
     // MARK: The frame
 
     /// Every screen: the places, what's in the middle, and what's selected. The companion stands by.
+    /// What's wrong with the file itself: the person can't see this any other way.
+    static func storeWarnings(_ app: App) -> [Section] {
+        var notes: [Block] = []
+        if app.store.flowsNotSaved { notes.append(.note(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits."), tone: .bad)) }
+        if let aside = app.store.damagedFile { notes.append(.note(L("Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.", ["file": aside.lastPathComponent]), tone: .bad)) }
+        if app.store.unreadableCount > 0 { notes.append(.note(L(one: "{count} flow can't be read by this version. It's kept, not shown.", other: "{count} flows can't be read by this version. They're kept, not shown.", count: app.store.unreadableCount), tone: .warn)) }
+        return notes.isEmpty ? [] : [Section(nil, notes, wide: true)]
+    }
+
     static func frame(_ app: App, state: Arguments, here: String?, flow: String? = nil, back: String? = nil, _ main: [Section], end: [Section] = []) -> Page {
-        Page(summary: summary(app), sections: places(app, state: state, here: here, flow: flow) + main + end, back: back, workspace: true, companion: true, accent: accent)
+        Page(summary: summary(app), sections: places(app, state: state, here: here, flow: flow) + storeWarnings(app) + main + end, back: back, workspace: true, companion: true, accent: accent)
     }
 
     /// Goes to a place, leaving what the page was showing.

@@ -19,7 +19,8 @@ enum JSON: Equatable, Sendable {
         switch self {
         case .null: NSNull()
         case .bool(let b): b
-        case .number(let n): n == n.rounded() && abs(n) < 1e15 ? Int(n) as Any : n as Any
+        // As words if it isn't a real number: one infinity would stop the whole file saving.
+        case .number(let n): !n.isFinite ? String(n) as Any : n == n.rounded() && abs(n) < 1e15 ? Int(n) as Any : n as Any
         case .string(let s): s
         case .array(let a): a.map(\.any)
         case .object(let o): o.mapValues(\.any)

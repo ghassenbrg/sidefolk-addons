@@ -548,6 +548,13 @@
     "“{name}” is running by itself again.": "‘{name}’이(가) 다시 저절로 실행됩니다.",
     "“{name}” needs a value.": "‘{name}’에는 값이 필요합니다.",
     "“{tool}” has no value called “{name}”.": "‘{tool}’에는 ‘{name}’이라는 값이 없습니다.",
-    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "‘{tool}’은(는) 지금 사용할 수 없습니다. 확장 프로그램이 꺼졌거나 없어졌거나, Sidefolk가 확장 프로그램의 사용을 허용하지 않습니다."
+    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "‘{tool}’은(는) 지금 사용할 수 없습니다. 확장 프로그램이 꺼졌거나 없어졌거나, Sidefolk가 확장 프로그램의 사용을 허용하지 않습니다.",
+    "“every_minutes” must be from {least} to {most}.": "“every_minutes”는 {least}에서 {most} 사이여야 합니다.",
+    "That isn't a number.": "숫자가 아닙니다.",
+    "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "루틴을 디스크에 저장하지 못했습니다. Sidefolk을 종료하면 변경 사항이 사라질 수 있습니다.",
+    "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "루틴 파일을 읽지 못해 {file}(으)로 따로 보관했으며, 루틴 없이 시작합니다.",
+    "{count} flows can't be read by this version. They're kept, not shown.": {
+      "other": "이 버전에서 읽을 수 없는 루틴이 {count}개 있습니다. 보관되어 있지만 표시되지 않습니다."
+    }
   }
 }

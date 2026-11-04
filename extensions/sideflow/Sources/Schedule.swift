@@ -34,6 +34,8 @@ enum Schedule {
 
     /// What the clock says at `now`, counting from `last`: the latest time due (nil: none), and how many were due in all.
     static func due(_ trigger: Trigger, last: Date, now: Date, calendar: Calendar = .autoupdatingCurrent) -> (latest: Date, count: Int)? {
+        // A file can say anything now that a trigger being written reads back. Only what could have been saved on purpose is ever due.
+        if case .every(let minutes, _) = trigger, minutes < FlowBody.shortestEvery || minutes > FlowBody.longestEvery { return nil }
         var latest: Date?, count = 0, from = last
         // Bounded: a Mac off for a year doesn't walk a year of quarter hours.
         while count < 2000, let at = next(trigger, after: from, calendar: calendar), at <= now {

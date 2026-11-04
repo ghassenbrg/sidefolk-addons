@@ -850,3 +850,108 @@ import SidefolkExtensionKit
         #expect(said.contains("[Look]"))
     }
 }
+
+/// What 1202 must not do to a person's flows.
+@MainActor @Suite(.serialized) struct SideflowFlowsAreKeptTests {
+    typealias World = SideflowTests.World
+
+    private func page(_ app: App, _ op: String, _ flow: Flow, _ extra: [String: Any]) async throws {
+        var input: [String: Any] = ["op": op, "flow": flow.id]
+        input.merge(extra) { _, new in new }
+        _ = try await Actions_UI.handle(Arguments(input), app)
+    }
+
+    private func app(_ w: World) -> App { App(folder: w.folder.appendingPathComponent("app")) }
+
+    @Test func clearingAWatchsTargetLosesNothing() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = app.newFlow(name: "Watch it", body: try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": [["id": "a", "text": "x"]]]))
+        try await page(app, "watch_target", flow, ["text": ""])
+        let again = App(folder: w.folder.appendingPathComponent("app"))
+        let back = try #require(again.store.flow(flow.id), "still there at the next launch")
+        #expect(back.draft.problems(again.catalog).contains { !$0.text.isEmpty }, "and marked to fix")
+    }
+
+    @Test func aNumberOverTheLimitLosesNothing() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = app.newFlow(name: "Often", body: try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "text": "x"]]]))
+        await #expect(throws: Problem.self, "refused where it's typed") { try await self.page(app, "every", flow, ["text": "20000"]) }
+        let again = App(folder: w.folder.appendingPathComponent("app"))
+        #expect(again.store.flow(flow.id) != nil)
+    }
+
+    @Test func aFlowInAFileThatIsntValidShowsAndStaysOnDisk() async throws {
+        let w = try World()
+        let good = try w.flow([["id": "a", "text": "x"]])
+        let file = w.folder.appendingPathComponent("flows.json")
+        var list = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [Any])
+        list.append(["id": "strange", "name": "From a later version", "draft": ["trigger": ["type": "from_the_future"], "steps": []]])
+        list.append("not even a flow")
+        try JSONSerialization.data(withJSONObject: list).write(to: file)
+        w.restart()
+        #expect(w.store.flow(good.id) != nil)
+        #expect(w.store.unreadableCount == 2, "kept, and counted so the page can say so")
+        w.store.save(try #require(w.store.flow(good.id)))
+        let text = try String(contentsOf: file, encoding: .utf8)
+        #expect(text.contains("From a later version"))
+        #expect(text.contains("not even a flow"))
+        let app = App(folder: w.folder)
+        #expect(!Pages.storeWarnings(app).isEmpty, "the app says so")
+        let page = await Pages.make(app, state: Arguments([:]), background: false)
+        #expect(page.sections.count > Pages.places(app, state: Arguments([:]), here: "flows", flow: nil).count)
+    }
+
+    @Test func infinityAndNotANumberAreRefusedWhereTheyreTyped() async throws {
+        let w = try World()
+        let app = app(w)
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{"n":{"type":"number"}}}"#, mutates: false, readsOnly: true)]))
+        let flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "reads.it"]]]))
+        for bad in ["inf", "-inf", "nan", "infinity", "1e999"] {
+            await #expect(throws: Problem.self, "\(bad)") { try await self.page(app, "param", flow, ["step": "a", "name": "n", "text": bad]) }
+        }
+        try await page(app, "param", flow, ["step": "a", "name": "n", "text": "2.5"])
+        #expect(app.store.flowsNotSaved == false)
+        let again = App(folder: w.folder.appendingPathComponent("app"))
+        #expect(again.store.flow(flow.id) != nil)
+    }
+
+    @Test func aHugeNumberAFlowReadNeverStopsTheSaving() throws {
+        #expect(Condition.number(String(repeating: "9", count: 400)) == nil)
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]])
+        if case .action(let tool, var input) = flow.draft.steps[0].kind {
+            input["n"] = .number(.infinity)
+            flow.draft.steps[0].kind = .action(tool: tool, input: input)
+        }
+        w.store.save(flow)
+        #expect(!w.store.flowsNotSaved)
+        #expect(w.store.failedSaves == 0)
+    }
+
+    @Test func aFlowsFileThatCantBeReadIsNeverWrittenOver() throws {
+        let w = try World()
+        let file = w.folder.appendingPathComponent("flows.json")
+        try Data("this isn't a list".utf8).write(to: file)
+        w.restart()
+        _ = try w.flow([["id": "a", "text": "x"]])
+        let kept = try FileManager.default.contentsOfDirectory(atPath: w.folder.path).filter { $0.hasPrefix("flows") && $0.hasSuffix(".json") }
+        let words = try kept.map { try String(contentsOf: w.folder.appendingPathComponent($0), encoding: .utf8) }
+        #expect(words.contains("this isn't a list"), "still on disk, under some name")
+        #expect(w.store.damagedFile != nil, "and it says so")
+    }
+
+    @Test func aFlowsFileThatCantBeOpenedIsNeverWrittenOver() throws {
+        let w = try World()
+        let file = w.folder.appendingPathComponent("flows.json")
+        try Data("mine".utf8).write(to: file)
+        try FileManager.default.setAttributes([.posixPermissions: 0o000], ofItemAtPath: file.path)
+        defer { try? FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: file.path) }
+        w.restart()
+        _ = try w.flow([["id": "a", "text": "x"]])
+        #expect(w.store.flowsNotSaved, "refused, and it says so")
+        try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: file.path)
+        #expect((try? String(contentsOf: file, encoding: .utf8)) == "mine")
+    }
+}

@@ -552,6 +552,14 @@
     "“{name}” is running by itself again.": "«{name}» vuelve a ejecutarse sola.",
     "“{name}” needs a value.": "«{name}» necesita un valor.",
     "“{tool}” has no value called “{name}”.": "«{tool}» no tiene ningún valor llamado «{name}».",
-    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» no está disponible ahora. Puede que su extensión esté desactivada o ya no exista, o que Sidefolk no deje a las extensiones usarla."
+    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» no está disponible ahora. Puede que su extensión esté desactivada o ya no exista, o que Sidefolk no deje a las extensiones usarla.",
+    "“every_minutes” must be from {least} to {most}.": "«every_minutes» debe ser de {least} a {most}.",
+    "That isn't a number.": "Eso no es un número.",
+    "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "No se pudieron guardar tus rutinas en el disco. Los cambios pueden perderse cuando Sidefolk se cierre.",
+    "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "No se pudo leer el archivo de tus rutinas, así que se guardó aparte como {file} y empiezas sin ninguna.",
+    "{count} flows can't be read by this version. They're kept, not shown.": {
+      "one": "Esta versión no puede leer {count} rutina. Se conserva, pero no se muestra.",
+      "other": "Esta versión no puede leer {count} rutinas. Se conservan, pero no se muestran."
+    }
   }
 }

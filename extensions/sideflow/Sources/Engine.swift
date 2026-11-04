@@ -569,6 +569,12 @@ import SidefolkExtensionKit
     /// Asks the person, then turns it on. False when a stopped flow has nothing to run. The answer comes back to the flow, not to the caller.
     func turnOn(_ id: String) {
         guard var flow = store.flow(id) else { return }
+        // Whoever asked, a page's button or an agent: it can't read this on a card, because it can't run.
+        if let wrong = flow.draft.triggerProblem {
+            flow.startProblem = wrong
+            store.save(flow)
+            return changed()
+        }
         flow.startProblem = nil
         store.save(flow)
         changed()

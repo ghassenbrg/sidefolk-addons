@@ -548,6 +548,13 @@
     "“{name}” is running by itself again.": "「{name}」はまた自動で動いています。",
     "“{name}” needs a value.": "「{name}」には値が必要です。",
     "“{tool}” has no value called “{name}”.": "「{tool}」に「{name}」という値はありません。",
-    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "「{tool}」はいま使えません。その拡張機能がオフか削除されているか、Sidefolkが拡張機能に使わせていません。"
+    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "「{tool}」はいま使えません。その拡張機能がオフか削除されているか、Sidefolkが拡張機能に使わせていません。",
+    "“every_minutes” must be from {least} to {most}.": "「every_minutes」は {least} から {most} の範囲で指定してください。",
+    "That isn't a number.": "数値ではありません。",
+    "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "ルーティンをディスクに保存できませんでした。Sidefolk を終了すると変更が失われる可能性があります。",
+    "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "ルーティンのファイルを読み込めなかったため、{file} として別に保管し、空の状態から始めます。",
+    "{count} flows can't be read by this version. They're kept, not shown.": {
+      "other": "{count} 件のルーティンはこのバージョンでは読み込めません。保管されていますが表示されません。"
+    }
   }
 }

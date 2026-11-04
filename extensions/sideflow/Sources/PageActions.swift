@@ -63,6 +63,9 @@ import SidefolkExtensionKit
             let f = try flow()
             guard let id = a.string("step"), let name = a.string("name"), let step = f.draft.step(id), case .action(let tool, _) = step.kind else { return .stay }
             let parameter = app.catalog.tool(tool)?.parameters.first { $0.name == name } ?? Catalog.Parameter(name: name, kind: .text, required: false, title: name)
+            // One infinity would stop the whole file saving, so it never gets in.
+            if case .integer = parameter.kind, Editing.isNotARealNumber(text) { throw Problem(L("That isn't a number.")) }
+            if case .number = parameter.kind, Editing.isNotARealNumber(text) { throw Problem(L("That isn't a number.")) }
             let value: JSON? = if let on = a.bool("on") { .bool(on) } else if let picked = a.string("value") { picked == "" ? nil : .string(picked) } else { Editing.value(text, for: parameter) }
             try editStep { s in
                 guard case .action(let t, var input) = s.kind else { return }
@@ -119,8 +122,8 @@ import SidefolkExtensionKit
             guard let (h, m) = FlowCodec.clock(text) else { throw Problem(L("Write the time like 08:30.")) }
             try editTrigger { if case .days(let d, _, _, let c) = $0 { $0 = .days(d, hour: h, minute: m, catchUp: c) } }
         case "every":
-            guard let minutes = Int(text.trimmed), minutes >= FlowBody.shortestEvery else {
-                throw Problem(L("“every_minutes” must be at least {count}.", ["count": Format.integer(FlowBody.shortestEvery)]))
+            guard let minutes = Int(text.trimmed), minutes >= FlowBody.shortestEvery, minutes <= FlowBody.longestEvery else {
+                throw Problem(L("“every_minutes” must be from {least} to {most}.", ["least": Format.integer(FlowBody.shortestEvery), "most": Format.integer(FlowBody.longestEvery)]))
             }
             try editTrigger { if case .every(_, let c) = $0 { $0 = .every(minutes: minutes, catchUp: c) } }
         case "catch_up":

@@ -552,6 +552,14 @@
     "“{name}” is running by itself again.": "„{name}“ läuft wieder von allein.",
     "“{name}” needs a value.": "„{name}“ braucht einen Wert.",
     "“{tool}” has no value called “{name}”.": "„{tool}“ hat keinen Wert namens „{name}“.",
-    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "„{tool}“ ist gerade nicht verfügbar. Seine Erweiterung ist vielleicht aus oder weg, oder Sidefolk lässt Erweiterungen es nicht nutzen."
+    "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "„{tool}“ ist gerade nicht verfügbar. Seine Erweiterung ist vielleicht aus oder weg, oder Sidefolk lässt Erweiterungen es nicht nutzen.",
+    "“every_minutes” must be from {least} to {most}.": "„every_minutes“ muss zwischen {least} und {most} liegen.",
+    "That isn't a number.": "Das ist keine Zahl.",
+    "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "Deine Abläufe konnten nicht auf der Festplatte gespeichert werden. Änderungen gehen beim Beenden von Sidefolk vielleicht verloren.",
+    "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "Die Datei deiner Abläufe ließ sich nicht lesen. Sie liegt nun gesondert als {file}, und du beginnst ohne Abläufe.",
+    "{count} flows can't be read by this version. They're kept, not shown.": {
+      "one": "{count} Ablauf kann von dieser Version nicht gelesen werden. Er bleibt erhalten, wird aber nicht gezeigt.",
+      "other": "{count} Abläufe können von dieser Version nicht gelesen werden. Sie bleiben erhalten, werden aber nicht gezeigt."
+    }
   }
 }

@@ -9,7 +9,15 @@ import SidefolkExtensionKit
     private var flowsById: [String: Flow] = [:]
     private var runsById: [String: Run] = [:]
     /// Flows this version can't read: written back as they were, so a mistake here never loses one.
-    private var unreadable: [[String: Any]] = []
+    private var unreadable: [Any] = []
+    /// A flows file that couldn't be read at all was put aside, here.
+    private(set) var damagedFile: URL?
+    /// The last time flows were written, it didn't work: what's on the page isn't on disk.
+    private(set) var flowsNotSaved = false
+    /// The flows file is there and can't be read or moved aside: nothing writes over it.
+    private var flowsFileHeld = false
+
+    var unreadableCount: Int { unreadable.count }
     /// How many writes didn't reach the disk, so a test can't pass over one.
     private(set) var failedSaves = 0
 
@@ -17,9 +25,24 @@ import SidefolkExtensionKit
         self.folder = folder
         let fm = FileManager.default
         try? fm.createDirectory(at: runsFolder, withIntermediateDirectories: true)
-        if let data = try? Data(contentsOf: flowsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [[String: Any]] {
-            for raw in list {
-                if let flow = Self.flow(raw) { flowsById[flow.id] = flow } else { unreadable.append(raw) }
+        if fm.fileExists(atPath: flowsFile.path), (try? Data(contentsOf: flowsFile)) == nil {
+            flowsFileHeld = true
+            flowsNotSaved = true
+        }
+        if let data = try? Data(contentsOf: flowsFile) {
+            if let list = (try? JSONSerialization.jsonObject(with: data)) as? [Any] {
+                for raw in list {
+                    if let raw = raw as? [String: Any], let flow = Self.flow(raw) { flowsById[flow.id] = flow } else { unreadable.append(raw) }
+                }
+            } else {
+                // Not a list at all: the next save would write over whatever this is, so it goes aside first, under a name of its own.
+                let aside = folder.appendingPathComponent("flows-damaged-\(Int(Date().timeIntervalSince1970)).json")
+                if (try? fm.moveItem(at: flowsFile, to: aside)) != nil {
+                    damagedFile = aside
+                } else {
+                    flowsFileHeld = true
+                    flowsNotSaved = true
+                }
             }
         }
         for name in (try? fm.contentsOfDirectory(atPath: runsFolder.path)) ?? [] where name.hasSuffix(".json") {
@@ -51,12 +74,12 @@ import SidefolkExtensionKit
         var flow = flow
         if flowsById[flow.id] != nil, flowsById[flow.id] != flow { flow.updatedAt = Date() }
         flowsById[flow.id] = flow
-        write(flows().map(Self.json) + unreadable, to: flowsFile)
+        flowsNotSaved = flowsFileHeld || !write(flows().map(Self.json) + unreadable, to: flowsFile)
     }
 
     func remove(flow id: String) {
         flowsById[id] = nil
-        write(flows().map(Self.json) + unreadable, to: flowsFile)
+        flowsNotSaved = flowsFileHeld || !write(flows().map(Self.json) + unreadable, to: flowsFile)
         for run in runsById.values where run.flow == id { removeRun(run.id) }
     }
 
@@ -117,7 +140,11 @@ import SidefolkExtensionKit
     static func flow(_ o: [String: Any]) -> Flow? {
         guard let id = o["id"] as? String, let name = o["name"] as? String, let draft = try? FlowCodec.body(o["draft"], saved: true) else { return nil }
         var flow = Flow(id: id, name: name, draft: draft, createdAt: date(o["created"]) ?? Date(), updatedAt: date(o["updated"]) ?? Date())
-        flow.live = o["live"].flatMap { try? FlowCodec.body($0, saved: true) }
+        // What's live can't be read: kept as it was, rather than an On flow running its draft.
+        if let raw = o["live"] {
+            guard let live = try? FlowCodec.body(raw, saved: true) else { return nil }
+            flow.live = live
+        }
         flow.state = Flow.State(rawValue: o["state"] as? String ?? "") ?? .draft
         flow.lastFire = date(o["last_fire"])
         flow.watchTitle = o["watch"] as? String

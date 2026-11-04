@@ -300,6 +300,7 @@
     "Test": "Test",
     "Than": "Than",
     "That flow is gone.": "That flow is gone.",
+    "That isn't a number.": "That isn't a number.",
     "That isn't a way forward.": "That isn't a way forward.",
     "That run has already ended.": "That run has already ended.",
     "The AI didn't answer.": "The AI didn't answer.",
@@ -417,6 +418,8 @@
     "Your companion runs these for you.": "Your companion runs these for you.",
     "Your day in three lines, every weekday morning.": "Your day in three lines, every weekday morning.",
     "Your flows": "Your flows",
+    "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.",
+    "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.",
     "Your morning": "Your morning",
     "Your trust settings": "Your trust settings",
     "Your week's notes": "Your week's notes",
@@ -431,6 +434,10 @@
     "{condition}: no": "{condition}: no",
     "{condition}: yes": "{condition}: yes",
     "{count} at the least.": "{count} at the least.",
+    "{count} flows can't be read by this version. They're kept, not shown.": {
+      "one": "{count} flow can't be read by this version. It's kept, not shown.",
+      "other": "{count} flows can't be read by this version. They're kept, not shown."
+    },
     "{count} flows need you": {
       "one": "{count} flow needs you",
       "other": "{count} flows need you"
@@ -450,6 +457,7 @@
     "{flow} stopped in the middle of this: {step}. Did it happen?": "{flow} stopped in the middle of this: {step}. Did it happen?",
     "{when}. Also sets off: {flows}": "{when}. Also sets off: {flows}",
     "“every_minutes” must be at least {count}.": "“every_minutes” must be at least {count}.",
+    "“every_minutes” must be from {least} to {most}.": "“every_minutes” must be from {least} to {most}.",
     "“if” needs “value” and “test”: {tests}.": "“if” needs “value” and “test”: {tests}.",
     "“on_failure” is stop, carry_on or retry.": "“on_failure” is stop, carry_on or retry.",
     "“options” are 2 to 4 answers, or none to let them type.": "“options” are 2 to 4 answers, or none to let them type.",

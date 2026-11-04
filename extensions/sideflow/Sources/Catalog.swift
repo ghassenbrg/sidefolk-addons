@@ -82,9 +82,23 @@ struct FlowProblem: Equatable {
 }
 
 extension FlowBody {
+    /// What's wrong with what sets it off: a page saves as it goes, so it can be halfway through being written.
+    var triggerProblem: String? {
+        switch trigger {
+        case .every(let minutes, _) where minutes < FlowBody.shortestEvery || minutes > FlowBody.longestEvery:
+            L("“every_minutes” must be from {least} to {most}.", ["least": Format.integer(FlowBody.shortestEvery), "most": Format.integer(FlowBody.longestEvery)])
+        case .days(let days, _, _, _) where days.isEmpty:
+            L("A schedule needs at least one day.")
+        case .watch(let w) where w.target.trimmed.isEmpty:
+            L("A watch needs “target”: a web address, a full path or a program.")
+        default: nil
+        }
+    }
+
     @MainActor func problems(_ catalog: Catalog) -> [FlowProblem] {
         var out: [FlowProblem] = []
         if steps.isEmpty { out.append(FlowProblem(step: nil, text: L("It has no steps yet."))) }
+        if let wrong = triggerProblem { out.append(FlowProblem(step: nil, text: wrong)) }
         let actions = Engine.planSteps(self, title: "").count
         if actions > Plans.maxSteps {
             out.append(FlowProblem(step: nil, text: L("It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.", ["count": Format.integer(actions), "limit": Format.integer(Plans.maxSteps)])))

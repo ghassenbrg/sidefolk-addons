@@ -120,13 +120,18 @@ enum Editing {
         return body
     }
 
+    /// `inf`, `nan`, `1e999`: what reads as a number and isn't one.
+    static func isNotARealNumber(_ text: String) -> Bool {
+        Double(text.trimmed.replacingOccurrences(of: ",", with: ".")).map { !$0.isFinite } ?? false
+    }
+
     /// A value typed for a tool's parameter, as the schema wants it. A number with `{{x}}` stays text and shows as something to fix.
     static func value(_ text: String, for parameter: Catalog.Parameter) -> JSON? {
         let t = text.trimmed
         guard !t.isEmpty else { return nil }
         switch parameter.kind {
         case .integer, .number:
-            if let n = Double(t.replacingOccurrences(of: ",", with: ".")) { return .number(n) }
+            if let n = Double(t.replacingOccurrences(of: ",", with: ".")), n.isFinite { return .number(n) }
             return .string(t)
         case .boolean:
             return .bool(t == "true" || t == "on")
