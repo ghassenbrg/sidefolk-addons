@@ -7,13 +7,30 @@ The founder, 2026-11-04: phases are fine, and the session ends when everything i
 
 | Landing | Holds | State |
 |---|---|---|
-| Stage 1 (D180) and Phase 0 | A1-A4; plan limit, branch scope and missing values, journal before effects, reviewed revision goes live, uncertain outcomes; flows kept through what a page saves and a file it can't read | In the gallery since 1202; a hotfix for what a page saves as snapshot.4 |
-| Editing (D181, D182) | A5, A6, A7, A9: Save, Discard, undo, keys, check, what changed; Move to, outline, fold, find; forms, value menu, condition builder; a card for anything that runs by itself | In the gallery since 1252, as snapshot.5 |
-| Engine | Typed values, for each, choose, try, call, finish, data, AI with fields, forms, waits, queues, time zones, parallel, run inspector, Stop, held-back runs | `team/sideflow-engine-2`. The watch routine is the one the editing landing shipped, not this one's. Reads done, MERGE-READY next |
-| After the engine | Connections (D183), repeat until, fields (D184), progress and cancel (D195), several triggers and event ids (D196), batches, make a step its own flow, pause, run again | Built on `team/sideflow-more`, a read has found real problems to fix first |
-| T51 | A flow calling an MCP server without a card | Founder's yes. After Permissions, with a security review |
+| Stage 1 (D180) and Phase 0 | A1-A4; plan limit, branch scope and missing values, journal before effects, reviewed revision goes live, uncertain outcomes | In the gallery |
+| Editing (D181, D182) | A5, A6, A7, A9: Save, Discard, undo, keys, check, what changed; move, outline, fold, find; forms, value menu, condition builder | In the gallery, snapshot.5, app 1252 |
+| Engine (D198) | Typed values, for each, choose, try, call, finish, data, AI with fields, forms, waits, queues, time zones, parallel, run inspector, Stop, held-back runs | In the gallery, snapshot.6, minimum 1252 |
+| Connections (D183) | A run waits for a tool that went away; a Connections page | Ready: add-ons `team/sideflow-connections-2`, app `team/sideflow-connections-app-5`. Waits for the snapshot number. Add-ons first |
+| Repeat until | Round and round until it holds | Ready behind Connections: `team/sideflow-repeat-2`. No app change |
+| Fields (D184) | A tool's answer can hold fields | In reads: `team/sideflow-structured-2`, app `team/sideflow-structured-app-2` to rebase on Connections and take the Kit |
+| Jobs (D195) | How far along a step is; Stop tells it | Old base `team/sideflow-jobs`, app `team/sideflow-jobs`. To move over, with the shared read's findings fixed |
+| Triggers (D196) | Several ways to start a flow; an event acts once | Old base `team/sideflow-triggers`, same |
+| More | Batches, group, fallback; make a step its own flow; pause; run again; try again from here | Old base `team/sideflow-more`, same |
+| T51 (D197) | A flow calling an MCP server without a card | Design note in the app repo, `docs/research/sideflow-t51-unattended-mcp.md`. After the queue above, with a security review of 12 attack chains |
+
+## Still to build, in order (the coordinator, for the founder, 2026-11-05)
+
+Each its own landing, with independent reads until a clean one, a suite on a built add-ons copy, an honest not-verified list. Ask the coordinator where a piece takes a decision or a security entry.
+
+1. Typed mapping (type, sample, Literal/Secret/Expression modes), nested object parameters and forms, preview of resolved values.
+2. Parallel: lane timeouts, sibling-cancel policy, other join modes. Declared types and a version pin for called flows.
+3. Saved and pinned fixtures for practice; the explained diff and patch for the AI builder; the editor's repair offers (a producer moves, an agent edit conflicts); a Permissions tab, elapsed and usage in the inspector.
+4. Stable-file detection and rename handling; idempotency keys; file and artifact references; durable job handles only if a tool needs them.
+5. Scale: 100-200 cards (the board draws 64), breadcrumbs and focus on a subflow, wrap in a scope, resizable panels, compact Ask card.
+6. The expression language (sandboxed, with its own security note); two reference connectors; pagination and rate-limit metadata; dependency-aware templates.
+
+Also stated and owed: the later lists in each landing's MERGE-READY, among them a write's thrown error going to "did it happen?" rather than Recover, "Next:" ignoring the flow's time zone, `{{today}}` going stale over a days-long form, Skip sending a later action an empty value.
 
 ## Left out on purpose
 
-Webhooks and Keychain accounts: they need a security decision of their own. Durable job handles that survive a restart: no tool here needs one yet.
-
+Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.
