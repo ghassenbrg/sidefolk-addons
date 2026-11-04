@@ -102,6 +102,23 @@
       "menu": {
         "TAR": "Sem compressão"
       }
+    },
+    "audio_more": {
+      "title": "Para dispositivos Apple",
+      "detail": "Apple Lossless em um arquivo M4A.",
+      "menu_title": "Outro formato",
+      "menu": {
+        "AIFF": "Para apps do Mac",
+        "Opus": "Muito leve, como CAF"
+      }
+    },
+    "data_more": {
+      "title": "Para apps da Apple",
+      "detail": "PLIST, a partir de uma lista de registros."
+    },
+    "archive_more": {
+      "title": "Sem compressão",
+      "detail": "Os mesmos arquivos em um TAR."
     }
   },
   "text": {

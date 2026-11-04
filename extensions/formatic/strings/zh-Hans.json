@@ -102,6 +102,23 @@
       "menu": {
         "TAR": "未压缩"
       }
+    },
+    "audio_more": {
+      "title": "用于 Apple 设备",
+      "detail": "M4A 文件中的 Apple Lossless。",
+      "menu_title": "其他格式",
+      "menu": {
+        "AIFF": "用于 Mac 应用",
+        "Opus": "很小,存为 CAF"
+      }
+    },
+    "data_more": {
+      "title": "用于 Apple 应用",
+      "detail": "由记录列表生成的 PLIST。"
+    },
+    "archive_more": {
+      "title": "未压缩",
+      "detail": "相同的文件,放进 TAR。"
     }
   },
   "text": {

@@ -407,6 +407,44 @@
       ]
     },
     {
+      "id": "audio_more",
+      "mark": "glass-audio.png",
+      "title": "For Apple devices",
+      "detail": "Apple Lossless, in an M4A file.",
+      "symbol": "waveform",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.wav"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "alac"
+      },
+      "menu_title": "Another format",
+      "menu": [
+        {
+          "title": "AIFF",
+          "tag": "AIFF",
+          "detail": "For Mac apps",
+          "input": {
+            "target": "aiff"
+          },
+          "skip": []
+        },
+        {
+          "title": "Opus",
+          "detail": "Very small, saved as CAF",
+          "input": {
+            "target": "opus"
+          },
+          "skip": []
+        }
+      ]
+    },
+    {
       "id": "data_csv",
       "tag": "CSV",
       "mark": "glass-data.png",
@@ -482,6 +520,25 @@
           }
         }
       ]
+    },
+    {
+      "id": "data_more",
+      "tag": "PLIST",
+      "mark": "glass-data.png",
+      "title": "For Apple apps",
+      "detail": "PLIST, from a list of records.",
+      "symbol": "tablecells",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.tsv"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "plist"
+      }
     },
     {
       "id": "archive_zip",
@@ -573,6 +630,26 @@
           }
         }
       ]
+    },
+    {
+      "id": "archive_more",
+      "tag": "TAR",
+      "mark": "glass-archive.png",
+      "title": "Not compressed",
+      "detail": "The same files in a TAR.",
+      "symbol": "archivebox",
+      "kinds": [
+        "file"
+      ],
+      "patterns": [
+        "*.tgz",
+        "*.tar.gz"
+      ],
+      "tool": "convert",
+      "input": {
+        "files": "{values}",
+        "target": "tar"
+      }
     }
   ]
 }

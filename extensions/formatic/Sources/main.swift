@@ -21,6 +21,8 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
     let removeLocation = ExtensionSettings.bool("remove_location") ?? true
     var reply = ToolReply(""), lines: [String] = [], madeAny = false
     var pace = Pace()
+    // Listed only once the whole call is done: a stopped one never saved anything.
+    var recents: [(RecentFile, String)] = []
     for path in files {
         do {
             // The page's own button has no card to choose on, so it makes the format most people want from that kind of file.
@@ -31,7 +33,7 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
             let before = Convert.size(of: path), after = made.reduce(Int64(0)) { $0 + Convert.size(of: Paths.data + "/" + $1.data) }
             let from = (path as NSString).pathExtension.uppercased(), to = target == "tar.gz" ? "TAR.GZ" : ((made.first?.name ?? "") as NSString).pathExtension.uppercased()
             let saved = before > 0 && after < before ? L("{percent}% smaller", ["percent": Int((1 - Double(after) / Double(before)) * 100)]) : Format.bytes(after)
-            Recent.add(RecentFile(name: (path as NSString).lastPathComponent, change: L("{from} to {to}", ["from": from, "to": to]), result: saved, at: Date()), from: path)
+            recents.append((RecentFile(name: (path as NSString).lastPathComponent, change: L("{from} to {to}", ["from": from, "to": to]), result: saved, at: Date()), path))
             lines += made.compactMap(\.note)
         } catch let problem as Problem {
             lines.append(problem.message)
@@ -42,6 +44,7 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
     }
     // Nothing made is an error the person should see; a batch with some made reports the rest beside them.
     guard madeAny else { throw Problem(lines.joined(separator: "\n")) }
+    for (entry, path) in recents { Recent.add(entry, from: path) }
     reply.text = lines.joined(separator: "\n")
     return reply
 }

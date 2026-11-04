@@ -102,6 +102,23 @@
       "menu": {
         "TAR": "압축 없음"
       }
+    },
+    "audio_more": {
+      "title": "Apple 기기용",
+      "detail": "M4A 파일의 Apple Lossless.",
+      "menu_title": "다른 형식",
+      "menu": {
+        "AIFF": "Mac 앱용",
+        "Opus": "매우 작음(CAF)"
+      }
+    },
+    "data_more": {
+      "title": "Apple 앱용",
+      "detail": "레코드 목록에서 만든 PLIST."
+    },
+    "archive_more": {
+      "title": "압축 없음",
+      "detail": "같은 파일을 TAR로."
     }
   },
   "text": {
