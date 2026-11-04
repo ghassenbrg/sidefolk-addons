@@ -88,6 +88,44 @@ import SidefolkExtensionKit
         #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "it doesn't send again")
     }
 
+    @Test func aReadThatAnswersNothingYetKeepsPolling() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "", summary: ""), Actions.Outcome(status: .ok, text: "ready", summary: "")]
+        let flow = try w.flow([["id": "r", "repeat": [["id": "c", "do": "reads.it"]], "until": ["value": "{{c}}", "test": "contains", "than": "ready"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "asking again is what a poll is for")
+        #expect(w.host.calls.filter { $0.tool == "reads.it" }.count == 2)
+    }
+
+    @Test func aDrainedQueueStopsIt() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "", summary: "")]
+        let flow = try w.flow([["id": "r", "repeat": [["id": "c", "do": "reads.it"]], "until": ["value": "{{c}}", "test": "is_empty"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "that's what it was waiting for")
+        #expect(w.host.calls.filter { $0.tool == "reads.it" }.count == 1)
+    }
+
+    @Test func aWriteThatGaveNothingDoesntStopAConditionThatHolds() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken", summary: "")]
+        let flow = try w.flow([["id": "r", "repeat": [["id": "a", "text": "done"], ["id": "b", "do": "changes.it", "with": ["text": "x"], "on_failure": "carry_on"]],
+                                "until": ["value": "{{a}}", "test": "contains", "than": "done", "or": [["value": "{{b}}", "test": "contains", "than": "sent"]]], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
+    }
+
+    @Test func onlyWhatsThereWhenItLooksIsOffered() throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        let flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "r", "repeat": [["id": "look", "text": "x"], ["id": "e", "for_each": "a", "steps": [["id": "deep", "text": "y"]]]], "until": ["value": "plain", "test": "contains", "than": "done"], "times": 3]]]))
+        app.nav.inspect(.step("r"), in: flow.id)
+        let words = Inspector.sections(flow, app, problems: []).map { "\($0)" }.joined()
+        #expect(words.contains("{{look}}"), "not just because the field says so: this check says “plain”")
+        #expect(!words.contains("{{deep}}"), "gone by the time it looks")
+    }
+
     @Test func aTimesThatIsntANumberIsRefused() {
         let raw: [String: Any] = ["trigger": ["type": "manual"], "steps": [["id": "r", "repeat": [["id": "a", "text": "x"]], "until": ["value": "{{a}}", "test": "not_empty"], "times": "5"]]]
         #expect(throws: Problem.self) { try FlowCodec.body(raw) }

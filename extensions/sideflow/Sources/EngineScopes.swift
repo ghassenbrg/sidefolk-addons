@@ -71,8 +71,10 @@ extension Engine {
             setItem(in: &run)
             run.records.removeAll { $0.step == step.id && $0.scope == "0" }
         }
-        // What it can't see won't change by asking again, and each go may do something.
-        if run.mode != .practice, let unknown = run.values.undecided(until, goingRound: true) {
+        // What it can't see won't change by asking again. Nor can it go round on a write that gave nothing, one carried on past or that may have happened: that could send it twice. A read that gave nothing is what a poll asks again.
+        let looksAt = Set(until.checks.flatMap { check in Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }.map(\.name))
+        let gaveNothing = inside.first { looksAt.contains($0.id) && !$0.reads(catalog) && run.values.named[$0.id].map { Values.text($0).isEmpty } == true }
+        if run.mode != .practice, let unknown = run.values.undecided(until) ?? (holds ? nil : gaveNothing?.id) {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
         }
