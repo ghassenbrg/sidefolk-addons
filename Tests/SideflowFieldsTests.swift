@@ -68,4 +68,28 @@ import SidefolkExtensionKit
         let tokens = Inspector.tokens(before: "w", flow: flow, app)
         #expect(tokens.contains { $0.value == "{{r.count}}" })
     }
+
+    @Test func aLoopOverAToolsAnswerStillGoesThroughItsWords() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "alice\nbob", summary: "", data: #"{"count":2}"#)]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "e", "for_each": "{{r}}", "steps": [["id": "t", "text": "got {{item}}"]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(run?.records.filter { $0.step == "t" }.count == 2, "not once, on the whole record")
+    }
+
+    @Test func aFieldOffersOnlyWhatASlotCanReach() {
+        let tool = Catalog.tool(Actions.Tool(name: "x.y", title: "T", schema: "{}", outputSchema: #"{"properties":{"ok_1":{},"my-field":{},"\#(String(repeating: "a", count: 50))":{}}}"#))
+        #expect(tool.outputFields == ["ok_1"], "a name a value can't be reached by would go to a real tool as literal braces")
+    }
+
+    @Test func aPracticeCanUseAFieldItsToolSays() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"}}}"#, outputSchema: #"{"properties":{"id":{}}}"#)]))
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "t", "text": "made {{c.id}}"]], state: .draft)
+        let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        #expect(run?.status == .done, "a menu picked it: a practice can't stop because it only pretended")
+    }
+
 }

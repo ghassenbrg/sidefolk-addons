@@ -79,7 +79,8 @@ import SidefolkExtensionKit
 
     private static func fields(_ schema: String?) -> [String] {
         guard let schema, let o = JSONText.read(schema) as? [String: Any], let properties = o["properties"] as? [String: Any] else { return [] }
-        return properties.keys.filter { $0.range(of: #"^[A-Za-z0-9_-]{1,60}$"#, options: .regularExpression) != nil }.sorted()
+        // What a `{{step.field}}` can reach: any other would go to a real tool as literal braces.
+        return properties.keys.filter { $0.range(of: #"^[A-Za-z0-9_]{1,40}$"#, options: .regularExpression) != nil }.sorted()
     }
 
     static func tool(_ t: Actions.Tool) -> Tool {

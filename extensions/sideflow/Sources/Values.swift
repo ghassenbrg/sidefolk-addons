@@ -245,6 +245,14 @@ struct Values: Equatable, Sendable {
         named[name] = .string(String(text.prefix(Self.keep)))
     }
 
+    /// What a loop goes through for a value: a tool that gave fields beside its words still has its words as the list, as it did before it gave fields. A record goes round once, with whatever's inside it acting on all of it.
+    func loopable(_ items: String) -> JSON {
+        let filled = fill(native: .string(items))
+        let slots = Self.slots(items)
+        if slots.count == 1, slots[0].path.isEmpty, Self.isOneSlot(items), let words = said[slots[0].name] { return Self.structured(.string(words)) }
+        return Self.structured(filled)
+    }
+
     /// A tool's answer: its fields if it gave any it can keep, and always its words.
     mutating func set(_ name: String, answer words: String, fields: String?) {
         guard let fields, let raw = JSONText.read(fields) else { return set(name, words) }

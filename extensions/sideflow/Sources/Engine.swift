@@ -456,7 +456,13 @@ import SidefolkExtensionKit
         default: readsOnly ? L("It would read this; you didn't allow it for practice.") : nil
         }
         run.record(.init(step: step.id, status: check?.decision == .deny || check == nil ? .failed : .would, summary: L("Would: {what}", ["what": sentence]), note: note, at: clock()))
-        run.values.set(step.id, L("(sample)"))
+        // Its fields too, if it says it has any: what a menu offered shouldn't stop a run for having only pretended.
+        let fields = catalog.tool(tool)?.outputFields ?? []
+        if fields.isEmpty {
+            run.values.set(step.id, L("(sample)"))
+        } else {
+            run.values.set(step.id, answer: L("(sample)"), fields: JSONText.write(Dictionary(uniqueKeysWithValues: fields.map { ($0, L("(sample)") as Any) })))
+        }
         run.pc += 1
         store.save(run)
         return true
