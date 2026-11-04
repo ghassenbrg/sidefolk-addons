@@ -233,6 +233,28 @@ import SidefolkExtensionKit
         #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
     }
 
+    @Test func aRepeatWontSendAgainWhatItCantSeeInsideALoopOrLane() async throws {
+        for inner: [String: Any] in [["id": "each", "for_each": "a\nb", "steps": [["id": "send", "do": "changes.it", "with": ["text": "x"]]]],
+                                     ["id": "both", "parallel": [["name": "one", "steps": [["id": "send", "do": "changes.it", "with": ["text": "x"]]]], ["name": "two", "steps": [["id": "o", "text": "o"]]]]]] {
+            let w = try World()
+            w.host.answers["changes.it"] = (0..<20).map { _ in Actions.Outcome(status: .ok, text: "Sent", summary: "", data: #"{"id": "1"}"#) }
+            let flow = try w.flow([["id": "again", "repeat": [inner], "until": ["value": "{{send.id}}", "test": "not_empty"], "times": 3]])
+            let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+            #expect(run?.status != .done)
+            let sent = w.host.calls.filter { $0.tool == "changes.it" }.count
+            #expect(sent == (inner["for_each"] == nil ? 1 : 2), "one go's worth, never another go")
+        }
+    }
+
+    @Test func aRepeatWontSendAgainWhenTheWordsSayNothingBesideItsFields() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = (0..<5).map { _ in Actions.Outcome(status: .ok, text: "", summary: "", data: #"{"id": "1"}"#) }
+        let flow = try w.flow([["id": "again", "repeat": [["id": "send", "do": "changes.it", "with": ["text": "x"]]], "until": ["value": "{{send}}", "test": "not_empty"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
+    }
+
     @Test func aRepeatStillPollsAReadForAFieldThatIsntThereYet() async throws {
         let w = try World()
         w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Wait", summary: "", data: #"{"state": "working"}"#), Actions.Outcome(status: .ok, text: "Done", summary: "", data: #"{"status": "done"}"#)]
