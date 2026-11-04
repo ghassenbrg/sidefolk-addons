@@ -41,6 +41,13 @@ enum Convert {
         }
     }
 
+    /// What the file is, as a person says it: a double ending is one.
+    static func endingName(of path: String) -> String {
+        let name = path.lowercased()
+        for double in ["tar.gz", "tar.xz", "tar.bz2"] where name.hasSuffix("." + double) { return double.uppercased() }
+        return (path as NSString).pathExtension.uppercased()
+    }
+
     /// The format most people want from this file, and the next one when the file already is it.
     static func usual(for path: String) -> String {
         let order: [String] = switch kind(of: path) {

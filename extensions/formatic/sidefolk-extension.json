@@ -408,6 +408,7 @@
     },
     {
       "id": "audio_more",
+      "tag": "ALAC",
       "mark": "glass-audio.png",
       "title": "For Apple devices",
       "detail": "Apple Lossless, in an M4A file.",

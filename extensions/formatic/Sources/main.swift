@@ -31,7 +31,7 @@ ext.tool("convert", "Convert files", "Makes new files in another format, saved b
             madeAny = madeAny || !made.isEmpty
             for one in made { reply = reply.saving(data: one.data, as: one.name, beside: path) }
             let before = Convert.size(of: path), after = made.reduce(Int64(0)) { $0 + Convert.size(of: Paths.data + "/" + $1.data) }
-            let from = (path as NSString).pathExtension.uppercased(), to = target == "tar.gz" ? "TAR.GZ" : ((made.first?.name ?? "") as NSString).pathExtension.uppercased()
+            let from = Convert.endingName(of: path), to = target == "tar.gz" ? "TAR.GZ" : ((made.first?.name ?? "") as NSString).pathExtension.uppercased()
             let saved = before > 0 && after < before ? L("{percent}% smaller", ["percent": Int((1 - Double(after) / Double(before)) * 100)]) : Format.bytes(after)
             recents.append((RecentFile(name: (path as NSString).lastPathComponent, change: L("{from} to {to}", ["from": from, "to": to]), result: saved, at: Date()), path))
             lines += made.compactMap(\.note)

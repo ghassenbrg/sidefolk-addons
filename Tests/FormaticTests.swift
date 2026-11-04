@@ -196,6 +196,12 @@ import UniformTypeIdentifiers
         #expect(Archives.unpackedSize("-rw-r--r--  0 ada  staff  1024 Nov  3 12:00 a b\n-rw-r--r--  0 ada  staff  2048 Nov  3 12:00 c\n") == 3072)
     }
 
+    @Test func aDoubleEndingReadsAsOne() {
+        #expect(Convert.endingName(of: "/x/a.tar.gz") == "TAR.GZ")
+        #expect(Convert.endingName(of: "/x/a.TAR.BZ2") == "TAR.BZ2")
+        #expect(Convert.endingName(of: "/x/a.png") == "PNG")
+    }
+
     @Test func namesKeepTheirStem() {
         #expect(Convert.stem(of: "/x/Trip to Tunis.tar.gz") == "Trip to Tunis")
         #expect(Convert.stem(of: "/x/v1.2.notes.png") == "v1.2.notes")
