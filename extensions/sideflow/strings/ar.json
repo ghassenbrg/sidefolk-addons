@@ -1018,6 +1018,7 @@
       "many": "تكرر {count} مرة ولم يتحقق بعد.",
       "other": "تكرر {count} مرة ولم يتحقق بعد."
     },
-    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "وافقت على نسخة أخرى من هذا الروتين أثناء هذا التشغيل، ولم تعد هذه الخطوة كما كانت فيها، لذا لم تُنفَّذ. تخطَّها أو توقف هنا."
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "وافقت على نسخة أخرى من هذا الروتين أثناء هذا التشغيل، ولم تعد هذه الخطوة كما كانت فيها، لذا لم تُنفَّذ. تخطَّها أو توقف هنا.",
+    "Inside it": "بداخله"
   }
 }

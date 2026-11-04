@@ -943,6 +943,7 @@
     "It went round {count} times and it still doesn't hold.": {
       "other": "{count} 回繰り返しましたが、まだ条件を満たしません。"
     },
-    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "この実行の途中で別のバージョンを承認しました。このステップは同じ形では含まれていないため、実行されませんでした。スキップするか、ここで停止してください。"
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "この実行の途中で別のバージョンを承認しました。このステップは同じ形では含まれていないため、実行されませんでした。スキップするか、ここで停止してください。",
+    "Inside it": "この中"
   }
 }

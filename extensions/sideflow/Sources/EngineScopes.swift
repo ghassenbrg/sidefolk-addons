@@ -72,7 +72,7 @@ extension Engine {
             run.records.removeAll { $0.step == step.id && $0.scope == "0" }
         }
         // What it can't see won't change by asking again, and each go may do something.
-        if run.mode != .practice, let unknown = run.values.undecided(until) {
+        if run.mode != .practice, let unknown = run.values.undecided(until, goingRound: true) {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
         }
@@ -108,13 +108,24 @@ extension Engine {
     }
 
     func setItem(in run: inout Run) {
-        guard let frame = run.frames.last(where: { $0.kind == .loop }), frame.items.indices.contains(frame.index) else {
+        let loops = run.frames.filter { $0.kind == .loop }
+        guard let frame = loops.last, frame.items.indices.contains(frame.index) else {
             // Out of the last loop here. A lane inside a loop goes back to the item it started with.
             run.values.named["item"] = run.startItem
             run.values.named["index"] = run.startIndex
             return
         }
-        run.values.set("item", frame.items[frame.index])
+        let body = run.body
+        func goesRound(_ f: Run.Frame) -> Bool { if case .repeatUntil? = body.step(f.step)?.kind { true } else { false } }
+        // A repeat's go is its number, not an item: inside a list, the item stays the list's. A go number sent to a real action would be nobody's item.
+        let list = loops.last { !goesRound($0) && $0.items.indices.contains($0.index) }
+        if goesRound(frame), let list {
+            run.values.set("item", list.items[list.index])
+        } else if goesRound(frame), let outer = run.startItem {
+            run.values.named["item"] = outer
+        } else {
+            run.values.set("item", frame.items[frame.index])
+        }
         run.values.set("index", JSON.number(Double(frame.index + 1)))
     }
 

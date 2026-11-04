@@ -958,6 +958,7 @@
       "one": "Deu {count} volta e ainda não é verdade.",
       "other": "Deu {count} voltas e ainda não é verdade."
     },
-    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Você aprovou outra versão desta rotina durante esta execução, e esta etapa não está mais igual, então não foi executada. Pule-a ou pare aqui."
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Você aprovou outra versão desta rotina durante esta execução, e esta etapa não está mais igual, então não foi executada. Pule-a ou pare aqui.",
+    "Inside it": "Dentro"
   }
 }

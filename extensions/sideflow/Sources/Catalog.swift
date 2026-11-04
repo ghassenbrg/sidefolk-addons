@@ -172,6 +172,10 @@ extension FlowBody {
             switch step.kind {
             case .repeatUntil(let until, _, let steps):
                 if until.checks.contains(where: { $0.value.trimmed.isEmpty }) { out.append(FlowProblem(step: step.id, text: L("Say what has to hold for it to stop."))) }
+                // "Contains nothing" never holds, so every go would run.
+                if until.checks.contains(where: { [.contains, .not_contains, .more_than, .less_than].contains($0.test) && $0.than.trimmed.isEmpty }) {
+                    out.append(FlowProblem(step: step.id, text: L("Say what to compare it with.")))
+                }
                 if steps.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add what to do each time round."))) }
             case .forEach(let items, _, _, let steps):
                 if items.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say which list to go through."))) }

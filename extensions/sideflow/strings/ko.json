@@ -943,6 +943,7 @@
     "It went round {count} times and it still doesn't hold.": {
       "other": "{count}번 반복했지만 아직 만족하지 않습니다."
     },
-    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "이 실행 중에 이 루틴의 다른 버전을 승인했으며 이 단계가 그대로 포함되어 있지 않아 실행되지 않았습니다. 건너뛰거나 여기서 멈추세요."
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "이 실행 중에 이 루틴의 다른 버전을 승인했으며 이 단계가 그대로 포함되어 있지 않아 실행되지 않았습니다. 건너뛰거나 여기서 멈추세요.",
+    "Inside it": "안쪽"
   }
 }

@@ -211,9 +211,14 @@ import SidefolkExtensionKit
             main.append(flowPicker(flow, selected: name, app, input: input("run_flow")))
         case .wait(let minutes):
             main.append(.edit(EditField("\(step.id).minutes", L("Minutes"), value: String(minutes), kind: .number, tool: "ui", input: input("wait"))))
-        case .repeatUntil(let until, let times, _):
+        case .repeatUntil(let until, let times, let steps):
             main.append(.edit(EditField("\(step.id).times", L("At most (times)"), value: String(times), detail: L("If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then."), kind: .number, tool: "ui", input: input("repeat_times"))))
-            main += conditionForm(until, step: step, tokens: tokens, input: input, stopping: true)
+            // What it stops on is what its own steps make each go, which aren't "earlier" for anything else.
+            var inside: [EditField.Token] = [.init(L("Its number"), value: "{{index}}", symbol: "number", group: L("Inside it"))]
+            for made in FlowBody(steps: steps).allSteps where made.hasOutput {
+                inside.append(.init(Words.label(made, catalog: app.catalog), value: "{{\(made.id)}}", symbol: Pages.look(made, app).symbol, group: L("Inside it")))
+            }
+            main += conditionForm(until, step: step, tokens: inside + tokens, input: input, stopping: true)
         case .forEach(let items, let limit, let failure, _):
             main.append(.edit(EditField("\(step.id).items", L("The list"), value: items, detail: L("A list from an earlier step, or text with one item per line. Inside, “This item” is the one it's on."), placeholder: L("Which list"), tokens: tokens, tool: "ui", input: input("each_items"))))
             more.append(.edit(EditField("\(step.id).limit", L("At most (items)"), value: String(limit), kind: .number, tool: "ui", input: input("each_limit"))))

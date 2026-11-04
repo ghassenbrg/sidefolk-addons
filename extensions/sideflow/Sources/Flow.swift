@@ -586,6 +586,7 @@ enum FlowCodec {
             kind = .flow(name)
         } else if o["repeat"] != nil {
             guard let until = o["until"] as? [String: Any] else { throw Problem(L("“repeat” needs “until”: what has to hold for it to stop.")) }
+            if o["times"] != nil, !(o["times"] is NSNumber) { throw Problem(L("“times” is 1 to {count}.", ["count": Format.integer(FlowBody.mostRepeats)])) }
             let times = (o["times"] as? NSNumber)?.intValue ?? FlowBody.mostRepeats
             guard (1...FlowBody.mostRepeats).contains(times) else { throw Problem(L("“times” is 1 to {count}.", ["count": Format.integer(FlowBody.mostRepeats)])) }
             kind = .repeatUntil(until: try condition(until), times: times, steps: try steps(o["repeat"], depth: depth + 1, used: &used))

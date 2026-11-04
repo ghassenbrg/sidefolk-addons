@@ -958,6 +958,7 @@
       "one": "{count} tour, et ce n'est toujours pas vrai.",
       "other": "{count} tours, et ce n'est toujours pas vrai."
     },
-    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Vous avez approuvé une autre version de cette routine pendant cette exécution, et cette étape n'y est plus telle quelle : elle n'a donc pas été exécutée. Ignorez-la ou arrêtez ici."
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Vous avez approuvé une autre version de cette routine pendant cette exécution, et cette étape n'y est plus telle quelle : elle n'a donc pas été exécutée. Ignorez-la ou arrêtez ici.",
+    "Inside it": "À l’intérieur"
   }
 }

@@ -958,6 +958,7 @@
       "one": "Dio {count} vuelta y sigue sin cumplirse.",
       "other": "Dio {count} vueltas y sigue sin cumplirse."
     },
-    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Aprobaste otra versión de esta rutina durante esta ejecución y este paso ya no está igual, así que no se ejecutó. Sáltalo o detente aquí."
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Aprobaste otra versión de esta rutina durante esta ejecución y este paso ya no está igual, así que no se ejecutó. Sáltalo o detente aquí.",
+    "Inside it": "Dentro"
   }
 }

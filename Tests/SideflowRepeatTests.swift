@@ -51,6 +51,48 @@ import SidefolkExtensionKit
         #expect(body.blank != nil)
     }
 
+    @Test func insideAListItsItemIsTheListsItem() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"}}}"#)]))
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .ok, text: "no", summary: ""), Actions.Outcome(status: .ok, text: "sent", summary: ""), Actions.Outcome(status: .ok, text: "sent", summary: "")]
+        let flow = try w.flow([["id": "e", "for_each": "alice\nbob", "steps": [
+            ["id": "r", "repeat": [["id": "s", "do": "changes.it", "with": ["text": "mail {{item}} try {{index}}"]]], "until": ["value": "{{s}}", "test": "contains", "than": "sent"], "times": 3]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        let sent = w.host.calls.filter { $0.tool == "changes.it" }.compactMap { $0.input["text"] as? String }
+        #expect(sent == ["mail alice try 1", "mail alice try 2", "mail bob try 1"], "not the go number going to a real action")
+    }
+
+    @Test func whatTheCheckCanUseIsOfferedForIt() throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        let flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "r", "repeat": [["id": "look", "text": "x"]], "until": ["value": "{{look}}", "test": "contains", "than": "done"], "times": 3]]]))
+        app.nav.inspect(.step("r"), in: flow.id)
+        let words = Inspector.sections(flow, app, problems: []).map { "\($0)" }.joined()
+        #expect(words.contains("{{look}}"), "what it makes each go is what it can stop on")
+        #expect(words.contains("{{index}}"))
+    }
+
+    @Test func aCheckWithNothingToCompareIsMarked() throws {
+        let w = try World()
+        let body = FlowBody(steps: [Step(id: "r", kind: .repeatUntil(until: Condition(value: "{{a}}", test: .contains, than: ""), times: 3, steps: [Step(id: "a", kind: .text("x"))]))])
+        #expect(body.problems(w.catalog).contains { $0.step == "r" }, "it would never hold, and every go would run")
+    }
+
+    @Test func goingOnFromAWriteThatMayHaveHappenedDoesntGoRoundAgain() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken", summary: "")]
+        let flow = try w.flow([["id": "r", "repeat": [["id": "send", "do": "changes.it", "with": ["text": "x"], "on_failure": "carry_on"]], "until": ["value": "{{send}}", "test": "contains", "than": "sent"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .failed, "it gave nothing, so whether to go again can't be read from it")
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "it doesn't send again")
+    }
+
+    @Test func aTimesThatIsntANumberIsRefused() {
+        let raw: [String: Any] = ["trigger": ["type": "manual"], "steps": [["id": "r", "repeat": [["id": "a", "text": "x"]], "until": ["value": "{{a}}", "test": "not_empty"], "times": "5"]]]
+        #expect(throws: Problem.self) { try FlowCodec.body(raw) }
+    }
+
     @Test func itFailsAtTheLimitAndDoesNoMore() async throws {
         let w = try World()
         answers(w, Array(repeating: "no", count: 9))

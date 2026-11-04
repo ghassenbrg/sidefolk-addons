@@ -159,7 +159,16 @@ struct Values: Equatable, Sendable {
     }
 
     /// What keeps a condition from deciding, if anything does: a check that can answer for all of them settles it, the first to hold in "any of", the first to fail in "all of".
-    func undecided(_ condition: Condition) -> String? {
+    /// `goingRound`: another go may do something again, so a step that gave nothing, one that carried on past a write that may have happened, can't be what sends it round.
+    func undecided(_ condition: Condition, goingRound: Bool = false) -> String? {
+        if goingRound {
+            for check in condition.checks {
+                for (name, path) in Self.slots(check.value) + Self.slots(check.than) where name != "input" {
+                    if Self.ambient.contains(name), path.isEmpty { continue }
+                    if base(name).map({ Self.text($0).isEmpty }) ?? true { return name + path }
+                }
+            }
+        }
         let unknown = condition.checks.compactMap(blind)
         guard let first = unknown.first else { return nil }
         let known = condition.checks.filter { blind($0) == nil }

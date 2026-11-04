@@ -943,6 +943,7 @@
     "It went round {count} times and it still doesn't hold.": {
       "other": "已重复 {count} 次，条件仍不成立。"
     },
-    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "这次运行期间你批准了此流程的另一个版本，其中这一步已不同，因此没有运行。请跳过它或在此停止。"
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "这次运行期间你批准了此流程的另一个版本，其中这一步已不同，因此没有运行。请跳过它或在此停止。",
+    "Inside it": "内部"
   }
 }

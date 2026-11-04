@@ -958,6 +958,7 @@
       "one": "{count} Runde, und es trifft immer noch nicht zu.",
       "other": "{count} Runden, und es trifft immer noch nicht zu."
     },
-    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Du hast während dieses Durchlaufs eine andere Version dieses Ablaufs genehmigt, und dieser Schritt ist darin nicht mehr so enthalten, deshalb wurde er nicht ausgeführt. Überspringe ihn oder stoppe hier."
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Du hast während dieses Durchlaufs eine andere Version dieses Ablaufs genehmigt, und dieser Schritt ist darin nicht mehr so enthalten, deshalb wurde er nicht ausgeführt. Überspringe ihn oder stoppe hier.",
+    "Inside it": "Darin"
   }
 }
