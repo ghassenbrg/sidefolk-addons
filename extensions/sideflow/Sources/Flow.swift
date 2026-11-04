@@ -94,7 +94,8 @@ struct FlowBody: Equatable, Sendable {
     var steps: [Step] = []
 
     static let maxSteps = 40
-    static let maxDepth = 2
+    /// Top level, inside an `if`, inside an `if` within that.
+    static let maxDepth = 3
     static let shortestEvery = 15
     static let longestWait = 1440
 
@@ -110,6 +111,17 @@ struct FlowBody: Equatable, Sendable {
     }
 
     func step(_ id: String) -> Step? { allSteps.first { $0.id == id } }
+
+    /// How many levels of steps it goes down: what `maxDepth` limits.
+    var depth: Int {
+        func down(_ steps: [Step]) -> Int {
+            steps.map { step in
+                guard case .branch(_, let then, let otherwise) = step.kind else { return 1 }
+                return 1 + max(down(then), down(otherwise), 1)
+            }.max() ?? 0
+        }
+        return down(steps)
+    }
 }
 
 /// A flow's life: `draft` is what's being edited; `live` what runs, once the person allowed it. Editing an On flow changes only the draft.
@@ -196,11 +208,12 @@ enum FlowCodec {
 
     /// Reads a definition, saying what to fix in words a person and a model can both act on. Unknown keys are mistakes: one
     /// silently dropped would run something other than what was meant.
-    static func body(_ any: Any?) throws -> FlowBody {
+    /// `saved`: read back from disk, where the limit on depth doesn't apply: what was kept is never lost to a limit that came later.
+    static func body(_ any: Any?, saved: Bool = false) throws -> FlowBody {
         guard let o = any as? [String: Any] else { throw Problem(L("A flow is an object with “trigger” and “steps”.")) }
         try only(o, ["trigger", "steps"], in: "flow")
         var used = Set<String>()
-        let made = FlowBody(trigger: try trigger(o["trigger"]), steps: try steps(o["steps"] ?? [], depth: 1, used: &used))
+        let made = FlowBody(trigger: try trigger(o["trigger"]), steps: try steps(o["steps"] ?? [], depth: saved ? -64 : 1, used: &used))
         if made.allSteps.count > FlowBody.maxSteps {
             throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))
         }

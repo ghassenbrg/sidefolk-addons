@@ -16,6 +16,7 @@ import SidefolkExtensionKit
         func draft(_ change: (inout FlowBody) throws -> Void) throws {
             var f = try flow()
             try change(&f.draft)
+            guard f.draft.depth <= FlowBody.maxDepth else { throw Problem(L("An “if” can hold another “if”, but no deeper.")) }
             app.store.save(f)
             app.refreshPreflight(f.id)
         }

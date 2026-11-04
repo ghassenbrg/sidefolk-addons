@@ -199,6 +199,61 @@ import SidefolkExtensionKit
         #expect(back.trigger == .watch(asked))
     }
 
+    private static let ifInIf: [[String: Any]] = [["id": "a", "if": ["value": "x", "test": "not_empty"], "then": [
+        ["id": "b", "if": ["value": "y", "test": "not_empty"], "then": [["id": "c", "text": "z"]], "else": []],
+    ], "else": []]]
+
+    /// It used to save, then disappear for good on the next start: the limit was tighter on reading than on writing.
+    @Test func anIfInsideAnIfComesBackAfterARestart() throws {
+        let w = try World()
+        let flow = try w.flow(Self.ifInIf)
+        #expect(flow.draft.depth == 3)
+        w.restart()
+        #expect(w.store.flow(flow.id)?.draft.allSteps.map(\.id) == ["a", "b", "c"])
+    }
+
+    @Test func aStepGoesNoDeeperThanAFlowCanBeWritten() throws {
+        let deeper: [[String: Any]] = [["id": "a", "if": ["value": "x", "test": "not_empty"], "then": [
+            ["id": "b", "if": ["value": "y", "test": "not_empty"], "then": [["id": "c", "if": ["value": "z", "test": "not_empty"], "then": [], "else": []]], "else": []],
+        ], "else": []]]
+        #expect(throws: Problem.self) { try FlowCodec.body(["trigger": ["type": "manual"], "steps": deeper]) }
+        let kept = try FlowCodec.body(["trigger": ["type": "manual"], "steps": deeper], saved: true)
+        #expect(kept.depth == 4, "what was saved before the limit still reads")
+    }
+
+    @Test func aFlowThisVersionCantReadIsKeptNotDropped() throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "text": "x"]])
+        let file = w.folder.appendingPathComponent("flows.json")
+        var list = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [[String: Any]])
+        list.append(["id": "from-tomorrow", "name": "Tomorrow", "draft": ["steps": "something new"]])
+        try JSONSerialization.data(withJSONObject: list).write(to: file)
+        w.restart()
+        w.store.save(try #require(w.store.flow(flow.id)))
+        let after = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [[String: Any]])
+        #expect(after.contains { $0["id"] as? String == "from-tomorrow" })
+    }
+
+    @Test func aStaleSpotLosesNoStep() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x"], ["id": "b", "text": "y"]]])
+        #expect(Set(Editing.place("a", after: "then:gone", in: body).allSteps.map(\.id)) == ["a", "b"])
+        #expect(Editing.insert(Step(id: "n", kind: .text("")), after: "else:gone", in: body).allSteps.map(\.id) == ["a", "b", "n"])
+    }
+
+    /// A watch stopped by an earlier version, or by the person in Home: Resume makes it again rather than saying On and never firing.
+    @Test func resumingBringsAGoneWatchBack() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "watch", "kind": "file_changes", "target": "~/a.txt"])
+        flow.watchTitle = "Gone · Sideflow"
+        flow.state = .paused
+        w.store.save(flow)
+        w.host.answers["watch.resume"] = [Actions.Outcome(status: .failed, text: "a watcher called “Gone”", summary: "")]
+        w.engine.resume(flow.id)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(w.host.calls.map(\.tool).contains("watch.create"))
+        #expect(w.store.flow(flow.id)?.state == .on)
+    }
+
     @Test func aFlowSurvivesARestartWithAllOfIt() throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it", "with": ["q": "x"]]], trigger: ["type": "schedule", "every_minutes": 60])
