@@ -61,12 +61,11 @@ import SidefolkExtensionKit
 
     /// `{{x}}` as the name a person gave what makes it.
     static func pretty(_ text: String, body: FlowBody, catalog: Catalog) -> String {
-        var out = text
-        for name in Values.references(text) {
+        Values.replacingSlots(in: text) { name, path in
+            let inner = Values.parts(of: path).joined(separator: " › ")
             let label = valueLabel(name, body: body, catalog: catalog)
-            out = out.replacingOccurrences(of: "{{\(name)}}", with: "[\(label)]")
+            return inner.isEmpty ? "[\(label)]" : "[\(label) › \(inner)]"
         }
-        return out
     }
 
     static func valueLabel(_ name: String, body: FlowBody, catalog: Catalog) -> String {
@@ -74,6 +73,10 @@ import SidefolkExtensionKit
         case "trigger": return L("What set it off")
         case "today": return L("Today's date")
         case "now": return L("The time")
+        case "item": return L("This item")
+        case "index": return L("Its number")
+        case "error": return L("What went wrong")
+        case "input": return L("What it was given")
         default: return body.step(name).map { label($0, catalog: catalog) } ?? name
         }
     }
@@ -89,6 +92,32 @@ import SidefolkExtensionKit
         case .branch: return L("If…")
         case .wait(let minutes): return L("Wait {time}", ["time": Format.duration(Double(minutes) * 60)])
         case .flow(let name): return L("Run {flow}", ["flow": name])
+        case .forEach: return L("For each")
+        case .choose: return L("Choose a path")
+        case .attempt: return L("Try")
+        case .parallel: return L("At the same time")
+        case .call(let flow, _): return L("Run {flow} and wait", ["flow": flow])
+        case .finish: return L("Finish here")
+        case .data(let data): return dataName(data.op)
+        case .form(let form): return form.title.nonEmpty ?? L("A form for you")
+        case .waitFor: return L("Wait for something")
+        }
+    }
+
+    static func dataName(_ op: DataStep.Op) -> String {
+        switch op {
+        case .parse_json: L("Read JSON")
+        case .parse_csv: L("Read a table")
+        case .lines: L("Split into lines")
+        case .join: L("Join into text")
+        case .field: L("Take a field")
+        case .filter: L("Keep only some")
+        case .sort: L("Sort")
+        case .unique: L("Remove repeats")
+        case .count: L("Count")
+        case .first: L("Keep the first few")
+        case .sum: L("Add up")
+        case .number: L("Read a number")
         }
     }
 
@@ -106,20 +135,55 @@ import SidefolkExtensionKit
         case .branch(let c, _, _): return condition(c, body: body, catalog: catalog)
         case .wait(let minutes): return L("Wait {time}", ["time": Format.duration(Double(minutes) * 60)])
         case .flow(let name): return L("Run {flow}", ["flow": name])
+        default: return card(step, body: body, catalog: catalog).line
         }
     }
 
     static func condition(_ c: Condition, body: FlowBody, catalog: Catalog) -> String {
+        let all = c.checks.map { check(of: $0, body: body, catalog: catalog) }
+        guard all.count > 1 else { return L("If {check}", ["check": all[0]]) }
+        return c.any ? L("If any of: {checks}", ["checks": Format.list(all)]) : L("If all of: {checks}", ["checks": Format.list(all)])
+    }
+
+    /// What's said on a step's card: its name or what it is, then what it's about. The sentence it replaces read "Action: Notify: First".
+    static func card(_ step: Step, body: FlowBody, catalog: Catalog, setUp: String? = nil) -> (head: String, line: String) {
+        let name = step.name
+        switch step.kind {
+        case .action(let tool, let input):
+            let title = catalog.tool(tool)?.title ?? tool
+            let main = catalog.tool(tool)?.parameters.compactMap { input[$0.name]?.string }.first { !$0.isEmpty } ?? input.keys.sorted().compactMap { input[$0]?.string }.first { !$0.isEmpty }
+            return (name ?? title, main.map { pretty($0, body: body, catalog: catalog) } ?? (name != nil ? title : setUp ?? L("Nothing to set up")))
+        case .ai(let prompt): return (name ?? L("Write with AI"), prompt.isEmpty ? L("Say what to write") : pretty(prompt, body: body, catalog: catalog))
+        case .ask(let question, _): return (name ?? L("Ask me"), question.isEmpty ? L("Write the question") : pretty(question, body: body, catalog: catalog))
+        case .text(let text): return (name ?? L("Compose text"), text.isEmpty ? L("Write the text") : pretty(text, body: body, catalog: catalog))
+        case .branch(let c, _, _): return (name ?? L("Condition"), c.value.isEmpty ? L("Say what to check") : condition(c, body: body, catalog: catalog))
+        case .wait(let minutes): return (name ?? L("Wait"), Format.duration(Double(minutes) * 60))
+        case .flow(let flow): return (name ?? L("Run another flow"), flow.isEmpty ? L("Pick which flow") : flow)
+        case .forEach(let items, _, _, _): return (name ?? L("For each"), items.isEmpty ? L("Say which list") : L("Each item of {list}", ["list": pretty(items, body: body, catalog: catalog)]))
+        case .choose(let value, let paths, _): return (name ?? L("Choose a path"), value.isEmpty ? L("Say what to look at") : L("By {value}: {count} ways", ["value": pretty(value, body: body, catalog: catalog), "count": Format.integer(paths.count)]))
+        case .attempt: return (name ?? L("Try"), L("If a step fails, do something else"))
+        case .parallel(let lanes): return (name ?? L("At the same time"), L("{count} things at once", ["count": Format.integer(lanes.count)]))
+        case .call(let flow, _): return (name ?? L("Run a flow and wait"), flow.isEmpty ? L("Pick which flow") : flow)
+        case .finish(let value): return (name ?? L("Finish here"), value.isEmpty ? L("With no result") : L("With {value}", ["value": pretty(value, body: body, catalog: catalog)]))
+        case .data(let data): return (name ?? dataName(data.op), data.from.isEmpty ? L("Say what from") : pretty(data.from, body: body, catalog: catalog))
+        case .form(let form): return (name ?? L("A form for you"), form.title.nonEmpty ?? L("Say what it asks"))
+        case .waitFor(let event, let contains, let minutes):
+            let what = contains.map { "\(eventName(event)): “\($0)”" } ?? eventName(event)
+            return (name ?? L("Wait for something"), L("{what}, for up to {time}", ["what": what, "time": Format.duration(Double(minutes) * 60)]))
+        }
+    }
+
+    private static func check(of c: Condition, body: FlowBody, catalog: Catalog) -> String {
         let value = pretty(c.value, body: body, catalog: catalog), than = pretty(c.than, body: body, catalog: catalog)
         switch c.test {
-        case .contains: return L("If {value} mentions “{than}”", ["value": value, "than": than])
-        case .not_contains: return L("If {value} doesn't mention “{than}”", ["value": value, "than": than])
-        case .is: return L("If {value} is “{than}”", ["value": value, "than": than])
-        case .is_not: return L("If {value} isn't “{than}”", ["value": value, "than": than])
-        case .is_empty: return L("If {value} is empty", ["value": value])
-        case .not_empty: return L("If {value} has something", ["value": value])
-        case .more_than: return L("If {value} is more than {than}", ["value": value, "than": than])
-        case .less_than: return L("If {value} is less than {than}", ["value": value, "than": than])
+        case .contains: return L("{value} mentions “{than}”", ["value": value, "than": than])
+        case .not_contains: return L("{value} doesn't mention “{than}”", ["value": value, "than": than])
+        case .is: return L("{value} is “{than}”", ["value": value, "than": than])
+        case .is_not: return L("{value} isn't “{than}”", ["value": value, "than": than])
+        case .is_empty: return L("{value} is empty", ["value": value])
+        case .not_empty: return L("{value} has something", ["value": value])
+        case .more_than: return L("{value} is more than {than}", ["value": value, "than": than])
+        case .less_than: return L("{value} is less than {than}", ["value": value, "than": than])
         }
     }
 
@@ -137,7 +201,10 @@ import SidefolkExtensionKit
     static func aloud(_ body: FlowBody, catalog: Catalog) -> String {
         func said(_ list: [Step]) -> [String] {
             list.flatMap { s -> [String] in
-                guard case .branch(let c, let then, let otherwise) = s.kind else { return [step(s, body: body, catalog: catalog) + "."] }
+                guard case .branch(let c, let then, let otherwise) = s.kind else {
+                    let own = step(s, body: body, catalog: catalog)
+                    return s.parts.isEmpty ? [own + "."] : [own + ":"] + s.parts.flatMap { said($0.steps) }
+                }
                 var out = [condition(c, body: body, catalog: catalog) + ":"] + said(then)
                 if !otherwise.isEmpty { out += [L("Otherwise:")] + said(otherwise) }
                 return out
@@ -163,6 +230,7 @@ import SidefolkExtensionKit
         case "not_asked": return L("Turning a flow on starts with your own click or request. Press Turn on.")
         case "not_contained": return L("Sidefolk gives plans only to extensions that can't reach the internet by themselves.")
         case "unknown_tool": return L("One of its steps uses a tool that isn't available now.")
+        case "busy": return L("There's already a card up from Sideflow. Answer that, then try this again.")
         default: return L("Sidefolk didn't accept the plan.")
         }
     }

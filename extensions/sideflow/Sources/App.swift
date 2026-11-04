@@ -8,6 +8,8 @@ import SidefolkExtensionKit
     let engine: Engine
     let host = SidefolkHost()
     var nav = Nav()
+    /// Undo and redo, by flow, while the program runs.
+    var history: [String: Editing.History] = [:]
     /// What Guard says of each step now: its sentence and whether it would ask.
     var preflight: [String: [String: Actions.Check]] = [:]
     private var preflightAsked: [String: Date] = [:]
@@ -30,8 +32,14 @@ import SidefolkExtensionKit
         try? await Task.sleep(for: .seconds(startDelay))
         await catalog.refresh()
         engine.recover()
+        var lookedForWhatNobodyRead = false
         while !Task.isCancelled {
             await catalog.refresh()
+            // Once, with the list in hand: without it, it would look as if nothing had been allowed.
+            if !lookedForWhatNobodyRead, catalog.loadedAt != nil {
+                lookedForWhatNobodyRead = true
+                engine.pauseWhatNobodyRead()
+            }
             engine.tick()
             try? await Task.sleep(for: .seconds(30))
         }
@@ -46,8 +54,7 @@ import SidefolkExtensionKit
 
     func newFlow(name: String, body: FlowBody) -> Flow {
         var base = name.nonEmpty ?? L("New flow"), n = 2
-        let names = Set(store.flows().map(\.name))
-        while names.contains(base) {
+        while store.nameInUse(base) {
             base = "\(name.nonEmpty ?? L("New flow")) \(n)"
             n += 1
         }
@@ -55,6 +62,16 @@ import SidefolkExtensionKit
         let flow = Flow(id: String(UUID().uuidString.lowercased().prefix(8)), name: base, draft: body, createdAt: now, updatedAt: now)
         store.save(flow)
         return flow
+    }
+
+    /// A new name, and every step that names it goes with it: what sets a flow off or calls it finds it by name, and it's still the same flow.
+    func rename(_ flow: inout Flow, to name: String) throws {
+        if store.nameInUse(name, except: flow.id) { throw Problem(L("There's already a flow called “{name}”.", ["name": name])) }
+        let old = flow.name
+        // Only if the steps that name it could only have meant this one.
+        let wasTheOne = store.named(old)?.id == flow.id
+        flow.name = name
+        if wasTheOne { store.rewriteCalls(from: old, to: name, except: flow.id) }
     }
 
     /// What Guard would say of each action now, for the rail: refreshed after any change. Values to fill in are checked with a stand-in.
@@ -76,7 +93,8 @@ import SidefolkExtensionKit
             let plan = flow.state == .draft ? nil : flow.planId
             for step in flow.draft.allSteps {
                 guard case .action(let tool, let input) = step.kind else { continue }
-                if let check = await host.check(tool, values.fill(input), plan: plan) { out[step.id] = check }
+                let wordy = Set(catalog.tool(tool)?.parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name) ?? [])
+                if let check = await host.check(tool, values.fill(input, wordsIn: wordy), plan: plan) { out[step.id] = check }
             }
             // What sets it off is asked about too: a watch on a folder that isn't shared wouldn't start.
             if case .watch(let w) = flow.draft.trigger, let check = await host.check("watch.create", Engine.watchInput(w, title: Engine.watchTitle(flow)), plan: plan) {
@@ -109,6 +127,12 @@ struct Nav {
     private var inspected: [String: Inspecting] = [:]
 
     func inspecting(_ flow: Flow) -> Inspecting { inspected[flow.id] ?? .nothing }
+
+    /// The flow whose definition is showing to copy.
+    var exporting: String?
+    /// What's selected on a run's tree, and which go of a loop.
+    var runStep: [String: String] = [:]
+    var runScope: [String: String] = [:]
 
     mutating func inspect(_ what: Inspecting, in flow: String) { inspected[flow] = what }
 

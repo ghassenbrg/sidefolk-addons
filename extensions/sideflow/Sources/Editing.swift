@@ -18,12 +18,7 @@ enum Editing {
 
     /// Changes the list a step sits in, wherever it is.
     private static func mapLists(_ steps: [Step], _ change: ([Step]) -> [Step]) -> [Step] {
-        change(steps).map { step in
-            guard case .branch(let c, let then, let otherwise) = step.kind else { return step }
-            var step = step
-            step.kind = .branch(c, then: mapLists(then, change), otherwise: mapLists(otherwise, change))
-            return step
-        }
+        change(steps).map { $0.mappingParts { mapLists($0, change) } }
     }
 
     /// Adds after `after`: `start`, a step's id, or `then:<id>` / `else:<id>` for the start of a branch. Whatever isn't there now puts it last: a page a moment old loses nothing.
@@ -33,19 +28,17 @@ enum Editing {
             body.steps.insert(new, at: 0)
             return body
         }
-        if after.hasPrefix("then:") || after.hasPrefix("else:") {
-            let inThen = after.hasPrefix("then:"), id = String(after.dropFirst(5))
-            guard case .branch? = body.step(id)?.kind else {
+        // `then:<step>` and its like: the start of that way through it.
+        if let colon = after.firstIndex(of: ":") {
+            let part = String(after[..<colon]), id = String(after[after.index(after: colon)...])
+            guard let holder = body.step(id), holder.parts.contains(where: { $0.id == part }) else {
                 body.steps.append(new)
                 return body
             }
             body.steps = mapLists(body.steps) { list in
                 list.map { step in
-                    guard step.id == id, case .branch(let c, var then, var otherwise) = step.kind else { return step }
-                    if inThen { then.insert(new, at: 0) } else { otherwise.insert(new, at: 0) }
-                    var step = step
-                    step.kind = .branch(c, then: then, otherwise: otherwise)
-                    return step
+                    guard step.id == id else { return step }
+                    return step.holding(step.parts.map { $0.id == part ? [new] + $0.steps : $0.steps })
                 }
             }
             return body
@@ -95,15 +88,182 @@ enum Editing {
         return body
     }
 
+    /// The steps sure to have run before this one, in order: on the way to it, and after a condition only what both of its paths made.
+    static func available(before id: String, in body: FlowBody) -> [Step] {
+        /// Walks a list; true when it reached the step, with `sure` as it stands there.
+        func walk(_ list: [Step], _ sure: inout [Step]) -> Bool {
+            for step in list {
+                if step.id == id { return true }
+                let before = sure
+                var outcomes: [[Step]] = []
+                for part in step.parts {
+                    var inside = before
+                    // A try's steps may not have run by the time it recovers or finishes.
+                    if part.id == "recover" || part.id == "always" { inside = before }
+                    if walk(part.steps, &inside) { sure = inside; return true }
+                    outcomes.append(inside)
+                }
+                if !outcomes.isEmpty, step.after == .common {
+                    let both = outcomes.dropFirst().reduce(Set(outcomes[0].map(\.id))) { $0.intersection($1.map(\.id)) }
+                    sure = outcomes[0].filter { both.contains($0.id) }
+                }
+                if step.hasOutput { sure.append(step) }
+            }
+            return false
+        }
+        var sure: [Step] = []
+        return walk(body.steps, &sure) ? sure : []
+    }
+
+    enum Surrounding { case loop, recover }
+
+    /// What a step stands inside, so a field knows what's there for it.
+    static func around(_ id: String, in body: FlowBody) -> Set<Surrounding> {
+        func walk(_ list: [Step], _ have: Set<Surrounding>) -> Set<Surrounding>? {
+            for step in list {
+                if step.id == id { return have }
+                for part in step.parts {
+                    var inner = have
+                    if case .forEach = step.kind { inner.insert(.loop) }
+                    if part.id == "recover" { inner.insert(.recover) }
+                    if let found = walk(part.steps, inner) { return found }
+                }
+            }
+            return nil
+        }
+        return walk(body.steps, []) ?? []
+    }
+
     /// Puts a step where `insert` would put a new one, wherever it was: another branch too. Not inside itself.
     static func place(_ id: String, after: String, in body: FlowBody) -> FlowBody {
         guard let step = body.step(id) else { return body }
         func inside(_ step: Step) -> [String] {
-            guard case .branch(_, let then, let otherwise) = step.kind else { return [step.id] }
-            return [step.id, "then:\(step.id)", "else:\(step.id)"] + (then + otherwise).flatMap(inside)
+            [step.id] + step.parts.flatMap { ["\($0.id):\(step.id)"] + $0.steps.flatMap(inside) }
         }
         guard !inside(step).contains(after) else { return body }
         return insert(step, after: after, in: remove(id, from: body))
+    }
+
+    /// A copy right after the step, branches and all, with new ids. What's inside it that used a value made inside it uses the copy's; everything else is as it was.
+    static func duplicate(_ id: String, in body: FlowBody) -> (FlowBody, String)? {
+        guard let step = body.step(id) else { return nil }
+        var used = body
+        var renamed: [String: String] = [:]
+        func copy(_ step: Step) -> Step {
+            let fresh = freshId(used, base: step.id)
+            renamed[step.id] = fresh
+            used.steps.append(Step(id: fresh, kind: .text("")))
+            var out = step.mappingParts { $0.map(copy) }
+            out.id = fresh
+            return out
+        }
+        func remap(_ text: String) -> String {
+            Values.replacingSlots(in: text) { name, path in "{{\(renamed[name] ?? name)\(path)}}" }
+        }
+        func refs(_ step: Step) -> Step {
+            var out = step.mappingParts { $0.map(refs) }
+            switch out.kind {
+            case .action(let tool, let input): out.kind = .action(tool: tool, input: input.mapValues { $0.mapStrings(remap) })
+            case .ai(let prompt): out.kind = .ai(prompt: remap(prompt))
+            case .ask(let question, let options): out.kind = .ask(question: remap(question), options: options)
+            case .text(let text): out.kind = .text(remap(text))
+            case .branch(var c, let then, let otherwise):
+                c.value = remap(c.value)
+                c.than = remap(c.than)
+                c.also = c.also.map { var check = $0; check.value = remap($0.value); check.than = remap($0.than); return check }
+                out.kind = .branch(c, then: then, otherwise: otherwise)
+            case .forEach(let items, let limit, let failure, let steps): out.kind = .forEach(items: remap(items), limit: limit, onFailure: failure, steps: steps)
+            case .choose(let value, let paths, let otherwise): out.kind = .choose(value: remap(value), paths: paths, otherwise: otherwise)
+            case .call(let flow, let inputs): out.kind = .call(flow: flow, inputs: inputs.mapValues(remap))
+            case .finish(let value): out.kind = .finish(remap(value))
+            case .data(var data):
+                data.from = remap(data.from)
+                data.than = data.than.map(remap)
+                out.kind = .data(data)
+            case .wait, .flow, .attempt, .parallel, .form, .waitFor: break
+            }
+            return out
+        }
+        let copied = refs(copy(step))
+        return (insert(copied, after: id, in: body), copied.id)
+    }
+
+    /// What differs between two versions, in words: for reading before saving or applying.
+    @MainActor static func changes(from old: FlowBody, to new: FlowBody, catalog: Catalog) -> [String] {
+        var out: [String] = []
+        if old.trigger != new.trigger { out.append(L("What sets it off: {what}", ["what": Words.trigger(new.trigger)])) }
+        let before = Dictionary(old.allSteps.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let after = Dictionary(new.allSteps.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        for step in new.allSteps where before[step.id] == nil { out.append(L("Added: {step}", ["step": Words.label(step, catalog: catalog)])) }
+        for step in old.allSteps where after[step.id] == nil { out.append(L("Removed: {step}", ["step": Words.label(step, catalog: catalog)])) }
+        /// A step without what hangs from it: moving what's inside a branch isn't changing the branch.
+        func own(_ step: Step) -> Step { step.mappingParts { _ in [] } }
+        /// Where each step stands among those both versions have: what it's in, and the one before it there.
+        func places(_ body: FlowBody) -> [String: String] {
+            var out: [String: String] = [:]
+            func walk(_ list: [Step], _ inside: String) {
+                var previous = ""
+                for step in list {
+                    guard before[step.id] != nil, after[step.id] != nil else { continue }
+                    out[step.id] = "\(inside)|\(previous)"
+                    previous = step.id
+                }
+                for step in list {
+                    for part in step.parts { walk(part.steps, "\(part.id):\(step.id)") }
+                }
+            }
+            walk(body.steps, "")
+            return out
+        }
+        let (was, now) = (places(old), places(new))
+        for step in new.allSteps {
+            guard let earlier = before[step.id] else { continue }
+            if own(earlier) != own(step) {
+                out.append(L("Changed: {step}", ["step": Words.label(step, catalog: catalog)]))
+            } else if was[step.id] != now[step.id] {
+                out.append(L("Moved: {step}", ["step": Words.label(step, catalog: catalog)]))
+            }
+        }
+        return out
+    }
+
+    /// Undo and redo for what's being edited. Typing in one field is one step back, however many times it was handed over. Only the draft: nothing here reverses anything a run did.
+    struct History {
+        static let longest = 100
+        static let typingGap: TimeInterval = 2
+
+        private(set) var undo: [FlowBody] = []
+        private(set) var redo: [FlowBody] = []
+        private var lastKey: String?
+        private var lastAt: Date?
+
+        var canUndo: Bool { !undo.isEmpty }
+        var canRedo: Bool { !redo.isEmpty }
+
+        mutating func record(_ before: FlowBody, key: String?, at now: Date) {
+            redo = []
+            if let key, key == lastKey, let lastAt, now.timeIntervalSince(lastAt) < Self.typingGap {
+                self.lastAt = now
+                return
+            }
+            undo.append(before)
+            if undo.count > Self.longest { undo.removeFirst() }
+            (lastKey, lastAt) = (key, now)
+        }
+
+        mutating func back(from current: FlowBody) -> FlowBody? {
+            guard let last = undo.popLast() else { return nil }
+            redo.append(current)
+            (lastKey, lastAt) = (nil, nil)
+            return last
+        }
+
+        mutating func forward(from current: FlowBody) -> FlowBody? {
+            guard let next = redo.popLast() else { return nil }
+            undo.append(current)
+            (lastKey, lastAt) = (nil, nil)
+            return next
+        }
     }
 
     /// One place up or down among its own.

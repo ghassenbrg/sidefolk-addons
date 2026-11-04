@@ -6,7 +6,8 @@ enum JSON: Equatable, Sendable {
 
     init(_ any: Any?) {
         switch any {
-        case let b as Bool where type(of: any!) == type(of: NSNumber(value: true)) || any is Bool: self = .bool(b)
+        // Only a real true or false: a plain 1 also passes for a Bool in Swift.
+        case let b as Bool where CFGetTypeID(any! as CFTypeRef) == CFBooleanGetTypeID(): self = .bool(b)
         case let n as NSNumber: self = .number(n.doubleValue)
         case let s as String: self = .string(s)
         case let a as [Any]: self = .array(a.map { JSON($0) })

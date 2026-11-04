@@ -22,6 +22,10 @@ import SidefolkExtensionKit
     func notify(title: String, body: String?, attention: Bool) async {
         var input: [String: Any] = ["title": title, "level": attention ? "attention" : "gentle"]
         if let body { input["body"] = body }
+        let first = await Actions.call("notify.user", input, seconds: 30)
+        // A long loop can use up the minute's calls, and this may be what says another flow stopped.
+        guard first.status == .busy else { return }
+        try? await Task.sleep(for: .seconds(Engine.busyWait))
         _ = await Actions.call("notify.user", input, seconds: 30)
     }
 }

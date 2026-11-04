@@ -22,6 +22,41 @@ import SidefolkExtensionKit
                     ["do": "notify.user", "with": ["title": L("Your morning"), "body": "{{brief}}"], "name": L("Tell me")],
                 ],
             ]),
+            Template(id: "both", name: L("Plan and weather together"), line: L("Gets both at once, keeps going if the weather's out, and tells you in a line."), symbol: "square.split.2x1", color: "#3B6FF5", body: [
+                "trigger": ["type": "schedule", "days": ["mon", "tue", "wed", "thu", "fri"], "at": "07:45"],
+                "steps": [
+                    ["id": "got", "parallel": [
+                        ["name": "plan", "steps": [["id": "plan", "do": "agenda.today", "name": L("Get today's plan")]]],
+                        ["name": "weather", "steps": [["id": "weather", "do": "ext.weather.forecast", "name": L("Get the forecast"), "on_failure": "carry_on"]]],
+                    ], "name": L("Get both at once")],
+                    ["id": "line", "ai": "In one friendly line, for this person's morning:\nPlan: {{got.plan}}\nWeather: {{got.weather}}", "name": L("Write it with the AI")],
+                    ["do": "notify.user", "with": ["title": L("Your morning"), "body": "{{line}}"], "name": L("Tell me")],
+                ],
+            ]),
+            Template(id: "list", name: L("Go through a list"), line: L("Paste a list, and the AI writes a line about each, one note at the end."), symbol: "repeat", color: "#1FA88A", body: [
+                "trigger": ["type": "manual"],
+                "steps": [
+                    ["id": "list", "ask": L("What's the list? One per line."), "name": L("Ask me for the list")],
+                    ["id": "each", "for_each": "{{list}}", "limit": 50, "item_failure": "collect", "name": L("For each one"), "steps": [
+                        ["id": "line", "ai": "In one short line, say something useful about: {{item}}", "name": L("Write a line with the AI")],
+                    ]],
+                    ["id": "all", "data": ["op": "join", "from": "{{each}}", "separator": "\n"], "name": L("Put them together")],
+                    ["do": "notes.save", "with": ["text": "{{all}}"], "name": L("Save a note")],
+                ],
+            ]),
+            Template(id: "review", name: L("Ask before it goes"), line: L("A form waits for your word, for days if it must, then saves what you said."), symbol: "list.clipboard", color: "#F2B33D", body: [
+                "trigger": ["type": "manual"],
+                "steps": [
+                    ["id": "draft", "ai": "Write a short status update about this week, as a placeholder to edit.", "name": L("Write a draft with the AI")],
+                    ["id": "ok", "form": ["title": L("Check this draft"), "hours": 72, "fields": [
+                        ["name": "text", "label": L("The text, as it should be"), "kind": "text"],
+                        ["name": "go", "label": L("Save it?"), "kind": "yes_no", "required": false],
+                    ]], "name": L("Ask me"), "on_failure": "stop"],
+                    ["if": ["value": "{{ok.go}}", "test": "is", "than": "true"], "then": [
+                        ["do": "notes.save", "with": ["text": "{{ok.text}}"], "name": L("Save a note")],
+                    ], "else": []],
+                ],
+            ]),
             Template(id: "changed", name: L("Tell me what changed"), line: L("When a page changes, the AI says what's new and saves a note."), symbol: "doc.text.magnifyingglass", color: "#5B8DEF", body: [
                 "trigger": ["type": "watch", "kind": "url_change", "target": "https://example.com"],
                 "steps": [

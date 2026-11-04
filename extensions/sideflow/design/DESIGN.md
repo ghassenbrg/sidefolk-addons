@@ -13,7 +13,7 @@ secrets. **Not** a node canvas: a canvas makes you think about wires, and these 
 
 **What it reaches (the founder, 2026-11-03: "every single thing that app can do"):** every extension's tools, MCP servers and programs on a card each time, nearly all of Sidefolk's own, a whole job for the companion under the person's trust settings, other flows, and starting when something happens in the app. Reachable isn't unattended: only what the person read exactly runs by itself.
 
-**What it leads with:** watch it practise, with nothing changed, before it may act alone; then read once what it will do. That is what
+**What it leads with:** watch it practice, with nothing changed, before it may act alone; then read once what it will do. That is what
 workflow apps don't have, because they don't have a Guard.
 
 ## What was considered
@@ -34,7 +34,7 @@ workflow apps don't have, because they don't have a Guard.
 
 ## The states, and the words for them
 
-- **Draft**: nothing runs. Primary: Practice run, then Turn on once it has practised.
+- **Draft**: nothing runs. Primary: Practice run, then Turn on once it has practiced.
 - **Practice run**: reads what Sidefolk vouches for, for real. Changes nothing, tells nobody. Says "Would: …" for the rest. A wait doesn't hold it, and it goes on as if the first answer were given.
 - **On**: runs by itself under what the person read. An edit stays a draft ("On, as before. Your changes aren't live") until Apply changes.
 - **Paused**: keeps what was allowed; resuming needs no card unless it changed.

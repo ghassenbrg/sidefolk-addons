@@ -57,13 +57,15 @@ import SidefolkExtensionKit
                 body = try FlowCodec.body(args.values["definition"] ?? ["steps": [Any]()])
             }
             let flow = app.newFlow(name: name, body: body)
+            if app.store.flowsNotSaved { throw Problem(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.")) }
             app.refreshPreflight(flow.id)
             let problems = body.problems(app.catalog).map(\.text)
             if args.bool("start") == true, problems.isEmpty {
                 if let refused = await asking(flow.id, app) {
                     return ToolReply(L("Saved “{name}” as a draft. {why}", ["name": flow.name, "why": refused])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
                 }
-                return ToolReply(L("Saved “{name}”, and there's a card asking you to turn it on: {words}", ["name": flow.name, "words": Words.aloud(body, catalog: app.catalog)])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
+                return ToolReply(Engine.needsCard(body) ? L("Saved “{name}”, and there's a card asking you to turn it on: {words}", ["name": flow.name, "words": Words.aloud(body, catalog: app.catalog)])
+                                 : L("Saved “{name}” and turned it on: {words}", ["name": flow.name, "words": Words.aloud(body, catalog: app.catalog)])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
             }
             var text = L("Saved “{name}” as a draft. Nothing runs until you turn it on. {words}", ["name": flow.name, "words": Words.aloud(body, catalog: app.catalog)])
             if !problems.isEmpty { text += "\n" + L("To fix first: {list}", ["list": problems.joined(separator: " ")]) }
@@ -73,9 +75,14 @@ import SidefolkExtensionKit
         ext.tool("update_flow", "Change a flow", "Replaces a flow's definition, name, or both. An On flow keeps running as it was until the person applies the change on a card.",
                  input: Schema.object(["flow": flowParam, "definition": definition, "name": Schema.string("A new name.", maxLength: 60)], required: ["flow"])) { args in
             var flow = try app.flow(named: try args.required("flow"))
+            // Someone's in the middle of it on the page: their changes aren't to be written over.
+            guard !flow.hasUnsaved else { throw Problem(L("This flow has unsaved changes on its page. Ask the person to save or discard them first.")) }
             if let raw = args.values["definition"] { flow.draft = try FlowCodec.body(raw) }
-            if let name = args.string("name") { flow.name = name }
+            if let name = args.string("name") {
+                try app.rename(&flow, to: name)
+            }
             app.store.save(flow)
+            if app.store.flowsNotSaved { throw Problem(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.")) }
             app.refreshPreflight(flow.id)
             let problems = flow.draft.problems(app.catalog).map(\.text)
             var text = flow.state == .draft ? L("Changed the draft.") : L("Changed. It keeps running as before until you apply this.")
@@ -83,22 +90,23 @@ import SidefolkExtensionKit
             return text
         }
 
-        ext.tool("practice_flow", "Practise a flow", "Runs a flow's draft for practice: what only reads runs for real (asking the person once), nothing is changed, and each other step says what it would do. The result is in get_run.",
+        ext.tool("practice_flow", "Practice a flow", "Runs a flow's draft for practice: what only reads runs for real (asking the person once), nothing is changed, and each other step says what it would do. The result is in get_run.",
                  input: Schema.object(["flow": flowParam], required: ["flow"]), reply: { args in
             let flow = try app.flow(named: try args.required("flow"))
             let problems = flow.draft.problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
-            app.engine.practise(flow)
-            return ToolReply(L("Practising “{name}”. Nothing will be changed.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
+            app.engine.practice(flow)
+            return ToolReply(L("Practicing “{name}”. Nothing will be changed.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
         })
 
         ext.tool("start_flow", "Turn a flow on", "Asks the person, on a card, to let a flow run by itself as it's written now. It's on only once they say yes; say that a card is waiting.",
                  input: Schema.object(["flow": flowParam], required: ["flow"]), reply: { args in
             let flow = try app.flow(named: try args.required("flow"))
-            let problems = flow.draft.problems(app.catalog).map(\.text)
+            let problems = flow.kept.problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             if let refused = await asking(flow.id, app) { throw Problem(refused) }
-            return ToolReply(L("There's a card asking to turn on “{name}”. It starts once you say yes.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
+            let said = Engine.needsCard(flow.kept) ? L("There's a card asking to turn on “{name}”. It starts once you say yes.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])
+            return ToolReply(said).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
         })
 
         ext.tool("pause_flow", "Pause a flow", "Stops a flow running by itself until it's resumed. Runs under way finish.", input: Schema.object(["flow": flowParam], required: ["flow"])) { args in
@@ -109,17 +117,19 @@ import SidefolkExtensionKit
 
         ext.tool("resume_flow", "Resume a flow", "Lets a paused flow run by itself again. If it changed since, this asks on a card.", input: Schema.object(["flow": flowParam], required: ["flow"])) { args in
             let flow = try app.flow(named: try args.required("flow"))
-            guard flow.hasChanges || flow.live == nil else {
+            guard flow.hasChanges || flow.live == nil || app.engine.nobodyRead(flow) else {
                 app.engine.resume(flow.id)
                 return L("“{name}” is running by itself again.", ["name": flow.name])
             }
             if let refused = await asking(flow.id, app) { throw Problem(refused) }
-            return L("There's a card asking to turn on “{name}”.", ["name": flow.name])
+            return Engine.needsCard(flow.kept) ? L("There's a card asking to turn on “{name}”.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])
         }
 
         ext.tool("run_flow", "Run a flow now", "Runs a flow once, now. An On flow runs under what the person allowed; a draft runs for real, every action on its own card. Returns at once: the result is in get_run.",
                  input: Schema.object(["flow": flowParam, "input": Schema.string("Words for this run, if the person gave any: its steps read them as {{trigger}}.")], required: ["flow"])) { args in
             let flow = try app.flow(named: try args.required("flow"))
+            // Paused is the person's word. Going on from it is theirs too.
+            guard flow.state != .paused else { throw Problem(L("“{name}” is paused. Ask the person to resume it first.", ["name": flow.name])) }
             let problems = (flow.state == .draft ? flow.draft : flow.running).problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             let mode: Run.Mode = flow.live != nil ? .live : .once
@@ -148,6 +158,8 @@ import SidefolkExtensionKit
                  input: Schema.object(["run": Schema.string("The run's id."), "how": Schema.string("What to do.", oneOf: ["try_again", "carry_on", "stop"])], required: ["run", "how"])) { args in
             guard let run = app.store.run(try args.required("run")), !run.status.isOver else { throw Problem(L("That run has already ended.")) }
             guard let how = Engine.Forward(rawValue: try args.required("how")) else { throw Problem(L("That isn't a way forward.")) }
+            // A form or another run it's waiting for isn't a stop to go past: only the person's answer moves a form on.
+            guard run.status == .needs_you || run.status == .interrupted || how == .stop else { throw Problem(L("That run isn't stopped: it's waiting for something.")) }
             app.engine.proceed(run.id, how)
             return L("Done. See how it goes with get_run.")
         }
@@ -207,7 +219,7 @@ import SidefolkExtensionKit
         switch run.status {
         case .running: L("Running")
         case .waiting: L("Waiting")
-        case .done: run.mode == .practice ? L("Practised") : L("Done")
+        case .done: run.mode == .practice ? L("Practiced") : L("Done")
         case .failed: L("Failed")
         case .stopped: L("Stopped")
         case .needs_you: L("Needs you")

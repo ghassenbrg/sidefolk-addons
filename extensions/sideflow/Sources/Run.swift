@@ -32,6 +32,43 @@ struct Run: Equatable, Sendable, Identifiable {
         var output: String?
         var note: String?
         var at: Date
+        /// Which go of a loop it's from: `3`, or `3.1` inside another. Nil outside any.
+        var scope: String?
+        /// Which try of the step: 1 and up.
+        var attempt = 1
+        /// What it was given, as words.
+        var input: String?
+    }
+
+    /// Somewhere a run is inside: a loop going round, or a try. On disk with it, so a restart comes back to item 37 of 40.
+    struct Frame: Equatable, Sendable {
+        enum Kind: String, Sendable { case loop, attempt }
+
+        var kind: Kind
+        var step: String
+        // A loop: its items, where it is, what each gave, and the program's place to come back to and to end at.
+        var items: [JSON] = []
+        var index = 0
+        var results: [JSON] = []
+        var failedItems = 0
+        var collect = false
+        var top = 0
+        var end = 0
+        // A try: where its other ways are, and which it's in.
+        var recover = 0
+        var always = 0
+        var inRecover = false
+        var inAlways = false
+        /// It failed for this, and goes on failing once its last steps are done.
+        var failing: String?
+        /// The flow ended inside it, and goes on ending once its last steps are done.
+        var returning = false
+    }
+
+    /// A form waiting for the person.
+    struct WaitingForm: Equatable, Sendable {
+        var step: String
+        var answers: [String: JSON] = [:]
     }
 
     var id: String
@@ -54,40 +91,128 @@ struct Run: Equatable, Sendable, Identifiable {
     var retries = 0
     /// What the person should know, when it stopped.
     var problem: String?
+    var frames: [Frame] = []
+    /// The run that waits for this one, and every flow on the way here: a flow can't end up calling itself.
+    var parent: String?
+    var lineage: [String] = []
+    /// Runs this one waits for, at a call or a parallel.
+    var waitingOn: [String] = []
+    /// What it answers to the run that called it.
+    var output: JSON?
+    var form: WaitingForm?
+    /// Another flow's step started it, rather than someone asking.
+    var setOff = false
+    /// A lane's item and its number, from the loop it's in.
+    var startItem: JSON?
+    var startIndex: JSON?
+
+    /// What it answers to a run that called it: what it said at its end, or what its last step made.
+    var answer: JSON { output ?? .null }
+
+    /// Where it is among the loops it's in.
+    var scope: String? {
+        let places = frames.filter { $0.kind == .loop }.map { String($0.index + 1) }
+        return places.isEmpty ? nil : places.joined(separator: ".")
+    }
 
     mutating func record(_ r: Record) {
-        if let i = records.lastIndex(where: { $0.step == r.step }) { records[i] = r } else { records.append(r) }
+        var r = r
+        if r.scope == nil { r.scope = scope }
+        if r.attempt == 1 { r.attempt = retries + 1 }
+        if let i = records.lastIndex(where: { $0.step == r.step && $0.scope == r.scope }) {
+            if r.input == nil { r.input = records[i].input }
+            records[i] = r
+        } else {
+            records.append(r)
+        }
+        // A long loop keeps what's most use: the latest, and every step outside it.
+        if records.count > Self.longestStory, let old = records.firstIndex(where: { $0.scope != nil && $0.status == .done }) { records.remove(at: old) }
     }
+
+    static let longestStory = 400
 
     func record(of step: String) -> Record? { records.last { $0.step == step } }
 }
 
-/// A flow in order, with its branches as jumps, so where a run is fits in one number on disk.
+/// A flow in order, with what holds other steps as jumps, so where a run is fits in one number on disk, and the loops and tries it's in in a short list.
 struct FlowProgram {
     enum Op: Equatable {
         case step(Step)
         case branch(Step, Condition, otherwise: Int)
         case jump(Int)
+        case loopStart(Step, end: Int)
+        case loopNext(Step)
+        case choose(Step, targets: [Int], otherwise: Int)
+        case tryStart(Step, recover: Int, always: Int)
+        case alwaysStart
+        case tryEnd
     }
 
     var ops: [Op] = []
 
     init(_ body: FlowBody) { add(body.steps) }
 
+    /// Where a run goes next when it leaves what's at `pc` undone: past all of it, not into what it holds.
+    func past(_ pc: Int) -> Int {
+        guard ops.indices.contains(pc) else { return pc + 1 }
+        switch ops[pc] {
+        case .loopStart(_, let end): return end + 1
+        case .choose(_, _, let otherwise):
+            // Every path but the last way ends in a jump past them all.
+            if otherwise > 0, case .jump(let end) = ops[otherwise - 1] { return end }
+            return otherwise
+        default: return pc + 1
+        }
+    }
+
     private mutating func add(_ steps: [Step]) {
         for step in steps {
-            guard case .branch(let c, let then, let otherwise) = step.kind else {
+            switch step.kind {
+            case .branch(let c, let then, let otherwise):
+                let test = ops.count
+                ops.append(.branch(step, c, otherwise: 0))
+                add(then)
+                let leave = ops.count
+                ops.append(.jump(0))
+                ops[test] = .branch(step, c, otherwise: ops.count)
+                add(otherwise)
+                ops[leave] = .jump(ops.count)
+            case .forEach(_, _, _, let inside):
+                let start = ops.count
+                ops.append(.loopStart(step, end: 0))
+                add(inside)
+                ops.append(.loopNext(step))
+                ops[start] = .loopStart(step, end: ops.count - 1)
+            case .choose(_, let paths, let otherwise):
+                let start = ops.count
+                ops.append(.choose(step, targets: [], otherwise: 0))
+                var targets: [Int] = [], leaves: [Int] = []
+                for path in paths {
+                    targets.append(ops.count)
+                    add(path.steps)
+                    leaves.append(ops.count)
+                    ops.append(.jump(0))
+                }
+                ops[start] = .choose(step, targets: targets, otherwise: ops.count)
+                add(otherwise)
+                for leave in leaves { ops[leave] = .jump(ops.count) }
+            case .attempt(let inside, let recover, let always):
+                let start = ops.count
+                ops.append(.tryStart(step, recover: 0, always: 0))
+                add(inside)
+                let leave = ops.count
+                ops.append(.jump(0))
+                let toRecover = ops.count
+                add(recover)
+                let toAlways = ops.count
+                ops[leave] = .jump(toAlways)
+                ops[start] = .tryStart(step, recover: toRecover, always: toAlways)
+                ops.append(.alwaysStart)
+                add(always)
+                ops.append(.tryEnd)
+            default:
                 ops.append(.step(step))
-                continue
             }
-            let test = ops.count
-            ops.append(.branch(step, c, otherwise: 0))
-            add(then)
-            let leave = ops.count
-            ops.append(.jump(0))
-            ops[test] = .branch(step, c, otherwise: ops.count)
-            add(otherwise)
-            ops[leave] = .jump(ops.count)
         }
     }
 }

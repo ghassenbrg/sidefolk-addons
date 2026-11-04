@@ -3,7 +3,7 @@
   "name": "Sideflow",
   "version": "1.0.0",
   "sidefolk": ">=0.1",
-  "description": "Teach your companion a routine. Say what you repeat or build it step by step. It practises first and changes nothing; then you read what it will do, once, and it runs by itself. Every run is a story you can read, with a way forward when it stops.",
+  "description": "Teach your companion a routine. Say what you repeat or build it step by step. It practices first and changes nothing; then you read what it will do, once, and it runs by itself. Every run is a story you can read, with a way forward when it stops.",
   "tagline": "Teach your companion a routine",
   "folk": "tempo",
   "author": "Sidefolk",
@@ -23,7 +23,9 @@
   },
   "settings": [
     { "key": "tell", "type": "choice", "title": "Tell me when a flow finishes", "detail": "It always tells you when one stops or needs you.", "segmented": true,
-      "options": [{ "value": "always", "title": "Always, with its result" }, { "value": "problems", "title": "Only problems" }], "default": "problems" }
+      "options": [{ "value": "always", "title": "Always, with its result" }, { "value": "problems", "title": "Only problems" }], "default": "problems" },
+    { "key": "keep_runs", "type": "choice", "title": "Runs to keep for each flow", "detail": "Older ones go. What a flow did stays in History.", "segmented": true,
+      "options": [{ "value": "40", "title": "40" }, { "value": "100", "title": "100" }, { "value": "400", "title": "400" }], "default": "40" }
   ],
   "examples": ["what flows do i have", "run morning brief", "every weekday at 8:30 tell me what's on today"],
   "entries": [
@@ -38,7 +40,7 @@
     "get_flow": { "title": "Read a flow", "risk": "low", "mutates": false, "category": "extensions", "agents": true },
     "create_flow": { "title": "Make a flow", "risk": "low", "mutates": true, "category": "extensions", "agents": true, "timeout": 30 },
     "update_flow": { "title": "Change a flow", "risk": "low", "mutates": true, "category": "extensions", "agents": true },
-    "practice_flow": { "title": "Practise a flow", "risk": "low", "mutates": false, "category": "extensions", "agents": true,
+    "practice_flow": { "title": "Practice a flow", "risk": "low", "mutates": false, "category": "extensions", "agents": true,
       "commands": [{ "say": ["practice {flow}", "practise {flow}", "do a practice run of {flow}"] }] },
     "start_flow": { "title": "Turn a flow on", "risk": "low", "mutates": true, "category": "extensions", "agents": true,
       "commands": [{ "say": ["turn on flow {flow}", "start flow {flow}", "turn on the {flow} flow"] }] },

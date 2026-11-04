@@ -54,9 +54,9 @@ import SidefolkExtensionKit
 
     static func summary(_ app: App) -> Summary {
         let flows = app.store.flows(), on = flows.filter { $0.state == .on }
-        let stuck = app.store.unfinished().filter { $0.status == .needs_you || $0.status == .interrupted }
+        let stuck = app.store.unfinished().filter { $0.status == .needs_you || $0.status == .interrupted || $0.form != nil }
         if let first = stuck.first {
-            return Summary(L(one: "{count} flow needs you", other: "{count} flows need you", count: stuck.count), detail: first.flowName, tone: .warn, symbol: "exclamationmark.bubble")
+            return Summary(L(one: "{count} flow needs you", other: "{count} flows need you", count: Set(stuck.map(\.flow)).count), detail: first.flowName, tone: .warn, symbol: "exclamationmark.bubble")
         }
         if let failed = app.store.runs().first(where: { $0.mode == .live }), failed.status == .failed {
             return Summary(L("{flow} failed", ["flow": failed.flowName]), detail: failed.problem ?? "", tone: .bad, symbol: "xmark.circle")
@@ -76,7 +76,9 @@ import SidefolkExtensionKit
     /// What's wrong with the file itself: the person can't see this any other way.
     static func storeWarnings(_ app: App) -> [Section] {
         var notes: [Block] = []
-        if app.store.flowsNotSaved { notes.append(.note(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits."), tone: .bad)) }
+        if app.store.flowsFileIsHeld {
+            notes.append(.note(L("Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be."), tone: .bad))
+        } else if app.store.flowsNotSaved { notes.append(.note(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits."), tone: .bad)) }
         if let aside = app.store.damagedFile { notes.append(.note(L("Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.", ["file": aside.lastPathComponent]), tone: .bad)) }
         if app.store.unreadableCount > 0 { notes.append(.note(L(one: "{count} flow can't be read by this version. It's kept, not shown.", other: "{count} flows can't be read by this version. They're kept, not shown.", count: app.store.unreadableCount), tone: .warn)) }
         return notes.isEmpty ? [] : [Section(nil, notes, wide: true)]
@@ -111,7 +113,7 @@ import SidefolkExtensionKit
         func pick(_ id: String, _ label: String) -> PageNav.Item {
             .init(id, label, selected: filter == id, press: Action(label, act: .go(Go(set: ["filter": id]))))
         }
-        let stuck = Set(app.store.unfinished().filter { $0.status == .needs_you || $0.status == .interrupted }.map(\.flow))
+        let stuck = Set(app.store.unfinished().filter { $0.status == .needs_you || $0.status == .interrupted || $0.form != nil }.map(\.flow))
         let mine = PageNav(title: L("My flows"), add: button(L("New flow"), "new", symbol: "plus"), filters: [pick("all", L("All")), pick("on", L("On")), pick("drafts", L("Drafts"))],
                            items: app.store.flows().filter(keep).sorted { stuck.contains($0.id) && !stuck.contains($1.id) }.map { flow in
                                let look = flowLook(flow)
@@ -131,15 +133,16 @@ import SidefolkExtensionKit
     /// A flow's state in one word and its colour, always together (D78).
     static func stateWord(_ flow: Flow, _ app: App) -> (String, Tone) {
         if app.engine.isRunning(flow.id) { return (L("Running now"), .info) }
+        if flow.hasUnsaved { return (L("Unsaved changes"), .warn) }
         switch flow.state {
-        case .on: return flow.hasChanges ? (L("On · changes waiting"), .info) : (L("On"), .good)
+        case .on: return flow.hasChanges ? (L("On · changes to apply"), .info) : (L("On"), .good)
         case .paused: return (L("Paused"), .neutral)
-        case .draft: return practised(flow, app) != nil ? (L("Practised"), .info) : (L("Draft"), .neutral)
+        case .draft: return practiced(flow, app) != nil ? (L("Practiced"), .info) : (L("Draft"), .neutral)
         }
     }
 
     /// The practice run of what's written now, if it finished.
-    static func practised(_ flow: Flow, _ app: App) -> Run? {
+    static func practiced(_ flow: Flow, _ app: App) -> Run? {
         guard let run = practice(flow, app), run.status.isOver, run.status != .failed else { return nil }
         return run
     }
@@ -168,16 +171,18 @@ import SidefolkExtensionKit
         body += needsYou(app)
         body.append(Section(nil, [.cards(size: .small, flows.map { card($0, app) })], wide: true))
         body.append(Section(nil, describing(app), wide: true))
+        body.append(Section(L("Bring one in"), [.edit(EditField("import", L("A flow's definition"), value: "", detail: L("One copied from Sideflow. It comes in as a draft: nothing runs until you've read it and turned it on."), placeholder: "{\"name\": …, \"flow\": …}", kind: .multiline, tool: "ui", input: ui("import")))], collapsed: true, wide: true))
         main += body
         return frame(app, state: state, here: "flows", main)
     }
 
     static func needsYou(_ app: App) -> [Section] {
-        let stuck = app.store.unfinished().filter { $0.status == .needs_you || $0.status == .interrupted }
+        // A form in a lane or a called flow counts: nothing else shows it from here, and left alone it runs out of time.
+        let stuck = app.store.unfinished().filter { $0.status == .needs_you || $0.status == .interrupted || $0.form != nil }
         guard !stuck.isEmpty else { return [] }
         return [Section(nil, [.cards(size: .small, stuck.prefix(6).map { run in
             let open = go(L("Answer"), place(["run": run.id]), style: .accent)
-            return Card(run.flowName, detail: run.problem ?? L("It stopped midway. It needs one answer from you."), symbol: "exclamationmark.bubble", color: "#C2610F",
+            return Card(run.flowName, detail: run.problem ?? (run.form != nil ? L("It's waiting for you to fill something in.") : L("It stopped midway. It needs one answer from you.")), symbol: "exclamationmark.bubble", color: "#C2610F",
                         badge: Badge(L("Needs you"), tone: .warn), actions: [open], press: open)
         })], wide: true)]
     }
@@ -191,9 +196,9 @@ import SidefolkExtensionKit
         } else {
             meta = flow.state == .draft ? L("Nothing runs yet") : L("Waiting for a change")
         }
-        if flow.state == .draft, practised(flow, app) != nil { meta = L("Ready to turn on") }
+        if flow.state == .draft, practiced(flow, app) != nil { meta = L("Ready to turn on") }
         let look = flowLook(flow), word = stateWord(flow, app)
-        return Card(flow.name, detail: meta, symbol: look.symbol, color: look.color, badge: Badge(word.0, tone: word.1), tree: mini(flow.running, pending: flow.state == .draft && practised(flow, app) == nil, app),
+        return Card(flow.name, detail: meta, symbol: look.symbol, color: look.color, badge: Badge(word.0, tone: word.1), tree: mini(flow.running, pending: flow.state == .draft && practiced(flow, app) == nil, app),
                     press: go(L("Open"), place(Nav.open(flow: flow.id))))
     }
 
@@ -203,9 +208,7 @@ import SidefolkExtensionKit
             steps.map { step in
                 let look = look(step, app)
                 var branches: [CardTree.Branch] = []
-                if case .branch(_, let then, let otherwise) = step.kind {
-                    branches = [CardTree.Branch("then:\(step.id)", L("Yes"), nodes: nodes(then)), CardTree.Branch("else:\(step.id)", L("No"), nodes: nodes(otherwise))]
-                }
+                branches = step.parts.map { CardTree.Branch("\($0.id):\(step.id)", partLabel($0.id, of: step), nodes: nodes($0.steps)) }
                 return CardTree.Node(step.id, Words.label(step, catalog: app.catalog), symbol: look.symbol, color: look.color, state: pending ? .pending : .none, branches: branches)
             }
         }
@@ -231,7 +234,7 @@ import SidefolkExtensionKit
     }
 
     static func firstRun(_ app: App, state: Arguments) -> Page {
-        var hero = Hero(L("Teach your companion a routine"), detail: L("Say it once. Watch it practise, with nothing changed. Then it's yours."), symbol: "point.3.connected.trianglepath.dotted")
+        var hero = Hero(L("Teach your companion a routine"), detail: L("Say it once. Watch it practice, with nothing changed. Then it's yours."), symbol: "point.3.connected.trianglepath.dotted")
         hero.figure = .companion(.full)
         hero.says = L("What should I take off your hands?")
         // Flat, as the buttons are: the line alone runs from one colour to the other.
@@ -257,7 +260,7 @@ import SidefolkExtensionKit
     }
 
     static func historyPage(_ app: App, state: Arguments) -> Page {
-        let runs = app.store.runs().prefix(40)
+        let runs = app.store.runs().filter { $0.parent == nil }.prefix(40)
         return frame(app, state: state, here: "history", [
             Section(nil, [.bar(PageBar(L("Run history"), detail: L("Everything your flows did, newest first.")))]),
             Section(nil, runs.isEmpty ? [.note(L("No runs yet."))] : [runList(Array(runs), named: true)], wide: true),
@@ -303,6 +306,21 @@ import SidefolkExtensionKit
         }
     }
 
+    /// What a way through a step is called on the board.
+    static func partLabel(_ part: String, of step: Step) -> String {
+        switch step.kind {
+        case .choose(_, let paths, _):
+            if part.hasPrefix("path"), let at = Int(part.dropFirst(4)), paths.indices.contains(at) { return paths[at].when.nonEmpty ?? L("Path {count}", ["count": Format.integer(at + 1)]) }
+            return L("Otherwise")
+        case .parallel(let lanes):
+            if part.hasPrefix("lane"), let at = Int(part.dropFirst(4)), lanes.indices.contains(at) { return lanes[at].name }
+            return part
+        case .forEach: return L("Each item")
+        case .attempt: return part == "try" ? L("Try") : part == "recover" ? L("If it fails") : L("Either way")
+        default: return part == "then" ? L("If so") : L("Otherwise")
+        }
+    }
+
     static func look(_ step: Step, _ app: App) -> (symbol: String, color: String) {
         switch step.kind {
         case .ai: return ("sparkles", "#8E6CF0")
@@ -311,6 +329,15 @@ import SidefolkExtensionKit
         case .branch: return ("arrow.triangle.branch", "#1FA88A")
         case .wait: return ("hourglass", "#6B7A90")
         case .flow: return ("arrow.triangle.turn.up.right.circle", "#5B8DEF")
+        case .forEach: return ("repeat", "#1FA88A")
+        case .choose: return ("arrow.triangle.swap", "#1FA88A")
+        case .attempt: return ("shield.lefthalf.filled", "#1FA88A")
+        case .parallel: return ("arrow.triangle.branch", "#3B6FF5")
+        case .call: return ("arrow.triangle.turn.up.right.circle.fill", "#5B8DEF")
+        case .finish: return ("flag.checkered", "#6B7A90")
+        case .data: return ("tablecells", "#6B7A90")
+        case .form: return ("list.clipboard", "#F2B33D")
+        case .waitFor: return ("hourglass.badge.plus", "#6B7A90")
         case .action(let tool, _):
             if tool == "notify.user" { return ("bell", "#FF7B6B") }
             if tool == "companion.job" { return ("wand.and.stars", "#C65CD6") }
@@ -341,38 +368,53 @@ import SidefolkExtensionKit
     static func head(_ flow: Flow, _ app: App, ready: Bool, startable: Bool = true) -> PageBar {
         let practice = practice(flow, app), running = app.engine.isRunning(flow.id)
         let fix = ready ? nil : L("Fix what's marked first.")
-        // What sets it off can't start yet: it may still practise, which makes no watch.
+        // What sets it off can't start yet: it may still practice, which makes no watch.
         let cantStart = fix ?? (startable ? nil : L("Sort out what sets it off first."))
         let canStart = ready && startable
+        let saveFirst = flow.hasUnsaved
         let id = ["flow": flow.id]
         var actions: [Action] = [], extra: [Action] = []
         var pill = Badge(stateWord(flow, app).0, tone: stateWord(flow, app).1)
-        var sentence = Words.aloud(flow.draft, catalog: app.catalog)
+        // The board says the rest: when it runs, and how long it is.
+        var sentence = L(one: "{when} · {count} step", other: "{when} · {count} steps", count: flow.draft.allSteps.count, ["when": Words.trigger(flow.draft.trigger)])
         if running, practice?.status == .running {
-            pill = Badge(L("Practising"), tone: .info)
+            pill = Badge(L("Practicing"), tone: .info)
             sentence = L("It reads for real and changes nothing.")
-            if let practice { actions = [button(L("Stop practising"), "proceed", ["run": practice.id, "how": "stop"], symbol: "stop.fill")] }
+            if let practice { actions = [button(L("Stop practicing"), "stop_run", ["run": practice.id], symbol: "stop.fill")] }
         } else {
             switch flow.state {
             case .draft:
-                if practised(flow, app) != nil {
+                if practiced(flow, app) != nil {
                     actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
-                               button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? L("You read what it will do first."), disabled: !canStart)]
+                               button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart)]
                 } else {
                     actions = [button(L("Practice run"), "practice", id, style: .primary, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready)]
-                    extra.append(button(L("Turn on without practising"), "start", id, symbol: "power", detail: cantStart ?? L("You read what it will do first."), disabled: !canStart))
+                    extra.append(button(L("Turn on without practicing"), "start", id, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart))
                 }
             case .on:
                 actions = flow.hasChanges
                     ? [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Apply changes"), "start", id, style: .primary, symbol: "checkmark", detail: cantStart, disabled: !canStart)]
                     : [button(L("Run now"), "run", id, symbol: "play.fill"), button(L("Pause"), "pause", id, symbol: "pause.fill")]
-                if flow.hasChanges { extra.append(button(L("Discard changes"), "discard", id, symbol: "arrow.uturn.backward")) }
+                if flow.hasChanges { extra.append(button(L("Go back to what's running"), "back_to_live", id, symbol: "arrow.uturn.backward")) }
             case .paused:
                 actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Resume"), "resume", id, style: .primary, symbol: "play.fill", detail: cantStart, disabled: !canStart)]
             }
         }
         if flow.hasChanges, !running { sentence = L("On, as before. Your changes aren't live.") }
+        // Unsaved comes first: the one thing to do is keep or drop them, and the mark and the button say so wherever the flow stands.
+        if saveFirst, !running {
+            pill = Badge(L("Unsaved changes"), tone: .warn)
+            let count = flow.saved.map { Editing.changes(from: $0, to: flow.draft, catalog: app.catalog).count } ?? 0
+            sentence = flow.state == .on ? L(one: "{count} change, only here so far. What's running hasn't changed.", other: "{count} changes, only here so far. What's running hasn't changed.", count: count)
+                : L(one: "{count} change, only here so far. ⌘S keeps it, ⌘Z steps back.", other: "{count} changes, only here so far. ⌘S keeps them, ⌘Z steps back.", count: count)
+            actions = [button(L("Discard"), "discard", id, style: .plain), button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
+                       button(L("Save"), "save", id, style: .primary, symbol: "checkmark", detail: L("⌘S"))]
+            extra.removeAll { $0.label == L("Turn on without practicing") }
+        } else if !running {
+            actions.insert(Action(L("Saved"), tool: "ui", input: ui("save", id), style: .plain, symbol: "checkmark", disabled: true), at: 0)
+        }
         extra += [button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
+                  button(L("Copy as a definition"), "export", id, symbol: "curlybraces"),
                   Action(L("Copy it in words"), act: .copy(Words.aloud(flow.draft, catalog: app.catalog)), symbol: "doc.on.doc"),
                   button(L("Delete this flow"), "delete", id, style: .destructive, symbol: "trash")]
         return PageBar(flow.name, pill: pill, detail: sentence, actions: actions, menu: extra)
@@ -383,6 +425,7 @@ import SidefolkExtensionKit
         let problems = flow.draft.problems(app.catalog)
         let trigger = app.preflight[flow.id]?[App.triggerCheck]
         var main = [Section(nil, [.bar(head(flow, app, ready: problems.isEmpty, startable: trigger?.decision != .deny)), tabs(flow, state: state)])]
+
         var notes: [Block] = []
         if let why = flow.pausedBecause { notes.append(.note(why, tone: .warn)) }
         if let why = flow.startProblem { notes.append(.note(why, tone: .warn)) }
@@ -393,39 +436,58 @@ import SidefolkExtensionKit
         main.append(Section(nil, [.tree(tree(flow, app, problems: problems))], wide: true))
         var end: [Section] = []
         if !notes.isEmpty { end.append(Section(nil, notes, place: .trailing)) }
-        if case .nothing = app.nav.inspecting(flow) {} else {
-            end.append(Section(inspectorTitle(flow, app), Inspector.blocks(flow, app, problems: problems), place: .trailing))
+        end += Inspector.sections(flow, app, problems: problems)
+        // Only when asked for: it's as long as the flow, and the page is read every few seconds.
+        if app.nav.exporting == flow.id {
+            let words = JSONText.write(["name": flow.name, "flow": FlowCodec.json(flow.kept)] as [String: Any])
+            // A page can't hold more: said, not cut.
+            let copy: Block = words.utf8.count <= 30_000 ? .action(Action(L("Copy"), act: .copy(words), style: .accent, symbol: "doc.on.doc"))
+                : .note(L("It's too long to copy from here. Ask your companion to read it with get_flow."), tone: .warn)
+            end.append(Section(L("Its definition"), [.note(L("What was last saved, as words. Nothing in it is a secret unless you typed one into a step.")), copy,
+                                                     .action(button(L("Done"), "export_done", style: .plain))], place: .trailing))
         }
+        end += checks(flow, app, problems: problems)
         end.append(Section(L("What you'll get"), [arriving(flow, app)], place: .trailing))
-        return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)
+        var page = frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)
+        let id = ["flow": flow.id]
+        page.shortcuts = [PageShortcut("cmd+z", L("Undo"), tool: "ui", input: ui("undo", id)), PageShortcut("shift+cmd+z", L("Redo"), tool: "ui", input: ui("redo", id)),
+                          PageShortcut("cmd+d", L("Duplicate this step"), tool: "ui", input: ui("dup_step", id))]
+        // There even with nothing to save yet: what's in a field being typed in is handed over first, and that's the change it saves.
+        page.shortcuts.append(PageShortcut("cmd+s", L("Save"), tool: "ui", input: ui("save", id)))
+        if problems.isEmpty, !app.engine.isRunning(flow.id) { page.shortcuts.append(PageShortcut("cmd+return", L("Practice run"), tool: "ui", input: ui("practice", id))) }
+        return page
     }
 
-    static func inspectorTitle(_ flow: Flow, _ app: App) -> String {
-        switch app.nav.inspecting(flow) {
-        case .trigger, .nothing: return L("When it runs")
-        case .step(let id): return flow.draft.step(id).map { kindWord($0) } ?? L("Step")
+    /// How it stands: what's in the way of turning it on, and what's different from what was saved and from what's running. Read before saving or applying, nothing done.
+    static func checks(_ flow: Flow, _ app: App, problems: [FlowProblem]) -> [Section] {
+        var out: [Section] = []
+        let denied = app.preflight[flow.id]?.filter { $0.value.decision == .deny }.count ?? 0
+        let count = problems.count + denied
+        let blocks: [Block] = count == 0
+            ? [.note(L("Nothing to fix. Everything it needs is allowed or will ask you."), tone: .good)]
+            : problems.map { .note($0.text, tone: .warn) } + (denied > 0 ? [.note(L(one: "Sidefolk wouldn't allow {count} step as it stands: it's marked on the board.", other: "Sidefolk wouldn't allow {count} steps as they stand: they're marked on the board.", count: denied), tone: .warn)] : [])
+        let untried = untried(flow, app)
+        var all = blocks
+        if !untried.isEmpty { all.append(.note(L("Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.", ["ways": Format.list(untried)]))) }
+        out.append(Section(count == 0 ? L("Check") : L(one: "Check: {count} thing to fix", other: "Check: {count} things to fix", count: count), all, place: .trailing, collapsed: count == 0 && untried.isEmpty))
+        func changes(_ title: String, from: FlowBody, to: FlowBody) {
+            let lines = Editing.changes(from: from, to: to, catalog: app.catalog)
+            guard !lines.isEmpty else { return }
+            let shown = lines.prefix(12).joined(separator: "\n") + (lines.count > 12 ? "\n" + L(one: "and {count} more", other: "and {count} more", count: lines.count - 12) : "")
+            out.append(Section(title, [.note(shown)], place: .trailing, collapsed: false))
         }
-    }
-
-    static func kindWord(_ step: Step) -> String {
-        switch step.kind {
-        case .action(let tool, _): tool == "companion.job" ? L("Your companion") : L("Action")
-        case .ai: L("Write with AI")
-        case .ask: L("Ask")
-        case .text: L("Compose")
-        case .branch: L("Condition")
-        case .wait: L("Wait")
-        case .flow: L("Another flow")
-        }
+        if let saved = flow.saved { changes(L("Changed since you saved"), from: saved, to: flow.draft) }
+        if let live = flow.live, live != flow.kept { changes(L("Different from what's running"), from: live, to: flow.kept) }
+        return out
     }
 
     /// What the flow does, its last practice run's results on it while it hasn't changed since.
     static func tree(_ flow: Flow, _ app: App, problems: [FlowProblem]) -> CardTree {
         // An On flow shows how its last real run went; anything else, its practice of what's written now.
-        let live = flow.state == .on && !flow.hasChanges
+        let live = flow.state == .on && !flow.hasChanges && !flow.hasUnsaved
         let run = live ? app.store.runs(of: flow.id).first { $0.mode == .live && $0.body == flow.draft } : practice(flow, app)
-        let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges ? .pending : .none
-        var first = CardTree.Node("start", Words.trigger(flow.draft.trigger), kind: L("Trigger"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
+        let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges || flow.hasUnsaved ? .pending : .none
+        var first = CardTree.Node("start", Words.trigger(flow.draft.trigger), kind: L("It starts"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
         if let check = app.preflight[flow.id]?[App.triggerCheck], check.decision == .deny {
             first.state = .attention
             first.pill = Badge(check.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
@@ -443,16 +505,17 @@ import SidefolkExtensionKit
                         insert: .init(tool: "ui", input: ui("add_kind", ["flow": flow.id]), key: "after", label: L("Add a step")),
                         reorder: .init(tool: "ui", input: ui("reorder", ["flow": flow.id]), key: "move"), remove: .init(tool: "ui", input: ui("remove", ["flow": flow.id]), key: "step"), picker: picker(app),
                         tools: [quick(L("Add a condition"), "if", "arrow.triangle.branch"), quick(L("Write with AI"), "ai", "sparkles"), quick(L("Tell me"), "tell", "bell"),
-                                button(L("Practice run"), "practice", ["flow": flow.id], symbol: "play", disabled: !problems.isEmpty)], line: line)
+                                button(L("Practice run"), "practice", ["flow": flow.id], symbol: "play", disabled: !problems.isEmpty),
+                                button(L("Undo"), "undo", ["flow": flow.id], symbol: "arrow.uturn.backward", detail: L("Undo (⌘Z)"), disabled: app.history[flow.id]?.canUndo != true),
+                                button(L("Redo"), "redo", ["flow": flow.id], symbol: "arrow.uturn.forward", detail: L("Redo (⇧⌘Z)"), disabled: app.history[flow.id]?.canRedo != true)], line: line)
     }
 
     static func treeNodes(_ steps: [Step], body: FlowBody, _ app: App, run: Run?, untested: CardTree.Node.State, flow: Flow?, problems: [FlowProblem], notTaken: Bool = false) -> [CardTree.Node] {
         steps.map { step in
             let look = look(step, app)
             let check = flow.flatMap { app.preflight[$0.id]?[step.id] }
-            var title = Words.step(step, body: body, catalog: app.catalog)
-            if step.name == nil, case .action = step.kind, let said = check?.summary.nonEmpty { title = Words.pretty(said, body: body, catalog: app.catalog) }
-            var node = CardTree.Node(step.id, title, kind: kindWord(step), symbol: look.symbol, color: look.color, state: untested)
+            let said = Words.card(step, body: body, catalog: app.catalog)
+            var node = CardTree.Node(step.id, said.line, kind: said.head, symbol: look.symbol, color: look.color, state: untested)
             if let problem = problems.first(where: { $0.step == step.id }) {
                 node.state = .attention
                 node.pill = Badge(L("To fix"), tone: .warn)
@@ -476,17 +539,16 @@ import SidefolkExtensionKit
                 node.state = .attention
                 node.pill = Badge(L("No AI set up"), tone: .warn)
             }
-            if case .branch(_, let then, let otherwise) = step.kind {
+            if !step.parts.isEmpty {
                 let tested = run?.record(of: step.id) != nil
-                // What ran says which way it went; an empty way was taken when the other didn't run.
-                let ranYes = then.contains { run?.record(of: $0.id) != nil }, ranNo = otherwise.contains { run?.record(of: $0.id) != nil }
-                let yes = tested && (ranYes || (then.isEmpty && !ranNo))
-                let no = tested && (ranNo || (otherwise.isEmpty && !ranYes && !then.isEmpty))
-                @MainActor func one(_ prefix: String, _ label: String, _ tone: Tone, _ list: [Step], taken: Bool) -> CardTree.Branch {
-                    CardTree.Branch("\(prefix):\(step.id)", label, tone: tone, taken: tested ? taken : nil,
-                                    nodes: treeNodes(list, body: body, app, run: run, untested: untested, flow: flow, problems: problems, notTaken: notTaken || (tested && !taken)))
+                // What ran says which way it went; an empty way was taken when no other ran.
+                let ran = step.parts.map { part in part.steps.contains { inner in run?.records.contains { $0.step == inner.id } == true } }
+                let any = ran.contains(true)
+                node.branches = step.parts.enumerated().map { at, part in
+                    let taken: Bool? = tested ? (ran[at] || (!any && part.steps.isEmpty)) : nil
+                    return CardTree.Branch("\(part.id):\(step.id)", partLabel(part.id, of: step), tone: .neutral, taken: taken,
+                                           nodes: treeNodes(part.steps, body: body, app, run: run, untested: untested, flow: flow, problems: problems, notTaken: notTaken || taken == false), hint: L("Add a step"))
                 }
-                node.branches = [one("then", L("Yes"), .good, then, taken: yes), one("else", L("No"), .bad, otherwise, taken: no)]
             }
             return node
         }
@@ -511,10 +573,21 @@ import SidefolkExtensionKit
             .init("tell", L("Tell me"), detail: L("A notice from your companion"), meta: L("Reaches you"), symbol: "bell", color: "#FF7B6B", categories: ["suggested", "logic"]),
             .init("ai", L("Write with AI"), detail: L("Summarise, rewrite, sum up"), meta: L("No tools"), symbol: "sparkles", color: "#C65CD6", categories: ["suggested", "logic"]),
             .init("ask", L("Ask me"), detail: L("A question, and it waits for you"), meta: L("Reaches you"), symbol: "questionmark.bubble", color: "#F2B33D", categories: ["suggested", "logic"]),
-            .init("if", L("If…"), detail: L("Do something only sometimes"), meta: L("Logic"), symbol: "arrow.triangle.branch", color: "#1FA88A", categories: ["suggested", "logic"]),
+            .init("if", L("If…"), detail: L("Do something only sometimes, with an “otherwise”"), meta: L("Logic"), symbol: "arrow.triangle.branch", color: "#1FA88A", categories: ["suggested", "logic"]),
             .init("text", L("Compose text"), detail: L("Put values together"), meta: L("Logic"), symbol: "text.quote", color: "#6B7A90", categories: ["logic"]),
             .init("wait", L("Wait"), detail: L("Up to a day; survives quitting"), meta: L("Logic"), symbol: "hourglass", color: "#6B7A90", categories: ["logic"]),
             .init("flow", L("Run another flow"), detail: L("Sets it off and carries on"), meta: L("Logic"), symbol: "arrow.triangle.turn.up.right.circle", color: "#5B8DEF", categories: ["logic"]),
+        ]
+        items += [
+            .init("for_each", L("For each"), detail: L("Do steps once per item of a list"), meta: L("Logic"), symbol: "repeat", color: "#1FA88A", categories: ["suggested", "logic"]),
+            .init("choose", L("Choose a path"), detail: L("Several ways to go, by one value"), meta: L("Logic"), symbol: "arrow.triangle.swap", color: "#1FA88A", categories: ["logic"]),
+            .init("try", L("Try"), detail: L("Do something else if a step fails"), meta: L("Logic"), symbol: "shield.lefthalf.filled", color: "#1FA88A", categories: ["logic"]),
+            .init("parallel", L("At the same time"), detail: L("Several things at once, then carry on"), meta: L("Logic"), symbol: "arrow.triangle.branch", color: "#3B6FF5", categories: ["logic"]),
+            .init("call", L("Run a flow and wait"), detail: L("Use another flow and its result"), meta: L("Logic"), symbol: "arrow.triangle.turn.up.right.circle.fill", color: "#5B8DEF", categories: ["logic"]),
+            .init("finish", L("Finish here"), detail: L("End the flow, with a result"), meta: L("Logic"), symbol: "flag.checkered", color: "#6B7A90", categories: ["logic"]),
+            .init("data", L("Work with data"), detail: L("Filter, sort, count, read a table or JSON"), meta: L("Logic"), symbol: "tablecells", color: "#6B7A90", categories: ["logic"]),
+            .init("form", L("A form for you"), detail: L("Several questions, and it waits days if need be"), meta: L("Reaches you"), symbol: "list.clipboard", color: "#F2B33D", categories: ["logic"]),
+            .init("wait_for", L("Wait for something"), detail: L("Until something happens, or time runs out"), meta: L("Logic"), symbol: "hourglass.badge.plus", color: "#6B7A90", categories: ["logic"]),
         ]
         if app.catalog.tool("companion.job") != nil {
             items.insert(.init("job", L("Let your companion do it"), detail: L("A whole job, with all its tools"), meta: L("Your trust settings"), symbol: "wand.and.stars", color: "#C65CD6", categories: ["suggested"]), at: 0)
@@ -551,7 +624,7 @@ import SidefolkExtensionKit
         let next = Summaries.next(flow)
         let footer = next.map { L("Next: {when}", ["when": Format.dateTime($0)]) }
         let time = next.map { Format.time($0) }
-        guard let run else { return .notice(PageNotice(placeholder: L("Practise it to see the real thing"))) }
+        guard let run else { return .notice(PageNotice(placeholder: L("Practice it to see the real thing"))) }
         let tells = run.body.allSteps.last { if case .action("notify.user", _) = $0.kind { true } else { false } }
         if let tells, case .action(_, let input) = tells.kind {
             let title = input["title"]?.string.map { Words.resolved($0, values: run.values) } ?? flow.name
@@ -565,7 +638,7 @@ import SidefolkExtensionKit
     // MARK: A flow's runs
 
     static func flowRunsPage(_ flow: Flow, _ app: App, state: Arguments) -> Page {
-        let runs = app.store.runs(of: flow.id)
+        let runs = app.store.runs(of: flow.id).filter { $0.parent == nil }
         let live = runs.filter { $0.mode != .practice }
         var body: [Section] = []
         if !live.isEmpty || !flow.missed.isEmpty {
@@ -575,6 +648,7 @@ import SidefolkExtensionKit
         }
         body.append(Section(nil, runs.isEmpty ? [.note(L("No runs yet."))] : [runList(Array(runs.prefix(20)), named: false)], wide: true))
         var end = [Section(L("What arrived"), [arriving(flow, app)], place: .trailing)]
+        if let versions = versions(flow, app) { end.append(versions) }
         if flow.state != .draft {
             end.append(Section(nil, [.note(L("It may only do what you read when you turned it on. You can end that in Settings › Add-ons."))], place: .trailing))
         }
@@ -621,14 +695,20 @@ import SidefolkExtensionKit
             end.append(choices(L("Which is true?"), [
                 Option("try_again", L("It didn't happen: try again"), detail: L("Does it now, then carries on."), symbol: "arrow.clockwise"),
                 Option("carry_on", L("It happened: carry on"), detail: L("Doesn't do it again."), symbol: "play"),
-                Option("stop", L("Stop here"), detail: L("Nothing else runs."), symbol: "stop"),
+                Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop"),
             ]))
+        case .waiting where run.form != nil || !run.waitingOn.isEmpty:
+            detail = said
+            if let form = formSection(run) { end.append(form) }
+            if let asking = run.waitingOn.compactMap({ app.store.run($0) }).first(where: { $0.form != nil }) {
+                end.append(Section(nil, [.action(go(L("Fill it in"), place(["run": asking.id]), style: .accent, symbol: "square.and.pencil"))], place: .trailing))
+            }
         case .needs_you, .waiting:
             if let problem = run.problem { detail = problem }
             end.append(choices(L("What now?"), [
                 Option("try_again", L("Try again"), detail: L("Does it now, then carries on."), symbol: "arrow.clockwise"),
                 Option("carry_on", L("Skip this step"), detail: L("Goes on without it."), symbol: "forward"),
-                Option("stop", L("Stop here"), detail: L("Nothing else runs."), symbol: "stop"),
+                Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop"),
             ]))
         case .failed:
             if let problem = run.problem { detail = problem }
@@ -636,14 +716,17 @@ import SidefolkExtensionKit
             break
         }
         if run.mode == .practice { end.append(Section(nil, [.note(L("Practice run: nothing was changed."))], place: .trailing)) }
-        if let output = run.records.reversed().first(where: { $0.output?.nonEmpty != nil })?.output {
+        if let output = run.records.reversed().first(where: { $0.output?.nonEmpty != nil })?.output?.clipped(Engine.keptOutput) {
             end.append(Section(L("What it came to"), [.notice(PageNotice(title: run.flowName, body: output, time: run.endedAt.map { Format.time($0) }))], place: .trailing))
         }
-        var nodes = [CardTree.Node("start", run.why, kind: L("Trigger"), symbol: triggerSymbol(run.body.trigger), color: tile[0], state: .done)]
+        var nodes = [CardTree.Node("start", run.why, kind: L("It started"), symbol: triggerSymbol(run.body.trigger), color: tile[0], state: .done, fixed: true)]
         nodes += treeNodes(run.body.steps, body: run.body, app, run: run, untested: .pending, flow: nil, problems: [])
+        let selected = app.nav.runStep[run.id]
+        if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }
         return frame(app, state: state, here: nil, flow: run.flow, back: run.flowName, [
-            Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail))]),
-            Section(nil, [.tree(CardTree(nodes, line: line))], wide: true),
+            Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail, actions: run.status == .running || run.status == .waiting
+                ? [button(run.status == .running ? L("Stop after this step") : L("Stop"), "stop_run", id, symbol: "stop.fill")] : []))]),
+            Section(nil, [.tree(CardTree(nodes, selected: selected, select: .init(tool: "ui", input: ui("inspect_run", ["run": run.id]), key: "target"), line: line))], wide: true),
         ], end: end)
     }
 
