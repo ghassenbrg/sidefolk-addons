@@ -10,13 +10,13 @@ The founder, 2026-11-04: phases are fine, and the session ends when everything i
 | Stage 1 (D180) and Phase 0 | A1-A4; plan limit, branch scope and missing values, journal before effects, reviewed revision goes live, uncertain outcomes | In the gallery |
 | Editing (D181, D182) | A5, A6, A7, A9: Save, Discard, undo, keys, check, what changed; move, outline, fold, find; forms, value menu, condition builder | In the gallery, snapshot.5, app 1252 |
 | Engine (D198) | Typed values, for each, choose, try, call, finish, data, AI with fields, forms, waits, queues, time zones, parallel, run inspector, Stop, held-back runs | In the gallery, snapshot.6, minimum 1252 |
-| Connections (D183) | A run waits for a tool that went away; a Connections page | Ready: add-ons `team/sideflow-connections-2`, app `team/sideflow-connections-app-5`. Waits for the snapshot number. Add-ons first |
+| Connections (D183) | A run waits for a tool that went away; a Connections page | Held for snapshot 1292: add-ons `team/sideflow-connections-2` (d844044), `gallery-next`. App in 1292. Publishes on the coordinator's word |
 | Repeat until | Round and round until it holds | Ready behind Connections: `team/sideflow-repeat-2`. No app change |
-| Fields (D184) | A tool's answer can hold fields | In reads: `team/sideflow-structured-2`, app `team/sideflow-structured-app-2` to rebase on Connections and take the Kit |
-| Jobs (D195) | How far along a step is; Stop tells it | Old base `team/sideflow-jobs`, app `team/sideflow-jobs`. To move over, with the shared read's findings fixed |
-| Triggers (D196) | Several ways to start a flow; an event acts once | Old base `team/sideflow-triggers`, same |
-| More | Batches, group, fallback; make a step its own flow; pause; run again; try again from here | Old base `team/sideflow-more`, same |
-| T51 (D197) | A flow calling an MCP server without a card | Design note in the app repo, `docs/research/sideflow-t51-unattended-mcp.md`. After the queue above, with a security review of 12 attack chains |
+| Fields (D184) | A tool's answer can hold fields | In reads: add-ons `team/sideflow-structured-2`, app `team/sideflow-structured-app-3`. Needs its own snapshot, after Connections |
+| Jobs (D195) | How far along a step is; Stop tells it | Moved, findings fixed, in reads: add-ons `team/sideflow-jobs-2`, app `team/sideflow-jobs-app-2`, stacked on fields |
+| Triggers (D196) | Several ways to start a flow; an event acts once | Moved, findings fixed, in reads: add-ons `team/sideflow-triggers-2`, app `team/sideflow-triggers-app-2`, stacked on jobs |
+| More | Batches, group, fallback; make a step its own flow; pause; run again; try again from here | Moved, findings fixed, in reads: add-ons `team/sideflow-more-2`, stacked on triggers. No app change |
+| One approval (replaces T51 as next priority; T51's design folded in) | Run saves and applies, one card for what's new, no asking again for what was approved | Designed with Permissions: their `FLOW-APPROVAL-DESIGN.md`. Nothing built until the coordinator answers the merged note |
 
 ## Still to build, in order (the coordinator, for the founder, 2026-11-05)
 
