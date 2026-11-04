@@ -933,6 +933,31 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} ist wieder da, aber es ist so lange her, dass du über diesen Schritt entscheidest.",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "Wartet auf {name}, und dieser Ablauf ist pausiert. Dieser Schritt lief noch nicht: Sobald es wieder da ist, geht es weiter, wenn du ihn fortsetzt.",
-    "You approved a version without this step while this run was under way, so it didn't run.": "Du hast eine Version ohne diesen Schritt genehmigt, während dieser Durchlauf lief, deshalb wurde er nicht ausgeführt."
+    "You approved a version without this step while this run was under way, so it didn't run.": "Du hast eine Version ohne diesen Schritt genehmigt, während dieser Durchlauf lief, deshalb wurde er nicht ausgeführt.",
+    "Add what to do each time round.": "Füge hinzu, was bei jeder Runde geschehen soll.",
+    "At most (times)": "Höchstens (Mal)",
+    "Each time round": "Bei jeder Runde",
+    "Go round until something holds, with a limit": "Wiederholen, bis etwas zutrifft, mit einer Grenze",
+    "Going round, {count} times at most": "Läuft Runden, höchstens {count}-mal",
+    "If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then.": "Trifft es danach immer noch nicht zu, schlägt der Schritt fehl, und „Wenn dieser Schritt fehlschlägt“ unten sagt, was dann passiert.",
+    "It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat.": "Er führt die Schritte darin aus, schaut nach und läuft erneut, bis es zutrifft. Alles zählt bei jeder Runde: Halte darin nur, was sich gefahrlos wiederholen lässt.",
+    "It looks after the steps inside have run, so it can check what they made.": "Er schaut nach den Schritten darin, kann also prüfen, was sie ergeben haben.",
+    "Repeat until": "Wiederholen bis",
+    "Say what has to hold": "Sag, was zutreffen muss",
+    "Say what has to hold for it to stop.": "Sag, was zutreffen muss, damit er aufhört.",
+    "Stop when": "Aufhören, wenn",
+    "There's nothing inside it to repeat.": "Darin gibt es nichts zu wiederholen.",
+    "Went round once for practice; it would go on until this holds, {count} times at most": "Zur Übung eine Runde; er liefe weiter, bis es zutrifft, höchstens {count}-mal",
+    "{what}, {count} times at most": "{what}, höchstens {count}-mal",
+    "“repeat” needs “until”: what has to hold for it to stop.": "„repeat“ braucht „until“: was zutreffen muss, damit es aufhört.",
+    "“times” is 1 to {count}.": "„times“ liegt zwischen 1 und {count}.",
+    "It held after {count} times": {
+      "one": "Traf nach {count} Runde zu",
+      "other": "Traf nach {count} Runden zu"
+    },
+    "It went round {count} times and it still doesn't hold.": {
+      "one": "{count} Runde, und es trifft immer noch nicht zu.",
+      "other": "{count} Runden, und es trifft immer noch nicht zu."
+    }
   }
 }

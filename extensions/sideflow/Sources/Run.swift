@@ -184,7 +184,7 @@ struct FlowProgram {
                 ops[test] = .branch(step, c, otherwise: ops.count)
                 add(otherwise)
                 ops[leave] = .jump(ops.count)
-            case .forEach(_, _, _, let inside):
+            case .forEach(_, _, _, let inside), .repeatUntil(_, _, let inside):
                 let start = ops.count
                 ops.append(.loopStart(step, end: 0))
                 add(inside)

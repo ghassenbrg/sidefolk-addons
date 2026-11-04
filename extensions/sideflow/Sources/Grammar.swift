@@ -16,6 +16,7 @@ enum Grammar {
       {"id":"x","do":"<tool name>","with":{…the tool's values…}}
       {"id":"x","ai":"what to write","fields":{"total":"number","who":"text","ok":"yes_no","items":"list"}}  (fields only if a record is wanted: {{x.total}})
       {"id":"each","for_each":"{{list}}","limit":100,"item_failure":"stop|collect","steps":[…]}  ({{item}} {{index}} inside; afterwards {{each}} is the list of what each go made)
+      {"id":"again","repeat":[…],"until":{"value":"{{check}}","test":"contains","than":"ready"},"times":10}  (does the steps, looks, goes round until it holds; failing at the limit. {{index}} is which go; afterwards {{again}} is what the last go made)
       {"choose":"{{value}}","paths":[{"when":"words","steps":[…]}],"else":[…]}
       {"try":[…],"recover":[…],"always":[…]}  ({{error}} in recover)
       {"id":"both","parallel":[{"name":"first","steps":[…]},{"name":"second","steps":[…]}]}  ({{both.first}}: 2 to 4 lanes)

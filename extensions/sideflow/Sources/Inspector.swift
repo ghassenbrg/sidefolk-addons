@@ -160,6 +160,7 @@ import SidefolkExtensionKit
         case .wait: return (L("Wait"), L("Up to a day. It carries on after Sidefolk restarts."))
         case .flow: return (L("Run another flow"), L("It sets that flow off and carries on, without waiting for it."))
         case .forEach: return (L("For each"), L("It goes through a list, doing the steps inside once per item."))
+        case .repeatUntil: return (L("Repeat until"), L("It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat."))
         case .choose: return (L("Choose a path"), L("It looks at one value and takes the first path whose words it mentions, or “Otherwise”."))
         case .attempt: return (L("Try"), L("If a step under “Try” fails, the steps under “If it fails” run instead. The steps under “Either way” run in any case."))
         case .parallel: return (L("At the same time"), L("Each lane runs at once, and it carries on when all are done. If one fails, the step fails."))
@@ -210,6 +211,9 @@ import SidefolkExtensionKit
             main.append(flowPicker(flow, selected: name, app, input: input("run_flow")))
         case .wait(let minutes):
             main.append(.edit(EditField("\(step.id).minutes", L("Minutes"), value: String(minutes), kind: .number, tool: "ui", input: input("wait"))))
+        case .repeatUntil(let until, let times, _):
+            main.append(.edit(EditField("\(step.id).times", L("At most (times)"), value: String(times), detail: L("If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then."), kind: .number, tool: "ui", input: input("repeat_times"))))
+            main += conditionForm(until, step: step, tokens: tokens, input: input, stopping: true)
         case .forEach(let items, let limit, let failure, _):
             main.append(.edit(EditField("\(step.id).items", L("The list"), value: items, detail: L("A list from an earlier step, or text with one item per line. Inside, “This item” is the one it's on."), placeholder: L("Which list"), tokens: tokens, tool: "ui", input: input("each_items"))))
             more.append(.edit(EditField("\(step.id).limit", L("At most (items)"), value: String(limit), kind: .number, tool: "ui", input: input("each_limit"))))
@@ -323,12 +327,12 @@ import SidefolkExtensionKit
     }
 
     /// “If [this] [mentions] [that]”, as many as it takes, then where its two paths are.
-    private static func conditionForm(_ c: Condition, step: Step, tokens: [EditField.Token], input: (String, [String: Any]) -> [String: Any]) -> [Block] {
+    private static func conditionForm(_ c: Condition, step: Step, tokens: [EditField.Token], input: (String, [String: Any]) -> [String: Any], stopping: Bool = false) -> [Block] {
         var out: [Block] = []
         let tests = Condition.Test.allCases.map { ($0.rawValue, testName($0)) }
         for (at, check) in c.checks.enumerated() {
             let first = at == 0
-            out.append(.edit(EditField("\(step.id).value.\(at)", first ? L("If") : (c.any ? L("Or if") : L("And if")), value: check.value, placeholder: L("What to check"), tokens: tokens, tool: "ui", input: input("cond_value", ["check": at]))))
+            out.append(.edit(EditField("\(step.id).value.\(at)", first ? (stopping ? L("Stop when") : L("If")) : (c.any ? L("Or if") : L("And if")), value: check.value, placeholder: L("What to check"), tokens: tokens, tool: "ui", input: input("cond_value", ["check": at]))))
             out.append(.choice(L("It"), options: tests, selected: check.test.rawValue, tool: "ui", input: input("cond_test", ["check": at])))
             if check.test != .is_empty, check.test != .not_empty {
                 out.append(.edit(EditField("\(step.id).than.\(at)", check.test == .more_than || check.test == .less_than ? L("This number") : L("This"), value: check.than, placeholder: L("Words or a value"), tokens: tokens, tool: "ui", input: input("cond_than", ["check": at]))))
@@ -337,9 +341,10 @@ import SidefolkExtensionKit
         }
         out.append(.action(Action(L("Add another check"), tool: "ui", input: input("cond_add", [:]), style: .plain, symbol: "plus.circle")))
         if !c.also.isEmpty {
-            out.append(.choice(L("It takes"), options: [("all", L("All of these")), ("any", L("Any of these"))], selected: c.any ? "any" : "all", tool: "ui", input: input("cond_join", [:])))
+            out.append(.choice(stopping ? L("Stop when") : L("It takes"), options: [("all", L("All of these")), ("any", L("Any of these"))], selected: c.any ? "any" : "all", tool: "ui", input: input("cond_join", [:])))
         }
-        out.append(.note(L("Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.")))
+        out.append(.note(stopping ? L("It looks after the steps inside have run, so it can check what they made.")
+            : L("Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.")))
         return out
     }
 

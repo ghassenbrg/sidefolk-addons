@@ -124,7 +124,10 @@ enum Editing {
                 if step.id == id { return have }
                 for part in step.parts {
                     var inner = have
-                    if case .forEach = step.kind { inner.insert(.loop) }
+                    switch step.kind {
+                    case .forEach, .repeatUntil: inner.insert(.loop)
+                    default: break
+                    }
                     if part.id == "recover" { inner.insert(.recover) }
                     if let found = walk(part.steps, inner) { return found }
                 }
@@ -173,6 +176,11 @@ enum Editing {
                 c.also = c.also.map { var check = $0; check.value = remap($0.value); check.than = remap($0.than); return check }
                 out.kind = .branch(c, then: then, otherwise: otherwise)
             case .forEach(let items, let limit, let failure, let steps): out.kind = .forEach(items: remap(items), limit: limit, onFailure: failure, steps: steps)
+            case .repeatUntil(var c, let times, let steps):
+                c.value = remap(c.value)
+                c.than = remap(c.than)
+                c.also = c.also.map { var check = $0; check.value = remap($0.value); check.than = remap($0.than); return check }
+                out.kind = .repeatUntil(until: c, times: times, steps: steps)
             case .choose(let value, let paths, let otherwise): out.kind = .choose(value: remap(value), paths: paths, otherwise: otherwise)
             case .call(let flow, let inputs): out.kind = .call(flow: flow, inputs: inputs.mapValues(remap))
             case .finish(let value): out.kind = .finish(remap(value))

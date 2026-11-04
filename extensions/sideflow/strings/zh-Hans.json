@@ -920,6 +920,29 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} 已恢复，但已过去太久，这一步由你决定。",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "正在等待 {name}，此流程已暂停。这一步尚未运行：恢复后，在你继续时接着运行。",
-    "You approved a version without this step while this run was under way, so it didn't run.": "这次运行进行时，你批准了没有这一步的版本，因此这一步没有运行。"
+    "You approved a version without this step while this run was under way, so it didn't run.": "这次运行进行时，你批准了没有这一步的版本，因此这一步没有运行。",
+    "Add what to do each time round.": "添加每次要做的事。",
+    "At most (times)": "最多（次）",
+    "Each time round": "每一次",
+    "Go round until something holds, with a limit": "重复直到条件成立，有上限",
+    "Going round, {count} times at most": "正在重复，最多 {count} 次",
+    "If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then.": "如果达到这个次数后仍不成立，此步骤失败，下方的“如果此步骤失败”决定接下来怎么做。",
+    "It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat.": "它执行里面的步骤，然后检查，再重复直到成立。每次做的事都会真实发生，所以里面只放可以安全重复的内容。",
+    "It looks after the steps inside have run, so it can check what they made.": "它在里面的步骤之后检查，因此可以核对它们的结果。",
+    "Repeat until": "重复直到",
+    "Say what has to hold": "说明什么条件要成立",
+    "Say what has to hold for it to stop.": "说明要成立什么条件才停止。",
+    "Stop when": "停止条件",
+    "There's nothing inside it to repeat.": "里面没有可重复的内容。",
+    "Went round once for practice; it would go on until this holds, {count} times at most": "练习时只执行一次；实际会持续到条件成立，最多 {count} 次",
+    "{what}, {count} times at most": "{what}，最多 {count} 次",
+    "“repeat” needs “until”: what has to hold for it to stop.": "“repeat”需要“until”：要成立什么条件才停止。",
+    "“times” is 1 to {count}.": "“times”为 1 到 {count}。",
+    "It held after {count} times": {
+      "other": "{count} 次后成立"
+    },
+    "It went round {count} times and it still doesn't hold.": {
+      "other": "已重复 {count} 次，条件仍不成立。"
+    }
   }
 }

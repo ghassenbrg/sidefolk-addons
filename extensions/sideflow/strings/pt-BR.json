@@ -933,6 +933,31 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} voltou, mas passou tanto tempo que esta etapa fica para você decidir.",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "Aguardando {name}, e esta rotina está pausada. Esta etapa não foi executada: quando voltar, ela continua ao ser retomada.",
-    "You approved a version without this step while this run was under way, so it didn't run.": "Você aprovou uma versão sem esta etapa enquanto esta execução estava em andamento, então ela não foi executada."
+    "You approved a version without this step while this run was under way, so it didn't run.": "Você aprovou uma versão sem esta etapa enquanto esta execução estava em andamento, então ela não foi executada.",
+    "Add what to do each time round.": "Adicione o que fazer a cada volta.",
+    "At most (times)": "No máximo (vezes)",
+    "Each time round": "A cada volta",
+    "Go round until something holds, with a limit": "Repetir até algo ser verdade, com um limite",
+    "Going round, {count} times at most": "Dando voltas, no máximo {count} vezes",
+    "If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then.": "Se ainda não for verdade depois disso, a etapa falha, e “Se esta etapa falhar” abaixo diz o que acontece.",
+    "It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat.": "Faz as etapas internas, confere e repete até ser verdade. Tudo o que faz a cada volta conta, então mantenha dentro só o que for seguro repetir.",
+    "It looks after the steps inside have run, so it can check what they made.": "Confere depois das etapas internas, então pode verificar o que elas fizeram.",
+    "Repeat until": "Repetir até",
+    "Say what has to hold": "Diga o que precisa ser verdade",
+    "Say what has to hold for it to stop.": "Diga o que precisa ser verdade para parar.",
+    "Stop when": "Parar quando",
+    "There's nothing inside it to repeat.": "Não há nada dentro para repetir.",
+    "Went round once for practice; it would go on until this holds, {count} times at most": "Uma volta para praticar; continuaria até ser verdade, no máximo {count} vezes",
+    "{what}, {count} times at most": "{what}, no máximo {count} vezes",
+    "“repeat” needs “until”: what has to hold for it to stop.": "“repeat” precisa de “until”: o que deve ser verdade para parar.",
+    "“times” is 1 to {count}.": "“times” vai de 1 a {count}.",
+    "It held after {count} times": {
+      "one": "Foi verdade depois de {count} vez",
+      "other": "Foi verdade depois de {count} vezes"
+    },
+    "It went round {count} times and it still doesn't hold.": {
+      "one": "Deu {count} volta e ainda não é verdade.",
+      "other": "Deu {count} voltas e ainda não é verdade."
+    }
   }
 }

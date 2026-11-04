@@ -93,6 +93,7 @@ import SidefolkExtensionKit
         case .wait(let minutes): return L("Wait {time}", ["time": Format.duration(Double(minutes) * 60)])
         case .flow(let name): return L("Run {flow}", ["flow": name])
         case .forEach: return L("For each")
+        case .repeatUntil: return L("Repeat until")
         case .choose: return L("Choose a path")
         case .attempt: return L("Try")
         case .parallel: return L("At the same time")
@@ -159,6 +160,9 @@ import SidefolkExtensionKit
         case .branch(let c, _, _): return (name ?? L("Condition"), c.value.isEmpty ? L("Say what to check") : condition(c, body: body, catalog: catalog))
         case .wait(let minutes): return (name ?? L("Wait"), Format.duration(Double(minutes) * 60))
         case .flow(let flow): return (name ?? L("Run another flow"), flow.isEmpty ? L("Pick which flow") : flow)
+        case .repeatUntil(let until, let times, _):
+            let said = until.value.isEmpty ? L("Say what has to hold") : check(of: until, body: body, catalog: catalog)
+            return (name ?? L("Repeat until"), L("{what}, {count} times at most", ["what": said, "count": Format.integer(times)]))
         case .forEach(let items, _, _, _): return (name ?? L("For each"), items.isEmpty ? L("Say which list") : L("Each item of {list}", ["list": pretty(items, body: body, catalog: catalog)]))
         case .choose(let value, let paths, _): return (name ?? L("Choose a path"), value.isEmpty ? L("Say what to look at") : L("By {value}: {count} ways", ["value": pretty(value, body: body, catalog: catalog), "count": Format.integer(paths.count)]))
         case .attempt: return (name ?? L("Try"), L("If a step fails, do something else"))

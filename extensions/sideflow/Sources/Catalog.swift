@@ -170,6 +170,9 @@ extension FlowBody {
         /// What a step of the kinds that hold others needs of itself.
         func checkKind(_ step: Step) {
             switch step.kind {
+            case .repeatUntil(let until, _, let steps):
+                if until.checks.contains(where: { $0.value.trimmed.isEmpty }) { out.append(FlowProblem(step: step.id, text: L("Say what has to hold for it to stop."))) }
+                if steps.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add what to do each time round."))) }
             case .forEach(let items, _, _, let steps):
                 if items.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say which list to go through."))) }
                 if steps.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add what to do with each item."))) }
@@ -227,7 +230,8 @@ extension FlowBody {
                     for check in c.checks where check.test != .is_empty && check.test != .not_empty { refs([check.value, check.than], step, seen: seen) }
                 case .forEach, .choose, .call, .finish, .data, .form:
                     refs(step.usedTexts, step, seen: seen)
-                case .attempt, .parallel, .waitFor: break
+                // What it stops on is looked at after its steps, so it's checked there.
+                case .attempt, .parallel, .waitFor, .repeatUntil: break
                 case .wait: break
                 case .flow(let name):
                     if name.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Pick which flow to run."))) } else if !catalog.findsFlow(name) { out.append(FlowProblem(step: step.id, text: L("There's no one flow called “{name}”. Pick it again.", ["name": name]))) }
@@ -237,9 +241,15 @@ extension FlowBody {
                     var ways: [Set<String>] = []
                     for part in step.parts {
                         var inside = seen
-                        if case .forEach = step.kind { inside.formUnion(["item", "index"]) }
+                        switch step.kind {
+                        case .forEach, .repeatUntil: inside.formUnion(["item", "index"])
+                        default: break
+                        }
                         if part.id == "recover" { inside.insert("error") }
                         walk(part.steps, seen: &inside)
+                        if case .repeatUntil(let until, _, _) = step.kind {
+                            for check in until.checks where check.test != .is_empty && check.test != .not_empty { refs([check.value, check.than], step, seen: inside) }
+                        }
                         ways.append(inside)
                     }
                     if step.after == .common {

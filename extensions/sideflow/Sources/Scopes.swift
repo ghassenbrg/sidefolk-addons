@@ -33,7 +33,7 @@ extension Step {
 
     var after: After {
         switch kind {
-        case .forEach, .parallel: .own
+        case .forEach, .repeatUntil, .parallel: .own
         default: .common
         }
     }
@@ -54,7 +54,7 @@ extension Step {
     var parts: [Part] {
         switch kind {
         case .branch(_, let then, let otherwise): [Part(id: "then", steps: then), Part(id: "else", steps: otherwise)]
-        case .forEach(_, _, _, let steps): [Part(id: "each", steps: steps)]
+        case .forEach(_, _, _, let steps), .repeatUntil(_, _, let steps): [Part(id: "each", steps: steps)]
         case .choose(_, let paths, let otherwise): paths.enumerated().map { Part(id: "path\($0.offset)", steps: $0.element.steps) } + [Part(id: "else", steps: otherwise)]
         case .attempt(let steps, let recover, let always): [Part(id: "try", steps: steps), Part(id: "recover", steps: recover), Part(id: "always", steps: always)]
         case .parallel(let lanes): lanes.enumerated().map { Part(id: "lane\($0.offset)", steps: $0.element.steps) }
@@ -68,6 +68,7 @@ extension Step {
         switch kind {
         case .branch(let c, _, _): out.kind = .branch(c, then: lists[0], otherwise: lists[1])
         case .forEach(let items, let limit, let failure, _): out.kind = .forEach(items: items, limit: limit, onFailure: failure, steps: lists[0])
+        case .repeatUntil(let until, let times, _): out.kind = .repeatUntil(until: until, times: times, steps: lists[0])
         case .choose(let value, let paths, _):
             out.kind = .choose(value: value, paths: paths.enumerated().map { Path(when: $0.element.when, steps: lists[$0.offset]) }, otherwise: lists[paths.count])
         case .attempt: out.kind = .attempt(steps: lists[0], recover: lists[1], always: lists[2])

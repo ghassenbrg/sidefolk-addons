@@ -920,6 +920,29 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} は戻りましたが、時間が経ちすぎたため、このステップはあなたが判断してください。",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "{name} を待っています。このルーティンは一時停止中です。このステップはまだ実行していません。戻ったあと、再開すると続きます。",
-    "You approved a version without this step while this run was under way, so it didn't run.": "この実行の途中で、このステップのないバージョンを承認したため、このステップは実行されませんでした。"
+    "You approved a version without this step while this run was under way, so it didn't run.": "この実行の途中で、このステップのないバージョンを承認したため、このステップは実行されませんでした。",
+    "Add what to do each time round.": "毎回行うことを追加してください。",
+    "At most (times)": "最大回数",
+    "Each time round": "毎回",
+    "Go round until something holds, with a limit": "条件を満たすまで繰り返します（上限あり）",
+    "Going round, {count} times at most": "繰り返し中（最大 {count} 回）",
+    "If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then.": "この回数を超えても満たされない場合、ステップは失敗します。その後の動作は下の「このステップが失敗したら」で決まります。",
+    "It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat.": "中のステップを実行して確認し、満たされるまで繰り返します。毎回の動作がすべて実行されるので、繰り返しても安全なものだけを入れてください。",
+    "It looks after the steps inside have run, so it can check what they made.": "中のステップの後に確認するので、その結果を調べられます。",
+    "Repeat until": "条件まで繰り返す",
+    "Say what has to hold": "満たすべき条件を指定してください",
+    "Say what has to hold for it to stop.": "止めるための条件を指定してください。",
+    "Stop when": "止める条件",
+    "There's nothing inside it to repeat.": "繰り返す内容がありません。",
+    "Went round once for practice; it would go on until this holds, {count} times at most": "練習のため 1 回だけ実行しました。本番では条件を満たすまで、最大 {count} 回繰り返します",
+    "{what}, {count} times at most": "{what}（最大 {count} 回）",
+    "“repeat” needs “until”: what has to hold for it to stop.": "「repeat」には「until」（止めるための条件）が必要です。",
+    "“times” is 1 to {count}.": "「times」は 1 から {count} です。",
+    "It held after {count} times": {
+      "other": "{count} 回で条件を満たしました"
+    },
+    "It went round {count} times and it still doesn't hold.": {
+      "other": "{count} 回繰り返しましたが、まだ条件を満たしません。"
+    }
   }
 }

@@ -126,6 +126,8 @@ struct Step: Equatable, Sendable {
         case flow(String)
         /// Goes through a list, the steps inside once per item.
         case forEach(items: String, limit: Int, onFailure: LoopFailure, steps: [Step])
+        /// Round and round until it holds, at most `times`: there's always an end, and what happens at it is the step's own failure.
+        case repeatUntil(until: Condition, times: Int, steps: [Step])
         /// The first path whose words match the value, or the rest.
         case choose(value: String, paths: [Path], otherwise: [Step])
         /// Steps; if one fails, the others instead; then the last ones in any case.
@@ -153,6 +155,7 @@ struct Step: Equatable, Sendable {
         case .flow(let name) where name.trimmed.isEmpty: L("Pick which flow to run.")
         case .call(let name, _) where name.trimmed.isEmpty: L("Pick which flow to run.")
         case .forEach(let items, _, _, _) where items.trimmed.isEmpty: L("Say which list to go through.")
+        case .repeatUntil(let until, _, _) where until.checks.contains(where: { $0.value.trimmed.isEmpty }): L("Say what each check looks at.")
         case .choose(let value, _, _) where value.trimmed.isEmpty: L("Say what to look at.")
         case .data(let data) where data.from.trimmed.isEmpty: L("Say what from")
         case .form(let form) where form.fields.isEmpty: L("Add something for the form to ask.")
@@ -168,6 +171,7 @@ struct Step: Equatable, Sendable {
         case .ask(let question, _): [question]
         case .text(let text): [text]
         case .forEach(let items, _, _, _): [items]
+        case .repeatUntil(let c, _, _): c.checks.flatMap { [$0.value, $0.than] }
         case .call(_, let inputs): Array(inputs.values)
         case .finish(let value): [value]
         case .data(let data): [data.from, data.than ?? ""]
@@ -190,7 +194,7 @@ struct Step: Equatable, Sendable {
     /// Whether it leaves a value later steps can use.
     var hasOutput: Bool {
         switch kind {
-        case .action, .ai, .ask, .text, .forEach, .call, .data, .form, .waitFor, .parallel: true
+        case .action, .ai, .ask, .text, .forEach, .repeatUntil, .call, .data, .form, .waitFor, .parallel: true
         case .branch, .wait, .flow, .choose, .attempt, .finish: false
         }
     }
@@ -219,6 +223,7 @@ struct FlowBody: Equatable, Sendable {
     static let maxSteps = 100
     static let longestQueue = 20
     static let longestLoop = 500
+    static let mostRepeats = 100
     static let mostPaths = 6
     static let mostLanes = 4
     /// Top level, and three levels of steps inside steps.
@@ -369,16 +374,15 @@ enum FlowCodec {
             if !options.isEmpty { out["options"] = options }
         case .text(let text): out["text"] = text
         case .branch(let c, let then, let otherwise):
-            var check: [String: Any] = ["value": c.value, "test": c.test.rawValue, "than": c.than]
-            // "Or" with nothing in it yet still says "any of": removing the last check doesn't change what adding one back means.
-            if !c.also.isEmpty || c.any {
-                check[c.any ? "or" : "and"] = c.also.map { ["value": $0.value, "test": $0.test.rawValue, "than": $0.than] as [String: Any] }
-            }
-            out["if"] = check
+            out["if"] = json(c)
             out["then"] = then.map(json)
             out["else"] = otherwise.map(json)
         case .wait(let minutes): out["wait_minutes"] = minutes
         case .flow(let name): out["run_flow"] = name
+        case .repeatUntil(let c, let times, let steps):
+            out["repeat"] = steps.map(json)
+            out["until"] = json(c)
+            out["times"] = times
         case .forEach(let items, let limit, let failure, let steps):
             out["for_each"] = items
             out["limit"] = limit
@@ -426,6 +430,31 @@ enum FlowCodec {
     /// Reads a definition, saying what to fix in words a person and a model can both act on. Unknown keys are mistakes: one
     /// silently dropped would run something other than what was meant.
     /// `saved`: read back from disk, where the limit on depth doesn't apply: what was kept is never lost to a limit that came later.
+    private static func json(_ c: Condition) -> [String: Any] {
+        var check: [String: Any] = ["value": c.value, "test": c.test.rawValue, "than": c.than]
+        // "Or" with nothing in it yet still says "any of": removing the last check doesn't change what adding one back means.
+        if !c.also.isEmpty || c.any {
+            check[c.any ? "or" : "and"] = c.also.map { ["value": $0.value, "test": $0.test.rawValue, "than": $0.than] as [String: Any] }
+        }
+        return check
+    }
+
+    private static func condition(_ c: [String: Any]) throws -> Condition {
+        guard let value = c["value"] as? String, let raw = c["test"] as? String, let test = Condition.Test(rawValue: raw) else {
+            throw Problem(L("“if” needs “value” and “test”: {tests}.", ["tests": Condition.Test.allCases.map(\.rawValue).joined(separator: ", ")]))
+        }
+        var condition = Condition(value: value, test: test, than: c["than"] as? String ?? "")
+        // "Any of" or "all of", and a list: anything else would quietly read as something it doesn't say.
+        guard c["and"] == nil || c["or"] == nil else { throw Problem(L("A condition is “and” or “or”, not both.")) }
+        if let joined = c["and"] ?? c["or"], !(joined is [[String: Any]]) { throw Problem(L("Each check in “and” or “or” needs “value” and “test”.")) }
+        for raw in (c["and"] ?? c["or"]) as? [[String: Any]] ?? [] {
+            guard let v = raw["value"] as? String, let t = (raw["test"] as? String).flatMap(Condition.Test.init(rawValue:)) else { throw Problem(L("Each check in “and” or “or” needs “value” and “test”.")) }
+            condition.also.append(Condition(value: v, test: t, than: raw["than"] as? String ?? ""))
+        }
+        condition.any = c["or"] != nil
+        return condition
+    }
+
     static func body(_ any: Any?, saved: Bool = false) throws -> FlowBody {
         guard let o = any as? [String: Any] else { throw Problem(L("A flow is an object with “trigger” and “steps”.")) }
         try only(o, ["trigger", "steps", "overlap", "time_zone", "trigger_sample"], in: "flow")
@@ -506,14 +535,14 @@ enum FlowCodec {
         return try list.map { try step($0, depth: depth, used: &used) }
     }
 
-    private static let doers = ["do", "ai", "ask", "text", "if", "wait_minutes", "run_flow", "for_each", "choose", "try", "parallel", "call_flow", "finish", "data", "form", "wait_for"]
+    private static let doers = ["do", "ai", "ask", "text", "if", "wait_minutes", "run_flow", "for_each", "repeat", "choose", "try", "parallel", "call_flow", "finish", "data", "form", "wait_for"]
 
     static func step(_ any: Any, depth: Int, used: inout Set<String>) throws -> Step {
         // Read back from disk, where `body` starts the depth below any limit: what a page saved as it went is kept and marked, never refused.
         let saved = depth < 0
         guard let o = any as? [String: Any] else { throw Problem(L("Each step is an object.")) }
         try only(o, ["id", "name", "on_failure", "sample", "do", "with", "ai", "fields", "ask", "options", "text", "if", "then", "else", "wait_minutes", "run_flow",
-                     "for_each", "limit", "item_failure", "steps", "choose", "paths", "try", "recover", "always", "parallel", "call_flow", "inputs", "finish", "data", "form", "wait_for"], in: "step")
+                     "for_each", "limit", "item_failure", "steps", "repeat", "until", "times", "choose", "paths", "try", "recover", "always", "parallel", "call_flow", "inputs", "finish", "data", "form", "wait_for"], in: "step")
         let kinds = doers.filter { o[$0] != nil }
         guard kinds.count == 1 else { throw Problem(L("A step does one thing: {kinds}.", ["kinds": doers.joined(separator: ", ")])) }
         var id = (o["id"] as? String)?.trimmed ?? ""
@@ -546,19 +575,7 @@ enum FlowCodec {
         } else if let text = o["text"] as? String {
             kind = .text(text)
         } else if let c = o["if"] as? [String: Any] {
-            guard let value = c["value"] as? String, let raw = c["test"] as? String, let test = Condition.Test(rawValue: raw) else {
-                throw Problem(L("“if” needs “value” and “test”: {tests}.", ["tests": Condition.Test.allCases.map(\.rawValue).joined(separator: ", ")]))
-            }
-            var condition = Condition(value: value, test: test, than: c["than"] as? String ?? "")
-            // "Any of" or "all of", and a list: anything else would quietly read as something it doesn't say.
-            guard c["and"] == nil || c["or"] == nil else { throw Problem(L("A condition is “and” or “or”, not both.")) }
-            if let joined = c["and"] ?? c["or"], !(joined is [[String: Any]]) { throw Problem(L("Each check in “and” or “or” needs “value” and “test”.")) }
-            for raw in (c["and"] ?? c["or"]) as? [[String: Any]] ?? [] {
-                guard let v = raw["value"] as? String, let t = (raw["test"] as? String).flatMap(Condition.Test.init(rawValue:)) else { throw Problem(L("Each check in “and” or “or” needs “value” and “test”.")) }
-                condition.also.append(Condition(value: v, test: t, than: raw["than"] as? String ?? ""))
-            }
-            condition.any = c["or"] != nil
-            kind = .branch(condition,
+            kind = .branch(try condition(c),
                            then: try steps(o["then"] ?? [], depth: depth + 1, used: &used), otherwise: try steps(o["else"] ?? [], depth: depth + 1, used: &used))
         } else if let minutes = (o["wait_minutes"] as? NSNumber)?.intValue {
             guard (1...FlowBody.longestWait).contains(minutes) else {
@@ -567,6 +584,11 @@ enum FlowCodec {
             kind = .wait(minutes: minutes)
         } else if let name = o["run_flow"] as? String, saved || !name.trimmed.isEmpty {
             kind = .flow(name)
+        } else if o["repeat"] != nil {
+            guard let until = o["until"] as? [String: Any] else { throw Problem(L("“repeat” needs “until”: what has to hold for it to stop.")) }
+            let times = (o["times"] as? NSNumber)?.intValue ?? FlowBody.mostRepeats
+            guard (1...FlowBody.mostRepeats).contains(times) else { throw Problem(L("“times” is 1 to {count}.", ["count": Format.integer(FlowBody.mostRepeats)])) }
+            kind = .repeatUntil(until: try condition(until), times: times, steps: try steps(o["repeat"], depth: depth + 1, used: &used))
         } else if let items = o["for_each"] as? String, saved || !items.trimmed.isEmpty {
             let limit = (o["limit"] as? NSNumber)?.intValue ?? FlowBody.longestLoop
             guard (1...FlowBody.longestLoop).contains(limit) else { throw Problem(L("“limit” is 1 to {count} items.", ["count": Format.integer(FlowBody.longestLoop)])) }

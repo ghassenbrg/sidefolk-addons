@@ -933,6 +933,31 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} ha vuelto, pero ha pasado tanto tiempo que este paso te toca decidirlo a ti.",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "Esperando a {name}, y esta rutina está en pausa. Este paso no se ejecutó: cuando vuelva, seguirá al reanudarla.",
-    "You approved a version without this step while this run was under way, so it didn't run.": "Aprobaste una versión sin este paso mientras esta ejecución estaba en curso, así que no se ejecutó."
+    "You approved a version without this step while this run was under way, so it didn't run.": "Aprobaste una versión sin este paso mientras esta ejecución estaba en curso, así que no se ejecutó.",
+    "Add what to do each time round.": "Añade qué hacer en cada vuelta.",
+    "At most (times)": "Como máximo (veces)",
+    "Each time round": "En cada vuelta",
+    "Go round until something holds, with a limit": "Repetir hasta que algo se cumpla, con un límite",
+    "Going round, {count} times at most": "Dando vueltas, {count} veces como máximo",
+    "If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then.": "Si sigue sin cumplirse tras tantas veces, el paso falla, y «Si este paso falla» abajo dice qué hacer.",
+    "It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat.": "Hace los pasos de dentro, mira y repite hasta que se cumpla. Todo lo que hace en cada vuelta cuenta, así que deja dentro solo lo que se pueda repetir sin riesgo.",
+    "It looks after the steps inside have run, so it can check what they made.": "Mira después de los pasos de dentro, así puede comprobar lo que hicieron.",
+    "Repeat until": "Repetir hasta",
+    "Say what has to hold": "Di qué tiene que cumplirse",
+    "Say what has to hold for it to stop.": "Di qué tiene que cumplirse para parar.",
+    "Stop when": "Parar cuando",
+    "There's nothing inside it to repeat.": "No hay nada dentro que repetir.",
+    "Went round once for practice; it would go on until this holds, {count} times at most": "Una vuelta de práctica; seguiría hasta que se cumpla, {count} veces como máximo",
+    "{what}, {count} times at most": "{what}, {count} veces como máximo",
+    "“repeat” needs “until”: what has to hold for it to stop.": "«repeat» necesita «until»: lo que debe cumplirse para parar.",
+    "“times” is 1 to {count}.": "«times» es de 1 a {count}.",
+    "It held after {count} times": {
+      "one": "Se cumplió tras {count} vez",
+      "other": "Se cumplió tras {count} veces"
+    },
+    "It went round {count} times and it still doesn't hold.": {
+      "one": "Dio {count} vuelta y sigue sin cumplirse.",
+      "other": "Dio {count} vueltas y sigue sin cumplirse."
+    }
   }
 }

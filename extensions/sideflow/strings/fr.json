@@ -933,6 +933,31 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} est de retour, mais cela fait si longtemps que cette étape vous revient.",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "En attente de {name}, et cette routine est en pause. Cette étape n'a pas été exécutée : une fois de retour, elle continue quand vous la reprenez.",
-    "You approved a version without this step while this run was under way, so it didn't run.": "Vous avez approuvé une version sans cette étape pendant que cette exécution était en cours : elle n'a donc pas été exécutée."
+    "You approved a version without this step while this run was under way, so it didn't run.": "Vous avez approuvé une version sans cette étape pendant que cette exécution était en cours : elle n'a donc pas été exécutée.",
+    "Add what to do each time round.": "Ajoutez ce qu'il faut faire à chaque tour.",
+    "At most (times)": "Au plus (fois)",
+    "Each time round": "À chaque tour",
+    "Go round until something holds, with a limit": "Recommencer jusqu'à ce qu'une condition soit vraie, avec une limite",
+    "Going round, {count} times at most": "Tourne, {count} fois au plus",
+    "If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then.": "Si ce n'est toujours pas vrai après ce nombre de tours, l'étape échoue, et « Si cette étape échoue » ci-dessous dit quoi faire.",
+    "It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat.": "Elle fait les étapes à l'intérieur, regarde, et recommence jusqu'à ce que ce soit vrai. Tout ce qu'elle fait à chaque tour compte : gardez l'intérieur sans danger à répéter.",
+    "It looks after the steps inside have run, so it can check what they made.": "Elle regarde après les étapes à l'intérieur, et peut donc vérifier ce qu'elles ont produit.",
+    "Repeat until": "Répéter jusqu'à",
+    "Say what has to hold": "Dites ce qui doit être vrai",
+    "Say what has to hold for it to stop.": "Dites ce qui doit être vrai pour s'arrêter.",
+    "Stop when": "S'arrêter quand",
+    "There's nothing inside it to repeat.": "Il n'y a rien à répéter à l'intérieur.",
+    "Went round once for practice; it would go on until this holds, {count} times at most": "Un seul tour pour l'entraînement ; elle continuerait jusqu'à ce que ce soit vrai, {count} fois au plus",
+    "{what}, {count} times at most": "{what}, {count} fois au plus",
+    "“repeat” needs “until”: what has to hold for it to stop.": "« repeat » a besoin de « until » : ce qui doit être vrai pour s'arrêter.",
+    "“times” is 1 to {count}.": "« times » va de 1 à {count}.",
+    "It held after {count} times": {
+      "one": "Vrai après {count} tour",
+      "other": "Vrai après {count} tours"
+    },
+    "It went round {count} times and it still doesn't hold.": {
+      "one": "{count} tour, et ce n'est toujours pas vrai.",
+      "other": "{count} tours, et ce n'est toujours pas vrai."
+    }
   }
 }

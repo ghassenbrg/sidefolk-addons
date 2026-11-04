@@ -33,6 +33,20 @@ import SidefolkExtensionKit
             try draft { $0 = Editing.change(id, in: $0, edit) }
         }
         func editTrigger(_ edit: (inout Trigger) -> Void) throws { try draft { edit(&$0.trigger) } }
+        /// A condition's checks, whichever step holds them.
+        func editCondition(_ edit: (inout Condition) -> Void) throws {
+            try editStep { s in
+                switch s.kind {
+                case .branch(var c, let then, let otherwise):
+                    edit(&c)
+                    s.kind = .branch(c, then: then, otherwise: otherwise)
+                case .repeatUntil(var c, let times, let steps):
+                    edit(&c)
+                    s.kind = .repeatUntil(until: c, times: times, steps: steps)
+                default: break
+                }
+            }
+        }
         let text = a.values["text"] as? String ?? ""
 
         switch op {
@@ -102,36 +116,27 @@ import SidefolkExtensionKit
         case "cond_value", "cond_than", "cond_test":
             // Which check of the condition: the first, or one of those after it.
             let at = a.int("check") ?? 0
-            try editStep { s in
-                guard case .branch(var c, let then, let otherwise) = s.kind else { return }
+            try editCondition { c in
                 func edit(_ check: inout Condition) {
                     if op == "cond_value" { check.value = text }
                     if op == "cond_than" { check.than = text }
                     if op == "cond_test", let raw = a.string("value"), let test = Condition.Test(rawValue: raw) { check.test = test }
                 }
                 if at == 0 { edit(&c) } else if c.also.indices.contains(at - 1) { edit(&c.also[at - 1]) }
-                s.kind = .branch(c, then: then, otherwise: otherwise)
             }
         case "cond_add":
-            try editStep { s in
-                guard case .branch(var c, let then, let otherwise) = s.kind else { return }
-                c.also.append(Condition(value: "", test: .contains, than: ""))
-                s.kind = .branch(c, then: then, otherwise: otherwise)
-            }
+            try editCondition { $0.also.append(Condition(value: "", test: .contains, than: "")) }
         case "cond_remove":
             let at = a.int("check") ?? 0
-            try editStep { s in
-                guard case .branch(var c, let then, let otherwise) = s.kind, c.also.indices.contains(at - 1) else { return }
-                c.also.remove(at: at - 1)
-                s.kind = .branch(c, then: then, otherwise: otherwise)
+            try editCondition { c in
+                if c.also.indices.contains(at - 1) { c.also.remove(at: at - 1) }
             }
         case "cond_join":
             let any = a.string("value") == "any"
-            try editStep { s in
-                guard case .branch(var c, let then, let otherwise) = s.kind else { return }
-                c.any = any
-                s.kind = .branch(c, then: then, otherwise: otherwise)
-            }
+            try editCondition { $0.any = any }
+        case "repeat_times":
+            guard let times = Int(text.trimmed), (1...FlowBody.mostRepeats).contains(times) else { throw Problem(L("“times” is 1 to {count}.", ["count": Format.integer(FlowBody.mostRepeats)])) }
+            try editStep { if case .repeatUntil(let until, _, let steps) = $0.kind { $0.kind = .repeatUntil(until: until, times: times, steps: steps) } }
         case "each_items":
             try editStep { if case .forEach(_, let limit, let failure, let steps) = $0.kind { $0.kind = .forEach(items: text, limit: limit, onFailure: failure, steps: steps) } }
         case "each_limit":
@@ -433,6 +438,7 @@ import SidefolkExtensionKit
         case "ask": return Step(id: Editing.freshId(body, base: "answer"), kind: .ask(question: "", options: [L("Yes"), L("No")]))
         case "text": return Step(id: Editing.freshId(body, base: "text"), kind: .text(""))
         case "wait": return Step(id: Editing.freshId(body, base: "wait"), kind: .wait(minutes: 30))
+        case "repeat": return Step(id: Editing.freshId(body, base: "again"), kind: .repeatUntil(until: Condition(value: "", test: .contains, than: ""), times: 10, steps: []))
         case "for_each": return Step(id: Editing.freshId(body, base: "each"), kind: .forEach(items: "", limit: FlowBody.longestLoop, onFailure: .stop, steps: []))
         case "choose": return Step(id: Editing.freshId(body, base: "choose"), kind: .choose(value: "", paths: [Step.Path(when: "", steps: []), Step.Path(when: "", steps: [])], otherwise: []))
         case "try": return Step(id: Editing.freshId(body, base: "try"), kind: .attempt(steps: [], recover: [], always: []))

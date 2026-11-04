@@ -7,6 +7,7 @@ extension Engine {
 
     /// A list of things as they are, or lines of text if it's text: never guessed from words that look like a list.
     func startLoop(_ step: Step, end: Int, in run: inout Run) -> Bool {
+        if case .repeatUntil(_, let times, let steps) = step.kind { return startRepeat(step, times: times, steps: steps, end: end, in: &run) }
         guard case .forEach(let items, let limit, let failure, let steps) = step.kind else { return true }
         if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
         if let name = run.values.missing(in: [items]).first {
@@ -35,6 +36,75 @@ extension Engine {
         store.save(run)
         changed()
         return true
+    }
+
+    /// Going round until something holds. Its goes are numbers, so a restart comes back to the right one like any loop's. A practice run goes round
+    /// once: what would end it hasn't happened, and what it does each go is what there is to see.
+    private func startRepeat(_ step: Step, times: Int, steps: [Step], end: Int, in run: inout Run) -> Bool {
+        guard !steps.isEmpty else {
+            return failed(step, why: L("There's nothing inside it to repeat."), reads: false, in: &run)
+        }
+        let goes = run.mode == .practice ? 1 : times
+        run.frames.append(Run.Frame(kind: .loop, step: step.id, items: (1...goes).map { .number(Double($0)) }, collect: false, top: run.pc + 1, end: end))
+        setItem(in: &run)
+        run.record(.init(step: step.id, status: .running, summary: L("Going round, {count} times at most", ["count": Format.integer(times)]), at: clock(), scope: "0"))
+        run.pc += 1
+        store.save(run)
+        changed()
+        return true
+    }
+
+    /// The end of a go: done if it holds now, with what this go's steps made still there to look at. False when it's run out of goes and that stops the run.
+    func nextInRepeat(_ step: Step, until: Condition, in run: inout Run) -> Bool {
+        guard let at = run.frames.indices.last, run.frames[at].kind == .loop, case .repeatUntil(_, let times, let steps) = step.kind else {
+            run.pc += 1
+            return true
+        }
+        let inside = FlowBody(steps: steps).allSteps
+        // The last that made something: a path not taken at the end of a go made nothing.
+        let made = inside.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }).flatMap { run.values.named[$0.id] } ?? .null
+        let holds = until.holds(run.values)
+        let go = run.frames[at].index + 1
+        func leave() {
+            for s in inside { run.values.named[s.id] = nil }
+            run.frames.removeLast()
+            setItem(in: &run)
+            run.records.removeAll { $0.step == step.id && $0.scope == "0" }
+        }
+        // What it can't see won't change by asking again, and each go may do something.
+        if run.mode != .practice, let unknown = run.values.undecided(until) {
+            leave()
+            return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
+        }
+        if holds || run.mode == .practice {
+            leave()
+            run.values.set(step.id, made)
+            let summary = run.mode == .practice ? L("Went round once for practice; it would go on until this holds, {count} times at most", ["count": Format.integer(times)])
+                : L(one: "It held after {count} time", other: "It held after {count} times", count: go)
+            var record = Run.Record(step: step.id, status: run.mode == .practice ? .would : .done, summary: summary, output: Values.text(made).clipped(Self.keptOutput), at: clock())
+            record.scope = run.scope
+            run.record(record)
+            run.pc += 1
+            store.save(run)
+            changed()
+            return true
+        }
+        run.frames[at].index = go
+        if go < run.frames[at].items.count {
+            for s in inside { run.values.named[s.id] = nil }
+            run.pc = run.frames[at].top
+            setItem(in: &run)
+            store.save(run)
+            changed()
+            return true
+        }
+        // Out of goes, and that's this step failing. Back at the start of it, because that's where carrying on goes past it from.
+        let top = run.frames[at].top
+        leave()
+        run.pc = top - 1
+        store.save(run)
+        changed()
+        return failed(step, why: L(one: "It went round {count} time and it still doesn't hold.", other: "It went round {count} times and it still doesn't hold.", count: go), reads: false, in: &run)
     }
 
     func setItem(in run: inout Run) {

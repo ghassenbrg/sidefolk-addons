@@ -985,6 +985,39 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "عاد {name}، لكن مرّ وقت طويل، فالقرار في هذه الخطوة لك.",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "في انتظار {name}، وهذا الروتين متوقف مؤقتًا. لم تُنفَّذ هذه الخطوة: بعد عودته، يتابع عندما تستأنفه.",
-    "You approved a version without this step while this run was under way, so it didn't run.": "وافقت على نسخة بلا هذه الخطوة أثناء هذا التشغيل، لذا لم تُنفَّذ."
+    "You approved a version without this step while this run was under way, so it didn't run.": "وافقت على نسخة بلا هذه الخطوة أثناء هذا التشغيل، لذا لم تُنفَّذ.",
+    "Add what to do each time round.": "أضف ما يجب فعله في كل مرة.",
+    "At most (times)": "على الأكثر (مرات)",
+    "Each time round": "في كل مرة",
+    "Go round until something holds, with a limit": "كرر حتى يتحقق شيء، مع حد أقصى",
+    "Going round, {count} times at most": "يكرر، {count} مرة على الأكثر",
+    "If it still doesn't hold after this many, the step fails, and “If this step fails” below says what then.": "إن لم يتحقق بعد هذا العدد تفشل الخطوة، و«إذا فشلت هذه الخطوة» أدناه تحدد ما يحدث بعدها.",
+    "It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat.": "ينفذ الخطوات داخله ثم ينظر ويعيد حتى يتحقق ذلك. كل ما يفعله في كل مرة يحدث فعلًا، فأبقِ في الداخل ما يمكن تكراره بأمان.",
+    "It looks after the steps inside have run, so it can check what they made.": "ينظر بعد الخطوات داخله، فيمكنه التحقق مما نتج عنها.",
+    "Repeat until": "كرر حتى",
+    "Say what has to hold": "حدد ما يجب أن يتحقق",
+    "Say what has to hold for it to stop.": "حدد ما يجب أن يتحقق ليتوقف.",
+    "Stop when": "توقف عندما",
+    "There's nothing inside it to repeat.": "لا يوجد في داخله ما يتكرر.",
+    "Went round once for practice; it would go on until this holds, {count} times at most": "مرة واحدة للتدريب؛ سيستمر حتى يتحقق ذلك، {count} مرة على الأكثر",
+    "{what}, {count} times at most": "{what}، {count} مرة على الأكثر",
+    "“repeat” needs “until”: what has to hold for it to stop.": "يحتاج «repeat» إلى «until»: ما يجب أن يتحقق ليتوقف.",
+    "“times” is 1 to {count}.": "«times» من 1 إلى {count}.",
+    "It held after {count} times": {
+      "zero": "تحقق دون تكرار",
+      "one": "تحقق بعد مرة واحدة",
+      "two": "تحقق بعد مرتين",
+      "few": "تحقق بعد {count} مرات",
+      "many": "تحقق بعد {count} مرة",
+      "other": "تحقق بعد {count} مرة"
+    },
+    "It went round {count} times and it still doesn't hold.": {
+      "zero": "لم يتكرر ولم يتحقق.",
+      "one": "تكرر مرة واحدة ولم يتحقق بعد.",
+      "two": "تكرر مرتين ولم يتحقق بعد.",
+      "few": "تكرر {count} مرات ولم يتحقق بعد.",
+      "many": "تكرر {count} مرة ولم يتحقق بعد.",
+      "other": "تكرر {count} مرة ولم يتحقق بعد."
+    }
   }
 }

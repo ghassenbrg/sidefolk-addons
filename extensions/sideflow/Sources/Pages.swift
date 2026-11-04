@@ -360,6 +360,7 @@ import SidefolkExtensionKit
             if part.hasPrefix("lane"), let at = Int(part.dropFirst(4)), lanes.indices.contains(at) { return lanes[at].name }
             return part
         case .forEach: return L("Each item")
+        case .repeatUntil: return L("Each time round")
         case .attempt: return part == "try" ? L("Try") : part == "recover" ? L("If it fails") : L("Either way")
         default: return part == "then" ? L("If so") : L("Otherwise")
         }
@@ -374,6 +375,7 @@ import SidefolkExtensionKit
         case .wait: return ("hourglass", "#6B7A90")
         case .flow: return ("arrow.triangle.turn.up.right.circle", "#5B8DEF")
         case .forEach: return ("repeat", "#1FA88A")
+        case .repeatUntil: return ("arrow.clockwise", "#1FA88A")
         case .choose: return ("arrow.triangle.swap", "#1FA88A")
         case .attempt: return ("shield.lefthalf.filled", "#1FA88A")
         case .parallel: return ("arrow.triangle.branch", "#3B6FF5")
@@ -625,6 +627,7 @@ import SidefolkExtensionKit
         ]
         items += [
             .init("for_each", L("For each"), detail: L("Do steps once per item of a list"), meta: L("Logic"), symbol: "repeat", color: "#1FA88A", categories: ["suggested", "logic"]),
+            .init("repeat", L("Repeat until"), detail: L("Go round until something holds, with a limit"), meta: L("Logic"), symbol: "arrow.clockwise", color: "#1FA88A", categories: ["logic"]),
             .init("choose", L("Choose a path"), detail: L("Several ways to go, by one value"), meta: L("Logic"), symbol: "arrow.triangle.swap", color: "#1FA88A", categories: ["logic"]),
             .init("try", L("Try"), detail: L("Do something else if a step fails"), meta: L("Logic"), symbol: "shield.lefthalf.filled", color: "#1FA88A", categories: ["logic"]),
             .init("parallel", L("At the same time"), detail: L("Several things at once, then carry on"), meta: L("Logic"), symbol: "arrow.triangle.branch", color: "#3B6FF5", categories: ["logic"]),

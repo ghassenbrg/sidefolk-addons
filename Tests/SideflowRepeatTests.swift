@@ -1,0 +1,182 @@
+import Foundation
+import Testing
+@testable import ext_sideflow
+import SidefolkExtensionKit
+
+/// Repeat until: round and round until it holds, with a limit.
+@MainActor @Suite(.serialized) struct SideflowRepeatTests {
+    typealias World = SideflowTests.World
+
+    private func again(until: String = "ready", times: Int = 5, extra: [String: Any] = [:], steps: [[String: Any]] = [["id": "look", "do": "reads.it", "name": "Look"]]) -> [String: Any] {
+        var step: [String: Any] = ["id": "again", "repeat": steps, "until": ["value": "{{look}}", "test": "contains", "than": until], "times": times]
+        step.merge(extra) { _, new in new }
+        return step
+    }
+
+    private func answers(_ w: World, _ list: [String]) {
+        w.host.answers["reads.it"] = list.map { Actions.Outcome(status: .ok, text: $0, summary: "Looked") }
+    }
+
+    @Test func itGoesRoundUntilItHoldsAndGivesWhatTheLastGoMade() async throws {
+        let w = try World()
+        answers(w, ["no", "not yet", "ready now", "never reached"])
+        let run = await w.settled(w.engine.start(try w.flow([again(), ["id": "after", "text": "Got {{again}}"]]), mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(w.host.calls.count == 3, "it stopped as soon as it held")
+        #expect(run?.values.value("after") == "Got ready now")
+        #expect(run?.record(of: "again")?.status == .done)
+        #expect(run?.values.named["look"] == nil, "what's inside is gone afterwards")
+        #expect(run?.frames.isEmpty == true)
+    }
+
+    @Test func whatItCantSeeStopsItRatherThanGoingRound() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Service unavailable", summary: "")]
+        let flow = try w.flow([["id": "r", "repeat": [["id": "c", "do": "reads.it"]], "until": ["value": "{{c.status}}", "test": "is", "than": "done"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .failed, "words have no status to wait for")
+        #expect(w.host.calls.filter { $0.tool == "reads.it" }.count == 1, "and it doesn't ask four more times")
+    }
+
+    @Test func itGivesTheLastThatMadeSomething() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "r", "repeat": [["id": "a", "text": "made"], ["id": "b", "if": ["value": "x", "test": "is", "than": "y"], "then": [["id": "c", "text": "other"]]]], "until": ["value": "yes", "test": "contains", "than": "yes"], "times": 3],
+                               ["id": "t", "text": "{{r}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.record(of: "t")?.output == "made", "the path not taken made nothing")
+    }
+
+    @Test func aBlankCheckIsMarkedAndDoesntGoLive() throws {
+        let body = FlowBody(steps: [Step(id: "r", kind: .repeatUntil(until: Condition(value: " ", test: .contains, than: "x"), times: 3, steps: [Step(id: "a", kind: .text("x"))]))])
+        #expect(body.blank != nil)
+    }
+
+    @Test func itFailsAtTheLimitAndDoesNoMore() async throws {
+        let w = try World()
+        answers(w, Array(repeating: "no", count: 9))
+        let run = await w.settled(w.engine.start(try w.flow([again(times: 3), ["id": "after", "text": "x"]]), mode: .live, why: "t"))
+        #expect(w.host.calls.count == 3)
+        #expect(run?.status == .failed, "the same as any step that fails with nothing to do about it")
+        #expect(run?.problem?.contains("3") == true)
+        #expect(run?.record(of: "after") == nil)
+    }
+
+    @Test func atTheLimitItCanCarryOnIfTheStepSaysSo() async throws {
+        let w = try World()
+        answers(w, Array(repeating: "no", count: 9))
+        let run = await w.settled(w.engine.start(try w.flow([again(times: 2, extra: ["on_failure": "carry_on"]), ["id": "after", "text": "x"]]), mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(run?.record(of: "again")?.status == .failed)
+        #expect(run?.record(of: "after")?.status == .done)
+    }
+
+    @Test func aRestartInTheMiddleComesBackAtTheSameGo() async throws {
+        let w = try World()
+        answers(w, ["no"])
+        w.host.hold = nil
+        let flow = try w.flow([again(times: 5, steps: [["id": "look", "do": "reads.it"], ["id": "rest", "wait_minutes": 10]])])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .waiting)
+        answers(w, ["ready"])
+        w.restart()
+        w.engine.recover()
+        w.now = w.now.addingTimeInterval(11 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.frames.first?.index == 1, "the second go")
+        w.now = w.now.addingTimeInterval(11 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .done)
+        #expect(w.host.calls.count == 2)
+    }
+
+    @Test func stopHoldsInsideIt() async throws {
+        let w = try World()
+        answers(w, Array(repeating: "no", count: 9))
+        let flow = try w.flow([again(times: 5, steps: [["id": "look", "do": "reads.it"], ["id": "rest", "wait_minutes": 10]])])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.stop(run: run.id)
+        w.now = w.now.addingTimeInterval(3600)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .stopped)
+        #expect(w.host.calls.count == 1)
+    }
+
+    @Test func practiceGoesRoundOnce() async throws {
+        let w = try World()
+        let flow = try w.flow([again(times: 50)], state: .draft)
+        let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        await w.quiet()
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(w.host.calls.filter { $0.tool == "reads.it" }.count <= 1)
+        #expect(w.store.run(run!.id)?.record(of: "again")?.status == .would)
+    }
+
+    @Test func aFailureInsideGoesToAnEnclosingTry() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .error, text: "broken")]
+        let flow = try w.flow([["id": "t", "try": [again()], "recover": [["id": "r", "text": "Caught {{error}}"]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done)
+        #expect(run?.values.value("r") == "Caught broken")
+        #expect(run?.frames.isEmpty == true)
+    }
+
+    @Test func itReadsBackExactly() throws {
+        let raw: [String: Any] = ["trigger": ["type": "manual"], "steps": [again(times: 7, extra: ["name": "Keep looking"])]]
+        let body = try FlowCodec.body(raw)
+        #expect(try FlowCodec.body(FlowCodec.json(body)) == body)
+        #expect(throws: Problem.self) { _ = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [self.again(times: 500)]]) }
+        #expect(throws: Problem.self) { _ = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "repeat": [["id": "x", "text": "y"]]]]]) }
+    }
+
+    @Test func whatItLooksAtCanComeFromInsideAndNowhereElse() throws {
+        let w = try World()
+        #expect(try w.flow([again()]).draft.problems(w.catalog).isEmpty)
+        let flow = try w.flow([["id": "again", "repeat": [["id": "look", "do": "reads.it"]], "until": ["value": "{{nowhere}}", "test": "contains", "than": "x"]]])
+        #expect(flow.draft.problems(w.catalog).contains { $0.step == "again" })
+        let empty = try w.flow([["id": "again", "repeat": [], "until": ["value": "", "test": "contains", "than": ""]]])
+        #expect(empty.draft.problems(w.catalog).count >= 2)
+        // Outside it, what's inside is gone: only its own result stays.
+        let after = try w.flow([again(), ["id": "t", "text": "{{look}}"]])
+        #expect(after.draft.problems(w.catalog).contains { $0.step == "t" })
+    }
+
+    @Test func theCardSaysTheHigherLimitLoopsTake() throws {
+        let w = try World()
+        #expect(w.engine.livePlan(try w.flow([again()], state: .draft)).perDay == Engine.loopsPerDay)
+    }
+
+    @Test func thePageAddsAndEditsIt() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        let flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [again(times: 4)]]))
+        func op(_ name: String, _ extra: [String: Any]) async throws {
+            var input: [String: Any] = ["op": name, "flow": flow.id, "step": "again"]
+            input.merge(extra) { _, new in new }
+            _ = try await Actions_UI.handle(Arguments(input), app)
+        }
+        try await op("repeat_times", ["text": "9"])
+        try await op("cond_value", ["text": "{{look}}", "check": 0])
+        try await op("cond_than", ["text": "done", "check": 0])
+        try await op("cond_add", [:])
+        guard case .repeatUntil(let until, let times, _)? = app.store.flow(flow.id)?.draft.step("again")?.kind else { Issue.record("not a repeat"); return }
+        #expect(times == 9)
+        #expect(until.than == "done")
+        #expect(until.also.count == 1)
+        await #expect(throws: Problem.self) { try await op("repeat_times", ["text": "1000"]) }
+        let page = await Pages.make(app, state: Arguments(["flow": flow.id]), background: false)
+        #expect(!page.sections.isEmpty)
+    }
+
+    @Test func aRepeatRenamesAndDuplicatesLikeAnyStep() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [again(steps: [["id": "look", "do": "reads.it"], ["id": "c", "call_flow": "Old"]])]])
+        let renamed = body.calling("Old", instead: "New")
+        #expect(renamed.step("c").map { if case .call("New", _) = $0.kind { true } else { false } } == true)
+        #expect(body.allSteps.count == 3)
+    }
+}

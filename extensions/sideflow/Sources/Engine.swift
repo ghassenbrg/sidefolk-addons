@@ -180,7 +180,14 @@ import SidefolkExtensionKit
                     return
                 }
             case .loopNext(let step):
-                nextInLoop(step, in: &run)
+                if case .repeatUntil(let until, _, _) = step.kind {
+                    guard nextInRepeat(step, until: until, in: &run) else {
+                        finish(&run)
+                        return
+                    }
+                } else {
+                    nextInLoop(step, in: &run)
+                }
             case .choose(let step, let targets, let otherwise):
                 guard case .choose(let value, let paths, _) = step.kind else { break }
                 if let why = step.saysNothing ?? run.values.missing(in: [value]).first.map({ L("It uses “{name}”, but that step didn't run this time.", ["name": $0]) }) {
@@ -275,7 +282,7 @@ import SidefolkExtensionKit
             } catch {
                 return failed(step, why: (error as? Problem)?.message ?? L("It didn't work."), reads: true, in: &run)
             }
-        case .forEach, .choose, .attempt:
+        case .forEach, .repeatUntil, .choose, .attempt:
             return true
         case .wait(let minutes):
             if run.mode == .practice {
@@ -920,7 +927,7 @@ import SidefolkExtensionKit
             when = L("{when}. Also sets off: {flows}", ["when": when, "flows": names])
         }
         // A loop does its lines many times over: the card says the higher limit that takes.
-        let goesRound = flow.kept.allSteps.contains { if case .forEach = $0.kind { true } else { false } }
+        let goesRound = flow.kept.allSteps.contains { switch $0.kind { case .forEach, .repeatUntil: true; default: false } }
         return Plan(id: flow.planId, title: flow.name, when: when, steps: steps, perDay: goesRound ? Self.loopsPerDay : nil)
     }
 
@@ -1217,7 +1224,7 @@ extension Run {
         // Setting another flow off twice isn't the same as once.
         case .flow, .call: false
         // What holds steps answers for itself no further than its steps do, each of which is asked in turn.
-        case .forEach, .choose, .attempt, .parallel, .finish, .data, .form, .waitFor: true
+        case .forEach, .repeatUntil, .choose, .attempt, .parallel, .finish, .data, .form, .waitFor: true
         }
     }
 }
