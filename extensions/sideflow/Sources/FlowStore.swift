@@ -307,7 +307,7 @@ import SidefolkExtensionKit
     }
 
     private static func json(_ f: Run.Frame) -> [String: Any] {
-        let out: [String: Any?] = ["kind": f.kind.rawValue, "step": f.step, "items": f.items.map(\.any), "index": f.index, "results": f.results.map(\.any), "failed_items": f.failedItems,
+        let out: [String: Any?] = ["kind": f.kind.rawValue, "step": f.step, "items": f.items.map(\.any), "index": f.index, "results": f.results.map(\.any), "failed_items": f.failedItems, "wrote": f.wrote ? true : nil,
                                    "collect": f.collect, "top": f.top, "end": f.end, "recover": f.recover, "always": f.always, "in_recover": f.inRecover, "in_always": f.inAlways,
                                    "failing": f.failing, "returning": f.returning]
         return out.compactMapValues { $0 }
@@ -320,6 +320,7 @@ import SidefolkExtensionKit
         f.items = (o["items"] as? [Any] ?? []).map { JSON($0) }
         f.results = (o["results"] as? [Any] ?? []).map { JSON($0) }
         (f.index, f.failedItems, f.top, f.end, f.recover, f.always) = (n("index"), n("failed_items"), n("top"), n("end"), n("recover"), n("always"))
+        f.wrote = o["wrote"] as? Bool ?? false
         f.collect = o["collect"] as? Bool ?? false
         f.inRecover = o["in_recover"] as? Bool ?? false
         f.inAlways = o["in_always"] as? Bool ?? false

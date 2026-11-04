@@ -252,6 +252,8 @@ import SidefolkExtensionKit
         if let name = run.values.stopsFor(step.usedTexts, practice: run.mode == .practice) {
             return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
         }
+        // Before it's done: for a repeat, which can't tell from a value alone what going round would do again.
+        if step.doesSomething(catalog) { for i in run.frames.indices { run.frames[i].wrote = true } }
         switch step.kind {
         case .call(let flow, let inputs):
             return run.waitingOn.isEmpty ? calling(step, flow: flow, inputs: inputs, in: &run) : joined(step, in: &run)

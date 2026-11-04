@@ -29,6 +29,87 @@ import SidefolkExtensionKit
         w.host.answers["reads.it"] = list.map { Actions.Outcome(status: .ok, text: $0, summary: "Looked") }
     }
 
+    private func sends(_ steps: [[String: Any]], until: [String: Any], answer: String = "Sent") async throws -> (Run?, Int) {
+        let w = try World()
+        w.host.answers["changes.it"] = (0..<20).map { _ in Actions.Outcome(status: .ok, text: answer, summary: "") }
+        var other = try w.flow([["id": "t", "text": "x"]])
+        other.name = "Other"
+        w.store.save(other)
+        let flow = try w.flow([["id": "again", "repeat": steps, "until": until, "times": 4]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        return (run, w.host.calls.filter { $0.tool == "changes.it" }.count)
+    }
+
+    static let send: [String: Any] = ["id": "send", "do": "changes.it", "with": ["text": "x"]]
+
+    @Test func aGoThatDidSomethingDoesntGoRoundOverWhatSaysNothing() async throws {
+        // A read inside a loop, gone by the time it looks, beside a write.
+        var (run, sent) = try await sends([["id": "each", "for_each": "a", "steps": [Self.send, ["id": "check", "do": "reads.it"]]]], until: ["value": "{{check}}", "test": "not_empty"])
+        #expect(run?.status != .done && sent == 1)
+        // A loop inside that made a list of nothing.
+        (run, sent) = try await sends([["id": "each", "for_each": "a", "steps": [Self.send]]], until: ["value": "{{each[0]}}", "test": "not_empty"], answer: "")
+        #expect(run?.status != .done && sent == 1)
+        // A repeat inside.
+        (run, sent) = try await sends([["id": "inner", "repeat": [Self.send], "until": ["value": "{{send}}", "test": "contains", "than": "Sent"], "times": 2]], until: ["value": "{{inner}}", "test": "contains", "than": "never"], answer: "")
+        #expect(run?.status != .done && sent == 1)
+        // Only spaces.
+        (run, sent) = try await sends([Self.send], until: ["value": "{{send}}", "test": "not_empty"], answer: "  ")
+        #expect(run?.status != .done && sent == 1)
+        // An empty list, as words.
+        (run, sent) = try await sends([Self.send], until: ["value": "{{send}}", "test": "not_empty"], answer: "[]")
+        #expect(run?.status != .done && sent == 1)
+        // A misspelt name.
+        (run, sent) = try await sends([Self.send], until: ["value": "{{sned}}", "test": "not_empty"])
+        #expect(run?.status != .done && sent == 1)
+        // A failure carried past by a try.
+        let w = try World()
+        w.host.answers["changes.it"] = (0..<20).map { _ in Actions.Outcome(status: .error, text: "no") }
+        let flow = try w.flow([["id": "again", "repeat": [["id": "t", "try": [Self.send], "recover": [["id": "r", "text": "ok"]]]], "until": ["value": "{{send}}", "test": "not_empty"], "times": 4]])
+        let tried = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(tried?.status != .done)
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
+    }
+
+    @Test func aFlowSetOffFromInsideCountsAsSomethingDone() async throws {
+        let w = try World()
+        var other = try w.flow([["id": "t", "text": "x"]])
+        other.name = "Other"
+        w.store.save(other)
+        let flow = try w.flow([["id": "again", "repeat": [["id": "f", "run_flow": "Other"]], "until": ["value": "{{f}}", "test": "not_empty"], "times": 4]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(w.store.runs(of: other.id).count == 1, "set off once, not once a go")
+    }
+
+    @Test func aDeliberateTryAgainStillGoesRound() async throws {
+        let (run, sent) = try await sends([Self.send], until: ["value": "{{send}}", "test": "contains", "than": "done"], answer: "not yet")
+        #expect(run?.status != .done, "it ran out of goes")
+        #expect(sent == 4, "it answered, and that isn't what it's waiting for: asking again is what this flow says to do")
+    }
+
+    @Test func aWriteNotReachedYetDoesntStopIt() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "no", summary: ""), Actions.Outcome(status: .ok, text: "yes", summary: "")]
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .ok, text: "Sent", summary: "")]
+        let flow = try w.flow([["id": "again", "repeat": [["id": "poll", "do": "reads.it"], ["id": "m", "if": ["value": "{{poll}}", "test": "is", "than": "yes"], "then": [Self.send], "else": []]],
+                                "until": ["value": "{{send}}", "test": "not_empty"], "times": 5]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
+    }
+
+    @Test func whatItRememberedComesBackAfterARestart() throws {
+        var frame = Run.Frame(kind: .loop, step: "s")
+        frame.wrote = true
+        let w = try World()
+        let flow = try w.flow([["id": "a", "text": "x"]])
+        var run = Run(id: "r", flow: flow.id, flowName: "F", mode: .live, status: .waiting, why: "t", startedAt: w.now, body: flow.draft)
+        run.frames = [frame]
+        w.store.save(run)
+        w.restart()
+        #expect(w.store.run("r")?.frames.first?.wrote == true)
+    }
+
     @Test func itGoesRoundUntilItHoldsAndGivesWhatTheLastGoMade() async throws {
         let w = try World()
         answers(w, ["no", "not yet", "ready now", "never reached"])

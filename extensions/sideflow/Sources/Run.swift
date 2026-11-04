@@ -52,6 +52,8 @@ struct Run: Equatable, Sendable, Identifiable {
         var results: [JSON] = []
         var failedItems = 0
         var collect = false
+        /// This time round something was done that going round would do again, or may have been.
+        var wrote = false
         var top = 0
         var end = 0
         // A try: where its other ways are, and which it's in.
