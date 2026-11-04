@@ -933,6 +933,6 @@
     },
     "{name} is back, but it's been so long that this step is for you to say.": "{name} voltou, mas passou tanto tempo que esta etapa fica para você decidir.",
     "Waiting for {name}, and this flow is paused. This step hasn't run: once it's back, it goes on when you resume it.": "Aguardando {name}, e esta rotina está pausada. Esta etapa não foi executada: quando voltar, ela continua ao ser retomada.",
-    "You approved a version without this step while this run was under way, so it didn't run.": "Você aprovou uma versão sem esta etapa enquanto esta execução estava em andamento, então ela não foi executada."
+    "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Você aprovou outra versão desta rotina durante esta execução, e esta etapa não está mais igual, então não foi executada. Pule-a ou pare aqui."
   }
 }

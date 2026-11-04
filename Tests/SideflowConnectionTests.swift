@@ -174,6 +174,30 @@ import SidefolkExtensionKit
         #expect(!words.contains("goes on by itself"))
     }
 
+    @Test func aChildOfAPausedCallerSaysSoToo() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Self.tools[0]]))
+        var child = app.newFlow(name: "Child", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "pr", "do": "ext.gh.pr"]]]))
+        child.live = child.draft
+        child.state = .on
+        app.store.save(child)
+        var caller = app.newFlow(name: "Caller", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "call_flow": "Child"]]]))
+        caller.live = caller.draft
+        caller.state = .on
+        app.store.save(caller)
+        _ = try #require(app.engine.start(caller, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        app.engine.pause(caller.id)
+        await w.quiet(app.store)
+        let waiting = try #require(app.store.runs(of: child.id).first)
+        let page = await Pages.make(app, state: Arguments(["run": waiting.id]), background: false)
+        let words = page.sections.map { "\($0)" }.joined()
+        #expect(words.contains("resume"))
+        #expect(!words.contains("goes on by itself"))
+    }
+
     @Test func aPausedFlowWithALaneWaitingSaysPaused() async throws {
         let w = try World()
         let app = App(folder: w.folder.appendingPathComponent("app"))

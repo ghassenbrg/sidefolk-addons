@@ -541,6 +541,47 @@ import SidefolkExtensionKit
         #expect(run.status == .needs_you)
     }
 
+    @Test func aCallThatsAlreadyOutComesBackAfterAnEditTookItOut() async throws {
+        let w = try World()
+        var child = try w.flow([["id": "w", "wait_minutes": 1], ["id": "t", "text": "made"]])
+        child.name = "Child"
+        w.store.save(child)
+        var flow = try w.flow([["id": "c", "call_flow": "Child"], ["id": "after", "text": "{{c}}"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .waiting)
+        flow = try #require(w.store.flow(flow.id))
+        let approved = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "after", "text": "other"]]])
+        flow.draft = approved
+        flow.live = approved
+        w.store.save(flow)
+        w.now = w.now.addingTimeInterval(120)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .done, "it already ran: nothing to ask, and nothing to lose")
+        #expect(w.store.run(run.id)?.waitingOn.isEmpty == true)
+    }
+
+    @Test func aStepChangedByAnEditIsntSaidToBeGone() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "w", "wait_minutes": 1], ["id": "a", "ai": "write"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        flow = try #require(w.store.flow(flow.id))
+        let approved = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "wait_minutes": 1], ["id": "a", "ai": "other words"]]])
+        flow.draft = approved
+        flow.live = approved
+        w.store.save(flow)
+        w.now = w.now.addingTimeInterval(120)
+        w.engine.tick()
+        await w.quiet()
+        let held = try #require(w.store.run(run.id))
+        #expect(held.status == .needs_you)
+        #expect(w.host.written.isEmpty)
+        #expect(held.problem?.contains("without") == false, "it's there, in other words")
+        #expect(held.problem?.contains("Skip") == true, "and Try again would ask the same")
+    }
+
     @Test func aStepThatsStillThereGoesOnAfterAnEdit() async throws {
         let w = try World()
         var flow = try w.flow([["id": "w", "wait_minutes": 1], ["id": "a", "ai": "write"]])
