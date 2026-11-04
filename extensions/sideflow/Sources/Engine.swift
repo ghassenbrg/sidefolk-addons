@@ -51,7 +51,10 @@ import SidefolkExtensionKit
             store.save(current)
             changed()
             let told = current
-            Task { await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: true) }
+            Task {
+                await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: true)
+                await pauseWatch(told)
+            }
             return nil
         }
         if active.contains(flow.id) {

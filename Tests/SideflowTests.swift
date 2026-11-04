@@ -1071,6 +1071,69 @@ import SidefolkExtensionKit
         }
     }
 
+    @Test func aWatchStopsLookingWhenABlankStepPausesItsFlow() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.draft = FlowBody(trigger: try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": []]).trigger, steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        flow.live = flow.draft
+        flow.state = .on
+        flow.watchTitle = "Test · Sideflow"
+        app.store.save(flow)
+        app.engine.host = w.host
+        #expect(app.engine.start(flow, mode: .live, why: "t") == nil)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(app.store.flow(flow.id)?.state == .paused)
+        #expect(w.host.calls.contains { $0.tool == "watch.pause" }, "or it goes on looking with the flow saying it's paused")
+    }
+
+    @Test func resumeFlowOnAnOnFlowWithABlankStepSaysSo() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        await #expect(throws: Problem.self) { try await resuming(flow, app) }
+    }
+
+    @Test func resumeFlowOnlySaysItsRunningWhenItIs() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .paused
+        app.store.save(flow)
+        let said = try await resuming(flow, app)
+        #expect(said.contains("running by itself again"))
+        #expect(app.store.flow(flow.id)?.state == .on)
+
+        var blank = try #require(app.store.flow(flow.id))
+        blank.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        blank.live = blank.draft
+        blank.state = .paused
+        app.store.save(blank)
+        await #expect(throws: Problem.self) { try await resuming(blank, app) }
+        #expect(app.store.flow(flow.id)?.state == .paused)
+    }
+
+    @Test func resumeFlowSaysWhatStoppedIt() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        flow.live = flow.draft
+        flow.state = .paused
+        app.store.save(flow)
+        do {
+            _ = try await resuming(flow, app)
+            Issue.record("it isn't running, so it can't say it is")
+        } catch let problem as Problem {
+            #expect(problem.message == L("Say what to write."))
+        }
+    }
+
     @Test func anOnFlowWithABlankStepPausesInsteadOfRunningPartWay() async throws {
         let w = try World()
         let flow = try onFlow(w, .ai(prompt: ""), first: false)
