@@ -73,6 +73,17 @@ struct Step: Equatable, Sendable {
 
     enum OnFailure: String, CaseIterable, Sendable { case stop, carry_on, retry }
 
+    /// The words of this step that may name other steps' results.
+    var usedTexts: [String] {
+        switch kind {
+        case .action(_, let input): input.values.flatMap(\.strings)
+        case .ai(let prompt): [prompt]
+        case .ask(let question, _): [question]
+        case .text(let text): [text]
+        case .branch, .wait, .flow: []
+        }
+    }
+
     var id: String
     /// The person's words for it; the tool's own sentence otherwise.
     var name: String?

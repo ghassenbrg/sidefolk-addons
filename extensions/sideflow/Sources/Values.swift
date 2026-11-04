@@ -19,6 +19,11 @@ struct Values: Equatable, Sendable {
         slot.matches(in: text, range: NSRange(text.startIndex..., in: text)).compactMap { Range($0.range(at: 1), in: text).map { String(text[$0]) } }
     }
 
+    /// What these words use that no step has made: a step on the path not taken, say. Filling it in as nothing would give a real action an empty value.
+    func missing(in texts: [String]) -> [String] {
+        texts.flatMap(Self.references).filter { !Self.reserved.contains($0) && named[$0] == nil }
+    }
+
     func fill(_ text: String) -> String {
         var out = "", from = text.startIndex
         for match in Self.slot.matches(in: text, range: NSRange(text.startIndex..., in: text)) {

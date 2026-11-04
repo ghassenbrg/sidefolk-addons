@@ -10,6 +10,8 @@ import SidefolkExtensionKit
     private var runsById: [String: Run] = [:]
     /// Flows this version can't read: written back as they were, so a mistake here never loses one.
     private var unreadable: [[String: Any]] = []
+    /// How many writes didn't reach the disk, so a test can't pass over one.
+    private(set) var failedSaves = 0
 
     init(folder: URL) {
         self.folder = folder
@@ -68,11 +70,13 @@ import SidefolkExtensionKit
 
     func unfinished() -> [Run] { runsById.values.filter { !$0.status.isOver }.sorted { $0.startedAt < $1.startedAt } }
 
-    func save(_ run: Run) {
+    /// Whether it reached the disk: the engine won't act on a run it couldn't write down. What's in memory is current either way, for the page to show.
+    @discardableResult func save(_ run: Run) -> Bool {
         runsById[run.id] = run
-        write(Self.json(run), to: runsFolder.appendingPathComponent("\(run.id).json"))
+        let saved = write(Self.json(run), to: runsFolder.appendingPathComponent("\(run.id).json"))
         let mine = runs(of: run.flow)
         for old in mine.dropFirst(Self.keptRuns) where old.status.isOver { removeRun(old.id) }
+        return saved
     }
 
     private func removeRun(_ id: String) {
@@ -82,12 +86,18 @@ import SidefolkExtensionKit
 
     // MARK: On disk
 
-    private func write(_ any: Any, to file: URL) {
-        guard JSONSerialization.isValidJSONObject(any), let data = try? JSONSerialization.data(withJSONObject: any, options: [.sortedKeys]) else { return }
+    @discardableResult private func write(_ any: Any, to file: URL) -> Bool {
+        guard JSONSerialization.isValidJSONObject(any), let data = try? JSONSerialization.data(withJSONObject: any, options: [.sortedKeys]) else {
+            failedSaves += 1
+            return false
+        }
         do {
             try data.write(to: file, options: .atomic)
+            return true
         } catch {
+            failedSaves += 1
             FileHandle.standardError.write(Data("couldn't save \(file.lastPathComponent): \(error)\n".utf8))
+            return false
         }
     }
 

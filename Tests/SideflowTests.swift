@@ -11,6 +11,8 @@ import SidefolkExtensionKit
         var aiAnswer: AI.Result = .answer(text: "Three lines.", madeBy: "Scripted")
         var planAnswer: Plans.Answer = .allowed(standing: [])
         var plans: [Plan] = []
+        /// How long the card stays up.
+        var planWait: Duration?
         var forgotten: [String] = []
         var forward: [String] = []
         var notices: [(title: String, body: String?, attention: Bool)] = []
@@ -57,6 +59,7 @@ import SidefolkExtensionKit
 
         func approve(_ plan: Plan) async -> Plans.Answer {
             plans.append(plan)
+            if let planWait { try? await Task.sleep(for: planWait) }
             return planAnswer
         }
 
@@ -254,6 +257,112 @@ import SidefolkExtensionKit
         #expect(w.store.flow(flow.id)?.state == .on)
     }
 
+    // MARK: Correctness (roadmap phase 0)
+
+    private func actions(_ count: Int, trigger: [String: Any] = ["type": "manual"]) throws -> FlowBody {
+        try FlowCodec.body(["trigger": trigger, "steps": (0..<count).map { ["id": "s\($0)", "do": "changes.it", "with": ["text": "line \($0)"]] as [String: Any] }])
+    }
+
+    private let watching: [String: Any] = ["type": "watch", "kind": "file_changes", "target": "~/a.txt"]
+
+    /// What the page calls too many is what Sidefolk would refuse.
+    @Test func aFlowKnowsItsPlanWouldBeTooLongBeforeItsAsked() throws {
+        let w = try World()
+        func tooMany(_ body: FlowBody) -> Bool { body.problems(w.catalog).contains { $0.step == nil && $0.text.contains("different things to allow") } }
+        #expect(!tooMany(try actions(1)))
+        #expect(!tooMany(try actions(32)))
+        #expect(tooMany(try actions(33)))
+        #expect(!tooMany(try actions(28, trigger: watching)), "28 and the watch's four")
+        #expect(tooMany(try actions(29, trigger: watching)))
+        #expect(Engine.planSteps(try actions(29, trigger: watching), title: "t").count == 33)
+    }
+
+    @Test func theSameActionTwiceIsOneLineToAllow() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "notes.save", "with": ["text": "x"]], ["id": "b", "do": "notes.save", "with": ["text": "x"]], ["id": "c", "do": "notes.save", "with": ["text": "y"]]]])
+        #expect(Engine.planSteps(body, title: "t").count == 2)
+    }
+
+    /// No action, nothing to read on a card, and Sidefolk refuses an empty plan: it just turns on.
+    @Test func aFlowWithNoActionsTurnsOnWithoutACard() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "text": "x"]], state: .draft)
+        w.engine.turnOn(flow.id)
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(w.host.plans.isEmpty)
+        #expect(w.store.flow(flow.id)?.state == .on)
+    }
+
+    /// The card shows one version, the person edits another while it waits: the one they read goes live.
+    @Test func whatGoesLiveIsWhatTheCardShowed() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "read on the card"]]], state: .draft)
+        w.host.planWait = .milliseconds(80)
+        w.engine.turnOn(flow.id)
+        try await Task.sleep(for: .milliseconds(10))
+        var edited = try #require(w.store.flow(flow.id))
+        edited.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "changes.it", "with": ["text": "changed meanwhile"]]]])
+        w.store.save(edited)
+        try await Task.sleep(for: .milliseconds(200))
+        let after = try #require(w.store.flow(flow.id))
+        #expect(after.state == .on)
+        #expect(after.live == flow.draft)
+        #expect(after.draft == edited.draft, "the edit is kept, as changes waiting")
+        #expect(after.hasChanges)
+    }
+
+    private let eitherWay: [[String: Any]] = [["id": "p", "text": "x"], ["id": "c", "if": ["value": "{{p}}", "test": "not_empty"],
+        "then": [["id": "yes", "text": "made here"]], "else": [["id": "no", "do": "reads.it", "with": ["q": "{{yes}}"]]]]]
+
+    @Test func oneBranchCantUseWhatTheOtherMade() throws {
+        let w = try World()
+        let inOther = try FlowCodec.body(["trigger": ["type": "manual"], "steps": eitherWay])
+        #expect(inOther.problems(w.catalog).contains { $0.step == "no" })
+        let after = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [eitherWay[0], ["id": "c", "if": ["value": "{{p}}", "test": "not_empty"], "then": [["id": "yes", "text": "y"]], "else": []],
+                                                                                 ["id": "later", "text": "{{yes}}"]]])
+        #expect(after.problems(w.catalog).contains { $0.step == "later" && $0.text.contains("only one path") })
+        let both = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [eitherWay[0], ["id": "c", "if": ["value": "{{p}}", "test": "not_empty"], "then": [["id": "m", "text": "y"], ["id": "yes", "text": "y"]], "else": []],
+                                                                                ["id": "d", "if": ["value": "{{yes}}", "test": "is_empty"], "then": [], "else": []]]])
+        #expect(!both.problems(w.catalog).contains { $0.step == "d" }, "asking whether it ran is how a flow handles it")
+    }
+
+    /// A value that was never made stops the step: it doesn't reach a tool as nothing.
+    @Test func aMissingValueStopsTheStepInsteadOfBecomingEmpty() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "c", "if": ["value": "x", "test": "is_empty"], "then": [["id": "made", "text": "y"]], "else": []],
+                               ["id": "act", "do": "changes.it", "with": ["text": "Title: {{made}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .failed)
+        #expect(run?.problem?.contains("made") == true)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    /// Written down first, or not done.
+    @Test func aRunThatCantSaveDoesNothing() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "act", "do": "changes.it", "with": ["text": "x"]]])
+        let runs = w.folder.appendingPathComponent("runs")
+        try FileManager.default.removeItem(at: runs)
+        try Data().write(to: runs)
+        defer { try? FileManager.default.removeItem(at: runs) }
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .needs_you)
+        #expect(run?.problem?.contains("couldn't save") == true)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+        #expect(w.store.failedSaves > 0)
+    }
+
+    /// "It may have happened" stays that: it isn't a failure that's safe to repeat.
+    @Test func aStepThatDidntFinishIsForThePersonToLookAt() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "act", "do": "changes.it", "with": ["text": "x"]]])
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .lost, text: "", summary: "")]
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .interrupted)
+        #expect(run?.record(of: "act")?.status == .unknown)
+        #expect(run?.problem?.contains("may or may not") == true)
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "never again by itself")
+    }
+
     @Test func aFlowSurvivesARestartWithAllOfIt() throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it", "with": ["q": "x"]]], trigger: ["type": "schedule", "every_minutes": 60])
@@ -370,8 +479,8 @@ import SidefolkExtensionKit
         w.host.answers["changes.it"] = [Actions.Outcome(status: .failed, text: "boom"), Actions.Outcome(status: .failed, text: "boom")]
         let stops = try w.flow([["do": "changes.it", "with": ["text": "x"]], ["id": "z", "text": "after"]])
         let stopped = await w.settled(w.engine.start(stops, mode: .live, why: "t"))
-        #expect(stopped?.status == .failed)
-        #expect(stopped?.problem == "boom")
+        #expect(stopped?.status == .interrupted, "it may have happened: the person looks")
+        #expect(stopped?.problem?.contains("boom") == true)
         let goes = try w.flow([["id": "x", "do": "changes.it", "with": ["text": "x"], "on_failure": "carry_on"], ["id": "z", "text": "[{{x}}]"]])
         let went = await w.settled(w.engine.start(goes, mode: .live, why: "t"))
         #expect(went?.status == .done)
@@ -392,7 +501,8 @@ import SidefolkExtensionKit
         w.host.answers["changes.it"] = [Actions.Outcome(status: .failed, text: "boom")]
         let changes = try w.flow([["do": "changes.it", "with": ["text": "x"], "on_failure": "retry"]])
         let stopped = await w.settled(w.engine.start(changes, mode: .live, why: "t"))
-        #expect(stopped?.status == .failed, "repeating what may have happened never happens by itself")
+        #expect(stopped?.status == .interrupted, "repeating what may have happened never happens by itself")
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
     }
 
     // MARK: The way forward on the page
