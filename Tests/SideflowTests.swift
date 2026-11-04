@@ -1015,6 +1015,25 @@ import SidefolkExtensionKit
         let empty = app.newFlow(name: "New condition", body: fresh)
         app.nav.inspect(.step("c"), in: empty.id)
         try write(await Pages.make(app, state: Arguments(["flow": empty.id]), background: false), "condition-empty")
+        // What a flow reaches beyond Sidefolk, one of them gone and a run waiting for it.
+        app.catalog.use(Actions.Listing(tools: [
+            Actions.Tool(name: "ext.weather.today", title: "Today's weather", mutates: false, extensionName: "weather", extensionTitle: "Weather"),
+            Actions.Tool(name: "ext.formatic.convert", title: "Convert a file", extensionName: "formatic", extensionTitle: "Formatic"),
+            Actions.Tool(name: "ext.github.pr", title: "Open a pull request", extensionName: "github", extensionTitle: "GitHub tools", fromServer: true),
+        ]))
+        Connections.remember(app.catalog, app.store)
+        let gh = app.newFlow(name: "Weekly pull requests", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "pr", "do": "ext.github.pr", "with": ["title": "Weekly"]]]]))
+        let sky = app.newFlow(name: "Morning sky", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "do": "ext.weather.today"]]]))
+        _ = sky
+        app.catalog.use(Actions.Listing(tools: [
+            Actions.Tool(name: "ext.weather.today", title: "Today's weather", mutates: false, extensionName: "weather", extensionTitle: "Weather"),
+            Actions.Tool(name: "ext.formatic.convert", title: "Convert a file", extensionName: "formatic", extensionTitle: "Formatic"),
+        ]))
+        let waiting = try #require(app.engine.start(gh, mode: .once, why: "You asked for it."))
+        try await Task.sleep(for: .milliseconds(200))
+        try write(await Pages.make(app, state: Arguments(["view": "connections"]), background: false), "connections")
+        try write(await Pages.make(app, state: Arguments(["run": waiting.id]), background: false), "run-waiting-connection")
+        try write(await Pages.make(app, state: Arguments(["flow": gh.id]), background: false), "flow-needs-connection")
     }
 }
 /// What 1202 must not do to a person's flows.

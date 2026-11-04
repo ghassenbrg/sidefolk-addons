@@ -66,6 +66,11 @@ struct Run: Equatable, Sendable, Identifiable {
     }
 
     /// A form waiting for the person.
+    struct WaitingConnection: Equatable, Sendable {
+        var tool: String
+        var until: Date
+    }
+
     struct WaitingForm: Equatable, Sendable {
         var step: String
         var answers: [String: JSON] = [:]
@@ -105,6 +110,8 @@ struct Run: Equatable, Sendable, Identifiable {
     /// A lane's item and its number, from the loop it's in.
     var startItem: JSON?
     var startIndex: JSON?
+    /// The tool it's waiting to come back, and until when.
+    var connection: WaitingConnection?
 
     /// What it answers to a run that called it: what it said at its end, or what its last step made.
     var answer: JSON { output ?? .null }

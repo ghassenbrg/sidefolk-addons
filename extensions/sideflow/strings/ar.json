@@ -944,6 +944,44 @@
     "There's no other flow to run yet.": "لا يوجد روتين آخر لتشغيله بعد.",
     "{when}, by the clock of {zone}": "{when}، حسب توقيت {zone}",
     "Only the first {count} goes can be picked here.": "لا يمكن هنا اختيار سوى أول {count} مرات.",
-    "Another lane already goes by that name.": "يوجد ممر آخر بهذا الاسم بالفعل."
+    "Another lane already goes by that name.": "يوجد ممر آخر بهذا الاسم بالفعل.",
+    "A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons.": "التشغيل الذي يصل إلى اتصال مفقود ينتظر هناك حتى 7 أيام دون فعل شيء، ويتابع وحده عند عودته. أعد تشغيله من الإضافات.",
+    "Accounts and keys stay with each extension or server; none of it is kept in a flow.": "تبقى الحسابات والمفاتيح لدى كل إضافة أو خادم؛ ولا يُحفظ شيء منها في الروتين.",
+    "Also here": "متاح أيضًا",
+    "Connections": "الاتصالات",
+    "Extension": "إضافة",
+    "Here": "موجود",
+    "It goes on by itself once it's back.": "يتابع وحده عند عودته.",
+    "It needs {name}, which isn't here now.": "يحتاج إلى {name}، غير موجود الآن.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "يحتاج إلى {name}، غير موجود الآن. لم يُفعل شيء، ويتابع وحده عند عودته.",
+    "MCP server": "خادم MCP",
+    "Missing": "مفقود",
+    "None of your flows uses an extension or a server yet.": "لا يستخدم أي من روتيناتك إضافة أو خادمًا بعد.",
+    "Open Add-ons": "فتح الإضافات",
+    "Don't want to wait?": "لا تريد الانتظار؟",
+    "See connections": "عرض الاتصالات",
+    "Used by {flows}": "يستخدمه {flows}",
+    "Waiting for a connection": "في انتظار اتصال",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "في انتظار {name}. لم يُفعل شيء، ويتابع وحده عند عودته.",
+    "What your flows reach beyond Sidefolk: extensions and MCP servers.": "ما تصل إليه روتيناتك خارج Sidefolk: الإضافات وخوادم MCP.",
+    "{count} missing": "{count} مفقود",
+    "{flow} is waiting for {name}": "{flow} ينتظر {name}",
+    "{name} still isn't here, so this step didn't run.": "{name} غير موجود بعد، لذا لم تُنفذ هذه الخطوة.",
+    "{count} actions": {
+      "zero": "لا إجراءات",
+      "one": "إجراء واحد",
+      "two": "إجراءان",
+      "few": "{count} إجراءات",
+      "many": "{count} إجراءً",
+      "other": "{count} إجراء"
+    },
+    "{count} runs waiting for it": {
+      "zero": "لا تشغيل في الانتظار",
+      "one": "تشغيل واحد في الانتظار",
+      "two": "تشغيلان في الانتظار",
+      "few": "{count} عمليات تشغيل في الانتظار",
+      "many": "{count} عملية تشغيل في الانتظار",
+      "other": "{count} عملية تشغيل في الانتظار"
+    }
   }
 }

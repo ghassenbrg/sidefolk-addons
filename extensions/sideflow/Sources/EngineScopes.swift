@@ -342,6 +342,34 @@ extension Engine {
         return false
     }
 
+    /// What this step uses isn't here: an extension off or removed, a server gone. Nothing was done, so nothing's lost by waiting: it goes
+    /// on by itself when it's back, and asks the person if that takes too long.
+    func waitingForConnection(_ step: Step, tool: String, in run: inout Run) -> Bool {
+        let name = Connections.id(of: tool).map { Connections.title($0, catalog, store) } ?? tool
+        let sentence = Words.step(step, body: run.body, catalog: catalog)
+        if let waited = run.connection, waited.tool == tool, waited.until <= clock() {
+            run.connection = nil
+            run.resumeAt = nil
+            run.status = .needs_you
+            run.problem = L("{name} still isn't here, so this step didn't run.", ["name": name])
+            run.record(.init(step: step.id, status: .needs_you, summary: sentence, note: run.problem, at: clock()))
+            store.save(run)
+            return false
+        }
+        let first = run.connection?.tool != tool
+        let until = first ? clock().addingTimeInterval(Connections.longestWait) : run.connection!.until
+        run.connection = Run.WaitingConnection(tool: tool, until: until)
+        run.resumeAt = until
+        run.status = .waiting
+        run.record(.init(step: step.id, status: .waiting, summary: sentence, note: L("It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.", ["name": name]), at: clock()))
+        store.save(run)
+        if first {
+            let flow = run.flowName
+            Task { await host?.notify(title: L("{flow} is waiting for {name}", ["flow": flow, "name": name]), body: L("It goes on by itself once it's back."), attention: true) }
+        }
+        return false
+    }
+
     /// Runs waiting for this: each goes on once, because the next time it's no longer at this step.
     func wakeWaiting(name: String, words: String) {
         for var run in store.unfinished() where run.status == .waiting && run.resumeAt != nil && !store.isHeldBack(flow: run.flow) {

@@ -59,6 +59,10 @@ import SidefolkExtensionKit
     }
     /// How many writes didn't reach the disk, so a test can't pass over one.
     private(set) var failedSaves = 0
+    /// What each connection was called, and which are servers: all that's left to say about one that's gone.
+    private(set) var connectionNames: [String: String] = [:]
+    private(set) var connectionServers: Set<String> = []
+    private(set) var connectionTools: [String: String] = [:]
 
     init(folder: URL) {
         self.folder = folder
@@ -69,6 +73,11 @@ import SidefolkExtensionKit
         if fm.fileExists(atPath: flowsFile.path), flowsData == nil {
             flowsFileHeld = true
             flowsNotSaved = true
+        }
+        if let data = try? Data(contentsOf: connectionsFile), let saved = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] {
+            connectionNames = saved["names"] as? [String: String] ?? [:]
+            connectionServers = Set(saved["servers"] as? [String] ?? [])
+            connectionTools = saved["tools"] as? [String: String] ?? [:]
         }
         if let data = flowsData {
             if let list = (try? JSONSerialization.jsonObject(with: data)) as? [Any] {
@@ -100,7 +109,14 @@ import SidefolkExtensionKit
 
     private var flowsFile: URL { folder.appendingPathComponent("flows.json") }
     private var stopsFile: URL { folder.appendingPathComponent("stops.json") }
+    private var connectionsFile: URL { folder.appendingPathComponent("connections.json") }
     private var runsFolder: URL { folder.appendingPathComponent("runs", isDirectory: true) }
+
+    func keepConnections(names: [String: String], servers: Set<String>, tools: [String: String]) {
+        guard names != connectionNames || servers != connectionServers || tools != connectionTools else { return }
+        (connectionNames, connectionServers, connectionTools) = (names, servers, tools)
+        write(["names": names, "servers": servers.sorted(), "tools": tools], to: connectionsFile)
+    }
 
     // MARK: Flows
 
@@ -250,6 +266,7 @@ import SidefolkExtensionKit
             "started": time(run.startedAt), "ended": time(run.endedAt), "body": FlowCodec.json(run.body), "pc": run.pc, "values": run.values.named.mapValues(\.any),
             "today": run.values.today, "now": run.values.now, "records": run.records.map(json), "resume_at": time(run.resumeAt), "retries": run.retries, "problem": run.problem, "frames": run.frames.isEmpty ? nil : run.frames.map(json), "parent": run.parent, "lineage": run.lineage.isEmpty ? nil : run.lineage,
             "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
+            "connection": run.connection.map { ["tool": $0.tool, "until": $0.until.timeIntervalSince1970] as [String: Any] },
         ]
         return out.compactMapValues { $0 }
     }
@@ -278,6 +295,9 @@ import SidefolkExtensionKit
         run.startIndex = o["start_index"].map { JSON($0) }
         if let form = o["form"] as? [String: Any], let step = form["step"] as? String {
             run.form = Run.WaitingForm(step: step, answers: (form["answers"] as? [String: Any] ?? [:]).mapValues { JSON($0) })
+        }
+        if let waited = o["connection"] as? [String: Any], let tool = waited["tool"] as? String, let until = date(waited["until"]) {
+            run.connection = Run.WaitingConnection(tool: tool, until: until)
         }
         return run
     }

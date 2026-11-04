@@ -193,9 +193,9 @@ import SidefolkExtensionKit
         child.name = "Child"
         w.store.save(child)
         let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "call_flow": "Child", "inputs": ["r": "{{r}}"]]])
-        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
         await w.quiet()
-        #expect(run?.status == .done)
+        #expect(w.store.run(run.id)?.status == .done, "it waited for the flow it called")
         #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "there are errors")
     }
 

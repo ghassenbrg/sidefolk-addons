@@ -900,6 +900,36 @@
     "There's no other flow to run yet.": "Non c'è ancora un'altra routine da avviare.",
     "{when}, by the clock of {zone}": "{when}, secondo l'ora di {zone}",
     "Only the first {count} goes can be picked here.": "Qui si possono scegliere solo i primi {count} giri.",
-    "Another lane already goes by that name.": "Un'altra corsia ha già questo nome."
+    "Another lane already goes by that name.": "Un'altra corsia ha già questo nome.",
+    "A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons.": "Un'esecuzione che arriva a una connessione mancante attende lì fino a 7 giorni, senza fare nulla, e riparte da sola al suo ritorno. Riattivala nei Componenti aggiuntivi.",
+    "Accounts and keys stay with each extension or server; none of it is kept in a flow.": "Account e chiavi restano in ogni estensione o server; nulla di questo viene conservato in una routine.",
+    "Also here": "Disponibili anche",
+    "Connections": "Connessioni",
+    "Extension": "Estensione",
+    "Here": "Presente",
+    "It goes on by itself once it's back.": "Riparte da sola al suo ritorno.",
+    "It needs {name}, which isn't here now.": "Le serve {name}, ora assente.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Le serve {name}, ora assente. Non è stato fatto nulla, e riparte da sola al suo ritorno.",
+    "MCP server": "Server MCP",
+    "Missing": "Mancante",
+    "None of your flows uses an extension or a server yet.": "Nessuna delle tue routine usa ancora un'estensione o un server.",
+    "Open Add-ons": "Apri Componenti aggiuntivi",
+    "Don't want to wait?": "Non vuoi aspettare?",
+    "See connections": "Vedi le connessioni",
+    "Used by {flows}": "Usata da {flows}",
+    "Waiting for a connection": "In attesa di una connessione",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "In attesa di {name}. Non è stato fatto nulla, e riparte da sola al suo ritorno.",
+    "What your flows reach beyond Sidefolk: extensions and MCP servers.": "Ciò che le tue routine raggiungono oltre Sidefolk: estensioni e server MCP.",
+    "{count} missing": "{count} mancanti",
+    "{flow} is waiting for {name}": "{flow} attende {name}",
+    "{name} still isn't here, so this step didn't run.": "{name} non è ancora presente, quindi questo passaggio non è stato eseguito.",
+    "{count} actions": {
+      "one": "{count} azione",
+      "other": "{count} azioni"
+    },
+    "{count} runs waiting for it": {
+      "one": "{count} esecuzione la attende",
+      "other": "{count} esecuzioni la attendono"
+    }
   }
 }

@@ -900,6 +900,36 @@
     "There's no other flow to run yet.": "Ainda não há outra rotina para executar.",
     "{when}, by the clock of {zone}": "{when}, no horário de {zone}",
     "Only the first {count} goes can be picked here.": "Aqui só é possível escolher as primeiras {count} passagens.",
-    "Another lane already goes by that name.": "Outra faixa já tem esse nome."
+    "Another lane already goes by that name.": "Outra faixa já tem esse nome.",
+    "A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons.": "Uma execução que chega a uma conexão ausente espera ali por até 7 dias, sem fazer nada, e continua sozinha quando ela volta. Ative-a de novo em Complementos.",
+    "Accounts and keys stay with each extension or server; none of it is kept in a flow.": "Contas e chaves ficam em cada extensão ou servidor; nada disso é guardado em uma rotina.",
+    "Also here": "Também aqui",
+    "Connections": "Conexões",
+    "Extension": "Extensão",
+    "Here": "Aqui",
+    "It goes on by itself once it's back.": "Continua sozinha quando voltar.",
+    "It needs {name}, which isn't here now.": "Precisa de {name}, ausente agora.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Precisa de {name}, ausente agora. Nada foi feito, e continua sozinha quando voltar.",
+    "MCP server": "Servidor MCP",
+    "Missing": "Ausente",
+    "None of your flows uses an extension or a server yet.": "Nenhuma das suas rotinas usa uma extensão ou um servidor ainda.",
+    "Open Add-ons": "Abrir Complementos",
+    "Don't want to wait?": "Não quer esperar?",
+    "See connections": "Ver conexões",
+    "Used by {flows}": "Usada por {flows}",
+    "Waiting for a connection": "Esperando uma conexão",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "Esperando {name}. Nada foi feito, e continua sozinha quando voltar.",
+    "What your flows reach beyond Sidefolk: extensions and MCP servers.": "O que suas rotinas alcançam além do Sidefolk: extensões e servidores MCP.",
+    "{count} missing": "{count} ausentes",
+    "{flow} is waiting for {name}": "{flow} está esperando {name}",
+    "{name} still isn't here, so this step didn't run.": "{name} ainda não está aqui, então esta etapa não foi executada.",
+    "{count} actions": {
+      "one": "{count} ação",
+      "other": "{count} ações"
+    },
+    "{count} runs waiting for it": {
+      "one": "{count} execução esperando",
+      "other": "{count} execuções esperando"
+    }
   }
 }

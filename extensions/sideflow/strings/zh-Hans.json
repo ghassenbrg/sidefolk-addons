@@ -889,6 +889,34 @@
     "There's no other flow to run yet.": "还没有其他可运行的流程。",
     "{when}, by the clock of {zone}": "{when}（按 {zone} 时间）",
     "Only the first {count} goes can be picked here.": "这里只能选择前 {count} 次。",
-    "Another lane already goes by that name.": "已有其他通道使用这个名称。"
+    "Another lane already goes by that name.": "已有其他通道使用这个名称。",
+    "A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons.": "运行到缺失的连接时，会在那里等待最多 7 天，不做任何事，它恢复后自动继续。请在附加组件中重新打开它。",
+    "Accounts and keys stay with each extension or server; none of it is kept in a flow.": "账户和密钥保留在各扩展或服务器中，不会保存在流程里。",
+    "Also here": "此外还有",
+    "Connections": "连接",
+    "Extension": "扩展",
+    "Here": "可用",
+    "It goes on by itself once it's back.": "恢复后自动继续。",
+    "It needs {name}, which isn't here now.": "它需要 {name}，目前不在。",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "它需要 {name}，目前不在。未做任何事，恢复后自动继续。",
+    "MCP server": "MCP 服务器",
+    "Missing": "缺失",
+    "None of your flows uses an extension or a server yet.": "你的流程还没有使用扩展或服务器。",
+    "Open Add-ons": "打开附加组件",
+    "Don't want to wait?": "不想等？",
+    "See connections": "查看连接",
+    "Used by {flows}": "{flows} 在使用",
+    "Waiting for a connection": "正在等待连接",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "正在等待 {name}。未做任何事，恢复后自动继续。",
+    "What your flows reach beyond Sidefolk: extensions and MCP servers.": "你的流程在 Sidefolk 之外用到的内容：扩展和 MCP 服务器。",
+    "{count} missing": "缺失 {count} 个",
+    "{flow} is waiting for {name}": "{flow} 正在等待 {name}",
+    "{name} still isn't here, so this step didn't run.": "{name} 仍然不在，因此这一步没有运行。",
+    "{count} actions": {
+      "other": "{count} 个操作"
+    },
+    "{count} runs waiting for it": {
+      "other": "{count} 次运行正在等待"
+    }
   }
 }

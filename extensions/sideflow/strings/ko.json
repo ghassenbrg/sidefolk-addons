@@ -889,6 +889,34 @@
     "There's no other flow to run yet.": "아직 실행할 다른 루틴이 없습니다.",
     "{when}, by the clock of {zone}": "{when}, {zone} 시간 기준",
     "Only the first {count} goes can be picked here.": "여기서는 처음 {count}회만 선택할 수 있습니다.",
-    "Another lane already goes by that name.": "다른 레인이 이미 그 이름을 사용하고 있습니다."
+    "Another lane already goes by that name.": "다른 레인이 이미 그 이름을 사용하고 있습니다.",
+    "A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons.": "없는 연결에 도달한 실행은 아무것도 하지 않고 최대 7일 동안 기다리며, 돌아오면 저절로 계속됩니다. 애드온에서 다시 켜세요.",
+    "Accounts and keys stay with each extension or server; none of it is kept in a flow.": "계정과 키는 각 확장 프로그램이나 서버에 남으며, 루틴에는 저장되지 않습니다.",
+    "Also here": "그 밖에 있는 것",
+    "Connections": "연결",
+    "Extension": "확장 프로그램",
+    "Here": "있음",
+    "It goes on by itself once it's back.": "돌아오면 저절로 계속됩니다.",
+    "It needs {name}, which isn't here now.": "{name}이(가) 필요하지만 지금 없습니다.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "{name}이(가) 필요하지만 지금 없습니다. 아무것도 하지 않았으며, 돌아오면 저절로 계속됩니다.",
+    "MCP server": "MCP 서버",
+    "Missing": "없음",
+    "None of your flows uses an extension or a server yet.": "확장 프로그램이나 서버를 사용하는 루틴이 아직 없습니다.",
+    "Open Add-ons": "애드온 열기",
+    "Don't want to wait?": "기다리지 않으려면",
+    "See connections": "연결 보기",
+    "Used by {flows}": "{flows}에서 사용",
+    "Waiting for a connection": "연결을 기다리는 중",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "{name}을(를) 기다리는 중입니다. 아무것도 하지 않았으며, 돌아오면 저절로 계속됩니다.",
+    "What your flows reach beyond Sidefolk: extensions and MCP servers.": "루틴이 Sidefolk 밖에서 사용하는 것: 확장 프로그램과 MCP 서버.",
+    "{count} missing": "{count}개 없음",
+    "{flow} is waiting for {name}": "{flow}이(가) {name}을(를) 기다리는 중",
+    "{name} still isn't here, so this step didn't run.": "{name}이(가) 아직 없어 이 단계를 실행하지 않았습니다.",
+    "{count} actions": {
+      "other": "작업 {count}개"
+    },
+    "{count} runs waiting for it": {
+      "other": "실행 {count}개가 기다리는 중"
+    }
   }
 }

@@ -900,6 +900,36 @@
     "There's no other flow to run yet.": "Es gibt noch keinen anderen Ablauf zum Starten.",
     "{when}, by the clock of {zone}": "{when}, nach der Uhrzeit von {zone}",
     "Only the first {count} goes can be picked here.": "Hier lassen sich nur die ersten {count} Durchläufe auswählen.",
-    "Another lane already goes by that name.": "Eine andere Spur heißt schon so."
+    "Another lane already goes by that name.": "Eine andere Spur heißt schon so.",
+    "A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons.": "Ein Durchlauf, der auf eine fehlende Verbindung trifft, wartet dort bis zu 7 Tage, ohne etwas zu tun, und läuft von selbst weiter, sobald sie zurück ist. Schalte sie unter Add-ons wieder ein.",
+    "Accounts and keys stay with each extension or server; none of it is kept in a flow.": "Konten und Schlüssel bleiben bei der jeweiligen Erweiterung oder dem Server; nichts davon wird in einem Ablauf gespeichert.",
+    "Also here": "Auch verfügbar",
+    "Connections": "Verbindungen",
+    "Extension": "Erweiterung",
+    "Here": "Da",
+    "It goes on by itself once it's back.": "Er läuft von selbst weiter, sobald sie zurück ist.",
+    "It needs {name}, which isn't here now.": "Er braucht {name}, gerade nicht da.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Er braucht {name}, gerade nicht da. Nichts wurde getan, und er läuft von selbst weiter, sobald es zurück ist.",
+    "MCP server": "MCP-Server",
+    "Missing": "Fehlt",
+    "None of your flows uses an extension or a server yet.": "Noch keiner deiner Abläufe nutzt eine Erweiterung oder einen Server.",
+    "Open Add-ons": "Add-ons öffnen",
+    "Don't want to wait?": "Nicht warten?",
+    "See connections": "Verbindungen ansehen",
+    "Used by {flows}": "Genutzt von {flows}",
+    "Waiting for a connection": "Wartet auf eine Verbindung",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "Wartet auf {name}. Nichts wurde getan, und er läuft von selbst weiter, sobald es zurück ist.",
+    "What your flows reach beyond Sidefolk: extensions and MCP servers.": "Was deine Abläufe über Sidefolk hinaus erreichen: Erweiterungen und MCP-Server.",
+    "{count} missing": "{count} fehlen",
+    "{flow} is waiting for {name}": "{flow} wartet auf {name}",
+    "{name} still isn't here, so this step didn't run.": "{name} ist immer noch nicht da, darum lief dieser Schritt nicht.",
+    "{count} actions": {
+      "one": "{count} Aktion",
+      "other": "{count} Aktionen"
+    },
+    "{count} runs waiting for it": {
+      "one": "{count} Durchlauf wartet darauf",
+      "other": "{count} Durchläufe warten darauf"
+    }
   }
 }

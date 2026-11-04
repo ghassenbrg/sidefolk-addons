@@ -23,6 +23,7 @@ import SidefolkExtensionKit
     init(folder: URL) {
         store = FlowStore(folder: folder)
         engine = Engine(store: store, catalog: catalog)
+        Connections.remember(catalog, store)
         engine.host = host
     }
 
@@ -34,6 +35,7 @@ import SidefolkExtensionKit
         var lookedForWhatNobodyRead = firstLook()
         while !Task.isCancelled {
             await catalog.refresh()
+            Connections.remember(catalog, store)
             // Once, with the list in hand: without it, it would look as if nothing had been allowed.
             if !lookedForWhatNobodyRead, catalog.loadedAt != nil {
                 lookedForWhatNobodyRead = true
@@ -124,6 +126,7 @@ struct Nav {
         case run(String)
         case history
         case templates
+        case connections
     }
 
     enum Inspecting: Equatable {
@@ -152,6 +155,7 @@ struct Nav {
         switch state.string("view") {
         case "history": return .history
         case "templates": return .templates
+        case "connections": return .connections
         default: return .home
         }
     }

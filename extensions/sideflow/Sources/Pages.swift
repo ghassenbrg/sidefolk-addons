@@ -32,6 +32,8 @@ import SidefolkExtensionKit
             return historyPage(app, state: state)
         case .templates:
             return templatesPage(app, state: state)
+        case .connections:
+            return connectionsPage(app, state: state)
         case .home:
             break
         }
@@ -57,6 +59,9 @@ import SidefolkExtensionKit
         let stuck = app.store.unfinished().filter { $0.status == .needs_you || $0.status == .interrupted || $0.form != nil }
         if let first = stuck.first {
             return Summary(L(one: "{count} flow needs you", other: "{count} flows need you", count: Set(stuck.map(\.flow)).count), detail: first.flowName, tone: .warn, symbol: "exclamationmark.bubble")
+        }
+        if let waiting = app.store.unfinished().first(where: { $0.connection != nil }), let id = waiting.connection.flatMap({ Connections.id(of: $0.tool) }) {
+            return Summary(L("{flow} is waiting for {name}", ["flow": waiting.flowName, "name": Connections.title(id, app.catalog, app.store)]), detail: L("It goes on by itself once it's back."), tone: .warn, symbol: "link")
         }
         if let failed = app.store.runs().first(where: { $0.mode == .live }), failed.status == .failed {
             return Summary(L("{flow} failed", ["flow": failed.flowName]), detail: failed.problem ?? "", tone: .bad, symbol: "xmark.circle")
@@ -102,10 +107,12 @@ import SidefolkExtensionKit
 
     static func places(_ app: App, state: Arguments, here: String?, flow selected: String?) -> [Section] {
         func to(_ label: String, _ set: [String: Any]) -> Action { Action(label, act: .go(Go(set: set, push: true))) }
+        let gone = Connections.all(app.catalog, app.store).filter { !$0.isHere }.count
         let top = PageNav(brand: true, items: [
             .init("flows", L("Flows"), symbol: "point.3.connected.trianglepath.dotted", selected: here == "flows", press: to(L("Flows"), place([:]))),
             .init("history", L("Run history"), symbol: "clock.arrow.circlepath", selected: here == "history", press: to(L("Run history"), place(["view": "history"]))),
             .init("templates", L("Templates"), symbol: "square.stack.3d.up", selected: here == "templates", press: to(L("Templates"), place(["view": "templates"]))),
+            .init("connections", L("Connections"), status: gone > 0 ? L("{count} missing", ["count": Format.integer(gone)]) : nil, tone: gone > 0 ? .warn : .neutral, symbol: "link", selected: here == "connections", press: to(L("Connections"), place(["view": "connections"]))),
         ])
         let filter = state.string("filter") ?? "all"
         func keep(_ flow: Flow) -> Bool {
@@ -137,6 +144,7 @@ import SidefolkExtensionKit
 
     /// A flow's state in one word and its colour, always together (D78).
     static func stateWord(_ flow: Flow, _ app: App) -> (String, Tone) {
+        if app.store.unfinished().contains(where: { $0.flow == flow.id && $0.connection != nil }) { return (L("Waiting for a connection"), .warn) }
         if app.engine.isRunning(flow.id) { return (L("Running now"), .info) }
         if flow.hasUnsaved { return (L("Unsaved changes"), .warn) }
         switch flow.state {
@@ -257,6 +265,32 @@ import SidefolkExtensionKit
         var page = frame(app, state: state, here: "flows", main)
         page.companion = false
         return page
+    }
+
+    static func connectionsPage(_ app: App, state: Arguments) -> Page {
+        let all = Connections.all(app.catalog, app.store), unused = Connections.unused(app.catalog, app.store)
+        let addons = Action(L("Open Add-ons"), act: .settings("addons"), symbol: "puzzlepiece.extension")
+        let cards = all.map { c -> Card in
+            var lines = [L("Used by {flows}", ["flows": Format.list(c.flows)])]
+            if !c.waiting.isEmpty { lines.append(L(one: "{count} run waiting for it", other: "{count} runs waiting for it", count: c.waiting.count)) }
+            let kind = c.server ? L("MCP server") : L("Extension")
+            return Card(c.title, detail: ([kind] + lines).joined(separator: " · "), symbol: c.server ? "server.rack" : "puzzlepiece.extension", color: tile[0],
+                        badge: c.isHere ? Badge(L("Here"), tone: .good) : Badge(L("Missing"), tone: .warn), press: c.waiting.first.map { go(L("Open"), place(["run": $0])) })
+        }
+        var main = [Section(nil, [.bar(PageBar(L("Connections"), detail: L("What your flows reach beyond Sidefolk: extensions and MCP servers."), actions: [addons]))])]
+        if all.isEmpty {
+            main.append(Section(nil, [.note(L("None of your flows uses an extension or a server yet."))], wide: true))
+        } else {
+            main.append(Section(nil, [.cards(size: .small, cards)], wide: true))
+        }
+        if all.contains(where: { !$0.isHere }) {
+            main.append(Section(nil, [.note(L("A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons."), tone: .warn)], wide: true))
+        }
+        if !unused.isEmpty {
+            main.append(Section(L("Also here"), [.facts(nil, unused.map { ($0.title, L(one: "{count} action", other: "{count} actions", count: $0.tools)) })], collapsed: true, wide: true))
+        }
+        main.append(Section(nil, [.note(L("Accounts and keys stay with each extension or server; none of it is kept in a flow."))], wide: true))
+        return frame(app, state: state, here: "connections", main)
     }
 
     static func templatesPage(_ app: App, state: Arguments) -> Page {
@@ -473,6 +507,9 @@ import SidefolkExtensionKit
             : problems.map { .note($0.text, tone: .warn) } + (denied > 0 ? [.note(L(one: "Sidefolk wouldn't allow {count} step as it stands: it's marked on the board.", other: "Sidefolk wouldn't allow {count} steps as they stand: they're marked on the board.", count: denied), tone: .warn)] : [])
         let untried = untried(flow, app)
         var all = blocks
+        if !Connections.missing(flow, app.catalog, app.store).isEmpty {
+            all.append(.action(go(L("See connections"), place(["view": "connections"]), symbol: "link")))
+        }
         if !untried.isEmpty { all.append(.note(L("Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.", ["ways": Format.list(untried)]))) }
         out.append(Section(count == 0 ? L("Check") : L(one: "Check: {count} thing to fix", other: "Check: {count} things to fix", count: count), all, place: .trailing, collapsed: count == 0 && untried.isEmpty))
         func changes(_ title: String, from: FlowBody, to: FlowBody) {
@@ -709,6 +746,14 @@ import SidefolkExtensionKit
             if let asking = run.waitingOn.compactMap({ app.store.run($0) }).first(where: { $0.form != nil }) {
                 end.append(Section(nil, [.action(go(L("Fill it in"), place(["run": asking.id]), style: .accent, symbol: "square.and.pencil"))], place: .trailing))
             }
+        case .waiting where run.connection != nil:
+            let name = run.connection.flatMap { Connections.id(of: $0.tool) }.map { Connections.title($0, app.catalog, app.store) } ?? ""
+            detail = L("Waiting for {name}. Nothing was done, and it goes on by itself once it's back.", ["name": name])
+            end.append(choices(L("Don't want to wait?"), [
+                Option("carry_on", L("Skip this step"), detail: L("Goes on without it."), symbol: "forward"),
+                Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop"),
+            ]))
+            end.append(Section(nil, [.action(Action(L("Open Add-ons"), act: .settings("addons"), symbol: "puzzlepiece.extension"))], place: .trailing))
         case .needs_you, .waiting:
             if let problem = run.problem { detail = problem }
             end.append(choices(L("What now?"), [

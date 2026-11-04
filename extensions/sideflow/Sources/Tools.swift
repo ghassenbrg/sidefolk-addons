@@ -240,7 +240,7 @@ import SidefolkExtensionKit
     static func status(_ run: Run) -> String {
         switch run.status {
         case .running: L("Running")
-        case .waiting: L("Waiting")
+        case .waiting: run.connection == nil ? L("Waiting") : L("Waiting for a connection")
         case .done: run.mode == .practice ? L("Practiced") : L("Done")
         case .failed: L("Failed")
         case .stopped: L("Stopped")

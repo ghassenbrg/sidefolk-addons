@@ -85,7 +85,7 @@ import SidefolkExtensionKit
     static func label(_ step: Step, catalog: Catalog) -> String {
         if let name = step.name { return name }
         switch step.kind {
-        case .action(let tool, _): return catalog.tool(tool)?.title ?? tool
+        case .action(let tool, _): return catalog.title(of: tool)
         case .ai: return L("Write with AI")
         case .ask: return L("Ask me")
         case .text: return L("Compose text")
@@ -126,7 +126,7 @@ import SidefolkExtensionKit
         if let name = step.name { return name }
         switch step.kind {
         case .action(let tool, let input):
-            let title = catalog.tool(tool)?.title ?? tool
+            let title = catalog.title(of: tool)
             let main = input.keys.sorted().compactMap { input[$0]?.string }.first
             return main.map { "\(title): \(pretty($0, body: body, catalog: catalog))" } ?? title
         case .ai(let prompt): return L("Have the AI write: {what}", ["what": pretty(prompt, body: body, catalog: catalog)])
@@ -150,7 +150,7 @@ import SidefolkExtensionKit
         let name = step.name
         switch step.kind {
         case .action(let tool, let input):
-            let title = catalog.tool(tool)?.title ?? tool
+            let title = catalog.title(of: tool)
             let main = catalog.tool(tool)?.parameters.compactMap { input[$0.name]?.string }.first { !$0.isEmpty } ?? input.keys.sorted().compactMap { input[$0]?.string }.first { !$0.isEmpty }
             return (name ?? title, main.map { pretty($0, body: body, catalog: catalog) } ?? (name != nil ? title : setUp ?? L("Nothing to set up")))
         case .ai(let prompt): return (name ?? L("Write with AI"), prompt.isEmpty ? L("Say what to write") : pretty(prompt, body: body, catalog: catalog))

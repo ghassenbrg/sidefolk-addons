@@ -889,6 +889,34 @@
     "There's no other flow to run yet.": "実行できる別のルーティンはまだありません。",
     "{when}, by the clock of {zone}": "{when}（{zone} の時刻）",
     "Only the first {count} goes can be picked here.": "ここで選べるのは最初の{count}回だけです。",
-    "Another lane already goes by that name.": "別のレーンがすでにその名前を使っています。"
+    "Another lane already goes by that name.": "別のレーンがすでにその名前を使っています。",
+    "A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons.": "見つからない接続に達した実行は、何もせずに最大 7 日間そこで待ち、戻ると自動的に続きます。アドオンでもう一度オンにしてください。",
+    "Accounts and keys stay with each extension or server; none of it is kept in a flow.": "アカウントとキーは各拡張機能またはサーバーが保持し、ルーティンには保存されません。",
+    "Also here": "ほかにあるもの",
+    "Connections": "接続",
+    "Extension": "拡張機能",
+    "Here": "あり",
+    "It goes on by itself once it's back.": "戻ると自動的に続きます。",
+    "It needs {name}, which isn't here now.": "{name} が必要ですが、今はありません。",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "{name} が必要ですが、今はありません。何も実行されておらず、戻ると自動的に続きます。",
+    "MCP server": "MCP サーバー",
+    "Missing": "なし",
+    "None of your flows uses an extension or a server yet.": "拡張機能やサーバーを使っているルーティンはまだありません。",
+    "Open Add-ons": "アドオンを開く",
+    "Don't want to wait?": "待たない場合",
+    "See connections": "接続を見る",
+    "Used by {flows}": "{flows} が使用",
+    "Waiting for a connection": "接続を待っています",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "{name} を待っています。何も実行されておらず、戻ると自動的に続きます。",
+    "What your flows reach beyond Sidefolk: extensions and MCP servers.": "ルーティンが Sidefolk の外で使うもの: 拡張機能と MCP サーバー。",
+    "{count} missing": "{count} 件なし",
+    "{flow} is waiting for {name}": "{flow} は {name} を待っています",
+    "{name} still isn't here, so this step didn't run.": "{name} がまだないため、このステップは実行されませんでした。",
+    "{count} actions": {
+      "other": "{count} 件の操作"
+    },
+    "{count} runs waiting for it": {
+      "other": "{count} 件の実行が待機中"
+    }
   }
 }

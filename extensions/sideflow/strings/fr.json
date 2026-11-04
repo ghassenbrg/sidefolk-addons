@@ -900,6 +900,36 @@
     "There's no other flow to run yet.": "Il n'y a pas encore d'autre routine à lancer.",
     "{when}, by the clock of {zone}": "{when}, à l'heure de {zone}",
     "Only the first {count} goes can be picked here.": "Seuls les {count} premiers passages peuvent être choisis ici.",
-    "Another lane already goes by that name.": "Une autre voie porte déjà ce nom."
+    "Another lane already goes by that name.": "Une autre voie porte déjà ce nom.",
+    "A run that gets to a missing one waits there for up to 7 days, with nothing done, and goes on by itself once it's back. Turn it back on in Add-ons.": "Une exécution qui arrive à une connexion manquante y attend jusqu'à 7 jours, sans rien faire, et reprend d'elle-même à son retour. Réactivez-la dans Modules.",
+    "Accounts and keys stay with each extension or server; none of it is kept in a flow.": "Les comptes et les clés restent dans chaque extension ou serveur ; rien de cela n'est gardé dans une routine.",
+    "Also here": "Aussi disponibles",
+    "Connections": "Connexions",
+    "Extension": "Extension",
+    "Here": "Présente",
+    "It goes on by itself once it's back.": "Elle reprend d'elle-même à son retour.",
+    "It needs {name}, which isn't here now.": "Il lui faut {name}, absent pour l'instant.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Il lui faut {name}, absent pour l'instant. Rien n'a été fait, et elle reprend d'elle-même à son retour.",
+    "MCP server": "Serveur MCP",
+    "Missing": "Manquante",
+    "None of your flows uses an extension or a server yet.": "Aucune de vos routines n'utilise d'extension ni de serveur pour l'instant.",
+    "Open Add-ons": "Ouvrir Modules",
+    "Don't want to wait?": "Vous ne voulez pas attendre ?",
+    "See connections": "Voir les connexions",
+    "Used by {flows}": "Utilisée par {flows}",
+    "Waiting for a connection": "En attente d'une connexion",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "En attente de {name}. Rien n'a été fait, et elle reprend d'elle-même à son retour.",
+    "What your flows reach beyond Sidefolk: extensions and MCP servers.": "Ce que vos routines atteignent au-delà de Sidefolk : extensions et serveurs MCP.",
+    "{count} missing": "{count} manquantes",
+    "{flow} is waiting for {name}": "{flow} attend {name}",
+    "{name} still isn't here, so this step didn't run.": "{name} n'est toujours pas là : cette étape n'a pas été exécutée.",
+    "{count} actions": {
+      "one": "{count} action",
+      "other": "{count} actions"
+    },
+    "{count} runs waiting for it": {
+      "one": "{count} exécution l'attend",
+      "other": "{count} exécutions l'attendent"
+    }
   }
 }

@@ -24,6 +24,9 @@ import SidefolkExtensionKit
         var category: String
         var fromExtension: String?
         var parameters: [Parameter]
+        /// Who offers it, in their own name, and whether that's an MCP server the person added.
+        var fromTitle: String?
+        var fromServer = false
     }
 
     private(set) var tools: [Tool] = []
@@ -32,7 +35,20 @@ import SidefolkExtensionKit
     /// Whether exactly one flow goes by this name, as a step finds it. The engine says.
     var findsFlow: (String) -> Bool = { _ in true }
 
+    /// What tools and connections were called while they were here: all that's left to say about one that's gone. `Connections` keeps these on disk.
+    var rememberedTools: [String: String] = [:]
+    var rememberedNames: [String: String] = [:]
+
     func tool(_ name: String) -> Tool? { tools.first { $0.name == name } }
+
+    /// A tool's name for people, here or not. Its id is never one.
+    func title(of tool: String) -> String {
+        self.tool(tool)?.title ?? rememberedTools[tool] ?? tool.split(separator: ".").last.map { $0.replacingOccurrences(of: "_", with: " ").capitalizedFirst } ?? tool
+    }
+
+    func connectionTitle(_ id: String) -> String {
+        tools.first { $0.fromExtension == id }?.fromTitle ?? rememberedNames[id] ?? id.replacingOccurrences(of: "-", with: " ").capitalizedFirst
+    }
 
     func use(_ listing: Actions.Listing, at now: Date = Date()) {
         tools = listing.tools.map(Self.tool).sorted { $0.title < $1.title }
@@ -69,7 +85,7 @@ import SidefolkExtensionKit
             return Parameter(name: name, kind: kind, required: required.contains(name), detail: (p["description"] as? String)?.nonEmpty,
                              title: (p["title"] as? String)?.nonEmpty ?? name.replacingOccurrences(of: "_", with: " ").capitalizedFirst)
         }
-        return Tool(name: t.name, title: t.title, description: t.description, mutates: t.mutates, readsOnly: t.readsOnly, risk: t.risk, category: t.category, fromExtension: t.extensionName, parameters: parameters)
+        return Tool(name: t.name, title: t.title, description: t.description, mutates: t.mutates, readsOnly: t.readsOnly, risk: t.risk, category: t.category, fromExtension: t.extensionName, parameters: parameters, fromTitle: t.extensionTitle, fromServer: t.fromServer)
     }
 }
 
@@ -179,7 +195,7 @@ extension FlowBody {
                                 out.append(FlowProblem(step: step.id, text: L("“{tool}” has no value called “{name}”.", ["tool": known.title, "name": key])))
                             }
                         } else {
-                            out.append(FlowProblem(step: step.id, text: L("“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.", ["tool": tool])))
+                            out.append(FlowProblem(step: step.id, text: Connections.id(of: tool).map { L("It needs {name}, which isn't here now.", ["name": catalog.connectionTitle($0)]) } ?? L("“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.", ["tool": catalog.title(of: tool)])))
                         }
                     }
                 case .ai(let prompt):

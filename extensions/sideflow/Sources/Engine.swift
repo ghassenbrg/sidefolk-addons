@@ -165,6 +165,7 @@ import SidefolkExtensionKit
                         run.problem = nil
                         run.resumeAt = nil
                         run.form = nil
+                        run.connection = nil
                         run.waitingOn = []
                         run.frames = []
                     }
@@ -311,6 +312,8 @@ import SidefolkExtensionKit
             written["question"] = question
             return await acting(step, tool: "ask.user", input: input, written: written, in: &run)
         case .action(let tool, let input):
+            if run.mode != .practice, Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
+            run.connection = nil
             let wordy = Set(catalog.tool(tool)?.parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name) ?? [])
             let lists = Set(catalog.tool(tool)?.parameters.filter { $0.kind == .list }.map(\.name) ?? [])
             let filled = run.values.fill(input, wordsIn: wordy, listsIn: lists)
@@ -419,7 +422,7 @@ import SidefolkExtensionKit
         }
         let note: String? = switch check?.decision {
         case .deny?: check?.why ?? L("Sidefolk wouldn't allow this.")
-        case nil, .unknown?: L("Sidefolk doesn't offer this now.")
+        case nil, .unknown?: Connections.id(of: tool).map { L("It needs {name}, which isn't here now.", ["name": Connections.title($0, catalog, store)]) } ?? L("Sidefolk doesn't offer this now.")
         default: readsOnly ? L("It would read this; you didn't allow it for practice.") : nil
         }
         run.record(.init(step: step.id, status: check?.decision == .deny || check == nil ? .failed : .would, summary: L("Would: {what}", ["what": sentence]), note: note, at: clock()))
@@ -450,8 +453,9 @@ import SidefolkExtensionKit
             run.retries = 0
             store.save(run)
             return true
-        // Too many actions this minute is one more thing nothing happened over: a flow here has no loops to run into it for long.
-        case .denied, .unanswered:
+        case .unavailable where Connections.id(of: tool) != nil:
+            return waitingForConnection(step, tool: tool, in: &run)
+        case .denied, .unanswered, .unavailable:
             // Nothing happened, and only the person can change that.
             run.status = .needs_you
             run.problem = outcome.status == .unanswered ? L("Nobody answered the card for this step, so it didn't run.") : outcome.text.nonEmpty ?? L("This step wasn't allowed, so it didn't run.")
@@ -622,6 +626,7 @@ import SidefolkExtensionKit
                 run.problem = nil
                 run.resumeAt = nil
                 run.form = nil
+                run.connection = nil
                 run.waitingOn = []
                 run.frames = []
                 finish(&run)
@@ -696,6 +701,7 @@ import SidefolkExtensionKit
             run.problem = nil
             run.retries = 0
             run.resumeAt = nil
+            run.connection = nil
             store.save(run)
             if run.parent == nil { active.insert(run.flow) }
             Task { await advance(id) }
@@ -747,7 +753,12 @@ import SidefolkExtensionKit
             start(flow, mode: .live, why: why)
         }
         for run in store.unfinished() where run.status == .waiting {
-            if let at = run.resumeAt, at <= now { Task { await advance(run.id) } }
+            // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
+            if let waited = run.connection, catalog.tool(waited.tool) != nil {
+                Task { await advance(run.id) }
+            } else if let at = run.resumeAt, at <= now {
+                Task { await advance(run.id) }
+            }
         }
     }
 
@@ -788,6 +799,7 @@ import SidefolkExtensionKit
             run.problem = nil
             run.resumeAt = nil
             run.form = nil
+            run.connection = nil
             run.waitingOn = []
             run.frames = []
             // The one way out: lets go of the flow, wakes a run waiting for it, and starts what's in line.
