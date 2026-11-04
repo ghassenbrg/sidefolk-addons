@@ -875,9 +875,14 @@
     "There's no other one flow called “{name}”. Pick it again.": "「{name}」という別のルーティンを 1 つに特定できません。選び直してください。",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} はすでに実行中か保留中のため、それ自身の設定に従います。",
     "“{name}” has to be on for this step to run. It can practice without that.": "このステップを実行するには「{name}」をオンにする必要があります。練習はそのままできます。",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "以前の監視が止まらなかったため、新しい監視は作成していません。もう一度オンにしてください。",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "以前の監視が止まりませんでした。このルーティンを開始することはもうありません。止めるにはもう一度オンにしてください。",
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "ルーティンのファイルを開けません。ファイルはそのままで、開けるようになり Sidefolk を再起動するまで実行も保存も行いません。",
-    "{flow} was already running, so it didn't start": "{flow} はすでに実行中のため、開始しませんでした。"
+    "{flow} was already running, so it didn't start": "{flow} はすでに実行中のため、開始しませんでした。",
+    "Ends those runs. What they did stays done.": "これらの実行を終了します。実行済みの内容はそのままです。",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "ルーティンを現在読み込めないため、まだ続行できません。ルーティンが戻ると続行します。",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "以前の監視が止まらなかったため、このルーティンは一時停止中です。再開するともう一度試します。",
+    "Let them go": "手放す",
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "other": "{count} 件の実行が、現在読み込めないルーティンを待っています。ルーティンが戻ると続行します。"
+    }
   }
 }

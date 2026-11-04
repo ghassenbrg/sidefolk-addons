@@ -875,9 +875,14 @@
     "There's no other one flow called “{name}”. Pick it again.": "没有唯一名为“{name}”的其他流程。请重新选择。",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} 已在运行或被暂缓，由它自己的规则决定。",
     "“{name}” has to be on for this step to run. It can practice without that.": "“{name}”必须开启，此步骤才能运行。练习不需要开启。",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "旧的监视没有停止，因此未创建新的监视。请再次开启。",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "旧的监视没有停止。它不再启动此流程；请再次开启以停止它。",
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "无法打开你的流程文件。它未被改动，在能打开且 Sidefolk 重新启动之前不会运行或保存任何内容。",
-    "{flow} was already running, so it didn't start": "{flow} 已在运行，因此没有启动。"
+    "{flow} was already running, so it didn't start": "{flow} 已在运行，因此没有启动。",
+    "Ends those runs. What they did stays done.": "结束这些运行。已完成的内容保持不变。",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "目前无法读取其流程，因此还不能继续。流程恢复后会继续。",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "旧的监视没有停止，因此此流程已暂停。恢复它以重试。",
+    "Let them go": "放弃它们",
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "other": "{count} 次运行正在等待目前无法读取的流程。流程恢复后会继续。"
+    }
   }
 }

@@ -875,9 +875,14 @@
     "There's no other one flow called “{name}”. Pick it again.": "“{name}” 이름의 다른 루틴을 하나로 특정할 수 없습니다. 다시 선택하세요.",
     "{flow} was already running or held back, so its own rule for that decides": "{flow}이(가) 이미 실행 중이거나 보류되어 자체 규칙에 따릅니다.",
     "“{name}” has to be on for this step to run. It can practice without that.": "이 단계를 실행하려면 “{name}”이(가) 켜져 있어야 합니다. 연습은 그대로 할 수 있습니다.",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "이전 감시가 멈추지 않아 새 감시를 만들지 않았습니다. 다시 켜 보세요.",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "이전 감시가 멈추지 않았습니다. 이제 이 루틴을 시작하지는 않습니다. 멈추려면 다시 켜 보세요.",
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "루틴 파일을 열 수 없습니다. 파일은 그대로이며 열 수 있게 되고 Sidefolk이 다시 시작될 때까지 실행도 저장도 하지 않습니다.",
-    "{flow} was already running, so it didn't start": "{flow}이(가) 이미 실행 중이라 시작하지 않았습니다."
+    "{flow} was already running, so it didn't start": "{flow}이(가) 이미 실행 중이라 시작하지 않았습니다.",
+    "Ends those runs. What they did stays done.": "이 실행들을 끝냅니다. 이미 한 일은 그대로입니다.",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "루틴을 지금 읽을 수 없어 아직 계속할 수 없습니다. 루틴이 돌아오면 계속합니다.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "이전 감시가 멈추지 않아 이 루틴을 일시 중지했습니다. 다시 시작하면 다시 시도합니다.",
+    "Let them go": "놓아주기",
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "other": "실행 {count}개가 지금 읽을 수 없는 루틴을 기다리고 있습니다. 루틴이 돌아오면 계속합니다."
+    }
   }
 }

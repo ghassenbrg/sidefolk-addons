@@ -887,9 +887,15 @@
     "There's no other one flow called “{name}”. Pick it again.": "Il n'y a pas une seule autre routine appelée « {name} ». Choisissez-la de nouveau.",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} était déjà en cours ou retenue : sa propre règle décide de la suite.",
     "“{name}” has to be on for this step to run. It can practice without that.": "« {name} » doit être activée pour que cette étape s'exécute. L'entraînement fonctionne sans cela.",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "Son ancienne surveillance ne s'est pas arrêtée, donc la nouvelle n'a pas été créée. Essayez de la réactiver.",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "Son ancienne surveillance ne s'est pas arrêtée. Elle ne déclenche plus cette routine ; réactivez-la pour l'arrêter.",
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "Le fichier de vos routines ne peut pas être ouvert. Il reste intact, et rien ne s'exécute ni ne s'enregistre tant que ce n'est pas possible et que Sidefolk n'a pas redémarré.",
-    "{flow} was already running, so it didn't start": "{flow} était déjà en cours : elle n'a pas démarré."
+    "{flow} was already running, so it didn't start": "{flow} était déjà en cours : elle n'a pas démarré.",
+    "Ends those runs. What they did stays done.": "Termine ces exécutions. Ce qu'elles ont fait reste fait.",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "Sa routine ne peut pas être lue pour l'instant, donc cela ne peut pas continuer. Cela reprend si la routine revient.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "Son ancienne surveillance ne s'est pas arrêtée : cette routine est donc en pause. Reprenez-la pour réessayer.",
+    "Let them go": "Les abandonner",
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "one": "{count} exécution attend une routine illisible pour l'instant. Elle reprend si la routine revient.",
+      "other": "{count} exécutions attendent des routines illisibles pour l'instant. Elles reprennent si les routines reviennent."
+    }
   }
 }

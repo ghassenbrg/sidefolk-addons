@@ -135,6 +135,7 @@
     "Either way": "Either way",
     "End of the day": "End of the day",
     "End the flow, with a result": "End the flow, with a result",
+    "Ends those runs. What they did stays done.": "Ends those runs. What they did stays done.",
     "Every (minutes)": "Every (minutes)",
     "Every Friday at 4, sum up my notes and save it": "Every Friday at 4, sum up my notes and save it",
     "Every day": "Every day",
@@ -258,11 +259,11 @@
     "Item {place} · {status}": "Item {place} · {status}",
     "Its answer was long: only the first {count} characters were kept.": "Its answer was long: only the first {count} characters were kept.",
     "Its definition": "Its definition",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.",
     "Its full path.": "Its full path.",
     "Its name, as in Activity Monitor.": "Its name, as in Activity Monitor.",
     "Its number": "Its number",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "Its old watch didn't stop, so this flow is paused. Resume it to try again.",
     "Its result": "Its result",
     "Its turn came.": "Its turn came.",
     "Join into text": "Join into text",
@@ -277,6 +278,7 @@
     "Later steps can use its words: “What set it off”.": "Later steps can use its words: “What set it off”.",
     "Later steps can use what it saw: “What set it off”.": "Later steps can use what it saw: “What set it off”.",
     "Let it go": "Let it go",
+    "Let them go": "Let them go",
     "Let your companion do it": "Let your companion do it",
     "Let your companion tidy up": "Let your companion tidy up",
     "Logic": "Logic",
@@ -724,6 +726,10 @@
     "{count} flows on": {
       "one": "{count} flow on",
       "other": "{count} flows on"
+    },
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "one": "{count} run is waiting for a flow that can't be read now. It goes on if the flow comes back.",
+      "other": "{count} runs are waiting for flows that can't be read now. They go on if the flows come back."
     },
     "{count} things at once": "{count} things at once",
     "{days} at {time}": "{days} at {time}",

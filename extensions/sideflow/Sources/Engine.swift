@@ -33,6 +33,8 @@ import SidefolkExtensionKit
     var resuming: Set<String> = []
     /// Started this time round: `recover` is for what the last time left behind.
     var startedHere: Set<String> = []
+    private var syncing: Set<String> = []
+    private var syncAgain: Set<String> = []
 
     init(store: FlowStore, catalog: Catalog) {
         self.store = store
@@ -47,7 +49,7 @@ import SidefolkExtensionKit
     /// `setOff`: another flow's step started it, not someone looking at this one. It's the On flow that runs, in its turn, and it counts toward the runaway stop whichever mode it's in.
     func start(_ flow: Flow, mode: Run.Mode, why: String, trigger: String? = nil, setOff: Bool = false) -> Run? {
         // With the file held nothing here can be kept, and a run that can't save isn't one to start.
-        guard !store.flowsFileIsHeld else { return nil }
+        guard !store.flowsFileIsHeld, store.flow(flow.id) != nil else { return nil }
         if active.contains(flow.id) {
             // Waiting in line runs under its plan when its turn comes, so only a run that has one may join it.
             guard mode == .live else { return nil }
@@ -140,7 +142,9 @@ import SidefolkExtensionKit
                 run.record(.init(step: step.id, status: .done, summary: Words.branch(condition, holds: holds, body: run.body, catalog: catalog), at: clock()))
                 run.pc = holds ? run.pc + 1 : otherwise
                 store.save(run)
-            case .step(let step):
+            case .step(let written):
+                // The steps as they stand: a flow this one names may have been renamed since it started.
+                let step = store.run(id)?.body.step(written.id) ?? written
                 guard await perform(step, in: &run) else {
                     // Asked to stop while this was under way, a card up, say: it stops here, rather than waiting for an answer it no longer wants.
                     if store.takeStop(id) {
@@ -310,11 +314,11 @@ import SidefolkExtensionKit
                                      : other?.state != .on ? L("“{name}” has to be on for this step to run. It can practice without that.", ["name": name]) : nil, at: clock()))
             } else if !store.save(run) {
                 return cantSave(step, summary: Words.step(step, body: run.body, catalog: catalog), in: &run)
-            } else if let other = store.named(name, forRun: run.id), other.id != run.flow, other.state == .on {
+            } else if let other = store.named(name), other.id != run.flow, other.state == .on {
                 // Each keeps to its own, and the runaway stop counts every start, so two can't set each other off for ever.
                 // A run from a draft was never read on a card: what it sets off asks on cards too, not under its own plan.
                 let started = start(other, mode: run.mode == .once ? .once : .live, why: L("{flow} set it off.", ["flow": run.flowName]), setOff: true)
-                run.record(.init(step: step.id, status: .done, summary: started != nil ? L("Ran {flow}", ["flow": other.name]) : run.mode == .once ? L("{flow} was already running, so it didn't start", ["flow": other.name]) : L("{flow} was already running or held back, so its own rule for that decides", ["flow": other.name]), at: clock()))
+                run.record(.init(step: step.id, status: .done, summary: started != nil ? L("Ran {flow}", ["flow": other.name]) : run.mode == .once && isRunning(other.id) ? L("{flow} was already running, so it didn't start", ["flow": other.name]) : L("{flow} was already running or held back, so its own rule for that decides", ["flow": other.name]), at: clock()))
             } else {
                 return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
             }
@@ -506,7 +510,8 @@ import SidefolkExtensionKit
     func finish(_ run: inout Run) {
         // A flow's own run holds the flow; one that another waits for doesn't: it's that run's business.
         let holds = run.parent == nil
-        if run.output == nil, run.status == .done, let last = run.body.allSteps.last(where: { $0.hasOutput }) { run.output = run.values.resolve(last.id) }
+        // The last that has something to say: a loop's insides are gone by its end, and a path not taken never made anything.
+        if run.output == nil, run.status == .done, let last = run.body.allSteps.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }) { run.output = run.values.resolve(last.id) }
         if run.status.isOver {
             run.endedAt = clock()
             _ = store.takeStop(run.id)
@@ -688,7 +693,7 @@ import SidefolkExtensionKit
             flow.state = .paused
             flow.pausedBecause = L("It now asks before running by itself. Resume it to read what it does.")
             store.save(flow)
-            for run in store.unfinished() where run.flow == flow.id && run.mode == .live { stop(run: run.id) }
+            for run in store.unfinished() where run.flow == flow.id && run.mode != .practice { stop(run: run.id) }
             let told = flow
             Task { await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: false) }
         }
@@ -755,7 +760,8 @@ import SidefolkExtensionKit
     func stop(run id: String) {
         guard var run = store.run(id), !run.status.isOver else { return }
         for child in run.waitingOn { stop(run: child) }
-        if run.status == .running {
+        // A run held back has no walk to notice a stop, so it ends here.
+        if run.status == .running, !store.isHeldBack(flow: run.flow) {
             store.askStop(id)
         } else {
             run.status = .stopped
@@ -911,7 +917,6 @@ import SidefolkExtensionKit
             guard let answer, var current = store.flow(id) else { return }
             switch answer {
             case .allowed:
-                let oldWatch = current.watchTitle
                 if let was = current.live, was != reviewed {
                     current.revisions.append(Flow.Revision(at: clock(), body: was))
                     current.revisions = Array(current.revisions.suffix(Flow.keptRevisions))
@@ -921,36 +926,10 @@ import SidefolkExtensionKit
                 current.pausedBecause = nil
                 current.lastFire = clock()
                 current.startProblem = nil
+                // A new name: the card was read with the new name's lines, so the watch goes by it from now on.
+                if let have = current.watchTitle, have != reviewedTitle { current.watchMade = Self.outOfDate }
                 store.save(current)
-                if case .watch(let w) = reviewed.trigger {
-                    let title = reviewedTitle
-                    // One name, one watch: a second under the same name would leave neither reachable, and the old one still firing.
-                    if oldWatch != nil, !(await stopWatch(current)) {
-                        guard var after = store.flow(id) else { return }
-                        after.startProblem = L("Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.")
-                        after.state = .paused
-                        store.save(after)
-                        changed()
-                        return
-                    }
-                    let made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: current.planId, written: nil)
-                    guard var after = store.flow(id) else { return }
-                    if made?.ok == true {
-                        after.watchTitle = title
-                    } else {
-                        after.startProblem = made?.text.nonEmpty ?? L("The watch didn't start.")
-                        after.state = .paused
-                    }
-                    store.save(after)
-                } else if oldWatch != nil, var after = store.flow(id) {
-                    if await stopWatch(current) {
-                        after.watchTitle = nil
-                    } else {
-                        // Only once it's really gone: the name is the only way to reach it, from a later card or from deleting the flow.
-                        after.startProblem = L("Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.")
-                    }
-                    store.save(after)
-                }
+                await syncWatch(id)
             case .refused(let reason):
                 current.startProblem = Words.planRefusal(reason)
                 store.save(current)
@@ -976,7 +955,7 @@ import SidefolkExtensionKit
         flow.lastFire = clock()
         store.save(flow)
         changed()
-        Task { await resumeWatch(flow) }
+        Task { await syncWatch(id) }
     }
 
     func delete(_ id: String) {
@@ -1008,57 +987,114 @@ import SidefolkExtensionKit
         _ = await host?.call("watch.pause", ["id": title], plan: flow.planId, written: nil)
     }
 
-    private func resumeWatch(_ flow: Flow) async {
-        guard case .watch(let w) = flow.running.trigger else { return }
-        // Never made: it failed when it was turned on, a folder not shared, say, and that's what they've just put right.
-        let title = flow.watchTitle ?? Self.watchTitle(flow)
-        if flow.watchTitle != nil {
-            var back = await host?.call("watch.resume", ["id": title], plan: flow.planId, written: nil)
+    static let outOfDate = "out of date"
+
+    /// What a watch looks at, whatever it's called: what says whether the one Sidefolk has is the one this flow means now.
+    private static func watchPrint(_ body: FlowBody) -> String? {
+        guard case .watch(let w) = body.trigger else { return nil }
+        return JSONText.write(watchInput(w, title: ""))
+    }
+
+    /// Brings the watch Sidefolk has in line with what's on: one routine, so that Apply, Resume and an edit in between all end the same way. One at a time per flow, and looked at
+    /// again if something changed meanwhile. Each wait can see a flow paused, renamed or deleted, so nothing carried across one is written back.
+    func syncWatch(_ id: String) async {
+        guard syncing.insert(id).inserted else {
+            syncAgain.insert(id)
+            return
+        }
+        defer { syncing.remove(id) }
+        repeat {
+            syncAgain.remove(id)
+            await syncOnce(id)
+        } while syncAgain.contains(id)
+    }
+
+    private func syncOnce(_ id: String) async {
+        guard let flow = store.flow(id), flow.live != nil else { return }
+        let wanted = Self.watchPrint(flow.running)
+        // A flow from before this was kept: what it has is what it was given.
+        let have = flow.watchTitle.map { _ in flow.watchMade ?? wanted ?? Self.outOfDate }
+
+        // One name, one watch: a second under the same name would leave neither reachable, and an old one still looking at what they replaced.
+        if have != nil, have != wanted {
+            let gone = await stopWatch(flow)
+            guard var after = store.flow(id) else { return }
+            guard gone else {
+                // On its way out but still there. Resume comes back here, so it's the way out they're told about.
+                after.state = .paused
+                after.startProblem = L("Its old watch didn't stop, so this flow is paused. Resume it to try again.")
+                store.save(after)
+                return changed()
+            }
+            after.watchTitle = nil
+            after.watchMade = nil
+            store.save(after)
+            changed()
+        }
+        guard let current = store.flow(id), current.state == .on, case .watch(let w) = current.running.trigger else { return }
+        let print = Self.watchPrint(current.running)
+
+        if current.watchTitle != nil {
+            var back = await host?.call("watch.resume", ["id": current.watchTitle ?? ""], plan: current.planId, written: nil)
             if back?.status == .busy {
                 try? await Task.sleep(for: .seconds(busyPause))
-                guard store.flow(flow.id)?.state == .on else { return }
-                back = await host?.call("watch.resume", ["id": title], plan: flow.planId, written: nil)
+                guard store.flow(id)?.state == .on else { return }
+                back = await host?.call("watch.resume", ["id": current.watchTitle ?? ""], plan: current.planId, written: nil)
             }
             if back?.ok == true { return }
-            // Only what's really not there is made again: a second of the same name would leave neither reachable by name.
-            if back?.notFound != true {
-                guard var current = store.flow(flow.id) else { return }
+            guard var after = store.flow(id) else { return }
+            guard back?.notFound == true else {
                 switch back?.status {
                 case .denied?, .unanswered?, .busy?:
                     // Nothing happened: saying On would be a flow that never fires.
-                    current.startProblem = back?.text.nonEmpty ?? L("The watch didn't start.")
-                    current.state = .paused
+                    after.startProblem = back?.text.nonEmpty ?? L("The watch didn't start.")
+                    after.state = .paused
                 default:
-                    current.startProblem = L("Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.")
+                    // It may have. A second of the same name would leave neither reachable.
+                    after.startProblem = L("Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.")
                 }
-                store.save(current)
-                changed()
-                return
+                store.save(after)
+                return changed()
             }
+            // The person stopped it in Home, or an earlier version did when it paused for setting off too often.
+            after.watchTitle = nil
+            after.watchMade = nil
+            store.save(after)
         }
-        // The watch has gone: an earlier version stopped it when it paused for setting off too often, or the person stopped it in Home.
-        var made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: flow.planId, written: nil)
+
+        guard let making = store.flow(id), making.state == .on else { return }
+        let title = Self.watchTitle(making)
+        var made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: making.planId, written: nil)
         if made?.status == .busy {
             try? await Task.sleep(for: .seconds(busyPause))
-            guard store.flow(flow.id)?.state == .on else { return }
-            made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: flow.planId, written: nil)
+            guard store.flow(id)?.state == .on else { return }
+            made = await host?.call("watch.create", Self.watchInput(w, title: title), plan: making.planId, written: nil)
         }
-        guard var current = store.flow(flow.id) else { return }
+        guard var after = store.flow(id) else {
+            // Deleted while this was asking: what it just made has nobody else to stop it.
+            if made?.ok == true { _ = await host?.call("watch.stop", ["id": title], plan: nil, written: nil) }
+            return
+        }
         if made?.ok == true {
-            current.watchTitle = title
+            after.watchTitle = title
+            after.watchMade = print
+            store.save(after)
+            changed()
+            // Paused, or changed again, while it was being made.
+            if after.state == .paused { await pauseWatch(after) }
+            if Self.watchPrint(after.running) != print { syncAgain.insert(id) }
         } else {
             // Saying On here would be a flow that never fires.
-            current.startProblem = made?.text.nonEmpty ?? L("The watch didn't start.")
-            current.state = .paused
+            after.startProblem = made?.text.nonEmpty ?? L("The watch didn't start.")
+            after.state = .paused
+            store.save(after)
+            changed()
         }
-        store.save(current)
-        changed()
     }
 
-    private func note(_ id: String, problem: String) {
-        guard var flow = store.flow(id) else { return }
-        flow.startProblem = problem
-        store.save(flow)
+    /// Lets go of runs waiting for a flow that can't be read: the person's word that it isn't coming back.
+    func endHeldRuns() {
+        for run in store.unfinished() where store.isHeldBack(flow: run.flow) { stop(run: run.id) }
         changed()
     }
 
@@ -1075,14 +1111,15 @@ import SidefolkExtensionKit
         flow.live = nil
         store.save(flow)
         // What's under way was running on what they just ended, called by another flow or set off by a draft too. An AI step or a set-off never reaches Sidefolk's check, so this is what stops those.
-        for run in store.unfinished() where run.flow == id && run.mode != .practice && (run.mode == .live || run.setOff || run.body == ended) { stop(run: run.id) }
+        for run in store.unfinished() where run.flow == id && run.mode != .practice && (run.mode == .live || run.setOff || run.parent != nil || run.body == ended) { stop(run: run.id) }
         changed()
         guard let title = flow.watchTitle else { return }
         // Its watch was made under that plan, so this asks: leaving it looking would go past what they just ended.
         Task {
             let stopped = await host?.call("watch.stop", ["id": title], plan: nil, written: nil)
-            guard stopped?.ok == true, var current = store.flow(id) else { return }
+            guard stopped?.ok == true || stopped?.notFound == true, var current = store.flow(id) else { return }
             current.watchTitle = nil
+            current.watchMade = nil
             store.save(current)
         }
     }

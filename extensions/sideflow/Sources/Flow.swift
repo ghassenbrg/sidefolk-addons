@@ -215,6 +215,8 @@ struct Flow: Equatable, Sendable, Identifiable {
     var lastFire: Date?
     /// The watch this flow made, by its title.
     var watchTitle: String?
+    /// What that watch was made to look at. Differs from what's on when it's yet to be replaced.
+    var watchMade: String?
     /// Times it was meant to run and couldn't, newest last.
     var missed: [Date] = []
     /// Why the card didn't end in On, for the page.

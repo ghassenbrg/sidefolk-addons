@@ -887,9 +887,15 @@
     "There's no other one flow called “{name}”. Pick it again.": "Non c'è una sola altra routine chiamata «{name}». Sceglila di nuovo.",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} era già in corso o trattenuta, quindi decide la sua regola.",
     "“{name}” has to be on for this step to run. It can practice without that.": "«{name}» deve essere attiva perché questo passaggio funzioni. L'esercizio funziona anche senza.",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "Il vecchio controllo non si è fermato, quindi quello nuovo non è stato creato. Prova ad attivarla di nuovo.",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "Il vecchio controllo non si è fermato. Non avvia più questa routine; riattivala per fermarlo.",
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "Non è possibile aprire il file delle tue routine. Resta intatto, e nulla funziona o si salva finché non si potrà e Sidefolk non sarà riavviato.",
-    "{flow} was already running, so it didn't start": "{flow} era già in corso, quindi non è partita."
+    "{flow} was already running, so it didn't start": "{flow} era già in corso, quindi non è partita.",
+    "Ends those runs. What they did stays done.": "Termina quelle esecuzioni. Ciò che hanno fatto resta.",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "La sua routine ora non si può leggere, quindi non può continuare. Riprende se la routine torna.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "Il vecchio controllo non si è fermato, quindi questa routine è in pausa. Riprendila per riprovare.",
+    "Let them go": "Lasciale andare",
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "one": "{count} esecuzione attende una routine che ora non si può leggere. Riprende se torna.",
+      "other": "{count} esecuzioni attendono routine che ora non si possono leggere. Riprendono se tornano."
+    }
   }
 }

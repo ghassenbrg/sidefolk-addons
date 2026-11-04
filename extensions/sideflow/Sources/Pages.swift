@@ -81,6 +81,11 @@ import SidefolkExtensionKit
         } else if app.store.flowsNotSaved { notes.append(.note(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits."), tone: .bad)) }
         if let aside = app.store.damagedFile { notes.append(.note(L("Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.", ["file": aside.lastPathComponent]), tone: .bad)) }
         if app.store.unreadableCount > 0 { notes.append(.note(L(one: "{count} flow can't be read by this version. It's kept, not shown.", other: "{count} flows can't be read by this version. They're kept, not shown.", count: app.store.unreadableCount), tone: .warn)) }
+        let held = app.store.heldBackRuns.count
+        if held > 0 {
+            notes.append(.note(L(one: "{count} run is waiting for a flow that can't be read now. It goes on if the flow comes back.", other: "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.", count: held), tone: .warn))
+            notes.append(.action(button(L("Let them go"), "end_held", style: .plain, symbol: "xmark.circle", detail: L("Ends those runs. What they did stays done."))))
+        }
         return notes.isEmpty ? [] : [Section(nil, notes, wide: true)]
     }
 
@@ -689,7 +694,8 @@ import SidefolkExtensionKit
         }
         let current = currentStep(run)
         let said = current.flatMap { run.record(of: $0)?.summary } ?? ""
-        switch run.status {
+        if app.store.isHeldBack(flow: run.flow) { detail = L("Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.") }
+        else { switch run.status {
         case .interrupted:
             detail = L("Sidefolk stopped in the middle of this: {step}. It may have happened already.", ["step": said])
             end.append(choices(L("Which is true?"), [
@@ -714,7 +720,7 @@ import SidefolkExtensionKit
             if let problem = run.problem { detail = problem }
         default:
             break
-        }
+        } }
         if run.mode == .practice { end.append(Section(nil, [.note(L("Practice run: nothing was changed."))], place: .trailing)) }
         if let output = run.records.reversed().first(where: { $0.output?.nonEmpty != nil })?.output?.clipped(Engine.keptOutput) {
             end.append(Section(L("What it came to"), [.notice(PageNotice(title: run.flowName, body: output, time: run.endedAt.map { Format.time($0) }))], place: .trailing))

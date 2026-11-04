@@ -887,9 +887,15 @@
     "There's no other one flow called “{name}”. Pick it again.": "Não há uma única outra rotina chamada “{name}”. Escolha-a de novo.",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} já estava rodando ou retida, então a regra dela decide.",
     "“{name}” has to be on for this step to run. It can practice without that.": "“{name}” precisa estar ligada para esta etapa rodar. A prática funciona sem isso.",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "A vigilância antiga não parou, então a nova não foi criada. Tente ligar de novo.",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "A vigilância antiga não parou. Ela não inicia mais esta rotina; ligue de novo para pará-la.",
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "O arquivo das suas rotinas não abre. Ele está intacto, e nada roda nem salva até que abra e o Sidefolk reinicie.",
-    "{flow} was already running, so it didn't start": "{flow} já estava rodando, então não começou."
+    "{flow} was already running, so it didn't start": "{flow} já estava rodando, então não começou.",
+    "Ends those runs. What they did stays done.": "Encerra essas execuções. O que fizeram continua feito.",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "A rotina não pode ser lida agora, então isto ainda não continua. Continua se a rotina voltar.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "A vigilância antiga não parou, então esta rotina está em pausa. Retome para tentar de novo.",
+    "Let them go": "Deixar ir",
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "one": "{count} execução está esperando uma rotina que não pode ser lida agora. Continua se ela voltar.",
+      "other": "{count} execuções estão esperando rotinas que não podem ser lidas agora. Continuam se elas voltarem."
+    }
   }
 }

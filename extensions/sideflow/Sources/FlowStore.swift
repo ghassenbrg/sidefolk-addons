@@ -21,7 +21,6 @@ import SidefolkExtensionKit
     private var goneRuns: Set<String> = []
     /// The flows file is there and can't be read or moved aside: nothing writes over it.
     private var flowsFileHeld = false
-    private var renames: [(old: String, new: String, runs: Set<String>)] = []
     /// A flows file was put aside, this time or an earlier one: runs of flows it held may yet have them back.
     private var hasFileAside = false
 
@@ -29,25 +28,17 @@ import SidefolkExtensionKit
 
     var flowsFileIsHeld: Bool { flowsFileHeld }
 
+    /// Runs waiting for a flow that can't be read now.
+    var heldBackRuns: [Run] { unfinished().filter { isHeldBack(flow: $0.flow) } }
+
     /// A flow that's there and can't be read now, as opposed to one that's gone. Only ever one the store hasn't got: what it has, it can run.
     func isHeldBack(flow id: String) -> Bool {
         if unreadable.contains(where: { ($0 as? [String: Any])?["id"] as? String == id }) { return true }
         return flowsById[id] == nil && (flowsFileHeld || hasFileAside)
     }
 
-    /// The flow a step names, as this run would know it: a rename since it started doesn't lose it, and a new flow taking the old name doesn't catch it.
-    func named(_ name: String, forRun run: String) -> Flow? {
-        var current = name
-        for rename in renames where rename.runs.contains(run) && current.trimmed.compare(rename.old.trimmed, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame {
-            current = rename.new
-        }
-        return named(current)
-    }
-
     /// Whatever a flow was called in the steps that name it, in what's kept and what's running: it's the same flow.
     func rewriteCalls(from old: String, to name: String, except id: String) {
-        // A run mid-step holds its own copy and its next save puts the old words back, so what it's calling goes by this too.
-        renames.append((old: old, new: name, runs: Set(unfinished().map(\.id))))
         for var other in flows() where other.id != id {
             let was = other
             other.draft = other.draft.calling(old, instead: name)
@@ -61,6 +52,7 @@ import SidefolkExtensionKit
             let body = run.body.calling(old, instead: name)
             if body != run.body {
                 run.body = body
+                runsById[run.id] = run
                 save(run)
             }
         }
@@ -151,6 +143,9 @@ import SidefolkExtensionKit
     /// Whether it reached the disk: the engine won't act on a run it couldn't write down. What's in memory is current either way, for the page to show.
     @discardableResult func save(_ run: Run) -> Bool {
         guard !goneRuns.contains(run.id) else { return true }
+        // What it runs is set when it starts, and only a rename changes it, here: a walk mid-step holds an older copy and mustn't put that back.
+        var run = run
+        if let kept = runsById[run.id] { run.body = kept.body }
         runsById[run.id] = run
         let saved = write(Self.json(run), to: runsFolder.appendingPathComponent("\(run.id).json"))
         // Counted as the person counts them: a flow's own runs. What one waited for goes with it, and never before it.
@@ -212,7 +207,7 @@ import SidefolkExtensionKit
     static func json(_ flow: Flow) -> [String: Any] {
         let out: [String: Any?] = [
             "id": flow.id, "name": flow.name, "draft": FlowCodec.json(flow.draft), "saved": flow.saved.map(FlowCodec.json), "live": flow.live.map(FlowCodec.json), "state": flow.state.rawValue,
-            "created": time(flow.createdAt), "updated": time(flow.updatedAt), "last_fire": time(flow.lastFire), "watch": flow.watchTitle,
+            "created": time(flow.createdAt), "updated": time(flow.updatedAt), "watch_made": flow.watchMade, "last_fire": time(flow.lastFire), "watch": flow.watchTitle,
             "missed": flow.missed.map(\.timeIntervalSince1970), "start_problem": flow.startProblem, "paused_because": flow.pausedBecause,
             "practiced": flow.practiced.map(FlowCodec.json), "waiting_starts": flow.waitingStarts.isEmpty ? nil : flow.waitingStarts,
             "revisions": flow.revisions.isEmpty ? nil : flow.revisions.map { ["at": $0.at.timeIntervalSince1970, "body": FlowCodec.json($0.body)] as [String: Any] },
@@ -235,6 +230,7 @@ import SidefolkExtensionKit
         flow.state = Flow.State(rawValue: o["state"] as? String ?? "") ?? .draft
         flow.lastFire = date(o["last_fire"])
         flow.watchTitle = o["watch"] as? String
+        flow.watchMade = o["watch_made"] as? String
         flow.missed = (o["missed"] as? [Double] ?? []).map(Date.init(timeIntervalSince1970:))
         flow.startProblem = o["start_problem"] as? String
         flow.pausedBecause = o["paused_because"] as? String

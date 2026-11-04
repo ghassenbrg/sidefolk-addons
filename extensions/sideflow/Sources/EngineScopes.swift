@@ -144,7 +144,7 @@ extension Engine {
     }
 
     func calling(_ step: Step, flow name: String, inputs: [String: String], in run: inout Run) -> Bool {
-        guard let other = store.named(name, forRun: run.id), other.id != run.flow, !run.lineage.contains(other.id) else {
+        guard let other = store.named(name), other.id != run.flow, !run.lineage.contains(other.id) else {
             return failed(step, why: L("“{name}” can't be called from here: there's no other flow by that name, or it would end up calling itself.", ["name": name]), reads: false, in: &run)
         }
         guard run.lineage.count < Self.deepestCalls else {
@@ -228,7 +228,8 @@ extension Engine {
 
     /// What the person answered, on the page. Once: a second press finds nothing waiting.
     func answer(run id: String, form answers: [String: JSON]) throws {
-        guard var run = store.run(id), let waiting = run.form, run.status == .waiting, !store.isHeldBack(flow: run.flow),
+        if let held = store.run(id), store.isHeldBack(flow: held.flow) { throw Problem(L("Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.")) }
+        guard var run = store.run(id), let waiting = run.form, run.status == .waiting,
               let step = run.body.step(waiting.step), case .form(let form) = step.kind else { throw Problem(L("That form has been answered already.")) }
         var kept: [String: JSON] = [:]
         for field in form.fields {

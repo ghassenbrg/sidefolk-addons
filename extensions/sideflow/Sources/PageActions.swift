@@ -208,6 +208,8 @@ import SidefolkExtensionKit
                 }
                 s.kind = .form(f)
             }
+        case "end_held":
+            app.engine.endHeldRuns()
         case "stop_run":
             if let id = a.string("run") { app.engine.stop(run: id) }
         case "export":

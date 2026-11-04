@@ -130,6 +130,7 @@ import SidefolkExtensionKit
             let flow = try app.flow(named: try args.required("flow"))
             // Paused is the person's word. Going on from it is theirs too.
             guard flow.state != .paused else { throw Problem(L("“{name}” is paused. Ask the person to resume it first.", ["name": flow.name])) }
+            if app.store.flowsFileIsHeld { throw Problem(L("Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.")) }
             let problems = (flow.state == .draft ? flow.draft : flow.running).problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             let mode: Run.Mode = flow.live != nil ? .live : .once
@@ -160,6 +161,7 @@ import SidefolkExtensionKit
             guard let how = Engine.Forward(rawValue: try args.required("how")) else { throw Problem(L("That isn't a way forward.")) }
             // A form or another run it's waiting for isn't a stop to go past: only the person's answer moves a form on.
             guard run.status == .needs_you || run.status == .interrupted || how == .stop else { throw Problem(L("That run isn't stopped: it's waiting for something.")) }
+            if how != .stop, app.store.isHeldBack(flow: run.flow) { throw Problem(L("Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.")) }
             app.engine.proceed(run.id, how)
             return L("Done. See how it goes with get_run.")
         }

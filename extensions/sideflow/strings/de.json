@@ -887,9 +887,15 @@
     "There's no other one flow called “{name}”. Pick it again.": "Es gibt nicht genau einen anderen Ablauf namens „{name}“. Wähle ihn neu aus.",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} lief schon oder wurde zurückgehalten, darum entscheidet seine eigene Regel.",
     "“{name}” has to be on for this step to run. It can practice without that.": "„{name}“ muss an sein, damit dieser Schritt läuft. Üben geht auch ohne.",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "Die alte Überwachung hat nicht gestoppt, darum wurde die neue nicht angelegt. Schalte ihn noch einmal ein.",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "Die alte Überwachung hat nicht gestoppt. Sie löst diesen Ablauf nicht mehr aus; schalte ihn erneut ein, um sie zu stoppen.",
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "Die Datei deiner Abläufe lässt sich nicht öffnen. Sie bleibt unberührt, und nichts läuft oder speichert, bis das geht und Sidefolk neu gestartet ist.",
-    "{flow} was already running, so it didn't start": "{flow} lief schon und startete deshalb nicht."
+    "{flow} was already running, so it didn't start": "{flow} lief schon und startete deshalb nicht.",
+    "Ends those runs. What they did stays done.": "Beendet diese Durchläufe. Was sie getan haben, bleibt.",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "Sein Ablauf lässt sich gerade nicht lesen, darum geht es noch nicht weiter. Es geht weiter, wenn der Ablauf zurückkommt.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "Die alte Überwachung hat nicht gestoppt, darum ist dieser Ablauf pausiert. Setze ihn fort, um es erneut zu versuchen.",
+    "Let them go": "Loslassen",
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "one": "{count} Durchlauf wartet auf einen Ablauf, der sich gerade nicht lesen lässt. Er läuft weiter, wenn er zurückkommt.",
+      "other": "{count} Durchläufe warten auf Abläufe, die sich gerade nicht lesen lassen. Sie laufen weiter, wenn sie zurückkommen."
+    }
   }
 }

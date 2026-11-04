@@ -935,9 +935,19 @@
     "There's no other one flow called “{name}”. Pick it again.": "لا يوجد روتين آخر واحد باسم «{name}». اختره من جديد.",
     "{flow} was already running or held back, so its own rule for that decides": "كان {flow} قيد التشغيل أو معلقًا، لذا تقرر قاعدته الخاصة.",
     "“{name}” has to be on for this step to run. It can practice without that.": "يجب تشغيل «{name}» لتعمل هذه الخطوة. يعمل التدريب دون ذلك.",
-    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "لم تتوقف مراقبته القديمة، لذا لم تُنشأ الجديدة. حاول تشغيله مرة أخرى.",
-    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "لم تتوقف مراقبته القديمة. لم تعد تبدأ هذا الروتين؛ شغّله مرة أخرى لإيقافها.",
     "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "تعذر فتح ملف روتيناتك. لم يُمس، ولن يعمل أو يُحفظ شيء حتى يمكن فتحه ويُعاد تشغيل Sidefolk.",
-    "{flow} was already running, so it didn't start": "كان {flow} قيد التشغيل، لذا لم يبدأ."
+    "{flow} was already running, so it didn't start": "كان {flow} قيد التشغيل، لذا لم يبدأ.",
+    "Ends those runs. What they did stays done.": "ينهي هذه التشغيلات. يبقى ما فعلته كما هو.",
+    "Its flow can't be read now, so this can't go on yet. It goes on if the flow comes back.": "يتعذر قراءة روتينه الآن، لذا لا يمكن المتابعة بعد. يتابع إذا عاد الروتين.",
+    "Its old watch didn't stop, so this flow is paused. Resume it to try again.": "لم تتوقف مراقبته القديمة، لذا هذا الروتين متوقف مؤقتًا. استأنفه للمحاولة مجددًا.",
+    "Let them go": "تركها",
+    "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
+      "zero": "لا تشغيل في الانتظار.",
+      "one": "تشغيل واحد ينتظر روتينًا يتعذر قراءته الآن. يتابع إذا عاد.",
+      "two": "تشغيلان ينتظران روتينات يتعذر قراءتها الآن. يتابعان إذا عادت.",
+      "few": "{count} تشغيلات تنتظر روتينات يتعذر قراءتها الآن. تتابع إذا عادت.",
+      "many": "{count} تشغيلًا ينتظر روتينات يتعذر قراءتها الآن. تتابع إذا عادت.",
+      "other": "{count} تشغيل ينتظر روتينات يتعذر قراءتها الآن. تتابع إذا عادت."
+    }
   }
 }
