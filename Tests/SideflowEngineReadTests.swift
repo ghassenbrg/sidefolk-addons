@@ -357,6 +357,18 @@ import SidefolkExtensionKit
         #expect(sent["level"] as? String == "", "empty is one of its answers")
     }
 
+    /// A page's check and a run both go through `Catalog.filled`, so this is what each sends for a value not known yet.
+    @Test func whatAPageChecksIsWhatARunSends() throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"n":{"type":"number"},"pick":{"type":"string","enum":["a","b"]},"text":{"type":"string"}}}"#)]))
+        var values = Values()
+        values.set("r", "…")
+        let sent = w.catalog.filled("changes.it", ["n": .string("{{r.n}}"), "pick": .string("{{r.pick}}"), "text": .string("{{r.text}}")], from: values)
+        #expect(sent["n"] is NSNull)
+        #expect(sent["pick"] is NSNull)
+        #expect(sent["text"] as? String == "")
+    }
+
     @Test func anEmptyValueCanStillClearWhatTakesWords() async throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),

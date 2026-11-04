@@ -315,10 +315,7 @@ import SidefolkExtensionKit
             written["question"] = question
             return await acting(step, tool: "ask.user", input: input, written: written, in: &run)
         case .action(let tool, let input):
-            let wordy = Set(catalog.tool(tool)?.parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name) ?? [])
-            let lists = Set(catalog.tool(tool)?.parameters.filter { $0.kind == .list }.map(\.name) ?? [])
-            let absent = Set(catalog.tool(tool)?.parameters.filter { switch $0.kind { case .number, .integer, .boolean: true; case .choice(let answers): !answers.contains(""); default: false } }.map(\.name) ?? [])
-            let filled = run.values.fill(input, wordsIn: wordy, listsIn: lists, absentIn: absent)
+            let filled = catalog.filled(tool, input, from: run.values)
             if run.mode == .practice { return await practicing(step, tool: tool, input: filled, in: &run) }
             return await acting(step, tool: tool, input: filled, written: input.mapValues(\.any), in: &run)
         case .branch:
