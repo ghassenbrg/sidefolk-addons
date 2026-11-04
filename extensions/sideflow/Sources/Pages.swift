@@ -763,10 +763,8 @@ import SidefolkExtensionKit
             end.append(Section(nil, [.action(Action(L("Open Add-ons"), act: .settings("addons"), symbol: "puzzlepiece.extension"))], place: .trailing))
         case .needs_you, .waiting:
             if let problem = run.problem { detail = problem }
-            end.append(choices(L("What now?"), (app.engine.stepLeftBehind(run) ? [] : [Option("try_again", L("Try again"), detail: L("Does it now, then carries on."), symbol: "arrow.clockwise")]) + [
-                Option("carry_on", L("Skip this step"), detail: L("Goes on without it."), symbol: "forward"),
-                Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop"),
-            ]))
+            let skip = Option("carry_on", L("Skip this step"), detail: L("Goes on without it."), symbol: "forward"), stop = Option("stop", L("Stop here"), detail: L("Nothing more of this run."), symbol: "stop")
+            end.append(choices(L("What now?"), app.engine.stepLeftBehind(run) ? [stop, skip] : [Option("try_again", L("Try again"), detail: L("Does it now, then carries on."), symbol: "arrow.clockwise"), skip, stop]))
         case .failed:
             if let problem = run.problem { detail = problem }
         default:

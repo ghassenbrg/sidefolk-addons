@@ -612,6 +612,7 @@ import SidefolkExtensionKit
         await w.quiet(app.store)
         #expect(!w.host.forwardOptions.isEmpty)
         #expect(!w.host.forwardOptions.contains(L("Try again")))
+        #expect(w.host.forwardOptions.first == L("Stop here"), "going on through a version they replaced isn't the safe answer to put first")
     }
 
     @Test func aStepThatsStillThereGoesOnAfterAnEdit() async throws {
