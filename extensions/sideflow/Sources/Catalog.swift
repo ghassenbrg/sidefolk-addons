@@ -243,7 +243,7 @@ extension FlowBody {
                     // Looking at something only one path made is how a flow asks whether it ran: only that test may.
                     for check in c.checks where check.test != .is_empty && check.test != .not_empty { refs([check.value, check.than], step, seen: seen) }
                 case .forEach, .choose, .call, .finish, .data, .form:
-                    refs(step.usedTexts, step, seen: seen)
+                    refs(step.needsThere, step, seen: seen)
                 // What it stops on is looked at after its steps, so it's checked there.
                 case .attempt, .parallel, .waitFor, .repeatUntil: break
                 case .wait: break

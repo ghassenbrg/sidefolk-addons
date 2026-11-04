@@ -213,16 +213,25 @@ enum Editing {
         var own = Set(inside.map(\.id)).union(["today", "now"])
         if inside.contains(where: { switch $0.kind { case .forEach, .repeatUntil: true; default: false } }) { own.formUnion(["item", "index"]) }
         if inside.contains(where: { if case .attempt = $0.kind { true } else { false } }) { own.insert("error") }
-        var outside: Set<String> = []
+        // A field goes in by itself: a step's whole answer, handed over, is its words, and those have no fields.
+        var inputs: [String: String] = [:], keys: [String: String] = [:]
         let inner = rewriting(step) { text in
             Values.replacingSlots(in: text) { name, path in
                 guard !own.contains(name) else { return "{{\(name)\(path)}}" }
-                outside.insert(name)
-                return "{{input.\(name)\(path)}}"
+                let written = "{{\(name)\(path)}}"
+                if let key = keys[written] { return "{{input.\(key)}}" }
+                var key = ([name] + Values.parts(of: path)).joined(separator: "_")
+                if key.count > 40 || inputs[key] != nil { key = "\(key.prefix(34))_\(inputs.count)" }
+                keys[written] = key
+                inputs[key] = written
+                return "{{input.\(key)}}"
             }
         }
         var called = step
-        called.kind = .call(flow: name, inputs: Dictionary(uniqueKeysWithValues: outside.map { ($0, "{{\($0)}}") }))
+        called.kind = .call(flow: name, inputs: inputs)
+        // What the new flow's own step goes by: it's said there, and means nothing on a call.
+        called.fields = nil
+        called.sample = nil
         var innerBody = FlowBody(steps: [inner])
         innerBody.triggerSample = nil
         return (change(id, in: body) { $0 = called }, innerBody)

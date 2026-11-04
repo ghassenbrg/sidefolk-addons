@@ -989,6 +989,7 @@
     "Try again from here": "Réessayer à partir d'ici",
     "Use this if it's empty": "Utiliser ceci si c'est vide",
     "You ran it again.": "Vous l'avez relancée.",
-    "You tried again from where it ended.": "Vous avez réessayé à partir de là où elle s'est arrêtée."
+    "You tried again from where it ended.": "Vous avez réessayé à partir de là où elle s'est arrêtée.",
+    "Say what to use instead.": "Dites quoi utiliser à la place."
   }
 }

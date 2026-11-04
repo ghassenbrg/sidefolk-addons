@@ -799,7 +799,7 @@ import SidefolkExtensionKit
         return frame(app, state: state, here: nil, flow: run.flow, back: run.flowName, [
             Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail, actions: run.status == .running || run.status == .waiting
                 ? (run.status == .running && run.mode != .practice ? [button(L("Pause after this step"), "pause_run", id, symbol: "pause.fill")] : []) + [button(L("Stop"), "stop_run", id, symbol: "stop.fill")]
-                : run.status.isOver ? [button(L("Run again"), "run_again", id, symbol: "arrow.clockwise")] : []))]),
+                : run.status.isOver && run.parent == nil ? [button(L("Run again"), "run_again", id, symbol: "arrow.clockwise")] : []))]),
             Section(nil, [.tree(CardTree(nodes, selected: selected, select: .init(tool: "ui", input: ui("inspect_run", ["run": run.id]), key: "target"), line: line))], wide: true),
         ], end: end)
     }

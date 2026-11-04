@@ -269,9 +269,7 @@ extension FlowHost {
             store.save(run)
             return false
         }
-        // "Use this if it's empty" is for just that.
-        let looksPastMissing = if case .data(let data) = step.kind { data.op == .fallback } else { false }
-        if !looksPastMissing, let name = run.values.stopsFor(step.usedTexts, practice: run.mode == .practice) {
+        if let name = run.values.stopsFor(step.needsThere, practice: run.mode == .practice) {
             return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
         }
         // Before it's done: for a repeat, which can't tell from a value alone what going round would do again.
@@ -625,6 +623,7 @@ extension FlowHost {
         if run.status.isOver {
             run.endedAt = clock()
             _ = store.takeStop(run.id)
+            _ = store.takeStop(Self.pauseKey(run.id))
             if holds { active.remove(run.flow) }
         }
         if holds, run.status == .needs_you || run.status == .interrupted { active.remove(run.flow) }
@@ -767,13 +766,13 @@ extension FlowHost {
         guard let current = store.run(id), !current.status.isOver, current.status != .running, !store.isHeldBack(flow: current.flow) else { return }
         // A form or another run is what it's waiting for: going past that isn't anyone's to choose from here.
         guard var run = store.run(id), run.form == nil, run.waitingOn.isEmpty else { return }
+        run.paused = false
         switch how {
         case .stop:
             break
         case .try_again:
             run.retries = 0
             run.resumeAt = nil
-            run.paused = false
             run.problem = nil
             store.save(run)
             if run.parent == nil { active.insert(run.flow) }
@@ -815,6 +814,8 @@ extension FlowHost {
         guard run.body == (run.mode == .live ? flow.running : flow.draft) else { return false }
         let program = FlowProgram(run.body)
         guard run.pc < program.ops.count, case .step(let step) = program.ops[run.pc] else { return false }
+        // It may have happened: doing it again is the person's to decide knowing that, on the run's own page, not a button's to assume.
+        guard run.record(of: step.id)?.status != .unknown else { return false }
         return run.body.steps.contains { $0.id == step.id }
     }
 
@@ -828,8 +829,9 @@ extension FlowHost {
     /// A new run: from the start with what set it off the last time, or from where the last one ended with what it had made. The person asked, so nothing here is by itself,
     /// and each action goes through Sidefolk as any does.
     func runAgain(_ id: String, fromHere: Bool) -> Run? {
-        guard let old = store.run(id), old.status.isOver, let flow = store.flow(old.flow) else { return nil }
-        let mode: Run.Mode = old.mode == .practice ? .practice : flow.live != nil ? .live : .once
+        guard let old = store.run(id), old.status.isOver, old.parent == nil, let flow = store.flow(old.flow) else { return nil }
+        // What it ran, as it ran it: a look at a draft again stays that, even if another version is on.
+        let mode: Run.Mode = old.mode == .live && flow.live == nil ? .once : old.mode
         guard fromHere else {
             let trigger = old.values.named["trigger"].map(Values.text)
             return start(flow, mode: mode, why: L("You ran it again."), trigger: trigger)
@@ -837,7 +839,9 @@ extension FlowHost {
         guard canGoOn(from: old), let started = start(flow, mode: old.mode, why: L("You tried again from where it ended.")) else { return nil }
         // The start's own walk hasn't begun: it picks up from here instead.
         guard var run = store.run(started.id) else { return nil }
+        let (today, now) = (run.values.today, run.values.now)
         run.values = old.values
+        (run.values.today, run.values.now) = (today, now)
         run.pc = old.pc
         let again = Set(FlowBody(steps: stepsFromHere(old)).allSteps.map(\.id))
         run.records = old.records.filter { !again.contains($0.step) }
@@ -895,7 +899,8 @@ extension FlowHost {
             // Two ways due together are still one moment: it runs for the first, however many said so.
             if let why = starts.first { start(flow, mode: .live, why: why) }
         }
-        for run in store.unfinished() where run.status == .waiting {
+        // One the person paused goes on when they say, whatever it was waiting for before.
+        for run in store.unfinished() where run.status == .waiting && !run.paused {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
             // Unless it's been paused: what goes by itself waits for Resume, as it would to start.
             if let waited = run.connection, !Connections.isMissing(waited.tool, catalog), waited.until > now, !heldByPause(run) {

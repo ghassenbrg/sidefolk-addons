@@ -974,6 +974,7 @@
     "Try again from here": "ここからやり直す",
     "Use this if it's empty": "空の場合はこれを使う",
     "You ran it again.": "もう一度実行しました。",
-    "You tried again from where it ended.": "止まった場所からやり直しました。"
+    "You tried again from where it ended.": "止まった場所からやり直しました。",
+    "Say what to use instead.": "代わりに使うものを指定してください。"
   }
 }

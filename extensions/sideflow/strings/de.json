@@ -989,6 +989,7 @@
     "Try again from here": "Von hier aus erneut versuchen",
     "Use this if it's empty": "Dies verwenden, wenn es leer ist",
     "You ran it again.": "Du hast ihn erneut ausgeführt.",
-    "You tried again from where it ended.": "Du hast es dort erneut versucht, wo er endete."
+    "You tried again from where it ended.": "Du hast es dort erneut versucht, wo er endete.",
+    "Say what to use instead.": "Sag, was stattdessen verwendet werden soll."
   }
 }

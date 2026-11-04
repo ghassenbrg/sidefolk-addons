@@ -989,6 +989,7 @@
     "Try again from here": "Reintentar desde aquí",
     "Use this if it's empty": "Usar esto si está vacío",
     "You ran it again.": "La ejecutaste de nuevo.",
-    "You tried again from where it ended.": "Reintentaste desde donde terminó."
+    "You tried again from where it ended.": "Reintentaste desde donde terminó.",
+    "Say what to use instead.": "Indica qué usar en su lugar."
   }
 }

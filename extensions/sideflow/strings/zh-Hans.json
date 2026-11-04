@@ -974,6 +974,7 @@
     "Try again from here": "从这里重试",
     "Use this if it's empty": "为空时使用此项",
     "You ran it again.": "你再次运行了它。",
-    "You tried again from where it ended.": "你从结束处重试了。"
+    "You tried again from where it ended.": "你从结束处重试了。",
+    "Say what to use instead.": "说明改用什么。"
   }
 }

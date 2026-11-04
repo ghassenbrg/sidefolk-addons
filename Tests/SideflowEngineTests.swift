@@ -2202,6 +2202,139 @@ extension JSON {
         #expect(!w.engine.canGoOn(from: looped!), "a loop's place isn't kept")
     }
 
+    @Test func aFallbackStillNeedsWhatItFallsBackOn() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "d", "data": ["op": "fallback", "from": "{{gone}}", "than": "{{alsogone}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "d", "data": ["op": "fallback", "from": "{{x}}"]]]])
+        #expect(body.step("d")?.saysNothing != nil, "with nothing to use instead it would look finished and give nothing")
+    }
+
+    @Test func aFallbacksOwnFromIsntAProblemOnTheCheck() throws {
+        let w = try World()
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "if": ["value": "a", "test": "is", "than": "b"], "then": [["id": "x", "text": "made"]], "else": []],
+                                                                                ["id": "d", "data": ["op": "fallback", "from": "{{x}}", "than": "nothing"]]]])
+        #expect(!body.problems(w.catalog).contains { $0.step == "d" })
+    }
+
+    @Test func aPausedRunStaysPausedWhateverTheClockSays() async throws {
+        let w = try World()
+        w.host.hold = "reads.it"
+        w.host.honoursCancel = true
+        w.host.releaseQuietly = true
+        let flow = try w.flow([["id": "a", "do": "reads.it"], ["id": "b", "text": "after"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.pause(run: run.id)
+        w.host.cancelled = true
+        await w.quiet()
+        var now = try #require(w.store.run(run.id))
+        #expect(now.status == .waiting && now.paused)
+        now.resumeAt = w.now
+        w.store.save(now)
+        w.now = w.now.addingTimeInterval(60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.record(of: "b") == nil, "an old time to wake up doesn't undo what the person asked")
+    }
+
+    @Test func aPauseAskedOfARunThatEndsFirstDoesntLinger() async throws {
+        let w = try World()
+        w.host.hold = "reads.it"
+        w.host.honoursCancel = true
+        w.host.releaseQuietly = true
+        let flow = try w.flow([["id": "a", "do": "reads.it"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.pause(run: run.id)
+        w.host.cancelled = true
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status.isOver == true)
+        #expect(w.store.takeStop(Engine.pauseKey(run.id)) == false)
+    }
+
+    @Test func tryingAgainFromHereIsntOfferedForWhatMayHaveHappened() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        w.host.honoursCancel = true
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]], ["id": "b", "text": "after"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.stop(run: run.id)
+        await w.quiet()
+        let stopped = try #require(w.store.run(run.id))
+        #expect(stopped.status == .stopped)
+        #expect(stopped.record(of: "a")?.status == .unknown)
+        #expect(!w.engine.canGoOn(from: stopped))
+        #expect(w.engine.runAgain(run.id, fromHere: true) == nil)
+    }
+
+    @Test func runAgainKeepsTheModeItRanInAndTodaysDate() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "text": "draft"]], state: .on)
+        flow.live = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "live"]]])
+        w.store.save(flow)
+        let once = await w.settled(w.engine.start(flow, mode: .once, why: "t"))
+        #expect(once?.values.value("a") == "draft")
+        let onceId = try #require(once).id
+        let again = try #require(w.engine.runAgain(onceId, fromHere: false))
+        await w.quiet()
+        #expect(w.store.run(again.id)?.values.value("a") == "draft", "it looked at the draft, so it looks at the draft again")
+
+        let failing = try w.flow([["id": "x", "text": "kept"], ["id": "d", "do": "reads.it"], ["id": "t", "text": "{{today}}"]])
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .failed, text: "No", summary: "")]
+        let failed = await w.settled(w.engine.start(failing, mode: .live, why: "t"))
+        #expect(failed?.status == .failed)
+        w.now = w.now.addingTimeInterval(3 * 86400)
+        let failedId = try #require(failed).id
+        let later = try #require(w.engine.runAgain(failedId, fromHere: true))
+        #expect(later.values.today != failed?.values.today, "a run that goes on today says today")
+        #expect(later.values.value("x") == "kept")
+    }
+
+    @Test func aFieldStaysItsOwnWhenAStepBecomesAFlow() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "w", "ai": "{{r.who.name}} has {{r.count}}, {{r}}, again {{r.count}}", "fields": ["a": "text"], "sample": "s"],
+        ]])
+        let (outer, inner) = try Editing.extract("w", in: body, named: "New")
+        guard case .call(_, let inputs)? = outer.step("w")?.kind else { Issue.record("not a call"); return }
+        #expect(inputs == ["r_who_name": "{{r.who.name}}", "r_count": "{{r.count}}", "r": "{{r}}"])
+        #expect(inner.step("w")?.kind == .ai(prompt: "{{input.r_who_name}} has {{input.r_count}}, {{input.r}}, again {{input.r_count}}"))
+        #expect(outer.step("w")?.fields == nil && outer.step("w")?.sample == nil)
+        #expect(inner.step("w")?.sample == "s")
+    }
+
+    @Test func aLongOrClashingFieldStillGetsANameOfItsOwn() throws {
+        let long = String(repeating: "a", count: 40)
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "text": "{{r.\(long)}} {{r_x}} {{r.x}}"]]])
+        let (outer, inner) = try Editing.extract("w", in: body, named: "New")
+        guard case .call(_, let inputs)? = outer.step("w")?.kind else { Issue.record("not a call"); return }
+        #expect(Set(inputs.values) == ["{{r.\(long)}}", "{{r_x}}", "{{r.x}}"])
+        #expect(inputs.keys.allSatisfy { $0.count <= 40 })
+        guard case .text(let said)? = inner.step("w")?.kind else { Issue.record("not text"); return }
+        #expect(Values.slots(said).allSatisfy { $0.name == "input" })
+        #expect(Set(Values.slots(said).map(\.path)).count == 3)
+    }
+
+    @Test func aLoopMadeItsOwnFlowStillAnswersWithItsList() async throws {
+        let w = try World()
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "e", "for_each": "a\nb", "steps": [["id": "t", "text": "{{item}}!"]]]]])
+        let (outer, inner) = try Editing.extract("e", in: body, named: "Child")
+        var child = try w.flow([["id": "x", "text": "x"]])
+        child.name = "Child"
+        child.draft = inner
+        child.live = inner
+        w.store.save(child)
+        var parent = try w.flow([["id": "x", "text": "x"]])
+        parent.draft = outer
+        parent.live = outer
+        w.store.save(parent)
+        let run = await w.settled(w.engine.start(parent, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.record(of: "e")?.output?.contains("a!") == true)
+    }
+
     @Test func aStepBecomesItsOwnFlowAndReadsTheSame() async throws {
         let w = try World()
         let app = App(folder: w.folder.appendingPathComponent("app"))

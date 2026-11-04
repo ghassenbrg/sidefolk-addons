@@ -1049,6 +1049,7 @@
     "Try again from here": "إعادة المحاولة من هنا",
     "Use this if it's empty": "استخدم هذا إذا كان فارغًا",
     "You ran it again.": "شغّلته مرة أخرى.",
-    "You tried again from where it ended.": "أعدت المحاولة من حيث انتهى."
+    "You tried again from where it ended.": "أعدت المحاولة من حيث انتهى.",
+    "Say what to use instead.": "حدّد ما يُستخدم بدلًا منه."
   }
 }

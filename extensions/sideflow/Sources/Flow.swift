@@ -158,6 +158,7 @@ struct Step: Equatable, Sendable {
         case .repeatUntil(let until, _, _) where until.checks.contains(where: { $0.value.trimmed.isEmpty }): L("Say what each check looks at.")
         case .choose(let value, _, _) where value.trimmed.isEmpty: L("Say what to look at.")
         case .data(let data) where data.from.trimmed.isEmpty: L("Say what from")
+        case .data(let data) where data.op == .fallback && (data.than ?? "").trimmed.isEmpty: L("Say what to use instead.")
         case .form(let form) where form.fields.isEmpty: L("Add something for the form to ask.")
         case .form(let form) where form.fields.contains { $0.kind == .choice && $0.options.count < 2 }: L("A choice in a form needs at least two answers.")
         default: nil
@@ -172,6 +173,12 @@ struct Step: Equatable, Sendable {
         case .call, .parallel, .flow: true
         default: false
         }
+    }
+
+    /// What has to have a value for it to run. "Use this if it's empty" is for when its own `from` hasn't.
+    var needsThere: [String] {
+        if case .data(let data) = kind, data.op == .fallback { return [data.than ?? ""] }
+        return usedTexts
     }
 
     var usedTexts: [String] {

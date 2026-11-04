@@ -974,6 +974,7 @@
     "Try again from here": "여기서부터 다시 시도",
     "Use this if it's empty": "비어 있으면 이것 사용",
     "You ran it again.": "다시 실행했습니다.",
-    "You tried again from where it ended.": "멈춘 곳부터 다시 시도했습니다."
+    "You tried again from where it ended.": "멈춘 곳부터 다시 시도했습니다.",
+    "Say what to use instead.": "대신 사용할 것을 지정하세요."
   }
 }
