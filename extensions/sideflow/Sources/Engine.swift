@@ -10,6 +10,16 @@ import SidefolkExtensionKit
     func approve(_ plan: Plan) async -> Plans.Answer
     func forgetPlan(_ id: String)
     func notify(title: String, body: String?, attention: Bool) async
+    /// A call for a run: it can be followed while it's under way, and asked to stop.
+    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome
+    func cancel(run: String)
+}
+
+extension FlowHost {
+    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
+        await call(tool, input, plan: plan, written: written)
+    }
+    func cancel(run: String) {}
 }
 
 /// Runs flows. It decides nothing about what is allowed: every action goes to Sidefolk, which asks or doesn't; here is only the order of
@@ -37,6 +47,8 @@ import SidefolkExtensionKit
     private var aiWaiting: [CheckedContinuation<Void, Never>] = []
     /// Watches being made: a card can be up for one, and pausing and resuming meanwhile would ask for a second of the same name.
     private var makingWatch: Set<String> = []
+    /// How far along the step under way is, by run, while it says. Not kept: it's only true now.
+    private(set) var progress: [String: Actions.Progress] = [:]
 
     init(store: FlowStore, catalog: Catalog) {
         self.store = store
@@ -499,7 +511,12 @@ import SidefolkExtensionKit
         changed()
         let reads = step.reads(catalog)
         let plan = run.mode == .live ? "flow-\(run.flow)" : nil
-        let outcome = await host?.call(tool, input, plan: plan, written: written) ?? Actions.Outcome(status: .lost, text: "", summary: "", untrusted: false, standing: false)
+        let id = run.id
+        let outcome = await host?.call(tool, input, plan: plan, written: written, run: id, progress: { [weak self] in
+            self?.progress[id] = $0
+            self?.changed()
+        }) ?? Actions.Outcome(status: .lost, text: "", summary: "", untrusted: false, standing: false)
+        progress[id] = nil
         let said = outcome.summary.nonEmpty.map { Words.resolved($0, values: run.values) } ?? sentence
         switch outcome.status {
         case .ok:
@@ -851,13 +868,15 @@ import SidefolkExtensionKit
 
     func queuedCount(_ flow: String) -> Int { (queued[flow] == nil ? 0 : 1) + (store.flow(flow)?.waitingStarts.count ?? 0) }
 
-    /// Stops a run the person is looking at, and any it waits for. Something under way finishes first, because it can't be taken back halfway: the page says so.
+    /// Stops a run the person is looking at, and any it waits for. A step under way is told to stop, and the run stays "stopping" until it answers; its answer can only say it may or may not have happened.
     func stop(run id: String) {
         guard var run = store.run(id), !run.status.isOver else { return }
         for child in run.waitingOn { stop(run: child) }
         // A run held back has no walk to notice a stop, so it ends here.
         if run.status == .running, !store.isHeldBack(flow: run.flow) {
             store.askStop(id)
+            // A card goes away and nothing happens; a tool under way is told, and what it answers says whether it may have happened.
+            host?.cancel(run: id)
         } else {
             run.status = .stopped
             run.problem = nil

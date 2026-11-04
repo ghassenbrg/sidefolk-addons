@@ -767,6 +767,11 @@ import SidefolkExtensionKit
             end.append(choices(L("What now?"), app.engine.stepLeftBehind(run) ? [stop, skip] : [Option("try_again", L("Try again"), detail: L("Does it now, then carries on."), symbol: "arrow.clockwise"), skip, stop]))
         case .failed:
             if let problem = run.problem { detail = problem }
+        case .running:
+            if let now = app.engine.progress[run.id] {
+                let parts = [now.fraction.map { Format.percent($0) }, now.message].compactMap(\.self)
+                if !parts.isEmpty { detail = L("Working: {how}", ["how": parts.joined(separator: " · ")]) }
+            }
         default:
             break
         } }

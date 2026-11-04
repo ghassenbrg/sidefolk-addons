@@ -24,7 +24,8 @@ import SidefolkExtensionKit
         var honoursCancel = false
         var releaseQuietly = false
         var cancelled = false
-        func cancel(run: String) { cancelled = true }
+        var progressWords: String?
+        var heard: ((Actions.Progress) -> Void)?
         var written: [String] = []
         /// What they answer when a stopped run asks the way forward: by default nobody does.
         var wayForward: String?
@@ -46,6 +47,7 @@ import SidefolkExtensionKit
             calls.append((tool, input, plan))
             if tool == hold {
                 if honoursCancel {
+                    progressWords.map { heard?(Actions.Progress(fraction: 0.4, message: $0)) }
                     while !cancelled { try? await Task.sleep(for: .milliseconds(5)) }
                     if !releaseQuietly { return Actions.Outcome(status: .failed, text: "Stopped", summary: "") }
                 } else {
@@ -59,6 +61,13 @@ import SidefolkExtensionKit
             }
             return Actions.Outcome(status: .ok, text: "result of \(tool)", summary: "Did \(tool)")
         }
+
+        func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
+            heard = progress
+            return await call(tool, input, plan: plan, written: written)
+        }
+
+        func cancel(run: String) { cancelled = true }
 
         func check(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Check? {
             Actions.Check(decision: decision, summary: "Sentence for \(tool)", mutates: tool != "reads.it", standing: plan != nil)

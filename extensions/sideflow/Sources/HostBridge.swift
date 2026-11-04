@@ -7,6 +7,17 @@ import SidefolkExtensionKit
         await Actions.call(tool, input, plan: plan, written: written, seconds: tool == "ask.user" ? 615 : 300)
     }
 
+    private var requests: [String: String] = [:]
+
+    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
+        defer { requests[run] = nil }
+        return await Actions.call(tool, input, plan: plan, written: written, seconds: tool == "ask.user" ? 615 : 300, request: { [weak self] in self?.requests[run] = $0 }, progress: progress)
+    }
+
+    func cancel(run: String) {
+        if let request = requests[run] { Actions.cancel(request) }
+    }
+
     func check(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Check? {
         await Actions.check(tool, input, plan: plan)
     }

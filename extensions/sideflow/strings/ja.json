@@ -947,6 +947,24 @@
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "{name} を待っています。{flow} は一時停止中です。このステップはまだ実行していません。戻ったあと、{flow} を再開すると続きます。",
     "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "「{name}」にはまだ答えがなく、もう一周するとすべてをやり直すことになるため、ここで止まりました。",
     "It uses “{name}”, but that step's answer doesn't have it.": "「{name}」を使っていますが、そのステップの答えには含まれていません。",
-    "It would use what an earlier step gave, and practice only pretended that.": "前のステップの結果を使いますが、練習ではそれを仮定しただけです。"
+    "It would use what an earlier step gave, and practice only pretended that.": "前のステップの結果を使いますが、練習ではそれを仮定しただけです。",
+    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "もう一周しても「{name}」は変わらず、すべてをやり直すことになるため、ここで止まりました。",
+    "A flow can have {count} steps: move some into a flow of their own.": "ルーティンのステップは最大{count}個です。いくつかを別のルーティンに移してください。",
+    "All checks hold": "すべてのチェックが成り立つ",
+    "Any check holds": "どれかのチェックが成り立つ",
+    "Run “If so” when": "「そうなら」を実行する条件",
+    "Say what the AI should write.": "AIに何を書かせるか入力してください。",
+    "Say what to test.": "何をテストするか書いてください。",
+    "Write the question.": "質問を入力してください。",
+    "{count} changes, only here so far. What's running hasn't changed.": {
+      "other": "変更が{count}件あります。まだここだけです。動いているものは変わっていません。"
+    },
+    "{count} changes, only here so far. ⌘S keeps them, ⌘Z steps back.": {
+      "other": "変更が{count}件あります。まだここだけです。⌘Sで保存、⌘Zで一つ戻ります。"
+    },
+    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "ルーティンのファイルを開けません。ファイルはそのままで、開けるようになるまで実行も保存も行いません。",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "{name} が必要ですが、今はありません。何も実行されておらず、戻ると自動的に続きます。",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "{name} を待っています。何も実行されておらず、戻ると自動的に続きます。",
+    "Working: {how}": "作業中: {how}"
   }
 }

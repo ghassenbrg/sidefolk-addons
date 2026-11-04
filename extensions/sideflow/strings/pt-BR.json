@@ -962,6 +962,26 @@
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "Aguardando {name}, e {flow} está pausada. Esta etapa não foi executada: quando voltar, continua ao retomar {flow}.",
     "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "“{name}” ainda não responde, e dar outra volta faria tudo de novo, então parou aqui.",
     "It uses “{name}”, but that step's answer doesn't have it.": "Usa “{name}”, mas a resposta dessa etapa não tem isso.",
-    "It would use what an earlier step gave, and practice only pretended that.": "Usaria o que uma etapa anterior deu, e o ensaio apenas simulou isso."
+    "It would use what an earlier step gave, and practice only pretended that.": "Usaria o que uma etapa anterior deu, e o ensaio apenas simulou isso.",
+    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "Dar outra volta não mudaria “{name}” e faria tudo de novo, então parou aqui.",
+    "A flow can have {count} steps: move some into a flow of their own.": "Uma rotina pode ter {count} etapas: mova algumas para uma rotina separada.",
+    "All checks hold": "Todas as verificações são verdadeiras",
+    "Any check holds": "Alguma verificação é verdadeira",
+    "Run “If so” when": "Executar “Se sim” quando",
+    "Say what the AI should write.": "Diga o que a IA deve escrever.",
+    "Say what to test.": "Diga o que testar.",
+    "Write the question.": "Escreva a pergunta.",
+    "{count} changes, only here so far. What's running hasn't changed.": {
+      "one": "{count} alteração, só aqui por enquanto. O que está rodando não mudou.",
+      "other": "{count} alterações, só aqui por enquanto. O que está rodando não mudou."
+    },
+    "{count} changes, only here so far. ⌘S keeps them, ⌘Z steps back.": {
+      "one": "{count} alteração, só aqui por enquanto. ⌘S guarda, ⌘Z volta um passo.",
+      "other": "{count} alterações, só aqui por enquanto. ⌘S guarda, ⌘Z volta um passo."
+    },
+    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "O arquivo das suas rotinas não abre. Ele está intacto, e nada roda nem salva até que abra.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Precisa de {name}, ausente agora. Nada foi feito, e continua sozinha quando voltar.",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "Esperando {name}. Nada foi feito, e continua sozinha quando voltar.",
+    "Working: {how}": "Em andamento: {how}"
   }
 }

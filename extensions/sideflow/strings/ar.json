@@ -1022,6 +1022,34 @@
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "في انتظار {name}، و{flow} متوقف مؤقتًا. لم تُنفَّذ هذه الخطوة: بعد عودته، يتابع عندما تستأنف {flow}.",
     "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "لم يُجب «{name}» بعد، وستعيد جولة أخرى كل شيء، لذا توقف هنا.",
     "It uses “{name}”, but that step's answer doesn't have it.": "يستخدم «{name}»، لكن جواب تلك الخطوة لا يتضمنه.",
-    "It would use what an earlier step gave, and practice only pretended that.": "سيستخدم ما أعطته خطوة سابقة، والتدريب افترض ذلك فقط."
+    "It would use what an earlier step gave, and practice only pretended that.": "سيستخدم ما أعطته خطوة سابقة، والتدريب افترض ذلك فقط.",
+    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "لن تغيّر جولة أخرى «{name}» وستعيد كل شيء، لذا توقف هنا.",
+    "A flow can have {count} steps: move some into a flow of their own.": "يمكن أن يضم الروتين {count} خطوة: انقل بعضها إلى روتين مستقل.",
+    "All checks hold": "تتحقق كل الفحوص",
+    "Any check holds": "يتحقق أحد الفحوص",
+    "Run “If so” when": "شغّل «إن كان كذلك» عندما",
+    "Say what the AI should write.": "قل ما يجب أن يكتبه الذكاء الاصطناعي.",
+    "Say what to test.": "اكتب ما يُختبر.",
+    "Write the question.": "اكتب السؤال.",
+    "{count} changes, only here so far. What's running hasn't changed.": {
+      "zero": "لا تغييرات، هنا فقط حتى الآن. ما يعمل لم يتغيّر.",
+      "one": "تغيير واحد، هنا فقط حتى الآن. ما يعمل لم يتغيّر.",
+      "two": "تغييران، هنا فقط حتى الآن. ما يعمل لم يتغيّر.",
+      "few": "{count} تغييرات، هنا فقط حتى الآن. ما يعمل لم يتغيّر.",
+      "many": "{count} تغييرًا، هنا فقط حتى الآن. ما يعمل لم يتغيّر.",
+      "other": "{count} تغيير، هنا فقط حتى الآن. ما يعمل لم يتغيّر."
+    },
+    "{count} changes, only here so far. ⌘S keeps them, ⌘Z steps back.": {
+      "zero": "لا تغييرات، هنا فقط حتى الآن. ⌘S يحفظها، ⌘Z يتراجع خطوة.",
+      "one": "تغيير واحد، هنا فقط حتى الآن. ⌘S يحفظه، ⌘Z يتراجع خطوة.",
+      "two": "تغييران، هنا فقط حتى الآن. ⌘S يحفظهما، ⌘Z يتراجع خطوة.",
+      "few": "{count} تغييرات، هنا فقط حتى الآن. ⌘S يحفظها، ⌘Z يتراجع خطوة.",
+      "many": "{count} تغييرًا، هنا فقط حتى الآن. ⌘S يحفظها، ⌘Z يتراجع خطوة.",
+      "other": "{count} تغيير، هنا فقط حتى الآن. ⌘S يحفظها، ⌘Z يتراجع خطوة."
+    },
+    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "تعذر فتح ملف روتيناتك. لم يُمس، ولن يعمل أو يُحفظ شيء حتى يمكن فتحه.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "يحتاج إلى {name}، غير موجود الآن. لم يُفعل شيء، ويتابع وحده عند عودته.",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "في انتظار {name}. لم يُفعل شيء، ويتابع وحده عند عودته.",
+    "Working: {how}": "قيد العمل: {how}"
   }
 }

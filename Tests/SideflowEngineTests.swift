@@ -1883,3 +1883,58 @@ extension JSON {
     }
 }
 
+@MainActor @Suite(.serialized) struct SideflowJobTests {
+    typealias World = SideflowTests.World
+
+    @Test func stopTellsATheToolAndTheRunSaysItMayHaveHappened() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        w.host.honoursCancel = true
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]], ["id": "b", "do": "reads.it"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .running)
+        w.engine.stop(run: run.id)
+        #expect(w.store.run(run.id)?.status == .running, "stopping until it answers: never a label saying it already has")
+        await w.quiet()
+        let done = try #require(w.store.run(run.id))
+        #expect(done.status == .stopped)
+        #expect(done.record(of: "a")?.status == .unknown, "it was told, which isn't proof")
+        #expect(!w.host.calls.contains { $0.tool == "reads.it" })
+        #expect(!w.engine.isRunning(flow.id))
+    }
+
+    @Test func aReadingStepStoppedDoesntTryAgain() async throws {
+        let w = try World()
+        w.host.hold = "reads.it"
+        w.host.honoursCancel = true
+        let flow = try w.flow([["id": "a", "do": "reads.it", "on_failure": "retry"], ["id": "b", "do": "changes.it", "with": ["text": "x"]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.stop(run: run.id)
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .stopped)
+        #expect(w.store.run(run.id)?.resumeAt == nil)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func thePageSaysHowFarAlongAndForgetsAfterwards() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", mutates: false, readsOnly: true)]))
+        w.host.hold = "reads.it"
+        w.host.honoursCancel = true
+        w.host.progressWords = "two of five"
+        let flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "reads.it"]]]))
+        let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
+        await w.quiet(app.store)
+        #expect(app.engine.progress[run.id]?.message == "two of five")
+        let page = await Pages.make(app, state: Arguments(["run": run.id]), background: false)
+        #expect(String(describing: page.sent).contains("two of five"))
+        app.engine.stop(run: run.id)
+        await w.quiet(app.store)
+        #expect(app.engine.progress[run.id] == nil)
+    }
+}
+

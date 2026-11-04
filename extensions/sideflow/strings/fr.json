@@ -962,6 +962,26 @@
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "En attente de {name}, et {flow} est en pause. Cette étape n'a pas été exécutée : une fois de retour, elle continue quand vous reprenez {flow}.",
     "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "« {name} » ne répond pas encore, et recommencer referait tout, alors elle s'est arrêtée ici.",
     "It uses “{name}”, but that step's answer doesn't have it.": "Elle utilise « {name} », mais la réponse de cette étape ne le contient pas.",
-    "It would use what an earlier step gave, and practice only pretended that.": "Elle utiliserait ce qu'une étape précédente a donné, et l'essai n'a fait que le simuler."
+    "It would use what an earlier step gave, and practice only pretended that.": "Elle utiliserait ce qu'une étape précédente a donné, et l'essai n'a fait que le simuler.",
+    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "Recommencer ne changerait pas « {name} » et referait tout, alors elle s'est arrêtée ici.",
+    "A flow can have {count} steps: move some into a flow of their own.": "Une routine peut avoir {count} étapes : déplacez-en quelques-unes dans une routine à part.",
+    "All checks hold": "Toutes les vérifications sont vraies",
+    "Any check holds": "Au moins une vérification est vraie",
+    "Run “If so” when": "Exécuter « Si oui » quand",
+    "Say what the AI should write.": "Dites ce que l’IA doit rédiger.",
+    "Say what to test.": "Dites quoi tester.",
+    "Write the question.": "Écrivez la question.",
+    "{count} changes, only here so far. What's running hasn't changed.": {
+      "one": "{count} modification, seulement ici pour l’instant. Ce qui tourne n’a pas changé.",
+      "other": "{count} modifications, seulement ici pour l’instant. Ce qui tourne n’a pas changé."
+    },
+    "{count} changes, only here so far. ⌘S keeps them, ⌘Z steps back.": {
+      "one": "{count} modification, seulement ici pour l’instant. ⌘S la garde, ⌘Z revient en arrière.",
+      "other": "{count} modifications, seulement ici pour l’instant. ⌘S les garde, ⌘Z revient en arrière."
+    },
+    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "Le fichier de vos routines ne peut pas être ouvert. Il reste intact, et rien ne s'exécute ni ne s'enregistre tant que ce n'est pas possible.",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "Il lui faut {name}, absent pour l'instant. Rien n'a été fait, et elle reprend d'elle-même à son retour.",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "En attente de {name}. Rien n'a été fait, et elle reprend d'elle-même à son retour.",
+    "Working: {how}": "En cours : {how}"
   }
 }

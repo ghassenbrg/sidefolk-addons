@@ -947,6 +947,24 @@
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "正在等待 {name}，{flow} 已暂停。这一步尚未运行：恢复后，在你继续 {flow} 时接着运行。",
     "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "“{name}”还没有答案，再循环一次会把一切重做一遍，所以在此停止。",
     "It uses “{name}”, but that step's answer doesn't have it.": "它用到了“{name}”，但那个步骤的回答里没有。",
-    "It would use what an earlier step gave, and practice only pretended that.": "它会使用之前步骤给出的内容，而练习只是假定了这些内容。"
+    "It would use what an earlier step gave, and practice only pretended that.": "它会使用之前步骤给出的内容，而练习只是假定了这些内容。",
+    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "再循环一次也不会改变“{name}”，还会把一切重做一遍，所以在此停止。",
+    "A flow can have {count} steps: move some into a flow of their own.": "一个流程最多可以有 {count} 个步骤：把其中一些移到单独的流程里。",
+    "All checks hold": "所有检查都成立",
+    "Any check holds": "任一检查成立",
+    "Run “If so” when": "在以下情况运行“如果是”",
+    "Say what the AI should write.": "说明 AI 要写什么。",
+    "Say what to test.": "说明要测试什么。",
+    "Write the question.": "写下问题。",
+    "{count} changes, only here so far. What's running hasn't changed.": {
+      "other": "有 {count} 处改动，目前只在这里。正在运行的内容没有变化。"
+    },
+    "{count} changes, only here so far. ⌘S keeps them, ⌘Z steps back.": {
+      "other": "有 {count} 处改动，目前只在这里。⌘S 保留改动，⌘Z 后退一步。"
+    },
+    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "无法打开你的流程文件。它未被改动，在能打开之前不会运行或保存任何内容。",
+    "It needs {name}, which isn't here now. Nothing was done, and it goes on by itself once it's back.": "它需要 {name}，目前不在。未做任何事，恢复后自动继续。",
+    "Waiting for {name}. Nothing was done, and it goes on by itself once it's back.": "正在等待 {name}。未做任何事，恢复后自动继续。",
+    "Working: {how}": "进行中：{how}"
   }
 }
