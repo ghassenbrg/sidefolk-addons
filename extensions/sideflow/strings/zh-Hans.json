@@ -873,8 +873,11 @@
     "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "Sidefolk 没有说明监视是否已恢复。如果没有触发，请暂停后再恢复。",
     "There's already a card up from Sideflow. Answer that, then try this again.": "Sideflow 已有一张卡片。请先回答，再试一次。",
     "There's no other one flow called “{name}”. Pick it again.": "没有唯一名为“{name}”的其他流程。请重新选择。",
-    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "无法打开你的流程文件。它未被改动，在能打开之前不会运行或保存任何内容。",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} 已在运行或被暂缓，由它自己的规则决定。",
-    "“{name}” has to be on for this step to run. It can practice without that.": "“{name}”必须开启，此步骤才能运行。练习不需要开启。"
+    "“{name}” has to be on for this step to run. It can practice without that.": "“{name}”必须开启，此步骤才能运行。练习不需要开启。",
+    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "旧的监视没有停止，因此未创建新的监视。请再次开启。",
+    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "旧的监视没有停止。它不再启动此流程；请再次开启以停止它。",
+    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "无法打开你的流程文件。它未被改动，在能打开且 Sidefolk 重新启动之前不会运行或保存任何内容。",
+    "{flow} was already running, so it didn't start": "{flow} 已在运行，因此没有启动。"
   }
 }

@@ -144,7 +144,7 @@ extension Engine {
     }
 
     func calling(_ step: Step, flow name: String, inputs: [String: String], in run: inout Run) -> Bool {
-        guard let other = store.named(name), other.id != run.flow, !run.lineage.contains(other.id) else {
+        guard let other = store.named(name, forRun: run.id), other.id != run.flow, !run.lineage.contains(other.id) else {
             return failed(step, why: L("“{name}” can't be called from here: there's no other flow by that name, or it would end up calling itself.", ["name": name]), reads: false, in: &run)
         }
         guard run.lineage.count < Self.deepestCalls else {
@@ -228,7 +228,7 @@ extension Engine {
 
     /// What the person answered, on the page. Once: a second press finds nothing waiting.
     func answer(run id: String, form answers: [String: JSON]) throws {
-        guard var run = store.run(id), let waiting = run.form, run.status == .waiting,
+        guard var run = store.run(id), let waiting = run.form, run.status == .waiting, !store.isHeldBack(flow: run.flow),
               let step = run.body.step(waiting.step), case .form(let form) = step.kind else { throw Problem(L("That form has been answered already.")) }
         var kept: [String: JSON] = [:]
         for field in form.fields {
@@ -320,7 +320,7 @@ extension Engine {
 
     /// Runs waiting for this: each goes on once, because the next time it's no longer at this step.
     func wakeWaiting(name: String, words: String) {
-        for var run in store.unfinished() where run.status == .waiting && run.resumeAt != nil {
+        for var run in store.unfinished() where run.status == .waiting && run.resumeAt != nil && !store.isHeldBack(flow: run.flow) {
             let program = FlowProgram(run.body)
             guard run.pc < program.ops.count, case .step(let step) = program.ops[run.pc], case .waitFor(let event, let contains, _) = step.kind, event == name else { continue }
             if let contains, words.range(of: contains, options: [.caseInsensitive, .diacriticInsensitive]) == nil { continue }

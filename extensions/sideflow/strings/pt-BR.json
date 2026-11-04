@@ -885,8 +885,11 @@
     "Sidefolk didn't say whether its watch started again. If it doesn't fire, pause and resume it.": "O Sidefolk não disse se a vigilância voltou. Se ela não disparar, pause e retome.",
     "There's already a card up from Sideflow. Answer that, then try this again.": "Já há um cartão do Sideflow aberto. Responda e tente de novo.",
     "There's no other one flow called “{name}”. Pick it again.": "Não há uma única outra rotina chamada “{name}”. Escolha-a de novo.",
-    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be.": "O arquivo das suas rotinas não abre. Ele está intacto, e nada roda nem salva até que abra.",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} já estava rodando ou retida, então a regra dela decide.",
-    "“{name}” has to be on for this step to run. It can practice without that.": "“{name}” precisa estar ligada para esta etapa rodar. A prática funciona sem isso."
+    "“{name}” has to be on for this step to run. It can practice without that.": "“{name}” precisa estar ligada para esta etapa rodar. A prática funciona sem isso.",
+    "Its old watch didn't stop, so it hasn't made the new one. Try turning it on again.": "A vigilância antiga não parou, então a nova não foi criada. Tente ligar de novo.",
+    "Its old watch didn't stop. It no longer sets this flow off; try turning it on again to stop it.": "A vigilância antiga não parou. Ela não inicia mais esta rotina; ligue de novo para pará-la.",
+    "Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.": "O arquivo das suas rotinas não abre. Ele está intacto, e nada roda nem salva até que abra e o Sidefolk reinicie.",
+    "{flow} was already running, so it didn't start": "{flow} já estava rodando, então não começou."
   }
 }

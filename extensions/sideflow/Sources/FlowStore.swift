@@ -21,21 +21,33 @@ import SidefolkExtensionKit
     private var goneRuns: Set<String> = []
     /// The flows file is there and can't be read or moved aside: nothing writes over it.
     private var flowsFileHeld = false
+    private var renames: [(old: String, new: String, runs: Set<String>)] = []
+    /// A flows file was put aside, this time or an earlier one: runs of flows it held may yet have them back.
+    private var hasFileAside = false
 
     var unreadableCount: Int { unreadable.count }
 
-    /// The flows themselves can't be known now: nothing runs from them until they can.
-    var flowsUnavailable: Bool { flowsFileHeld || damagedFile != nil }
-
     var flowsFileIsHeld: Bool { flowsFileHeld }
 
-    /// A flow that's there and can't be read now, as opposed to one that's gone.
+    /// A flow that's there and can't be read now, as opposed to one that's gone. Only ever one the store hasn't got: what it has, it can run.
     func isHeldBack(flow id: String) -> Bool {
-        flowsUnavailable || unreadable.contains { ($0 as? [String: Any])?["id"] as? String == id }
+        if unreadable.contains(where: { ($0 as? [String: Any])?["id"] as? String == id }) { return true }
+        return flowsById[id] == nil && (flowsFileHeld || hasFileAside)
+    }
+
+    /// The flow a step names, as this run would know it: a rename since it started doesn't lose it, and a new flow taking the old name doesn't catch it.
+    func named(_ name: String, forRun run: String) -> Flow? {
+        var current = name
+        for rename in renames where rename.runs.contains(run) && current.trimmed.compare(rename.old.trimmed, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame {
+            current = rename.new
+        }
+        return named(current)
     }
 
     /// Whatever a flow was called in the steps that name it, in what's kept and what's running: it's the same flow.
     func rewriteCalls(from old: String, to name: String, except id: String) {
+        // A run mid-step holds its own copy and its next save puts the old words back, so what it's calling goes by this too.
+        renames.append((old: old, new: name, runs: Set(unfinished().map(\.id))))
         for var other in flows() where other.id != id {
             let was = other
             other.draft = other.draft.calling(old, instead: name)
@@ -76,6 +88,7 @@ import SidefolkExtensionKit
                 let aside = folder.appendingPathComponent("flows-damaged-\(Int(Date().timeIntervalSince1970)).json")
                 if (try? fm.moveItem(at: flowsFile, to: aside)) != nil {
                     damagedFile = aside
+                    hasFileAside = true
                 } else {
                     flowsFileHeld = true
                     flowsNotSaved = true
@@ -87,6 +100,7 @@ import SidefolkExtensionKit
                   let raw = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any], let run = Self.run(raw) else { continue }
             runsById[run.id] = run
         }
+        if ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).contains(where: { $0.hasPrefix("flows-damaged-") }) { hasFileAside = true }
         if let data = try? Data(contentsOf: stopsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] {
             stopsAsked = Set(list.filter { runsById[$0]?.status.isOver == false })
         }

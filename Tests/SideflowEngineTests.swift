@@ -1200,7 +1200,7 @@ extension JSON {
     }
 
     @Test func aResumeNobodyAnsweredMakesNoSecondWatch() async throws {
-        for status in [Actions.Outcome.Status.denied, .unanswered, .lost] {
+        for status in [Actions.Outcome.Status.denied, .unanswered, .lost, .failed, .error] {
             let w = try World()
             var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .paused)
             flow.watchTitle = "T"
@@ -1352,3 +1352,245 @@ extension JSON {
         #expect(w.store.flow(flow.id)?.startProblem != nil)
     }
 }
+
+/// What the fourth read found.
+@MainActor @Suite(.serialized) struct SideflowFifthPassTests {
+    typealias World = SideflowTests.World
+
+    private func damaged(_ w: World) throws {
+        try Data("this isn't a list".utf8).write(to: w.folder.appendingPathComponent("flows.json"))
+        w.restart()
+    }
+
+    @Test func afterADamagedFileNewFlowsRunAsAnyWould() async throws {
+        let w = try World()
+        try damaged(w)
+        #expect(w.store.damagedFile != nil)
+        let flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "schedule", "every_minutes": 60])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "not stuck running for the rest of the launch")
+        #expect(!w.engine.isRunning(flow.id))
+        w.now = w.now.addingTimeInterval(61 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.runs(of: flow.id).count == 2, "its schedule fires too")
+    }
+
+    @Test func runsOfFlowsInADamagedFileWaitForItAcrossLaunches() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "wait_minutes": 60], ["id": "b", "do": "changes.it", "with": ["text": "x"]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let good = try Data(contentsOf: w.folder.appendingPathComponent("flows.json"))
+        try damaged(w)
+        w.engine.recover()
+        w.now = w.now.addingTimeInterval(7200)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .waiting)
+        // Launched again, with the file still aside: it hasn't turned into "gone".
+        _ = try w.flow([["id": "n", "text": "new"]])
+        w.restart()
+        w.engine.recover()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .waiting)
+        #expect(w.host.calls.isEmpty)
+        // Put back, it picks up.
+        var list = try #require(try JSONSerialization.jsonObject(with: good) as? [[String: Any]])
+        list.append(contentsOf: try JSONSerialization.jsonObject(with: Data(contentsOf: w.folder.appendingPathComponent("flows.json"))) as? [[String: Any]] ?? [])
+        try JSONSerialization.data(withJSONObject: list).write(to: w.folder.appendingPathComponent("flows.json"))
+        w.restart()
+        w.engine.recover()
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .done)
+    }
+
+    @Test func withTheFileHeldNothingStarts() throws {
+        let w = try World()
+        let file = w.folder.appendingPathComponent("flows.json")
+        try Data("mine".utf8).write(to: file)
+        try FileManager.default.setAttributes([.posixPermissions: 0o000], ofItemAtPath: file.path)
+        defer { try? FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: file.path) }
+        w.restart()
+        let flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "schedule", "every_minutes": 60])
+        #expect(w.engine.start(flow, mode: .live, why: "t") == nil)
+        #expect(!w.engine.isRunning(flow.id))
+        #expect(w.store.runs(of: flow.id).isEmpty)
+    }
+
+    @Test func aHeldBackRunIsntMovedByAnyoneAndKeepsItsReason() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "f", "form": ["title": "Q", "fields": [["name": "a", "kind": "text"]]]], ["id": "b", "text": "x"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let file = w.folder.appendingPathComponent("flows.json")
+        var list = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [[String: Any]])
+        list[0]["draft"] = ["trigger": ["type": "from_the_future"], "steps": []]
+        try JSONSerialization.data(withJSONObject: list).write(to: file)
+        w.restart()
+        #expect(throws: Problem.self) { try w.engine.answer(run: run.id, form: ["a": .string("x")]) }
+        w.engine.proceed(run.id, .carry_on)
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .waiting)
+        #expect(w.store.run(run.id)?.form != nil)
+    }
+
+    @Test func aStopThatFailedOnApplyMakesNoSecondWatch() async throws {
+        for status in [Actions.Outcome.Status.lost, .failed, .denied] {
+            let w = try World()
+            let trigger: [String: Any] = ["type": "watch", "kind": "url_change", "target": "https://x.example"]
+            var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: trigger)
+            flow.watchTitle = "T"
+            flow.draft = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://y.example"], "steps": [["id": "a", "do": "reads.it"]]])
+            w.store.save(flow)
+            w.host.answers["watch.stop"] = [Actions.Outcome(status: status, text: "")]
+            w.engine.turnOn(flow.id)
+            await w.quiet()
+            #expect(!w.host.calls.contains { $0.tool == "watch.create" }, "\(status)")
+            let after = try #require(w.store.flow(flow.id))
+            #expect(after.state == .paused)
+            #expect(after.startProblem != nil)
+            #expect(after.watchTitle == "T")
+        }
+    }
+
+    @Test func aBusyStopOnApplyWaitsAndGoesOn() async throws {
+        let w = try World()
+        w.engine.busyPause = 0
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "T"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://y.example"], "steps": [["id": "a", "do": "reads.it"]]])
+        w.store.save(flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .busy, text: "")]
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.host.calls.filter { $0.tool == "watch.stop" }.count == 2)
+        #expect(w.host.calls.filter { $0.tool == "watch.create" }.count == 1)
+        #expect(w.store.flow(flow.id)?.state == .on)
+    }
+
+    @Test func aWatchThatsAlreadyGoneLetsTheNameGo() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "T"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "do": "reads.it"]]])
+        w.store.save(flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "gone", notFound: true)]
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.watchTitle == nil)
+        #expect(w.store.flow(flow.id)?.startProblem == nil)
+    }
+
+    @Test func anOldWatchNoLongerSetsOffAFlowThatStoppedBeingOne() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "schedule", "every_minutes": 60])
+        flow.watchTitle = "T"
+        w.store.save(flow)
+        w.engine.watchFired(title: "T", summary: "changed")
+        await w.quiet()
+        #expect(w.store.runs(of: flow.id).isEmpty)
+    }
+
+    @Test func aResumeThatFoundNothingMakesItAgain() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .paused)
+        flow.watchTitle = "T"
+        w.store.save(flow)
+        w.host.answers["watch.resume"] = [Actions.Outcome(status: .failed, text: "gone", notFound: true)]
+        w.engine.resume(flow.id)
+        await w.quiet()
+        #expect(w.host.calls.filter { $0.tool == "watch.create" }.count == 1)
+        #expect(w.store.flow(flow.id)?.state == .on)
+    }
+
+    @Test func aResumeNothingCameOfSaysPausedNotOn() async throws {
+        for status in [Actions.Outcome.Status.denied, .unanswered] {
+            let w = try World()
+            var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .paused)
+            flow.watchTitle = "T"
+            w.store.save(flow)
+            w.host.answers["watch.resume"] = [Actions.Outcome(status: status, text: "No")]
+            w.engine.resume(flow.id)
+            await w.quiet()
+            #expect(w.store.flow(flow.id)?.state == .paused, "\(status)")
+        }
+    }
+
+    @Test func endingAPlanLeavesPracticeAloneAndStopsWhatRanTheEndedBody() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "w", "wait_minutes": 60]])
+        // A practice's wait is pretended, so its stop would show in nothing: hold it on a form it pretends too, and look at what's stopped.
+        var practice = Run(id: "p", flow: flow.id, flowName: flow.name, mode: .practice, status: .waiting, why: "t", startedAt: w.now, body: flow.draft)
+        practice.resumeAt = w.now.addingTimeInterval(9000)
+        w.store.save(practice)
+        var once = Run(id: "o", flow: flow.id, flowName: flow.name, mode: .once, status: .waiting, why: "t", startedAt: w.now, body: flow.running)
+        once.resumeAt = w.now.addingTimeInterval(9000)
+        w.store.save(once)
+        var older = Run(id: "s", flow: flow.id, flowName: flow.name, mode: .once, status: .waiting, why: "t", startedAt: w.now, body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "z", "text": "old"]]]))
+        older.setOff = true
+        older.resumeAt = w.now.addingTimeInterval(9000)
+        w.store.save(older)
+        w.engine.planEnded(flow.id)
+        await w.quiet()
+        #expect(w.store.run("p")?.status == .waiting, "practice changes nothing")
+        #expect(w.store.run("o")?.status == .stopped, "it ran the body they just ended")
+        #expect(w.store.run("s")?.status == .stopped, "set off, on an older one")
+    }
+
+    @Test func aRenameReachesARunInTheMiddleOfAStep() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", mutates: false, readsOnly: true)]))
+        let plain = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x"]]])
+        var target = app.newFlow(name: "Report", body: plain)
+        target.live = plain
+        target.state = .on
+        app.store.save(target)
+        var caller = app.newFlow(name: "Caller", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "r", "do": "reads.it"], ["id": "c", "run_flow": "Report"]]]))
+        caller.live = caller.draft
+        caller.state = .on
+        app.store.save(caller)
+        w.host.hold = "reads.it"
+        w.host.honoursCancel = true
+        w.host.releaseQuietly = true
+        let run = try #require(app.engine.start(caller, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        try app.rename(&target, to: "Daily")
+        app.store.save(target)
+        // Someone takes the old name, and the walk comes back from its step.
+        var impostor = app.newFlow(name: "Report", body: plain)
+        impostor.live = plain
+        impostor.state = .on
+        app.store.save(impostor)
+        w.host.cancel(run: run.id)
+        await w.quiet(app.store)
+        #expect(app.store.run(run.id)?.status == .done, "\(app.store.run(run.id)?.problem ?? "")")
+        #expect(app.store.runs(of: target.id).count == 1, "the flow it meant")
+        #expect(app.store.runs(of: impostor.id).isEmpty, "not the one that took its name")
+    }
+
+    @Test func aFlowWithAPlanBehindItStaysOn() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "b", "ai": "Write"]], trigger: ["type": "schedule", "every_minutes": 60])
+        w.catalog.use(Actions.Listing(tools: [], plans: [Plans.Standing(id: flow.planId, title: flow.name, standing: [])]))
+        w.engine.pauseWhatNobodyRead()
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.state == .on)
+    }
+
+    @Test func aDraftsSetOffThatFoundItBusySaysItDidntStart() async throws {
+        let w = try World()
+        w.host.hold = "reads.it"
+        var target = try w.flow([["id": "a", "do": "reads.it"]])
+        target.name = "T"
+        w.store.save(target)
+        _ = try #require(w.engine.start(target, mode: .live, why: "busy"))
+        await w.quiet()
+        let run = await w.settled(w.engine.start(try w.flow([["id": "go", "run_flow": "T"]], state: .draft), mode: .once, why: "t"))
+        #expect(run?.record(of: "go")?.summary.contains("didn't start") == true)
+    }
+}
+

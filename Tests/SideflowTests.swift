@@ -19,6 +19,11 @@ import SidefolkExtensionKit
         var decision: Actions.Check.Decision = .allow
         /// Held until released: a call in the air, for a stop in the middle.
         var hold: String?
+        /// Let go when `cancel` is called, as a tool told to stop or, with `releaseQuietly`, one that simply finished.
+        var honoursCancel = false
+        var releaseQuietly = false
+        var cancelled = false
+        func cancel(run: String) { cancelled = true }
         var written: [String] = []
         /// What they answer when a stopped run asks the way forward: by default nobody does.
         var wayForward: String?
@@ -38,7 +43,12 @@ import SidefolkExtensionKit
             }
             calls.append((tool, input, plan))
             if tool == hold {
-                try? await Task.sleep(for: .seconds(3600))
+                if honoursCancel {
+                    while !cancelled { try? await Task.sleep(for: .milliseconds(5)) }
+                    if !releaseQuietly { return Actions.Outcome(status: .failed, text: "Stopped", summary: "") }
+                } else {
+                    try? await Task.sleep(for: .seconds(3600))
+                }
             }
             if var list = answers[tool], !list.isEmpty {
                 let first = list.removeFirst()
@@ -269,7 +279,7 @@ import SidefolkExtensionKit
         flow.watchTitle = "Gone · Sideflow"
         flow.state = .paused
         w.store.save(flow)
-        w.host.answers["watch.resume"] = [Actions.Outcome(status: .failed, text: "a watcher called “Gone”", summary: "")]
+        w.host.answers["watch.resume"] = [Actions.Outcome(status: .failed, text: "a watcher called “Gone”", summary: "", notFound: true)]
         w.engine.resume(flow.id)
         await w.quiet()
         #expect(w.host.calls.map(\.tool).contains("watch.create"))

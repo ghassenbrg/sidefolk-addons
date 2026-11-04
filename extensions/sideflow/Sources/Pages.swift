@@ -77,7 +77,7 @@ import SidefolkExtensionKit
     static func storeWarnings(_ app: App) -> [Section] {
         var notes: [Block] = []
         if app.store.flowsFileIsHeld {
-            notes.append(.note(L("Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be."), tone: .bad))
+            notes.append(.note(L("Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again."), tone: .bad))
         } else if app.store.flowsNotSaved { notes.append(.note(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits."), tone: .bad)) }
         if let aside = app.store.damagedFile { notes.append(.note(L("Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.", ["file": aside.lastPathComponent]), tone: .bad)) }
         if app.store.unreadableCount > 0 { notes.append(.note(L(one: "{count} flow can't be read by this version. It's kept, not shown.", other: "{count} flows can't be read by this version. They're kept, not shown.", count: app.store.unreadableCount), tone: .warn)) }
