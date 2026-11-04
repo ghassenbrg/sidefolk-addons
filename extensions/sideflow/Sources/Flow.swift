@@ -227,7 +227,7 @@ enum FlowCodec {
         try only(o, ["trigger", "steps"], in: "flow")
         var used = Set<String>()
         let made = FlowBody(trigger: try trigger(o["trigger"], saved: saved), steps: try steps(o["steps"] ?? [], depth: saved ? -64 : 1, used: &used))
-        if made.allSteps.count > FlowBody.maxSteps {
+        if !saved, made.allSteps.count > FlowBody.maxSteps {
             throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))
         }
         return made
@@ -294,6 +294,8 @@ enum FlowCodec {
     }
 
     static func step(_ any: Any, depth: Int, used: inout Set<String>) throws -> Step {
+        // Read back from disk, where `body` starts the depth below any limit: what a page saved as it went is kept and marked, never refused.
+        let saved = depth < 0
         guard let o = any as? [String: Any] else { throw Problem(L("Each step is an object.")) }
         try only(o, ["id", "name", "on_failure", "do", "with", "ai", "ask", "options", "text", "if", "then", "else", "wait_minutes", "run_flow"], in: "step")
         let kinds = ["do", "ai", "ask", "text", "if", "wait_minutes", "run_flow"].filter { o[$0] != nil }
@@ -317,9 +319,9 @@ enum FlowCodec {
         if let tool = o["do"] as? String {
             guard let input = (o["with"] ?? [String: Any]()) as? [String: Any] else { throw Problem(L("“with” is an object of the tool's values.")) }
             kind = .action(tool: tool, input: input.mapValues { JSON($0) })
-        } else if let prompt = (o["ai"] as? String)?.nonEmpty {
+        } else if let prompt = o["ai"] as? String, saved || !prompt.trimmed.isEmpty {
             kind = .ai(prompt: prompt)
-        } else if let question = (o["ask"] as? String)?.nonEmpty {
+        } else if let question = o["ask"] as? String, saved || !question.trimmed.isEmpty {
             let options = o["options"] as? [String] ?? []
             guard options.isEmpty || (2...4).contains(options.count) else { throw Problem(L("“options” are 2 to 4 answers, or none to let them type.")) }
             kind = .ask(question: question, options: options)
@@ -336,7 +338,7 @@ enum FlowCodec {
                 throw Problem(L("A wait is 1 to {count} minutes.", ["count": Format.integer(FlowBody.longestWait)]))
             }
             kind = .wait(minutes: minutes)
-        } else if let name = (o["run_flow"] as? String)?.nonEmpty {
+        } else if let name = o["run_flow"] as? String, saved || !name.trimmed.isEmpty {
             kind = .flow(name)
         } else {
             throw Problem(L("A step does one thing: do, ai, ask, text, if, wait_minutes or run_flow."))

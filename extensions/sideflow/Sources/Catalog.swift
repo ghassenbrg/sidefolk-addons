@@ -95,9 +95,29 @@ extension FlowBody {
         }
     }
 
+    /// A step that says nothing: a page saves as it goes, so it can be halfway through being written.
+    var blank: String? {
+        for step in allSteps {
+            switch step.kind {
+            case .ai(let prompt) where prompt.trimmed.isEmpty: return L("Say what to write.")
+            case .ask(let question, _) where question.trimmed.isEmpty: return L("Say what to ask.")
+            case .flow(let name) where name.trimmed.isEmpty: return L("Pick which flow to run.")
+            default: break
+            }
+        }
+        return nil
+    }
+
+    /// What keeps it from going on, whoever asks.
+    var unfinished: String? {
+        if allSteps.count > FlowBody.maxSteps { return L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]) }
+        return blank
+    }
+
     @MainActor func problems(_ catalog: Catalog) -> [FlowProblem] {
         var out: [FlowProblem] = []
         if steps.isEmpty { out.append(FlowProblem(step: nil, text: L("It has no steps yet."))) }
+        if allSteps.count > FlowBody.maxSteps { out.append(FlowProblem(step: nil, text: L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))) }
         if let wrong = triggerProblem { out.append(FlowProblem(step: nil, text: wrong)) }
         let actions = Engine.planSteps(self, title: "").count
         if actions > Plans.maxSteps {
@@ -132,8 +152,12 @@ extension FlowBody {
                             out.append(FlowProblem(step: step.id, text: L("“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.", ["tool": tool])))
                         }
                     }
-                case .ai(let prompt): refs([prompt], step, seen: seen)
-                case .ask(let question, _): refs([question], step, seen: seen)
+                case .ai(let prompt):
+                    if prompt.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say what to write."))) }
+                    refs([prompt], step, seen: seen)
+                case .ask(let question, _):
+                    if question.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say what to ask."))) }
+                    refs([question], step, seen: seen)
                 case .text(let text): refs([text], step, seen: seen)
                 case .branch(let c, let then, let otherwise):
                     // Looking at something only one path made is how a flow asks whether it ran: only that test may.

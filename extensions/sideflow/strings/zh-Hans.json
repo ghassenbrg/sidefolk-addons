@@ -555,6 +555,10 @@
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "无法读取你的流程文件，因此已另存为 {file}，你将从空白开始。",
     "{count} flows can't be read by this version. They're kept, not shown.": {
       "other": "此版本无法读取 {count} 个流程。它们已保留，但不显示。"
-    }
+    },
+    "Say what to ask.": "说明要问什么。",
+    "Say what to write.": "说明要写什么。",
+    "It didn't start.": "它没有启动。",
+    "It has a step that says nothing, so it's paused until that's fixed.": "它有一个没有内容的步骤，因此在修复前已暂停。"
   }
 }

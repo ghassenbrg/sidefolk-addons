@@ -560,6 +560,10 @@
     "{count} flows can't be read by this version. They're kept, not shown.": {
       "one": "Questa versione non può leggere {count} routine. È conservata, ma non mostrata.",
       "other": "Questa versione non può leggere {count} routine. Sono conservate, ma non mostrate."
-    }
+    },
+    "Say what to ask.": "Di' cosa chiedere.",
+    "Say what to write.": "Di' cosa scrivere.",
+    "It didn't start.": "Non è partita.",
+    "It has a step that says nothing, so it's paused until that's fixed.": "Ha un passaggio che non dice nulla, quindi resta in pausa finché non viene corretto."
   }
 }

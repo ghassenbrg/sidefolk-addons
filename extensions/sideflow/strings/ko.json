@@ -555,6 +555,10 @@
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "루틴 파일을 읽지 못해 {file}(으)로 따로 보관했으며, 루틴 없이 시작합니다.",
     "{count} flows can't be read by this version. They're kept, not shown.": {
       "other": "이 버전에서 읽을 수 없는 루틴이 {count}개 있습니다. 보관되어 있지만 표시되지 않습니다."
-    }
+    },
+    "Say what to ask.": "무엇을 물을지 정하세요.",
+    "Say what to write.": "무엇을 쓸지 정하세요.",
+    "It didn't start.": "시작하지 않았습니다.",
+    "It has a step that says nothing, so it's paused until that's fixed.": "내용이 없는 단계가 있어 고칠 때까지 일시 중지됩니다."
   }
 }

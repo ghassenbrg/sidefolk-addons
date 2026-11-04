@@ -15,7 +15,12 @@ import SidefolkExtensionKit
         /// Changes the draft and looks again at what Guard would say of it.
         func draft(_ change: (inout FlowBody) throws -> Void) throws {
             var f = try flow()
+            let stepsBefore = f.draft.allSteps.count
             try change(&f.draft)
+            // Here, where it can be said. Only for an edit that grows it: one already past the limit can always be brought back under.
+            if f.draft.allSteps.count > FlowBody.maxSteps, f.draft.allSteps.count > stepsBefore {
+                throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))
+            }
             guard f.draft.depth <= FlowBody.maxDepth else { throw Problem(L("An “if” can hold another “if”, but no deeper.")) }
             app.store.save(f)
             app.refreshPreflight(f.id)

@@ -555,6 +555,10 @@
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "ルーティンのファイルを読み込めなかったため、{file} として別に保管し、空の状態から始めます。",
     "{count} flows can't be read by this version. They're kept, not shown.": {
       "other": "{count} 件のルーティンはこのバージョンでは読み込めません。保管されていますが表示されません。"
-    }
+    },
+    "Say what to ask.": "何を尋ねるか指定してください。",
+    "Say what to write.": "何を書くか指定してください。",
+    "It didn't start.": "開始しませんでした。",
+    "It has a step that says nothing, so it's paused until that's fixed.": "内容のないステップがあるため、直すまで一時停止しています。"
   }
 }

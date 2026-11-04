@@ -111,6 +111,7 @@ import SidefolkExtensionKit
             let flow = try app.flow(named: try args.required("flow"))
             guard flow.hasChanges || flow.live == nil else {
                 app.engine.resume(flow.id)
+                if app.store.flow(flow.id)?.state != .on { throw Problem(app.store.flow(flow.id)?.startProblem ?? L("It didn't start.")) }
                 return L("“{name}” is running by itself again.", ["name": flow.name])
             }
             if let refused = await asking(flow.id, app) { throw Problem(refused) }
