@@ -196,6 +196,10 @@ import SidefolkExtensionKit
             } else if let other = store.find(name), other.id != run.flow, other.state == .on {
                 // Each keeps to its own, and the runaway stop counts every start, so two can't set each other off for ever.
                 _ = start(other, mode: .live, why: L("{flow} set it off.", ["flow": run.flowName]))
+                // Starting it can be what pauses it: too often, or a step that says nothing. One waiting its turn is still on.
+                guard store.flow(other.id)?.state == .on else {
+                    return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
+                }
                 run.record(.init(step: step.id, status: .done, summary: L("Ran {flow}", ["flow": other.name]), at: clock()))
             } else {
                 return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)

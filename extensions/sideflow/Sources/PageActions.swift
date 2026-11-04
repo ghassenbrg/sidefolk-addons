@@ -221,6 +221,8 @@ import SidefolkExtensionKit
             app.history[f.id, default: Editing.History()].record(f.draft, key: nil, at: Date())
             f.draft = kept
             f.saved = nil
+            // Back to what's running: what stopped an edit going on is no longer anything to fix.
+            if f.state == .on, !f.hasChanges, !f.watchOutdated { f.startProblem = nil }
             app.store.save(f)
             app.refreshPreflight(f.id)
         case "back_to_live":

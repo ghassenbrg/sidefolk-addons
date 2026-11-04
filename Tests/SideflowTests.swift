@@ -1794,6 +1794,34 @@ import SidefolkExtensionKit
         #expect(run?.status == .done, "it was read on a card, and each action is still checked")
     }
 
+    @Test func aRunDoesntSayItRanAFlowThatDidnt() async throws {
+        let w = try World()
+        var other = try w.flow([["id": "z", "text": "x"]])
+        other.name = "Other"
+        other.draft = FlowBody(steps: [Step(id: "a", kind: .ai(prompt: ""))])
+        other.live = other.draft
+        w.store.save(other)
+        let flow = try w.flow([["id": "a", "run_flow": "Other"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .failed)
+        #expect(run?.records.contains { $0.summary.hasPrefix("Ran") } == false)
+        #expect(w.store.flow(other.id)?.state == .paused)
+    }
+
+    @Test func discardingBackToWhatsRunningClearsARefusalsNote() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "a", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .on
+        flow.startProblem = "Say what to write."
+        app.store.save(flow)
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "discard", flow)
+        #expect(app.store.flow(flow.id)?.hasChanges == false)
+        #expect(app.store.flow(flow.id)?.startProblem == nil)
+    }
+
     @Test func aRefusalsNoteGoesOnceItsFixed() async throws {
         let w = try World()
         var flow = try w.flow([["id": "a", "text": "x"]], state: .paused)
