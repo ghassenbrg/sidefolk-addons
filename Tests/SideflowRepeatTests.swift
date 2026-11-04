@@ -7,6 +7,18 @@ import SidefolkExtensionKit
 @MainActor @Suite(.serialized) struct SideflowRepeatTests {
     typealias World = SideflowTests.World
 
+    @Test func itWontSendAgainWhatItCantSeeInsideALoopOrLane() async throws {
+        for inner: [String: Any] in [["id": "each", "for_each": "a\nb", "steps": [["id": "send", "do": "changes.it", "with": ["text": "x"]]]],
+                                     ["id": "both", "parallel": [["name": "one", "steps": [["id": "send", "do": "changes.it", "with": ["text": "x"]]]], ["name": "two", "steps": [["id": "o", "text": "o"]]]]]] {
+            let w = try World()
+            let flow = try w.flow([["id": "again", "repeat": [inner], "until": ["value": "{{send}}", "test": "contains", "than": "done"], "times": 3]])
+            let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+            #expect(run?.status != .done)
+            let sent = w.host.calls.filter { $0.tool == "changes.it" }.count
+            #expect(sent == (inner["for_each"] == nil ? 1 : 2), "one go's worth, never another go")
+        }
+    }
+
     private func again(until: String = "ready", times: Int = 5, extra: [String: Any] = [:], steps: [[String: Any]] = [["id": "look", "do": "reads.it", "name": "Look"]]) -> [String: Any] {
         var step: [String: Any] = ["id": "again", "repeat": steps, "until": ["value": "{{look}}", "test": "contains", "than": until], "times": times]
         step.merge(extra) { _, new in new }
