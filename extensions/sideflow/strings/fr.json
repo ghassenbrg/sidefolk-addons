@@ -898,6 +898,7 @@
     "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "Il regarde « {name} », absent cette fois : impossible de savoir quel chemin prendre.",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "Il utilise « {name} », que cette étape ne donne pas. Il a peut-être été renommé.",
     "There's no other flow to run yet.": "Il n'y a pas encore d'autre routine à lancer.",
-    "{when}, by the clock of {zone}": "{when}, à l'heure de {zone}"
+    "{when}, by the clock of {zone}": "{when}, à l'heure de {zone}",
+    "Only the first {count} goes can be picked here.": "Seuls les {count} premiers passages peuvent être choisis ici."
   }
 }

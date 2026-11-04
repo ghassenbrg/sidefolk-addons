@@ -208,7 +208,7 @@ extension Engine {
         }
         let result: JSON
         if case .parallel(let list) = step.kind {
-            result = .object(Dictionary(zip(list, children).map { (Self.key($0.name), $1.answer) }, uniquingKeysWith: { a, _ in a }))
+            result = .object(Dictionary(zip(Self.keys(list), children).map { ($0, $1.answer) }, uniquingKeysWith: { a, _ in a }))
         } else {
             result = children[0].answer
         }
@@ -228,7 +228,18 @@ extension Engine {
         return clean.isEmpty ? "lane" : String(clean.prefix(40))
     }
 
+    /// Each lane's own: two whose names come out the same would otherwise leave one result behind.
+    static func keys(_ lanes: [Step.Lane]) -> [String] {
+        var used = Set<String>()
+        return lanes.enumerated().map { at, lane in
+            let key = key(lane.name)
+            return used.insert(key).inserted ? key : { used.insert($0); return $0 }("\(key.prefix(36))_\(at + 1)")
+        }
+    }
+
     static let deepestCalls = 6
+    /// What a value filled into a form's title can come to: it's a heading, and the page has a limit.
+    static let longestFormTitle = 200
 
     // MARK: Forms
 
@@ -265,7 +276,7 @@ extension Engine {
         run.form = nil
         run.resumeAt = nil
         run.values.set(step.id, JSON.object(kept))
-        run.record(.init(step: step.id, status: .done, summary: form.title.nonEmpty ?? L("You answered"), output: JSONText.write(JSON.object(kept).any).clipped(Engine.keptOutput), at: clock()))
+        run.record(.init(step: step.id, status: .done, summary: run.values.fill(form.title).clipped(Self.longestFormTitle).nonEmpty ?? L("You answered"), output: JSONText.write(JSON.object(kept).any).clipped(Engine.keptOutput), at: clock()))
         run.pc += 1
         run.status = .running
         store.save(run)
@@ -284,7 +295,7 @@ extension Engine {
                 }
             }, uniquingKeysWith: { a, _ in a })
             run.values.set(step.id, JSON.object(sample))
-            run.record(.init(step: step.id, status: .would, summary: L("Would ask you to fill in: {title}", ["title": form.title]), at: clock()))
+            run.record(.init(step: step.id, status: .would, summary: L("Would ask you to fill in: {title}", ["title": run.values.fill(form.title).clipped(Self.longestFormTitle)]), at: clock()))
             run.pc += 1
             store.save(run)
             return true
@@ -293,12 +304,12 @@ extension Engine {
             // Back here with no answer: its time ran out.
             run.form = nil
             run.resumeAt = nil
-            return failed(step, why: L("Nobody filled in “{title}” in time.", ["title": run.values.fill(form.title)]), reads: false, in: &run)
+            return failed(step, why: L("Nobody filled in “{title}” in time.", ["title": run.values.fill(form.title).clipped(Self.longestFormTitle)]), reads: false, in: &run)
         }
         run.form = Run.WaitingForm(step: step.id)
         run.resumeAt = clock().addingTimeInterval(Double(form.hours) * 3600)
         run.status = .waiting
-        let filled = run.values.fill(form.title)
+        let filled = run.values.fill(form.title).clipped(Self.longestFormTitle)
         run.record(.init(step: step.id, status: .waiting, summary: L("Waiting for you to fill in: {title}", ["title": filled]), at: clock()))
         store.save(run)
         let (name, title) = (run.flowName, filled)

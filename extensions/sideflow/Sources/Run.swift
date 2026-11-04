@@ -157,7 +157,7 @@ struct FlowProgram {
         guard ops.indices.contains(pc) else { return pc + 1 }
         switch ops[pc] {
         case .loopStart(_, let end): return end + 1
-        case .choose(_, _, let otherwise):
+        case .choose(_, _, let otherwise), .branch(_, _, let otherwise):
             // Every path but the last way ends in a jump past them all.
             if otherwise > 0, case .jump(let end) = ops[otherwise - 1] { return end }
             return otherwise

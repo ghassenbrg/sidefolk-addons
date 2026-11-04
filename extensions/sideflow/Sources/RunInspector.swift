@@ -21,7 +21,7 @@ import SidefolkExtensionKit
         }
         blocks.append(.action(Action(L("Send"), tool: "ui", input: ui("form_send", ["run": run.id]), style: .primary, symbol: "paperplane")))
         let until = run.resumeAt.map { L("It waits until {time}.", ["time": Format.dateTime($0)]) }
-        return Section(run.values.fill(form.title).nonEmpty ?? L("A form for you"), blocks, place: .trailing, detail: until)
+        return Section(run.values.fill(form.title).clipped(Engine.longestFormTitle).nonEmpty ?? L("A form for you"), blocks, place: .trailing, detail: until)
     }
 
     /// What's selected on a run's tree: what it was given, what it made, how many tries, and why this and not another.
@@ -35,6 +35,8 @@ import SidefolkExtensionKit
         var blocks: [Block] = []
         if all.count > 1 {
             let options = all.compactMap { r in r.scope.map { ($0, L("Item {place} · {status}", ["place": $0, "status": recordWord(r)])) } }
+            // A menu holds so many: the rest are still in the run's story, and saying so beats a list that looks whole.
+            if options.count > 24 { blocks.append(.note(L("Only the first {count} goes can be picked here.", ["count": Format.integer(24)]))) }
             if !options.isEmpty { blocks.append(.picker(L("Which go"), style: .menu, options.map { Option($0.0, $0.1) }, selected: record.scope ?? "", tool: "ui", input: ui("inspect_scope", ["run": run.id, "step": id]))) }
         }
         var facts: [(String, String)] = [(L("How it went"), recordWord(record)), (L("When"), Format.dateTime(record.at))]

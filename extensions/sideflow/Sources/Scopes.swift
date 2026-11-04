@@ -142,7 +142,8 @@ struct DataStep: Equatable, Sendable {
             guard let found = at(value) else { throw Problem(L("It has no “{field}”.", ["field": field ?? ""])) }
             return found
         case .filter:
-            // What the page shows selected before anyone picks.
+            // What the page shows selected before anyone picks. Looking for nothing would look like an answer: an empty list.
+            if [nil, .contains, .not_contains].contains(test), resolved.trimmed.isEmpty { throw Problem(L("Say what to compare it with.")) }
             return .array(try list().filter { item in Condition.test(test ?? .contains, left: at(item).map(Values.text) ?? "", right: resolved) })
         case .sort:
             let sorted = try list().sorted { a, b in

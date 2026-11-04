@@ -41,6 +41,15 @@ struct Values: Equatable, Sendable {
         path.replacingOccurrences(of: "[", with: ".").replacingOccurrences(of: "]", with: "").split(separator: ".").map(String.init)
     }
 
+    /// What a tool answered: a record or a list if that's what the words are, so its fields can be read by name; words otherwise. Numbers and the like stay words, as they were said.
+    static func answer(_ text: String) -> JSON {
+        switch JSONText.read(text).map({ JSON($0) }) {
+        case .object(let o)?: .object(o)
+        case .array(let a)?: .array(a)
+        default: .string(text)
+        }
+    }
+
     /// What's at a path in a value, or nil when nothing is: a missing field isn't an empty one.
     static func walk(_ value: JSON, path: [String]) -> JSON? {
         var at = value
@@ -91,17 +100,35 @@ struct Values: Equatable, Sendable {
         }
     }
 
-    /// What a condition looks at that isn't there, so it can't decide. Asking whether a step ran at all is what "is empty" is for, and what wasn't given to a flow is the same;
-    /// a field missing from what a step did give is neither: filled in as nothing, a reply without `errors` would read as a reply saying there are none.
-    func undecided(_ condition: Condition) -> String? {
-        for check in condition.checks {
-            if check.test == .is_empty || check.test == .not_empty {
-                for (name, path) in Self.slots(check.value) where !path.isEmpty && name != "input" && resolve(name, path: "") != nil && resolve(name, path: path) == nil { return name + path }
-            } else if let name = missing(in: [check.value, check.than]).first {
-                return name
+    /// What one check can't answer from what's there. A record without a field has nothing there, and a step that gave nothing or never ran is the same, so "is empty" and "mentions" can say so.
+    /// Two things can't be said: that something isn't what it was never seen to be ("is not", "doesn't mention"), and anything about a field of plain words,
+    /// where "Service unavailable" would read as a reply saying there are no errors.
+    private func blind(_ check: Condition) -> String? {
+        let negative = check.test == .is_not || check.test == .not_contains
+        for (name, path) in Self.slots(check.value) + Self.slots(check.than) where name != "input" {
+            if Self.ambient.contains(name), path.isEmpty { continue }
+            guard let root = resolve(name, path: "") else {
+                if negative { return name + path }
+                continue
             }
+            guard !path.isEmpty, resolve(name, path: path) == nil else { continue }
+            var words = false
+            switch root {
+            case .object, .array, .null: break
+            default: words = !Self.text(root).isEmpty
+            }
+            if negative || words { return name + path }
         }
         return nil
+    }
+
+    /// What keeps a condition from deciding, if anything does: a check that can answer for all of them settles it, the first to hold in "any of", the first to fail in "all of".
+    func undecided(_ condition: Condition) -> String? {
+        let unknown = condition.checks.compactMap(blind)
+        guard let first = unknown.first else { return nil }
+        let known = condition.checks.filter { blind($0) == nil }
+        let settled = condition.any ? known.contains { $0.checkHolds(self) } : known.contains { !$0.checkHolds(self) }
+        return settled ? nil : first
     }
 
     /// What these words use that no step has made: a step on the path not taken, a field that isn't there. Filling it in as nothing would give a real action an empty value.

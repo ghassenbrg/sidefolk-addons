@@ -1490,7 +1490,7 @@ extension JSON {
         var flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "schedule", "every_minutes": 60])
         flow.watchTitle = "Test · Sideflow"
         w.store.save(flow)
-        w.engine.watchFired(title: "T", summary: "changed")
+        w.engine.watchFired(title: "Test · Sideflow", summary: "changed")
         await w.quiet()
         #expect(w.store.runs(of: flow.id).isEmpty)
     }

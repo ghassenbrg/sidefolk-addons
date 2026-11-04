@@ -46,7 +46,7 @@ struct Condition: Equatable, Sendable {
         return any ? one.contains(true) : !one.contains(false)
     }
 
-    private func checkHolds(_ values: Values) -> Bool {
+    func checkHolds(_ values: Values) -> Bool {
         Self.test(test, left: values.fill(value), right: values.fill(than))
     }
 

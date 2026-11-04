@@ -887,6 +887,7 @@
     "It looks at “{name}”, which isn't there this time, so it can't tell which way to go.": "它要查看“{name}”，但这次没有，因此无法判断走哪条路。",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "它使用了“{name}”，但那一步不提供它。可能已被重命名。",
     "There's no other flow to run yet.": "还没有其他可运行的流程。",
-    "{when}, by the clock of {zone}": "{when}（按 {zone} 时间）"
+    "{when}, by the clock of {zone}": "{when}（按 {zone} 时间）",
+    "Only the first {count} goes can be picked here.": "这里只能选择前 {count} 次。"
   }
 }
