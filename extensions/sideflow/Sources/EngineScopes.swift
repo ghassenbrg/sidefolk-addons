@@ -71,12 +71,13 @@ extension Engine {
             setItem(in: &run)
             run.records.removeAll { $0.step == step.id && $0.scope == "0" }
         }
-        // What it can't see won't change by asking again. Nor can it go round on a write that gave nothing, one carried on past or that may have happened: that could send it twice. A read that gave nothing is what a poll asks again.
-        let looksAt = Set(until.checks.flatMap { check in Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }.map(\.name))
-        // One inside a loop or lane in here is gone by now, whether it ran or not: going round can't ever make it answer, and may send it again.
-        let outOfSight = Set(inside.filter { switch $0.kind { case .forEach, .repeatUntil, .parallel: true; default: false } }.flatMap { holder in FlowBody(steps: [holder]).allSteps.dropFirst().map(\.id) })
-        let gaveNothing = inside.first { looksAt.contains($0.id) && !$0.reads(catalog) && (outOfSight.contains($0.id) || run.values.named[$0.id].map { Values.text($0).isEmpty } == true) }
-        if run.mode != .practice, let unknown = run.values.undecided(until) ?? (holds ? nil : gaveNothing?.id) {
+        // What it can't see won't change by asking again. Nor will going round make something appear when this go did something and what it looks at says nothing: gone with
+        // a loop inside, a misspelt name, a write that answered with nothing. It could only do it all again. A go that only read is what a poll asks again.
+        let looksAt = until.checks.flatMap { check in Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }
+        let saysNothing = run.frames[at].wrote ? looksAt.first { slot in
+            run.values.resolve(slot.name, path: slot.path).map { Condition.isBlank(Values.text($0).trimmed) } ?? true
+        }.map { $0.name + $0.path } : nil
+        if run.mode != .practice, let unknown = run.values.undecided(until) ?? (holds ? nil : saysNothing) {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
         }
@@ -96,6 +97,7 @@ extension Engine {
         run.frames[at].index = go
         if go < run.frames[at].items.count {
             for s in inside { run.values.named[s.id] = nil }
+            run.frames[at].wrote = false
             run.pc = run.frames[at].top
             setItem(in: &run)
             store.save(run)

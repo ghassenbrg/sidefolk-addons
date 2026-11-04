@@ -164,6 +164,15 @@ struct Step: Equatable, Sendable {
         }
     }
 
+    /// Whether doing it again would do something again. Another run counts, whatever it does.
+    @MainActor func doesSomething(_ catalog: Catalog) -> Bool {
+        switch kind {
+        case .action: !reads(catalog)
+        case .call, .parallel, .flow: true
+        default: false
+        }
+    }
+
     var usedTexts: [String] {
         switch kind {
         case .action(_, let input): input.values.flatMap(\.strings)
