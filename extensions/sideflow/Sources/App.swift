@@ -46,6 +46,9 @@ import SidefolkExtensionKit
         }
     }
 
+    /// An agent changed it from outside: steps back on the page would go past that, with nothing to say so.
+    func saved(byAnAgent id: String) { history[id] = nil }
+
     func flow(named words: String) throws -> Flow {
         guard let flow = store.find(words) else {
             throw Problem(L("I don't have a flow called “{name}”. You have: {list}.", ["name": words, "list": store.flows().map(\.name).joined(separator: ", ")]))

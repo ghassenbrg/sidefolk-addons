@@ -79,6 +79,7 @@ import SidefolkExtensionKit
             if let raw = args.values["definition"] { flow.draft = try FlowCodec.body(raw) }
             if let name = args.string("name") { flow.name = name }
             app.store.save(flow)
+            app.saved(byAnAgent: flow.id)
             app.refreshPreflight(flow.id)
             let problems = flow.draft.problems(app.catalog).map(\.text)
             var text = flow.state == .draft ? L("Changed the draft.") : L("Changed. It keeps running as before until you apply this.")

@@ -620,6 +620,11 @@
     "Only here so far. ⌘S keeps them, ⌘Z steps back.": "目前仅在此处。⌘S 保存，⌘Z 撤销。",
     "Saved “{name}” and turned it on: {words}": "已保存并开启“{name}”：{words}",
     "{when}. What its steps read goes to your AI, to write from.": "{when}。其步骤读取的内容会发送给你的 AI，供其写作。",
-    "“{name}” is on.": "“{name}”已开启。"
+    "“{name}” is on.": "“{name}”已开启。",
+    "A condition is “and” or “or”, not both.": "条件只能是“and”或“or”，不能同时使用。",
+    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "旧的监视没有停止。它不再启动此流程，但仍在查看。请在主页的监视中停止它，或暂停后恢复此流程以重试。",
+    "Say what each check looks at.": "说明每项检查查看什么。",
+    "Say what to ask.": "说明要问什么。",
+    "Say what to write.": "说明要写什么。"
   }
 }

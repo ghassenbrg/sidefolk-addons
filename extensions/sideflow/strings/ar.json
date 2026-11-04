@@ -665,6 +665,11 @@
     "Only here so far. ⌘S keeps them, ⌘Z steps back.": "هنا فقط حتى الآن. ⌘S يحفظها، ⌘Z يتراجع.",
     "Saved “{name}” and turned it on: {words}": "حُفظ «{name}» وشُغّل: {words}",
     "{when}. What its steps read goes to your AI, to write from.": "{when}. ما تقرؤه خطواته يذهب إلى ذكائك الاصطناعي ليكتب منه.",
-    "“{name}” is on.": "«{name}» قيد التشغيل."
+    "“{name}” is on.": "«{name}» قيد التشغيل.",
+    "A condition is “and” or “or”, not both.": "الشرط إما «and» أو «or»، لا كلاهما.",
+    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "لم تتوقف مراقبته القديمة. لم تعد تبدأ هذا الروتين لكنها ما زالت تراقب. أوقفها من المراقبات في الرئيسية، أو أوقف هذا الروتين مؤقتًا ثم استأنفه للمحاولة مجددًا.",
+    "Say what each check looks at.": "حدد ما ينظر إليه كل فحص.",
+    "Say what to ask.": "حدد ما يجب طرحه.",
+    "Say what to write.": "حدد ما يجب كتابته."
   }
 }

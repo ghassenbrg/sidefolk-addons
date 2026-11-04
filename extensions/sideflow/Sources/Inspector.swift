@@ -207,7 +207,7 @@ import SidefolkExtensionKit
         default:
             let text: String = switch current {
             case .string(let s)?: s
-            case .number(let n)?: n == n.rounded() ? String(Int(n)) : String(n)
+            case .number(let n)?: n == n.rounded() && abs(n) < 1e15 ? String(Int(n)) : String(n)
             case .array(let a)?: a.compactMap(\.string).joined(separator: ", ")
             default: ""
             }

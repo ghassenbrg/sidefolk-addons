@@ -182,6 +182,13 @@ struct Flow: Equatable, Sendable, Identifiable {
     var hasChanges: Bool { live != nil && live != kept }
 
     /// After an edit: remembers what was saved, or says there's nothing to save if the edit came back to it.
+    /// Shows an earlier or later version on the page: what's kept stays what's kept, so it's unsaved unless it's the same.
+    mutating func show(_ body: FlowBody) {
+        let keptBefore = kept
+        draft = body
+        saved = body == keptBefore ? nil : keptBefore
+    }
+
     mutating func hold(_ before: FlowBody) {
         if saved == nil { saved = before }
         if saved == draft { saved = nil }
@@ -236,7 +243,8 @@ enum FlowCodec {
         case .text(let text): out["text"] = text
         case .branch(let c, let then, let otherwise):
             var check: [String: Any] = ["value": c.value, "test": c.test.rawValue, "than": c.than]
-            if !c.also.isEmpty {
+            // "Or" with nothing in it yet still says "any of": removing the last check doesn't change what adding one back means.
+            if !c.also.isEmpty || c.any {
                 check[c.any ? "or" : "and"] = c.also.map { ["value": $0.value, "test": $0.test.rawValue, "than": $0.than] as [String: Any] }
             }
             out["if"] = check
@@ -256,7 +264,7 @@ enum FlowCodec {
         try only(o, ["trigger", "steps"], in: "flow")
         var used = Set<String>()
         let made = FlowBody(trigger: try trigger(o["trigger"], saved: saved), steps: try steps(o["steps"] ?? [], depth: saved ? -64 : 1, used: &used))
-        if made.allSteps.count > FlowBody.maxSteps {
+        if !saved, made.allSteps.count > FlowBody.maxSteps {
             throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))
         }
         return made
@@ -323,6 +331,8 @@ enum FlowCodec {
     }
 
     static func step(_ any: Any, depth: Int, used: inout Set<String>) throws -> Step {
+        // Read back from disk, where `body` starts the depth below any limit: what a page saved as it went is kept and marked, never refused.
+        let saved = depth < 0
         guard let o = any as? [String: Any] else { throw Problem(L("Each step is an object.")) }
         try only(o, ["id", "name", "on_failure", "do", "with", "ai", "ask", "options", "text", "if", "then", "else", "wait_minutes", "run_flow"], in: "step")
         let kinds = ["do", "ai", "ask", "text", "if", "wait_minutes", "run_flow"].filter { o[$0] != nil }
@@ -346,9 +356,10 @@ enum FlowCodec {
         if let tool = o["do"] as? String {
             guard let input = (o["with"] ?? [String: Any]()) as? [String: Any] else { throw Problem(L("“with” is an object of the tool's values.")) }
             kind = .action(tool: tool, input: input.mapValues { JSON($0) })
-        } else if let prompt = (o["ai"] as? String)?.nonEmpty {
+        // Empty is a step being written: it reads back, and `problems` marks it.
+        } else if let prompt = o["ai"] as? String, saved || !prompt.trimmed.isEmpty {
             kind = .ai(prompt: prompt)
-        } else if let question = (o["ask"] as? String)?.nonEmpty {
+        } else if let question = o["ask"] as? String, saved || !question.trimmed.isEmpty {
             let options = o["options"] as? [String] ?? []
             guard options.isEmpty || (2...4).contains(options.count) else { throw Problem(L("“options” are 2 to 4 answers, or none to let them type.")) }
             kind = .ask(question: question, options: options)
@@ -359,6 +370,9 @@ enum FlowCodec {
                 throw Problem(L("“if” needs “value” and “test”: {tests}.", ["tests": Condition.Test.allCases.map(\.rawValue).joined(separator: ", ")]))
             }
             var condition = Condition(value: value, test: test, than: c["than"] as? String ?? "")
+            // "Any of" or "all of", and a list: anything else would quietly read as something it doesn't say.
+            guard c["and"] == nil || c["or"] == nil else { throw Problem(L("A condition is “and” or “or”, not both.")) }
+            if let joined = c["and"] ?? c["or"], !(joined is [[String: Any]]) { throw Problem(L("Each check in “and” or “or” needs “value” and “test”.")) }
             for raw in (c["and"] ?? c["or"]) as? [[String: Any]] ?? [] {
                 guard let v = raw["value"] as? String, let t = (raw["test"] as? String).flatMap(Condition.Test.init(rawValue:)) else { throw Problem(L("Each check in “and” or “or” needs “value” and “test”.")) }
                 condition.also.append(Condition(value: v, test: t, than: raw["than"] as? String ?? ""))
@@ -371,7 +385,7 @@ enum FlowCodec {
                 throw Problem(L("A wait is 1 to {count} minutes.", ["count": Format.integer(FlowBody.longestWait)]))
             }
             kind = .wait(minutes: minutes)
-        } else if let name = (o["run_flow"] as? String)?.nonEmpty {
+        } else if let name = o["run_flow"] as? String, saved || !name.trimmed.isEmpty {
             kind = .flow(name)
         } else {
             throw Problem(L("A step does one thing: do, ai, ask, text, if, wait_minutes or run_flow."))

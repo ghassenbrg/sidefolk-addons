@@ -52,7 +52,8 @@ import SidefolkExtensionKit
             return nil
         }
         var run = Run(id: UUID().uuidString.lowercased(), flow: flow.id, flowName: flow.name, mode: mode, status: .running, why: why, startedAt: now,
-                      body: mode == .live ? flow.running : flow.draft)
+                      // Practice tries what's on the page. A run for real uses what was kept: "only here so far" means that.
+                      body: mode == .live ? flow.running : mode == .once ? flow.kept : flow.draft)
         run.values.today = Format.date(now, year: true, weekday: true)
         run.values.now = Format.time(now)
         if let trigger { run.values.set("trigger", trigger) }
@@ -490,7 +491,11 @@ import SidefolkExtensionKit
 
     /// A watch this flow made fired.
     func watchFired(title: String, summary: String) {
-        guard let flow = store.flows().first(where: { $0.state == .on && $0.watchTitle == title }) else { return }
+        // Only if it's a watch that sets it off now: one that wouldn't stop isn't on the card any more.
+        guard let flow = store.flows().first(where: { flow in
+            guard flow.state == .on, flow.watchTitle == title, case .watch = flow.running.trigger else { return false }
+            return true
+        }) else { return }
         start(flow, mode: .live, why: L("The watch saw a change."), trigger: summary)
     }
 
@@ -543,6 +548,9 @@ import SidefolkExtensionKit
             add("watch.resume", ["id": title])
             // Named differently before: the one it replaces goes too.
             if let oldWatch, oldWatch != title { add("watch.stop", ["id": oldWatch]) }
+        } else if let oldWatch {
+            // It was a watch and isn't now: the watch goes, or it would go on looking.
+            add("watch.stop", ["id": oldWatch])
         }
         return steps
     }
@@ -605,7 +613,7 @@ import SidefolkExtensionKit
     func turnOn(_ id: String) {
         guard var flow = store.flow(id) else { return }
         // Whoever asked, a page's button or an agent: it can't read this on a card, because it can't run.
-        if let wrong = flow.draft.triggerProblem {
+        if let wrong = flow.kept.triggerProblem {
             flow.startProblem = wrong
             store.save(flow)
             return changed()
@@ -638,6 +646,16 @@ import SidefolkExtensionKit
                     } else {
                         after.startProblem = made?.text.nonEmpty ?? L("The watch didn't start.")
                         after.state = .paused
+                    }
+                    store.save(after)
+                } else if oldWatch != nil {
+                    // It was a watch and isn't now: the watch goes. Only once it's really gone does the name, the one way to reach it, go too.
+                    let stopped = await host?.call("watch.stop", ["id": oldWatch ?? ""], plan: current.planId, written: nil)
+                    guard var after = store.flow(id) else { return }
+                    if stopped?.ok == true || stopped?.notFound == true {
+                        after.watchTitle = nil
+                    } else {
+                        after.startProblem = L("Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.")
                     }
                     store.save(after)
                 }
@@ -689,6 +707,16 @@ import SidefolkExtensionKit
 
     private func resumeWatch(_ flow: Flow) async {
         guard let title = flow.watchTitle else { return }
+        guard case .watch = flow.running.trigger else {
+            // Left over from when it was a watch: this is the try again that the page offers.
+            let stopped = await host?.call("watch.stop", ["id": title], plan: flow.planId, written: nil)
+            if stopped?.ok == true || stopped?.notFound == true, var current = store.flow(flow.id) {
+                current.watchTitle = nil
+                store.save(current)
+                changed()
+            }
+            return
+        }
         let back = await host?.call("watch.resume", ["id": title], plan: flow.planId, written: nil)
         guard back?.ok != true else { return }
         // The watch has gone: an earlier version stopped it when it paused for setting off too often, or the person stopped it in Home.

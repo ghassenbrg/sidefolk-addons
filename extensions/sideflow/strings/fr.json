@@ -629,6 +629,11 @@
     "Only here so far. ⌘S keeps them, ⌘Z steps back.": "Seulement ici pour l'instant. ⌘S les garde, ⌘Z revient en arrière.",
     "Saved “{name}” and turned it on: {words}": "« {name} » enregistrée et activée : {words}",
     "{when}. What its steps read goes to your AI, to write from.": "{when}. Ce que lisent ses étapes va à votre IA, pour qu'elle écrive à partir de cela.",
-    "“{name}” is on.": "« {name} » est activée."
+    "“{name}” is on.": "« {name} » est activée.",
+    "A condition is “and” or “or”, not both.": "Une condition est « and » ou « or », pas les deux.",
+    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "Son ancienne surveillance ne s'est pas arrêtée. Elle ne déclenche plus cette routine, mais elle continue de regarder. Arrêtez-la depuis les surveillances dans Accueil, ou mettez cette routine en pause puis reprenez-la pour réessayer.",
+    "Say what each check looks at.": "Dites ce que chaque vérification regarde.",
+    "Say what to ask.": "Dites quoi demander.",
+    "Say what to write.": "Dites quoi écrire."
   }
 }

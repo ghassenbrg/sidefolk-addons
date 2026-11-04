@@ -620,6 +620,11 @@
     "Only here so far. ⌘S keeps them, ⌘Z steps back.": "今のところここだけです。⌘S で保存、⌘Z で戻ります。",
     "Saved “{name}” and turned it on: {words}": "「{name}」を保存してオンにしました: {words}",
     "{when}. What its steps read goes to your AI, to write from.": "{when}。ステップが読んだ内容は、文章を書くために AI に送られます。",
-    "“{name}” is on.": "「{name}」はオンです。"
+    "“{name}” is on.": "「{name}」はオンです。",
+    "A condition is “and” or “or”, not both.": "条件は「and」か「or」のどちらかです。両方は使えません。",
+    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "以前の監視が止まりませんでした。このルーティンを開始することはもうありませんが、監視は続いています。ホームの監視から止めるか、このルーティンを一時停止して再開するともう一度試します。",
+    "Say what each check looks at.": "各チェックが何を見るか指定してください。",
+    "Say what to ask.": "何を尋ねるか指定してください。",
+    "Say what to write.": "何を書くか指定してください。"
   }
 }

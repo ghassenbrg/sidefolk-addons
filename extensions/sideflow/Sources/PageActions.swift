@@ -17,6 +17,8 @@ import SidefolkExtensionKit
             var f = try flow()
             let before = f.draft
             try change(&f.draft)
+            // Here, where it can be said: a flow's size is checked when it's written in, not when it's read back.
+            if f.draft.allSteps.count > FlowBody.maxSteps { throw Problem(L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)])) }
             guard f.draft != before else { return }
             guard f.draft.depth <= FlowBody.maxDepth else { throw Problem(L("An “if” can hold another “if”, but no deeper.")) }
             // Typing in a field is one step back: the same field, moments apart.
@@ -232,9 +234,7 @@ import SidefolkExtensionKit
             var f = try flow()
             let current = f.draft
             guard let other = op == "undo" ? app.history[f.id]?.back(from: current) : app.history[f.id]?.forward(from: current) else { break }
-            f.hold(current)
-            f.draft = other
-            if f.saved == other { f.saved = nil }
+            f.show(other)
             app.store.save(f)
             app.refreshPreflight(f.id)
             if case .step(let id) = app.nav.inspecting(f), other.step(id) == nil { app.nav.inspect(.nothing, in: f.id) }

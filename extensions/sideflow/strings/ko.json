@@ -620,6 +620,11 @@
     "Only here so far. ⌘S keeps them, ⌘Z steps back.": "아직 여기에만 있습니다. ⌘S로 저장, ⌘Z로 되돌립니다.",
     "Saved “{name}” and turned it on: {words}": "“{name}”을(를) 저장하고 켰습니다: {words}",
     "{when}. What its steps read goes to your AI, to write from.": "{when}. 단계에서 읽은 내용은 글을 쓰기 위해 AI로 전달됩니다.",
-    "“{name}” is on.": "“{name}”이(가) 켜져 있습니다."
+    "“{name}” is on.": "“{name}”이(가) 켜져 있습니다.",
+    "A condition is “and” or “or”, not both.": "조건은 “and” 또는 “or” 중 하나이며 둘 다는 안 됩니다.",
+    "Its old watch didn't stop. It no longer sets this flow off, but it's still looking. Stop it from the watches in Home, or pause and resume this flow to try again.": "이전 감시가 멈추지 않았습니다. 이제 이 루틴을 시작하지는 않지만 계속 살펴보고 있습니다. 홈의 감시에서 멈추거나, 이 루틴을 일시 중지 후 다시 시작하면 다시 시도합니다.",
+    "Say what each check looks at.": "각 확인이 무엇을 볼지 정하세요.",
+    "Say what to ask.": "무엇을 물을지 정하세요.",
+    "Say what to write.": "무엇을 쓸지 정하세요."
   }
 }

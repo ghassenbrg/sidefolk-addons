@@ -1155,3 +1155,226 @@ import SidefolkExtensionKit
         #expect(when.contains("Other"))
     }
 }
+
+/// What reading the editing landing found. Each goes through the page's own actions, as a click does.
+@MainActor @Suite(.serialized) struct SideflowEditingReadTests {
+    typealias World = SideflowTests.World
+
+    private func app(_ w: World) -> App {
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{"n":{"type":"number"},"q":{"type":"string"}}}"#, mutates: false, readsOnly: true)]))
+        return app
+    }
+
+    private func again(_ w: World) -> App { App(folder: w.folder.appendingPathComponent("app")) }
+
+    private func page(_ app: App, _ op: String, _ flow: Flow, _ extra: [String: Any] = [:]) async throws {
+        var input: [String: Any] = ["op": op, "flow": flow.id]
+        input.merge(extra) { _, new in new }
+        _ = try await Actions_UI.handle(Arguments(input), app)
+    }
+
+    private func make(_ app: App, _ steps: [[String: Any]]) throws -> Flow {
+        app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": steps]))
+    }
+
+    @Test func undoAfterASaveShowsAsUnsavedAndKeepsWhatWasSaved() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "text": "one"]])
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "save", flow)
+        #expect(app.store.flow(flow.id)?.hasUnsaved == false)
+        try await page(app, "undo", flow)
+        let after = try #require(app.store.flow(flow.id))
+        #expect(after.draft.step("a")?.kind == .text("one"))
+        #expect(after.hasUnsaved, "the step back is on the page only")
+        #expect(after.kept.step("a")?.kind == .text("two"), "what was saved is still what's kept")
+        try await page(app, "redo", flow)
+        #expect(app.store.flow(flow.id)?.hasUnsaved == false, "and forward again is what was saved")
+    }
+
+    @Test func undoAfterDiscardBringsItBackUnsaved() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "text": "one"]])
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "discard", flow)
+        try await page(app, "undo", flow)
+        let after = try #require(app.store.flow(flow.id))
+        #expect(after.draft.step("a")?.kind == .text("two"))
+        #expect(after.hasUnsaved)
+        #expect(after.kept.step("a")?.kind == .text("one"))
+    }
+
+    @Test func anEmptyAIOrQuestionStepReadsBackAndIsMarked() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "ai": "Write"], ["id": "b", "ask": "Sure?"]])
+        try await page(app, "ai_prompt", flow, ["step": "a", "text": ""])
+        try await page(app, "question", flow, ["step": "b", "text": ""])
+        let back = try #require(again(w).store.flow(flow.id), "still there at the next launch")
+        #expect(back.draft.problems(app.catalog).count >= 2, "and marked to fix")
+    }
+
+    @Test func aFlowPastTheStepLimitIsRefusedAtTheEditAndNeverLost() async throws {
+        let w = try World()
+        let app = app(w)
+        let steps: [[String: Any]] = (0..<FlowBody.maxSteps).map { ["id": "s\($0)", "text": "x"] }
+        let flow = try make(app, steps)
+        await #expect(throws: Problem.self) { try await self.page(app, "dup_step", flow, ["step": "s0"]) }
+        #expect(again(w).store.flow(flow.id) != nil)
+        // One that got past it some other way still reads back, and is marked.
+        var big = try #require(app.store.flow(flow.id))
+        big.draft.steps.append(Step(id: "extra", kind: .text("x")))
+        app.store.save(big)
+        let back = try #require(again(w).store.flow(flow.id))
+        #expect(back.draft.problems(app.catalog).contains { !$0.text.isEmpty })
+    }
+
+    @Test func aNumberZeroOrOneStaysANumber() throws {
+        #expect(JSON(NSNumber(value: 1)) == .number(1))
+        #expect(JSON(NSNumber(value: 0)) == .number(0))
+        #expect(JSON(true) == .bool(true))
+        let parsed = try #require(try JSONSerialization.jsonObject(with: Data(#"{"a":1,"b":true}"#.utf8)) as? [String: Any])
+        #expect(JSON(parsed["a"]) == .number(1))
+        #expect(JSON(parsed["b"]) == .bool(true))
+    }
+
+    @Test func aVeryLargeNumberDoesntStopTheProgram() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "do": "reads.it"]])
+        try await page(app, "param", flow, ["step": "a", "name": "n", "text": "1e30"])
+        let now = try #require(app.store.flow(flow.id))
+        app.nav.inspect(.step("a"), in: now.id)
+        #expect(!Inspector.sections(now, app, problems: []).isEmpty, "drawing its form")
+    }
+
+    @Test func aFlowThatStopsBeingAWatchTakesItsWatchWithIt() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "T"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "do": "reads.it"]]])
+        w.store.save(flow)
+        #expect(w.engine.livePlan(flow).steps.contains { $0.tool == "watch.stop" }, "on the card")
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.host.calls.contains { $0.tool == "watch.stop" })
+        #expect(w.store.flow(flow.id)?.watchTitle == nil)
+    }
+
+    @Test func aWatchThatWouldntStopNoLongerSetsTheFlowOffAndItSaysSo() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "T"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "text": "x"]]])
+        w.store.save(flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "no")]
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        let after = try #require(w.store.flow(flow.id))
+        #expect(after.watchTitle == "T", "still the way to reach it")
+        #expect(after.startProblem != nil)
+        w.engine.watchFired(title: "T", summary: "changed")
+        await w.quiet()
+        #expect(w.store.runs(of: flow.id).isEmpty, "what the card didn't show doesn't set it off")
+    }
+
+    @Test func aWatchAlreadyGoneLetsTheNameGo() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"])
+        flow.watchTitle = "T"
+        flow.draft = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "text": "x"]]])
+        w.store.save(flow)
+        w.host.answers["watch.stop"] = [Actions.Outcome(status: .failed, text: "gone", notFound: true)]
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.watchTitle == nil)
+        #expect(w.store.flow(flow.id)?.startProblem == nil)
+    }
+
+    @Test func saveAlwaysHasItsKeySoWhatsBeingTypedGetsHandedOver() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "text": "one"]])
+        let page = await Pages.make(app, state: Arguments(["flow": flow.id]), background: false)
+        #expect(page.shortcuts.contains { $0.key == "cmd+s" }, "saved, and somebody typing")
+        #expect(!page.shortcuts.contains { $0.key == "cmd+return" }, "that key is Ask's, on the same window")
+    }
+
+    @Test func aMalformedConditionIsRefusedNotQuietlyReadAsSomethingElse() {
+        func body(_ c: [String: Any]) throws -> FlowBody { try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "if": c, "then": [], "else": []]]]) }
+        let check: [String: Any] = ["value": "a", "test": "is", "than": "b"]
+        #expect(throws: Problem.self) { _ = try body(check.merging(["and": [check], "or": [check]]) { a, _ in a }) }
+        #expect(throws: Problem.self) { _ = try body(check.merging(["or": "x"]) { a, _ in a }) }
+    }
+
+    @Test func anyOfKeepsItsMeaningWithOneCheckLeft() throws {
+        var c = Condition(value: "a", test: .is, than: "b")
+        c.any = true
+        let body = FlowBody(steps: [Step(id: "c", kind: .branch(c, then: [], otherwise: []))])
+        let back = try FlowCodec.body(FlowCodec.json(body))
+        guard case .branch(let read, _, _)? = back.step("c")?.kind else { Issue.record("shape"); return }
+        #expect(read.any)
+    }
+
+    @Test func aBlankCheckIsMarkedNotAlwaysFalse() throws {
+        let w = try World()
+        var c = Condition(value: "a", test: .contains, than: "b")
+        c.also = [Condition(value: "", test: .contains, than: "")]
+        let flow = FlowBody(steps: [Step(id: "c", kind: .branch(c, then: [], otherwise: []))])
+        #expect(flow.problems(w.catalog).contains { $0.step == "c" })
+    }
+
+    @Test func turningOnLooksAtWhatsKeptNotWhatsBeingTyped() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://x.example"], state: .draft)
+        flow.saved = flow.draft
+        flow.draft.trigger = .watch(WatchTrigger(kind: "url_change", target: ""))
+        w.store.save(flow)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.host.plans.count == 1, "what's saved is fine, and it's what goes on")
+        #expect(w.store.flow(flow.id)?.state == .on)
+    }
+
+    @Test func aRunOnceUsesWhatWasSavedNotWhatsBeingTyped() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "a", "text": "saved"]], state: .draft)
+        flow.saved = flow.draft
+        flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "typing"]]])
+        w.store.save(flow)
+        let run = await w.settled(w.engine.start(flow, mode: .once, why: "t"))
+        #expect(run?.values.value("a") == "saved")
+    }
+
+    @Test func anAgentsChangeClearsThePagesUndo() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "a", "text": "one"]])
+        try await page(app, "compose", flow, ["step": "a", "text": "two"])
+        try await page(app, "save", flow)
+        app.saved(byAnAgent: flow.id)
+        await #expect(throws: Never.self) { try await self.page(app, "undo", flow) }
+        #expect(app.store.flow(flow.id)?.draft.step("a")?.kind == .text("two"), "nothing to step back over")
+    }
+
+    @Test func thePageSaysWhyAFlowNobodyReadIsPaused() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 60], "steps": [["id": "a", "ai": "Write"]]]))
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        app.engine.pauseWhatNobodyRead()
+        await w.quiet(app.store)
+        let paused = try #require(app.store.flow(flow.id))
+        #expect(paused.pausedBecause?.isEmpty == false)
+        #expect(Pages.card(paused, app).detail == paused.pausedBecause, "in Home too, not a silent state")
+        let flowPage = await Pages.make(app, state: Arguments(["flow": flow.id]), background: false)
+        #expect(String(describing: flowPage.sent).contains(paused.pausedBecause ?? "—"), "and on the flow")
+        #expect(Pages.stateWord(paused, app).0 != L("On"))
+    }
+}

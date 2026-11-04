@@ -193,6 +193,8 @@ import SidefolkExtensionKit
             meta = flow.state == .draft ? L("Nothing runs yet") : L("Waiting for a change")
         }
         if flow.state == .draft, practiced(flow, app) != nil { meta = L("Ready to turn on") }
+        // Paused by something other than the person: Home says why, not only the flow's own page.
+        if flow.state == .paused, let why = flow.pausedBecause?.nonEmpty { meta = why }
         let look = flowLook(flow), word = stateWord(flow, app)
         return Card(flow.name, detail: meta, symbol: look.symbol, color: look.color, badge: Badge(word.0, tone: word.1), tree: mini(flow.running, pending: flow.state == .draft && practiced(flow, app) == nil, app),
                     press: go(L("Open"), place(Nav.open(flow: flow.id))))
@@ -414,8 +416,8 @@ import SidefolkExtensionKit
         let id = ["flow": flow.id]
         page.shortcuts = [PageShortcut("cmd+z", L("Undo"), tool: "ui", input: ui("undo", id)), PageShortcut("shift+cmd+z", L("Redo"), tool: "ui", input: ui("redo", id)),
                           PageShortcut("cmd+d", L("Duplicate this step"), tool: "ui", input: ui("dup_step", id))]
-        if flow.hasUnsaved { page.shortcuts.append(PageShortcut("cmd+s", L("Save"), tool: "ui", input: ui("save", id))) }
-        if problems.isEmpty, !app.engine.isRunning(flow.id) { page.shortcuts.append(PageShortcut("cmd+return", L("Practice run"), tool: "ui", input: ui("practice", id))) }
+        // Always: pressing it is what hands over what's being typed, which only then makes the flow unsaved. Sidefolk commits the field first.
+        page.shortcuts.append(PageShortcut("cmd+s", L("Save"), tool: "ui", input: ui("save", id)))
         return page
     }
 

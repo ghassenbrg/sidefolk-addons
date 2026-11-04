@@ -98,6 +98,7 @@ extension FlowBody {
     @MainActor func problems(_ catalog: Catalog) -> [FlowProblem] {
         var out: [FlowProblem] = []
         if steps.isEmpty { out.append(FlowProblem(step: nil, text: L("It has no steps yet."))) }
+        if allSteps.count > FlowBody.maxSteps { out.append(FlowProblem(step: nil, text: L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))) }
         if let wrong = triggerProblem { out.append(FlowProblem(step: nil, text: wrong)) }
         let actions = Engine.planSteps(self, title: "").count
         if actions > Plans.maxSteps {
@@ -132,10 +133,15 @@ extension FlowBody {
                             out.append(FlowProblem(step: step.id, text: L("“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.", ["tool": tool])))
                         }
                     }
-                case .ai(let prompt): refs([prompt], step, seen: seen)
-                case .ask(let question, _): refs([question], step, seen: seen)
+                case .ai(let prompt):
+                    if prompt.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say what to write."))) }
+                    refs([prompt], step, seen: seen)
+                case .ask(let question, _):
+                    if question.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say what to ask."))) }
+                    refs([question], step, seen: seen)
                 case .text(let text): refs([text], step, seen: seen)
                 case .branch(let c, let then, let otherwise):
+                    if c.checks.contains(where: { $0.value.trimmed.isEmpty }) { out.append(FlowProblem(step: step.id, text: L("Say what each check looks at."))) }
                     // Looking at something only one path made is how a flow asks whether it ran: only that test may.
                     for check in c.checks where check.test != .is_empty && check.test != .not_empty { refs([check.value, check.than], step, seen: seen) }
                     var yes = seen, no = seen
