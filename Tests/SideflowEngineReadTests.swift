@@ -615,6 +615,21 @@ import SidefolkExtensionKit
         #expect(w.host.forwardOptions.first == L("Stop here"), "going on through a version they replaced isn't the safe answer to put first")
     }
 
+    @Test func aStepThatMayHaveHappenedDoesntOfferToRepeatItFirst() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.host.hold = nil
+        w.restart()
+        w.engine.recover()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .interrupted)
+        #expect(w.host.forwardOptions.first == L("Stop here"), "the card's default is what happens if they just press on: not doing it twice")
+        #expect(w.host.forwardOptions.contains(L("It didn't: try again")))
+    }
+
     @Test func aStepThatsStillThereGoesOnAfterAnEdit() async throws {
         let w = try World()
         var flow = try w.flow([["id": "w", "wait_minutes": 1], ["id": "a", "ai": "write"]])

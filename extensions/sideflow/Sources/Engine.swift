@@ -622,7 +622,8 @@ import SidefolkExtensionKit
             ? L("{flow} stopped in the middle of this: {step}. Did it happen?", ["flow": run.flowName, "step": step])
             : L("{flow} needs you. {why}", ["flow": run.flowName, "why": run.problem ?? step])
         let choices: [(words: String, how: Forward)] = run.status == .interrupted
-            ? [(L("It didn't: try again"), .try_again), (L("It did: carry on"), .carry_on), (L("Stop here"), .stop)]
+            // The first is the card's default, what happens if they just press on: never doing it twice.
+            ? [(L("Stop here"), .stop), (L("It did: carry on"), .carry_on), (L("It didn't: try again"), .try_again)]
             // Left behind by an edit, going on means more of a version they replaced: stopping comes first, and trying again would ask the same.
             : stepLeftBehind(run) ? [(L("Stop here"), .stop), (L("Skip this step"), .carry_on)]
             : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
