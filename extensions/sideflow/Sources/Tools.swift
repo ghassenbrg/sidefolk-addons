@@ -112,14 +112,7 @@ import SidefolkExtensionKit
         }
 
         ext.tool("resume_flow", "Resume a flow", "Lets a paused flow run by itself again. If it changed since, this asks on a card.", input: Schema.object(["flow": flowParam], required: ["flow"])) { args in
-            let flow = try app.flow(named: try args.required("flow"))
-            guard flow.hasChanges || flow.live == nil || app.engine.nobodyRead(flow) else {
-                app.engine.resume(flow.id)
-                if app.store.flow(flow.id)?.state != .on { throw Problem(app.store.flow(flow.id)?.startProblem ?? L("It didn't start.")) }
-                return L("“{name}” is running by itself again.", ["name": flow.name])
-            }
-            if let refused = await asking(flow.id, app) { throw Problem(refused) }
-            return Engine.needsCard(flow.kept) ? L("There's a card asking to turn on “{name}”.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])
+            try await resuming(try app.flow(named: try args.required("flow")), app)
         }
 
         ext.tool("run_flow", "Run a flow now", "Runs a flow once, now. An On flow runs under what the person allowed; a draft runs for real, every action on its own card. Returns at once: the result is in get_run.",
@@ -173,6 +166,19 @@ import SidefolkExtensionKit
             }
         })
     }
+}
+
+/// `resume_flow`'s reply: it only says it's running when it is.
+@MainActor func resuming(_ flow: Flow, _ app: App) async throws -> String {
+    guard flow.hasChanges || flow.live == nil || app.engine.nobodyRead(flow) else {
+        app.engine.resume(flow.id)
+        let now = app.store.flow(flow.id)
+        // A problem on one still On is what stops it next time it runs: "running again" wouldn't be true for long.
+        if now?.state != .on || now?.startProblem != nil { throw Problem(now?.startProblem ?? L("It didn't start.")) }
+        return L("“{name}” is running by itself again.", ["name": flow.name])
+    }
+    if let refused = await asking(flow.id, app) { throw Problem(refused) }
+    return Engine.needsCard(flow.kept) ? L("There's a card asking to turn on “{name}”.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])
 }
 
 /// Asks for the card and looks for a moment: Sidefolk refuses at once when no card can be shown (another agent asked, not the person), and a reply
