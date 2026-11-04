@@ -171,7 +171,7 @@ struct Flow: Equatable, Sendable, Identifiable {
     var startProblem: String?
     /// Stopped by the runaway guard.
     var pausedBecause: String?
-    /// What practice showed, for the draft it practised: nil once it changed.
+    /// What practice showed, for the draft it practiced: nil once it changed.
     var practiced: FlowBody?
 
     /// What a Save last kept: what turning on or applying uses.

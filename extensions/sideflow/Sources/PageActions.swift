@@ -194,7 +194,7 @@ import SidefolkExtensionKit
         case "practice":
             let f = try flow()
             guard f.draft.problems(app.catalog).isEmpty else { throw Problem(L("Fix what's marked first.")) }
-            app.engine.practise(f)
+            app.engine.practice(f)
         case "start":
             let f = try flow()
             guard f.kept.problems(app.catalog).isEmpty else { throw Problem(L("Fix what's marked first.")) }

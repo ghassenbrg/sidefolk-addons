@@ -135,12 +135,12 @@ import SidefolkExtensionKit
         switch flow.state {
         case .on: return flow.hasChanges ? (L("On · changes to apply"), .info) : (L("On"), .good)
         case .paused: return (L("Paused"), .neutral)
-        case .draft: return practised(flow, app) != nil ? (L("Practised"), .info) : (L("Draft"), .neutral)
+        case .draft: return practiced(flow, app) != nil ? (L("Practiced"), .info) : (L("Draft"), .neutral)
         }
     }
 
     /// The practice run of what's written now, if it finished.
-    static func practised(_ flow: Flow, _ app: App) -> Run? {
+    static func practiced(_ flow: Flow, _ app: App) -> Run? {
         guard let run = practice(flow, app), run.status.isOver, run.status != .failed else { return nil }
         return run
     }
@@ -192,9 +192,9 @@ import SidefolkExtensionKit
         } else {
             meta = flow.state == .draft ? L("Nothing runs yet") : L("Waiting for a change")
         }
-        if flow.state == .draft, practised(flow, app) != nil { meta = L("Ready to turn on") }
+        if flow.state == .draft, practiced(flow, app) != nil { meta = L("Ready to turn on") }
         let look = flowLook(flow), word = stateWord(flow, app)
-        return Card(flow.name, detail: meta, symbol: look.symbol, color: look.color, badge: Badge(word.0, tone: word.1), tree: mini(flow.running, pending: flow.state == .draft && practised(flow, app) == nil, app),
+        return Card(flow.name, detail: meta, symbol: look.symbol, color: look.color, badge: Badge(word.0, tone: word.1), tree: mini(flow.running, pending: flow.state == .draft && practiced(flow, app) == nil, app),
                     press: go(L("Open"), place(Nav.open(flow: flow.id))))
     }
 
@@ -232,7 +232,7 @@ import SidefolkExtensionKit
     }
 
     static func firstRun(_ app: App, state: Arguments) -> Page {
-        var hero = Hero(L("Teach your companion a routine"), detail: L("Say it once. Watch it practise, with nothing changed. Then it's yours."), symbol: "point.3.connected.trianglepath.dotted")
+        var hero = Hero(L("Teach your companion a routine"), detail: L("Say it once. Watch it practice, with nothing changed. Then it's yours."), symbol: "point.3.connected.trianglepath.dotted")
         hero.figure = .companion(.full)
         hero.says = L("What should I take off your hands?")
         // Flat, as the buttons are: the line alone runs from one colour to the other.
@@ -342,7 +342,7 @@ import SidefolkExtensionKit
     static func head(_ flow: Flow, _ app: App, ready: Bool, startable: Bool = true) -> PageBar {
         let practice = practice(flow, app), running = app.engine.isRunning(flow.id)
         let fix = ready ? nil : L("Fix what's marked first.")
-        // What sets it off can't start yet: it may still practise, which makes no watch.
+        // What sets it off can't start yet: it may still practice, which makes no watch.
         let cantStart = fix ?? (startable ? nil : L("Sort out what sets it off first."))
         let canStart = ready && startable
         let saveFirst = flow.hasUnsaved
@@ -352,18 +352,18 @@ import SidefolkExtensionKit
         // The board says the rest: when it runs, and how long it is.
         var sentence = L(one: "{when} · {count} step", other: "{when} · {count} steps", count: flow.draft.allSteps.count, ["when": Words.trigger(flow.draft.trigger)])
         if running, practice?.status == .running {
-            pill = Badge(L("Practising"), tone: .info)
+            pill = Badge(L("Practicing"), tone: .info)
             sentence = L("It reads for real and changes nothing.")
-            if let practice { actions = [button(L("Stop practising"), "proceed", ["run": practice.id, "how": "stop"], symbol: "stop.fill")] }
+            if let practice { actions = [button(L("Stop practicing"), "proceed", ["run": practice.id, "how": "stop"], symbol: "stop.fill")] }
         } else {
             switch flow.state {
             case .draft:
-                if practised(flow, app) != nil {
+                if practiced(flow, app) != nil {
                     actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
-                               button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? L("You read what it will do first."), disabled: !canStart)]
+                               button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart)]
                 } else {
                     actions = [button(L("Practice run"), "practice", id, style: .primary, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready)]
-                    extra.append(button(L("Turn on without practising"), "start", id, symbol: "power", detail: cantStart ?? L("You read what it will do first."), disabled: !canStart))
+                    extra.append(button(L("Turn on without practicing"), "start", id, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart))
                 }
             case .on:
                 actions = flow.hasChanges
@@ -381,7 +381,7 @@ import SidefolkExtensionKit
             sentence = flow.state == .on ? L("Only here so far. What's running hasn't changed.") : L("Only here so far. ⌘S keeps them, ⌘Z steps back.")
             actions = [button(L("Discard"), "discard", id, style: .plain), button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
                        button(L("Save"), "save", id, style: .primary, symbol: "checkmark", detail: L("⌘S"))]
-            extra.removeAll { $0.label == L("Turn on without practising") }
+            extra.removeAll { $0.label == L("Turn on without practicing") }
         } else if !running {
             actions.insert(Action(L("Saved"), tool: "ui", input: ui("save", id), style: .plain, symbol: "checkmark", disabled: true), at: 0)
         }
@@ -573,7 +573,7 @@ import SidefolkExtensionKit
         let next = Summaries.next(flow)
         let footer = next.map { L("Next: {when}", ["when": Format.dateTime($0)]) }
         let time = next.map { Format.time($0) }
-        guard let run else { return .notice(PageNotice(placeholder: L("Practise it to see the real thing"))) }
+        guard let run else { return .notice(PageNotice(placeholder: L("Practice it to see the real thing"))) }
         let tells = run.body.allSteps.last { if case .action("notify.user", _) = $0.kind { true } else { false } }
         if let tells, case .action(_, let input) = tells.kind {
             let title = input["title"]?.string.map { Words.resolved($0, values: run.values) } ?? flow.name

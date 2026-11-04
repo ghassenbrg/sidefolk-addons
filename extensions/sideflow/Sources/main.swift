@@ -1,7 +1,7 @@
 import Foundation
 import SidefolkExtensionKit
 
-// Sideflow: teach your companion a routine. A flow is something you could read aloud; it practises first, you read what it will do, and from
+// Sideflow: teach your companion a routine. A flow is something you could read aloud; it practices first, you read what it will do, and from
 // then on it runs by itself under exactly that. All of it lives here: the model, the engine, its words and its screens. From Sidefolk it uses only
 // what any extension can: its tools through Guard (`permissions.act`), plans the person reads, the person's AI, a page.
 let ext = Extension(name: "sideflow")

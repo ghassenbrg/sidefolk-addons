@@ -7,11 +7,13 @@ The founder, 2026-11-04: phases are fine, and the session ends when everything i
 
 | Landing | Holds | State |
 |---|---|---|
-| Stage 1 (D180) | A1 move and delete, A2 watch rest, A3 hidden file, A4 share a folder; review fixes | MERGE-READY sent |
-| Phase 0 | Plan limit, branch scope and missing values, journal before effects, reviewed revision goes live, uncertain outcomes | Coded, full suite running |
-| Editing | A5, A6: Save, Discard, unsaved mark, ⌘S and other shortcuts, undo and redo, check before saving, what changed; Move to…, outline, keyboard on the tree | Next |
-| Guided building | A7, A8, A9: real forms, value browser with inline values, condition builder, clear then and otherwise paths, custom cards, typed values | Plan with pictures first |
-| Composition | For each, choose a path, await a flow with inputs and a result, try and recover, return, data steps, named scopes, extract to a flow | |
-| Durable processes | Continuations, forms for the person, deadlines, wait for an event, queues and overlap policy, time zones and missed runs, long jobs and cancel | |
-| Parallel and diagnosis | Parallel with join, budgets, a run inspector with input, output, attempts and why, fixtures, test modes, path coverage, revisions, diff, rollback | |
-| Integration and library | Accounts and connector contracts (needs its own security decision), richer triggers, pagination, import and export, retention | |
+| Stage 1 (D180) and Phase 0 | A1-A4; plan limit, branch scope and missing values, journal before effects, reviewed revision goes live, uncertain outcomes; flows kept through what a page saves and a file it can't read | In the gallery since snapshot 1202 |
+| Editing (D181, D182) | A5, A6, A7, A9: Save, Discard, undo, keys, check, what changed; Move to, outline, fold, find; forms, value menu, condition builder; a card for anything that runs by itself | This landing |
+| Engine | Typed values, for each, choose, try, call, finish, data, AI with fields, forms, waits, queues, time zones, parallel, run inspector, Stop, the watch routine, held-back runs | Built on `team/sideflow-editing-3`. Its sixth read has five must-fix findings: its own landing, its own reads |
+| After the engine | Connections (D183), repeat until, fields (D184), progress and cancel (D195), several triggers and event ids (D196), batches, make a step its own flow, pause, run again | Built on `team/sideflow-more`, a read has found real problems to fix first |
+| T51 | A flow calling an MCP server without a card | Founder's yes. After Permissions, with a security review |
+
+## Left out on purpose
+
+Webhooks and Keychain accounts: they need a security decision of their own. Durable job handles that survive a restart: no tool here needs one yet.
+

@@ -31,9 +31,16 @@ import SidefolkExtensionKit
     func run() async {
         try? await Task.sleep(for: .seconds(startDelay))
         await catalog.refresh()
+        // Before anything goes on: what nobody read doesn't get one more step first. Only with the list in hand: without it, it would look as if nothing had been allowed.
+        var looked = catalog.loadedAt != nil
+        if looked { engine.pauseWhatNobodyRead() }
         engine.recover()
         while !Task.isCancelled {
             await catalog.refresh()
+            if !looked, catalog.loadedAt != nil {
+                looked = true
+                engine.pauseWhatNobodyRead()
+            }
             engine.tick()
             try? await Task.sleep(for: .seconds(30))
         }

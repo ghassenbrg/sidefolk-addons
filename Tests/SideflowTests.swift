@@ -108,7 +108,7 @@ import SidefolkExtensionKit
             return flow
         }
 
-        func settled(_ run: Run?, seconds: Double = 5) async -> Run? {
+        func settled(_ run: Run?, seconds: Double = 60) async -> Run? {
             guard let id = run?.id else { return nil }
             let deadline = Date().addingTimeInterval(seconds)
             while Date() < deadline {
@@ -116,6 +116,24 @@ import SidefolkExtensionKit
                 try? await Task.sleep(for: .milliseconds(5))
             }
             return store.run(id)
+        }
+
+        /// Until nothing has moved for a while. A call to the host hops off this actor, which can take longer than any fixed
+        /// wait on a busy Mac, and a wait that ran out reads as a failed step. Counted in looks, not time: tests beside this one can hold
+        /// the main actor past any length of time, and each look queues behind what's waiting for it.
+        func quiet(_ other: FlowStore? = nil, seconds: Double = 10) async {
+            func state() -> String {
+                let runs = (other ?? store).runs().map { "\($0.id) \($0.status) \($0.records.count)" }.sorted()
+                return "\(runs) \(host.calls.count) \(host.plans.count) \(host.notices.count) \(host.forward.count) \((other ?? store).flows().map(\.updatedAt))"
+            }
+            let deadline = Date().addingTimeInterval(seconds)
+            var seen = state(), still = 0
+            while Date() < deadline, still < 20 {
+                try? await Task.sleep(for: .milliseconds(10))
+                let now = state()
+                still = now == seen ? still + 1 : 0
+                seen = now
+            }
         }
 
         deinit { try? FileManager.default.removeItem(at: folder) }
@@ -252,7 +270,7 @@ import SidefolkExtensionKit
         w.store.save(flow)
         w.host.answers["watch.resume"] = [Actions.Outcome(status: .failed, text: "a watcher called “Gone”", summary: "")]
         w.engine.resume(flow.id)
-        try await Task.sleep(for: .milliseconds(100))
+        await w.quiet()
         #expect(w.host.calls.map(\.tool).contains("watch.create"))
         #expect(w.store.flow(flow.id)?.state == .on)
     }
@@ -287,7 +305,7 @@ import SidefolkExtensionKit
         let w = try World()
         let flow = try w.flow([["id": "a", "text": "x"]], state: .draft)
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         #expect(w.host.plans.isEmpty)
         #expect(w.store.flow(flow.id)?.state == .on)
     }
@@ -302,7 +320,7 @@ import SidefolkExtensionKit
         var edited = try #require(w.store.flow(flow.id))
         edited.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "changes.it", "with": ["text": "changed meanwhile"]]]])
         w.store.save(edited)
-        try await Task.sleep(for: .milliseconds(200))
+        await w.quiet()
         let after = try #require(w.store.flow(flow.id))
         #expect(after.state == .on)
         #expect(after.live == flow.draft)
@@ -402,7 +420,7 @@ import SidefolkExtensionKit
         flow.saved = saved
         w.store.save(flow)
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         #expect(w.store.flow(flow.id)?.live == saved)
         #expect(w.store.flow(flow.id)?.hasUnsaved == true, "still there to save or discard")
         w.restart()
@@ -537,10 +555,10 @@ import SidefolkExtensionKit
         #expect(run?.status == .needs_you)
         #expect(run?.record(of: "b") == nil)
         #expect(!w.engine.isRunning(flow.id), "parked, the flow can be set off again")
-        try await Task.sleep(for: .milliseconds(20))
+        await w.quiet()
         #expect(!w.host.forward.isEmpty, "it asks, where they are, what to do")
         w.engine.proceed(run!.id, .try_again)
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         let done = await w.settled(w.store.run(run!.id))
         #expect(done?.status == .done)
         #expect(w.host.calls.count == 2)
@@ -567,7 +585,7 @@ import SidefolkExtensionKit
         #expect(waiting?.status == .waiting)
         w.now = w.now.addingTimeInterval(31)
         w.engine.tick()
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         #expect(w.store.run(waiting!.id)?.status == .done)
 
         w.host.answers["changes.it"] = [Actions.Outcome(status: .failed, text: "boom")]
@@ -620,7 +638,7 @@ import SidefolkExtensionKit
         #expect(run?.status == .needs_you)
         // On the page, while the question about the first stop is still up.
         w.engine.proceed(run!.id, .try_again)
-        try await Task.sleep(for: .milliseconds(250))
+        await w.quiet()
         let after = w.store.run(run!.id)
         #expect(after?.status == .needs_you, "stopped at the second step, and the old answer doesn't move it")
         #expect(after?.record(of: "c") == nil)
@@ -631,7 +649,7 @@ import SidefolkExtensionKit
         w.host.answers["changes.it"] = [Actions.Outcome(status: .unanswered, text: "")]
         let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]]])
         let run = await w.settled(w.engine.start(flow, mode: .live, why: "test"))
-        try await Task.sleep(for: .milliseconds(30))
+        await w.quiet()
         #expect(!w.host.forward.isEmpty)
         #expect(w.store.run(run!.id)?.status == .needs_you)
     }
@@ -642,13 +660,13 @@ import SidefolkExtensionKit
         let only = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "event", "event": "reminder.fired", "contains": "dentist"])
         let other = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "event", "event": "note.saved"])
         w.engine.happened(name: "reminder.fired", title: "Call the bank", detail: nil)
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         let ran = w.store.runs(of: any.id).first
         #expect(ran?.record(of: "a")?.output == "Call the bank")
         #expect(w.store.runs(of: only.id).isEmpty, "it doesn't mention what this one waits for")
         #expect(w.store.runs(of: other.id).isEmpty)
         w.engine.happened(name: "reminder.fired", title: "The DENTIST at three", detail: nil)
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         #expect(w.store.runs(of: only.id).count == 1)
     }
 
@@ -656,7 +674,7 @@ import SidefolkExtensionKit
         let w = try World()
         let draft = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "event", "event": "mac.woke"], state: .draft)
         w.engine.happened(name: "mac.woke", title: nil, detail: nil)
-        try await Task.sleep(for: .milliseconds(30))
+        await w.quiet()
         #expect(w.store.runs(of: draft.id).isEmpty)
     }
 
@@ -676,7 +694,7 @@ import SidefolkExtensionKit
         let caller = try w.flow([["id": "go", "run_flow": "Other"]])
         let run = await w.settled(w.engine.start(caller, mode: .live, why: "t"))
         #expect(run?.status == .done)
-        try await Task.sleep(for: .milliseconds(30))
+        await w.quiet()
         #expect(w.store.runs(of: other.id).count == 1)
         renamed.state = .paused
         w.store.save(renamed)
@@ -723,7 +741,7 @@ import SidefolkExtensionKit
         #expect(w.host.calls.count == 2, "it wasn't called again")
 
         w.engine.proceed(run!.id, .carry_on)
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         let done = await w.settled(w.store.run(run!.id))
         #expect(done?.status == .done)
         #expect(done?.record(of: "b")?.status == .skipped)
@@ -739,7 +757,7 @@ import SidefolkExtensionKit
         w.restart()
         w.host.hold = nil
         w.engine.recover()
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         let done = await w.settled(w.store.run(run!.id))
         #expect(done?.status == .done)
         #expect(done?.values.value("c") == "result of reads.it")
@@ -753,11 +771,11 @@ import SidefolkExtensionKit
         w.restart()
         w.engine.recover()
         w.engine.tick()
-        try await Task.sleep(for: .milliseconds(20))
+        await w.quiet()
         #expect(w.store.run(run!.id)?.status == .waiting, "not yet")
         w.now = w.now.addingTimeInterval(601)
         w.engine.tick()
-        try await Task.sleep(for: .milliseconds(50))
+        await w.quiet()
         #expect(w.store.run(run!.id)?.status == .done)
     }
 
@@ -768,14 +786,14 @@ import SidefolkExtensionKit
         var flow = try w.flow([["do": "changes.it", "with": ["text": "x {{today}}"]], ["id": "q", "ask": "Sure?"]], state: .draft)
         w.host.planAnswer = .refused("denied")
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(30))
+        await w.quiet()
         flow = w.store.flow(flow.id)!
         #expect(flow.state == .draft)
         #expect(flow.live == nil)
         #expect(flow.startProblem != nil)
         w.host.planAnswer = .allowed(standing: [true, true])
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(30))
+        await w.quiet()
         flow = w.store.flow(flow.id)!
         #expect(flow.state == .on)
         #expect(flow.live == flow.draft)
@@ -800,7 +818,7 @@ import SidefolkExtensionKit
         let w = try World()
         var flow = try w.flow([["id": "n", "text": "Saw: {{trigger}}"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://example.com"], state: .draft)
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(30))
+        await w.quiet()
         flow = w.store.flow(flow.id)!
         #expect(w.host.calls.first?.tool == "watch.create")
         #expect(w.host.calls.first?.input["mode"] as? String == "repeat")
@@ -809,10 +827,10 @@ import SidefolkExtensionKit
         let tools = Set(w.host.plans.last?.steps.map(\.tool) ?? [])
         #expect(tools.isSuperset(of: ["watch.create", "watch.stop"]))
         w.engine.watchFired(title: flow.watchTitle!, summary: "It changed")
-        try await Task.sleep(for: .milliseconds(30))
+        await w.quiet()
         #expect(w.store.runs(of: flow.id).first?.values.value("n") == "Saw: It changed")
         w.engine.watchFired(title: "someone else's", summary: "x")
-        try await Task.sleep(for: .milliseconds(20))
+        await w.quiet()
         #expect(w.store.runs(of: flow.id).count == 1)
     }
 
@@ -869,7 +887,7 @@ import SidefolkExtensionKit
         flow.draft = FlowBody(steps: flow.draft.steps + [Step(id: "more", kind: .text("x"))])
         w.store.save(flow)
         w.engine.resume(flow.id)
-        try await Task.sleep(for: .milliseconds(20))
+        await w.quiet()
         #expect(w.host.plans.count == 1)
     }
 
@@ -1025,6 +1043,9 @@ import SidefolkExtensionKit
         #expect(w.store.flowsNotSaved, "refused, and it says so")
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: file.path)
         #expect((try? String(contentsOf: file, encoding: .utf8)) == "mine")
+    }
+}
+
 /// Pages as Sidefolk would get them, in the states worth looking at: `SIDEFLOW_PAGES_OUT=<folder> swift test --filter sideflowPages`, then
 /// `SidefolkApp --page-json <file> <out.png>` draws each with Sidefolk's own parts, off every screen.
 @MainActor @Suite(.serialized) struct SideflowPageShots {
@@ -1052,7 +1073,7 @@ import SidefolkExtensionKit
         var flow = app.newFlow(name: "Morning brief", body: body)
         app.nav.inspect(.step("c"), in: flow.id)
         app.refreshPreflight(flow.id)
-        try await Task.sleep(for: .milliseconds(30))
+        try await Task.sleep(for: .milliseconds(200))
         let state = Arguments(["flow": flow.id])
         try write(await Pages.make(app, state: state, background: false), "saved-draft")
         flow.saved = flow.draft
@@ -1076,5 +1097,61 @@ import SidefolkExtensionKit
         let empty = app.newFlow(name: "New condition", body: fresh)
         app.nav.inspect(.step("c"), in: empty.id)
         try write(await Pages.make(app, state: Arguments(["flow": empty.id]), background: false), "condition-empty")
+    }
+}
+
+@MainActor @Suite(.serialized) struct SideflowCardTests {
+    typealias World = SideflowTests.World
+
+    @Test func aScheduleWithNothingToAllowIsStillOnACard() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "text": "x"]], trigger: ["type": "schedule", "every_minutes": 60], state: .draft)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.host.plans.count == 1)
+    }
+
+    @Test func anAIStepIsSaidOnTheCard() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "ai": "Write"]], state: .draft)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.host.plans.last?.when.contains("your AI") == true)
+    }
+
+    @Test func aHandStartedFlowWorkingOnItsOwnValuesHasNothingToRead() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "text": "x"]], state: .draft)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.host.plans.isEmpty)
+        #expect(w.store.flow(flow.id)?.state == .on)
+    }
+
+    @Test func whatNobodyReadAsksOnceAndWhatHasAPlanStaysOn() async throws {
+        let w = try World()
+        let ai = try w.flow([["id": "a", "ai": "Write"]], trigger: ["type": "schedule", "every_minutes": 60])
+        let approved = try w.flow([["id": "a", "ai": "Write"]], trigger: ["type": "schedule", "every_minutes": 60])
+        let actions = try w.flow([["id": "a", "do": "reads.it"]], trigger: ["type": "schedule", "every_minutes": 60])
+        let hand = try w.flow([["id": "a", "text": "x"]])
+        w.catalog.use(Actions.Listing(tools: [], plans: [Plans.Standing(id: approved.planId, title: approved.name, standing: [])]))
+        w.engine.pauseWhatNobodyRead()
+        await w.quiet()
+        #expect(w.store.flow(ai.id)?.state == .paused)
+        #expect(w.store.flow(approved.id)?.state == .on, "a flow someone read isn't touched")
+        #expect(w.store.flow(actions.id)?.state == .on, "each action is checked as it's called")
+        #expect(w.store.flow(hand.id)?.state == .on)
+        let before = w.host.plans.count
+        w.engine.resume(ai.id)
+        await w.quiet()
+        #expect(w.host.plans.count == before + 1, "resuming shows the card this time")
+    }
+
+    @Test func aLongAddressGivesWayOnTheCard() throws {
+        let w = try World()
+        let flow = try w.flow([["id": "a", "do": "reads.it"], ["id": "b", "run_flow": "Other"]], trigger: ["type": "watch", "kind": "url_change", "target": "https://example.com/" + String(repeating: "a", count: 700)], state: .draft)
+        let when = w.engine.livePlan(flow).when
+        #expect(when.count <= 600)
+        #expect(when.contains("Other"))
     }
 }

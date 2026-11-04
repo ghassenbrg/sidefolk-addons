@@ -162,7 +162,7 @@ import SidefolkExtensionKit
             return await acting(step, tool: "ask.user", input: input, written: written, in: &run)
         case .action(let tool, let input):
             let filled = run.values.fill(input)
-            if run.mode == .practice { return await practising(step, tool: tool, input: filled, in: &run) }
+            if run.mode == .practice { return await practicing(step, tool: tool, input: filled, in: &run) }
             return await acting(step, tool: tool, input: filled, written: input.mapValues(\.any), in: &run)
         case .branch:
             return true
@@ -214,7 +214,7 @@ import SidefolkExtensionKit
 
     /// Reads for real what Sidefolk would let through without a card, and says what everything else would do. Only what Sidefolk itself says
     /// changes nothing is ever run: an extension's own word that a tool only reads isn't enough.
-    private func practising(_ step: Step, tool: String, input: [String: Any], in run: inout Run) async -> Bool {
+    private func practicing(_ step: Step, tool: String, input: [String: Any], in run: inout Run) async -> Bool {
         let check = await host?.check(tool, input, plan: run.flowPractice)
         let sentence = Words.resolved(check?.summary ?? Words.step(step, body: run.body, catalog: catalog), values: run.values)
         let readsOnly = catalog.tool(tool)?.readsOnly == true
@@ -265,7 +265,8 @@ import SidefolkExtensionKit
             run.retries = 0
             store.save(run)
             return true
-        case .denied, .unanswered:
+        // Too many actions this minute is one more thing nothing happened over: a flow here has no loops to run into it for long.
+        case .denied, .unanswered, .busy:
             // Nothing happened, and only the person can change that.
             run.status = .needs_you
             run.problem = outcome.status == .unanswered ? L("Nobody answered the card for this step, so it didn't run.") : outcome.text.nonEmpty ?? L("This step wasn't allowed, so it didn't run.")
@@ -505,11 +506,11 @@ import SidefolkExtensionKit
             return PlanStep(tool, input.mapValues(\.any))
         }
         guard !reads.isEmpty else { return nil }
-        return Plan(id: flow.practiceId, title: L("Practice run of {flow}", ["flow": flow.name]), when: L("Now, and for the next hour if you practise it again"), steps: reads, ttl: 3600)
+        return Plan(id: flow.practiceId, title: L("Practice run of {flow}", ["flow": flow.name]), when: L("Now, and for the next hour if you practice it again"), steps: reads, ttl: 3600)
     }
 
     /// The practice run: a card first when it would read something, then the run. Never blocks the page's own call.
-    func practise(_ flow: Flow) {
+    func practice(_ flow: Flow) {
         guard !active.contains(flow.id) else { return }
         Task {
             if let plan = practicePlan(flow) { _ = await host?.approve(plan) }
@@ -551,8 +552,42 @@ import SidefolkExtensionKit
         let steps = Self.planSteps(flow.kept, title: Self.watchTitle(flow), oldWatch: flow.watchTitle)
         // Setting another flow off needs no tool of its own, so the card says it here.
         let others = flow.kept.allSteps.compactMap { step -> String? in if case .flow(let name) = step.kind { name } else { nil } }
-        let when = others.isEmpty ? Words.trigger(flow.kept.trigger) : L("{when}. Also sets off: {flows}", ["when": Words.trigger(flow.kept.trigger), "flows": others.joined(separator: ", ")])
+        // Sidefolk shows so much of this and no more. What a flow sets off appears nowhere else on the card, so a long address gives way to it.
+        let said = Words.trigger(flow.kept.trigger)
+        var when = said.count > Self.longestTriggerWords ? said.prefix(Self.longestTriggerWords) + "…" : said
+        if flow.kept.allSteps.contains(where: { if case .ai = $0.kind { true } else { false } }) {
+            when = L("{when}. What its steps read goes to your AI, to write from.", ["when": when])
+        }
+        if !others.isEmpty { when = L("{when}. Also sets off: {flows}", ["when": when, "flows": others.joined(separator: ", ")]) }
         return Plan(id: flow.planId, title: flow.name, when: when, steps: steps)
+    }
+
+    static let longestTriggerWords = 160
+
+    /// There's something to read before it runs by itself. Only a flow someone starts by hand that does nothing but work on its own values has nothing to say.
+    static func needsCard(_ body: FlowBody) -> Bool {
+        if case .manual = body.trigger {} else { return true }
+        return !planSteps(body, title: "").isEmpty || body.allSteps.contains { switch $0.kind { case .flow, .ai: true; default: false } }
+    }
+
+    /// It would run by itself with nothing the person allowed behind it. One with only actions has them checked at each call, so it can't.
+    func nobodyRead(_ flow: Flow) -> Bool {
+        guard Self.needsCard(flow.running), catalog.plan(flow.planId) == nil else { return false }
+        return Self.planSteps(flow.running, title: Self.watchTitle(flow)).isEmpty
+            || flow.running.allSteps.contains { switch $0.kind { case .ai, .flow: true; default: false } }
+    }
+
+    /// Flows that went on before a schedule or an AI step needed a card. Nobody read what these do, so they ask once, now, rather than go on as they were.
+    func pauseWhatNobodyRead() {
+        guard catalog.loadedAt != nil else { return }
+        for var flow in store.flows() where flow.state == .on && nobodyRead(flow) {
+            flow.state = .paused
+            flow.pausedBecause = L("It now asks before running by itself. Resume it to read what it does.")
+            store.save(flow)
+            let told = flow
+            Task { await host?.notify(title: L("{flow} is paused", ["flow": told.name]), body: told.pausedBecause, attention: false) }
+        }
+        changed()
     }
 
     static func watchTitle(_ flow: Flow) -> String { "\(flow.name) · Sideflow" }
@@ -582,8 +617,7 @@ import SidefolkExtensionKit
         // What they read is what goes live: anything changed while the card waits stays in the draft.
         let reviewed = flow.kept, reviewedTitle = Self.watchTitle(flow)
         Task {
-            // With no action to allow there's nothing to read on a card, and Sidefolk has none for it.
-            let answer: Plans.Answer? = plan.steps.isEmpty ? .allowed(standing: []) : await host?.approve(plan)
+            let answer: Plans.Answer? = Self.needsCard(reviewed) ? await host?.approve(plan) : .allowed(standing: [])
             guard let answer, var current = store.flow(id) else { return }
             switch answer {
             case .allowed:
@@ -625,7 +659,7 @@ import SidefolkExtensionKit
 
     /// Goes on with what the person already allowed. Anything changed needs the card, by `turnOn`.
     func resume(_ id: String) {
-        guard var flow = store.flow(id), flow.state == .paused, !flow.hasChanges, flow.live != nil else { return turnOn(id) }
+        guard var flow = store.flow(id), flow.state == .paused, !flow.hasChanges, flow.live != nil, !nobodyRead(flow) else { return turnOn(id) }
         flow.state = .on
         flow.pausedBecause = nil
         flow.lastFire = clock()
