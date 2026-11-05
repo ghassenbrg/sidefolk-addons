@@ -335,6 +335,41 @@ import SidefolkExtensionKit
         #expect(try #require(await other.settled(other.engine.start(wanting, mode: .live, why: "t"))).status == .failed)
     }
 
+    @Test func blankWordsWhereTheyreNeededStopItPlainly() async throws {
+        let (run, sent) = try await refused(["text": "{{n}}"], made: "x")
+        #expect(sent.count == 1, "with words it goes")
+        #expect(run.status == .done)
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let flow = try w.flow([["id": "t", "text": ""], ["id": "c", "do": "changes.it", "with": ["text": "{{t}}"]]])
+        let blank = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(blank.status == .failed)
+        #expect(blank.problem?.contains("Text") == true, "\(blank.problem ?? "")")
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing ran, so nothing may have happened")
+        #expect(blank.record(of: "c")?.status == .failed, "not “may or may not have happened”")
+    }
+
+    @Test func wordsCutOnTheWayAreSaid() async throws {
+        for mode in [Run.Mode.live, .practice] {
+            let w = try World()
+            w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+            let flow = try w.flow([["id": "n", "text": String(repeating: "x", count: Values.wordsKept + 1)], ["id": "c", "do": "changes.it", "with": ["text": "{{n}}"]]])
+            let run = try #require(await w.settled(w.engine.start(flow, mode: mode, why: "t")))
+            let note = (run.record(of: "c")?.note ?? "").filter { !"\u{2068}\u{2069}".contains($0) }
+            #expect(note.contains("cut to 8,000 characters"), "\(mode): \(note)")
+            #expect(note.contains("Text"), "\(mode): \(note)")
+            if mode == .live { #expect((w.host.calls.first { $0.tool == "changes.it" }?.input["text"] as? String)?.count == Values.wordsKept) }
+        }
+    }
+
+    @Test func wordsThatFitSayNothing() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let flow = try w.flow([["id": "n", "text": String(repeating: "x", count: Values.wordsKept)], ["id": "c", "do": "changes.it", "with": ["text": "{{n}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.record(of: "c")?.note == nil)
+    }
+
     @Test func anEmptyListSaidOnPurposeStaysOne() async throws {
         let (run, sent) = try await refused(["text": "x", "tags": [String]()])
         #expect(run.status == .done)

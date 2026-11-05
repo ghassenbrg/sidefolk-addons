@@ -390,9 +390,15 @@ extension FlowHost {
             if run.mode != .practice, ranOut || Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
             run.connection = nil
             let filled = catalog.filled(tool, input, from: run.values)
-            if run.mode == .practice { return await practicing(step, tool: tool, input: filled, in: &run) }
-            if let wrong = catalog.doesntFit(tool, filled) { return failed(step, why: wrong, reads: false, in: &run) }
-            return await acting(step, tool: tool, input: filled, written: input.mapValues(\.any), in: &run)
+            let cut = catalog.cutShort(tool, input, from: run.values)
+            if run.mode != .practice, let wrong = catalog.doesntFit(tool, filled) { return failed(step, why: wrong, reads: false, in: &run) }
+            let goesOn = run.mode == .practice ? await practicing(step, tool: tool, input: filled, in: &run) : await acting(step, tool: tool, input: filled, written: input.mapValues(\.any), in: &run)
+            if let cut, var record = run.record(of: step.id) {
+                record.note = [record.note, cut].compactMap(\.self).joined(separator: " ")
+                run.record(record)
+                store.save(run)
+            }
+            return goesOn
         case .branch:
             return true
         case .flow(let name):

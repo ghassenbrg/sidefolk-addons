@@ -875,6 +875,7 @@
     "{flow} stopped in the middle of this: {step}. Did it happen?": "{flow} stopped in the middle of this: {step}. Did it happen?",
     "{flow} was already running or held back, so its own rule for that decides": "{flow} was already running or held back, so its own rule for that decides",
     "{flow} was already running, so it didn't start": "{flow} was already running, so it didn't start",
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.",
     "{name} is back, but it's been so long that this step is for you to say.": "{name} is back, but it's been so long that this step is for you to say.",
     "{name} still isn't here, so this step didn't run.": "{name} still isn't here, so this step didn't run.",
     "{value} doesn't mention “{than}”": "{value} doesn't mention “{than}”",

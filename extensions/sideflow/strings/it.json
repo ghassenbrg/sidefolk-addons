@@ -1037,6 +1037,7 @@
     "“{name}” has an entry that came back with nothing in it.": "«{name}» ha una voce tornata vuota.",
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "«{name}» è un elenco di parole, e una voce non lo è: «{value}».",
     "“{name}” is needed, and this gives it nothing.": "«{name}» è necessario, e questo non gli dà nulla.",
-    "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» vuole {what}, e questo gli dà «{value}»."
+    "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» vuole {what}, e questo gli dà «{value}».",
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: tagliato a {count} caratteri verso lo strumento. Il resto non è stato inviato."
   }
 }

@@ -1020,6 +1020,7 @@
     "“{name}” has an entry that came back with nothing in it.": "“{name}”有一项返回时是空的。",
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "“{name}”是文字列表，但有一项不是：“{value}”。",
     "“{name}” is needed, and this gives it nothing.": "“{name}”是必需的，而这里没有给它任何内容。",
-    "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”需要{what}，而这里给的是“{value}”。"
+    "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”需要{what}，而这里给的是“{value}”。",
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}：发送给工具时被截断为 {count} 个字符。其余部分未发送。"
   }
 }

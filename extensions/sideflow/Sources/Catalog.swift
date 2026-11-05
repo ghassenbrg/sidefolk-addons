@@ -132,8 +132,8 @@ import SidefolkExtensionKit
     func doesntFit(_ name: String, _ filled: [String: Any]) -> String? {
         func check(_ filled: [String: Any], _ parameters: [Parameter]) -> String? {
             for parameter in parameters {
-                // Sidefolk counts a null as missing where something's needed, whatever the schema says: it wouldn't have got there.
-                guard let given = filled[parameter.name], !(given is NSNull) else {
+                // Sidefolk counts a null or blank words as missing where something's needed, whatever the schema says: it wouldn't have got there.
+                guard let given = filled[parameter.name], !(given is NSNull), (given as? String)?.trimmed.isEmpty != true else {
                     if parameter.required { return L("“{name}” is needed, and this gives it nothing.", ["name": parameter.title]) }
                     continue
                 }
@@ -160,6 +160,22 @@ import SidefolkExtensionKit
             return nil
         }
         return check(filled, tool(name)?.parameters ?? [])
+    }
+
+    /// The words it can't send whole: what goes as words stops at `Values.wordsKept` a value, and a person should be able to see that it did.
+    func cutShort(_ name: String, _ input: [String: JSON], from values: Values) -> String? {
+        func walk(_ input: [String: JSON], _ parameters: [Parameter]) -> [String] {
+            parameters.flatMap { parameter -> [String] in
+                switch input[parameter.name] {
+                case .string(let words)? where parameter.kind == .text: values.cutsShort(words) ? [parameter.title] : []
+                case .object(let inner)?: walk(inner, parameter.children)
+                default: []
+                }
+            }
+        }
+        let cut = walk(input, tool(name)?.parameters ?? [])
+        guard !cut.isEmpty else { return nil }
+        return L("{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.", ["names": Format.list(cut), "count": Format.integer(Values.wordsKept)])
     }
 
     /// A dotted name's way through the parameters. A parameter whose own name has a dot in it is that parameter.

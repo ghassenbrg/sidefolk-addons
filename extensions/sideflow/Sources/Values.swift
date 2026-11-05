@@ -142,6 +142,11 @@ struct Values: Equatable, Sendable {
         return nil
     }
 
+    /// Whether filling these words in for a tool leaves part of a value out.
+    func cutsShort(_ text: String) -> Bool {
+        Self.slots(text).contains { slot in resolve(slot.name, path: slot.path).map { Self.text($0).count > Self.wordsKept } ?? false }
+    }
+
     private static func words(_ value: JSON, _ each: Int) -> String {
         let all = text(value)
         return all.count > each ? String(all.prefix(each)) : all
