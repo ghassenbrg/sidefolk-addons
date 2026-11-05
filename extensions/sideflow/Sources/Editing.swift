@@ -238,14 +238,18 @@ enum Editing {
             }
         }
         // `{{item}}` and `{{error}}` are its own only inside what brings them: above a loop or a try they're still the ones from outside.
+        let inAList = body.allSteps.contains { holder in
+            if case .forEach = holder.kind { return FlowBody(steps: [holder]).allSteps.dropFirst().contains { $0.id == id } }
+            return false
+        }
         func scoped(_ one: Step, keeping own: Set<String>) -> Step {
             var within = own
             var here = own
             switch one.kind {
             case .forEach: within.formUnion(["item", "index"])
-            // What a repeat stops on is looked at from inside its go.
+            // What a repeat stops on is looked at from inside its go. Inside a list the item stays the list's, and that one comes from outside.
             case .repeatUntil:
-                within.formUnion(["item", "index"])
+                within.formUnion(inAList ? ["index"] : ["item", "index"])
                 here = within
             case .attempt: within.insert("error")
             default: break

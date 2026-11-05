@@ -2434,10 +2434,10 @@ extension JSON {
             ["id": "b", "if": ["value": "{{item.done}}", "test": "is_empty"], "then": [["id": "again", "repeat": [["id": "t", "text": "{{item}} {{index}}"]], "until": ["value": "{{index}}", "test": "is", "than": "2"], "times": 3]], "else": []]]]]])
         let (outer, inner) = try Editing.extract("b", in: body, named: "New")
         guard case .call(_, let inputs)? = outer.step("b")?.kind else { Issue.record("not a call"); return }
-        #expect(inputs == ["item_done": "{{item.done}}"])
+        #expect(inputs == ["item_done": "{{item.done}}", "item": "{{item}}"])
         guard case .branch(let c, _, _)? = inner.step("b")?.kind else { Issue.record("not a branch"); return }
         #expect(c.value == "{{input.item_done}}", "it would always be empty in the new flow, and take that way for every item")
-        #expect(inner.step("t")?.kind == .text("{{item}} {{index}}"), "the repeat inside brings its own")
+        #expect(inner.step("t")?.kind == .text("{{input.item}} {{index}}"), "inside a list the item is the list's, and a repeat brings only its go")
     }
 
     @Test func aLoopMadeAFlowKeepsItsItemAndTakesWhatItsListComesFrom() throws {
@@ -2445,6 +2445,14 @@ extension JSON {
         let (outer, inner) = try Editing.extract("e", in: body, named: "New")
         guard case .call(_, let inputs)? = outer.step("e")?.kind else { Issue.record("not a call"); return }
         #expect(inputs == ["r": "{{r}}"])
+        #expect(inner.step("t")?.kind == .text("{{item}}"))
+    }
+
+    @Test func aRepeatOnItsOwnKeepsItsGoAsItsItem() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "again", "repeat": [["id": "t", "text": "{{item}}"]], "until": ["value": "{{item}}", "test": "is", "than": "2"], "times": 3]]])
+        let (outer, inner) = try Editing.extract("again", in: body, named: "New")
+        guard case .call(_, let inputs)? = outer.step("again")?.kind else { Issue.record("not a call"); return }
+        #expect(inputs.isEmpty)
         #expect(inner.step("t")?.kind == .text("{{item}}"))
     }
 
