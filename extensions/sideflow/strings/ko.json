@@ -1029,6 +1029,33 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”에는 {what}이(가) 필요한데 여기서 “{value}”을(를) 줍니다.",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: 도구로 보내면서 {count}자로 잘렸습니다. 나머지는 보내지 않았습니다.",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "“{name}”은(는) {answers} 중 하나인데 여기서 “{value}”을(를) 줍니다.",
-    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "“{step}”에서 “{value}”을(를) 하나의 숫자로 읽을 수 없어 여기서 멈췄습니다. 숫자는 도구의 필드나 AI 단계의 필드에서 가져오세요."
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "“{step}”에서 “{value}”을(를) 하나의 숫자로 읽을 수 없어 여기서 멈췄습니다. 숫자는 도구의 필드나 AI 단계의 필드에서 가져오세요.",
+    "After {step}": "{step} 다음",
+    "Delete": "삭제",
+    "Keep them": "유지",
+    "Move down": "아래로 이동",
+    "Move to": "이동 위치",
+    "Move up": "위로 이동",
+    "Pick the flows to delete.": "삭제할 루틴을 고르세요.",
+    "Select": "선택",
+    "Select all": "모두 선택",
+    "Select flows": "루틴 선택",
+    "The very start": "맨 처음",
+    "Their runs and what you allowed for them go too. This can't be undone.": "실행 기록과 허용한 내용도 함께 사라집니다. 되돌릴 수 없습니다.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "“{other}”이(가) “{name}”을(를) 실행하므로 그 단계는 작동하지 않게 됩니다.",
+    "Delete these {count} flows?": {
+      "other": "이 루틴 {count}개를 삭제할까요?"
+    },
+    "Delete {count} flows": {
+      "other": "루틴 {count}개 삭제"
+    },
+    "{count} of them are on. They stop running.": {
+      "other": "{count}개가 켜져 있습니다. 실행이 멈춥니다."
+    },
+    "{count} selected": {
+      "other": "{count}개 선택됨"
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "한 번에 처음 {count}개의 루틴만 고를 수 있습니다. 삭제하면 나머지가 나타납니다.",
+    "The nearest places are listed. To go further, move it there and choose again.": "가까운 위치만 표시됩니다. 더 멀리 옮기려면 그곳으로 옮긴 뒤 다시 고르세요."
   }
 }

@@ -1029,6 +1029,33 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”需要{what}，而这里给的是“{value}”。",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}：发送给工具时被截断为 {count} 个字符。其余部分未发送。",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "“{name}”应为 {answers} 之一，而这里给的是“{value}”。",
-    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "“{step}”无法把“{value}”读取为一个数字,因此在此停止。请从工具的字段或 AI 步骤的字段中取得数字。"
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "“{step}”无法把“{value}”读取为一个数字,因此在此停止。请从工具的字段或 AI 步骤的字段中取得数字。",
+    "After {step}": "在“{step}”之后",
+    "Delete": "删除",
+    "Keep them": "保留",
+    "Move down": "下移",
+    "Move to": "移到",
+    "Move up": "上移",
+    "Pick the flows to delete.": "选择要删除的流程。",
+    "Select": "选择",
+    "Select all": "全选",
+    "Select flows": "选择流程",
+    "The very start": "最开头",
+    "Their runs and what you allowed for them go too. This can't be undone.": "它们的运行记录和你给予的许可也会一并删除。此操作无法撤销。",
+    "“{other}” runs “{name}”, and that step won't work after this.": "“{other}”会运行“{name}”，删除后该步骤将无法工作。",
+    "Delete these {count} flows?": {
+      "other": "删除这 {count} 个流程？"
+    },
+    "Delete {count} flows": {
+      "other": "删除 {count} 个流程"
+    },
+    "{count} of them are on. They stop running.": {
+      "other": "其中 {count} 个已开启，将停止运行。"
+    },
+    "{count} selected": {
+      "other": "已选择 {count} 个"
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "一次只能选择前 {count} 个流程。删除后会显示其余流程。",
+    "The nearest places are listed. To go further, move it there and choose again.": "这里列出最近的位置。要移得更远，请先移到那里再重新选择。"
   }
 }

@@ -56,6 +56,12 @@ The person hears before a real run: a step's form and the flow's page mark a ste
 
 Later list, for the expression language: units, currencies, thousands marks, percent.
 
+## Deleting several flows and moving steps (the founder's feedback, read clean at 2980498)
+
+The rule (D199 in the app's docs, on app branch `team/sideflow-delete-docs`): deleting flows from the selection is the page's own button and nothing else. The press carries the page's private token (`page_token`, the `page-key` file in the extension's data folder), has to come at least 0.6 seconds after the confirmation appeared, and has to name exactly the flows the confirmation listed. The `ui` tool has no plain `delete` any more. An agent, or another extension acting through a plan, goes through `delete_flow`: high risk, one flow, on a card each time.
+
+Later list: `delete_flow` removing a picked flow makes the press ask again; a name with hidden characters; 200 or more flows may pass the 128 KB page limit; moving walks every step at 100 steps; a guarded press still logs "Changed something"; Keep from the selection; a step whose id is `start` reads ambiguously. A drag handle on a card needs the app and isn't built.
+
 ## Left out on purpose
 
 Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.

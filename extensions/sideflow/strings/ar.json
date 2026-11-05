@@ -1114,6 +1114,53 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "يريد «{name}» {what}، وهذا يعطيه «{value}».",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: قُصّ إلى {count} حرفًا في الطريق إلى الأداة. ولم يُرسل الباقي.",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "«{name}» واحد من {answers}، وهذا يعطيه «{value}».",
-    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "لا يستطيع «{step}» قراءة «{value}» كرقم واحد، لذا توقف هنا. خذ الرقم من حقل في أداة أو في خطوة ذكاء اصطناعي."
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "لا يستطيع «{step}» قراءة «{value}» كرقم واحد، لذا توقف هنا. خذ الرقم من حقل في أداة أو في خطوة ذكاء اصطناعي.",
+    "After {step}": "بعد {step}",
+    "Delete": "حذف",
+    "Keep them": "إبقاؤها",
+    "Move down": "نقل لأسفل",
+    "Move to": "نقل إلى",
+    "Move up": "نقل لأعلى",
+    "Pick the flows to delete.": "اختر الروتينات المراد حذفها.",
+    "Select": "تحديد",
+    "Select all": "تحديد الكل",
+    "Select flows": "تحديد الروتينات",
+    "The very start": "في البداية تمامًا",
+    "Their runs and what you allowed for them go too. This can't be undone.": "ستُحذف معها مرات تشغيلها وما سمحت به لها. لا يمكن التراجع عن ذلك.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "«{other}» يشغّل «{name}»، ولن تعمل تلك الخطوة بعد ذلك.",
+    "Delete these {count} flows?": {
+      "zero": "حذف هذه الروتينات ({count})؟",
+      "one": "حذف هذا الروتين؟",
+      "two": "حذف هذه الروتينات ({count})؟",
+      "few": "حذف هذه الروتينات ({count})؟",
+      "many": "حذف هذه الروتينات ({count})؟",
+      "other": "حذف هذه الروتينات ({count})؟"
+    },
+    "Delete {count} flows": {
+      "zero": "حذف الروتينات ({count})",
+      "one": "حذف روتين واحد",
+      "two": "حذف الروتينات ({count})",
+      "few": "حذف الروتينات ({count})",
+      "many": "حذف الروتينات ({count})",
+      "other": "حذف الروتينات ({count})"
+    },
+    "{count} of them are on. They stop running.": {
+      "zero": "{count} منها مفعّلة وستتوقف عن العمل.",
+      "one": "أحدها مفعّل وسيتوقف عن العمل.",
+      "two": "{count} منها مفعّلة وستتوقف عن العمل.",
+      "few": "{count} منها مفعّلة وستتوقف عن العمل.",
+      "many": "{count} منها مفعّلة وستتوقف عن العمل.",
+      "other": "{count} منها مفعّلة وستتوقف عن العمل."
+    },
+    "{count} selected": {
+      "zero": "تم تحديد {count}",
+      "one": "تم تحديد واحد",
+      "two": "تم تحديد {count}",
+      "few": "تم تحديد {count}",
+      "many": "تم تحديد {count}",
+      "other": "تم تحديد {count}"
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "يمكن اختيار أول {count} روتينًا فقط في كل مرة. احذفها وستظهر البقية.",
+    "The nearest places are listed. To go further, move it there and choose again.": "تُعرض أقرب الأماكن. للانتقال أبعد، انقلها إلى هناك ثم اختر مرة أخرى."
   }
 }

@@ -283,16 +283,11 @@ enum Editing {
         for step in old.allSteps where after[step.id] == nil { out.append(L("Removed: {step}", ["step": Words.label(step, catalog: catalog)])) }
         /// A step without what hangs from it: moving what's inside a branch isn't changing the branch.
         func own(_ step: Step) -> Step { step.mappingParts { _ in [] } }
-        /// Where each step stands among those both versions have: what it's in, and the one before it there.
-        func places(_ body: FlowBody) -> [String: String] {
-            var out: [String: String] = [:]
+        /// What each thing holds, of the steps both versions have, in order.
+        func lists(_ body: FlowBody) -> [String: [String]] {
+            var out: [String: [String]] = [:]
             func walk(_ list: [Step], _ inside: String) {
-                var previous = ""
-                for step in list {
-                    guard before[step.id] != nil, after[step.id] != nil else { continue }
-                    out[step.id] = "\(inside)|\(previous)"
-                    previous = step.id
-                }
+                out[inside] = list.map(\.id).filter { before[$0] != nil && after[$0] != nil }
                 for step in list {
                     for part in step.parts { walk(part.steps, "\(part.id):\(step.id)") }
                 }
@@ -300,16 +295,58 @@ enum Editing {
             walk(body.steps, "")
             return out
         }
-        let (was, now) = (places(old), places(new))
+        let was = lists(old)
+        let home = Dictionary(was.flatMap { inside, ids in ids.map { ($0, inside) } }, uniquingKeysWith: { a, _ in a })
+        // What moved is what isn't in its old order among the rest: moving the fourth up one moved one step, though the one it passed stands elsewhere now.
+        var moved = Set<String>()
+        for (inside, ids) in lists(new) {
+            let stayed = ids.filter { home[$0] == inside }
+            moved.formUnion(ids.filter { home[$0] != inside })
+            moved.formUnion(Set(stayed).subtracting(longestShared(was[inside]?.filter(stayed.contains) ?? [], stayed)))
+        }
         for step in new.allSteps {
             guard let earlier = before[step.id] else { continue }
             if own(earlier) != own(step) {
                 out.append(L("Changed: {step}", ["step": Words.label(step, catalog: catalog)]))
-            } else if was[step.id] != now[step.id] {
+            } else if moved.contains(step.id) {
                 out.append(L("Moved: {step}", ["step": Words.label(step, catalog: catalog)]))
             }
         }
         return out
+    }
+
+    /// The longest run of ids both lists have in the same order.
+    private static func longestShared(_ a: [String], _ b: [String]) -> [String] {
+        var row = Array(repeating: [String](), count: b.count + 1)
+        for x in a {
+            var next = row
+            for (at, y) in b.enumerated() {
+                next[at + 1] = x == y ? row[at] + [y] : (next[at].count > row[at + 1].count ? next[at] : row[at + 1])
+            }
+            row = next
+        }
+        return row[b.count]
+    }
+
+    /// The list a step stands in, whichever way through the flow.
+    static func siblings(of id: String, in body: FlowBody) -> [Step] {
+        func find(_ list: [Step]) -> [Step]? {
+            if list.contains(where: { $0.id == id }) { return list }
+            for step in list {
+                for part in step.parts { if let found = find(part.steps) { return found } }
+            }
+            return nil
+        }
+        return find(body.steps) ?? []
+    }
+
+    /// Where a step can go: after any step that isn't part of it. Not where it already stands.
+    static func placesToMove(_ id: String, in body: FlowBody) -> [Step] {
+        guard let step = body.step(id) else { return [] }
+        let own = Set(FlowBody(steps: [step]).allSteps.map(\.id))
+        let list = siblings(of: id, in: body)
+        let before = list.firstIndex { $0.id == id }.flatMap { $0 > 0 ? list[$0 - 1].id : nil }
+        return body.allSteps.filter { !own.contains($0.id) && $0.id != before }
     }
 
     /// Undo and redo for what's being edited. Typing in one field is one step back, however many times it was handed over. Only the draft: nothing here reverses anything a run did.

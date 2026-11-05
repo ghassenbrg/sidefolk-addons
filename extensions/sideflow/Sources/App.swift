@@ -198,6 +198,13 @@ struct Nav {
 
     /// The flow whose definition is showing to copy.
     var exporting: String?
+    /// The flows picked on the home page, while choosing some to delete, and whether it's asking to be sure.
+    var pickingFlows: Set<String>?
+    var askingToDelete = false
+    /// When it asked: the second click of a double click on Delete isn't being sure.
+    var askedToDeleteAt: Date?
+    /// Asked from one flow's own menu, not from choosing some: keeping it goes back to that.
+    var askedFromAFlow = false
     /// What's selected on a run's tree, and which go of a loop.
     var runStep: [String: String] = [:]
     var runScope: [String: String] = [:]

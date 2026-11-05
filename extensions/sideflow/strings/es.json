@@ -1046,6 +1046,37 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» quiere {what}, y esto le da «{value}».",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: recortado a {count} caracteres de camino a la herramienta. El resto no se envió.",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "«{name}» es uno de estos: {answers}, y esto le da «{value}».",
-    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "«{step}» no puede leer «{value}» como un solo número, así que se detuvo aquí. Toma el número de un campo de una herramienta o de un paso de IA."
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "«{step}» no puede leer «{value}» como un solo número, así que se detuvo aquí. Toma el número de un campo de una herramienta o de un paso de IA.",
+    "After {step}": "Después de {step}",
+    "Delete": "Eliminar",
+    "Keep them": "Conservarlas",
+    "Move down": "Bajar",
+    "Move to": "Mover a",
+    "Move up": "Subir",
+    "Pick the flows to delete.": "Elige las rutinas que quieres eliminar.",
+    "Select": "Seleccionar",
+    "Select all": "Seleccionar todas",
+    "Select flows": "Seleccionar rutinas",
+    "The very start": "Al principio de todo",
+    "Their runs and what you allowed for them go too. This can't be undone.": "Sus ejecuciones y lo que permitiste para ellas también se van. No se puede deshacer.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "«{other}» ejecuta «{name}», y ese paso dejará de funcionar.",
+    "Delete these {count} flows?": {
+      "one": "¿Eliminar esta rutina?",
+      "other": "¿Eliminar estas {count} rutinas?"
+    },
+    "Delete {count} flows": {
+      "one": "Eliminar {count} rutina",
+      "other": "Eliminar {count} rutinas"
+    },
+    "{count} of them are on. They stop running.": {
+      "one": "{count} de ellas está activa. Dejará de ejecutarse.",
+      "other": "{count} de ellas están activas. Dejarán de ejecutarse."
+    },
+    "{count} selected": {
+      "one": "{count} seleccionada",
+      "other": "{count} seleccionadas"
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Solo se pueden elegir las primeras {count} rutinas a la vez. Elimínalas y aparecerán las demás.",
+    "The nearest places are listed. To go further, move it there and choose again.": "Se muestran los lugares más cercanos. Para ir más lejos, muévelo allí y vuelve a elegir."
   }
 }

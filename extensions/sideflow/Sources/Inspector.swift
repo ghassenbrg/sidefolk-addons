@@ -335,7 +335,7 @@ import SidefolkExtensionKit
         let said = explanation(step, app)
         return [Section(said.title, main, place: .trailing, detail: said.detail),
                 Section(L("More options"), more, place: .trailing, collapsed: true),
-                Section(nil, [.action(Action(L("Duplicate this step"), tool: "ui", input: input("dup_step"), style: .plain, symbol: "plus.square.on.square")),
+                Section(nil, moving(step, flow, app, input: input) + [.action(Action(L("Duplicate this step"), tool: "ui", input: input("dup_step"), style: .plain, symbol: "plus.square.on.square")),
                               .action(Action(L("Make this its own flow"), tool: "ui", input: input("extract"), style: .plain, symbol: "rectangle.portrait.and.arrow.right", detail: L("It becomes a flow of its own, off until you turn it on, and this step calls it."))),
                               .action(Action(L("Remove this step"), tool: "ui", input: input("remove"), style: .destructive, symbol: "trash"))], place: .trailing)]
     }
@@ -463,6 +463,26 @@ import SidefolkExtensionKit
         }
         out.append(.note(stopping ? L("It looks after the steps inside have run, so it can check what they made.")
             : L("Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.")))
+        return out
+    }
+
+    /// Moving it: in plain sight, for whoever doesn't find the card's menu or think to drag it.
+    private static func moving(_ step: Step, _ flow: Flow, _ app: App, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
+        let list = Editing.siblings(of: step.id, in: flow.draft)
+        guard let at = list.firstIndex(where: { $0.id == step.id }) else { return [] }
+        var out: [Block] = [
+            .action(Action(L("Move up"), tool: "ui", input: input("up", [:]), style: .plain, symbol: "arrow.up", disabled: at == 0)),
+            .action(Action(L("Move down"), tool: "ui", input: input("down", [:]), style: .plain, symbol: "arrow.down", disabled: at == list.count - 1)),
+        ]
+        let startsIt = flow.draft.steps.first?.id == step.id
+        // Sidefolk keeps 24 of a menu: on a long flow, those nearest it.
+        let places = Editing.placesToMove(step.id, in: flow.draft)
+        let middle = max(0, flow.draft.allSteps.firstIndex { $0.id == step.id } ?? 0)
+        let near = places.sorted { abs((flow.draft.allSteps.firstIndex(of: $0) ?? 0) - middle) < abs((flow.draft.allSteps.firstIndex(of: $1) ?? 0) - middle) }.prefix(startsIt ? 24 : 23)
+        let kept = places.filter { place in near.contains { $0.id == place.id } }
+        let spots = (startsIt ? [] : [Option("start", L("The very start"))]) + kept.map { Option($0.id, L("After {step}", ["step": Words.label($0, catalog: app.catalog)])) }
+        if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, spots, selected: "", tool: "ui", input: input("move_after", [:]))) }
+        if kept.count < places.count { out.append(.note(L("The nearest places are listed. To go further, move it there and choose again."))) }
         return out
     }
 

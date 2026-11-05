@@ -1029,6 +1029,33 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "「{name}」には{what}が必要ですが、渡されたのは「{value}」です。",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: ツールへ送る際に{count}文字に切り詰めました。残りは送信されていません。",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "「{name}」は {answers} のいずれかですが、渡されたのは「{value}」です。",
-    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "「{step}」は「{value}」を 1 つの数値として読み取れないため、ここで停止しました。数値はツールのフィールドか AI ステップのフィールドから取ってください。"
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "「{step}」は「{value}」を 1 つの数値として読み取れないため、ここで停止しました。数値はツールのフィールドか AI ステップのフィールドから取ってください。",
+    "After {step}": "{step} の後",
+    "Delete": "削除",
+    "Keep them": "残す",
+    "Move down": "下へ移動",
+    "Move to": "移動先",
+    "Move up": "上へ移動",
+    "Pick the flows to delete.": "削除するルーティンを選んでください。",
+    "Select": "選択",
+    "Select all": "すべて選択",
+    "Select flows": "ルーティンを選択",
+    "The very start": "いちばん最初",
+    "Their runs and what you allowed for them go too. This can't be undone.": "実行記録と許可した内容も一緒に消えます。元に戻せません。",
+    "“{other}” runs “{name}”, and that step won't work after this.": "「{other}」は「{name}」を実行しています。このステップは動かなくなります。",
+    "Delete these {count} flows?": {
+      "other": "これら{count}件のルーティンを削除しますか?"
+    },
+    "Delete {count} flows": {
+      "other": "{count}件のルーティンを削除"
+    },
+    "{count} of them are on. They stop running.": {
+      "other": "{count}件が有効です。実行されなくなります。"
+    },
+    "{count} selected": {
+      "other": "{count}件選択中"
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "一度に選べるのは最初の{count}件のルーティンだけです。削除すると残りが表示されます。",
+    "The nearest places are listed. To go further, move it there and choose again.": "近い場所だけを表示しています。さらに遠くへ移すには、そこまで移動してからもう一度選んでください。"
   }
 }
