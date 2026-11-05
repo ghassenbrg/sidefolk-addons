@@ -1067,6 +1067,7 @@
     "“{flow}” needs “{input}”: say what to give it.": "「{flow}」には「{input}」が必要です。何を渡すか指定してください。",
     "“{flow}” says it gives {type}, and it gave “{value}”.": "「{flow}」は{type}を返すはずですが、「{value}」を返しました。",
     "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "「{flow}」は「{input}」に{type}を求めていますが、渡されたのは「{value}」です。",
-    "“{flow}” wants {type} for “{input}”.": "「{flow}」は「{input}」に{type}を求めています。"
+    "“{flow}” wants {type} for “{input}”.": "「{flow}」は「{input}」に{type}を求めています。",
+    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "「{name}」のバージョン{count}には、「{name}」について今許可されている内容にないAIステップまたは起動するルーティンがあるため、そのバージョンのままにできません。"
   }
 }

@@ -99,6 +99,12 @@ struct Values: Equatable, Sendable {
         named[name].map { value in said[name].map(JSON.string) ?? value }
     }
 
+    /// What a value written as exactly one value is, its fields and all, rather than the words a tool said with it. For what wants a list or a record.
+    func itself(_ text: String) -> JSON? {
+        guard Self.isOneSlot(text), let slot = Self.slots(text).first else { return nil }
+        return resolve(slot.name, path: slot.path)
+    }
+
     /// `name` with what's after it, or nil when nothing is there.
     func resolve(_ name: String, path: String = "") -> JSON? {
         guard let value = base(name) else { return nil }
@@ -283,8 +289,8 @@ struct Values: Equatable, Sendable {
     }
 
     /// What steps left, as a whole: the last with something to say, or if none has, the last that left anything. A failure carried past leaves empty words, which don't take the answer away from what came before it.
-    func lastAnswer(of steps: [Step]) -> JSON? {
-        let left = steps.filter { $0.hasOutput }.compactMap { whole($0.id) }
+    func lastAnswer(of steps: [Step], itself: Bool = false) -> JSON? {
+        let left = steps.filter { $0.hasOutput }.compactMap { itself ? named[$0.id] : whole($0.id) }
         return left.last { $0 != .string("") } ?? left.last
     }
 

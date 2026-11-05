@@ -695,6 +695,7 @@
     "Use this": "Use this",
     "Use this if it's empty": "Use this if it's empty",
     "Used by {flows}": "Used by {flows}",
+    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.",
     "Version {count}, live now": "Version {count}, live now",
     "Version {count}, until {date}": "Version {count}, until {date}",
     "Wait": "Wait",

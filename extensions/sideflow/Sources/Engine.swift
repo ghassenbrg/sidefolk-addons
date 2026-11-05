@@ -322,7 +322,7 @@ extension FlowHost {
         case .waitFor(_, _, let minutes):
             return waitingForEvent(step, minutes: minutes, in: &run)
         case .finish(let value):
-            run.output = run.values.fill(native: .string(value))
+            run.output = (run.body.output?.wantsItself == true ? run.values.itself(value) : nil) ?? run.values.fill(native: .string(value))
             run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: run.output.map { Values.text($0).clipped(Self.keptOutput) }, at: clock()))
             ending(in: &run, length: FlowProgram(run.body).ops.count)
             store.save(run)
@@ -679,7 +679,7 @@ extension FlowHost {
         // A flow's own run holds the flow; one that another waits for doesn't: it's that run's business.
         let holds = run.parent == nil
         // The last that has something to say: a loop's insides are gone by its end, and a path not taken never made anything.
-        if run.output == nil, run.status == .done, let last = run.values.lastAnswer(of: run.body.allSteps) { run.output = last }
+        if run.output == nil, run.status == .done, let last = run.values.lastAnswer(of: run.body.allSteps, itself: run.body.output?.wantsItself == true) { run.output = last }
         if run.status.isOver, store.takeStop(Self.personStopKey(run.id)) {
             let all = (clearedOnStop.removeValue(forKey: run.id) ?? 0) + clearQueue(of: run.flow)
             if run.status == .stopped, all > 0 { run.problem = L(one: "Stopped. {count} start waiting its turn was cleared.", other: "Stopped. {count} starts waiting their turn were cleared.", count: all) }

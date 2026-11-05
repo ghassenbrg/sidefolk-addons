@@ -136,6 +136,77 @@ import SidefolkExtensionKit
         #expect(try await runs(w, now).values.value("r") == "new", "the number of what's live is that")
     }
 
+    @Test func aHeldVersionDoesntBringBackAnAIStepNoLongerAllowed() async throws {
+        let w = try World()
+        var pay = try callee(w, steps: [["id": "x", "ai": "the old words"]])
+        pay.keep(try #require(pay.live), at: w.now, keeping: [])
+        pay.live = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "x", "ai": "the new words"]]])
+        w.store.save(pay)
+        let held = try w.flow([["id": "r", "call_flow": "Pay", "version": 1]])
+        #expect(held.draft.problems(w.catalog).contains { $0.step == "r" }, "the editor says so")
+        let back = try await runs(w, held)
+        #expect(back.status == .failed, "not stuck waiting, and not run: \(back.status)")
+        #expect(back.problem?.contains("version") == true, "\(back.problem ?? "")")
+        #expect(w.store.runs(of: pay.id).isEmpty)
+        #expect(!w.host.written.contains { $0.contains("old words") })
+    }
+
+    @Test func aHeldVersionWithNothingBeyondWhatsAllowedRuns() async throws {
+        let w = try World()
+        var pay = try callee(w, steps: [["id": "same", "ai": "same words"], ["finish": "old"]])
+        pay.keep(try #require(pay.live), at: w.now, keeping: [])
+        pay.live = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "same", "ai": "same words"], ["id": "more", "text": "x"], ["finish": "new"]]])
+        w.store.save(pay)
+        let held = try w.flow([["id": "r", "call_flow": "Pay", "version": 1]])
+        let back = try await runs(w, held)
+        #expect(back.status == .done, "\(back.problem ?? "")")
+        #expect(back.values.value("r") == "old")
+    }
+
+    @Test func aLongNameIsItsWholeName() throws {
+        let w = try World()
+        let own = try FlowCodec.body(["trigger": ["type": "manual"], "inputs": [["name": "customer"]], "steps": [["id": "s", "text": "{{input.customer}} {{input.customer.name}} {{input.customer[0]}}"]]])
+        #expect(own.problems(w.catalog).isEmpty, "\(own.problems(w.catalog).map(\.text))")
+        let wrong = try FlowCodec.body(["trigger": ["type": "manual"], "inputs": [["name": "customer"]], "steps": [["id": "s", "text": "{{input.customers}}"]]])
+        #expect(wrong.problems(w.catalog).contains { $0.text.contains("customers") })
+    }
+
+    @Test func aListOrARecordIsTheThingNotWhatATooSaidAboutIt() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true, outputSchema: #"{"properties":{"n":{"type":"number"}}}"#)]))
+        func said(_ text: String) { w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: text, summary: "", data: #"{"n":3}"#)] }
+        _ = try callee(w, steps: [["id": "a", "text": "{{input.it.n}}"]], inputs: [["name": "it", "type": "record"]])
+        let caller = try w.flow([["id": "f", "do": "reads.it"], ["id": "r", "call_flow": "Pay", "inputs": ["it": "{{f}}"]]])
+        said("Found 3")
+        let back = try await runs(w, caller)
+        #expect(back.status == .done, "a record's fields, not “Found 3”: \(back.problem ?? "")")
+        #expect(back.values.value("r") == "3")
+
+        _ = try callee(w, name: "Listed", steps: [["id": "a", "text": "x"]], inputs: [["name": "them", "type": "list"]])
+        let other = try w.flow([["id": "f", "do": "reads.it"], ["id": "r", "call_flow": "Listed", "inputs": ["them": "{{f}}"]]])
+        said("Found 3")
+        let refused = try await runs(w, other)
+        #expect(refused.status == .failed, "a record isn't a list, and its words aren't one either")
+    }
+
+    @Test func whatItGivesIsTheThingToo() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true, outputSchema: #"{"properties":{"n":{"type":"number"}}}"#)]))
+        _ = try callee(w, steps: [["id": "f", "do": "reads.it"]], output: "record")
+        let caller = try w.flow([["id": "r", "call_flow": "Pay"], ["id": "s", "text": "{{r.n}}"]])
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Found 3", summary: "", data: #"{"n":3}"#)]
+        let back = try await runs(w, caller)
+        #expect(back.status == .done, "\(back.problem ?? "")")
+        #expect(back.values.value("s") == "3")
+
+        _ = try callee(w, name: "Finished", steps: [["id": "f", "do": "reads.it"], ["finish": "{{f}}"]], output: "record")
+        let other = try w.flow([["id": "r", "call_flow": "Finished"], ["id": "s", "text": "{{r.n}}"]])
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Found 3", summary: "", data: #"{"n":3}"#)]
+        let finished = try await runs(w, other)
+        #expect(finished.status == .done, "\(finished.problem ?? "")")
+        #expect(finished.values.value("s") == "3")
+    }
+
     @Test func aVersionNoLongerKeptSaysSo() async throws {
         let w = try World()
         _ = try callee(w, steps: [["finish": "x"]])

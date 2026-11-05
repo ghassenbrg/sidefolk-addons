@@ -267,11 +267,15 @@ extension Engine {
             guard let held = other.body(version: pin) else {
                 return failed(step, why: L("It stays on version {count} of “{name}”, and that version is no longer kept.", ["count": Format.integer(pin), "name": other.name]), reads: false, in: &run)
             }
+            if !practicing, Contract.goesBeyond(held, other.running) {
+                return failed(step, why: L("Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.", ["count": Format.integer(pin), "name": other.name]), reads: false, in: &run)
+            }
             body = held
         } else {
             body = practicing ? other.draft : other.running
         }
         var given = inputs.mapValues { run.values.fill(native: .string($0)) }
+        for input in body.inputs where input.type.wantsItself { if let found = inputs[input.name].flatMap(run.values.itself) { given[input.name] = found } }
         // A practice run's values from earlier steps may be stand-ins: only what's written out can be held to it.
         let written = practicing ? Set(inputs.filter { Values.slots($0.value).isEmpty }.keys).union(body.inputs.map(\.name).filter { inputs[$0] == nil }) : nil
         if let wrong = Contract.check(&given, body.inputs, flow: other.name, written: written) { return failed(step, why: wrong, reads: false, in: &run) }

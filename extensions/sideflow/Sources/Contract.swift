@@ -22,6 +22,9 @@ enum ValueType: String, Equatable, Sendable, CaseIterable {
         }
     }
 
+    /// It wants the thing itself, not the words a tool said along with it.
+    var wantsItself: Bool { self == .list || self == .record }
+
     /// In the words a tool's own schema uses, which is what a field offering values goes by.
     var schemaWord: String {
         switch self {
@@ -53,6 +56,17 @@ enum ValueType: String, Equatable, Sendable, CaseIterable {
 
 enum Contract {
     static let mostInputs = 16
+
+    /// Whether a version kept from before has an AI step or sets off a flow that what's allowed now doesn't have as it is. Sidefolk checks an action at each call,
+    /// but nothing checks these two: what's stopped from going on in a run left behind by an edit mustn't come back through an old version.
+    static func goesBeyond(_ held: FlowBody, _ allowed: FlowBody) -> Bool {
+        held.allSteps.contains { step in
+            switch step.kind {
+            case .ai, .flow, .call: !allowed.allSteps.contains { $0.id == step.id && $0.kind == step.kind }
+            default: false
+            }
+        }
+    }
 
     /// Whether what's given is what it takes, as what it takes: a reason if not. Something it can do without left out is there as nothing.
     /// `written`: only what's written out, since a practice run hasn't got the real values to go by.

@@ -273,7 +273,7 @@ extension FlowBody {
         // Saying what it takes and then using something else is a call that can never get it.
         if !inputs.isEmpty {
             for step in allSteps {
-                for name in step.usedTexts.flatMap(Values.slots).filter({ $0.0 == "input" }).compactMap({ $0.1.dropFirst().first }).map(String.init) where !inputs.contains(where: { $0.name == name }) {
+                for name in step.usedTexts.flatMap(Values.slots).filter({ $0.0 == "input" }).compactMap({ $0.1.dropFirst().split(whereSeparator: { $0 == "." || $0 == "[" }).first }).map(String.init) where !inputs.contains(where: { $0.name == name }) {
                     out.append(FlowProblem(step: step.id, text: L("It uses “{value}”, and that isn't among what this flow says it takes.", ["value": "{{input.\(name)}}"])))
                 }
             }
@@ -329,6 +329,9 @@ extension FlowBody {
             case .call(let flow, let inputs):
                 if let body = catalog.calledBody(flow, step.pin) {
                     out += Contract.problems(of: inputs, to: body, flow: flow).map { FlowProblem(step: step.id, text: $0) }
+                    if let pin = step.pin, let allowed = catalog.calledBody(flow, nil), Contract.goesBeyond(body, allowed) {
+                        out.append(FlowProblem(step: step.id, text: L("Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.", ["count": Format.integer(pin), "name": flow])))
+                    }
                 } else if let pin = step.pin, catalog.findsFlow(flow), !flow.trimmed.isEmpty {
                     out.append(FlowProblem(step: step.id, text: L("It stays on version {count} of “{name}”, and that version is no longer kept.", ["count": Format.integer(pin), "name": flow])))
                 }

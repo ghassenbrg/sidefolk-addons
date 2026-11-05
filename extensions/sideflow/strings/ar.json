@@ -1157,6 +1157,7 @@
     "“{flow}” needs “{input}”: say what to give it.": "يحتاج «{flow}» إلى «{input}»: قل ماذا تعطيه.",
     "“{flow}” says it gives {type}, and it gave “{value}”.": "يقول «{flow}» إنه يعيد {type}، وقد أعاد «{value}».",
     "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "يريد «{flow}» {type} لـ«{input}»، وهذا يعطيه «{value}».",
-    "“{flow}” wants {type} for “{input}”.": "يريد «{flow}» {type} لـ«{input}»."
+    "“{flow}” wants {type} for “{input}”.": "يريد «{flow}» {type} لـ«{input}».",
+    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "يحتوي الإصدار {count} من «{name}» على خطوة ذكاء اصطناعي أو يشغّل روتينًا لم يعد موجودًا فيما سمحت به لـ«{name}»، لذا لا يمكنه البقاء على ذلك الإصدار."
   }
 }

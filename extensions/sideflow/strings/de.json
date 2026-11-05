@@ -1085,6 +1085,7 @@
     "“{flow}” needs “{input}”: say what to give it.": "„{flow}“ braucht „{input}“: Sag, was er bekommen soll.",
     "“{flow}” says it gives {type}, and it gave “{value}”.": "„{flow}“ gibt laut Angabe {type} zurück und gab „{value}“.",
     "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "„{flow}“ will {type} für „{input}“, und das hier gibt ihm „{value}“.",
-    "“{flow}” wants {type} for “{input}”.": "„{flow}“ will {type} für „{input}“."
+    "“{flow}” wants {type} for “{input}”.": "„{flow}“ will {type} für „{input}“.",
+    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "Version {count} von „{name}“ hat einen KI-Schritt oder startet einen Ablauf, den das, was du für „{name}“ erlaubt hast, nicht mehr enthält, und kann deshalb nicht bei dieser Version bleiben."
   }
 }
