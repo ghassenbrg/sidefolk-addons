@@ -191,6 +191,8 @@ struct Nav {
         case nothing
         case trigger
         case step(String)
+
+        var stepId: String? { if case .step(let id) = self { id } else { nil } }
     }
 
     /// What's selected on each flow's tree. Nothing to start with: the flow itself and what it will give are what there is to read.
@@ -205,6 +207,10 @@ struct Nav {
     var askedToDeleteAt: Date?
     /// Asked from one flow's own menu, not from choosing some: keeping it goes back to that.
     var askedFromAFlow = false
+    /// How a board is being looked at, never what it holds: the step it's zoomed in on, the ones folded shut, and how far a wrap would reach.
+    var focus: [String: String] = [:]
+    var folded: [String: Set<String>] = [:]
+    var wrapThrough: [String: String] = [:]
     /// What's selected on a run's tree, and which go of a loop.
     var runStep: [String: String] = [:]
     var runScope: [String: String] = [:]

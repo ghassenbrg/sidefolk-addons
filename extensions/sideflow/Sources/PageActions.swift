@@ -86,6 +86,26 @@ import SidefolkExtensionKit
             }
         case "move_after":
             if let id = a.string("step"), let after = a.string("value") { try draft { $0 = Editing.place(id, after: after, in: $0) } }
+        case "focus":
+            let f = try flow()
+            app.nav.focus[f.id] = a.string("step")?.nonEmpty
+        case "fold":
+            let f = try flow()
+            guard let id = a.string("step") else { break }
+            if app.nav.folded[f.id, default: []].remove(id) == nil { app.nav.folded[f.id, default: []].insert(id) }
+        case "wrap_through":
+            if let id = a.string("step") { app.nav.wrapThrough[id] = a.string("value") }
+        case "wrap":
+            let f = try flow()
+            guard let id = a.string("step"), let kind = a.string("value"), ["if", "for_each", "repeat", "try", "parallel"].contains(kind) else { break }
+            let holder = newStep(kind, in: f.draft, of: f.id, app)
+            let through = app.nav.wrapThrough[id].flatMap { last in Editing.siblings(of: id, in: f.draft).contains { $0.id == last } ? last : nil } ?? id
+            try draft { body in
+                guard let wrapped = Editing.wrap(from: id, through: through, inside: holder, in: body) else { return }
+                body = wrapped
+            }
+            app.nav.wrapThrough[id] = nil
+            app.nav.inspect(.step(holder.id), in: f.id)
         case "up", "down":
             if let id = a.string("step") { try draft { $0 = Editing.nudge(id, by: op == "up" ? -1 : 1, in: $0) } }
         case "rename_open":

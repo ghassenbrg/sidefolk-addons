@@ -517,6 +517,21 @@ import SidefolkExtensionKit
         return out
     }
 
+    /// Putting it inside something new, with the steps after it if they belong together. It's one edit, and Undo takes it back.
+    private static func wrapping(_ step: Step, list: [Step], from at: Int, through: String?, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
+        var out: [Block] = []
+        let later = Array(list[at...].prefix(24))
+        if later.count > 1 {
+            let chosen = through.flatMap { last in later.contains { $0.id == last } ? last : nil } ?? step.id
+            out.append(.picker(L("Together with the steps after it"), style: .menu, later.enumerated().map { place, one in
+                Option(one.id, place == 0 ? L("Only this step") : L("Through {step}", ["step": one.name ?? one.id]))
+            }, selected: chosen, tool: "ui", input: input("wrap_through", [:])))
+        }
+        out.append(.picker(L("Wrap it in"), style: .menu, [Option(step.id, L("Choose what")), Option("if", L("If…")), Option("for_each", L("For each")), Option("repeat", L("Repeat until")), Option("try", L("Try")), Option("parallel", L("At the same time"))], selected: step.id, tool: "ui", input: input("wrap", [:])))
+        if !step.parts.isEmpty { out.append(.action(Action(L("Focus on this"), tool: "ui", input: input("focus", [:]), style: .plain, symbol: "scope", detail: L("The board shows only what's inside it.")))) }
+        return out
+    }
+
     /// Moving it: in plain sight, for whoever doesn't find the card's menu or think to drag it.
     private static func moving(_ step: Step, _ flow: Flow, _ app: App, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
         let list = Editing.siblings(of: step.id, in: flow.draft)
@@ -534,6 +549,7 @@ import SidefolkExtensionKit
         let spots = (startsIt ? [] : [Option("start", L("The very start"))]) + kept.map { Option($0.id, L("After {step}", ["step": Words.label($0, catalog: app.catalog)])) }
         if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, [Option(step.id, L("Choose a place"))] + spots, selected: step.id, tool: "ui", input: input("move_after", [:]))) }
         if kept.count < places.count { out.append(.note(L("The nearest places are listed. To go further, move it there and choose again."))) }
+        out += wrapping(step, list: list, from: at, through: app.nav.wrapThrough[step.id], input: input)
         return out
     }
 
