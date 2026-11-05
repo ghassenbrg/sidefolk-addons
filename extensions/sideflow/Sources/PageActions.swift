@@ -474,7 +474,7 @@ import SidefolkExtensionKit
             app.nav.inspect(.step(new), in: f.id)
         case "delete_too_long":
             // The page that says so has no room for a question first, and only that page holds this.
-            guard a.string("page_token") == app.pageKey, let id = a.string("flow") else { break }
+            guard a.string("page_token") == app.pageKey, let id = a.string("flow"), Pages.isTooLong(flow: id, app) else { break }
             app.engine.delete(id)
             return .home
         case "ask_delete":

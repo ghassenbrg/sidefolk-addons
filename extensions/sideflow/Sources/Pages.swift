@@ -22,6 +22,10 @@ import SidefolkExtensionKit
 
     static let mostOnAPage = 126_000
 
+    static func isTooLong(flow id: String, _ app: App) -> Bool {
+        JSONText.write(whole(app, state: Arguments(["flow": id])).sent).utf8.count > mostOnAPage
+    }
+
     /// A flow or a list too long to draw, with what can be done about it. Every word here is short by being cut.
     static func tooLong(_ app: App, state: Arguments) -> Page {
         var body: [Block] = [.note(L("This is too long to show on a page. Delete what's too long, or ask an agent to shorten it."), tone: .warn)]
@@ -30,6 +34,12 @@ import SidefolkExtensionKit
             body.append(.action(button(L("Delete this flow"), "delete_too_long", ["flow": flow.id, "page_token": app.pageKey], style: .destructive, symbol: "trash", detail: L("Its runs and what you allowed for it go too. This can't be undone."))))
             return Page(summary: summary(app), sections: [Section(L("Too long to show"), body, wide: true)], back: L("All flows"), workspace: true)
         }
+        if case .run(let id) = Nav.place(state), let run = app.store.run(id), !run.status.isOver {
+            body.append(.note(FlowFile.short(run.flowName, 60)))
+            // Stopping comes first: it's why anyone would be here with a run under way. A form it waits on has its answers kept; its flow's page can take them once that's shorter.
+            body.append(.action(button(L("Stop"), "stop_run", ["run": run.id, "page_token": app.pageKey], style: .destructive, symbol: "stop.fill")))
+        }
+        body.append(.action(Action(L("Run history"), act: .go(Go(set: place(["view": "history"]), push: true)), symbol: "clock.arrow.circlepath")))
         for flow in app.store.flows().prefix(20) {
             body.append(.action(Action(FlowFile.short(flow.name, 60), act: .go(Go(set: place(["flow": flow.id]), push: true)), symbol: "point.3.connected.trianglepath.dotted")))
         }

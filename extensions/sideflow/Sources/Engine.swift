@@ -1166,12 +1166,10 @@ extension FlowHost {
                 walk(inside)
                 // What a loop or a repeat gives comes from what's in it.
                 switch step.kind {
-                case .form(let form):
-                    // It asks the person, on the page rather than by a card, so the plan's own word for that is what the card says.
-                    if let as_ = name(step) { steps.append(PlanStep("ask.user", ["question": form.title, "timeout_seconds": 300], named: as_, title: step.name ?? form.title.nonEmpty)) }
                 case .parallel:
+                    // What each lane made names itself on the card. A lane's answer can also be words its last step finished with, so it never counts as nearer than outside, as it didn't with no row at all.
                     let made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
-                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: said(made.sorted()))) }
+                    if let as_ = name(step) { steps.append(.value(named: as_, reads: said(Array(made.sorted().prefix(mostReads - 1)) + [writtenWords]))) }
                 case .forEach, .repeatUntil:
                     var made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
                     // A go where nothing inside made anything keeps the item itself.
@@ -1182,17 +1180,9 @@ extension FlowHost {
             }
         }
         walk(body.steps)
-        // What a try's recover reads comes from the steps it tried. Named once, as `{{item}}` is.
+        // What went wrong can say anything, from anywhere: from outside, as it was with no row, and not a value for the card to look for.
         if body.allSteps.flatMap(\.usedTexts).flatMap(Values.references).contains("error"), !body.allSteps.contains(where: { $0.id == "error" }) {
-            func tried(_ list: [Step]) -> [String] {
-                list.flatMap { step -> [String] in
-                    var out: [String] = []
-                    if case .attempt(let first, _, _) = step.kind { out += FlowBody(steps: first).allSteps.filter(\.hasOutput).map(\.id) }
-                    _ = step.mappingParts { out += tried($0); return $0 }
-                    return out
-                }
-            }
-            steps.append(.value(named: "error", reads: said(Array(Set(tried(body.steps))).sorted())))
+            steps.append(.value(named: "error", reads: [writtenWords]))
         }
         // Words written in a step are no step's to name on a card. They read only themselves, which counts as from outside: an edit can change them with no card.
         if !names.contains(writtenWords), steps.contains(where: { $0.line.contains(writtenWords) }) { steps.append(.value(named: writtenWords, reads: [writtenWords])) }
