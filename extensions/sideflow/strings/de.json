@@ -60,7 +60,8 @@
       "title": "Einen Ablauf löschen"
     },
     "ui": {
-      "title": "Sideflow öffnen"
+      "title": "Sideflow öffnen",
+      "summary": "Etwas in Sideflow ändern"
     }
   },
   "pages": {

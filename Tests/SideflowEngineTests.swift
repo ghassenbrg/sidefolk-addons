@@ -2724,6 +2724,15 @@ extension JSON {
         }
     }
 
+    /// History's row for a click is this sentence, not the tool's arguments in words: a run of arguments would show the page's token if the call failed.
+    @Test func aPageClicksRowInHistoryIsASentenceNotItsArguments() throws {
+        let file = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("extensions/sideflow/sidefolk-extension.json")
+        let manifest = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: Any])
+        let ui = try #require((manifest["tools"] as? [String: Any])?["ui"] as? [String: Any])
+        let summary = try #require(ui["summary"] as? String)
+        #expect(!summary.contains("{"), "nothing of what it's given goes in")
+    }
+
     @Test func thePagesKeyLastsAcrossARestart() throws {
         let w = try World()
         let folder = w.folder.appendingPathComponent("app")

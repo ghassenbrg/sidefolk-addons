@@ -60,7 +60,8 @@
       "title": "Apagar uma rotina"
     },
     "ui": {
-      "title": "Abrir o Sideflow"
+      "title": "Abrir o Sideflow",
+      "summary": "Alterar algo no Sideflow"
     }
   },
   "pages": {
