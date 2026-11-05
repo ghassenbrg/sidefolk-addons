@@ -147,8 +147,15 @@ struct DataStep: Equatable, Sendable {
             // What the page shows selected before anyone picks. Looking for nothing would look like an answer: an empty list.
             if [nil, .contains, .not_contains].contains(test), resolved.trimmed.isEmpty { throw Problem(L("Say what to compare it with.")) }
             return .array(try list().filter { item in
-                let left = at(item).map(Values.text) ?? ""
-                if test == .more_than || test == .less_than, let doubtful = [left, resolved].first(where: Condition.couldBeEither) { throw Condition.Unreadable(words: doubtful) }
+                let found = at(item)
+                let left = found.map(Values.text) ?? ""
+                if test == .more_than || test == .less_than {
+                    // A row with nothing there has nothing to compare. One with words that aren't one number can't be told.
+                    if left.trimmed.isEmpty || found == .null { return false }
+                    guard case .number(let a)? = found.map(Condition.reading(of:)) else { throw Condition.Unreadable(words: left) }
+                    guard let b = NumberWords.number(resolved) else { throw Condition.Unreadable(words: resolved) }
+                    return test == .more_than ? a > b : a < b
+                }
                 return Condition.test(test ?? .contains, left: left, right: resolved)
             })
         case .sort:
@@ -168,15 +175,14 @@ struct DataStep: Equatable, Sendable {
             return .array(Array(try list().prefix(max(count ?? 1, 0))))
         case .sum:
             let total = try list().reduce(0) { sum, item in
-                guard let text = at(item).map(Values.text) else { return sum }
-                if Condition.couldBeEither(text) { throw Condition.Unreadable(words: text) }
-                return sum + (Condition.number(text) ?? 0)
+                guard let found = at(item), found != .null, !Values.text(found).trimmed.isEmpty else { return sum }
+                guard case .number(let n) = Condition.reading(of: found) else { throw Condition.Unreadable(words: Values.text(found)) }
+                return sum + n
             }
             guard total.isFinite else { throw Problem(L("Those numbers add up to too much.")) }
             return .number(total)
         case .number:
-            if Condition.couldBeEither(Values.text(value)) { throw Condition.Unreadable(words: Values.text(value)) }
-            guard let n = Condition.number(Values.text(value)) else { throw Problem(L("There's no number in that.")) }
+            guard case .number(let n) = Condition.reading(of: value) else { throw Condition.Unreadable(words: Values.text(value)) }
             return .number(n)
         case .batches:
             let size = max(count ?? 10, 1), items = try list()

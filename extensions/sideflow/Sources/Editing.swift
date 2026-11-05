@@ -370,8 +370,19 @@ enum Editing {
     /// Words that are plainly a number. A comma with one or two digits after it is a decimal; "1,234" could be either, and a number nobody meant is worse than none.
     static func number(_ text: String) -> Double? {
         let t = text.trimmed
-        guard !Condition.couldBeEither(t), t.range(of: #"^[+-]?([0-9]{1,15}(\.[0-9]+|,[0-9]{1,2})?|\.[0-9]+)([eE][+-]?[0-9]+)?$"#, options: .regularExpression) != nil else { return nil }
+        guard !couldBeMoreThanOne(t), t.range(of: #"^[+-]?([0-9]{1,15}(\.[0-9]+|,[0-9]{1,2})?|\.[0-9]+)([eE][+-]?[0-9]+)?$"#, options: .regularExpression) != nil else { return nil }
         return Double(t.replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil }
+    }
+
+    /// Whether someone typing this could mean either of two numbers. `1.299` isn't: it's the only way to type it. `1.500` could as easily be 1.5, typed plainly.
+    static func couldBeMoreThanOne(_ text: String) -> Bool {
+        text.trimmed.range(of: #"^[+-]?[1-9][0-9]{0,2}(,[0-9]{3}|\.[0-9]{2}0)$"#, options: .regularExpression) != nil
+    }
+
+    /// Words from an earlier step, for a number field: only what `NumberWords` would read, since nobody's there to mean it.
+    static func number(fromWords words: String) -> Double? {
+        guard case .number = NumberWords.read(words) else { return nil }
+        return number(words)
     }
 
     /// Words that are a whole number and nothing else: "1.000" could be a thousand, and "12.0" isn't how anyone writes a count.

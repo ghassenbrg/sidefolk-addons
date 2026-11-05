@@ -39,6 +39,8 @@ import SidefolkExtensionKit
             if flow.hasChanges { out["running_now"] = FlowCodec.json(flow.running) }
             let problems = flow.draft.problems(app.catalog).map(\.text)
             if !problems.isEmpty { out["problems"] = problems }
+            let fromWords = flow.draft.readsNumbersFromWords(app.catalog)
+            if !fromWords.isEmpty { out["reads_numbers_from_words"] = fromWords.sorted() }
             // What reaches a model stops at 20 KB, and half a definition is worse than none: the words go first, then it's kept compact.
             if JSONText.write(out).utf8.count > 18_000 { out["in_words"] = nil }
             return JSONText.write(out)
@@ -88,6 +90,7 @@ import SidefolkExtensionKit
             let problems = flow.draft.problems(app.catalog).map(\.text)
             var text = flow.state == .draft ? L("Changed the draft.") : L("Changed. It keeps running as before until you apply this.")
             if !problems.isEmpty { text += "\n" + L("To fix first: {list}", ["list": problems.joined(separator: " ")]) }
+            if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { text += "\n" + L("Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.") }
             return text
         }
 

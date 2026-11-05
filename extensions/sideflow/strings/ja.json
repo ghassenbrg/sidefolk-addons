@@ -521,6 +521,8 @@
     "“{tool}” has no value called “{name}”.": "「{tool}」に「{name}」という値はありません。",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "「{tool}」はいま使えません。その拡張機能がオフか削除されているか、Sidefolkが拡張機能に使わせていません。",
     "“every_minutes” must be from {least} to {most}.": "「every_minutes」は {least} から {most} の範囲で指定してください。",
+    "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "一部のステップは言葉から数値を読み取り、明らかに 1 つの数値でなければ停止します。対処方法は各ステップのフォームに表示されます。",
+    "This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field.": "ここでは言葉を比較するため、明らかに 1 つの数値でなければ停止します。数値はツールのフィールドか AI ステップのフィールドから取ってください。",
     "That could be more than one number. Write it plainly, like 1500 or 1.5.": "この数値は複数の読み方ができます。1500 や 1.5 のようにはっきり書いてください。",
     "That isn't a number.": "数値ではありません。",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "ルーティンをディスクに保存できませんでした。Sidefolk を終了すると変更が失われる可能性があります。",
@@ -798,7 +800,6 @@
     "The same as what's running": "実行中のものと同じ",
     "The text, as it should be": "あるべき姿のテキスト",
     "Then it counts as this step failing.": "その場合は、このステップの失敗として扱われます。",
-    "There's no number in that.": "数値が見つかりません。",
     "This item": "この項目",
     "Tries": "試行回数",
     "Try": "試す",
@@ -1028,6 +1029,6 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "「{name}」には{what}が必要ですが、渡されたのは「{value}」です。",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: ツールへ送る際に{count}文字に切り詰めました。残りは送信されていません。",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "「{name}」は {answers} のいずれかですが、渡されたのは「{value}」です。",
-    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "「{step}」は「{value}」を読み取れません。複数の数値に読めるため、ここで停止しました。"
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "「{step}」は「{value}」を 1 つの数値として読み取れないため、ここで停止しました。数値はツールのフィールドか AI ステップのフィールドから取ってください。"
   }
 }

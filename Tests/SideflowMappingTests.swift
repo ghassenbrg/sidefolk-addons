@@ -395,37 +395,75 @@ import SidefolkExtensionKit
         #expect((w.host.calls.first?.input["change"] as? [String: Any])?["replace"] as? String == "")
     }
 
-    @Test func aNumberThatLooksSmallerThanItIsStops() throws {
-        for words in ["1.500", "12.500", "1.250 visitors", "1.299 €", "€2.750", "kr 1.500", "1.299 EUR", "USD 1.299", "1'299.50", "CHF 1’299", "3 millions", "2,5 Mio. €", "1,5 Mrd", "2,5 M€", "1.2 M", "1万", "1万人", "$1.2mn", "$2T", "2 ألف", "5 Milliarden", "($1,299.00)", "Balance: ($1,299.00)", "$5 100 sold", "1.5e3 units", "١٬٠٠٠", "Nov 5 120 USD", "Room 5 100 USD20", "3 200 GET", "前年比-5%", "気温−5度", "商品-12", "エネルギー-5%", "$50k-$100k", "5M-10M", "1.299 ARS", "CLP 12.345", "Net ($1,299.00)", "Coffee ($4.50)", "1.500 m€", "1.500 l'anno", "1.000 km", "1.000 mg", "1.000 ml", "1.000 ms", "1.500 km", "1.234 BTC", "5百万円", "3백만", "R$ 5 bi", "2,5 Md€", "$5MM", "1.299 Euro", "1.299 dollars"] {
-            #expect(Condition.couldBeEither(words), "\(words)")
-            #expect(Condition.number(words) == nil, "\(words)")
+    @Test func wordsReadAsANumberOnlyWhenThatsPlainlyAllTheySay() {
+        let reads: [(String, Double)] = [("12", 12), ("-3", -3), ("+3", 3), ("−5°C", -5), ("–5 °C", -5), ("18 °C", 18), ("18.5 °C", 18.5), ("12.50", 12.5), ("12,5", 12.5), ("0,500", 0.5), ("0.000", 0), ("0.500", 0.5), (".5", 0.5), ("$.99", 0.99), ("$1,299.00", 1299), ("1.299,50", 1299.5), ("1,000,000", 1_000_000), ("1,000,000.50", 1_000_000.5), ("1.000.000,50", 1_000_000.5), ("-$5.00", -5), ("−€5", -5), ("$-5", -5), ("€ 5", 5), ("5 €", 5), ("5€", 5), ("50%", 50), ("99.99%", 99.99), ("5 %", 5), ("1.5e3", 1500), ("1e-05", 0.00001), ("1234.567", 1234.567), ("1000", 1000), ("007", 7), ("1.5 GB", 1.5), ("5 km", 5), ("5kg", 5), ("200 ms", 200), ("3 days", 3), ("CPU: 12%", 12), ("Total: $1,299.00", 1299), ("Price = 5 EUR", 5), ("USD 5", 5), ("٣٠٠", 300), ("١٢٣", 123), ("１２３", 123), ("٣٫٥", 3.5), ("－１２３", -123), ("३००", 300)]
+        for (words, value) in reads {
+            #expect(NumberWords.read(words) == .number(value), "\(words)")
         }
-    }
-
-    @Test func anyScriptsDigitsAreReadAndALetterBeforeAMinusIsNoMinus() throws {
-        for (words, value) in [("٣٠٠", 300.0), ("١٢٣", 123), ("１２３", 123), ("٣٫٥", 3.5), ("३००", 300), ("Товар-12", 12), ("Café-5", 5), ("Room 4B", 4), ("10 T-shirts", 10), ("1\u{2009}299,50", 1299.5), ("0.500", 0.5), ("1.299", 1.299), ("1.125 seconds", 1.125), ("time=12.340 ms", 12.34), ("99.990%", 99.99), ("1.250s", 1.25), ("ETA 12m", 12), ("CPU 500m", 500), ("AVG 1.234 ms", 1.234), ("2 M4 Macs", 2), ("3 k8s clusters", 3), ("$10 T-shirts", 10), ("合計1 299,50 €", 1299.5), ("+1e3", 1000), ("－１２３", -123), ("サーバー1 299,50 €", 1299.5), ("M-series 5", 5), ("5 M-series", 5)] {
-            #expect(!Condition.couldBeEither(words), "\(words)")
-            #expect(Condition.number(words) == value, "\(words)")
+        // Words around it, however likely: no list could say which ones change the number.
+        let aroundIt = ["12 apples", "Rain at 18 °C", "about -3", "Room 4B", "SKU-12", "5 dozen", "minus 5", "half of 12", "3 million", "3 millions", "3 Millionen", "1,5 Mrd", "2,5 Mio. €", "2 ألف", "5 issues", "Score 5", "Top 5"]
+        // Marks that could mean two things.
+        let marks = ["1.000", "1,000", "1.500", "1,500", "1.299", "3.142", "12.340 ms", "1.250s", "99.990%", "1.299 €", "€2.750", "kr 1.500", "1.299 EUR", "$3.459", "1.234 BTC", "1234,567", "1.299.000,5", "1,299.5", "1.000.000", "192.168.100.200", "1.2.3", "1,23,456", "₹1,23,456.00", "1,2,3", ",5", "5.", "5,"]
+        // How much, written on it.
+        let howMuch = ["5k", "5K", "5M", "10m", "$5M", "£2.5m", "$1.2 M", "$2T", "$1B", "1万", "5百万円", "200Kč", "1.2 M", "$5MM", "R$ 5 bi"]
+        // More than one, or more than one of something around it.
+        let several = ["100 200", "1 299", "1 299,00 €", "1\u{202F}299,50", "1\u{2009}299,50", "1'299.50", "CHF 1’299", "Pos 3 129,50 €", "Nov 5 120 €", "$5 100 sold", "$50k-$100k", "5M-10M", "1.5 to 2", "5–10 days", "2026-11-05", "10:30", "Time: 10:30", "a: 1: 2", "($1,299.00)", "(5)", "--5", "$5 €", "-$-5", "$5%", "1.5e3 units", "5e3", "1E5", "+1e3", "12345678901234567", "前年比-5%", "商品-12", "エネルギー-5%"]
+        for words in aroundIt + marks + howMuch + several {
+            #expect(NumberWords.read(words) == .unreadable, "\(words)")
+        }
+        for words in ["", "   ", "many", "three", "三百"] {
+            #expect(NumberWords.read(words) == .none, "\(words)")
         }
         #expect(Condition.test(.more_than, left: "٣٠٠", right: "100"))
+    }
+
+    @Test func aNumberAToolGaveAsANumberIsThatNumberHoweverItLooks() {
+        var values = Values()
+        values.set("price", JSON.object(["n": .number(1.125), "words": .string("1.125")]))
+        #expect(Condition(value: "{{price.n}}", test: .more_than, than: "1").holds(values))
+        #expect(Condition(value: "{{price.n}}", test: .more_than, than: "1").doubtful(values) == nil)
+        #expect(Condition(value: "{{price.words}}", test: .more_than, than: "1").doubtful(values) == "1.125", "words aren't")
+        #expect(Condition(value: "about {{price.n}}", test: .more_than, than: "1").doubtful(values) != nil, "nor is a sentence with one in it")
+    }
+
+    @Test func aStepThatReadsANumberFromWordsIsMarkedBeforeARealRun() throws {
+        let w = try World()
+        let app = try app(w)
+        func marked(_ steps: [[String: Any]]) throws -> Set<String> { try w.flow(steps).draft.readsNumbersFromWords(app.catalog) }
+        func check(_ value: String, than: String = "5") -> [String: Any] { ["id": "c", "if": ["value": value, "test": "more_than", "than": than], "then": [["id": "y", "text": "yes"]]] }
+        let source: [[String: Any]] = [["id": "t", "text": "Rain at 18"], ["id": "n", "text": "18 °C"], ["id": "r", "do": "reads.it"], ["id": "a", "ai": "How many?", "fields": ["n": "number", "w": "text"]], ["id": "s", "data": ["op": "sum", "from": "{{r.rows}}", "field": "n"]]]
+        for value in ["{{t}}", "{{r}}", "{{a}}", "{{a.w}}", "about {{r.n}}", "{{r.n}} {{a.n}}", "{{nobody}}", "12 apples"] {
+            #expect(try marked(source + [check(value)]) == ["c"], "\(value)")
+        }
+        for value in ["{{n}}", "{{r.n}}", "{{a.n}}", "{{s}}", "18 °C", "12"] {
+            #expect(try marked(source + [check(value)]) == [], "\(value)")
+        }
+        #expect(try marked(source + [check("{{a.n}}", than: "1.500")]) == ["c"], "its other side too")
+        #expect(try marked(source + [["id": "c", "if": ["value": "{{t}}", "test": "contains", "than": "Rain"], "then": [["id": "y", "text": "yes"]]]]) == [], "only what compares a number")
+        #expect(try marked(source + [["id": "d", "data": ["op": "sum", "from": "{{r}}"]]]) == ["d"])
+        #expect(try marked(source + [["id": "d", "data": ["op": "sum", "from": "{{r}}", "field": "n"]]]) == [])
+        #expect(try marked(source + [["id": "d", "data": ["op": "number", "from": "{{r}}"]]]) == ["d"])
+        #expect(try marked(source + [["id": "d", "data": ["op": "filter", "from": "{{r}}", "field": "n", "test": "less_than", "than": "many"]]]) == ["d"])
+        #expect(try marked(source + [["id": "again", "repeat": [["id": "p", "text": "words"]], "until": ["value": "{{p}}", "test": "more_than", "than": "5"], "times": 3]]) == ["again"])
+        // It holds nothing up: it isn't a problem, and it can still be turned on.
+        #expect(try w.flow(source + [check("{{t}}")]).draft.problems(app.catalog).isEmpty)
+    }
+
+    @Test func aStopForWordsThatArentOneNumberSaysTheWordsAndWhatToDo() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "p", "text": "Rain at 18"], ["id": "b", "name": "Check it", "if": ["value": "{{p}}", "test": "more_than", "than": "5"], "then": [["id": "y", "text": "yes"]]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let ended = try #require(w.store.run(run.id))
+        #expect(ended.status == .failed)
+        for words in ["Check it", "Rain at 18", "tool's field"] { #expect(ended.problem?.contains(words) == true, "\(words)") }
     }
 
     @Test func aNumberFieldTakesOnlyWhatPlainlyIsOne() {
         for words in ["1.000", "12.000", "1.500", "1,000"] { #expect(Editing.number(words) == nil, "\(words)") }
         for (words, value) in [("1.299", 1.299), ("12,5", 12.5), ("0.500", 0.5), ("1e3", 1000.0), ("12", 12)] { #expect(Editing.number(words) == value, "\(words)") }
-    }
-
-    @Test func whatCouldBeMoreThanOneNumberIsntTakenForOne() throws {
-        for words in ["1,000", "1.000", "12.000", "about 1,000 of them", "12345678901234567890", "1,23,456", "12,345,678,901,234,567", "1,2,3", "₹1,23,456.00", "$1.2M", "12.3k", "100 200 300", "1 299", "5 500ml bottles", "at 100 200", "$1B", "Top 5 100,000 plays", "Nov 5 120.50", "$1.2 million", "Room 5 100 $20", "£2.5m", "$1.2 M"] {
-            #expect(Condition.couldBeEither(words), "\(words)")
-            #expect(Condition.number(words) == nil, "\(words)")
-        }
-        for (words, value) in [("3.142", 3.142), ("0.000", 0), ("12,5", 12.5), ("12 apples", 12), ("1000", 1000), ("$1,299.00", 1299), ("1.299,50", 1299.5), ("1,000,000", 1_000_000), ("1.000.000", 1_000_000), ("1.2.3", 1.2), ("12.2026", 12.2026), ("18 °C", 18), ("-3", -3), ("0,500", 0.5), ("1e-05", 0.00001), ("1.5e3", 1500), (".5", 0.5), ("$.99", 0.99), ("1 299,00 €", 1299), ("1\u{202F}299,50", 1299.5), ("SKU-12", 12), ("-5 °C", -5), ("2026-11-05", 2026), ("10:30", 10), ("about -3", -3), ("−5°C", -5), ("1 299 €", 1299), ("€ 1 299,00", 1299), ("10m", 10), ("5 km", 5), ("-1 299,00 €", -1299), ("Total: 1 299,00 €", 1299), ("1 299,00 euros", 1299), ("€ -1 299,00", -1299), ("Room 4B", 4), ("200Kč", 200), ("10kΩ", 10), ("2024 100 EUR", 2024), ("50%", 50), ("18.5 °C", 18.5), ("12.50", 12.5), ("-$5.00", -5), ("−€5", -5), ("Coffee-$3.50", 3.5), ("–5 °C", -5), ("5–10 days", 5), ("1 299.00 €", 1299), ("1 299,5", 1299.5)] {
-            #expect(!Condition.couldBeEither(words), "\(words)")
-            #expect(Condition.number(words) == value, "\(words)")
-        }
-        #expect(Editing.number("12345678901234567890") == nil)
-        #expect(Editing.number("123456789012345") == 123456789012345)
+        for words in ["1.299", "$5", "12 apples", "1e3"] { #expect(Editing.number(fromWords: words) == nil, "from a step nobody's there to mean it: \(words)") }
+        for (words, value) in [("12,5", 12.5), ("0.500", 0.5), ("12", 12.0)] { #expect(Editing.number(fromWords: words) == value, "\(words)") }
     }
 
     @Test func aConditionThatCantTellSaysSoRatherThanGoingOneWay() async throws {
@@ -435,7 +473,7 @@ import SidefolkExtensionKit
             let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
             #expect(run.status == .failed, "\(made) \(than): \(run.status)")
             let said = (run.problem ?? "").filter { !"\u{2068}\u{2069}".contains($0) }
-            #expect(said.contains("could be more than one number") && said.contains("Check price"), "it names the step: \(said)")
+            #expect(said.contains("as one number") && said.contains("tool's field") && said.contains("Check price"), "it names the step: \(said)")
             #expect(said.contains(made) || said.contains(than), "and the words: \(said)")
             #expect(run.record(of: "y") == nil && run.record(of: "n") == nil, "neither way")
         }
@@ -452,7 +490,7 @@ import SidefolkExtensionKit
         let flow = try w.flow([["id": "again", "name": "Keep checking", "repeat": [["id": "p", "text": "1,500"]], "until": ["value": "{{p}}", "test": "more_than", "than": "2000"], "times": 3]])
         let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
         #expect(run.status == .failed)
-        #expect(run.problem?.contains("could be more than one number") == true && run.problem?.contains("Keep checking") == true, "\(run.problem ?? "")")
+        #expect(run.problem?.contains("as one number") == true && run.problem?.contains("Keep checking") == true, "\(run.problem ?? "")")
         #expect(run.records.filter { $0.step == "p" }.count == 1, "it didn't go round on a guess")
     }
 

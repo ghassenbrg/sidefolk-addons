@@ -525,6 +525,8 @@
     "“{tool}” has no value called “{name}”.": "„{tool}“ hat keinen Wert namens „{name}“.",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "„{tool}“ ist gerade nicht verfügbar. Seine Erweiterung ist vielleicht aus oder weg, oder Sidefolk lässt Erweiterungen es nicht nutzen.",
     "“every_minutes” must be from {least} to {most}.": "„every_minutes“ muss zwischen {least} und {most} liegen.",
+    "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "Einige Schritte lesen eine Zahl aus Wörtern und halten an, wenn sie nicht eindeutig eine Zahl sind. Im Formular jedes Schritts steht, was zu tun ist.",
+    "This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field.": "Hier werden Wörter verglichen; es wird angehalten, wenn sie nicht eindeutig eine Zahl sind. Nimm die Zahl aus einem Feld eines Tools oder eines KI-Schritts.",
     "That could be more than one number. Write it plainly, like 1500 or 1.5.": "Diese Zahl lässt sich unterschiedlich lesen. Schreib sie eindeutig, etwa 1500 oder 1.5.",
     "That isn't a number.": "Das ist keine Zahl.",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "Deine Abläufe konnten nicht auf der Festplatte gespeichert werden. Änderungen gehen beim Beenden von Sidefolk vielleicht verloren.",
@@ -806,7 +808,6 @@
     "The same as what's running": "Dasselbe wie das, was läuft",
     "The text, as it should be": "Der Text, wie er sein soll",
     "Then it counts as this step failing.": "Dann zählt es als Fehlschlag dieses Schritts.",
-    "There's no number in that.": "Darin steckt keine Zahl.",
     "This item": "Dieses Element",
     "Tries": "Versuche",
     "Try": "Versuchen",
@@ -1045,6 +1046,6 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "„{name}“ will {what}, und das hier gibt ihm „{value}“.",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: auf dem Weg zum Werkzeug auf {count} Zeichen gekürzt. Der Rest wurde nicht gesendet.",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "„{name}“ ist eines von {answers}, und das hier gibt ihm „{value}“.",
-    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "„{step}“ kann „{value}“ nicht lesen: Es könnte mehr als eine Zahl sein, deshalb wurde hier angehalten."
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "„{step}“ kann „{value}“ nicht als eine Zahl lesen, deshalb wurde hier angehalten. Nimm die Zahl aus einem Feld eines Tools oder eines KI-Schritts."
   }
 }

@@ -489,6 +489,7 @@ import SidefolkExtensionKit
             notes.append(.note(L(one: "It missed {count} run, last at {time}: Sidefolk or your Mac was off.", other: "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.", count: flow.missed.count, ["time": Format.dateTime(last)]), tone: .warn))
         }
         for p in problems where p.step == nil { notes.append(.note(p.text, tone: .warn)) }
+        if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { notes.append(.note(L("Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do."), tone: .warn)) }
         main.append(Section(nil, [.tree(tree(flow, app, problems: problems))], wide: true))
         var end: [Section] = []
         if !notes.isEmpty { end.append(Section(nil, notes, place: .trailing)) }

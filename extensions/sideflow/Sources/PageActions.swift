@@ -99,7 +99,7 @@ import SidefolkExtensionKit
             // One infinity would stop the whole file saving, so it never gets in.
             let isValue = !Values.slots(text).isEmpty
             if case .integer = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.wholeNumber(text) == nil { throw Problem(L("That isn't a whole number.")) }
-            if case .number = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.number(text) == nil { throw Problem(Condition.couldBeEither(text) ? L("That could be more than one number. Write it plainly, like 1500 or 1.5.") : L("That isn't a number.")) }
+            if case .number = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.number(text) == nil { throw Problem(Editing.couldBeMoreThanOne(text) ? L("That could be more than one number. Write it plainly, like 1500 or 1.5.") : L("That isn't a number.")) }
             let value: JSON? = if let on = a.bool("on") { .bool(on) } else if let picked = a.string("value") { picked == "" ? nil : .string(picked) } else { Editing.value(text, for: parameter) }
             try editStep { s in
                 guard case .action(let t, let input) = s.kind else { return }

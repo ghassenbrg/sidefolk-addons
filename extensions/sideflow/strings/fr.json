@@ -525,6 +525,8 @@
     "“{tool}” has no value called “{name}”.": "« {tool} » n’a pas de valeur appelée « {name} ».",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "« {tool} » n’est pas disponible actuellement. Son extension est peut-être désactivée ou absente, ou Sidefolk ne laisse pas les extensions l’utiliser.",
     "“every_minutes” must be from {least} to {most}.": "« every_minutes » doit aller de {least} à {most}.",
+    "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "Certaines étapes lisent un nombre dans des mots et s’arrêtent s’ils ne sont pas clairement un seul nombre. Le formulaire de chacune indique quoi faire.",
+    "This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field.": "Ceci compare des mots : l’exécution s’arrête s’ils ne sont pas clairement un seul nombre. Prenez le nombre dans un champ d’un outil ou d’une étape d’IA.",
     "That could be more than one number. Write it plainly, like 1500 or 1.5.": "Ce nombre peut se lire de plusieurs façons. Écrivez-le simplement, par exemple 1500 ou 1.5.",
     "That isn't a number.": "Ce n'est pas un nombre.",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "Vos routines n'ont pas pu être enregistrées sur le disque. Vos changements peuvent être perdus quand Sidefolk quittera.",
@@ -806,7 +808,6 @@
     "The same as what's running": "Identique à ce qui tourne",
     "The text, as it should be": "Le texte, tel qu’il doit être",
     "Then it counts as this step failing.": "Cela compte alors comme un échec de cette étape.",
-    "There's no number in that.": "Il n’y a pas de nombre là-dedans.",
     "This item": "Cet élément",
     "Tries": "Tentatives",
     "Try": "Essayer",
@@ -1045,6 +1046,6 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "« {name} » attend {what}, et ceci lui donne « {value} ».",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names} : coupé à {count} caractères en allant vers l’outil. Le reste n’a pas été envoyé.",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "« {name} » doit être {answers}, et ceci lui donne « {value} ».",
-    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "« {step} » ne peut pas lire « {value} » : cela pourrait être plusieurs nombres, l’exécution s’est donc arrêtée ici."
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "« {step} » ne peut pas lire « {value} » comme un seul nombre, l’exécution s’est donc arrêtée ici. Prenez le nombre dans un champ d’un outil ou d’une étape d’IA."
   }
 }

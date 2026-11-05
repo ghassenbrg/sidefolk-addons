@@ -79,9 +79,13 @@ extension Engine {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
         }
-        if run.mode != .practice, let doubtful = until.doubtful(run.values) {
-            leave()
-            return failed(step, why: Self.cantRead(doubtful, at: step, catalog: catalog), reads: false, in: &run)
+        if let doubtful = until.doubtful(run.values) {
+            // A practice goes on, and says so: that's what it's for.
+            guard run.mode == .practice else {
+                leave()
+                return failed(step, why: Self.cantRead(doubtful, at: step, catalog: catalog), reads: false, in: &run)
+            }
+            run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), note: Self.cantRead(doubtful, at: step, catalog: catalog), at: clock()))
         }
         // What it can't see won't change by asking again. A go that only read is what a poll asks again, but one that did something would do it again, so one of its checks has
         // to be able to come out differently: something this go answered, or which go this is. Not an earlier value, a name gone with a loop inside, a misspelt one, or a blank.
@@ -379,7 +383,7 @@ extension Engine {
             }
             switch field.kind {
             case .number:
-                guard let n = Condition.number(text) else { throw Problem(L("“{field}” needs a number.", ["field": field.label])) }
+                guard let n = Editing.number(text) else { throw Problem(L("“{field}” needs a number.", ["field": field.label])) }
                 kept[field.name] = .number(n)
             case .yes_no: kept[field.name] = .bool(text == "true" || text == "on" || text == "yes")
             case .choice:

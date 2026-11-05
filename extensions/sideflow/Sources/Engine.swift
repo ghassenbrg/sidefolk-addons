@@ -641,7 +641,7 @@ extension FlowHost {
     /// is the one thing that must not happen by itself.
     /// A number that could be more than one, said with the step and the words, since it stops what used to go one way without a word.
     static func cantRead(_ words: String, at step: Step, catalog: Catalog) -> String {
-        L("“{step}” can't read “{value}”: it could be more than one number, so it stopped here.", ["step": Words.label(step, catalog: catalog), "value": words.clipped(80)])
+        L("“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.", ["step": Words.label(step, catalog: catalog), "value": words.clipped(80)])
     }
 
     func failed(_ step: Step, why: String, reads: Bool, in run: inout Run, said: String? = nil) -> Bool {

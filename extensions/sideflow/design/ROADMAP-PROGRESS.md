@@ -44,7 +44,15 @@ Known small gaps accepted for now, to fix first in the next batch:
 
 Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off flow in an untaken branch refuses the whole run; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
 
-Typed mapping's later list: reading the first number in words is a judgement, not a parser, so `Pos 3 129,50 €` reads 3129.5, `,5` reads 5, `192.168.100.200` reads as one long number, `Nov 5 120 €` reads 5120, `$3.459`, `1.234 BTC` and `USD/JPY 149.253` stop though they could be read, and a bare `1.299` is 1.299 because that's what a tool writes; an entry with a comma in it reads as two in the form and goes as one; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
+Typed mapping's later list: an entry with a comma in it reads as two in the form and goes as one; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
+
+## How words become a number (the coordinator's ruling, 2026-11-05)
+
+`NumberWords` is the one reader, and a whitelist: words read as a number only when they're one number and little else, with at most a label ending in a colon, one sign, and one known currency or unit. Everything else stops and names the words. Nothing is picked from among other words, because lists of what changes a number never ended: three reads in a row found another. A number a tool gave as a number is compared as that number, never as words.
+
+For the release notes, in plain words: a flow that compares text with anything but one number in it, like `Rain at 18 °C`, `12 apples` or `1.5 to 2`, now stops and says why instead of picking one. `1.500` and `1,500` stop too, since they could be fifteen hundred. Take the number from a tool's field or an AI step's field instead.
+
+The person hears before a real run (the coordinator's condition): a step's form and the flow's page mark a step that compares or adds up words, an agent sees it in `get_flow` and `update_flow`, a practice notes it on the step and goes on, and a real stop says the words and the fix.
 
 ## Left out on purpose
 

@@ -944,10 +944,12 @@ import SidefolkExtensionKit
     @Test func conditionsReadValuesAsPeopleWould() {
         var v = Values()
         v.set("t", "Rain at 18 °C")
+        v.set("n", "18 °C")
         #expect(Condition(value: "{{t}}", test: .contains, than: "rain").holds(v))
         #expect(!Condition(value: "{{t}}", test: .not_contains, than: "RAIN").holds(v))
-        #expect(Condition(value: "{{t}}", test: .more_than, than: "17").holds(v))
-        #expect(!Condition(value: "{{t}}", test: .less_than, than: "17").holds(v))
+        #expect(Condition(value: "{{n}}", test: .more_than, than: "17").holds(v))
+        #expect(!Condition(value: "{{n}}", test: .less_than, than: "17").holds(v))
+        #expect(Condition(value: "{{t}}", test: .more_than, than: "17").doubtful(v) == "Rain at 18 °C", "a number among other words stops")
         #expect(Condition(value: "{{missing}}", test: .is_empty, than: "").holds(v))
         #expect(Condition(value: "{{t}}", test: .not_empty, than: "").holds(v))
         #expect(!Condition(value: "words", test: .more_than, than: "1").holds(v), "no number, no comparison")
@@ -1129,7 +1131,7 @@ import SidefolkExtensionKit
     }
 
     @Test func aHugeNumberAFlowReadNeverStopsTheSaving() throws {
-        #expect(Condition.number(String(repeating: "9", count: 400)) == nil)
+        #expect(NumberWords.number(String(repeating: "9", count: 400)) == nil)
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]])
         if case .action(let tool, var input) = flow.draft.steps[0].kind {

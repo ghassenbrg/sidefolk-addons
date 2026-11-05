@@ -685,7 +685,7 @@ extension JSON {
         let number = Catalog.Parameter(name: "n", kind: .number, required: false, title: "n")
         #expect(Editing.value("inf", for: number) == .string("inf"))
         #expect(Editing.value("nan", for: number) == .string("nan"))
-        #expect(Condition.number(String(repeating: "9", count: 400)) == nil)
+        #expect(NumberWords.number(String(repeating: "9", count: 400)) == nil)
         var flow = try w.flow([["id": "a", "do": "reads.it", "with": ["q": "x"]]])
         flow.name = "Kept"
         if case .action(let tool, var input) = flow.draft.steps[0].kind {

@@ -119,7 +119,7 @@ import SidefolkExtensionKit
     private static func asItWants(_ value: Any, _ parameter: Parameter) -> Any {
         guard let words = (value as? String)?.trimmed, !words.isEmpty else { return value }
         switch parameter.kind {
-        case .number: return Editing.number(words) ?? value
+        case .number: return Editing.number(fromWords: words) ?? value
         case .integer: return Editing.wholeNumber(words) ?? value
         case .boolean:
             return Editing.yesOrNo(words) ?? value

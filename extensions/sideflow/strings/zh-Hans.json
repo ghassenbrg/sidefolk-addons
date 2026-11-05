@@ -521,6 +521,8 @@
     "“{tool}” has no value called “{name}”.": "“{tool}”没有名为“{name}”的值。",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "“{tool}”现在不可用。它的扩展可能已关闭或不见了，或者 Sidefolk 不允许扩展使用它。",
     "“every_minutes” must be from {least} to {most}.": "“every_minutes”必须在 {least} 到 {most} 之间。",
+    "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "有些步骤从文字中读取数字,如果不是明确的一个数字就会停止。每个步骤的表单会说明该怎么做。",
+    "This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field.": "这里比较的是文字,如果不是明确的一个数字就会停止。请从工具的字段或 AI 步骤的字段中取得数字。",
     "That could be more than one number. Write it plainly, like 1500 or 1.5.": "这个数字可能有多种读法。请写清楚,例如 1500 或 1.5。",
     "That isn't a number.": "这不是数字。",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "无法将你的流程保存到磁盘。Sidefolk 退出时，你的更改可能会丢失。",
@@ -797,7 +799,6 @@
     "The same as what's running": "与正在运行的相同",
     "The text, as it should be": "文字，按它应有的样子",
     "Then it counts as this step failing.": "那就算作这个步骤失败。",
-    "There's no number in that.": "里面没有数字。",
     "This item": "这一项",
     "Tries": "尝试次数",
     "Try": "尝试",
@@ -1028,6 +1029,6 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”需要{what}，而这里给的是“{value}”。",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}：发送给工具时被截断为 {count} 个字符。其余部分未发送。",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "“{name}”应为 {answers} 之一，而这里给的是“{value}”。",
-    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "“{step}”无法读取“{value}”：它可能表示不止一个数字，因此在此停止。"
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "“{step}”无法把“{value}”读取为一个数字,因此在此停止。请从工具的字段或 AI 步骤的字段中取得数字。"
   }
 }

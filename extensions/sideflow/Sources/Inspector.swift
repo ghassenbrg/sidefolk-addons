@@ -209,6 +209,7 @@ import SidefolkExtensionKit
         var main: [Block] = [], more: [Block] = []
         for p in problems where p.step == step.id { main.append(.note(p.text, tone: .warn)) }
         main += refusal(app.preflight[flow.id]?[step.id])
+        if flow.draft.readsNumbersFromWords(app.catalog).contains(step.id) { main.append(.note(L("This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field."), tone: .warn)) }
         let looked = app.planChecks[flow.id]?.byStep[step.id]
         if let looked {
             if let mark = PlanLook.mark(looked) { main.append(.note(mark.words, tone: mark.tone)) }

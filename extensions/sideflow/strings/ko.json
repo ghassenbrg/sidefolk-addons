@@ -521,6 +521,8 @@
     "“{tool}” has no value called “{name}”.": "‘{tool}’에는 ‘{name}’이라는 값이 없습니다.",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "‘{tool}’은(는) 지금 사용할 수 없습니다. 확장 프로그램이 꺼졌거나 없어졌거나, Sidefolk가 확장 프로그램의 사용을 허용하지 않습니다.",
     "“every_minutes” must be from {least} to {most}.": "“every_minutes”는 {least}에서 {most} 사이여야 합니다.",
+    "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "일부 단계는 글자에서 숫자를 읽으며 분명한 하나의 숫자가 아니면 멈춥니다. 각 단계의 양식에서 해결 방법을 확인하세요.",
+    "This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field.": "여기서는 글자를 비교하므로 분명한 하나의 숫자가 아니면 멈춥니다. 숫자는 도구의 필드나 AI 단계의 필드에서 가져오세요.",
     "That could be more than one number. Write it plainly, like 1500 or 1.5.": "이 숫자는 여러 가지로 읽힐 수 있습니다. 1500이나 1.5처럼 분명하게 적어 주세요.",
     "That isn't a number.": "숫자가 아닙니다.",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "루틴을 디스크에 저장하지 못했습니다. Sidefolk을 종료하면 변경 사항이 사라질 수 있습니다.",
@@ -798,7 +800,6 @@
     "The same as what's running": "실행 중인 것과 같음",
     "The text, as it should be": "텍스트, 있어야 할 모습 그대로",
     "Then it counts as this step failing.": "그러면 이 단계가 실패한 것으로 칩니다.",
-    "There's no number in that.": "그 안에 숫자가 없습니다.",
     "This item": "이 항목",
     "Tries": "시도 횟수",
     "Try": "시도",
@@ -1028,6 +1029,6 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”에는 {what}이(가) 필요한데 여기서 “{value}”을(를) 줍니다.",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: 도구로 보내면서 {count}자로 잘렸습니다. 나머지는 보내지 않았습니다.",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "“{name}”은(는) {answers} 중 하나인데 여기서 “{value}”을(를) 줍니다.",
-    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "“{step}”에서 “{value}”을(를) 읽을 수 없습니다. 여러 숫자로 읽힐 수 있어 여기서 멈췄습니다."
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "“{step}”에서 “{value}”을(를) 하나의 숫자로 읽을 수 없어 여기서 멈췄습니다. 숫자는 도구의 필드나 AI 단계의 필드에서 가져오세요."
   }
 }
