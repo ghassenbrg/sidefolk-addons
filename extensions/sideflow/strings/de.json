@@ -525,6 +525,7 @@
     "“{tool}” has no value called “{name}”.": "„{tool}“ hat keinen Wert namens „{name}“.",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "„{tool}“ ist gerade nicht verfügbar. Seine Erweiterung ist vielleicht aus oder weg, oder Sidefolk lässt Erweiterungen es nicht nutzen.",
     "“every_minutes” must be from {least} to {most}.": "„every_minutes“ muss zwischen {least} und {most} liegen.",
+    "That could be more than one number. Write it plainly, like 1500 or 1.5.": "Diese Zahl lässt sich unterschiedlich lesen. Schreib sie eindeutig, etwa 1500 oder 1.5.",
     "That isn't a number.": "Das ist keine Zahl.",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "Deine Abläufe konnten nicht auf der Festplatte gespeichert werden. Änderungen gehen beim Beenden von Sidefolk vielleicht verloren.",
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "Die Datei deiner Abläufe ließ sich nicht lesen. Sie liegt nun gesondert als {file}, und du beginnst ohne Abläufe.",

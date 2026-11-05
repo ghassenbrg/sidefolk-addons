@@ -578,6 +578,7 @@
     "Tell me": "Tell me",
     "Tell me what changed": "Tell me what changed",
     "Templates": "Templates",
+    "That could be more than one number. Write it plainly, like 1500 or 1.5.": "That could be more than one number. Write it plainly, like 1500 or 1.5.",
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.",
     "That flow is gone.": "That flow is gone.",
     "That form has been answered already.": "That form has been answered already.",

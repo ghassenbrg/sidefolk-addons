@@ -521,6 +521,7 @@
     "“{tool}” has no value called “{name}”.": "「{tool}」に「{name}」という値はありません。",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "「{tool}」はいま使えません。その拡張機能がオフか削除されているか、Sidefolkが拡張機能に使わせていません。",
     "“every_minutes” must be from {least} to {most}.": "「every_minutes」は {least} から {most} の範囲で指定してください。",
+    "That could be more than one number. Write it plainly, like 1500 or 1.5.": "この数値は複数の読み方ができます。1500 や 1.5 のようにはっきり書いてください。",
     "That isn't a number.": "数値ではありません。",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "ルーティンをディスクに保存できませんでした。Sidefolk を終了すると変更が失われる可能性があります。",
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "ルーティンのファイルを読み込めなかったため、{file} として別に保管し、空の状態から始めます。",

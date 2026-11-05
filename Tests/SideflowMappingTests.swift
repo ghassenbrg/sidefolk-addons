@@ -396,14 +396,14 @@ import SidefolkExtensionKit
     }
 
     @Test func aNumberThatLooksSmallerThanItIsStops() throws {
-        for words in ["1.500", "12.500", "1.250 ms", "1.299 €", "€2.750", "kr 1.500", "1.299 EUR", "USD 1.299", "1'299.50", "CHF 1’299", "3 millions", "2,5 Mio. €", "1,5 Mrd", "2,5 M€", "1.2 M", "1万", "1万人", "$1.2mn", "$2T", "2 ألف", "5 Milliarden", "($1,299.00)", "$5 100 sold", "1.5e3 units", "١٬٠٠٠"] {
+        for words in ["1.500", "12.500", "1.250 visitors", "1.299 €", "€2.750", "kr 1.500", "1.299 EUR", "USD 1.299", "1'299.50", "CHF 1’299", "3 millions", "2,5 Mio. €", "1,5 Mrd", "2,5 M€", "1.2 M", "1万", "1万人", "$1.2mn", "$2T", "2 ألف", "5 Milliarden", "($1,299.00)", "Balance: ($1,299.00)", "$5 100 sold", "1.5e3 units", "١٬٠٠٠", "Nov 5 120 USD", "Room 5 100 USD20", "3 200 GET", "前年比-5%", "気温−5度", "商品-12"] {
             #expect(Condition.couldBeEither(words), "\(words)")
             #expect(Condition.number(words) == nil, "\(words)")
         }
     }
 
     @Test func anyScriptsDigitsAreReadAndALetterBeforeAMinusIsNoMinus() throws {
-        for (words, value) in [("٣٠٠", 300.0), ("١٢٣", 123), ("１２３", 123), ("٣٫٥", 3.5), ("३००", 300), ("商品-12", 12), ("Товар-12", 12), ("Café-5", 5), ("Room 4B", 4), ("10 T-shirts", 10), ("1\u{2009}299,50", 1299.5), ("0.500", 0.5), ("1.299", 1.299), ("1.125 seconds", 1.125)] {
+        for (words, value) in [("٣٠٠", 300.0), ("١٢٣", 123), ("１２３", 123), ("٣٫٥", 3.5), ("३००", 300), ("Товар-12", 12), ("Café-5", 5), ("Room 4B", 4), ("10 T-shirts", 10), ("1\u{2009}299,50", 1299.5), ("0.500", 0.5), ("1.299", 1.299), ("1.125 seconds", 1.125), ("time=12.340 ms", 12.34), ("99.990%", 99.99), ("1.250s", 1.25), ("ETA 12m", 12), ("CPU 500m", 500), ("AVG 1.234 ms", 1.234), ("1.234 BTC", 1.234), ("2 M4 Macs", 2), ("3 k8s clusters", 3), ("$10 T-shirts", 10), ("Coffee ($4.50)", 4.5), ("合計1 299,50 €", 1299.5), ("+1e3", 1000)] {
             #expect(!Condition.couldBeEither(words), "\(words)")
             #expect(Condition.number(words) == value, "\(words)")
         }
