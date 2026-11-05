@@ -999,6 +999,25 @@
     "Stopped. {count} starts waiting their turn were cleared.": {
       "one": "Angehalten. {count} wartender Start wurde gelöscht.",
       "other": "Angehalten. {count} wartende Starts wurden gelöscht."
+    },
+    "Nothing new to allow": "Nichts Neues zu erlauben",
+    "Write this part yourself: words from outside can't go in here.": "Schreib diesen Teil selbst: Worte von außen dürfen hier nicht hinein.",
+    "Sidefolk won't let a flow do this.": "Sidefolk lässt einen Ablauf das nicht tun.",
+    "Runs by itself only under Full access.": "Läuft nur bei Vollzugriff von selbst.",
+    "This says where it goes. Write it here, or it asks each run.": "Das sagt, wohin es geht. Schreib es hier hin, sonst fragt es bei jedem Lauf.",
+    "Its program can't be checked, so it asks each run.": "Sein Programm lässt sich nicht prüfen, deshalb fragt es bei jedem Lauf.",
+    "This step will ask each run.": "Dieser Schritt fragt bei jedem Lauf.",
+    "It passes on what this flow reads. The card says so.": "Es gibt weiter, was dieser Ablauf liest. Die Karte sagt das.",
+    "You read what it will do first, once.": "Du liest zuerst, was es tun wird, nur einmal.",
+    "Applies your changes, asking only what's new.": "Übernimmt deine Änderungen und fragt nur nach Neuem.",
+    "End what you allowed": "Erlaubtes beenden",
+    "It pauses, and asks again before it runs.": "Es pausiert und fragt erneut, bevor es läuft.",
+    "Saved. Nothing new to allow.": "Gespeichert. Nichts Neues zu erlauben.",
+    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "Es hat das für einen Tag erlaubte Limit erreicht und pausiert. Mehr wurde nicht gesendet.",
+    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "Es hat das für einen Lauf erlaubte Limit erreicht und pausiert. Mehr wurde nicht gesendet.",
+    "{count} new things to allow": {
+      "one": "{count} neue Sache zu erlauben",
+      "other": "{count} neue Sachen zu erlauben"
     }
   }
 }

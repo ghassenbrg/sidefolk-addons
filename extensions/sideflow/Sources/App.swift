@@ -13,6 +13,8 @@ import SidefolkExtensionKit
     /// What Guard says of each step now: its sentence and whether it would ask.
     var preflight: [String: [String: Actions.Check]] = [:]
     private var preflightAsked: [String: Date] = [:]
+    /// What the plan would be if approved now, by flow: Sidefolk's own answer, with nothing shown or changed.
+    var planChecks: [String: PlanLook] = [:]
     /// Where what sets a flow off sits among its steps' checks.
     static let triggerCheck = "start"
     /// A request to the AI to draft a flow, while it runs, and what came of the last.
@@ -110,10 +112,48 @@ import SidefolkExtensionKit
             if case .watch(let w) = flow.draft.trigger, let check = await host.check("watch.create", Engine.watchInput(w, title: Engine.watchTitle(flow)), plan: plan) {
                 out[Self.triggerCheck] = check
             }
+            let plan2 = engine.livePlan(flow)
+            let looked = await host.checkPlan(plan2)
             // A slower look from before an edit doesn't overwrite a newer one.
             guard preflightAsked[id] == asked else { return }
             preflight[id] = out
+            planChecks[id] = looked.map { PlanLook($0, of: plan2) }
         }
+    }
+}
+
+/// What Sidefolk says of a flow's plan: how many things are new, and each step's line by the step's name.
+struct PlanLook {
+    var silent: Bool
+    var new: Int
+    var byStep: [String: Plans.Checked.Line]
+
+    init(_ checked: Plans.Checked, of plan: Plan) {
+        silent = checked.silent
+        new = Set(checked.new.compactMap { plan.steps.indices.contains($0) ? plan.steps[$0].line : nil }).count
+        byStep = Dictionary(zip(plan.steps, checked.steps).compactMap { step, line in step.named.map { ($0, line) } }, uniquingKeysWith: { first, _ in first })
+    }
+
+    /// What the flow's head says before anyone presses anything.
+    var head: String {
+        silent || new == 0 ? L("Nothing new to allow") : L(one: "{count} new thing to allow", other: "{count} new things to allow", count: new)
+    }
+
+    /// What a step's form says of how it'll behave, if that's anything but running by itself.
+    static func mark(_ line: Plans.Checked.Line) -> (words: String, tone: Tone)? {
+        if line.state == "refused" {
+            return (line.why == "code_field" ? L("Write this part yourself: words from outside can't go in here.") : L("Sidefolk won't let a flow do this."), .bad)
+        }
+        if line.state == "stands_in_full_access" { return (L("Runs by itself only under Full access."), .info) }
+        if line.state == "asks" {
+            switch line.why {
+            case "reach_field": return (L("This says where it goes. Write it here, or it asks each run."), .warn)
+            case "server_unpinned": return (L("Its program can't be checked, so it asks each run."), .warn)
+            default: return (L("This step will ask each run."), .info)
+            }
+        }
+        if line.warning == "crossing" { return (L("It passes on what this flow reads. The card says so."), .warn) }
+        return nil
     }
 }
 

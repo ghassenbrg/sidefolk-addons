@@ -155,6 +155,78 @@ import SidefolkExtensionKit
         }
     }
 
+    @Test func whatTheHostSaysOfAPlanIsReadByStepName() throws {
+        let plan = Plan(id: "p", title: "t", steps: [PlanStep("a.b", ["x": 1], named: "one"), PlanStep("a.b", ["x": 1], named: "two"), PlanStep("a.c", named: "three"), PlanStep("a.d")])
+        let checked = Plans.Checked(steps: [.init(state: "stands"), .init(state: "stands"), .init(state: "asks", why: "reach_field"), .init(state: "refused", why: "code_field")], new: [0, 1, 2], silent: false)
+        let look = PlanLook(checked, of: plan)
+        #expect(look.new == 2, "two steps with one line are one thing to allow")
+        #expect(look.head.contains("2"))
+        #expect(look.byStep["three"]?.why == "reach_field")
+        #expect(look.byStep.count == 3, "a step with no name isn't lost track of as another's")
+        let quiet = PlanLook(Plans.Checked(steps: [], silent: true), of: Plan(id: "p", title: "t", steps: []))
+        #expect(quiet.head == L("Nothing new to allow"))
+    }
+
+    @Test func eachWayAStepBehavesHasItsWords() {
+        func words(_ line: Plans.Checked.Line) -> String? { PlanLook.mark(line)?.words }
+        #expect(words(.init(state: "stands")) == nil, "running by itself is what's expected, so nothing's said")
+        #expect(words(.init(state: "listed")) == nil)
+        #expect(words(.init(state: "refused", why: "code_field"))?.contains("Write this part yourself") == true)
+        #expect(words(.init(state: "refused", why: "shell")) != nil)
+        #expect(words(.init(state: "stands_in_full_access", why: "reach_field"))?.contains("Full access") == true)
+        #expect(words(.init(state: "asks", why: "reach_field"))?.contains("where it goes") == true)
+        #expect(words(.init(state: "asks", why: "server_unpinned"))?.contains("program") == true)
+        #expect(words(.init(state: "asks", why: "filled_value"))?.contains("ask each run") == true)
+        #expect(words(.init(state: "stands", warning: "crossing"))?.contains("passes on") == true)
+    }
+
+    @Test func aStepsFormSaysHowItWillBehave() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", mutates: false, readsOnly: true)]))
+        let flow = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "reads.it"]]]))
+        app.nav.inspect(.step("a"), in: flow.id)
+        app.planChecks[flow.id] = PlanLook(Plans.Checked(steps: [.init(state: "asks", why: "reach_field")], new: [0]), of: Plan(id: "p", title: "t", steps: [PlanStep("reads.it", named: "a")]))
+        let shown = String(describing: Inspector.sections(flow, app, problems: []))
+        #expect(shown.contains("where it goes"), "\(shown)")
+    }
+
+    @Test func anEditWithNothingNewSaysSoWhileItsTrue() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "old"]]])
+        flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "new"]]]])
+        w.store.save(flow)
+        w.host.planAnswer = .allowed(standing: [true], silent: true, new: 0)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        var after = try #require(w.store.flow(flow.id))
+        #expect(w.engine.quietlySaved(after) != nil)
+        after.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "newer"]]]])
+        w.store.save(after)
+        #expect(w.engine.quietlySaved(after) == nil)
+    }
+
+    @Test func aCardShownIsntCalledNothingNew() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]], state: .draft)
+        w.host.planAnswer = .allowed(standing: [true], silent: false, new: 1)
+        w.engine.turnOn(flow.id)
+        await w.quiet()
+        #expect(w.engine.quietlySaved(try #require(w.store.flow(flow.id))) == nil)
+    }
+
+    @Test func endingItFromTheFlowsPagePausesItAndAsksAgain() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        w.engine.endPlan(flow.id)
+        await w.quiet()
+        #expect(w.host.forgotten == [flow.planId])
+        let after = try #require(w.store.flow(flow.id))
+        #expect(after.state == .paused)
+        #expect(after.live == nil)
+    }
+
     @Test func aPracticeKeepsItsOwnPlan() throws {
         let w = try World()
         let flow = try w.flow([["id": "r", "do": "reads.it"]], state: .draft)

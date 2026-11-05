@@ -375,6 +375,9 @@ import SidefolkExtensionKit
             app.engine.pause(try flow().id)
         case "resume":
             app.engine.resume(try flow().id)
+        case "end_plan":
+            let f = try flow()
+            app.engine.endPlan(f.id)
         case "run":
             let f = try flow()
             // A card can wait two minutes, and the page's own call doesn't.

@@ -52,6 +52,8 @@ extension FlowHost {
     private var makingWatch: Set<String> = []
     /// How many starts were cleared so far by the person stopping a run: more can arrive while a slow step finishes, and go the same way. Not kept: it's only news now.
     private var clearedOnStop: [String: Int] = [:]
+    /// What was approved with no card, because nothing in it was new. Not kept: it's only news now.
+    private var quietlyApproved: [String: FlowBody] = [:]
     /// How far along the step under way is, by run, while it says. Not kept: it's only true now.
     private(set) var progress: [String: Actions.Progress] = [:]
 
@@ -1197,6 +1199,7 @@ extension FlowHost {
             changed()
             return nil
         }
+        quietlyApproved[id] = nil
         guard var current = store.flow(id) else { return nil }
         let wasLive = current.live, wasOn = current.state == .on
         keepBefore(reviewed, in: &current)
@@ -1297,7 +1300,8 @@ extension FlowHost {
             let answer: Plans.Answer? = Self.needsCard(reviewed) ? await host?.approve(plan) : .allowed(standing: [])
             guard let answer, var current = store.flow(id) else { return }
             switch answer {
-            case .allowed:
+            case .allowed(_, let silent, _):
+                quietlyApproved[id] = silent ? reviewed : nil
                 let wasLive = current.live, wasOn = current.state == .on
                 keepBefore(reviewed, in: &current)
                 current.live = reviewed
@@ -1511,6 +1515,17 @@ extension FlowHost {
     }
 
     /// The person ended what they'd allowed, in Settings.
+    /// The person ending it from the flow's page: as if they had in Settings.
+    func endPlan(_ id: String) {
+        host?.forgetPlan(store.flow(id)?.planId ?? "")
+        planEnded(id)
+    }
+
+    /// "Saved. Nothing new to allow." while that's still what's on the page.
+    func quietlySaved(_ flow: Flow) -> String? {
+        quietlyApproved[flow.id] == flow.kept ? L("Saved. Nothing new to allow.") : nil
+    }
+
     func planEnded(_ id: String) {
         guard var flow = store.flow(id) else { return }
         flow.state = .paused

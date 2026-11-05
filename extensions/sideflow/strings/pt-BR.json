@@ -999,6 +999,25 @@
     "Stopped. {count} starts waiting their turn were cleared.": {
       "one": "Parada. {count} início na fila foi removido.",
       "other": "Parada. {count} inícios na fila foram removidos."
+    },
+    "Nothing new to allow": "Nada novo para permitir",
+    "Write this part yourself: words from outside can't go in here.": "Escreva esta parte você mesmo: palavras de fora não podem entrar aqui.",
+    "Sidefolk won't let a flow do this.": "O Sidefolk não deixa uma rotina fazer isso.",
+    "Runs by itself only under Full access.": "Só roda sozinha com Acesso total.",
+    "This says where it goes. Write it here, or it asks each run.": "Isto diz para onde vai. Escreva aqui, ou perguntará a cada execução.",
+    "Its program can't be checked, so it asks each run.": "O programa dele não pode ser verificado, então pergunta a cada execução.",
+    "This step will ask each run.": "Esta etapa perguntará a cada execução.",
+    "It passes on what this flow reads. The card says so.": "Repassa o que esta rotina lê. O cartão diz isso.",
+    "You read what it will do first, once.": "Primeiro você lê o que ela fará, uma única vez.",
+    "Applies your changes, asking only what's new.": "Aplica suas alterações e pergunta só o que é novo.",
+    "End what you allowed": "Encerrar o que você permitiu",
+    "It pauses, and asks again before it runs.": "Ela pausa e pergunta de novo antes de rodar.",
+    "Saved. Nothing new to allow.": "Salvo. Nada novo para permitir.",
+    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "Atingiu o limite permitido para um dia, então está em pausa. Nada mais foi enviado.",
+    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "Atingiu o limite permitido para uma execução, então está em pausa. Nada mais foi enviado.",
+    "{count} new things to allow": {
+      "one": "{count} coisa nova para permitir",
+      "other": "{count} coisas novas para permitir"
     }
   }
 }

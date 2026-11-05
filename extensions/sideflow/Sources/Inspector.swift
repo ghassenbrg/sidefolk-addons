@@ -209,7 +209,10 @@ import SidefolkExtensionKit
         var main: [Block] = [], more: [Block] = []
         for p in problems where p.step == step.id { main.append(.note(p.text, tone: .warn)) }
         main += refusal(app.preflight[flow.id]?[step.id])
-        if case .action(let name, _) = step.kind, app.catalog.tool(name)?.risk == "high" {
+        let looked = app.planChecks[flow.id]?.byStep[step.id]
+        if let looked {
+            if let mark = PlanLook.mark(looked) { main.append(.note(mark.words, tone: mark.tone)) }
+        } else if case .action(let name, _) = step.kind, app.catalog.tool(name)?.risk == "high" {
             main.append(.note(L("Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.")))
         } else if Hints.asksEachTime(step) {
             main.append(.note(L("A value filled in when it runs could send it anywhere, so this step asks you each time. Write it out in full and it won't.")))

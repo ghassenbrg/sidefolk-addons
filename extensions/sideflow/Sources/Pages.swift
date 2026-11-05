@@ -432,18 +432,27 @@ import SidefolkExtensionKit
             case .draft:
                 if practiced(flow, app) != nil {
                     actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
+                               button(L("Run now"), "run", id, symbol: "play.fill", detail: fix ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first, once.") : nil), disabled: !ready),
                                button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart)]
                 } else {
                     actions = [button(L("Practice run"), "practice", id, style: .primary, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready)]
+                    extra.append(button(L("Run now"), "run", id, symbol: "play.fill", detail: fix ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first, once.") : nil), disabled: !ready))
                     extra.append(button(L("Turn on without practicing"), "start", id, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart))
                 }
             case .on:
                 actions = flow.hasChanges
                     ? [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Apply changes"), "start", id, style: .primary, symbol: "checkmark", detail: cantStart, disabled: !canStart)]
                     : [button(L("Run now"), "run", id, symbol: "play.fill"), button(L("Pause"), "pause", id, symbol: "pause.fill")]
-                if flow.hasChanges { extra.append(button(L("Go back to what's running"), "back_to_live", id, symbol: "arrow.uturn.backward")) }
+                if flow.hasChanges {
+                    extra.append(button(L("Run now"), "run", id, symbol: "play.fill", detail: fix ?? L("Applies your changes, asking only what's new."), disabled: !ready))
+                    extra.append(button(L("Go back to what's running"), "back_to_live", id, symbol: "arrow.uturn.backward"))
+                }
             case .paused:
                 actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Resume"), "resume", id, style: .primary, symbol: "play.fill", detail: cantStart, disabled: !canStart)]
+            }
+            // Theirs to end here too, not only in Settings. What's in the way of a card is on the same plan.
+            if app.catalog.plan(flow.planId) != nil {
+                extra.append(button(L("End what you allowed"), "end_plan", id, symbol: "xmark.seal", detail: L("It pauses, and asks again before it runs.")))
             }
         }
         if flow.hasChanges, !running { sentence = L("On, as before. Your changes aren't live.") }
@@ -474,6 +483,8 @@ import SidefolkExtensionKit
         var notes: [Block] = []
         if let why = flow.pausedBecause { notes.append(.note(why, tone: .warn)) }
         if let why = flow.startProblem { notes.append(.note(why, tone: .warn)) }
+        if let said = app.engine.quietlySaved(flow) { notes.append(.note(said, tone: .good)) }
+        else if flow.hasChanges || flow.live == nil, let look = app.planChecks[flow.id] { notes.append(.note(look.head)) }
         if let last = flow.missed.last {
             notes.append(.note(L(one: "It missed {count} run, last at {time}: Sidefolk or your Mac was off.", other: "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.", count: flow.missed.count, ["time": Format.dateTime(last)]), tone: .warn))
         }

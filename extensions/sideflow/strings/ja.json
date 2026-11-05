@@ -983,6 +983,24 @@
     "Open it": "開く",
     "Stopped. {count} starts waiting their turn were cleared.": {
       "other": "停止しました。順番待ちの開始 {count} 件を取り消しました。"
+    },
+    "Nothing new to allow": "新たに許可するものはありません",
+    "Write this part yourself: words from outside can't go in here.": "この部分はご自身で書いてください。外部からの言葉はここには入れられません。",
+    "Sidefolk won't let a flow do this.": "Sidefolk はルーティンにこれを許可しません。",
+    "Runs by itself only under Full access.": "フルアクセスのときだけ自動で実行します。",
+    "This says where it goes. Write it here, or it asks each run.": "ここは送り先を決めます。ここに書かないと、実行のたびに確認します。",
+    "Its program can't be checked, so it asks each run.": "プログラムを確認できないため、実行のたびに確認します。",
+    "This step will ask each run.": "このステップは実行のたびに確認します。",
+    "It passes on what this flow reads. The card says so.": "このルーティンが読んだ内容を渡します。カードにその旨が表示されます。",
+    "You read what it will do first, once.": "最初に一度だけ、何をするかを確認します。",
+    "Applies your changes, asking only what's new.": "変更を適用し、新しい点だけを確認します。",
+    "End what you allowed": "許可を終了",
+    "It pauses, and asks again before it runs.": "一時停止し、実行前にもう一度確認します。",
+    "Saved. Nothing new to allow.": "保存しました。新たに許可するものはありません。",
+    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "1日に許可した上限に達したため、一時停止しています。これ以上は送信していません。",
+    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "1回の実行に許可した上限に達したため、一時停止しています。これ以上は送信していません。",
+    "{count} new things to allow": {
+      "other": "新たに許可するものが{count}件"
     }
   }
 }

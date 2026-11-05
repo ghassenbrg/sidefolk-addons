@@ -999,6 +999,25 @@
     "Stopped. {count} starts waiting their turn were cleared.": {
       "one": "Fermata. {count} avvio in attesa è stato annullato.",
       "other": "Fermata. {count} avvii in attesa sono stati annullati."
+    },
+    "Nothing new to allow": "Niente di nuovo da consentire",
+    "Write this part yourself: words from outside can't go in here.": "Scrivi tu questa parte: qui non possono andare parole dall'esterno.",
+    "Sidefolk won't let a flow do this.": "Sidefolk non permette a una routine di farlo.",
+    "Runs by itself only under Full access.": "Si esegue da sola solo con Accesso completo.",
+    "This says where it goes. Write it here, or it asks each run.": "Questo dice dove va. Scrivilo qui, o chiederà a ogni esecuzione.",
+    "Its program can't be checked, so it asks each run.": "Il suo programma non può essere verificato, quindi chiede a ogni esecuzione.",
+    "This step will ask each run.": "Questo passaggio chiederà a ogni esecuzione.",
+    "It passes on what this flow reads. The card says so.": "Passa ciò che questa routine legge. La scheda lo dice.",
+    "You read what it will do first, once.": "Prima leggi cosa farà, una volta sola.",
+    "Applies your changes, asking only what's new.": "Applica le modifiche e chiede solo ciò che è nuovo.",
+    "End what you allowed": "Termina ciò che hai consentito",
+    "It pauses, and asks again before it runs.": "Va in pausa e chiede di nuovo prima di eseguirsi.",
+    "Saved. Nothing new to allow.": "Salvato. Niente di nuovo da consentire.",
+    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "Ha raggiunto il limite consentito per un giorno, quindi è in pausa. Non è stato inviato altro.",
+    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "Ha raggiunto il limite consentito per un'esecuzione, quindi è in pausa. Non è stato inviato altro.",
+    "{count} new things to allow": {
+      "one": "{count} cosa nuova da consentire",
+      "other": "{count} cose nuove da consentire"
     }
   }
 }

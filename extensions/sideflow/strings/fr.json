@@ -999,6 +999,25 @@
     "Stopped. {count} starts waiting their turn were cleared.": {
       "one": "Arrêtée. {count} démarrage en attente a été annulé.",
       "other": "Arrêtée. {count} démarrages en attente ont été annulés."
+    },
+    "Nothing new to allow": "Rien de nouveau à autoriser",
+    "Write this part yourself: words from outside can't go in here.": "Écrivez cette partie vous-même : les mots venus de l'extérieur ne peuvent pas aller ici.",
+    "Sidefolk won't let a flow do this.": "Sidefolk ne laisse pas une routine faire cela.",
+    "Runs by itself only under Full access.": "Ne s'exécute seule qu'en Accès complet.",
+    "This says where it goes. Write it here, or it asks each run.": "Ceci dit où cela va. Écrivez-le ici, sinon elle demandera à chaque exécution.",
+    "Its program can't be checked, so it asks each run.": "Son programme ne peut pas être vérifié, alors elle demande à chaque exécution.",
+    "This step will ask each run.": "Cette étape demandera à chaque exécution.",
+    "It passes on what this flow reads. The card says so.": "Elle transmet ce que cette routine lit. La carte le dit.",
+    "You read what it will do first, once.": "Vous lisez d'abord ce qu'elle fera, une seule fois.",
+    "Applies your changes, asking only what's new.": "Applique vos changements et ne demande que ce qui est nouveau.",
+    "End what you allowed": "Mettre fin à ce que vous avez autorisé",
+    "It pauses, and asks again before it runs.": "Elle se met en pause et redemande avant de s'exécuter.",
+    "Saved. Nothing new to allow.": "Enregistré. Rien de nouveau à autoriser.",
+    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "Elle a atteint la limite autorisée pour un jour, alors elle est en pause. Rien de plus n'a été envoyé.",
+    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "Elle a atteint la limite autorisée pour une exécution, alors elle est en pause. Rien de plus n'a été envoyé.",
+    "{count} new things to allow": {
+      "one": "{count} nouvelle chose à autoriser",
+      "other": "{count} nouvelles choses à autoriser"
     }
   }
 }

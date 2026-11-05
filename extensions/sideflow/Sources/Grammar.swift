@@ -40,7 +40,7 @@ enum Grammar {
     {{x}} is step x's result. Also {{trigger}} (what set it off), {{today}}, {{now}}.
     Use list_actions for the tools and their values. To tell the person, use the tool notify.user with title and body.
 
-    Only some values may hold {{x}} and still run without asking: notes.save's text, reminders.create's title, notify.user's title and body, ask questions. Write everything else out in full: any other {{x}} works, but that step asks the person every time it runs.
+    Running or turning on asks once: the card says everything it does, and nothing asks again unless an edit adds something new. In Full access there's no card. What the host checks is where {{x}} goes. Words from outside run by themselves only in a field of plain words (text, message, body, title, subject, summary, note, comment, description, caption, reason, detail). A field that says where something goes (a url, address, channel, recipient, path, repository) or a choice asks each run unless you write the value out; a field that runs something (command, script, code, sql) refuses them, so write it out. A step's form says which applies.
 
     Nothing you write runs until the person allows it: flows are drafts until they answer a card that shows what it will do. A practice run reads for real and changes nothing.
     """

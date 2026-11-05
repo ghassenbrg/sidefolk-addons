@@ -983,6 +983,24 @@
     "Open it": "打开",
     "Stopped. {count} starts waiting their turn were cleared.": {
       "other": "已停止。已清除 {count} 个排队的启动。"
+    },
+    "Nothing new to allow": "没有新内容需要允许",
+    "Write this part yourself: words from outside can't go in here.": "这部分请自己写：外来的文字不能放在这里。",
+    "Sidefolk won't let a flow do this.": "Sidefolk 不允许流程这样做。",
+    "Runs by itself only under Full access.": "只有在完全访问下才会自行运行。",
+    "This says where it goes. Write it here, or it asks each run.": "这里决定发往哪里。请写在这里，否则每次运行都会询问。",
+    "Its program can't be checked, so it asks each run.": "无法检查它的程序，所以每次运行都会询问。",
+    "This step will ask each run.": "此步骤每次运行都会询问。",
+    "It passes on what this flow reads. The card says so.": "它会传递此流程读取的内容。卡片上会说明。",
+    "You read what it will do first, once.": "先读一次它将做什么，只需一次。",
+    "Applies your changes, asking only what's new.": "应用你的更改，只询问新增内容。",
+    "End what you allowed": "结束已允许的内容",
+    "It pauses, and asks again before it runs.": "它会暂停，并在运行前再次询问。",
+    "Saved. Nothing new to allow.": "已保存。没有新内容需要允许。",
+    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "已达到你允许的每日上限，因此已暂停。没有再发送任何内容。",
+    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "已达到你允许的单次运行上限，因此已暂停。没有再发送任何内容。",
+    "{count} new things to allow": {
+      "other": "有 {count} 项新内容需要允许"
     }
   }
 }

@@ -1063,6 +1063,29 @@
       "few": "توقف. أُلغيت {count} بدايات منتظرة.",
       "many": "توقف. أُلغي {count} بدءًا منتظرًا.",
       "other": "توقف. أُلغي {count} بدء منتظر."
+    },
+    "Nothing new to allow": "لا جديد للسماح به",
+    "Write this part yourself: words from outside can't go in here.": "اكتب هذا الجزء بنفسك: لا يمكن وضع كلمات من الخارج هنا.",
+    "Sidefolk won't let a flow do this.": "لا يسمح Sidefolk للروتين بفعل هذا.",
+    "Runs by itself only under Full access.": "لا يعمل تلقائيًا إلا مع الوصول الكامل.",
+    "This says where it goes. Write it here, or it asks each run.": "يحدد هذا وجهته. اكتبه هنا، وإلا فسيسأل في كل تشغيل.",
+    "Its program can't be checked, so it asks each run.": "لا يمكن فحص برنامجه، لذا يسأل في كل تشغيل.",
+    "This step will ask each run.": "ستسأل هذه الخطوة في كل تشغيل.",
+    "It passes on what this flow reads. The card says so.": "يمرر ما يقرأه هذا الروتين. وتذكر البطاقة ذلك.",
+    "You read what it will do first, once.": "تقرأ أولًا ما سيفعله، مرة واحدة.",
+    "Applies your changes, asking only what's new.": "يطبق تغييراتك ولا يسأل إلا عن الجديد.",
+    "End what you allowed": "إنهاء ما سمحت به",
+    "It pauses, and asks again before it runs.": "يتوقف مؤقتًا ويسأل مجددًا قبل التشغيل.",
+    "Saved. Nothing new to allow.": "تم الحفظ. لا جديد للسماح به.",
+    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "بلغ الحد المسموح به لليوم، لذا توقف مؤقتًا. لم يُرسل شيء آخر.",
+    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "بلغ الحد المسموح به للتشغيل الواحد، لذا توقف مؤقتًا. لم يُرسل شيء آخر.",
+    "{count} new things to allow": {
+      "zero": "لا جديد للسماح به",
+      "one": "شيء جديد واحد للسماح به",
+      "two": "شيئان جديدان للسماح بهما",
+      "few": "{count} أشياء جديدة للسماح بها",
+      "many": "{count} شيئًا جديدًا للسماح به",
+      "other": "{count} شيء جديد للسماح به"
     }
   }
 }
