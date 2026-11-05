@@ -116,9 +116,10 @@ enum FlowFile {
         var taken = Set(incoming.map(\.name))
         var renamed: [String: String] = [:]
         for item in incoming where store.nameInUse(item.name) {
-            var name = L("{name} (imported)", ["name": item.name]), n = 2
+            // `plain`: a name is kept and matched, so it holds none of what L() puts round a value for showing.
+            var name = plain(L("{name} (imported)", ["name": item.name])), n = 2
             while store.nameInUse(name) || taken.contains(name) {
-                name = L("{name} (imported {count})", ["name": item.name, "count": Format.integer(n)])
+                name = plain(L("{name} (imported {count})", ["name": item.name, "count": Format.integer(n)]))
                 n += 1
             }
             taken.insert(name)
@@ -191,7 +192,7 @@ enum FlowFile {
                         add(name, to: &out.missingTools)
                         continue
                     }
-                    add(tool.title, to: tool.readsOnly ? &out.reads : &out.changes)
+                    if tool.readsOnly { add(tool.title, to: &out.reads) } else { add(tool.title, to: &out.changes) }
                     if !tool.readsOnly, name.range(of: #"(?i)trash|delete|remove|erase|wipe|clear"#, options: .regularExpression) != nil { add(tool.title, to: &out.deletes) }
                     if tool.fromServer { add(tool.title, to: &out.servers) }
                     if tool.category == "files" { add(tool.title, to: &out.files) }
