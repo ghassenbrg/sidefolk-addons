@@ -282,6 +282,19 @@ import SidefolkExtensionKit
         #expect(run?.status != .done)
     }
 
+    @Test func aPracticeKnowsAToolsWholeAnswerIsMadeUpToo() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{"query":{"type":"string"}}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"}}}"#, outputSchema: #"{"properties":{"total":{}}}"#)]))
+        w.host.decision = .allow
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "q", "do": "reads.it", "with": ["query": "{{c}}"]], ["id": "d", "data": ["op": "first", "from": "{{c}}"]]], state: .draft)
+        let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.record(of: "q")?.status == .would)
+        #expect(run?.record(of: "d")?.status == .would)
+        #expect(!w.host.calls.contains { $0.tool == "reads.it" })
+    }
+
     @Test func aListThatSaysNothingGoesRoundNotAtAll() async throws {
         let w = try world(#"{"items": null}"#)
         let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "each", "for_each": "{{r.items}}", "steps": [["id": "c", "do": "changes.it", "with": ["text": "{{item}}"]]]]])

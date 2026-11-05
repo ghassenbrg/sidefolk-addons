@@ -270,7 +270,7 @@ struct Values: Equatable, Sendable {
     /// Whether these words come only from what a practice made up, so there's nothing in them to work anything out from.
     func pretends(_ text: String) -> Bool {
         Self.slots(text).contains { slot in
-            isSampleField(slot.name + slot.path) || resolve(slot.name, path: slot.path).map { Self.text($0) == L("(sample)") } == true
+            isSampleField(slot.name + slot.path) || words(slot.name, path: slot.path) == L("(sample)")
         }
     }
 
