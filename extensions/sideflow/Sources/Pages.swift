@@ -454,16 +454,16 @@ import SidefolkExtensionKit
 
     // MARK: One flow
 
-    /// Copies at once, as the button says, on any tab. It's what's on screen, like the words beside it, and says when that isn't saved. Past what the clipboard takes it says so: said, not cut.
+    /// Copies at once, as the button says, on any tab. It's what's on screen, like the words beside it, and a menu shows only its label, so the label says when that isn't saved.
     static func copyDefinition(_ flow: Flow) -> Action {
         let words = JSONText.write(["name": flow.name, "flow": FlowCodec.json(flow.draft)] as [String: Any])
-        guard words.count <= longestCopy else {
-            return Action(L("Copy as a definition"), tool: "ui", input: ui("save", ["flow": flow.id]), symbol: "curlybraces", detail: L("It's too long to copy from here. Ask your companion to read it with get_flow."), disabled: true)
+        guard words.utf8.count <= longestCopy else {
+            return Action(L("Too long to copy from here"), tool: "ui", input: ui("save", ["flow": flow.id]), symbol: "curlybraces", disabled: true)
         }
-        return Action(L("Copy as a definition"), act: .copy(words), symbol: "curlybraces", detail: flow.draft != flow.kept ? L("Includes changes you haven't saved.") : nil)
+        return Action(flow.draft != flow.kept ? L("Copy definition, with unsaved") : L("Copy as a definition"), act: .copy(words), symbol: "curlybraces")
     }
 
-    /// What Sidefolk's clipboard tool takes.
+    /// The page holds the words on every read, and a page past its own limit doesn't draw at all, so this stays well inside it.
     static let longestCopy = 20_000
 
     static func tabs(_ flow: Flow, state: Arguments) -> Block {
@@ -526,7 +526,7 @@ import SidefolkExtensionKit
         }
         extra += [button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
                   copyDefinition(flow),
-                  Action(L("Copy it in words"), act: .copy(Words.aloud(flow.draft, catalog: app.catalog)), symbol: "doc.on.doc", detail: flow.draft != flow.kept ? L("Includes changes you haven't saved.") : nil),
+                  Action(flow.draft != flow.kept ? L("Copy in words, with unsaved") : L("Copy it in words"), act: .copy(Words.aloud(flow.draft, catalog: app.catalog)), symbol: "doc.on.doc"),
                   button(L("Delete this flow"), "ask_delete", id, style: .destructive, symbol: "trash")]
         return PageBar(flow.name, pill: pill, detail: sentence, actions: actions, menu: extra)
     }

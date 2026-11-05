@@ -65,27 +65,30 @@ import SidefolkExtensionKit
         #expect(back.name != "Mine", "a name that's taken isn't taken over")
     }
 
-    @Test func itCopiesWhatsOnScreenAndSaysWhenThatIsntSaved() throws {
+    @Test func itCopiesWhatsOnScreenAndItsLabelSaysWhenThatIsntSaved() throws {
         let w = try World()
         let app = app(w)
         var flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "saved"]]]))
-        #expect(Pages.copyDefinition(flow).detail == nil)
+        #expect(Pages.copyDefinition(flow).label == "Copy as a definition")
         flow.saved = flow.draft
         flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "changing"]]])
         let action = Pages.copyDefinition(flow)
         let words = try #require(copied(action))
         #expect(words.contains("changing") && !words.contains("saved"))
-        #expect(action.detail?.contains("haven't saved") == true)
+        #expect(action.label.contains("unsaved"), "a menu shows only the label")
+        #expect(action.label.count <= 30, "and cuts it at 30")
     }
 
-    @Test func pastWhatTheClipboardTakesItSaysSoAndCopiesNothing() throws {
+    @Test func pastWhatAPageShouldCarryItSaysSoAndCopiesNothing() throws {
         let w = try World()
         let app = app(w)
-        let long = String(repeating: "x", count: Pages.longestCopy)
-        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": long]]]))
-        let action = Pages.copyDefinition(flow)
-        #expect(copied(action) == nil)
-        #expect(action.disabled)
-        #expect(action.detail?.contains("too long") == true)
+        // Counted in what a page counts in: this is far fewer characters than the limit, and more bytes.
+        for long in [String(repeating: "x", count: Pages.longestCopy), String(repeating: "語", count: Pages.longestCopy / 3 + 1)] {
+            let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": long]]]))
+            let action = Pages.copyDefinition(flow)
+            #expect(copied(action) == nil)
+            #expect(action.disabled)
+            #expect(action.label.contains("Too long"))
+        }
     }
 }
