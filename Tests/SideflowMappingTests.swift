@@ -362,6 +362,39 @@ import SidefolkExtensionKit
         }
     }
 
+    @Test func whatsSaidAboutCuttingIsAboutWhatsSent() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let long = String(repeating: "x", count: Values.wordsKept + 1)
+        // A tool's words are what `{{r}}` sends, whatever its fields hold.
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: long, summary: "", data: #"{"n":3}"#)]
+        let wordy = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "{{r}}"]]])
+        let cut = try #require(await w.settled(w.engine.start(wordy, mode: .live, why: "t")))
+        #expect(cut.record(of: "c")?.note?.contains("cut to") == true)
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Found 3", summary: "", data: "{\"n\":\"\(long)\"}")]
+        let brief = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "{{r}}"]]])
+        let whole = try #require(await w.settled(w.engine.start(brief, mode: .live, why: "t")))
+        #expect(whole.record(of: "c")?.note == nil, "its fields weren't sent")
+    }
+
+    @Test func whatWasntSentWasntCut() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .denied, text: "No", summary: "")]
+        let flow = try w.flow([["id": "n", "text": String(repeating: "x", count: Values.wordsKept + 1)], ["id": "c", "do": "changes.it", "with": ["text": "{{n}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.record(of: "c")?.note?.contains("cut to") != true, "\(run.record(of: "c")?.note ?? "")")
+    }
+
+    @Test func blankWordsInsideARecordCanBeWhatsMeant() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"change":{"type":"object","properties":{"replace":{"type":"string"}},"required":["replace"]}}}"#)]))
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["change": ["replace": ""]]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .done, "\(run.problem ?? "")")
+        #expect((w.host.calls.first?.input["change"] as? [String: Any])?["replace"] as? String == "")
+    }
+
     @Test func wordsThatFitSayNothing() async throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))

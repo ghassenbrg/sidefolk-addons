@@ -393,7 +393,8 @@ extension FlowHost {
             let cut = catalog.cutShort(tool, input, from: run.values)
             if run.mode != .practice, let wrong = catalog.doesntFit(tool, filled) { return failed(step, why: wrong, reads: false, in: &run) }
             let goesOn = run.mode == .practice ? await practicing(step, tool: tool, input: filled, in: &run) : await acting(step, tool: tool, input: filled, written: input.mapValues(\.any), in: &run)
-            if let cut, var record = run.record(of: step.id) {
+            // What wasn't sent wasn't cut: a card turned down, a tool that's busy.
+            if let cut, var record = run.record(of: step.id), record.status == .done || record.status == .would || record.status == .unknown {
                 record.note = [record.note, cut].compactMap(\.self).joined(separator: " ")
                 run.record(record)
                 store.save(run)

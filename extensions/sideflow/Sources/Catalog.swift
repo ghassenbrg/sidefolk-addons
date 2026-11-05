@@ -130,10 +130,11 @@ import SidefolkExtensionKit
 
     /// Why what's been filled in can't go to this tool. Nothing is reshaped to make it fit: a plain reason, before it gets there.
     func doesntFit(_ name: String, _ filled: [String: Any]) -> String? {
-        func check(_ filled: [String: Any], _ parameters: [Parameter]) -> String? {
+        func check(_ filled: [String: Any], _ parameters: [Parameter], top: Bool = true) -> String? {
             for parameter in parameters {
                 // Sidefolk counts a null or blank words as missing where something's needed, whatever the schema says: it wouldn't have got there.
-                guard let given = filled[parameter.name], !(given is NSNull), (given as? String)?.trimmed.isEmpty != true else {
+                // It looks at the top level only: inside a record, blank words can be what's meant, like what to replace something with.
+                guard let given = filled[parameter.name], !(given is NSNull), !top || (given as? String)?.trimmed.isEmpty != true else {
                     if parameter.required { return L("“{name}” is needed, and this gives it nothing.", ["name": parameter.title]) }
                     continue
                 }
@@ -155,7 +156,7 @@ import SidefolkExtensionKit
                     wrong = false
                 }
                 if wrong, let what = parameter.typeWord { return L("“{name}” wants {what}, and this gives it “{value}”.", ["name": parameter.title, "what": what, "value": Values.text(value).clipped(80)]) }
-                if !parameter.children.isEmpty, let inner = given as? [String: Any], let found = check(inner, parameter.children) { return found }
+                if !parameter.children.isEmpty, let inner = given as? [String: Any], let found = check(inner, parameter.children, top: false) { return found }
             }
             return nil
         }
