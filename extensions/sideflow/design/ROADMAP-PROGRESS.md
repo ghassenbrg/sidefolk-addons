@@ -10,13 +10,11 @@ The founder, 2026-11-04: phases are fine, and the session ends when everything i
 | Stage 1 (D180) and Phase 0 | A1-A4; plan limit, branch scope and missing values, journal before effects, reviewed revision goes live, uncertain outcomes | In the gallery |
 | Editing (D181, D182) | A5, A6, A7, A9: Save, Discard, undo, keys, check, what changed; move, outline, fold, find; forms, value menu, condition builder | In the gallery, snapshot.5, app 1252 |
 | Engine (D198) | Typed values, for each, choose, try, call, finish, data, AI with fields, forms, waits, queues, time zones, parallel, run inspector, Stop, held-back runs | In the gallery, snapshot.6, minimum 1252 |
-| Connections (D183) | A run waits for a tool that went away; a Connections page | Held for snapshot 1292: add-ons `team/sideflow-connections-2` (d844044), `gallery-next`. App in 1292. Publishes on the coordinator's word |
-| Repeat until | Round and round until it holds | Ready behind Connections: `team/sideflow-repeat-2`. No app change |
-| Fields (D184) | A tool's answer can hold fields | In reads: add-ons `team/sideflow-structured-2`, app `team/sideflow-structured-app-3`. Needs its own snapshot, after Connections |
-| Jobs (D195) | How far along a step is; Stop tells it | Moved, findings fixed, in reads: add-ons `team/sideflow-jobs-2`, app `team/sideflow-jobs-app-2`, stacked on fields |
-| Triggers (D196) | Several ways to start a flow; an event acts once | Moved, findings fixed, in reads: add-ons `team/sideflow-triggers-2`, app `team/sideflow-triggers-app-2`, stacked on jobs |
-| More | Batches, group, fallback; make a step its own flow; pause; run again; try again from here | Moved, findings fixed, in reads: add-ons `team/sideflow-more-2`, stacked on triggers. No app change |
-| One approval (replaces T51 as next priority; T51's design folded in) | Run saves and applies, one card for what's new, no asking again for what was approved | Designed with Permissions: their `FLOW-APPROVAL-DESIGN.md`. Nothing built until the coordinator answers the merged note |
+| Connections (D183) | A run waits for a tool that went away; a Connections page | In the gallery, snapshot.7, app 1292 |
+| Repeat until | Round and round until it holds | In the gallery, snapshot.8, minimum 1292 |
+| Fields (D184) | A tool's answer can hold fields | In the gallery, snapshot.9, app 1303 |
+| Jobs (D195), triggers (D196), more | How far along a step is, Stop tells it; several ways to start; batches, group, fallback, make a step its own flow, pause, run again, try again from here | One snapshot, after L1. Add-ons `team/sideflow-more-2`, app `team/sideflow-triggers-app-2`. Clean read and suite at 683e066 + 1ab089c7; main with L1 still to merge, Permissions reads that resolution |
+| One approval (L2; Permissions has L1, D186-D189, T53) | Run saves and applies, one card for what's new, no asking again for what was approved | Local `team/sideflow-approval` on the stack. Passes the founder's scenario on the real engine. App tests in the session's scratch `flow-cards/l2-app-tests.patch`, to go on an app branch with the Kit. After L1 is a snapshot |
 
 ## Still to build, in order (the coordinator, for the founder, 2026-11-05)
 
@@ -30,6 +28,17 @@ Each its own landing, with independent reads until a clean one, a suite on a bui
 6. The expression language (sandboxed, with its own security note); two reference connectors; pagination and rate-limit metadata; dependency-aware templates.
 
 Also stated and owed: the later lists in each landing's MERGE-READY, among them a write's thrown error going to "did it happen?" rather than Recover, "Next:" ignoring the flow's time zone, `{{today}}` going stale over a days-long form, Skip sending a later action an empty value.
+
+## First after the stack ships (the coordinator, 2026-11-05)
+
+Known small gaps accepted for now, to fix first in the next batch:
+- `{{a}} {{b}}` with one null and one empty sends spaces.
+- `{{a}}, {{b}}` with both null sends ",".
+- A final data step's null hides earlier words as the answer.
+- Nulls inside a list passed as one whole value aren't checked.
+- A callee, lane or repeat with only a carried-past failure gives "", so a later `{{k}}` can write a blank (the person's own choice).
+
+Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off flow in an untaken branch refuses the whole run; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
 
 ## Left out on purpose
 
