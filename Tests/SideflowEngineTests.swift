@@ -2488,6 +2488,14 @@ extension JSON {
         #expect(run?.values.value("t") == "got said", "the called flow made nothing, so the one before it is what the go gave")
     }
 
+    @Test func aDataStepsNullIsAnAnswerAndStaysOne() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "l", "data": ["op": "parse_json", "from": #"[{"email":null,"id":7}]"#]], ["id": "e", "for_each": "{{l}}", "steps": [["id": "d", "data": ["op": "field", "from": "{{item}}", "field": "email"]]]], ["id": "t", "text": "{{e}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t").contains("7") == false, "the record doesn't go in the list where its field's null was")
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])

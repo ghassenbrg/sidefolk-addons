@@ -631,7 +631,7 @@ extension FlowHost {
         // A flow's own run holds the flow; one that another waits for doesn't: it's that run's business.
         let holds = run.parent == nil
         // The last that has something to say: a loop's insides are gone by its end, and a path not taken never made anything.
-        if run.output == nil, run.status == .done, let last = run.body.allSteps.last(where: { $0.hasOutput && run.values.whole($0.id) != nil }) { run.output = run.values.whole(last.id) }
+        if run.output == nil, run.status == .done, let last = run.body.allSteps.last(where: { $0.hasOutput && run.values.gaveAnswer($0) }) { run.output = run.values.whole(last.id) }
         if run.status.isOver {
             run.endedAt = clock()
             _ = store.takeStop(run.id)

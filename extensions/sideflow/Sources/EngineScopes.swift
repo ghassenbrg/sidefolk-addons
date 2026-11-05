@@ -66,7 +66,7 @@ extension Engine {
         }
         let inside = FlowBody(steps: steps).allSteps
         // The last that made something: a path not taken at the end of a go made nothing.
-        let made = inside.last(where: { $0.hasOutput && run.values.whole($0.id) != nil }).flatMap { run.values.whole($0.id) } ?? .null
+        let made = inside.last(where: { $0.hasOutput && run.values.gaveAnswer($0) }).flatMap { run.values.whole($0.id) } ?? .null
         let holds = until.holds(run.values)
         let go = run.frames[at].index + 1
         func leave() {
