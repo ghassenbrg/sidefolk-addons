@@ -174,7 +174,8 @@ struct DataStep: Equatable, Sendable {
     var separator: String?
 
     /// What it does to a value. A wrong shape is said, never guessed around: a list is a list, text is text, and text that looks like a number stays text until asked.
-    func apply(to value: JSON, than resolved: String) throws -> JSON {
+    /// `thanValue` is what `than` came to before it was words: a tool's 1.125 is that number, whatever its words look like.
+    func apply(to value: JSON, than resolved: String, thanValue: JSON? = nil) throws -> JSON {
         func list() throws -> [JSON] {
             guard case .array(let items) = Values.structured(value) else { throw Problem(L("It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.")) }
             return items
@@ -187,7 +188,13 @@ struct DataStep: Equatable, Sendable {
         case .parse_csv:
             let rows = CSV.rows(Values.text(value))
             guard let head = rows.first else { return .array([]) }
-            return .array(rows.dropFirst().map { row in .object(Dictionary(zip(head, row.map { JSON.string($0) }), uniquingKeysWith: { a, _ in a })) })
+            // A cell with something in it and no column usually means a comma in a value (`A,1,299.00`), and two columns of one name can't both be kept: what's left would look whole. Trailing commas lose nothing.
+            let named = Array(head.reversed().drop { $0.trimmed.isEmpty }.reversed())
+            if let twice = named.first(where: { name in named.filter { $0 == name }.count > 1 }) {
+                throw Problem(twice.trimmed.isEmpty ? L("Some columns have no name.") : L("Two columns are called “{name}”.", ["name": twice]))
+            }
+            if let at = rows.firstIndex(where: { $0.dropFirst(named.count).contains { !$0.trimmed.isEmpty } }) { throw Problem(L("Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.", ["row": Format.integer(at)])) }
+            return .array(rows.dropFirst().map { row in .object(Dictionary(zip(named, row.map { JSON.string($0) }), uniquingKeysWith: { a, _ in a })) })
         case .lines:
             return .array(Values.text(value).split(whereSeparator: \.isNewline).map { .string(String($0).trimmed) }.filter { $0 != .string("") })
         case .join:
@@ -199,7 +206,7 @@ struct DataStep: Equatable, Sendable {
             return found
         case .filter:
             // What the page shows selected before anyone picks. Looking for nothing would look like an answer: an empty list.
-            if [nil, .contains, .not_contains].contains(test), resolved.trimmed.isEmpty { throw Problem(L("Say what to compare it with.")) }
+            if [nil, .contains, .not_contains, .more_than, .less_than].contains(test), resolved.trimmed.isEmpty { throw Problem(L("Say what to compare it with.")) }
             return .array(try list().filter { item in
                 let found = at(item)
                 let left = found.map(Values.text) ?? ""
@@ -207,35 +214,27 @@ struct DataStep: Equatable, Sendable {
                     // A row with nothing there has nothing to compare. One with words that aren't one number can't be told.
                     if left.trimmed.isEmpty || found == .null { return false }
                     guard case .number(let a)? = found.map(Condition.reading(of:)) else { throw Condition.Unreadable(words: left) }
-                    guard let b = NumberWords.number(resolved) else { throw Condition.Unreadable(words: resolved) }
+                    guard case .number(let b) = Condition.reading(of: thanValue ?? .string(resolved)) else { throw Condition.Unreadable(words: resolved) }
                     return test == .more_than ? a > b : a < b
                 }
                 return Condition.test(test ?? .contains, left: left, right: resolved)
             })
         case .sort:
             let items = try list()
-            // Words that have a number in them sort by their letters only if they start with a letter, or are a date written year first: anything else would look like an answer (`1,500` before `200`).
-            for item in items {
-                let found = at(item)
-                let text = found.map(Values.text)?.trimmed ?? ""
-                if case .number? = found.map(Condition.reading(of:)) { continue }
-                if text.range(of: #"\p{N}"#, options: .regularExpression) != nil, text.first?.isLetter != true, text.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}"#, options: .regularExpression) == nil {
-                    throw Condition.Unreadable(words: text)
-                }
+            // What it's sorted by, each once. Blanks and rows without it go last either way round, and if nothing has it the field's name is probably wrong.
+            let keys = try items.map { item -> SortKey in
+                guard let found = at(item), found != .null, !Values.text(found).trimmed.isEmpty else { return .blank }
+                if case .number(let n) = Condition.reading(of: found) { return .number(n) }
+                let text = Values.text(found).trimmed
+                guard SortKey.canOrder(text) else { throw Condition.Unreadable(words: text) }
+                return .words(text)
             }
-            func number(_ item: JSON) -> Double? {
-                if case .number(let n)? = at(item).map(Condition.reading(of:)) { n } else { nil }
-            }
-            // Numbers come first, by what they are, then words by their letters: one order, whatever order they arrived in.
-            let sorted = items.sorted { a, b in
-                switch (number(a), number(b)) {
-                case (let n?, let m?): n < m
-                case (.some, nil): true
-                case (nil, .some): false
-                case (nil, nil): (at(a).map(Values.text) ?? "").localizedCaseInsensitiveCompare(at(b).map(Values.text) ?? "") == .orderedAscending
-                }
-            }
-            return .array(descending ? sorted.reversed() : sorted)
+            if !items.isEmpty, field?.nonEmpty != nil, keys.allSatisfy({ $0 == .blank }) { throw Problem(L("None of these has “{field}”, so there's nothing to sort by.", ["field": field ?? ""])) }
+            // Numbers and words in one list can't be one order: `N/A` among prices means something's wrong with that row.
+            if keys.contains(where: \.isNumber), let words = keys.lazy.compactMap(\.words).first { throw Condition.Unreadable(words: words) }
+            let filled = zip(items, keys).filter { $0.1 != .blank }.sorted { $0.1.isBefore($1.1) }.map(\.0)
+            let blanks = zip(items, keys).filter { $0.1 == .blank }.map(\.0)
+            return .array((descending ? filled.reversed() : filled) + blanks)
         case .unique:
             var seen = Set<String>()
             return .array(try list().filter { seen.insert(at($0).map(Values.text) ?? "").inserted })
@@ -250,7 +249,8 @@ struct DataStep: Equatable, Sendable {
                 guard case .number(let n) = Condition.reading(of: found) else { throw Condition.Unreadable(words: Values.text(found)) }
                 return sum + n
             }
-            guard total.isFinite else { throw Problem(L("Those numbers add up to too much.")) }
+            // Past what can be held exactly it wouldn't be the sum, and it wouldn't come back from disk as a number.
+            guard abs(total) < 9_007_199_254_740_992 else { throw Problem(L("Those numbers add up to too much.")) }
             return .number(total)
         case .number:
             guard case .number(let n) = Condition.reading(of: value) else { throw Condition.Unreadable(words: Values.text(value)) }
@@ -321,5 +321,28 @@ enum AIFields {
             }
         }
         return .object(out)
+    }
+}
+
+/// What a sort orders by.
+enum SortKey: Equatable {
+    case number(Double), words(String), blank
+
+    var isNumber: Bool { if case .number = self { true } else { false } }
+    var words: String? { if case .words(let text) = self { text } else { nil } }
+
+    func isBefore(_ other: SortKey) -> Bool {
+        switch (self, other) {
+        case (.number(let a), .number(let b)): a < b
+        case (.words(let a), .words(let b)): a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+        default: false
+        }
+    }
+
+    /// Words with no digits in them, or a date written year first, which sorts as it reads. Anything else with digits in it holds a number or a date that could land in the wrong place with no one seeing: `Item 12`, `USD 1,500`, `Temp -5`, `Q1 2026`, `at 9pm`.
+    /// Which of those read as numbers never ends, as it didn't for reading a number out of words, so none do. A sort that says it's by name is on the later list.
+    static func canOrder(_ text: String) -> Bool {
+        text.range(of: #"\p{N}"#, options: .regularExpression) == nil
+            || text.range(of: #"^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(T([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?Z?)?$"#, options: .regularExpression) != nil
     }
 }

@@ -1111,6 +1111,10 @@
       "other": "{count}件選択中"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "一度に選べるのは最初の{count}件のルーティンだけです。削除すると残りが表示されます。",
-    "The nearest places are listed. To go further, move it there and choose again.": "近い場所だけを表示しています。さらに遠くへ移すには、そこまで移動してからもう一度選んでください。"
+    "The nearest places are listed. To go further, move it there and choose again.": "近い場所だけを表示しています。さらに遠くへ移すには、そこまで移動してからもう一度選んでください。",
+    "None of these has “{field}”, so there's nothing to sort by.": "どの項目にも「{field}」がないため、並べ替える基準がありません。",
+    "Two columns are called “{name}”.": "「{name}」という名前の列が2つあります。",
+    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "{row} 行目のセル数が列数より多くなっています。カンマを含む値は引用符で囲んでください。",
+    "Some columns have no name.": "名前のない列があります。"
   }
 }

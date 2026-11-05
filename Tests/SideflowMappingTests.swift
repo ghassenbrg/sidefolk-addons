@@ -406,18 +406,51 @@ import SidefolkExtensionKit
     }
 
     @Test func sortingNeverReadsANumberOutOfWords() throws {
-        func sort(_ items: [JSON], descending: Bool = false) throws -> JSON { try DataStep(op: .sort, from: "", descending: descending).apply(to: .array(items), than: "") }
+        func sort(_ items: [JSON], descending: Bool = false, field: String? = nil) throws -> JSON { try DataStep(op: .sort, from: "", field: field, descending: descending).apply(to: .array(items), than: "") }
+        func strings(_ words: String...) -> JSON { .array(words.map { .string($0) }) }
         #expect(try sort([.string("10"), .string("9"), .number(9.5)]) == .array([.string("9"), .number(9.5), .string("10")]), "plain numbers, as numbers")
-        #expect(try sort([.string("2026-11-05"), .string("2025-01-01")]) == .array([.string("2025-01-01"), .string("2026-11-05")]), "a date written year first")
-        #expect(try sort([.string("pear"), .string("Apple")]) == .array([.string("Apple"), .string("pear")]))
-        #expect(try sort([.string("file10"), .string("file2")]) == .array([.string("file10"), .string("file2")]), "by its letters: no number read out of it")
-        #expect(try sort([.string("10"), .string("9"), .string("2026-01-02")]) == .array([.string("9"), .string("10"), .string("2026-01-02")]), "numbers first, whatever order they came in")
-        #expect(try sort([.string("2026-01-02"), .string("10"), .string("9")]) == .array([.string("9"), .string("10"), .string("2026-01-02")]))
-        #expect(try sort([.string("9"), .string("2026-01-02"), .string("10")]) == .array([.string("9"), .string("10"), .string("2026-01-02")]))
-        for words in ["1,500", "$1,500", "-5 kg", "12%", "1.500", "10:30", ".5", "-$2,000", "١٠", "３", "²", "(5)"] {
-            #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("200")]) }
-            #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("200")], descending: true) }
+        #expect(try sort([.string("2026-11-05"), .string("2025-01-01")]) == strings("2025-01-01", "2026-11-05"), "a date written year first")
+        #expect(try sort([.string("pear"), .string("Apple")]) == strings("Apple", "pear"))
+        for words in ["1,500", "$1,500", "-5 kg", "12%", "1.500", "10:30", ".5", "-$2,000", "١٠", "３", "²", "(5)", "USD 1,500", "CPU: 12%", "Nov 5, 2026", "v1.2.10", "Item ١٢", "1234-56-78", "2026-11-05 kg", "2026-11-05T23:00+09:00", "11/05/2026", "file10", "Item 12", "v10", "Temp -5", "USD 1 500", "Size 1GB", "at 9pm", "Q1 2026"] {
+            #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("pear")]) }
+            #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("pear")], descending: true) }
         }
+    }
+
+    @Test func whatCantBeKeptExactlyStopsRatherThanBecomeAnotherNumber() throws {
+        func csv(_ words: String) throws -> JSON { try DataStep(op: .parse_csv, from: "").apply(to: .string(words), than: "") }
+        #expect(throws: Problem.self, "a comma in a value") { try csv("name,price\nA,1,299.00") }
+        #expect(throws: Problem.self, "two of one name") { try csv("price,price\n1,2") }
+        #expect(try csv("name,price\n\"A\",\"1,299.00\"\nB") == .array([.object(["name": .string("A"), "price": .string("1,299.00")]), .object(["name": .string("B")])]))
+        func parsed(_ words: String) -> JSON { JSON(JSONText.read(words)) }
+        #expect(parsed("[9007199254740993]") == .array([.string("9007199254740993")]), "as it said, not ...992")
+        #expect(NumberWords.read("9007199254740993") == .unreadable)
+        #expect(parsed("[12.5, 9007199254740991, 0.1]") == .array([.number(12.5), .number(9007199254740991), .number(0.1)]))
+        if case .array(let huge) = parsed("[-1e999]"), case .number = huge[0] { Issue.record("past any size isn't a number") }
+        #expect(try csv("a,b\n1,2,\n,,\n") == .array([.object(["a": .string("1"), "b": .string("2")]), .object(["a": .string(""), "b": .string("")])]), "trailing commas lose nothing")
+        #expect(try csv("Name,Price,,\nA,1") == .array([.object(["Name": .string("A"), "Price": .string("1")])]))
+        #expect(throws: Problem.self) { try csv("a,,b,,c\n1,2,3,4,5") }
+        #expect(throws: Problem.self, "past what's exact") { try DataStep(op: .sum, from: "").apply(to: .array([.number(9e15), .number(9e15)]), than: "") }
+        #expect(NumberWords.read(String(repeating: " ", count: 63_999) + "1") == .unreadable, "what's kept of a long value is cut")
+        #expect(NumberWords.read("  12\n") == .number(12))
+    }
+
+    @Test func aFiltersNumberFromAToolIsThatNumber() throws {
+        let rows: JSON = .array([.object(["p": .number(1.2)]), .object(["p": .number(1)])])
+        let step = DataStep(op: .filter, from: "", field: "p", test: .more_than)
+        #expect(try step.apply(to: rows, than: "1.125", thanValue: .number(1.125)) == .array([.object(["p": .number(1.2)])]))
+        #expect(throws: Condition.Unreadable.self, "the same words typed could be a thousand") { try step.apply(to: rows, than: "1.125") }
+    }
+
+    @Test func aSortDoesntHideARowThatsWrong() throws {
+        func sort(_ items: [JSON], descending: Bool = false, field: String? = nil) throws -> JSON { try DataStep(op: .sort, from: "", field: field, descending: descending).apply(to: .array(items), than: "") }
+        #expect(throws: Condition.Unreadable.self, "words among numbers") { try sort([.string("10"), .string("9"), .string("N/A")]) }
+        #expect(throws: Condition.Unreadable.self, "a date among numbers") { try sort([.string("10"), .string("2026-01-02")]) }
+        let rows: [JSON] = [.object(["p": .number(5)]), .object([:]), .object(["p": .number(9)])]
+        #expect(try sort(rows, descending: true, field: "p") == .array([rows[2], rows[0], rows[1]]), "a row without it goes last either way round")
+        #expect(try sort(rows, field: "p") == .array([rows[0], rows[2], rows[1]]))
+        #expect(throws: Problem.self, "a field nothing has is probably misspelt") { try sort(rows, field: "price") }
+        #expect(try sort([.string(""), .null]) == .array([.string(""), .null]), "nothing to sort isn't wrong")
     }
 
     @Test func aNumberAToolGaveAsANumberIsThatNumberHoweverItLooks() {

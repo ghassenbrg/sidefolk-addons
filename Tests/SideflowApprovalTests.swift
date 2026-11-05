@@ -236,6 +236,13 @@ import SidefolkExtensionKit
         #expect(rows.first { $0.named == "mix" }?.line.contains(Engine.writtenWords) == true)
     }
 
+    @Test func anAIStepReadingAStepCalledIndexSaysItReadsEverythingBeforeIt() throws {
+        func ai(_ steps: [Step]) -> String? { Engine.planSteps(FlowBody(steps: steps), title: "T").first { $0.named == "w" }?.line }
+        let everything = ai([Step(id: "w", kind: .ai(prompt: "hello"))])
+        #expect(ai([Step(id: "a", kind: .ask(question: "Q", options: [])), Step(id: "index", kind: .action(tool: "reads.it", input: [:])), Step(id: "w", kind: .ai(prompt: "{{a}} {{index}}"))]) == everything)
+        #expect(ai([Step(id: "a", kind: .ask(question: "Q", options: [])), Step(id: "w", kind: .ai(prompt: "{{a}} {{index}}"))]) != everything, "which go it is, with no such step, reads nothing")
+    }
+
     @Test func aFormNamedLikeWhatALoopBringsIsntTakenForTheLoopsItem() throws {
         let top = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "form": ["title": "Who", "fields": [["name": "n", "label": "Name", "kind": "text"]]]]]])
         guard case .form(let form)? = top.step("f")?.kind else { Issue.record("not a form"); return }
