@@ -105,7 +105,7 @@ struct Condition: Equatable, Sendable {
         return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
-    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])[-−]?\d{1,3}(?:[ \x{00A0}\x{202F}]\d{3})+(?![0-9])(?:[.,]\d+)?|(?<![A-Za-z0-9])[-−]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
+    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])[-−]?\d{1,3}(?:[ \x{00A0}\x{202F}]\d{3})+(?![0-9])(?:[.,]\d{1,2}(?![0-9]))?|(?<![A-Za-z0-9])[-−]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
     private static let currency = CharacterSet(charactersIn: "€$£¥₹")
 
     /// Exactly as a machine writes one, exponent and all: what a tool's number comes out as in words.
@@ -120,11 +120,16 @@ struct Condition: Equatable, Sendable {
         if isMachineNumber(text) { return (text.trimmed, false) }
         guard let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
         let before = text[..<range.lowerBound].trimmingCharacters(in: .whitespaces), after = text[range.upperBound...].trimmingCharacters(in: .whitespaces)
-        let isMoney = before.unicodeScalars.last.map(currency.contains) == true || after.unicodeScalars.first.map(currency.contains) == true
+        let moneyBefore = before.unicodeScalars.last.map(currency.contains) == true
+        let moneyAfter = after.unicodeScalars.first.map(currency.contains) == true && after.dropFirst().first?.isNumber != true
+        let isMoney = moneyBefore || moneyAfter
         var found = text[range].replacingOccurrences(of: "−", with: "-")
-        // Spaced in threes it's one number if it has decimals or a currency to say so: `1 299,00 €`. Bare, `100 200` could be two.
+        // The sign can come before the currency: `-$5.00`.
+        if moneyBefore, !found.hasPrefix("-"), let sign = before.dropLast().last, sign == "-" || sign == "−" { found = "-" + found }
+        if after.range(of: #"^(?i)(thousand|million|billion|trillion)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
+        // Spaced in threes it's one number if a decimal comma or a currency says so: `1 299,00`, `1 299 €`. Bare, `100 200` could be two.
         if found.contains(where: { !$0.isNumber && $0 != "-" && $0 != "." && $0 != "," }) {
-            let hasDecimals = found.contains { $0 == "." || $0 == "," }
+            let hasDecimals = found.contains(",")
             found = String(found.filter { $0.isNumber || $0 == "-" || $0 == "." || $0 == "," }).replacingOccurrences(of: ",", with: ".")
             return (found, !hasDecimals && !isMoney || found.prefix { $0 != "." }.filter(\.isNumber).count > 15)
         }
