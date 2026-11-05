@@ -223,10 +223,11 @@ import SidefolkExtensionKit
                 main.append(.note(L("This tool isn't here now: {tool}.", ["tool": name]), tone: .warn))
                 break
             }
+            let lastRun = app.store.latest(of: flow.id)?.values
             for p in tool.parameters {
-                guard let block = field(p, value: values[p.name], step: step, tokens: tokens, input: input) else { continue }
+                let blocks = field(p, value: values[p.name], step: step, tokens: annotated(tokens, flow: flow, app, last: lastRun), last: lastRun, app, input: input)
                 // What's optional stays out of the way unless it's been filled in.
-                if p.required || values[p.name] != nil { main.append(block) } else { more.append(block) }
+                if p.required || values[p.name] != nil { main += blocks } else { more += blocks }
             }
             if tool.parameters.isEmpty { main.append(.note(L("Nothing to set up: it just does this."))) }
         case .ai(let prompt):
@@ -337,27 +338,94 @@ import SidefolkExtensionKit
                               .action(Action(L("Remove this step"), tool: "ui", input: input("remove"), style: .destructive, symbol: "trash"))], place: .trailing)]
     }
 
-    private static func field(_ p: Catalog.Parameter, value current: JSON?, step: Step, tokens: [EditField.Token], input: (String, [String: Any]) -> [String: Any]) -> Block? {
-        let args = input("param", ["name": p.name])
+    /// A step's parameter as a form asks it: written out, or an earlier step's value, whichever it wants. A record's own fields each their own; what a form can't draw, written out.
+    private static func field(_ p: Catalog.Parameter, name: String? = nil, value current: JSON?, step: Step, tokens: [Token], last: Values?, _ app: App, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
+        let path = name ?? p.name
+        if !p.children.isEmpty {
+            var fields: [String: JSON] = [:]
+            if case .object(let o)? = current { fields = o }
+            return p.children.flatMap { field($0, name: "\(path).\($0.name)", value: fields[$0.name], step: step, tokens: tokens, last: last, app, input: input) }
+        }
+        let args = input("param", ["name": path])
+        let shown = "\(step.id).\(path)"
+        if p.kind == .other {
+            let text = current.map { JSONText.write($0.any) } ?? ""
+            return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.detail.map { String($0.prefix(140)) } ?? L("Written out, as a record or a list. Values from earlier steps go in quotes."), kind: .multiline, tool: "ui", input: input("param_json", ["name": path])))]
+        }
+        if p.kind == .text {
+            let text = current?.string ?? ""
+            return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.detail.map { String($0.prefix(140)) },
+                                    kind: path == "text" || path == "body" || path == "job" ? .multiline : .text, tokens: tokens.filter { $0.fits(p.kind) }.map(\.field), tool: "ui", input: args))]
+        }
+        // A number, a yes or no, a choice or a list: its own control, or an earlier step's value. Never words that look like one.
+        let pointed = current?.string.map { !Values.slots($0).isEmpty } ?? false
+        if pointed || app.nav.usesValue(step: step.id, parameter: path) {
+            let text = current?.string ?? ""
+            return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.typeWord.map { L("It wants {what}.", ["what": $0]) } ?? p.detail.map { String($0.prefix(140)) },
+                                    placeholder: L("Pick a value below"), tokens: tokens.filter { $0.fits(p.kind) }.map(\.field), tool: "ui", input: args)),
+                    .action(Action(L("Write it here instead"), tool: "ui", input: input("param_mode", ["name": path, "on": false]), style: .plain, symbol: "pencil"))]
+        }
+        let own: Block
         switch p.kind {
         case .boolean:
-            if case .bool(let v)? = current { return .toggle(p.title, detail: p.detail, on: v, tool: "ui", input: args) }
-            return .toggle(p.title, detail: p.detail, on: false, tool: "ui", input: args)
+            var on = false
+            if case .bool(let v)? = current { on = v }
+            own = .toggle(p.title, detail: p.detail, on: on, tool: "ui", input: args)
         case .choice(let options):
             let list = p.required ? options : [""] + options
-            return .choice(p.title, detail: p.detail, options: list.map { ($0, $0.isEmpty ? L("Not set") : $0.replacingOccurrences(of: "_", with: " ")) }, selected: current?.string ?? "", tool: "ui", input: args)
-        case .other:
-            return nil
+            own = .choice(p.title, detail: p.detail, options: list.map { ($0, $0.isEmpty ? L("Not set") : $0.replacingOccurrences(of: "_", with: " ")) }, selected: current?.string ?? "", tool: "ui", input: args)
         default:
             let text: String = switch current {
-            case .string(let s)?: s
             case .number(let n)?: n == n.rounded() && abs(n) < 1e15 ? String(Int(n)) : String(n)
             case .array(let a)?: a.compactMap(\.string).joined(separator: ", ")
             default: ""
             }
-            return .edit(EditField("\(step.id).\(p.name)", p.title, value: text, detail: p.detail.map { String($0.prefix(140)) },
-                                   kind: p.name == "text" || p.name == "body" || p.name == "job" ? .multiline : (p.kind == .integer || p.kind == .number ? .number : .text),
-                                   tokens: p.kind == .text ? tokens : [], tool: "ui", input: args))
+            own = .edit(EditField(shown, p.title, value: text, detail: p.detail.map { String($0.prefix(140)) }, kind: p.kind == .list ? .text : .number, tool: "ui", input: args))
+        }
+        return [own, .action(Action(L("Use a value from an earlier step"), tool: "ui", input: input("param_mode", ["name": path, "on": true]), style: .plain, symbol: "arrow.turn.down.right"))]
+    }
+
+    /// What a value would be, going by the last run: a look, with nothing run.
+    private static func preview(_ text: String, _ last: Values?) -> String? {
+        guard let last, !Values.slots(text).isEmpty, last.missing(in: [text]).isEmpty else { return nil }
+        let filled = last.fill(text, each: 80)
+        return filled.trimmed.isEmpty ? nil : L("Last time: {value}", ["value": String(filled.prefix(80))])
+    }
+
+    /// A value on offer, with what it is, so a field can offer what fits and the person can tell two apart.
+    private struct Token {
+        var field: EditField.Token
+        var type: String?
+
+        /// Whether it can go where this wants. What isn't known might.
+        func fits(_ kind: Catalog.Parameter.Kind) -> Bool {
+            guard let type else { return true }
+            switch kind {
+            case .number, .integer: return type == "number" || type == "integer"
+            case .boolean: return type == "boolean"
+            case .list: return type == "array"
+            case .text, .choice: return type != "array" && type != "object"
+            case .other: return true
+            }
+        }
+    }
+
+    /// The values on offer, each with its type where the tool says and what it was in the last run.
+    private static func annotated(_ tokens: [EditField.Token], flow: Flow, _ app: App, last: Values?) -> [Token] {
+        var types: [String: String] = [:]
+        for step in flow.draft.allSteps {
+            switch step.kind {
+            case .action(let tool, _):
+                for (field, type) in app.catalog.tool(tool)?.outputTypes ?? [:] { types["{{\(step.id).\(field)}}"] = type }
+            case .form(let form):
+                for field in form.fields { types["{{\(step.id).\(field.name)}}"] = field.kind == .number ? "number" : field.kind == .yes_no ? "boolean" : "string" }
+            default: break
+            }
+        }
+        return tokens.map { token in
+            var shown = token
+            if let last, last.missing(in: [token.value]).isEmpty, let sample = last.fill(token.value, each: 30).trimmed.nonEmpty { shown.label = "\(token.label): \(sample.prefix(30))" }
+            return Token(field: shown, type: types[token.value])
         }
     }
 

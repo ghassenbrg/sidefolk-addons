@@ -1004,6 +1004,16 @@
     "It runs a program, so it asks each run.": "プログラムを実行するため、実行のたびに確認します。",
     "Its words are read in full each time.": "その言葉は毎回全文が読まれます。",
     "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "1日に許可した上限に達したため、停止しました。これ以上は送信していません。",
-    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "1回の実行に許可した上限に達したため、停止しました。これ以上は送信していません。"
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "1回の実行に許可した上限に達したため、停止しました。これ以上は送信していません。",
+    "Use a value from an earlier step": "前のステップの値を使う",
+    "Write it here instead": "代わりにここに書く",
+    "Pick a value below": "下から値を選んでください",
+    "It wants {what}.": "{what}が必要です。",
+    "a number": "数値",
+    "yes or no": "はいかいいえ",
+    "a list": "リスト",
+    "Last time: {value}": "前回: {value}",
+    "Written out, as a record or a list. Values from earlier steps go in quotes.": "レコードまたはリストとして書きます。前のステップの値は引用符で囲みます。",
+    "That isn't written the way it needs to be: check its brackets and quotes.": "書き方が正しくありません。かっこと引用符を確認してください。"
   }
 }

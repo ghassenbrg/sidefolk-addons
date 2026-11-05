@@ -1021,6 +1021,16 @@
     "It runs a program, so it asks each run.": "Elle exécute un programme, alors elle demande à chaque exécution.",
     "Its words are read in full each time.": "Ses mots sont lus en entier à chaque fois.",
     "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "Elle a atteint la limite autorisée pour un jour, alors elle s'est arrêtée. Rien de plus n'a été envoyé.",
-    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "Elle a atteint la limite autorisée pour une exécution, alors elle s'est arrêtée. Rien de plus n'a été envoyé."
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "Elle a atteint la limite autorisée pour une exécution, alors elle s'est arrêtée. Rien de plus n'a été envoyé.",
+    "Use a value from an earlier step": "Utiliser une valeur d'une étape précédente",
+    "Write it here instead": "L'écrire ici à la place",
+    "Pick a value below": "Choisissez une valeur ci-dessous",
+    "It wants {what}.": "Il faut {what}.",
+    "a number": "un nombre",
+    "yes or no": "oui ou non",
+    "a list": "une liste",
+    "Last time: {value}": "La dernière fois : {value}",
+    "Written out, as a record or a list. Values from earlier steps go in quotes.": "Écrit en entier, comme un enregistrement ou une liste. Les valeurs des étapes précédentes vont entre guillemets.",
+    "That isn't written the way it needs to be: check its brackets and quotes.": "Ce n'est pas écrit comme il faut : vérifiez les crochets et les guillemets."
   }
 }

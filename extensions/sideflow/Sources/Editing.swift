@@ -373,9 +373,26 @@ enum Editing {
     }
 
     /// A value typed for a tool's parameter, as the schema wants it. A number with `{{x}}` stays text and shows as something to fix.
+    /// The same input with one value set at a dotted name, a record's own field at a time. Nothing left in a record takes the record with it.
+    static func setting(_ path: [String], to value: JSON?, in input: [String: JSON]) -> [String: JSON] {
+        guard let first = path.first else { return input }
+        var out = input
+        if path.count == 1 {
+            out[first] = value
+            return out
+        }
+        var inner: [String: JSON] = [:]
+        if case .object(let o)? = input[first] { inner = o }
+        inner = setting(Array(path.dropFirst()), to: value, in: inner)
+        out[first] = inner.isEmpty ? nil : .object(inner)
+        return out
+    }
+
     static func value(_ text: String, for parameter: Catalog.Parameter) -> JSON? {
         let t = text.trimmed
         guard !t.isEmpty else { return nil }
+        // An earlier step's value is filled in when it runs, as what it is then.
+        if !Values.slots(t).isEmpty, parameter.kind != .text { return .string(t) }
         switch parameter.kind {
         case .integer, .number:
             if let n = Double(t.replacingOccurrences(of: ",", with: ".")), n.isFinite { return .number(n) }

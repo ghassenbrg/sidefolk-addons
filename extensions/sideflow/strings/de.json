@@ -1021,6 +1021,16 @@
     "It runs a program, so it asks each run.": "Es führt ein Programm aus, deshalb fragt es bei jedem Lauf.",
     "Its words are read in full each time.": "Seine Worte werden jedes Mal ganz gelesen.",
     "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "Es hat das für einen Tag erlaubte Limit erreicht und hat angehalten. Mehr wurde nicht gesendet.",
-    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "Es hat das für einen Lauf erlaubte Limit erreicht und hat angehalten. Mehr wurde nicht gesendet."
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "Es hat das für einen Lauf erlaubte Limit erreicht und hat angehalten. Mehr wurde nicht gesendet.",
+    "Use a value from an earlier step": "Wert aus einem früheren Schritt verwenden",
+    "Write it here instead": "Stattdessen hier schreiben",
+    "Pick a value below": "Wähle unten einen Wert",
+    "It wants {what}.": "Es braucht {what}.",
+    "a number": "eine Zahl",
+    "yes or no": "ja oder nein",
+    "a list": "eine Liste",
+    "Last time: {value}": "Letztes Mal: {value}",
+    "Written out, as a record or a list. Values from earlier steps go in quotes.": "Ausgeschrieben, als Datensatz oder Liste. Werte aus früheren Schritten stehen in Anführungszeichen.",
+    "That isn't written the way it needs to be: check its brackets and quotes.": "Das ist nicht richtig geschrieben: Prüfe Klammern und Anführungszeichen."
   }
 }

@@ -11,6 +11,18 @@ import SidefolkExtensionKit
         var required: Bool
         var detail: String?
         var title: String
+        /// A record's own parameters, when it says what it holds.
+        var children: [Parameter] = []
+
+        /// What the person is told it wants. Text says nothing: that's what's expected.
+        var typeWord: String? {
+            switch kind {
+            case .number, .integer: L("a number")
+            case .boolean: L("yes or no")
+            case .list: L("a list")
+            default: nil
+            }
+        }
     }
 
     struct Tool: Equatable {
@@ -26,6 +38,8 @@ import SidefolkExtensionKit
         var parameters: [Parameter]
         /// The fields its answer says it holds, each usable by name.
         var outputFields: [String] = []
+        /// What each field is, when the tool says: `string`, `number`, `integer`, `boolean`, `array`, `object`.
+        var outputTypes: [String: String] = [:]
         /// Who offers it, in their own name, and whether that's an MCP server the person added.
         var fromTitle: String?
         var fromServer = false
@@ -105,11 +119,9 @@ import SidefolkExtensionKit
         return properties.keys.filter { $0.range(of: #"^[A-Za-z0-9_]{1,40}$"#, options: .regularExpression) != nil }.sorted()
     }
 
-    static func tool(_ t: Actions.Tool) -> Tool {
-        let schema = JSONText.read(t.schema) as? [String: Any] ?? [:]
-        let properties = schema["properties"] as? [String: Any] ?? [:]
-        let required = Set(schema["required"] as? [String] ?? [])
-        let parameters = properties.keys.sorted { (required.contains($0) ? 0 : 1, $0) < (required.contains($1) ? 0 : 1, $1) }.map { name -> Parameter in
+    /// A schema's parameters, a record's own inside it, as deep as a form can sensibly show.
+    private static func parameters(_ properties: [String: Any], required: Set<String>, depth: Int = 0) -> [Parameter] {
+        properties.keys.sorted { (required.contains($0) ? 0 : 1, $0) < (required.contains($1) ? 0 : 1, $1) }.map { name -> Parameter in
             let p = properties[name] as? [String: Any] ?? [:]
             let kind: Parameter.Kind
             if let values = p["enum"] as? [String], !values.isEmpty {
@@ -124,10 +136,37 @@ import SidefolkExtensionKit
                 default: kind = .other
                 }
             }
-            return Parameter(name: name, kind: kind, required: required.contains(name), detail: (p["description"] as? String)?.nonEmpty,
-                             title: (p["title"] as? String)?.nonEmpty ?? name.replacingOccurrences(of: "_", with: " ").capitalizedFirst)
+            var made = Parameter(name: name, kind: kind, required: required.contains(name), detail: (p["description"] as? String)?.nonEmpty,
+                                 title: (p["title"] as? String)?.nonEmpty ?? name.replacingOccurrences(of: "_", with: " ").capitalizedFirst)
+            if depth < 2, p["type"] as? String == "object", let inner = p["properties"] as? [String: Any], !inner.isEmpty {
+                made.children = parameters(inner, required: Set(p["required"] as? [String] ?? []), depth: depth + 1)
+            }
+            return made
         }
-        return Tool(name: t.name, title: t.title, description: t.description, mutates: t.mutates, readsOnly: t.readsOnly, risk: t.risk, category: t.category, fromExtension: t.extensionName, parameters: parameters, outputFields: Self.fields(t.outputSchema), fromTitle: t.extensionTitle, fromServer: t.fromServer)
+    }
+
+    /// What a dotted name means in a tool's parameters.
+    func parameter(_ path: String, of tool: String) -> Parameter? {
+        var list = self.tool(tool)?.parameters ?? []
+        var found: Parameter?
+        for part in path.split(separator: ".").map(String.init) {
+            found = list.first { $0.name == part }
+            list = found?.children ?? []
+        }
+        return found
+    }
+
+    private static func types(_ schema: String?) -> [String: String] {
+        guard let schema, let o = JSONText.read(schema) as? [String: Any], let properties = o["properties"] as? [String: Any] else { return [:] }
+        return properties.compactMapValues { ($0 as? [String: Any])?["type"] as? String }
+    }
+
+    static func tool(_ t: Actions.Tool) -> Tool {
+        let schema = JSONText.read(t.schema) as? [String: Any] ?? [:]
+        let properties = schema["properties"] as? [String: Any] ?? [:]
+        let required = Set(schema["required"] as? [String] ?? [])
+        let parameters = Self.parameters(properties, required: required)
+        return Tool(name: t.name, title: t.title, description: t.description, mutates: t.mutates, readsOnly: t.readsOnly, risk: t.risk, category: t.category, fromExtension: t.extensionName, parameters: parameters, outputFields: Self.fields(t.outputSchema), outputTypes: Self.types(t.outputSchema), fromTitle: t.extensionTitle, fromServer: t.fromServer)
     }
 }
 

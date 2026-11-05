@@ -192,6 +192,12 @@ struct Nav {
     var runScope: [String: String] = [:]
 
     mutating func inspect(_ what: Inspecting, in flow: String) { inspected[flow] = what }
+    /// Parameters the person is pointing at an earlier step's value, by step and name, before they've picked one.
+    private var usingValues: Set<String> = []
+    func usesValue(step: String, parameter: String) -> Bool { usingValues.contains("\(step) \(parameter)") }
+    mutating func useValue(_ on: Bool, step: String, parameter: String) {
+        if on { usingValues.insert("\(step) \(parameter)") } else { usingValues.remove("\(step) \(parameter)") }
+    }
 
     /// Where the page's state says it is: Sidefolk keeps it while Home is open, with the way back.
     static func place(_ state: Arguments) -> Place {

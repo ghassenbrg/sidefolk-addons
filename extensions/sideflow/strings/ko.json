@@ -1004,6 +1004,16 @@
     "It runs a program, so it asks each run.": "프로그램을 실행하므로 실행할 때마다 묻습니다.",
     "Its words are read in full each time.": "그 내용은 매번 전체를 읽습니다.",
     "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "하루에 허용한 한도에 도달해 중지되었습니다. 더 보내지 않았습니다.",
-    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "한 번 실행에 허용한 한도에 도달해 중지되었습니다. 더 보내지 않았습니다."
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "한 번 실행에 허용한 한도에 도달해 중지되었습니다. 더 보내지 않았습니다.",
+    "Use a value from an earlier step": "이전 단계의 값 사용",
+    "Write it here instead": "대신 여기에 쓰기",
+    "Pick a value below": "아래에서 값을 고르세요",
+    "It wants {what}.": "{what}이(가) 필요합니다.",
+    "a number": "숫자",
+    "yes or no": "예 또는 아니요",
+    "a list": "목록",
+    "Last time: {value}": "지난번: {value}",
+    "Written out, as a record or a list. Values from earlier steps go in quotes.": "레코드나 목록으로 씁니다. 이전 단계의 값은 따옴표 안에 넣습니다.",
+    "That isn't written the way it needs to be: check its brackets and quotes.": "형식이 맞지 않습니다. 괄호와 따옴표를 확인하세요."
   }
 }

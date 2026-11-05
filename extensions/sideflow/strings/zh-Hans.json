@@ -1004,6 +1004,16 @@
     "It runs a program, so it asks each run.": "它会运行程序，所以每次运行都会询问。",
     "Its words are read in full each time.": "它的文字每次都会被完整读取。",
     "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "已达到你允许的每日上限，因此已停止。没有再发送任何内容。",
-    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "已达到你允许的单次运行上限，因此已停止。没有再发送任何内容。"
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "已达到你允许的单次运行上限，因此已停止。没有再发送任何内容。",
+    "Use a value from an earlier step": "使用之前步骤的值",
+    "Write it here instead": "改为在此填写",
+    "Pick a value below": "在下方选择一个值",
+    "It wants {what}.": "它需要{what}。",
+    "a number": "一个数字",
+    "yes or no": "是或否",
+    "a list": "一个列表",
+    "Last time: {value}": "上次：{value}",
+    "Written out, as a record or a list. Values from earlier steps go in quotes.": "以记录或列表的形式写出。之前步骤的值放在引号内。",
+    "That isn't written the way it needs to be: check its brackets and quotes.": "写法不对：请检查括号和引号。"
   }
 }

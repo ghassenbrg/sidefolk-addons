@@ -1089,6 +1089,16 @@
     "It runs a program, so it asks each run.": "يشغّل برنامجًا، لذا يسأل في كل تشغيل.",
     "Its words are read in full each time.": "تُقرأ كلماته كاملة في كل مرة.",
     "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "بلغ الحد المسموح به لليوم، لذا توقف. لم يُرسل شيء آخر.",
-    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "بلغ الحد المسموح به للتشغيل الواحد، لذا توقف. لم يُرسل شيء آخر."
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "بلغ الحد المسموح به للتشغيل الواحد، لذا توقف. لم يُرسل شيء آخر.",
+    "Use a value from an earlier step": "استخدم قيمة من خطوة سابقة",
+    "Write it here instead": "اكتبه هنا بدلًا من ذلك",
+    "Pick a value below": "اختر قيمة أدناه",
+    "It wants {what}.": "يحتاج إلى {what}.",
+    "a number": "رقم",
+    "yes or no": "نعم أو لا",
+    "a list": "قائمة",
+    "Last time: {value}": "آخر مرة: {value}",
+    "Written out, as a record or a list. Values from earlier steps go in quotes.": "يُكتب كاملًا كسجل أو قائمة. توضع قيم الخطوات السابقة بين علامتي اقتباس.",
+    "That isn't written the way it needs to be: check its brackets and quotes.": "لم يُكتب بالشكل المطلوب: تحقق من الأقواس وعلامات الاقتباس."
   }
 }
