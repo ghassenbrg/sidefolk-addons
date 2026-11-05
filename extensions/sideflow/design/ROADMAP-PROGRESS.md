@@ -75,6 +75,18 @@ Typed mapping's later list, from its last read: `wrote` is set before the fit ch
 
 Parallel and called flows' later list: "a, b" written for a called flow's list input is one entry where a tool's list field would split it; a join-stopped lane ending past its limit reads as timed out; after a crash a parallel only joins again once all its lanes are over; a lane's limit keeps counting across a pause; a practice run really sends an old version's AI prompt, as it does a draft's, and passes where a live run refuses; a callee edited mid-run under the old Run isn't caught (gone with L2); steps without ids are numbered by position, so inserting one refuses an identical AI step in an old version; a changed text step can feed an unchanged AI prompt in an old version; a list input over 256 KB becomes one entry of clipped JSON.
 
+## Reading a run and a flow, an agent's patches, repair offers, practice examples
+
+Each on `team/sideflow-diagnosis`, separate from the stack's release, with its own read and T entry (the coordinator's ruling, 2026-11-06).
+
+T entry, for SECURITY's Sideflow section when it lands:
+- *An agent's patch.* `update_flow` takes a list of edits as well as a whole definition, the same edits the page makes. It changes only the draft and adds no way to run or approve anything: what an edit adds is new on the card as before. `based_on` is a mark of the draft it read, so a change someone made since isn't written over; it's a courtesy, not a guard, since leaving it out still writes. The person sees what changed in the page's own words, and can take it back with the page's token.
+- *The Permissions tab.* It only reads: `plan.check`, which shows nothing and changes nothing. Its one action is "End what you allowed", the same one the flow's menu has.
+- *Repair offers.* A press on the page, an edit to the draft, on Undo. A step moved up or a value taken out can change what a step's fed from, so the plan treats it as any edit.
+- *Practice examples.* They hold what a run's steps gave, which can be the person's own words, in the flow's own file in Sideflow's data folder, and no copy or flow file carries them. A practice going by one calls no tool and no AI.
+
+Not verified: real clicks; a real agent's patch.
+
 ## Left out on purpose
 
 Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.
