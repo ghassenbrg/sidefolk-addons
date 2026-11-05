@@ -105,20 +105,33 @@ struct Condition: Equatable, Sendable {
         return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
-    private static let digits = try! NSRegularExpression(pattern: #"-?\d+(?:[.,]\d+)*"#)
+    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])-?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
+    /// A space or a narrow one between groups of three, as `1 299,00 €` is written.
+    private static let spaced = try! NSRegularExpression(pattern: #"(?<=\d)[ \x{00A0}\x{202F}](?=\d{3}(?:\D|$))"#)
 
     private static func firstNumber(in text: String) -> String? {
-        digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)).flatMap { Range($0.range, in: text) }.map { String(text[$0]) }
+        let joined = spaced.stringByReplacingMatches(in: text, range: NSRange(text.startIndex..., in: text), withTemplate: "")
+        return digits.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)).flatMap { Range($0.range, in: joined) }.map { String(joined[$0]) }
     }
 
     /// Whether the first number in these words could be more than one: "1,000" and "1.000" could be a thousand or one, and a number nobody meant is worse than none.
     /// So could one too long for a number to hold exactly. `3.142`, `0.000` and `1,299.00` are what they say.
     static func couldBeEither(_ text: String) -> Bool {
+        if isMachineNumber(text) { return false }
         guard let found = firstNumber(in: text) else { return false }
-        return found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.000)$"#, options: .regularExpression) != nil || found.prefix { $0 != "." && $0 != "," }.filter(\.isNumber).count > 15
+        if found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.000)$"#, options: .regularExpression) != nil { return true }
+        // Commas that aren't every three digits: `1,23,456` is a lakh or a list, and no decimal.
+        if found.range(of: #"^-?\d+(,\d+){2,}$"#, options: .regularExpression) != nil, found.range(of: #"^-?\d{1,3}(,\d{3})+$"#, options: .regularExpression) == nil { return true }
+        return plain(found).prefix { $0 != "." }.filter(\.isNumber).count > 15
+    }
+
+    /// Exactly as a machine writes one, exponent and all: what a tool's number comes out as in words.
+    private static func isMachineNumber(_ text: String) -> Bool {
+        text.trimmed.range(of: #"^-?[0-9]*\.?[0-9]+[eE][+-]?[0-9]+$"#, options: .regularExpression) != nil
     }
 
     static func number(_ text: String) -> Double? {
+        if isMachineNumber(text) { return Double(text.trimmed).flatMap { $0.isFinite ? $0 : nil } }
         guard !couldBeEither(text), let found = firstNumber(in: text) else { return nil }
         // Hundreds of digits come out as infinity, which no file can hold.
         return Double(plain(found)).flatMap { $0.isFinite ? $0 : nil }
