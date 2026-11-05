@@ -400,9 +400,21 @@ import SidefolkExtensionKit
             #expect(NumberWords.read(words) == .number(value), "\(words)")
         }
         // Everything that was read before, and everything a read found wrong: none of it is plainly one number.
-        let others = ["18 °C", "$1,299.00", "12%", "CPU: 12%", "Rain at 18", "12 apples", "5 EUR", "1 GB", "Ports: 80,81", "Color: 255,255,255", "100,200,300", "Version: 1.2", "Down: 5%", "Minus: 5", "1,5", "1.299,50", "1,000", "1,000,000", "1.000", "1.500", "1.299", "3.142", "1.000.000", "192.168.100.200", "1.2.3", "5e3", "1e-05", "1.5e3", "12E-5", "0x10", "nan", "inf", "+3", "--5", "- 5", "−5", "–5", ".5", "5.", ",5", "007", "05.11", "00", "1 299", "100 200", "10:30", "2026-11-05", "(5)", "5k", "5M", "٣٠٠", "１２３", "1234567890123456", "1.1234567890123456"]
+        let others = ["18 °C", "$1,299.00", "12%", "CPU: 12%", "Rain at 18", "12 apples", "5 EUR", "1 GB", "Ports: 80,81", "Color: 255,255,255", "100,200,300", "Version: 1.2", "Down: 5%", "Minus: 5", "1,5", "1.299,50", "1,000", "1,000,000", "1.000", "1.500", "1.299", "3.142", "1.000.000", "192.168.100.200", "1.2.3", "5e3", "1e-05", "1.5e3", "12E-5", "0x10", "nan", "inf", "+3", "--5", "- 5", "−5", "–5", ".5", "5.", ",5", "007", "05.11", "00", "1 299", "100 200", "10:30", "2026-11-05", "(5)", "5k", "5M", "٣٠٠", "１２３", "1234567890123456", "1.1234567890123456", "999999999999999.999999999999999"]
         for words in others { #expect(NumberWords.read(words) == .unreadable || NumberWords.read(words) == .none, "\(words)") }
         for words in ["", "   ", "many", "three", "三百", "٣٠٠"] { #expect(NumberWords.read(words) == .none, "\(words)") }
+    }
+
+    @Test func sortingNeverReadsANumberOutOfWords() throws {
+        func sort(_ items: [JSON], descending: Bool = false) throws -> JSON { try DataStep(op: .sort, from: "", descending: descending).apply(to: .array(items), than: "") }
+        #expect(try sort([.string("10"), .string("9"), .number(9.5)]) == .array([.string("9"), .number(9.5), .string("10")]), "plain numbers, as numbers")
+        #expect(try sort([.string("2026-11-05"), .string("2025-01-01")]) == .array([.string("2025-01-01"), .string("2026-11-05")]), "a date written year first")
+        #expect(try sort([.string("pear"), .string("Apple")]) == .array([.string("Apple"), .string("pear")]))
+        #expect(try sort([.string("file10"), .string("file2")]) == .array([.string("file10"), .string("file2")]), "by its letters: no number read out of it")
+        for words in ["1,500", "$1,500", "-5 kg", "12%", "1.500", "10:30"] {
+            #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("200")]) }
+            #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("200")], descending: true) }
+        }
     }
 
     @Test func aNumberAToolGaveAsANumberIsThatNumberHoweverItLooks() {

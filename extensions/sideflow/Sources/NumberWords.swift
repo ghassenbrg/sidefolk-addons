@@ -33,7 +33,8 @@ enum NumberWords {
     }
 
     private static func isPlain(_ text: String) -> Bool {
-        text.range(of: #"^-?(0|[1-9][0-9]{0,14})(\.[0-9]{1,15})?$"#, options: .regularExpression) != nil
+        // Fifteen digits is what a number can hold exactly: past that it wouldn't be what's written.
+        text.range(of: #"^-?(0|[1-9][0-9]{0,14})(\.[0-9]{1,15})?$"#, options: .regularExpression) != nil && text.filter(\.isNumber).count <= 15
     }
 }
 

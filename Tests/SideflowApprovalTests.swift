@@ -219,6 +219,18 @@ import SidefolkExtensionKit
         #expect(Engine.inside(body) == ["f"], "a loop, a trigger and an input are never said to be the person's")
     }
 
+    @Test func whatALoopGivesSaysItReadsItsListToo() throws {
+        // A go that skips the branch keeps the item, which is the page's words, not the form's.
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "page", "do": "reads.it"],
+            ["id": "each", "for_each": "{{page}}", "steps": [["if": ["value": "{{item}}", "test": "contains", "than": "x"], "then": [["id": "f", "form": ["title": "W", "fields": [["name": "n", "label": "N", "kind": "text"]]]]]]]],
+            ["id": "use", "text": "{{each}}"],
+        ]])
+        let row = Engine.planSteps(body, title: "t").first { $0.named == "each" }
+        #expect(row?.line.contains("page") == true, "\(row?.line ?? "")")
+        #expect(row?.line.contains("\"f\"") == true)
+    }
+
     @Test func aFormNamedLikeWhatALoopBringsIsntTakenForTheLoopsItem() throws {
         let top = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "form": ["title": "Who", "fields": [["name": "n", "label": "Name", "kind": "text"]]]]]])
         guard case .form(let form)? = top.step("f")?.kind else { Issue.record("not a form"); return }

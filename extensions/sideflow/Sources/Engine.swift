@@ -1161,8 +1161,10 @@ extension FlowHost {
                 // What a loop or a repeat gives comes from what's in it.
                 switch step.kind {
                 case .forEach, .repeatUntil:
-                    let made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
-                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: said(made))) }
+                    var made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
+                    // A go where nothing inside made anything keeps the item itself.
+                    if case .forEach(let items, _, _, _) = step.kind { made += sources([items]) }
+                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: said(Array(Set(made)).sorted()))) }
                 default: break
                 }
             }

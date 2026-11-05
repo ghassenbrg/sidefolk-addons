@@ -159,11 +159,19 @@ struct DataStep: Equatable, Sendable {
                 return Condition.test(test ?? .contains, left: left, right: resolved)
             })
         case .sort:
-            let sorted = try list().sorted { a, b in
-                let (x, y) = (at(a).map(Values.text) ?? "", at(b).map(Values.text) ?? "")
-                // Numbers by what they are, by the one reader. Anything else goes by its words, which claims no number.
+            let items = try list()
+            // What starts like a number and isn't plainly one would sort as words, and `first` would look like an answer: `1,500` before `200`.
+            for item in items {
+                let found = at(item)
+                let text = found.map(Values.text) ?? ""
+                if case .unreadable? = found.map(Condition.reading(of:)), text.trimmed.range(of: #"^[-−–+\p{Sc}]?\s*[0-9]"#, options: .regularExpression) != nil, text.trimmed.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}"#, options: .regularExpression) == nil {
+                    throw Condition.Unreadable(words: text)
+                }
+            }
+            let sorted = items.sorted { a, b in
+                // Numbers by what they are, by the one reader. Anything else goes by its letters, reading no number out of them: a date written year first sorts right that way.
                 if case .number(let n)? = at(a).map(Condition.reading(of:)), case .number(let m)? = at(b).map(Condition.reading(of:)) { return n < m }
-                return x.localizedStandardCompare(y) == .orderedAscending
+                return (at(a).map(Values.text) ?? "").localizedCaseInsensitiveCompare(at(b).map(Values.text) ?? "") == .orderedAscending
             }
             return .array(descending ? sorted.reversed() : sorted)
         case .unique:
