@@ -298,19 +298,16 @@ import SidefolkExtensionKit
         #expect(!w.host.calls.contains { $0.tool == "changes.it" })
     }
 
-    @Test func nothingIsAnAnswerWhereTheSchemaSaysSo() async throws {
-        for schema in [#"{"anyOf":[{"type":"integer"},{"type":"null"}]}"#, #"{"type":["integer","null"]}"#, #"{"type":"integer","nullable":true}"#, #"{"enum":["a",null]}"#] {
+    @Test func nothingIsntEnoughWhereItsNeededWhateverTheSchemaSays() async throws {
+        for schema in [#"{"anyOf":[{"type":"integer"},{"type":"null"}]}"#, #"{"type":"integer"}"#] {
             let w = try World()
             w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"parent":"# + schema + #"},"required":["parent"]}"#)]))
             let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["parent": NSNull()]]])
             let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
-            #expect(run.status == .done, "\(schema): \(run.problem ?? "")")
-            #expect(w.host.calls.first?.input["parent"] is NSNull, "\(schema)")
+            #expect(run.status == .failed, "Sidefolk counts it as missing, and this says so plainly: \(schema)")
+            #expect(run.problem?.contains("Parent") == true, "\(run.problem ?? "")")
+            #expect(w.host.calls.isEmpty, "\(schema)")
         }
-        let w = try World()
-        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"parent":{"type":"integer"}},"required":["parent"]}"#)]))
-        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["parent": NSNull()]]])
-        #expect(try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t"))).status == .failed, "it doesn't say so here")
     }
 
     @Test func aBlankForSomethingItCanGoWithoutIsLeftOut() async throws {
@@ -321,7 +318,7 @@ import SidefolkExtensionKit
         let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
         #expect(run.status == .done, "\(run.problem ?? "")")
         let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
-        #expect(sent["tags"] == nil || sent["tags"] is NSNull, "not [\"\"] and not a blank")
+        #expect(sent["tags"] == nil, "left out: not [\"\"], not a blank, not a null")
         #expect(sent["count"] == nil)
     }
 

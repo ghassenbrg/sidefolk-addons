@@ -11,8 +11,6 @@ import SidefolkExtensionKit
         var required: Bool
         var detail: String?
         var title: String
-        /// Nothing is one of its answers: for what's needed and can still be null.
-        var takesNull = false
         /// A record's own parameters, when it says what it holds.
         var children: [Parameter] = []
 
@@ -87,7 +85,7 @@ import SidefolkExtensionKit
     private func fill(_ parameters: [Parameter], _ input: [String: JSON], from values: Values) -> [String: Any] {
         let wordy = Set(parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name))
         let lists = Set(parameters.filter { $0.kind == .list }.map(\.name))
-        let absent = Set(parameters.filter { switch $0.kind { case .number, .integer, .boolean, .list: true; case .choice(let answers): !answers.contains(""); default: false } }.map(\.name))
+        let absent = Set(parameters.filter { switch $0.kind { case .number, .integer, .boolean: true; case .choice(let answers): !answers.contains(""); default: false } }.map(\.name))
         var plain = input
         var out: [String: Any] = [:]
         for parameter in parameters where !parameter.children.isEmpty {
@@ -134,13 +132,9 @@ import SidefolkExtensionKit
     func doesntFit(_ name: String, _ filled: [String: Any]) -> String? {
         func check(_ filled: [String: Any], _ parameters: [Parameter]) -> String? {
             for parameter in parameters {
-                guard let given = filled[parameter.name] else {
+                // Sidefolk counts a null as missing where something's needed, whatever the schema says: it wouldn't have got there.
+                guard let given = filled[parameter.name], !(given is NSNull) else {
                     if parameter.required { return L("“{name}” is needed, and this gives it nothing.", ["name": parameter.title]) }
-                    continue
-                }
-                // A blank in a field that can go without one is nothing given, as it was.
-                if given is NSNull {
-                    if parameter.required, !parameter.takesNull { return L("“{name}” is needed, and this gives it nothing.", ["name": parameter.title]) }
                     continue
                 }
                 let value = JSON(given)
@@ -248,8 +242,6 @@ import SidefolkExtensionKit
             }
             var made = Parameter(name: name, kind: kind, required: required.contains(name), detail: (p["description"] as? String)?.nonEmpty,
                                  title: (p["title"] as? String)?.nonEmpty ?? name.replacingOccurrences(of: "_", with: " ").capitalizedFirst)
-            let ways = (p["anyOf"] as? [[String: Any]] ?? []) + (p["oneOf"] as? [[String: Any]] ?? [])
-            made.takesNull = p["nullable"] as? Bool == true || (p["type"] as? [String])?.contains("null") == true || ways.contains { $0["type"] as? String == "null" } || (p["enum"] as? [Any])?.contains { $0 is NSNull } == true
             if depth < 2, p["type"] as? String == "object", let inner = p["properties"] as? [String: Any], !inner.isEmpty {
                 made.children = parameters(inner, required: Set(p["required"] as? [String] ?? []), depth: depth + 1)
             }
