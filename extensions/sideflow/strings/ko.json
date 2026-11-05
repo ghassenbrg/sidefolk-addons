@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "루틴 파일 가져오기"
+    },
+    "export_flows": {
+      "title": "루틴을 파일로 쓰기"
     }
   },
   "pages": {
@@ -1092,7 +1095,6 @@
     "Move down": "아래로 이동",
     "Move to": "이동 위치",
     "Move up": "위로 이동",
-    "Pick the flows to delete.": "삭제할 루틴을 고르세요.",
     "Select": "선택",
     "Select all": "모두 선택",
     "Select flows": "루틴 선택",
@@ -1155,7 +1157,12 @@
     "Too long to show": "너무 길어서 표시할 수 없습니다",
     "Its runs and what you allowed for it go too. This can't be undone.": "실행 기록과 허용한 내용도 함께 삭제됩니다. 되돌릴 수 없습니다.",
     "Show in Finder": "Finder에서 보기",
-    "Sidefolk wouldn't show that file.": "Sidefolk이 그 파일을 보여 주지 않았습니다."
+    "Sidefolk wouldn't show that file.": "Sidefolk이 그 파일을 보여 주지 않았습니다.",
+    "Export": "내보내기",
+    "Export, with unsaved": "저장 안 된 변경 포함 내보내기",
+    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "파일에는 루틴이 하는 일과 단계에 입력한 내용이 들어갑니다. 허용한 내용, 실행 기록, 계정은 들어가지 않습니다.",
+    "Pick the flows to delete or export.": "삭제하거나 내보낼 루틴을 고르세요.",
+    "That's too big to be one file. Export fewer flows at a time.": "파일 하나에 담기에는 너무 큽니다. 한 번에 더 적은 루틴을 내보내세요."
   },
   "drops": {
     "flow_file": {

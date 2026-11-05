@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "Ablaufdatei importieren"
+    },
+    "export_flows": {
+      "title": "Abläufe als Datei schreiben"
     }
   },
   "pages": {
@@ -1110,7 +1113,6 @@
     "Move down": "Nach unten",
     "Move to": "Verschieben nach",
     "Move up": "Nach oben",
-    "Pick the flows to delete.": "Wähle die Abläufe aus, die du löschen willst.",
     "Select": "Auswählen",
     "Select all": "Alle auswählen",
     "Select flows": "Abläufe auswählen",
@@ -1177,7 +1179,12 @@
     "Too long to show": "Zu lang zum Anzeigen",
     "Its runs and what you allowed for it go too. This can't be undone.": "Seine Durchläufe und was du erlaubt hast, verschwinden auch. Das lässt sich nicht rückgängig machen.",
     "Show in Finder": "Im Finder zeigen",
-    "Sidefolk wouldn't show that file.": "Sidefolk wollte diese Datei nicht zeigen."
+    "Sidefolk wouldn't show that file.": "Sidefolk wollte diese Datei nicht zeigen.",
+    "Export": "Exportieren",
+    "Export, with unsaved": "Exportieren, mit Ungesichertem",
+    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "Die Datei enthält, was die Abläufe tun, und alles, was in ihre Schritte eingetippt wurde. Sie enthält nicht, was du erlaubt hast, ihre Durchläufe oder deine Konten.",
+    "Pick the flows to delete or export.": "Wähle die Abläufe zum Löschen oder Exportieren.",
+    "That's too big to be one file. Export fewer flows at a time.": "Das ist zu groß für eine Datei. Exportiere weniger Abläufe auf einmal."
   },
   "drops": {
     "flow_file": {

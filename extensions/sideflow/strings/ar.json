@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "استيراد ملف روتين"
+    },
+    "export_flows": {
+      "title": "كتابة الروتينات في ملف"
     }
   },
   "pages": {
@@ -1182,7 +1185,6 @@
     "Move down": "نقل لأسفل",
     "Move to": "نقل إلى",
     "Move up": "نقل لأعلى",
-    "Pick the flows to delete.": "اختر الروتينات المراد حذفها.",
     "Select": "تحديد",
     "Select all": "تحديد الكل",
     "Select flows": "تحديد الروتينات",
@@ -1265,7 +1267,12 @@
     "Too long to show": "أطول من أن يُعرض",
     "Its runs and what you allowed for it go too. This can't be undone.": "تذهب تشغيلاته وما سمحت به أيضًا. لا يمكن التراجع عن هذا.",
     "Show in Finder": "إظهار في Finder",
-    "Sidefolk wouldn't show that file.": "لم يعرض Sidefolk ذلك الملف."
+    "Sidefolk wouldn't show that file.": "لم يعرض Sidefolk ذلك الملف.",
+    "Export": "تصدير",
+    "Export, with unsaved": "تصدير مع غير المحفوظ",
+    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "يحتوي الملف على ما تفعله الروتينات وكل ما كُتب في خطواتها، ولا يحتوي على ما سمحت به أو على تشغيلاتها أو حساباتك.",
+    "Pick the flows to delete or export.": "اختر الروتينات المراد حذفها أو تصديرها.",
+    "That's too big to be one file. Export fewer flows at a time.": "هذا أكبر من أن يكون ملفًا واحدًا. صدّر عددًا أقل من الروتينات في كل مرة."
   },
   "drops": {
     "flow_file": {

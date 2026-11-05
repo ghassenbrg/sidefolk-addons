@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "Importer un fichier de routine"
+    },
+    "export_flows": {
+      "title": "Écrire des routines dans un fichier"
     }
   },
   "pages": {
@@ -1110,7 +1113,6 @@
     "Move down": "Descendre",
     "Move to": "Déplacer vers",
     "Move up": "Monter",
-    "Pick the flows to delete.": "Choisissez les routines à supprimer.",
     "Select": "Sélectionner",
     "Select all": "Tout sélectionner",
     "Select flows": "Sélectionner des routines",
@@ -1177,7 +1179,12 @@
     "Too long to show": "Trop long à afficher",
     "Its runs and what you allowed for it go too. This can't be undone.": "Ses exécutions et ce que vous avez autorisé disparaissent aussi. C’est irréversible.",
     "Show in Finder": "Afficher dans le Finder",
-    "Sidefolk wouldn't show that file.": "Sidefolk n’a pas voulu afficher ce fichier."
+    "Sidefolk wouldn't show that file.": "Sidefolk n’a pas voulu afficher ce fichier.",
+    "Export": "Exporter",
+    "Export, with unsaved": "Exporter, non enregistré inclus",
+    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "Le fichier contient ce que font les routines et tout ce qui est saisi dans leurs étapes. Il ne contient ni ce que vous avez autorisé, ni leurs exécutions, ni vos comptes.",
+    "Pick the flows to delete or export.": "Choisissez les routines à supprimer ou à exporter.",
+    "That's too big to be one file. Export fewer flows at a time.": "C’est trop volumineux pour un seul fichier. Exportez moins de routines à la fois."
   },
   "drops": {
     "flow_file": {

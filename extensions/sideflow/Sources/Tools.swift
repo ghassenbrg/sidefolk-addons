@@ -185,6 +185,15 @@ import SidefolkExtensionKit
             return ToolReply("").opening(page: "flows", state: ["import": id], push: true)
         })
 
+        ext.tool("export_flows", "Write flows as a file", "The page's Export: these flows and what they call, as the words of a flow file.",
+                 input: Schema.object(["flows": Schema.array(of: Schema.string("A flow's id."), "Which flows.", maxItems: FlowFile.mostFlows)], required: ["flows"])) { args in
+            let flows = args.strings("flows").compactMap { app.store.flow($0) }
+            guard !flows.isEmpty else { throw Problem(L("That flow is gone.")) }
+            let words = FlowFile.write(flows, store: app.store, catalog: app.catalog, sideflow: FlowFile.madeBy)
+            // Sidefolk copies it from here to where the person picks.
+            return try FlowFile.handOver(words, in: app.folder)
+        }
+
         ext.tool("ui", "Open Sideflow", "The page's own clicks.", input: ["type": "object"], reply: { args in
             // A sentence opens the page; a click that makes or removes a flow moves it; the rest are already there.
             guard args.string("op") != nil else { return ToolReply(L("Sideflow is open in Home.")).opening(page: "flows") }

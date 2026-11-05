@@ -261,10 +261,12 @@ import SidefolkExtensionKit
             main.append(Section(nil, blocks, wide: true))
             return frame(app, state: state, here: "flows", main)
         }
-        let detail = chosen.isEmpty ? L("Pick the flows to delete.") : L(one: "{count} selected", other: "{count} selected", count: chosen.count)
+        let detail = chosen.isEmpty ? L("Pick the flows to delete or export.") : L(one: "{count} selected", other: "{count} selected", count: chosen.count)
         main.append(Section(nil, [.bar(PageBar(L("Select flows"), detail: detail, actions: [
             button(L("Done"), "pick_none"),
             button(L("Select all"), "pick_all", disabled: chosen.count == flows.count),
+            Action(L("Export"), act: .save(name: chosen.count == 1 ? chosen[0].name : L("Flows"), type: FlowFile.type, tool: "export_flows", input: ["flows": chosen.map(\.id)], note: exportNote), symbol: "square.and.arrow.up",
+                   detail: chosen.count > FlowFile.mostFlows ? L("A file holds at most {count} flows.", ["count": Format.integer(FlowFile.mostFlows)]) : nil, disabled: chosen.isEmpty || chosen.count > FlowFile.mostFlows),
             button(chosen.isEmpty ? L("Delete") : L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count), "pick_delete", style: .destructive, symbol: "trash", disabled: chosen.isEmpty),
         ]))]))
         let shown = Array(flows.prefix(mostToPick))
@@ -554,6 +556,13 @@ import SidefolkExtensionKit
     // MARK: One flow
 
     /// Copies at once, as the button says, on any tab. It's what's on screen, like the words beside it, and a menu shows only its label, so the label says when that isn't saved.
+    /// As a file, where the person picks: Sidefolk's panel, and Sideflow never learns where. The label's in the menu's words, so it says what a copy says.
+    static var exportNote: String { L("The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.") }
+
+    static func exporting(_ flow: Flow) -> Action {
+        Action(flow.hasUnsaved ? L("Export, with unsaved") : L("Export"), act: .save(name: flow.name, type: FlowFile.type, tool: "export_flows", input: ["flows": [flow.id]], note: exportNote), symbol: "square.and.arrow.up")
+    }
+
     static func copyDefinition(_ flow: Flow) -> Action {
         copying(JSONText.write(["name": flow.name, "flow": FlowCodec.json(flow.draft)] as [String: Any]), flow, L("Copy as a definition"), unsaved: L("Copy definition, with unsaved"), symbol: "curlybraces")
     }
@@ -644,6 +653,7 @@ import SidefolkExtensionKit
                   button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
                   copyDefinition(flow),
                   copyWords(flow, app),
+                  exporting(flow),
                   button(L("Delete this flow"), "ask_delete", id, style: .destructive, symbol: "trash")]
         return PageBar(flow.name, pill: pill, detail: sentence, actions: actions, menu: extra)
     }

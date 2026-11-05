@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "ルーティンのファイルを読み込む"
+    },
+    "export_flows": {
+      "title": "ルーティンをファイルに書き出す"
     }
   },
   "pages": {
@@ -1092,7 +1095,6 @@
     "Move down": "下へ移動",
     "Move to": "移動先",
     "Move up": "上へ移動",
-    "Pick the flows to delete.": "削除するルーティンを選んでください。",
     "Select": "選択",
     "Select all": "すべて選択",
     "Select flows": "ルーティンを選択",
@@ -1155,7 +1157,12 @@
     "Too long to show": "長すぎて表示できません",
     "Its runs and what you allowed for it go too. This can't be undone.": "実行履歴と許可した内容も削除されます。元に戻せません。",
     "Show in Finder": "Finder で表示",
-    "Sidefolk wouldn't show that file.": "Sidefolk はそのファイルを表示しませんでした。"
+    "Sidefolk wouldn't show that file.": "Sidefolk はそのファイルを表示しませんでした。",
+    "Export": "書き出す",
+    "Export, with unsaved": "未保存を含めて書き出す",
+    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "ファイルには、ルーティンの動作とステップに入力された内容が含まれます。許可した内容、実行履歴、アカウントは含まれません。",
+    "Pick the flows to delete or export.": "削除または書き出すルーティンを選んでください。",
+    "That's too big to be one file. Export fewer flows at a time.": "1つのファイルには大きすぎます。書き出すルーティンを減らしてください。"
   },
   "drops": {
     "flow_file": {

@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "Importar um arquivo de rotina"
+    },
+    "export_flows": {
+      "title": "Escrever rotinas em um arquivo"
     }
   },
   "pages": {
@@ -1110,7 +1113,6 @@
     "Move down": "Mover para baixo",
     "Move to": "Mover para",
     "Move up": "Mover para cima",
-    "Pick the flows to delete.": "Escolha as rotinas para excluir.",
     "Select": "Selecionar",
     "Select all": "Selecionar todas",
     "Select flows": "Selecionar rotinas",
@@ -1177,7 +1179,12 @@
     "Too long to show": "Longo demais para mostrar",
     "Its runs and what you allowed for it go too. This can't be undone.": "As execuções e o que você permitiu também saem. Não dá para desfazer.",
     "Show in Finder": "Mostrar no Finder",
-    "Sidefolk wouldn't show that file.": "O Sidefolk não quis mostrar esse arquivo."
+    "Sidefolk wouldn't show that file.": "O Sidefolk não quis mostrar esse arquivo.",
+    "Export": "Exportar",
+    "Export, with unsaved": "Exportar, com o não salvo",
+    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "O arquivo guarda o que as rotinas fazem e o que foi digitado nas etapas. Não guarda o que você permitiu, as execuções nem suas contas.",
+    "Pick the flows to delete or export.": "Escolha as rotinas para apagar ou exportar.",
+    "That's too big to be one file. Export fewer flows at a time.": "É grande demais para um arquivo. Exporte menos rotinas de cada vez."
   },
   "drops": {
     "flow_file": {

@@ -8,6 +8,7 @@ enum FlowFile {
     static let type = "sideflow"
     static let longest = 1_000_000
     static let mostFlows = 12
+    static let madeBy = "1.0.0"
 
     struct Incoming: Equatable {
         var name: String
@@ -16,20 +17,20 @@ enum FlowFile {
 
     // MARK: Writing
 
-    /// These flows and the flows they call, as what was last saved. The samples go: a practice's made-up values can be the person's own words. What's typed into a step stays, and the page says so.
+    /// These flows as they are on the page, the same as a copy, and the flows they call as last saved. The samples go: a practice's made-up values can be the person's own words. What's typed into a step stays, and the page says so.
     @MainActor static func write(_ flows: [Flow], store: FlowStore, catalog: Catalog, sideflow: String) -> String {
-        var all = flows, seen = Set(flows.map(\.id)), next = flows
-        while let flow = next.popLast() {
-            for name in calls(flow.kept) {
+        var all = flows.map { (name: $0.name, body: $0.draft) }, seen = Set(flows.map(\.id)), next = flows.map(\.draft)
+        while let body = next.popLast() {
+            for name in calls(body) {
                 guard let called = store.named(name), seen.insert(called.id).inserted else { continue }
-                all.append(called)
-                next.append(called)
+                all.append((called.name, called.kept))
+                next.append(called.kept)
             }
         }
-        let tools = Set(all.flatMap { flow in flow.kept.allSteps.compactMap { step -> String? in
+        let tools = Set(all.flatMap { flow in flow.body.allSteps.compactMap { step -> String? in
             if case .action(let tool, _) = step.kind { tool } else { nil }
         } }).sorted()
-        let places = Set(all.flatMap(\.kept.triggers).compactMap { trigger -> String? in
+        let places = Set(all.flatMap(\.body.triggers).compactMap { trigger -> String? in
             if case .watch(let watch) = trigger, watch.target.hasPrefix("/") || watch.target.hasPrefix("~") { watch.target } else { nil }
         }).sorted()
         let needs: [String: Any] = ["sideflow": sideflow, "folders": places, "tools": tools.map { name -> [String: Any] in
@@ -40,9 +41,12 @@ enum FlowFile {
             }
             return line
         }]
-        return JSONText.write(["sideflow": format, "needs": needs, "flows": all.map { flow in
-            ["name": flow.name, "flow": withoutSamples(FlowCodec.json(flow.kept))] as [String: Any]
-        }] as [String: Any])
+        // Readable, as a file you might open and keep: the order of its keys stays put from one export to the next.
+        let whole: [String: Any] = ["sideflow": format, "needs": needs, "flows": all.map { flow in
+            ["name": flow.name, "flow": withoutSamples(FlowCodec.json(flow.body))] as [String: Any]
+        }]
+        let data = (try? JSONSerialization.data(withJSONObject: whole, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])) ?? Data()
+        return String(decoding: data, as: UTF8.self) + "\n"
     }
 
     /// The flows these steps name, directly.
@@ -54,6 +58,25 @@ enum FlowFile {
             }
         }
     }
+
+    /// What it wrote, as a file for Sidefolk to take, checked as anything coming back would be: what can't come back in shouldn't look saved. Its name, from the data folder.
+    static func handOver(_ words: String, in folder: URL) throws -> String {
+        guard words.utf8.count <= longest else { throw Problem(L("That's too big to be one file. Export fewer flows at a time.")) }
+        let count = try read(words).count
+        guard count <= mostFlows else { throw Problem(L("A file holds at most {count} flows.", ["count": Format.integer(mostFlows)])) }
+        let name = "\(exportsFolder)/\(UUID().uuidString.lowercased()).\(type)"
+        let exports = folder.appendingPathComponent(exportsFolder, isDirectory: true)
+        try FileManager.default.createDirectory(at: exports, withIntermediateDirectories: true)
+        // Sidefolk has copied them by now, or the person said no: they hold words of the person's, so they don't stay.
+        for old in (try? FileManager.default.contentsOfDirectory(at: exports, includingPropertiesForKeys: [.contentModificationDateKey])) ?? [] {
+            let at = (try? old.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast
+            if Date().timeIntervalSince(at) > 3600 { try? FileManager.default.removeItem(at: old) }
+        }
+        try Data(words.utf8).write(to: folder.appendingPathComponent(name), options: .atomic)
+        return name
+    }
+
+    private static let exportsFolder = "exports"
 
     private static func withoutSamples(_ body: [String: Any]) -> [String: Any] {
         func clean(_ list: Any?) -> Any? {

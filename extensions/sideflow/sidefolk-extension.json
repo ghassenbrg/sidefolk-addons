@@ -58,6 +58,7 @@
       "commands": [{ "say": ["how did {flow} go", "why did {flow} stop", "why did {flow} fail"] }] },
     "continue_run": { "title": "Carry on with a run", "risk": "medium", "mutates": true, "category": "extensions" },
     "delete_flow": { "title": "Delete a flow", "risk": "high", "mutates": true, "category": "extensions" },
+    "export_flows": { "title": "Write flows as a file", "risk": "low", "mutates": false, "ai": false, "category": "extensions" },
     "import_file": { "title": "Bring in a flow file", "risk": "low", "mutates": true, "ai": false, "category": "extensions", "paths": { "path": "read" } },
     "ui": { "title": "Open Sideflow", "summary": [{ "unless": "op", "text": "Open Sideflow" }, { "text": "Change something in Sideflow: {op}" }], "risk": "low", "mutates": true, "category": "extensions", "ai": false,
       "commands": [{ "say": ["open sideflow", "show sideflow"] }] }

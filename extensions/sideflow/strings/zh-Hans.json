@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "导入流程文件"
+    },
+    "export_flows": {
+      "title": "将流程写入文件"
     }
   },
   "pages": {
@@ -1092,7 +1095,6 @@
     "Move down": "下移",
     "Move to": "移到",
     "Move up": "上移",
-    "Pick the flows to delete.": "选择要删除的流程。",
     "Select": "选择",
     "Select all": "全选",
     "Select flows": "选择流程",
@@ -1155,7 +1157,12 @@
     "Too long to show": "太长，无法显示",
     "Its runs and what you allowed for it go too. This can't be undone.": "它的运行记录和你允许的内容也会一并删除。无法撤销。",
     "Show in Finder": "在访达中显示",
-    "Sidefolk wouldn't show that file.": "Sidefolk 没有显示那个文件。"
+    "Sidefolk wouldn't show that file.": "Sidefolk 没有显示那个文件。",
+    "Export": "导出",
+    "Export, with unsaved": "导出（含未保存内容）",
+    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "文件包含流程要做的事和步骤里输入的内容，不包含你允许的内容、运行记录或账户。",
+    "Pick the flows to delete or export.": "选择要删除或导出的流程。",
+    "That's too big to be one file. Export fewer flows at a time.": "内容太大，无法放进一个文件。请一次导出较少的流程。"
   },
   "drops": {
     "flow_file": {
