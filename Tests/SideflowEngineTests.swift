@@ -2608,6 +2608,8 @@ extension JSON {
         #expect(!stops(["text": .string("{{r.a}} {{r.c}}")]), "there's something to write")
         #expect(!stops(["text": .string("Hi {{r.a}}")]))
         #expect(!stops(["text": .string("x"), "note": .string("{{r.a}}")]), "optional, so left out")
+        let filled = values.fill(["text": .string("x"), "note": .string(" {{r.a}} {{r.b}} ")], wordsIn: ["text", "note"])
+        #expect(filled["note"] == nil, "not spaces over what it had")
     }
 
     @Test func aRequiredFieldThatSaysNothingStopsTheAction() async throws {

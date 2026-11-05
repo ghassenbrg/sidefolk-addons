@@ -235,7 +235,7 @@ struct Values: Equatable, Sendable {
     func fill(_ input: [String: JSON], wordsIn textual: Set<String>, listsIn lists: Set<String> = [], absentIn absent: Set<String> = []) -> [String: Any] {
         Dictionary(uniqueKeysWithValues: input.compactMap { key, value -> (String, Any)? in
             // Nothing for it: not given, as a blank would be. What can't go without one has already stopped the run (`Catalog.nothingFor`).
-            if case .string(let s) = value, Self.isOneSlot(s), let only = Self.slots(s).first, resolve(only.name, path: only.path) == .null { return nil }
+            if case .string(let s) = value, saysNothing(s) != nil { return nil }
             if textual.contains(key), case .string(let s) = value { return (key, fill(s, each: Self.wordsKept) as Any) }
             let filled = fill(native: value)
             if absent.contains(key), filled == .string(""), case .string(let s) = value, Self.isOneSlot(s), Self.slots(s).first?.path.isEmpty == false { return (key, JSON.null.any) }
@@ -286,6 +286,13 @@ struct Values: Equatable, Sendable {
     func lastAnswer(of steps: [Step]) -> JSON? {
         let left = steps.filter { $0.hasOutput }.compactMap { whole($0.id) }
         return left.last { $0 != .string("") } ?? left.last
+    }
+
+    /// The first of these words' values, when they're nothing but values that came back null: filled in, they'd be a blank at best.
+    func saysNothing(_ text: String) -> String? {
+        let slots = Self.slots(text)
+        guard let first = slots.first, Self.replacingSlots(in: text, { _, _ in "" }).trimmed.isEmpty, slots.allSatisfy({ resolve($0.name, path: $0.path) == .null }) else { return nil }
+        return first.name + first.path
     }
 
     /// What these words use that no step has made and this run has to stop for. A practice only pretended, so a field of that isn't one.

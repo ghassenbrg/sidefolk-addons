@@ -74,14 +74,9 @@ import SidefolkExtensionKit
     /// out, or anywhere inside a list or a record, where there's no leaving it out. Other words around a value stand, and an optional parameter is left out.
     func nothingFor(_ name: String, _ input: [String: JSON], from values: Values) -> String? {
         let parameters = tool(name)?.parameters
-        func saysNothing(_ text: String) -> String? {
-            let slots = Values.slots(text)
-            guard let first = slots.first, Values.replacingSlots(in: text, { _, _ in "" }).trimmed.isEmpty, slots.allSatisfy({ values.resolve($0.name, path: $0.path) == .null }) else { return nil }
-            return first.name + first.path
-        }
         func within(_ value: JSON) -> String? {
             switch value {
-            case .string(let text): saysNothing(text)
+            case .string(let text): values.saysNothing(text)
             case .array(let items): items.lazy.compactMap(within).first
             case .object(let fields): fields.keys.sorted().lazy.compactMap { fields[$0].flatMap(within) }.first
             default: nil
@@ -89,7 +84,7 @@ import SidefolkExtensionKit
         }
         for (key, value) in input.sorted(by: { $0.key < $1.key }) {
             if case .string(let text) = value {
-                if parameters?.first(where: { $0.name == key })?.required != false, let name = saysNothing(text) { return name }
+                if parameters?.first(where: { $0.name == key })?.required != false, let name = values.saysNothing(text) { return name }
             } else if let name = within(value) {
                 return name
             }
