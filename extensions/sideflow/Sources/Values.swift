@@ -269,7 +269,15 @@ struct Values: Equatable, Sendable {
 
     /// Whether these words come only from what a practice made up, so there's nothing in them to work anything out from.
     func pretends(_ text: String) -> Bool {
-        missing(in: [text]).contains(where: isSampleField) || fill(text).trimmed == L("(sample)")
+        Self.slots(text).contains { slot in
+            isSampleField(slot.name + slot.path) || resolve(slot.name, path: slot.path).map { Self.text($0) == L("(sample)") } == true
+        }
+    }
+
+    /// Why a run can't go on with something it uses. A step that ran may have done something, so the reason has to be the true one.
+    func whyMissing(_ name: String) -> String {
+        let root = name.split(whereSeparator: { $0 == "." || $0 == "[" }).first.map(String.init) ?? name
+        return named[root] == nil ? L("It uses “{name}”, but that step didn't run this time.", ["name": name]) : L("It uses “{name}”, but that step's answer doesn't have it.", ["name": name])
     }
 
     /// What these words use that no step has made and this run has to stop for. A practice only pretended, so a field of that isn't one.

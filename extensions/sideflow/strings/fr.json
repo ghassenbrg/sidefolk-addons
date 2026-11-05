@@ -960,6 +960,8 @@
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Vous avez approuvé une autre version de cette routine pendant cette exécution, et cette étape n'y est plus telle quelle : elle n'a donc pas été exécutée. Ignorez-la ou arrêtez ici.",
     "Inside it": "À l’intérieur",
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "En attente de {name}, et {flow} est en pause. Cette étape n'a pas été exécutée : une fois de retour, elle continue quand vous reprenez {flow}.",
-    "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "« {name} » ne répond pas encore, et recommencer referait tout, alors elle s'est arrêtée ici."
+    "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "« {name} » ne répond pas encore, et recommencer referait tout, alors elle s'est arrêtée ici.",
+    "It uses “{name}”, but that step's answer doesn't have it.": "Elle utilise « {name} », mais la réponse de cette étape ne le contient pas.",
+    "It would use what an earlier step gave, and practice only pretended that.": "Elle utiliserait ce qu'une étape précédente a donné, et l'essai n'a fait que le simuler."
   }
 }

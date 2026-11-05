@@ -945,6 +945,8 @@
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "この実行の途中で別のバージョンを承認しました。このステップは同じ形では含まれていないため、実行されませんでした。スキップするか、ここで停止してください。",
     "Inside it": "この中",
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "{name} を待っています。{flow} は一時停止中です。このステップはまだ実行していません。戻ったあと、{flow} を再開すると続きます。",
-    "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "「{name}」にはまだ答えがなく、もう一周するとすべてをやり直すことになるため、ここで止まりました。"
+    "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "「{name}」にはまだ答えがなく、もう一周するとすべてをやり直すことになるため、ここで止まりました。",
+    "It uses “{name}”, but that step's answer doesn't have it.": "「{name}」を使っていますが、そのステップの答えには含まれていません。",
+    "It would use what an earlier step gave, and practice only pretended that.": "前のステップの結果を使いますが、練習ではそれを仮定しただけです。"
   }
 }

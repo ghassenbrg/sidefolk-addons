@@ -282,6 +282,44 @@ import SidefolkExtensionKit
         #expect(run?.status != .done)
     }
 
+    @Test func aListThatSaysNothingGoesRoundNotAtAll() async throws {
+        let w = try world(#"{"items": null}"#)
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "each", "for_each": "{{r.items}}", "steps": [["id": "c", "do": "changes.it", "with": ["text": "{{item}}"]]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing to send, not one blank")
+    }
+
+    @Test func aPracticeDoesntAskOrReadWithAMadeUpValue() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{"count":{"type":"integer"},"query":{"type":"string"}}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"}}}"#, outputSchema: #"{"properties":{"total":{}}}"#)]))
+        w.host.decision = .allow
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "n", "do": "reads.it", "with": ["count": "{{c.total}}"]], ["id": "q", "do": "reads.it", "with": ["query": "about {{c.total}}"]], ["id": "t", "text": "{{n}}"]], state: .draft)
+        let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.record(of: "n")?.status == .would)
+        #expect(run?.record(of: "q")?.status == .would)
+        #expect(!w.host.calls.contains { $0.tool == "reads.it" }, "a search for a value it made up finds something else")
+    }
+
+    @Test func aPracticeWithWordsAsASampleStillHasTheFieldsItsToolSays() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"}}}"#, outputSchema: #"{"properties":{"count":{}}}"#)]))
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"], "sample": "Two invoices"], ["id": "t", "text": "{{c}}: {{c.count}}"]], state: .draft)
+        let run = await w.settled(w.engine.start(flow, mode: .practice, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t").hasPrefix("Two invoices: ") == true)
+    }
+
+    @Test func aRunStoppedOverAMissingFieldSaysTheStepRan() async throws {
+        let w = try world(#"{"id": 1}"#)
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "t", "text": "{{r.note}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(run?.problem?.contains("didn't run") == false, "\(run?.problem ?? "")")
+    }
+
     @Test func theGuideSaysHowToReachAField() {
         #expect(Grammar.text.contains("{{step.field}}"))
     }

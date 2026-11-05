@@ -11,12 +11,14 @@ extension Engine {
         guard case .forEach(let items, let limit, let failure, let steps) = step.kind else { return true }
         if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
         if let name = run.values.stopsFor([items], practice: run.mode == .practice) {
-            return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
+            return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
         }
         var list: [JSON]
         switch Values.structured(run.values.fill(native: .string(items))) {
         case .array(let a): list = a
         case .string(let text): list = text.split(whereSeparator: \.isNewline).map { .string(String($0).trimmed) }.filter { $0 != .string("") }
+        // A field saying nothing is a list of nothing: no item to send blank to a real action.
+        case .null: list = []
         case let other: list = [other]
         }
         // Past the check, anything missing is a field of a sample: once round, since what it does each time is what a practice is for.

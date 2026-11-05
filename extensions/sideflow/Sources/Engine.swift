@@ -190,7 +190,7 @@ import SidefolkExtensionKit
                 }
             case .choose(let step, let targets, let otherwise):
                 guard case .choose(let value, let paths, _) = step.kind else { break }
-                if let why = step.saysNothing ?? run.values.stopsFor([value], practice: run.mode == .practice).map({ L("It uses “{name}”, but that step didn't run this time.", ["name": $0]) }) {
+                if let why = step.saysNothing ?? run.values.stopsFor([value], practice: run.mode == .practice).map(run.values.whyMissing) {
                     guard failed(step, why: why, reads: false, in: &run) else {
                         finish(&run)
                         return
@@ -250,7 +250,7 @@ import SidefolkExtensionKit
             return false
         }
         if let name = run.values.stopsFor(step.usedTexts, practice: run.mode == .practice) {
-            return failed(step, why: L("It uses “{name}”, but that step didn't run this time.", ["name": name]), reads: false, in: &run)
+            return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
         }
         // Before it's done: for a repeat, which can't tell from a value alone what going round would do again.
         if step.doesSomething(catalog) { for i in run.frames.indices { run.frames[i].wrote = true } }
@@ -433,19 +433,28 @@ import SidefolkExtensionKit
 
     /// Reads for real what Sidefolk would let through without a card, and says what everything else would do. Only what Sidefolk itself says
     /// changes nothing is ever run: an extension's own word that a tool only reads isn't enough.
-    private func setSample(_ step: Step, tool: String, in run: inout Run) {
+    private func setSample(_ step: Step, tool: String, words: String = L("(sample)"), in run: inout Run) {
         let fields = catalog.tool(tool)?.outputFields ?? []
         if fields.isEmpty {
-            run.values.set(step.id, L("(sample)"))
+            run.values.set(step.id, words)
         } else {
-            run.values.set(step.id, answer: L("(sample)"), fields: JSONText.write(Dictionary(uniqueKeysWithValues: fields.map { ($0, L("(sample)") as Any) })))
+            run.values.set(step.id, answer: words, fields: JSONText.write(Dictionary(uniqueKeysWithValues: fields.map { ($0, L("(sample)") as Any) })))
         }
     }
 
     private func practicing(_ step: Step, tool: String, input: [String: Any], in run: inout Run) async -> Bool {
         if let sample = step.sample {
-            run.values.set(step.id, sample)
+            // A sample that's a record says what it holds. Words say what it said, and what the tool gives beside them is still pretended.
+            if case .object = Values.structured(.string(sample)) { run.values.set(step.id, sample) } else { setSample(step, tool: tool, words: sample, in: &run) }
             run.record(.init(step: step.id, status: .would, summary: L("Would: {what}", ["what": Words.step(step, body: run.body, catalog: catalog)]), output: sample, note: L("Pretending it gave what you wrote for practice."), at: clock()))
+            run.pc += 1
+            store.save(run)
+            return true
+        }
+        // Made-up values: there's nothing true to ask Sidefolk about, and a real read with one would find something else.
+        if step.usedTexts.contains(where: run.values.pretends) {
+            run.record(.init(step: step.id, status: .would, summary: L("Would: {what}", ["what": Words.step(step, body: run.body, catalog: catalog)]), note: L("It would use what an earlier step gave, and practice only pretended that."), at: clock()))
+            setSample(step, tool: tool, in: &run)
             run.pc += 1
             store.save(run)
             return true

@@ -945,6 +945,8 @@
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "这次运行期间你批准了此流程的另一个版本，其中这一步已不同，因此没有运行。请跳过它或在此停止。",
     "Inside it": "内部",
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "正在等待 {name}，{flow} 已暂停。这一步尚未运行：恢复后，在你继续 {flow} 时接着运行。",
-    "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "“{name}”还没有答案，再循环一次会把一切重做一遍，所以在此停止。"
+    "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "“{name}”还没有答案，再循环一次会把一切重做一遍，所以在此停止。",
+    "It uses “{name}”, but that step's answer doesn't have it.": "它用到了“{name}”，但那个步骤的回答里没有。",
+    "It would use what an earlier step gave, and practice only pretended that.": "它会使用之前步骤给出的内容，而练习只是假定了这些内容。"
   }
 }

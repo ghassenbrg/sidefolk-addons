@@ -274,6 +274,7 @@
     "It stops and waits for you to fill this in on this page, for days if need be, and carries on after a restart.": "It stops and waits for you to fill this in on this page, for days if need be, and carries on after a restart.",
     "It takes": "It takes",
     "It uses “{name}”, but that step didn't run this time.": "It uses “{name}”, but that step didn't run this time.",
+    "It uses “{name}”, but that step's answer doesn't have it.": "It uses “{name}”, but that step's answer doesn't have it.",
     "It uses “{name}”, which no earlier step makes.": "It uses “{name}”, which no earlier step makes.",
     "It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.": "It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "It uses “{name}”, which that step doesn't give. It may have been renamed.",
@@ -288,6 +289,7 @@
       "other": "It went round {count} times and it still doesn't hold."
     },
     "It would read this; you didn't allow it for practice.": "It would read this; you didn't allow it for practice.",
+    "It would use what an earlier step gave, and practice only pretended that.": "It would use what an earlier step gave, and practice only pretended that.",
     "It's too long to copy from here. Ask your companion to read it with get_flow.": "It's too long to copy from here. Ask your companion to read it with get_flow.",
     "It's waiting for you to fill something in.": "It's waiting for you to fill something in.",
     "Item {place} · {status}": "Item {place} · {status}",
