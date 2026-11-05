@@ -1092,6 +1092,7 @@
     "“{name}” has an entry that came back with nothing in it.": "„{name}“ hat einen Eintrag, der leer zurückkam.",
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "„{name}“ ist eine Liste von Wörtern, und ein Eintrag ist keins: „{value}“.",
     "“{name}” is needed, and this gives it nothing.": "„{name}“ wird gebraucht, und das hier gibt ihm nichts.",
-    "“{name}” wants {what}, and this gives it “{value}”.": "„{name}“ will {what}, und das hier gibt ihm „{value}“."
+    "“{name}” wants {what}, and this gives it “{value}”.": "„{name}“ will {what}, und das hier gibt ihm „{value}“.",
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: auf dem Weg zum Werkzeug auf {count} Zeichen gekürzt. Der Rest wurde nicht gesendet."
   }
 }
