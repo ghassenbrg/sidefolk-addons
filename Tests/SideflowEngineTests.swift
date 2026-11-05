@@ -2429,6 +2429,34 @@ extension JSON {
         #expect(run?.problem?.contains("Off") == true, "\(run?.problem ?? "")")
     }
 
+    @Test func aLoopInsideDoesntTakeTheItemOfTheLoopAround() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "each", "for_each": "a", "steps": [
+            ["id": "b", "if": ["value": "{{item.done}}", "test": "is_empty"], "then": [["id": "again", "repeat": [["id": "t", "text": "{{item}} {{index}}"]], "until": ["value": "{{index}}", "test": "is", "than": "2"], "times": 3]], "else": []]]]]])
+        let (outer, inner) = try Editing.extract("b", in: body, named: "New")
+        guard case .call(_, let inputs)? = outer.step("b")?.kind else { Issue.record("not a call"); return }
+        #expect(inputs == ["item_done": "{{item.done}}"])
+        guard case .branch(let c, _, _)? = inner.step("b")?.kind else { Issue.record("not a branch"); return }
+        #expect(c.value == "{{input.item_done}}", "it would always be empty in the new flow, and take that way for every item")
+        #expect(inner.step("t")?.kind == .text("{{item}} {{index}}"), "the repeat inside brings its own")
+    }
+
+    @Test func aLoopMadeAFlowKeepsItsItemAndTakesWhatItsListComesFrom() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "r", "text": "a"], ["id": "e", "for_each": "{{r}}", "steps": [["id": "t", "text": "{{item}}"]]]]])
+        let (outer, inner) = try Editing.extract("e", in: body, named: "New")
+        guard case .call(_, let inputs)? = outer.step("e")?.kind else { Issue.record("not a call"); return }
+        #expect(inputs == ["r": "{{r}}"])
+        #expect(inner.step("t")?.kind == .text("{{item}}"))
+    }
+
+    @Test func aTryInsideDoesntTakeTheErrorAround() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
+            ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])
+        let (outer, inner) = try Editing.extract("b", in: body, named: "New")
+        guard case .call(_, let inputs)? = outer.step("b")?.kind else { Issue.record("not a call"); return }
+        #expect(inputs == ["error": "{{error}}"])
+        #expect(inner.step("z")?.kind == .text("{{error}}"))
+    }
+
     @Test func aRunWithACallToAFlowThatsOffDoesNothingAtAll() async throws {
         let w = try World()
         var child = try w.flow([["id": "t", "text": "x"]], state: .draft)

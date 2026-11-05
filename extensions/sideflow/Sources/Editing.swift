@@ -168,8 +168,9 @@ enum Editing {
     }
 
     /// The same step with every value it uses put through `remap`.
-    static func rewriting(_ step: Step, _ remap: (String) -> String) -> Step {
-        var out = step.mappingParts { $0.map { rewriting($0, remap) } }
+    /// `inside`: what to do with the steps it holds, if not the same.
+    static func rewriting(_ step: Step, _ remap: (String) -> String, inside: ((Step) -> Step)? = nil) -> Step {
+        var out = step.mappingParts { $0.map { inside?($0) ?? rewriting($0, remap) } }
         switch out.kind {
         case .action(let tool, let input): out.kind = .action(tool: tool, input: input.mapValues { $0.mapStrings(remap) })
         case .ai(let prompt): out.kind = .ai(prompt: remap(prompt))
@@ -221,12 +222,10 @@ enum Editing {
             throw Problem(L("Steps after it use “{name}”, which would go into the new flow. Change those first.", ["name": used.name + used.path]))
         }
         // What set the caller off isn't what sets the new flow off, so that comes in as an input too.
-        var own = Set(inside.map(\.id)).union(["today", "now"])
-        if inside.contains(where: { switch $0.kind { case .forEach, .repeatUntil: true; default: false } }) { own.formUnion(["item", "index"]) }
-        if inside.contains(where: { if case .attempt = $0.kind { true } else { false } }) { own.insert("error") }
+        let own = Set(inside.map(\.id)).union(["today", "now"])
         // A field goes in by itself: a step's whole answer, handed over, is its words, and those have no fields.
         var inputs: [String: String] = [:], keys: [String: String] = [:]
-        let inner = rewriting(step) { text in
+        func remap(_ text: String, keeping own: Set<String>) -> String {
             Values.replacingSlots(in: text) { name, path in
                 guard !own.contains(name) else { return "{{\(name)\(path)}}" }
                 let written = "{{\(name)\(path)}}"
@@ -238,6 +237,22 @@ enum Editing {
                 return "{{input.\(key)}}"
             }
         }
+        // `{{item}}` and `{{error}}` are its own only inside what brings them: above a loop or a try they're still the ones from outside.
+        func scoped(_ one: Step, keeping own: Set<String>) -> Step {
+            var within = own
+            var here = own
+            switch one.kind {
+            case .forEach: within.formUnion(["item", "index"])
+            // What a repeat stops on is looked at from inside its go.
+            case .repeatUntil:
+                within.formUnion(["item", "index"])
+                here = within
+            case .attempt: within.insert("error")
+            default: break
+            }
+            return rewriting(one, { remap($0, keeping: here) }, inside: { scoped($0, keeping: within) })
+        }
+        let inner = scoped(step, keeping: own)
         var called = step
         called.kind = .call(flow: name, inputs: inputs)
         // What the new flow's own step goes by: it's said there, and means nothing on a call.
