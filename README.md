@@ -27,7 +27,7 @@ catalog in the `gallery` release is the source; at the time of writing:
 |---|---|
 | Paper Garden, Night Studio, Marshmallow | 1177 |
 | Formatic; Your Mac, Clipboard, Keep Awake and Miraya with their new pages | 1170 |
-| Sideflow | 1303 |
+| Sideflow | 1308 |
 | Playtime | 958 |
 | Noor (the extension) | 911 |
 | The other extensions | 827 |
