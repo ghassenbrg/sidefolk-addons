@@ -270,7 +270,7 @@ struct FlowBody: Equatable, Sendable {
     var inputs: [FlowInput] = []
     var output: ValueType?
 
-    static let maxSteps = 100
+    static let maxSteps = 200
     static let longestQueue = 20
     static let longestLoop = 500
     static let mostRepeats = 100
