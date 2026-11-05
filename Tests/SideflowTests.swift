@@ -133,7 +133,8 @@ import SidefolkExtensionKit
             guard let id = run?.id else { return nil }
             let deadline = Date().addingTimeInterval(seconds)
             while Date() < deadline {
-                if let r = store.run(id), r.status != .running { return r }
+                // Waiting for a run that's still at it, or that's over and about to wake it, isn't settled.
+                if let r = store.run(id), r.status != .running, !r.waitingOn.compactMap({ store.run($0) }).contains(where: { $0.status == .running || $0.status.isOver }) { return r }
                 try? await Task.sleep(for: .milliseconds(5))
             }
             return store.run(id)
