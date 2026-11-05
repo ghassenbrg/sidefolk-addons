@@ -2697,7 +2697,7 @@ extension JSON {
         let app = App(folder: w.folder.appendingPathComponent("app"))
         app.engine.host = w.host
         let (flow, run, lane) = try await lanesAndAQueue(w, app: app)
-        for input: [String: Any] in [["op": "stop_run", "flow": flow.id, "run": lane.id], ["op": "proceed", "flow": flow.id, "run": lane.id, "how": "stop"], ["op": "stop_run", "flow": flow.id, "run": lane.id, "key": "a guess"]] {
+        for input: [String: Any] in [["op": "stop_run", "flow": flow.id, "run": lane.id], ["op": "proceed", "flow": flow.id, "run": lane.id, "how": "stop"], ["op": "stop_run", "flow": flow.id, "run": lane.id, "page_token": "a guess"]] {
             _ = try await Actions_UI.handle(Arguments(input), app)
             await w.quiet(app.store)
             #expect(app.store.run(lane.id)?.status == .stopped)
@@ -2715,7 +2715,7 @@ extension JSON {
             let page = await Pages.make(app, state: Arguments(["run": run.id]), background: false)
             #expect(String(describing: page.sent).contains(app.pageKey), "its Stop carries the key")
             var input = op
-            input.merge(["flow": flow.id, "run": lane.id, "key": app.pageKey]) { _, new in new }
+            input.merge(["flow": flow.id, "run": lane.id, "page_token": app.pageKey]) { _, new in new }
             _ = try await Actions_UI.handle(Arguments(input), app)
             await w.quiet(app.store)
             #expect(app.store.run(run.id)?.status == .stopped, "what it's part of, \(op)")
