@@ -316,7 +316,7 @@ extension Engine {
         } else {
             result = children[0].answer
         }
-        // A flow that made nothing has given nothing: not an empty answer a real action could be sent. A null it made is its answer.
+        // A flow that made nothing has given nothing. A null it made is its answer, and so is the blank of a failure it was told to carry past.
         if case .parallel = step.kind { run.values.set(step.id, result) } else if children[0].output != nil { run.values.set(step.id, result) }
         run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: Values.text(result).clipped(2000), at: clock()))
         run.pc += 1

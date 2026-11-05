@@ -2595,6 +2595,21 @@ extension JSON {
         #expect(sent?["due"] == nil, "optional, so left out")
     }
 
+    @Test func nothingInAListOrRecordOrSlotsAloneStopsTheAction() throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"},"note":{"type":"string"}},"required":["text"]}"#)]))
+        var values = Values()
+        values.set("r", JSON.object(["a": .null, "b": .null, "c": .string("x")]))
+        func stops(_ input: [String: JSON]) -> Bool { w.catalog.nothingFor("changes.it", input, from: values) != nil }
+        #expect(stops(["text": .string("{{r.a}} {{r.b}}")]), "nothing but spaces would be written")
+        #expect(stops(["text": .string("{{ r.a }}")]))
+        #expect(stops(["tags": .array([.string("{{r.a}}")])]))
+        #expect(stops(["row": .object(["email": .string("{{r.a}}")])]))
+        #expect(!stops(["text": .string("{{r.a}} {{r.c}}")]), "there's something to write")
+        #expect(!stops(["text": .string("Hi {{r.a}}")]))
+        #expect(!stops(["text": .string("x"), "note": .string("{{r.a}}")]), "optional, so left out")
+    }
+
     @Test func aRequiredFieldThatSaysNothingStopsTheAction() async throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),

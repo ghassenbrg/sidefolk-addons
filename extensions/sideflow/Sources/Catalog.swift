@@ -70,13 +70,29 @@ import SidefolkExtensionKit
         return values.fill(input, wordsIn: wordy, listsIn: lists, absentIn: absent)
     }
 
-    /// What a tool can't do without and would get nothing for: a value on its own that came back null, for a parameter it needs or one it doesn't say it can leave out. Words
-    /// around it stand, and an optional parameter is left out.
+    /// What a tool would get nothing for where it can't go without: words that are nothing but values that came back null, for a parameter it needs or doesn't say it can leave
+    /// out, or anywhere inside a list or a record, where there's no leaving it out. Other words around a value stand, and an optional parameter is left out.
     func nothingFor(_ name: String, _ input: [String: JSON], from values: Values) -> String? {
         let parameters = tool(name)?.parameters
+        func saysNothing(_ text: String) -> String? {
+            let slots = Values.slots(text)
+            guard let first = slots.first, Values.replacingSlots(in: text, { _, _ in "" }).trimmed.isEmpty, slots.allSatisfy({ values.resolve($0.name, path: $0.path) == .null }) else { return nil }
+            return first.name + first.path
+        }
+        func within(_ value: JSON) -> String? {
+            switch value {
+            case .string(let text): saysNothing(text)
+            case .array(let items): items.lazy.compactMap(within).first
+            case .object(let fields): fields.keys.sorted().lazy.compactMap { fields[$0].flatMap(within) }.first
+            default: nil
+            }
+        }
         for (key, value) in input.sorted(by: { $0.key < $1.key }) {
-            guard case .string(let text) = value, let only = Values.slots(text).first, text.trimmed == "{{\(only.name)\(only.path)}}", values.resolve(only.name, path: only.path) == .null else { continue }
-            if parameters?.first(where: { $0.name == key })?.required != false { return only.name + only.path }
+            if case .string(let text) = value {
+                if parameters?.first(where: { $0.name == key })?.required != false, let name = saysNothing(text) { return name }
+            } else if let name = within(value) {
+                return name
+            }
         }
         return nil
     }
