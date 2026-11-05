@@ -532,7 +532,8 @@ import SidefolkExtensionKit
         } else if !running {
             actions.insert(Action(L("Saved"), tool: "ui", input: ui("save", id), style: .plain, symbol: "checkmark", disabled: true), at: 0)
         }
-        extra += [button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
+        extra += [button(L("Rename"), "rename_open", id, symbol: "pencil"),
+                  button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
                   copyDefinition(flow),
                   copyWords(flow, app),
                   button(L("Delete this flow"), "ask_delete", id, style: .destructive, symbol: "trash")]

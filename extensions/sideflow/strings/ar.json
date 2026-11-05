@@ -625,6 +625,8 @@
     "Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.": "ثم، على اللوحة: ما يوضع تحت «إن كان كذلك» يعمل حين يتحقق هذا، وما يوضع تحت «وإلا» حين لا يتحقق. ويمكن ترك أيٍّ منهما فارغًا.",
     "This": "هذا",
     "This flow has unsaved changes on its page. Ask the person to save or discard them first.": "في صفحة هذا الروتين تغييرات غير محفوظة. اطلب من الشخص أن يحفظها أو يتجاهلها أولًا.",
+    "Choose a place": "اختر مكانًا",
+    "Rename": "إعادة التسمية",
     "This flow's name": "اسم هذا الروتين",
     "This number": "هذا الرقم",
     "Three short lines about…": "ثلاثة أسطر قصيرة عن…",

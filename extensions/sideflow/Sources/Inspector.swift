@@ -6,12 +6,20 @@ import SidefolkExtensionKit
 @MainActor enum Inspector {
     static func sections(_ flow: Flow, _ app: App, problems: [FlowProblem]) -> [Section] {
         switch app.nav.inspecting(flow) {
-        case .nothing: return []
+        // The flow itself is what's selected, so its own name is the first thing to change.
+        case .nothing: return [Section(nil, [.edit(EditField("flow_name", L("This flow's name"), value: flow.name, tool: "ui", input: base(flow, "rename")))], place: .trailing)]
         case .trigger: return trigger(flow, check: app.preflight[flow.id]?[App.triggerCheck])
         case .step(let id):
             guard let step = flow.draft.step(id) else { return trigger(flow, check: app.preflight[flow.id]?[App.triggerCheck]) }
             return self.step(step, flow, app, problems: problems)
         }
+    }
+
+    /// A row of choices doesn't shrink, and one wider than the panel pushes everything in it off both sides. Anything that long, in this language, is a menu.
+    static func pick(_ label: String, detail: String? = nil, options: [(String, String)], selected: String, tool: String, input: [String: Any]) -> Block {
+        let width = options.reduce(0.0) { sum, option in sum + 24 + option.1.reduce(0.0) { $0 + ($1.isASCII ? 7.2 : 14) } }
+        guard width > 256 else { return .choice(label, detail: detail, options: options, selected: selected, tool: tool, input: input) }
+        return .picker(label, detail: detail, style: .menu, options.map { Option($0.0, $0.1) }, selected: selected, tool: tool, input: input)
     }
 
     private static func base(_ flow: Flow, _ op: String, _ extra: [String: Any] = [:]) -> [String: Any] {
@@ -38,7 +46,7 @@ import SidefolkExtensionKit
         case .event: "event"
         }
         var main: [Block] = refusal(check)
-        main.append(.choice(L("It starts"), options: [("days", L("On days and at a time")), ("every", L("Every so many minutes")), ("event", L("When something happens")),
+        main.append(pick(L("It starts"), options: [("days", L("On days and at a time")), ("every", L("Every so many minutes")), ("event", L("When something happens")),
                                                       ("watch", L("When something changes")), ("manual", L("Only when I ask"))],
                             selected: kind, tool: "ui", input: base(flow, "trigger_kind")))
         var more: [Block] = []
@@ -54,7 +62,7 @@ import SidefolkExtensionKit
             main.append(.edit(EditField("every", L("Every (minutes)"), value: String(minutes), detail: L("{count} at the least.", ["count": Format.integer(FlowBody.shortestEvery)]), kind: .number, tool: "ui", input: base(flow, "every"))))
             more.append(catchUpSwitch(flow, catchUp))
         case .watch(let w):
-            main.append(.choice(L("What to watch"), options: [("url_change", L("A web page changes")), ("site_status", L("A site goes down or comes back")), ("file_changes", L("A file changes")),
+            main.append(pick(L("What to watch"), options: [("url_change", L("A web page changes")), ("site_status", L("A site goes down or comes back")), ("file_changes", L("A file changes")),
                                                               ("file_appears", L("A file appears")), ("folder_new_file", L("A new file in a folder")), ("process_exits", L("A program quits"))],
                                 selected: w.kind, tool: "ui", input: base(flow, "watch_kind")))
             let (label, detail, placeholder): (String, String, String) = switch w.kind {
@@ -81,14 +89,13 @@ import SidefolkExtensionKit
                                         placeholder: L("No rest"), kind: .number, tool: "ui", input: base(flow, "watch_rest"))))
             main.append(.note(L("Later steps can use what it saw: “What set it off”.")))
         case .event(let name, let contains):
-            main.append(.choice(L("What happens"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: name, tool: "ui", input: base(flow, "event_kind")))
+            main.append(pick(L("What happens"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: name, tool: "ui", input: base(flow, "event_kind")))
             main.append(.edit(EditField("event_contains", L("Only if it mentions"), value: contains ?? "", placeholder: L("Anything"), tool: "ui", input: base(flow, "event_contains"))))
             main.append(.note(L("Later steps can use its words: “What set it off”.")))
         }
         main += alsoWhen(flow)
-        more.append(.edit(EditField("name", L("This flow's name"), value: flow.name, tool: "ui", input: base(flow, "rename"))))
         if case .manual = t {} else {
-            more.append(.choice(L("If it's set off while running"), options: [("one_more", L("Run once more after")), ("queue", L("Run each in turn")), ("skip", L("Let it go"))], selected: flow.draft.overlap.rawValue, tool: "ui", input: base(flow, "overlap")))
+            more.append(pick(L("If it's set off while running"), options: [("one_more", L("Run once more after")), ("queue", L("Run each in turn")), ("skip", L("Let it go"))], selected: flow.draft.overlap.rawValue, tool: "ui", input: base(flow, "overlap")))
         }
         switch t {
         case .days, .every:
@@ -114,7 +121,7 @@ import SidefolkExtensionKit
             case .every(let minutes, _):
                 out.append(.edit(EditField("also.\(at).every", L("Also every (minutes)"), value: String(minutes), kind: .number, tool: "ui", input: input("every"))))
             case .event(let name, let contains):
-                out.append(.choice(L("Also when"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: name, tool: "ui", input: input("event_kind")))
+                out.append(pick(L("Also when"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: name, tool: "ui", input: input("event_kind")))
                 out.append(.edit(EditField("also.\(at).contains", L("Only if it mentions"), value: contains ?? "", placeholder: L("Anything"), tool: "ui", input: input("event_contains"))))
             case .manual, .watch: break
             }
@@ -251,7 +258,7 @@ import SidefolkExtensionKit
         case .forEach(let items, let limit, let failure, _):
             main.append(.edit(EditField("\(step.id).items", L("The list"), value: items, detail: L("A list from an earlier step, or text with one item per line. Inside, “This item” is the one it's on."), placeholder: L("Which list"), tokens: tokens, tool: "ui", input: input("each_items"))))
             more.append(.edit(EditField("\(step.id).limit", L("At most (items)"), value: String(limit), kind: .number, tool: "ui", input: input("each_limit"))))
-            more.append(.choice(L("If one item fails"), options: [("stop", L("Stop the flow")), ("collect", L("Note it and go on"))], selected: failure.rawValue, tool: "ui", input: input("each_failure")))
+            more.append(pick(L("If one item fails"), options: [("stop", L("Stop the flow")), ("collect", L("Note it and go on"))], selected: failure.rawValue, tool: "ui", input: input("each_failure")))
         case .choose(let value, let paths, _):
             main.append(.edit(EditField("\(step.id).value", L("Look at"), value: value, placeholder: L("What to look at"), tokens: tokens, tool: "ui", input: input("choose_value"))))
             for (at, path) in paths.enumerated() {
@@ -284,7 +291,7 @@ import SidefolkExtensionKit
             }
             switch data.op {
             case .filter:
-                main.append(.choice(L("It"), options: Condition.Test.allCases.map { ($0.rawValue, testName($0)) }, selected: (data.test ?? .contains).rawValue, tool: "ui", input: input("data_test")))
+                main.append(pick(L("It"), options: Condition.Test.allCases.map { ($0.rawValue, testName($0)) }, selected: (data.test ?? .contains).rawValue, tool: "ui", input: input("data_test")))
                 main.append(.edit(EditField("\(step.id).than", L("This"), value: data.than ?? "", tokens: tokens, tool: "ui", input: input("data_than"))))
             case .sort:
                 main.append(.toggle(L("Largest or last first"), on: data.descending, tool: "ui", input: input("data_descending")))
@@ -302,14 +309,14 @@ import SidefolkExtensionKit
             main.append(.edit(EditField("\(step.id).title", L("What it asks"), value: form.title, placeholder: L("Check this invoice"), tokens: tokens, tool: "ui", input: input("form_title"))))
             for (at, field) in form.fields.enumerated() {
                 main.append(.edit(EditField("\(step.id).label.\(at)", L("Field {count}", ["count": Format.integer(at + 1)]), value: field.label, tool: "ui", input: input("form_label", ["field": at]))))
-                main.append(.choice(L("Kind"), options: [("text", L("Words")), ("number", L("A number")), ("yes_no", L("Yes or no")), ("choice", L("One of a few"))], selected: field.kind.rawValue, tool: "ui", input: input("form_kind", ["field": at])))
+                main.append(pick(L("Kind"), options: [("text", L("Words")), ("number", L("A number")), ("yes_no", L("Yes or no")), ("choice", L("One of a few"))], selected: field.kind.rawValue, tool: "ui", input: input("form_kind", ["field": at])))
                 if field.kind == .choice { main.append(.edit(EditField("\(step.id).options.\(at)", L("The choices"), value: field.options.joined(separator: ", "), detail: L("With commas between them."), tool: "ui", input: input("form_options", ["field": at])))) }
                 if form.fields.count > 1 { main.append(.action(Action(L("Remove this field"), tool: "ui", input: input("form_remove", ["field": at]), style: .plain, symbol: "minus.circle"))) }
             }
             main.append(.action(Action(L("Add a field"), tool: "ui", input: input("form_add"), style: .plain, symbol: "plus.circle")))
             more.append(.edit(EditField("\(step.id).hours", L("Wait for (hours)"), value: String(form.hours), detail: L("Then it counts as this step failing."), kind: .number, tool: "ui", input: input("form_hours"))))
         case .waitFor(let event, let contains, let minutes):
-            main.append(.choice(L("What happens"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: event, tool: "ui", input: input("wait_event")))
+            main.append(pick(L("What happens"), options: Trigger.events.map { ($0, Words.eventName($0)) }, selected: event, tool: "ui", input: input("wait_event")))
             main.append(.edit(EditField("\(step.id).contains", L("Only if it mentions"), value: contains ?? "", placeholder: L("Anything"), tool: "ui", input: input("wait_contains"))))
             main.append(.edit(EditField("\(step.id).minutes", L("For up to (minutes)"), value: String(minutes), kind: .number, tool: "ui", input: input("wait_minutes"))))
         }
@@ -324,7 +331,7 @@ import SidefolkExtensionKit
             case .action, .ai: if step.reads(app.catalog) { failure.append(("retry", L("Try again later"))) }
             default: break
             }
-            more.append(.choice(L("If it fails"), options: failure, selected: step.onFailure.rawValue, tool: "ui", input: input("on_failure")))
+            more.append(pick(L("If it fails"), options: failure, selected: step.onFailure.rawValue, tool: "ui", input: input("on_failure")))
         }
         let said = explanation(step, app)
         return [Section(said.title, main, place: .trailing, detail: said.detail),
@@ -342,7 +349,7 @@ import SidefolkExtensionKit
             return .toggle(p.title, detail: p.detail, on: false, tool: "ui", input: args)
         case .choice(let options):
             let list = p.required ? options : [""] + options
-            return .choice(p.title, detail: p.detail, options: list.map { ($0, $0.isEmpty ? L("Not set") : $0.replacingOccurrences(of: "_", with: " ")) }, selected: current?.string ?? "", tool: "ui", input: args)
+            return pick(p.title, detail: p.detail, options: list.map { ($0, $0.isEmpty ? L("Not set") : $0.replacingOccurrences(of: "_", with: " ")) }, selected: current?.string ?? "", tool: "ui", input: args)
         case .other:
             return nil
         default:
@@ -372,7 +379,7 @@ import SidefolkExtensionKit
         for (at, check) in c.checks.enumerated() {
             let first = at == 0
             out.append(.edit(EditField("\(step.id).value.\(at)", first ? (stopping ? L("Stop when") : L("If")) : (c.any ? L("Or if") : L("And if")), value: check.value, placeholder: L("What to check"), tokens: tokens, tool: "ui", input: input("cond_value", ["check": at]))))
-            out.append(.choice(L("It"), options: tests, selected: check.test.rawValue, tool: "ui", input: input("cond_test", ["check": at])))
+            out.append(pick(L("It"), options: tests, selected: check.test.rawValue, tool: "ui", input: input("cond_test", ["check": at])))
             if check.test != .is_empty, check.test != .not_empty {
                 out.append(.edit(EditField("\(step.id).than.\(at)", check.test == .more_than || check.test == .less_than ? L("This number") : L("This"), value: check.than, placeholder: L("Words or a value"), tokens: tokens, tool: "ui", input: input("cond_than", ["check": at]))))
             }
@@ -380,7 +387,7 @@ import SidefolkExtensionKit
         }
         out.append(.action(Action(L("Add another check"), tool: "ui", input: input("cond_add", [:]), style: .plain, symbol: "plus.circle")))
         if !c.also.isEmpty {
-            out.append(.choice(stopping ? L("Stop when") : L("It takes"), options: [("all", L("All of these")), ("any", L("Any of these"))], selected: c.any ? "any" : "all", tool: "ui", input: input("cond_join", [:])))
+            out.append(pick(stopping ? L("Stop when") : L("It takes"), options: [("all", L("All of these")), ("any", L("Any of these"))], selected: c.any ? "any" : "all", tool: "ui", input: input("cond_join", [:])))
         }
         out.append(.note(stopping ? L("It looks after the steps inside have run, so it can check what they made.")
             : L("Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.")))
@@ -399,10 +406,10 @@ import SidefolkExtensionKit
         // Sidefolk keeps 24 of a menu: on a long flow, those nearest it.
         let places = Editing.placesToMove(step.id, in: flow.draft)
         let middle = max(0, flow.draft.allSteps.firstIndex { $0.id == step.id } ?? 0)
-        let near = places.sorted { abs((flow.draft.allSteps.firstIndex(of: $0) ?? 0) - middle) < abs((flow.draft.allSteps.firstIndex(of: $1) ?? 0) - middle) }.prefix(startsIt ? 24 : 23)
+        let near = places.sorted { abs((flow.draft.allSteps.firstIndex(of: $0) ?? 0) - middle) < abs((flow.draft.allSteps.firstIndex(of: $1) ?? 0) - middle) }.prefix(startsIt ? 23 : 22)
         let kept = places.filter { place in near.contains { $0.id == place.id } }
         let spots = (startsIt ? [] : [Option("start", L("The very start"))]) + kept.map { Option($0.id, L("After {step}", ["step": Words.label($0, catalog: app.catalog)])) }
-        if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, spots, selected: "", tool: "ui", input: input("move_after", [:]))) }
+        if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, [Option(step.id, L("Choose a place"))] + spots, selected: step.id, tool: "ui", input: input("move_after", [:]))) }
         if kept.count < places.count { out.append(.note(L("The nearest places are listed. To go further, move it there and choose again."))) }
         return out
     }

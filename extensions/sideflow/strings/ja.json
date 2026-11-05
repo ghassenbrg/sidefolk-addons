@@ -590,6 +590,8 @@
     "Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.": "ボード上では、「そうなら」の下に置いたものがこの条件が成り立つときに、「そうでなければ」の下に置いたものが成り立たないときに動きます。どちらも空のままにできます。",
     "This": "これ",
     "This flow has unsaved changes on its page. Ask the person to save or discard them first.": "このルーティンのページには未保存の変更があります。先に保存するか破棄するよう、その人に伝えてください。",
+    "Choose a place": "場所を選択",
+    "Rename": "名前を変更",
     "This flow's name": "このルーティンの名前",
     "This number": "この数値",
     "Three short lines about…": "…についての短い3行",

@@ -597,6 +597,8 @@
     "Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.": "Puis, sur le tableau : ce qui est sous « Si oui » s’exécute quand c’est vrai, ce qui est sous « Sinon » quand ça ne l’est pas. L’un ou l’autre peut rester vide.",
     "This": "Ceci",
     "This flow has unsaved changes on its page. Ask the person to save or discard them first.": "Cette routine a des modifications non enregistrées sur sa page. Demandez à la personne de les enregistrer ou de les abandonner d’abord.",
+    "Choose a place": "Choisir un endroit",
+    "Rename": "Renommer",
     "This flow's name": "Nom de cette routine",
     "This number": "Ce nombre",
     "Three short lines about…": "Trois courtes lignes sur…",

@@ -597,6 +597,8 @@
     "Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.": "Depois, no quadro: o que fica em “Se sim” roda quando isto vale, o que fica em “Senão” quando não vale. Qualquer um pode ficar vazio.",
     "This": "Isto",
     "This flow has unsaved changes on its page. Ask the person to save or discard them first.": "Esta rotina tem alterações não salvas na página dela. Peça à pessoa para salvar ou descartar primeiro.",
+    "Choose a place": "Escolha um lugar",
+    "Rename": "Renomear",
     "This flow's name": "Nome desta rotina",
     "This number": "Este número",
     "Three short lines about…": "Três linhas curtas sobre…",

@@ -590,6 +590,8 @@
     "Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.": "然后在看板上：放在“如果是”下的内容在条件成立时运行，放在“否则”下的内容在不成立时运行。两边都可以留空。",
     "This": "这个",
     "This flow has unsaved changes on its page. Ask the person to save or discard them first.": "这个流程的页面上有未保存的改动。请让对方先保存或放弃。",
+    "Choose a place": "选择位置",
+    "Rename": "重命名",
     "This flow's name": "这个流程的名称",
     "This number": "这个数字",
     "Three short lines about…": "关于……的三行短句",

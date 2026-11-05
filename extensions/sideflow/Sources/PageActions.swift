@@ -88,6 +88,11 @@ import SidefolkExtensionKit
             if let id = a.string("step"), let after = a.string("value") { try draft { $0 = Editing.place(id, after: after, in: $0) } }
         case "up", "down":
             if let id = a.string("step") { try draft { $0 = Editing.nudge(id, by: op == "up" ? -1 : 1, in: $0) } }
+        case "rename_open":
+            // Its name is on the flow's own panel, whatever was selected and whichever tab this came from.
+            let f = try flow()
+            app.nav.inspect(.nothing, in: f.id)
+            return .flow(f.id)
         case "rename":
             var f = try flow()
             if let name = text.nonEmpty.map({ String($0.prefix(60)) }) {

@@ -110,6 +110,7 @@
       "other": "Check: {count} things to fix"
     },
     "Choose a path": "Choose a path",
+    "Choose a place": "Choose a place",
     "Compose text": "Compose text",
     "Compose: {text}": "Compose: {text}",
     "Condition": "Condition",
@@ -470,6 +471,7 @@
     "Remove this path": "Remove this path",
     "Remove this step": "Remove this step",
     "Removed: {step}": "Removed: {step}",
+    "Rename": "Rename",
     "Repeat until": "Repeat until",
     "Resume": "Resume",
     "Run a flow and wait": "Run a flow and wait",
