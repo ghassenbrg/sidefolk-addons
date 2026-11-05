@@ -99,6 +99,7 @@ extension FlowHost {
         var run = Run(id: UUID().uuidString.lowercased(), flow: flow.id, flowName: flow.name, mode: mode, status: .running, why: why, startedAt: now,
                       // Practice tries what's on the page. A run for real uses what was kept: "only here so far" means that.
                       body: mode == .live || setOff ? flow.running : mode == .once ? flow.kept : flow.draft)
+        if mode == .live || setOff { run.version = flow.version }
         run.values.today = Format.date(now, year: true, weekday: true)
         run.values.now = Format.time(now)
         if let trigger { run.values.set("trigger", trigger) }
@@ -467,6 +468,8 @@ extension FlowHost {
         store.save(run)
         changed()
         let asked = step.fields.map { filled + "\n\n" + AIFields.instruction($0) } ?? filled
+        run.aiRequests += 1
+        store.save(run)
         switch await askingAI(asked, label: run.flowName) {
         case .answer(let text, let madeBy):
             if let fields = step.fields {
@@ -581,6 +584,7 @@ extension FlowHost {
         let said = outcome.summary.nonEmpty.map { Words.resolved($0, values: run.values) } ?? sentence
         switch outcome.status {
         case .ok:
+            run.actionsDone += 1
             run.values.set(step.id, answer: outcome.text, fields: outcome.data)
             // Cut for keeping: it says so, rather than a list that looks whole.
             let cut = outcome.text.count > Values.wordsKept ? L("Its answer was long: only the first {count} characters were kept.", ["count": Format.integer(Values.wordsKept)]) : nil

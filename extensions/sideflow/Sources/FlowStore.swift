@@ -313,6 +313,7 @@ import SidefolkExtensionKit
             "today": run.values.today, "now": run.values.now, "records": run.records.map(json), "resume_at": time(run.resumeAt), "retries": run.retries, "tried_again": run.triedAgain == 0 ? nil : run.triedAgain, "problem": run.problem, "frames": run.frames.isEmpty ? nil : run.frames.map(json), "parent": run.parent, "lineage": run.lineage.isEmpty ? nil : run.lineage,
             "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "paused": run.paused ? true : nil, "set_off_runs": run.setOffRuns.isEmpty ? nil : run.setOffRuns, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
             "connection": run.connection.map { ["tool": $0.tool, "until": $0.until.timeIntervalSince1970] as [String: Any] }, "deadline": time(run.deadline),
+            "ai_requests": run.aiRequests == 0 ? nil : run.aiRequests, "actions_done": run.actionsDone == 0 ? nil : run.actionsDone, "version": run.version,
         ]
         return out.compactMapValues { $0 }
     }
@@ -342,6 +343,9 @@ import SidefolkExtensionKit
         run.paused = o["paused"] as? Bool ?? false
         run.setOffRuns = o["set_off_runs"] as? [String] ?? []
         run.deadline = date(o["deadline"])
+        run.aiRequests = (o["ai_requests"] as? NSNumber)?.intValue ?? 0
+        run.actionsDone = (o["actions_done"] as? NSNumber)?.intValue ?? 0
+        run.version = (o["version"] as? NSNumber)?.intValue
         run.startItem = o["start_item"].map { JSON($0) }
         run.startIndex = o["start_index"].map { JSON($0) }
         if let form = o["form"] as? [String: Any], let step = form["step"] as? String {
@@ -377,13 +381,13 @@ import SidefolkExtensionKit
     }
 
     private static func json(_ r: Run.Record) -> [String: Any] {
-        let out: [String: Any?] = ["step": r.step, "status": r.status.rawValue, "summary": r.summary, "output": r.output.map { String($0.prefix(4000)) }, "note": r.note, "scope": r.scope, "attempt": r.attempt == 1 ? nil : r.attempt, "input": r.input, "at": r.at.timeIntervalSince1970]
+        let out: [String: Any?] = ["step": r.step, "status": r.status.rawValue, "summary": r.summary, "began": time(r.began), "output": r.output.map { String($0.prefix(4000)) }, "note": r.note, "scope": r.scope, "attempt": r.attempt == 1 ? nil : r.attempt, "input": r.input, "at": r.at.timeIntervalSince1970]
         return out.compactMapValues { $0 }
     }
 
     private static func record(_ o: [String: Any]) -> Run.Record? {
         guard let step = o["step"] as? String, let status = Run.Record.Status(rawValue: o["status"] as? String ?? "") else { return nil }
         return Run.Record(step: step, status: status, summary: o["summary"] as? String ?? "", output: o["output"] as? String, note: o["note"] as? String, at: date(o["at"]) ?? Date(),
-                          scope: o["scope"] as? String, attempt: (o["attempt"] as? NSNumber)?.intValue ?? 1, input: o["input"] as? String)
+                          scope: o["scope"] as? String, attempt: (o["attempt"] as? NSNumber)?.intValue ?? 1, input: o["input"] as? String, began: date(o["began"]))
     }
 }

@@ -325,6 +325,20 @@ import SidefolkExtensionKit
             }
         case "gives":
             try draft { $0.output = (a.values["value"] as? String).flatMap(ValueType.init(rawValue:)) }
+        case "repair_move":
+            if let id = a.string("step"), let name = a.string("name") { try draft { $0 = Repairs.moved(name, before: id, in: $0) } }
+        case "repair_drop":
+            if let id = a.string("step"), let name = a.string("name") { try draft { $0 = Repairs.dropped(name, from: id, in: $0) } }
+        case "agent_keep":
+            app.agentEdits[try flow().id] = nil
+        case "agent_undo":
+            // What an agent's edit replaced, on the page's own press: it's the person's call which of the two stands.
+            var f = try flow()
+            guard a.string("page_token") == app.pageKey, let edit = app.agentEdits[f.id], edit.after == f.draft else { break }
+            f.draft = edit.before
+            app.agentEdits[f.id] = nil
+            app.store.save(f)
+            app.refreshPreflight(f.id)
         case "overlap":
             if let raw = a.string("value"), let overlap = FlowBody.Overlap(rawValue: raw) { try draft { $0.overlap = overlap } }
         case "time_zone":

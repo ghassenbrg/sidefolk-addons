@@ -10,6 +10,8 @@ import SidefolkExtensionKit
     var nav = Nav()
     /// Undo and redo, by flow, while the program runs.
     var history: [String: Editing.History] = [:]
+    /// An agent's last change to each flow, while it's still what's there: what it said and what it replaced.
+    var agentEdits: [String: AgentEdit] = [:]
     /// What Guard says of each step now: its sentence and whether it would ask.
     var preflight: [String: [String: Actions.Check]] = [:]
     private var preflightAsked: [String: Date] = [:]
@@ -228,4 +230,10 @@ struct Nav {
     }
 
     static func open(flow id: String) -> [String: Any] { ["flow": id] }
+}
+
+struct AgentEdit {
+    var before: FlowBody
+    var after: FlowBody
+    var changes: [String]
 }

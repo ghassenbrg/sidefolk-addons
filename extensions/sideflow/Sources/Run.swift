@@ -38,6 +38,10 @@ struct Run: Equatable, Sendable, Identifiable {
         var attempt = 1
         /// What it was given, as words.
         var input: String?
+        /// When this go of it began, when that's not the moment it ended.
+        var began: Date?
+        /// How long it took, once it's more than a moment.
+        var took: TimeInterval? { began.map { at.timeIntervalSince($0) } }
     }
 
     /// Somewhere a run is inside: a loop going round, or a try. On disk with it, so a restart comes back to item 37 of 40.
@@ -93,6 +97,11 @@ struct Run: Equatable, Sendable, Identifiable {
     var pc = 0
     var values = Values()
     var records: [Record] = []
+    /// What it used, as far as Sideflow can know: how many requests went to the AI and how many actions were carried out. Sidefolk doesn't say how many tokens a request took.
+    var aiRequests = 0
+    var actionsDone = 0
+    /// Which version of the flow it ran, when that went live. Nil for a draft's practice.
+    var version: Int?
     /// A wait or a retry: when to carry on.
     var resumeAt: Date?
     var retries = 0
@@ -140,6 +149,8 @@ struct Run: Equatable, Sendable, Identifiable {
         if r.attempt == 1 { r.attempt = retries + 1 }
         if let i = records.lastIndex(where: { $0.step == r.step && $0.scope == r.scope }) {
             if r.input == nil { r.input = records[i].input }
+            // The same go carrying on: how long it took counts from when it began.
+            if r.began == nil, [.running, .waiting, .needs_you].contains(records[i].status) { r.began = records[i].began ?? records[i].at }
             records[i] = r
         } else {
             records.append(r)

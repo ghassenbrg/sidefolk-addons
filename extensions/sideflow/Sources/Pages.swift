@@ -23,6 +23,7 @@ import SidefolkExtensionKit
                 switch state.string("tab") {
                 case "runs": return flowRunsPage(flow, app, state: state)
                 case "activity": return flowActivityPage(flow, app, state: state)
+                case "allowed": return flowAllowedPage(flow, app, state: state)
                 default: return flowPage(flow, app, state: state)
                 }
             }
@@ -481,8 +482,10 @@ import SidefolkExtensionKit
         runs.go = Go(set: ["tab": "runs"])
         var activity = PageTab("activity", L("Activity"), symbol: "list.bullet", sections: [])
         activity.go = Go(set: ["tab": "activity"])
+        var allowed = PageTab("allowed", L("Permissions"), symbol: "checkmark.seal", sections: [])
+        allowed.go = Go(set: ["tab": "allowed"])
         let chosen = state.string("tab")
-        return .tabs(selected: chosen == "runs" || chosen == "activity" ? chosen : "builder", [builder, runs, activity])
+        return .tabs(selected: ["runs", "activity", "allowed"].contains(chosen) ? chosen : "builder", [builder, runs, activity, allowed])
     }
 
     static func head(_ flow: Flow, _ app: App, ready: Bool, startable: Bool = true) -> PageBar {
@@ -558,6 +561,11 @@ import SidefolkExtensionKit
         var notes: [Block] = []
         if let why = flow.pausedBecause { notes.append(.note(why, tone: .warn)) }
         if let why = flow.startProblem { notes.append(.note(why, tone: .warn)) }
+        if let edit = app.agentEdits[flow.id], edit.after == flow.draft {
+            notes.append(.note(L("An agent changed this: {list}", ["list": edit.changes.isEmpty ? L("nothing that shows") : Format.list(Array(edit.changes.prefix(8)))])))
+            notes.append(.action(button(L("Undo what it changed"), "agent_undo", ["flow": flow.id, "page_token": app.pageKey], style: .plain, symbol: "arrow.uturn.backward")))
+            notes.append(.action(button(L("Keep it"), "agent_keep", ["flow": flow.id], style: .plain, symbol: "checkmark")))
+        }
         if let said = app.engine.quietlySaved(flow) { notes.append(.note(said, tone: .good)) }
         else if flow.hasChanges || flow.live == nil, let look = app.planChecks[flow.id] { notes.append(.note(look.head)) }
         if let last = flow.missed.last {
@@ -781,6 +789,48 @@ import SidefolkExtensionKit
         return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), [Section(nil, [.bar(head(flow, app, ready: flow.draft.problems(app.catalog).isEmpty)), tabs(flow, state: state)])] + body, end: end)
     }
 
+    // MARK: What a flow may do
+
+    /// Each step that needs allowing and what Sidefolk says of it now, in the words its form gives. It's Sidefolk's answer, asked afresh, so a changed trust setting shows here.
+    static func flowAllowedPage(_ flow: Flow, _ app: App, state: Arguments) -> Page {
+        app.refreshPreflightIfOld(flow.id)
+        let look = app.planChecks[flow.id]
+        var lines: [(String, String)] = []
+        for step in flow.draft.allSteps {
+            switch step.kind {
+            case .action, .ai, .call, .flow: break
+            default: continue
+            }
+            lines.append((String(Words.label(step, catalog: app.catalog).prefix(40)), allowedWord(look?.byStep[step.id], asked: look != nil)))
+        }
+        var body: [Block] = []
+        if let look { body.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
+        // A section and a list hold so many: past that, the rest are said to be there.
+        let shown = lines.prefix(24 * 20)
+        body += stride(from: 0, to: shown.count, by: 24).map { .facts(nil, Array(shown[$0 ..< min($0 + 24, shown.count)])) }
+        if lines.count > shown.count { body.append(.note(L(one: "And {count} more step.", other: "And {count} more steps.", count: lines.count - shown.count))) }
+        if lines.isEmpty { body.append(.note(L("It only works with words: it needs nothing allowed."))) }
+        let end = [Section(nil, allowedEnding(flow, app), place: .trailing)]
+        return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), [
+            Section(nil, [.bar(head(flow, app, ready: flow.draft.problems(app.catalog).isEmpty)), tabs(flow, state: state)]),
+            Section(nil, body, wide: true),
+        ], end: end)
+    }
+
+    private static func allowedWord(_ line: Plans.Checked.Line?, asked: Bool) -> String {
+        guard let line else { return asked ? L("Named on the card") : L("Still looking") }
+        if let mark = PlanLook.mark(line) { return mark.words }
+        return line.state == "listed" ? L("Named on the card") : L("Runs by itself once allowed")
+    }
+
+    private static func allowedEnding(_ flow: Flow, _ app: App) -> [Block] {
+        guard app.catalog.plan(flow.planId) != nil else { return [.note(L("Nothing is allowed yet. You read a card the first time it runs for real."))] }
+        return [
+            .note(L("It may only do what you read when you allowed it.")),
+            .action(button(L("End what you allowed"), "end_plan", ["flow": flow.id], symbol: "xmark.seal", detail: L("It pauses, and asks again before it runs."))),
+        ]
+    }
+
     // MARK: A flow's activity
 
     /// Every step it took, newest first, from its runs' own journals: what it did, not how each run went.
@@ -881,6 +931,7 @@ import SidefolkExtensionKit
         nodes += treeNodes(run.body.steps, body: run.body, app, run: withLanes(run, app), untested: .pending, flow: nil, problems: [])
         let selected = app.nav.runStep[run.id]
         if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }
+        end.append(runFacts(run, app))
         return frame(app, state: state, here: nil, flow: run.flow, back: run.flowName, [
             Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail, actions: run.status == .running || run.status == .waiting
                 ? (run.status == .running && run.mode != .practice ? [button(L("Pause after this step"), "pause_run", id, symbol: "pause.fill")] : []) + [button(L("Stop"), "stop_run", ["run": run.id, "page_token": app.pageKey], symbol: "stop.fill")]

@@ -45,6 +45,8 @@ enum Grammar {
 
     Running or turning on asks once: the card says everything it does, and nothing asks again unless an edit adds something new. In Full access there's no card. What the host checks is where {{x}} goes. Words from outside run by themselves only in a field of plain words (text, message, body, title, subject, summary, note, comment, description, caption, reason, detail). A field that says where something goes (a url, address, channel, recipient, path, repository) or a choice asks each run unless you write the value out; a field that runs something (command, script, code, sql) refuses them, so write it out. A step's form says which applies.
 
+    To change a flow, read it with get_flow and send update_flow a patch and its based_on: small edits keep the rest as it was, and if someone changed it since you read it you're told. The answer lists what changed, and the person sees the same list and can undo it.
+
     Nothing you write runs until the person allows it: flows are drafts until they answer a card that shows what it will do. A practice run reads for real and changes nothing.
     """
 }

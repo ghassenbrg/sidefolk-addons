@@ -305,6 +305,8 @@ extension String {
 struct FlowProblem: Equatable {
     var step: String?
     var text: String
+    /// The value it's about, when the problem is a value that isn't there.
+    var uses: String?
 }
 
 extension FlowBody {
@@ -370,7 +372,7 @@ extension FlowBody {
             for name in strings.flatMap(Values.references) where !seen.contains(name) {
                 out.append(FlowProblem(step: step.id, text: onOnePath.contains(name)
                     ? L("It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.", ["name": name])
-                    : L("It uses “{name}”, which no earlier step makes.", ["name": name])))
+                    : L("It uses “{name}”, which no earlier step makes.", ["name": name]), uses: onOnePath.contains(name) ? nil : name))
             }
         }
         /// What a step of the kinds that hold others needs of itself.

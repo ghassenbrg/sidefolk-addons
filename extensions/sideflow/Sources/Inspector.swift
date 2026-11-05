@@ -220,7 +220,10 @@ import SidefolkExtensionKit
         func input(_ op: String, _ extra: [String: Any] = [:]) -> [String: Any] { on.merging(extra.merging(["op": op]) { a, _ in a }) { _, new in new } }
         let tokens = tokens(before: step.id, flow: flow, app)
         var main: [Block] = [], more: [Block] = []
-        for p in problems where p.step == step.id { main.append(.note(p.text, tone: .warn)) }
+        for p in problems where p.step == step.id {
+            main.append(.note(p.text, tone: .warn))
+            main += Repairs.offers(p, flow: flow)
+        }
         main += refusal(app.preflight[flow.id]?[step.id])
         if flow.draft.readsNumbersFromWords(app.catalog).contains(step.id) { main.append(.note(L("This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field."), tone: .warn)) }
         let looked = app.planChecks[flow.id]?.byStep[step.id]

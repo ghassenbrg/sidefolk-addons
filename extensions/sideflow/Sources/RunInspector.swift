@@ -42,6 +42,7 @@ import SidefolkExtensionKit
         }
         var facts: [(String, String)] = [(L("How it went"), recordWord(record)), (L("When"), Format.dateTime(record.at))]
         if record.attempt > 1 { facts.append((L("Tries"), Format.integer(record.attempt))) }
+        if let took = record.took, took >= 1 { facts.append((L("Took"), Format.duration(took))) }
         blocks.append(.facts(nil, facts))
         blocks.append(.note(record.summary))
         if let note = record.note { blocks.append(.note(note, tone: record.status == .failed || record.status == .unknown ? .warn : .neutral)) }
@@ -55,6 +56,23 @@ import SidefolkExtensionKit
             }, place: .trailing))
         }
         return out
+    }
+
+    /// When it ran, how long for and what it used, counting the runs it waited for: lanes and called flows use the same AI and do things too.
+    static func runFacts(_ run: Run, _ app: App) -> Section {
+        var runs = [run], next = [run.id]
+        while let id = next.popLast() {
+            let children = app.store.runs().filter { $0.parent == id }
+            runs += children
+            next += children.map(\.id)
+        }
+        let requests = runs.reduce(0) { $0 + $1.aiRequests }, actions = runs.reduce(0) { $0 + $1.actionsDone }
+        var facts = [(L("Started"), Format.dateTime(run.startedAt))]
+        facts.append((run.endedAt == nil ? L("So far") : L("Took"), Format.duration((run.endedAt ?? Date()).timeIntervalSince(run.startedAt))))
+        if let version = run.version { facts.append((L("Version"), Format.integer(version))) }
+        facts.append((L("AI requests"), Format.integer(requests)))
+        facts.append((L("Actions done"), Format.integer(actions)))
+        return Section(L("About this run"), [.facts(nil, facts)], place: .trailing, collapsed: true)
     }
 
     static func recordWord(_ r: Run.Record) -> String {
