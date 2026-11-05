@@ -2465,6 +2465,29 @@ extension JSON {
         #expect(made.step("t")?.kind == .text("{{input.item}}"))
     }
 
+    @Test func aLaneOutsideARepeatGivesNoItemToTheRepeatInside() throws {
+        let b: [String: Any] = ["id": "b", "repeat": [["id": "t", "text": "{{item}}"]], "until": ["value": "{{t}}", "test": "contains", "than": "x"], "times": 2]
+        let a: [String: Any] = ["id": "a", "repeat": [b], "until": ["value": "{{index}}", "test": "is", "than": "2"], "times": 2]
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "both", "parallel": [["name": "one", "steps": [a]], ["name": "two", "steps": [["id": "o", "text": "o"]]]]]]])
+        let (outer, made) = try Editing.extract("b", in: body, named: "New")
+        guard case .call(_, let inputs)? = outer.step("b")?.kind else { Issue.record("not a call"); return }
+        #expect(inputs.isEmpty, "it's the go of the repeat that's being lifted")
+        #expect(made.step("t")?.kind == .text("{{item}}"))
+    }
+
+    @Test func aCalledFlowThatGaveNothingDoesntTakeTheLastAnswerAway() async throws {
+        let w = try World()
+        var child = try w.flow([["id": "c", "if": ["value": "a", "test": "is", "than": "b"], "then": [["id": "n", "text": "never"]], "else": []]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "s", "text": "kept"], ["id": "again", "repeat": [["id": "r", "text": "said"], ["id": "k", "call_flow": "Child"]], "until": ["value": "{{r}}", "test": "contains", "than": "said"], "times": 2], ["id": "t", "text": "got {{again}}"]])
+        let started = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let run = w.store.run(started.id)
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t") == "got said", "the called flow made nothing, so the one before it is what the go gave")
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])

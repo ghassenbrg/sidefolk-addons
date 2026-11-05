@@ -96,7 +96,8 @@ struct Values: Equatable, Sendable {
 
     /// What a step gave as a whole, to go on from it: a tool's words, as `{{step}}` is everywhere; its fields stay with the run that asks for them by name.
     func whole(_ name: String) -> JSON? {
-        named[name].map { value in said[name].map(JSON.string) ?? value }
+        guard let value = named[name], value != .null else { return nil }
+        return said[name].map(JSON.string) ?? value
     }
 
     /// `name` with what's after it, or nil when nothing is there.

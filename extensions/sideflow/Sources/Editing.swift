@@ -241,7 +241,10 @@ enum Editing {
         let holders = body.allSteps.filter { FlowBody(steps: [$0]).allSteps.dropFirst().contains { $0.id == id } }
         // A lane starts with the item of the go it's in, and a new flow starts with none.
         let inAList = holders.contains { if case .forEach = $0.kind { true } else { false } }
-            || (holders.contains { if case .parallel = $0.kind { true } else { false } } && holders.contains { if case .repeatUntil = $0.kind { true } else { false } })
+            || holders.indices.contains { lane in
+                guard case .parallel = holders[lane].kind else { return false }
+                return holders[..<lane].contains { if case .repeatUntil = $0.kind { true } else { false } }
+            }
         func scoped(_ one: Step, keeping own: Set<String>) -> Step {
             var within = own
             var here = own
