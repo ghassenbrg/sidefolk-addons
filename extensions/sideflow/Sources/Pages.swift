@@ -671,7 +671,7 @@ import SidefolkExtensionKit
         switch r.status {
         case .running: (.active, Badge(L("Working…"), tone: .info))
         case .done: (.done, nil)
-        case .would: (.pending, Badge(L("Would, not done"), tone: .neutral))
+        case .would: (.pending, Badge(L("Practice: not done"), tone: .neutral))
         case .failed: (.attention, Badge(L("Failed"), tone: .bad))
         case .skipped: (.skipped, Badge(L("Skipped"), tone: .neutral))
         case .needs_you: (.attention, Badge(L("Needs you"), tone: .warn))

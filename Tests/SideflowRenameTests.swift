@@ -35,8 +35,9 @@ import SidefolkExtensionKit
         for tab in ["builder", "runs", "activity"] { #expect(await page(app, f, tab: tab).contains("Rename"), "\(tab)") }
         app.nav.inspect(.step("a"), in: f.id)
         #expect(await !page(app, f).contains("This flow's name"), "a step's panel is the step's")
-        _ = try await Actions_UI.handle(Arguments(["op": "rename_open", "flow": f.id]), app)
+        let left = try await Actions_UI.handle(Arguments(["op": "rename_open", "flow": f.id]), app)
         #expect(app.nav.inspecting(f) == .nothing)
+        guard case .panel(f.id) = left else { Issue.record("it has to leave the tab it's on: \(left)"); return }
         #expect(await page(app, f).contains("This flow's name"))
     }
 

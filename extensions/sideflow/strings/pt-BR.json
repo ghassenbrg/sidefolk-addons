@@ -456,7 +456,7 @@
     "Would ask you: {question}": "Perguntaria a você: {question}",
     "Would run {flow}": "Executaria {flow}",
     "Would wait {time}": "Esperaria {time}",
-    "Would, not done": "Faria, não feito",
+    "Practice: not done": "Ensaio: não feito",
     "Would: {what}": "Faria: {what}",
     "Write how many minutes, or leave it empty.": "Escreva quantos minutos, ou deixe vazio.",
     "Write how many seconds, or leave it empty.": "Escreva quantos segundos, ou deixe vazio.",

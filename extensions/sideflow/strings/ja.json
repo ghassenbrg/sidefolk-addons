@@ -454,7 +454,7 @@
     "Would ask you: {question}": "あなたに質問します：{question}",
     "Would run {flow}": "{flow}を実行します",
     "Would wait {time}": "{time}待ちます",
-    "Would, not done": "実行内容（未実行）",
+    "Practice: not done": "練習実行: 未実行",
     "Would: {what}": "実行内容：{what}",
     "Write how many minutes, or leave it empty.": "分数を入力するか、空のままにしてください。",
     "Write how many seconds, or leave it empty.": "秒数を入力するか、空のままにしてください。",

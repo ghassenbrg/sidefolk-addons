@@ -456,7 +456,7 @@
     "Would ask you: {question}": "Vous demanderait : {question}",
     "Would run {flow}": "Lancerait {flow}",
     "Would wait {time}": "Attendrait {time}",
-    "Would, not done": "Ferait, non fait",
+    "Practice: not done": "Essai : non fait",
     "Would: {what}": "Ferait : {what}",
     "Write how many minutes, or leave it empty.": "Indiquez un nombre de minutes, ou laissez vide.",
     "Write how many seconds, or leave it empty.": "Indiquez un nombre de secondes, ou laissez vide.",

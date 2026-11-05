@@ -175,6 +175,8 @@ import SidefolkExtensionKit
             switch try await Actions_UI.handle(args, app) {
             case .stay: return ToolReply("").row(L("Changed something in Sideflow"))
             case .flow(let id): return ToolReply("").opening(page: "flows", state: Nav.open(flow: id), push: true)
+            // The builder's side panel of the same flow: another tab goes back to it, and it isn't a step to come back from.
+            case .panel(let id): return ToolReply("").opening(page: "flows", state: ["flow": id, "run": NSNull(), "tab": NSNull()])
             case .run(let id): return ToolReply("").opening(page: "flows", state: ["run": id], push: true)
             case .home: return ToolReply("").opening(page: "flows", state: ["flow": NSNull(), "run": NSNull()])
             }

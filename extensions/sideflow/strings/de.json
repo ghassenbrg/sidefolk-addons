@@ -456,7 +456,7 @@
     "Would ask you: {question}": "Würde dich fragen: {question}",
     "Would run {flow}": "Würde {flow} ausführen",
     "Would wait {time}": "Würde {time} warten",
-    "Would, not done": "Würde, nicht ausgeführt",
+    "Practice: not done": "Probelauf: nicht ausgeführt",
     "Would: {what}": "Würde: {what}",
     "Write how many minutes, or leave it empty.": "Gib die Minuten an oder lass es leer.",
     "Write how many seconds, or leave it empty.": "Gib die Sekunden an oder lass es leer.",

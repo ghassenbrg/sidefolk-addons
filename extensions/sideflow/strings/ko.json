@@ -454,7 +454,7 @@
     "Would ask you: {question}": "나에게 묻습니다: {question}",
     "Would run {flow}": "{flow}을(를) 실행합니다",
     "Would wait {time}": "{time} 동안 대기합니다",
-    "Would, not done": "실행 내용(실행 안 함)",
+    "Practice: not done": "연습 실행: 실행 안 함",
     "Would: {what}": "실행 내용: {what}",
     "Write how many minutes, or leave it empty.": "몇 분인지 쓰거나 비워 두세요.",
     "Write how many seconds, or leave it empty.": "몇 초인지 쓰거나 비워 두세요.",

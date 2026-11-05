@@ -454,7 +454,7 @@
     "Would ask you: {question}": "会问你：{question}",
     "Would run {flow}": "会运行 {flow}",
     "Would wait {time}": "会等待 {time}",
-    "Would, not done": "会做，但没有做",
+    "Practice: not done": "试运行:未执行",
     "Would: {what}": "会：{what}",
     "Write how many minutes, or leave it empty.": "请填写分钟数，或留空。",
     "Write how many seconds, or leave it empty.": "请填写秒数，或留空。",

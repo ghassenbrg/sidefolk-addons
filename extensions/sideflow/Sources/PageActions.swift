@@ -4,7 +4,7 @@ import SidefolkExtensionKit
 /// What a click on the page does: the one tool `ui`, as the person (never offered to a model). Every change goes to the draft.
 @MainActor enum Actions_UI {
     /// Where the click leaves the page.
-    enum Leaves { case stay, flow(String), run(String), home }
+    enum Leaves { case stay, flow(String), panel(String), run(String), home }
 
     static func handle(_ a: Arguments, _ app: App) async throws -> Leaves {
         let op = a.string("op") ?? ""
@@ -92,7 +92,7 @@ import SidefolkExtensionKit
             // Its name is on the flow's own panel, whatever was selected and whichever tab this came from.
             let f = try flow()
             app.nav.inspect(.nothing, in: f.id)
-            return .flow(f.id)
+            return .panel(f.id)
         case "rename":
             var f = try flow()
             if let name = text.nonEmpty.map({ String($0.prefix(60)) }) {

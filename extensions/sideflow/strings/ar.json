@@ -464,7 +464,7 @@
     "Would ask you: {question}": "كان سيسألك: {question}",
     "Would run {flow}": "كان سيشغّل {flow}",
     "Would wait {time}": "كان سينتظر {time}",
-    "Would, not done": "كان سيفعل، لم يُنفَّذ",
+    "Practice: not done": "تشغيل تجريبي: لم يُنفَّذ",
     "Would: {what}": "كان سيفعل: {what}",
     "Write how many minutes, or leave it empty.": "اكتب عدد الدقائق، أو اتركه فارغًا.",
     "Write how many seconds, or leave it empty.": "اكتب عدد الثواني، أو اتركه فارغًا.",
