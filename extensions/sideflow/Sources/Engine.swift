@@ -1184,8 +1184,6 @@ extension FlowHost {
         if body.allSteps.flatMap(\.usedTexts).flatMap(Values.references).contains("error"), !body.allSteps.contains(where: { $0.id == "error" }) {
             steps.append(.value(named: "error", reads: [writtenWords]))
         }
-        // Words written in a step are no step's to name on a card. They read only themselves, which counts as from outside: an edit can change them with no card.
-        if !names.contains(writtenWords), steps.contains(where: { $0.line.contains(writtenWords) }) { steps.append(.value(named: writtenWords, reads: [writtenWords])) }
         if case .watch(let w) = body.trigger {
             add("watch.create", watchInput(w, title: title))
             add("watch.stop", ["id": title])
