@@ -300,8 +300,10 @@ import SidefolkExtensionKit
 
     static func templateCards(_ app: App) -> [Card] {
         Templates.all.map { t in
-            let use = button(L("Use this"), "new", ["template": t.id])
-            return Card(t.name, detail: t.line, symbol: t.symbol, color: t.color, actions: [use], tree: (try? FlowCodec.body(t.body)).map { mini($0, pending: true, app) }, press: use)
+            // Said before it's picked: what it needs that isn't here, and where that comes from.
+            let needs = Templates.missing(t, app.catalog)
+            let use = needs.isEmpty ? button(L("Use this"), "new", ["template": t.id]) : button(L("Use this anyway"), "new", ["template": t.id], style: .plain)
+            return Card(t.name, detail: needs.isEmpty ? t.line : L("It needs {list}, from Add-ons. {line}", ["list": Format.list(needs), "line": t.line]), symbol: t.symbol, color: t.color, badge: needs.isEmpty ? nil : Badge(L("Needs an add-on"), tone: .warn), actions: needs.isEmpty ? [use] : [Action(L("Open Add-ons"), act: .settings("addons"), symbol: "puzzlepiece.extension"), use], tree: (try? FlowCodec.body(t.body)).map { mini($0, pending: true, app) }, press: use)
         }
     }
 

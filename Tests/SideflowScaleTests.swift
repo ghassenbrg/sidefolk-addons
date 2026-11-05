@@ -86,3 +86,18 @@ import SidefolkExtensionKit
         #expect(!Pages.tree(flow, app, problems: []).nodes[1].branches.isEmpty)
     }
 }
+
+@MainActor @Suite(.serialized) struct SideflowTemplateNeedsTests {
+    typealias World = SideflowTests.World
+
+    @Test func aTemplateSaysWhatItNeedsBeforeItsPicked() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        await app.catalog.refresh()
+        let both = try #require(Templates.template("both"))
+        #expect(!Templates.missing(both, app.catalog).isEmpty, "the test world has no weather extension")
+        let words = String(describing: Pages.templateCards(app)).filter { !"\u{2068}\u{2069}\\".contains($0) }
+        #expect(words.contains("Needs an add-on") && words.contains("Open Add-ons"))
+    }
+}

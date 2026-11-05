@@ -12,6 +12,17 @@ import SidefolkExtensionKit
         var body: [String: Any]
     }
 
+    /// What a template uses that isn't here now, by the name of what gives it.
+    static func missing(_ template: Template, _ catalog: Catalog) -> [String] {
+        guard catalog.loadedAt != nil, let body = try? FlowCodec.body(template.body) else { return [] }
+        var names: [String] = []
+        for step in body.allSteps {
+            guard case .action(let tool, _) = step.kind, catalog.tool(tool) == nil, let name = Connections.id(of: tool).map(catalog.connectionTitle) ?? Optional(tool), !names.contains(name) else { continue }
+            names.append(name)
+        }
+        return names
+    }
+
     static var all: [Template] {
         [
             Template(id: "morning", name: L("Morning brief"), line: L("Your day in three lines, every weekday morning."), symbol: "sun.max", color: "#F2B33D", body: [
