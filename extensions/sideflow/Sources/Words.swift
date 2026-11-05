@@ -169,7 +169,15 @@ import SidefolkExtensionKit
         case .forEach(let items, _, _, _): return (name ?? L("For each"), items.isEmpty ? L("Say which list") : L("Each item of {list}", ["list": pretty(items, body: body, catalog: catalog)]))
         case .choose(let value, let paths, _): return (name ?? L("Choose a path"), value.isEmpty ? L("Say what to look at") : L("By {value}: {count} ways", ["value": pretty(value, body: body, catalog: catalog), "count": Format.integer(paths.count)]))
         case .attempt: return (name ?? L("Try"), L("If a step fails, do something else"))
-        case .parallel(let lanes): return (name ?? L("At the same time"), L("{count} things at once", ["count": Format.integer(lanes.count)]))
+        case .parallel(let lanes):
+            let count = Format.integer(lanes.count)
+            let said = switch step.join {
+            case .all: L("{count} things at once", ["count": count])
+            case .first: L("{count} things at once, the first to finish is enough", ["count": count])
+            case .atLeast(let need): L("{count} things at once, {need} are enough", ["count": count, "need": Format.integer(min(need, lanes.count))])
+            case .settled: L("{count} things at once, whichever way they end", ["count": count])
+            }
+            return (name ?? L("At the same time"), said)
         case .call(let flow, _): return (name ?? L("Run a flow and wait"), flow.isEmpty ? L("Pick which flow") : flow)
         case .finish(let value): return (name ?? L("Finish here"), value.isEmpty ? L("With no result") : L("With {value}", ["value": pretty(value, body: body, catalog: catalog)]))
         case .data(let data): return (name ?? dataName(data.op), data.from.isEmpty ? L("Say what from") : pretty(data.from, body: body, catalog: catalog))

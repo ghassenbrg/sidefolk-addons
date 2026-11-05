@@ -282,7 +282,9 @@ extension Engine {
         for lane in lanes {
             var values = run.values
             values.named["item"] = run.values.named["item"]
-            started.append(startChild(of: run, flow: run.flow, flowName: run.flowName, body: FlowBody(steps: lane.steps), mode: run.mode, why: lane.name, values: values))
+            var child = startChild(of: run, flow: run.flow, flowName: run.flowName, body: FlowBody(steps: lane.steps), mode: run.mode, why: lane.name, values: values)
+            child.deadline = lane.timeoutMinutes.map { child.startedAt.addingTimeInterval(Double($0) * 60) }
+            started.append(child)
         }
         run.waitingOn = started.map(\.id)
         run.status = .waiting
@@ -294,35 +296,56 @@ extension Engine {
         return false
     }
 
-    /// Back at a call or a parallel. Carries on when all it waits for are over; a child that needs the person leaves this waiting too.
+    /// Back at a call or a parallel. Carries on when all it waits for are over, so nothing's still working behind it; a child that needs the person leaves this waiting too.
+    /// Enough having finished, or a lost cause it was told not to sit out, stops the rest: it goes on once they have.
     func joined(_ step: Step, in run: inout Run) -> Bool {
         let children = run.waitingOn.compactMap { store.run($0) }
         guard children.count == run.waitingOn.count else {
             run.waitingOn = []
             return failed(step, why: L("What it was waiting for is gone."), reads: false, in: &run)
         }
-        guard children.allSatisfy({ $0.status.isOver }) else {
+        let done = children.filter { $0.status == .done }, need = step.join.needs(children.count)
+        let going = children.filter { !$0.status.isOver }
+        guard going.isEmpty else {
             run.status = .waiting
             store.save(run)
+            if (need > 0 && done.count >= need) || (step.failFast && done.count + going.count < need) {
+                for child in going { stop(run: child.id) }
+            }
             return false
         }
         run.waitingOn = []
-        if let bad = children.first(where: { $0.status != .done }) {
-            return failed(step, why: bad.problem ?? L("{flow} didn't finish.", ["flow": bad.flowName]), reads: false, in: &run)
+        if done.count < need, let bad = children.first(where: { $0.status == .failed || $0.timedOut }) ?? children.first(where: { $0.status != .done }) {
+            return failed(step, why: Self.whyNotDone(bad), reads: false, in: &run)
         }
         let result: JSON
         if case .parallel(let list) = step.kind {
-            result = .object(Dictionary(zip(Self.keys(list), children).map { ($0, $1.answer) }, uniquingKeysWith: { a, _ in a }))
+            var fields = Dictionary(zip(Self.keys(list), children).map { ($0, $1.status == .done ? $1.answer : .null) }, uniquingKeysWith: { a, _ in a })
+            // Beside the lanes' own, and a lane by that name keeps it.
+            if case .first = step.join, fields[Self.winner] == nil, let first = done.min(by: { ($0.endedAt ?? .distantFuture) < ($1.endedAt ?? .distantFuture) }) { fields[Self.winner] = first.answer }
+            if case .settled = step.join, fields[Self.notFinished] == nil { fields[Self.notFinished] = .array(children.filter { $0.status != .done }.map { .string($0.why) }) }
+            result = .object(fields)
         } else {
             result = children[0].answer
         }
         // A flow that made nothing has given nothing. A null it made is its answer, and so is the blank of a failure it was told to carry past.
         if case .parallel = step.kind { run.values.set(step.id, result) } else if children[0].output != nil { run.values.set(step.id, result) }
-        run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: Values.text(result).clipped(2000), at: clock()))
+        let said = done.count < children.count ? L("{done} of {count} finished", ["done": Format.integer(done.count), "count": Format.integer(children.count)]) : Words.step(step, body: run.body, catalog: catalog)
+        run.record(.init(step: step.id, status: .done, summary: said, output: Values.text(result).clipped(2000), at: clock()))
         run.pc += 1
         run.retries = 0
         store.save(run)
         return true
+    }
+
+    static let winner = "winner", notFinished = "not_finished"
+
+    private static func whyNotDone(_ child: Run) -> String {
+        if child.timedOut, let limit = child.deadline {
+            let minutes = Int((limit.timeIntervalSince(child.startedAt) / 60).rounded())
+            return L(one: "“{lane}” took longer than {count} minute, so it was stopped.", other: "“{lane}” took longer than {count} minutes, so it was stopped.", count: minutes, ["lane": child.why])
+        }
+        return child.problem ?? L("{flow} didn't finish.", ["flow": child.flowName])
     }
 
     /// A lane's name as a value is reached by: `{{step.first_lane}}`.

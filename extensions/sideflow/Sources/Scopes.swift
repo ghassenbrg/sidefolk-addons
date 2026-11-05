@@ -19,6 +19,60 @@ extension Step {
     struct Lane: Equatable, Sendable {
         var name: String
         var steps: [Step]
+        /// How long it gets before it's stopped and counts as not having finished.
+        var timeoutMinutes: Int?
+    }
+
+    /// When a `parallel` carries on.
+    enum Join: Equatable, Sendable {
+        case all
+        /// With the first lane to finish; the rest are stopped.
+        case first
+        /// With this many; the rest are stopped.
+        case atLeast(Int)
+        /// When every lane has ended, whichever way: one that failed gives nothing and the step still goes on.
+        case settled
+
+        /// How many have to finish.
+        func needs(_ lanes: Int) -> Int {
+            switch self {
+            case .all: lanes
+            case .first: min(1, lanes)
+            case .atLeast(let count): min(count, lanes)
+            case .settled: 0
+            }
+        }
+
+        var json: Any? {
+            switch self {
+            case .all: nil
+            case .first: "first"
+            case .atLeast(let count): count
+            case .settled: "settled"
+            }
+        }
+
+        /// What a menu holds it as.
+        var word: String {
+            switch self {
+            case .all: "all"
+            case .first: "first"
+            case .atLeast(let count): String(count)
+            case .settled: "settled"
+            }
+        }
+
+        init?(_ any: Any?) {
+            guard let any else { self = .all; return }
+            if let count = any as? Int { self = .atLeast(count); return }
+            switch any as? String {
+            case "all": self = .all
+            case "first": self = .first
+            case "settled": self = .settled
+            case let words?: guard let count = Int(words) else { return nil }; self = .atLeast(count)
+            case nil: return nil
+            }
+        }
     }
 
     enum LoopFailure: String, Equatable, Sendable, CaseIterable {
@@ -72,7 +126,7 @@ extension Step {
         case .choose(let value, let paths, _):
             out.kind = .choose(value: value, paths: paths.enumerated().map { Path(when: $0.element.when, steps: lists[$0.offset]) }, otherwise: lists[paths.count])
         case .attempt: out.kind = .attempt(steps: lists[0], recover: lists[1], always: lists[2])
-        case .parallel(let lanes): out.kind = .parallel(lanes: lanes.enumerated().map { Lane(name: $0.element.name, steps: lists[$0.offset]) })
+        case .parallel(let lanes): out.kind = .parallel(lanes: lanes.enumerated().map { Lane(name: $0.element.name, steps: lists[$0.offset], timeoutMinutes: $0.element.timeoutMinutes) })
         default: break
         }
         return out

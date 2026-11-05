@@ -20,7 +20,7 @@ enum Grammar {
       {"id":"again","repeat":[…],"until":{"value":"{{check}}","test":"contains","than":"ready"},"times":10}  (does the steps, looks, goes round until it holds; failing at the limit. {{index}} is which go; afterwards {{again}} is what the last go made)
       {"choose":"{{value}}","paths":[{"when":"words","steps":[…]}],"else":[…]}
       {"try":[…],"recover":[…],"always":[…]}  ({{error}} in recover)
-      {"id":"both","parallel":[{"name":"first","steps":[…]},{"name":"second","steps":[…]}]}  ({{both.first}}: 2 to 4 lanes)
+      {"id":"both","parallel":[{"name":"first","steps":[…],"timeout_minutes":10},{"name":"second","steps":[…]}],"join":"all","fail_fast":false}  ({{both.first}}: 2 to 4 lanes. "join": "all", "first" ({{both.winner}} is what finished first), how many are enough as a number, or "settled" (all ended, a failed lane gives null, {{both.not_finished}} lists those). A lane no longer needed or past "timeout_minutes" is stopped. "fail_fast" stops the others once enough can't finish; otherwise they finish, then the step fails)
       {"id":"r","call_flow":"its name","inputs":{"name":"{{value}}"}}  (waits for it; {{r}} is its result. Inside the flow: {{input.name}})
       {"finish":"{{value}}"}  (ends here with this result)
       {"id":"d","data":{"op":"parse_json|parse_csv|lines|join|field|filter|sort|unique|count|first|sum|number|batches|group|fallback","from":"{{x}}","field":"a.b","test":"contains","than":"words","descending":true,"count":3,"separator":", "}}

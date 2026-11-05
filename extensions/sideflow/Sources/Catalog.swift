@@ -280,7 +280,7 @@ extension FlowBody {
         /// What the steps that give several things give: a renamed lane or a removed field would otherwise be found out only when it runs.
         let gives: [String: Set<String>] = Dictionary(allSteps.compactMap { step -> (String, Set<String>)? in
             switch step.kind {
-            case .parallel(let lanes): (step.id, Set(Engine.keys(lanes)))
+            case .parallel(let lanes): (step.id, Set(Engine.keys(lanes)).union(step.join == .first ? [Engine.winner] : step.join == .settled ? [Engine.notFinished] : []))
             case .form(let form): (step.id, Set(form.fields.map(\.name)))
             default: nil
             }

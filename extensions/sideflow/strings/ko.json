@@ -675,7 +675,6 @@
     "Each item": "각 항목",
     "Each item of {list}": "{list}의 각 항목",
     "Each lane needs a step.": "각 레인에는 단계가 필요합니다.",
-    "Each lane runs at once, and it carries on when all are done. If one fails, the step fails.": "각 레인이 동시에 실행되고, 모두 끝나면 이어서 진행합니다. 하나라도 실패하면 이 단계가 실패합니다.",
     "Each of “fields” is text, number, yes_no or list.": "‘fields’의 각 항목은 text, number, yes_no, list 중 하나입니다.",
     "Each path says “when”.": "각 경로에는 ‘when’이 필요합니다.",
     "Earlier versions": "이전 버전",
@@ -1014,6 +1013,31 @@
     "a list": "목록",
     "Last time: {value}": "지난번: {value}",
     "Written out, as a record or a list. Values from earlier steps go in quotes.": "레코드나 목록으로 씁니다. 이전 단계의 값은 따옴표 안에 넣습니다.",
-    "That isn't written the way it needs to be: check its brackets and quotes.": "형식이 맞지 않습니다. 괄호와 따옴표를 확인하세요."
+    "That isn't written the way it needs to be: check its brackets and quotes.": "형식이 맞지 않습니다. 괄호와 따옴표를 확인하세요.",
+    "A lane that fails gives nothing. “{value}” lists those that didn't finish.": "실패한 레인은 아무것도 주지 않습니다. “{value}”에 끝나지 못한 레인이 나열됩니다.",
+    "A lane's limit is 1 to {count} minutes.": "레인의 제한은 1~{count}분입니다.",
+    "Each lane runs at once. It carries on when you say below, and a lane it no longer needs is stopped.": "각 레인은 동시에 실행됩니다. 아래에서 정한 때에 계속되며, 더 필요 없는 레인은 중지됩니다.",
+    "Give up after, in minutes": "포기할 때까지, 분 단위",
+    "It carries on": "계속하는 때",
+    "No limit": "제한 없음",
+    "Otherwise they finish first, and then the step fails.": "그렇지 않으면 다른 레인이 먼저 끝난 뒤 단계가 실패합니다.",
+    "Stop the others as soon as it can't work out": "안 될 것이 확실해지면 바로 나머지 중지",
+    "The first to finish": "가장 먼저 끝난 것",
+    "Those that didn't finish": "끝나지 못한 것",
+    "What finished first is also “{value}”.": "가장 먼저 끝난 것은 “{value}”이기도 합니다.",
+    "When all have ended, whichever way": "결과와 상관없이 모두 끝났을 때",
+    "When all have finished": "모두 끝났을 때",
+    "When the first has finished": "첫 번째가 끝났을 때",
+    "When {count} have finished": "{count}개가 끝났을 때",
+    "{count} things at once, the first to finish is enough": "{count}개를 동시에, 가장 먼저 끝난 하나면 충분",
+    "{count} things at once, whichever way they end": "{count}개를 동시에, 결과와 상관없이",
+    "{count} things at once, {need} are enough": "{count}개를 동시에, {need}개면 충분",
+    "{done} of {count} finished": "{count}개 중 {done}개 완료",
+    "“join” and “fail_fast” go with “parallel”.": "“join”과 “fail_fast”는 “parallel”과 함께 씁니다.",
+    "“join” is all, first, settled, or how many lanes are enough.": "“join”은 all, first, settled 또는 충분한 레인 수입니다.",
+    "“timeout_minutes” is 1 to {count}.": "“timeout_minutes”는 1~{count}입니다.",
+    "“{lane}” took longer than {count} minutes, so it was stopped.": {
+      "other": "“{lane}”이(가) {count}분을 넘겨 중지되었습니다."
+    }
   }
 }

@@ -205,7 +205,23 @@ import SidefolkExtensionKit
                     if op == "lane_name" { lanes[at].name = text.nonEmpty ?? lanes[at].name } else if lanes.count > 2 { lanes.remove(at: at) }
                 }
                 s.kind = .parallel(lanes: lanes)
+                // Fewer lanes than it said were enough: all of them is the most it can mean.
+                if case .atLeast(let need) = s.join, need >= lanes.count { s.join = .all }
             }
+        case "lane_limit":
+            let at = a.int("lane") ?? 0, words = text.trimmed
+            guard words.isEmpty || Int(words).map({ (1...FlowBody.longestLaneMinutes).contains($0) }) == true else {
+                throw Problem(L("A lane's limit is 1 to {count} minutes.", ["count": Format.integer(FlowBody.longestLaneMinutes)]))
+            }
+            try editStep { s in
+                guard case .parallel(var lanes) = s.kind, lanes.indices.contains(at) else { return }
+                lanes[at].timeoutMinutes = Int(words)
+                s.kind = .parallel(lanes: lanes)
+            }
+        case "lane_join":
+            if let join = Step.Join(a.string("value")) { try editStep { $0.join = join } }
+        case "lane_fail_fast":
+            if let on = a.bool("on") { try editStep { $0.failFast = on } }
         case "call_flow":
             if let name = a.string("value") { try editStep { if case .call(_, let inputs) = $0.kind { $0.kind = .call(flow: name, inputs: inputs) } } }
         case "call_input":

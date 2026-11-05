@@ -207,6 +207,9 @@ struct Step: Equatable, Sendable {
     var sample: String?
     /// For an AI step: the fields its answer must have, by name, each `text`, `number`, `yes_no` or `list`. Its answer is then a record, or the step fails.
     var fields: [String: String]?
+    /// For a parallel: when it carries on, and whether to stop the other lanes as soon as it can't get there.
+    var join: Join = .all
+    var failFast = false
 
     /// Whether it leaves a value later steps can use.
     var hasOutput: Bool {
@@ -245,6 +248,7 @@ struct FlowBody: Equatable, Sendable {
     static let mostRepeats = 100
     static let mostPaths = 6
     static let mostLanes = 4
+    static let longestLaneMinutes = 10_080
     /// Top level, and three levels of steps inside steps.
     static let maxDepth = 4
     static let shortestEvery = 15
@@ -427,7 +431,13 @@ enum FlowCodec {
             out["recover"] = recover.map(json)
             out["always"] = always.map(json)
         case .parallel(let lanes):
-            out["parallel"] = lanes.map { ["name": $0.name, "steps": $0.steps.map(json)] as [String: Any] }
+            out["parallel"] = lanes.map { lane in
+                var one: [String: Any] = ["name": lane.name, "steps": lane.steps.map(json)]
+                if let minutes = lane.timeoutMinutes { one["timeout_minutes"] = minutes }
+                return one
+            }
+            if let join = step.join.json { out["join"] = join }
+            if step.failFast { out["fail_fast"] = true }
         case .call(let flow, let inputs):
             out["call_flow"] = flow
             if !inputs.isEmpty { out["inputs"] = inputs }
@@ -581,7 +591,7 @@ enum FlowCodec {
         let saved = depth < 0
         guard let o = any as? [String: Any] else { throw Problem(L("Each step is an object.")) }
         try only(o, ["id", "name", "on_failure", "sample", "do", "with", "ai", "fields", "ask", "options", "text", "if", "then", "else", "wait_minutes", "run_flow",
-                     "for_each", "limit", "item_failure", "steps", "repeat", "until", "times", "choose", "paths", "try", "recover", "always", "parallel", "call_flow", "inputs", "finish", "data", "form", "wait_for"], in: "step")
+                     "for_each", "limit", "item_failure", "steps", "repeat", "until", "times", "choose", "paths", "try", "recover", "always", "parallel", "join", "fail_fast", "call_flow", "inputs", "finish", "data", "form", "wait_for"], in: "step")
         let kinds = doers.filter { o[$0] != nil }
         guard kinds.count == 1 else { throw Problem(L("A step does one thing: {kinds}.", ["kinds": doers.joined(separator: ", ")])) }
         var id = (o["id"] as? String)?.trimmed ?? ""
@@ -595,6 +605,7 @@ enum FlowCodec {
             throw Problem(L("“{id}” can't name a step: use up to 24 lowercase letters, digits and _.", ["id": id]))
         }
         guard used.insert(id).inserted else { throw Problem(L("Two steps are called “{id}”.", ["id": id])) }
+        var join = Step.Join.all
         var failure = Step.OnFailure.stop
         if let raw = o["on_failure"] as? String {
             guard let f = Step.OnFailure(rawValue: raw) else { throw Problem(L("“on_failure” is stop, carry_on or retry.")) }
@@ -650,9 +661,18 @@ enum FlowCodec {
             kind = .attempt(steps: try steps(o["try"], depth: depth + 1, used: &used), recover: try steps(o["recover"] ?? [], depth: depth + 1, used: &used), always: try steps(o["always"] ?? [], depth: depth + 1, used: &used))
         } else if let raw = o["parallel"] as? [[String: Any]] {
             guard saved || (2...FlowBody.mostLanes).contains(raw.count) else { throw Problem(L("“parallel” is 2 to {count} lanes.", ["count": Format.integer(FlowBody.mostLanes)])) }
-            kind = .parallel(lanes: try raw.enumerated().map { at, lane in
-                Step.Lane(name: (lane["name"] as? String)?.nonEmpty ?? L("Lane {count}", ["count": Format.integer(at + 1)]), steps: try steps(lane["steps"] ?? [], depth: depth + 1, used: &used))
+            kind = .parallel(lanes: try raw.enumerated().map { at, lane -> Step.Lane in
+                let minutes = lane["timeout_minutes"] as? Int
+                guard saved || lane["timeout_minutes"] == nil || (minutes.map { (1...FlowBody.longestLaneMinutes).contains($0) } ?? false) else {
+                    throw Problem(L("“timeout_minutes” is 1 to {count}.", ["count": Format.integer(FlowBody.longestLaneMinutes)]))
+                }
+                return Step.Lane(name: (lane["name"] as? String)?.nonEmpty ?? L("Lane {count}", ["count": Format.integer(at + 1)]), steps: try steps(lane["steps"] ?? [], depth: depth + 1, used: &used), timeoutMinutes: minutes)
             })
+            join = Step.Join(o["join"]) ?? .all
+            if !saved {
+                guard let wanted = Step.Join(o["join"]) else { throw Problem(L("“join” is all, first, settled, or how many lanes are enough.")) }
+                if case .atLeast(let count) = wanted, !(1...raw.count).contains(count) { throw Problem(L("“join” is all, first, settled, or how many lanes are enough.")) }
+            }
         } else if let flow = o["call_flow"] as? String, saved || !flow.trimmed.isEmpty {
             kind = .call(flow: flow, inputs: o["inputs"] as? [String: String] ?? [:])
         } else if let value = o["finish"] as? String {
@@ -692,7 +712,8 @@ enum FlowCodec {
             guard raw.values.allSatisfy({ ["text", "number", "yes_no", "list"].contains($0) }) else { throw Problem(L("Each of “fields” is text, number, yes_no or list.")) }
             fields = raw
         }
-        return Step(id: id, name: (o["name"] as? String)?.nonEmpty, kind: kind, onFailure: failure, sample: (o["sample"] as? String)?.nonEmpty, fields: fields)
+        guard saved || !(o["join"] != nil || o["fail_fast"] != nil) || o["parallel"] != nil else { throw Problem(L("“join” and “fail_fast” go with “parallel”.")) }
+        return Step(id: id, name: (o["name"] as? String)?.nonEmpty, kind: kind, onFailure: failure, sample: (o["sample"] as? String)?.nonEmpty, fields: fields, join: join, failFast: o["fail_fast"] as? Bool ?? false)
     }
 
     private static func only(_ o: [String: Any], _ keys: Set<String>, in what: String) throws {

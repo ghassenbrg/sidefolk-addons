@@ -162,7 +162,11 @@ import SidefolkExtensionKit
             if case .action(let tool, _) = step.kind { for name in app.catalog.tool(tool)?.outputFields ?? [] { out.append(.init("\(label) › \(name)", value: "{{\(step.id).\(name)}}", symbol: symbol, group: earlier)) } }
             if let fields = step.fields { for name in fields.keys.sorted() { out.append(.init("\(label) › \(name)", value: "{{\(step.id).\(name)}}", symbol: symbol, group: earlier)) } }
             if case .form(let form) = step.kind { for field in form.fields { out.append(.init("\(label) › \(field.label)", value: "{{\(step.id).\(field.name)}}", symbol: symbol, group: earlier)) } }
-            if case .parallel(let lanes) = step.kind { for (lane, key) in zip(lanes, Engine.keys(lanes)) { out.append(.init("\(label) › \(lane.name)", value: "{{\(step.id).\(key)}}", symbol: symbol, group: earlier)) } }
+            if case .parallel(let lanes) = step.kind {
+                for (lane, key) in zip(lanes, Engine.keys(lanes)) { out.append(.init("\(label) › \(lane.name)", value: "{{\(step.id).\(key)}}", symbol: symbol, group: earlier)) }
+                if step.join == .first { out.append(.init("\(label) › \(L("The first to finish"))", value: "{{\(step.id).\(Engine.winner)}}", symbol: symbol, group: earlier)) }
+                if step.join == .settled { out.append(.init("\(label) › \(L("Those that didn't finish"))", value: "{{\(step.id).\(Engine.notFinished)}}", symbol: symbol, group: earlier)) }
+            }
         }
         switch flow.draft.trigger {
         case .watch, .event: out.append(.init(L("What set it off"), value: "{{trigger}}", symbol: "bolt", group: always))
@@ -191,7 +195,7 @@ import SidefolkExtensionKit
         case .repeatUntil: return (L("Repeat until"), L("It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat."))
         case .choose: return (L("Choose a path"), L("It looks at one value and takes the first path whose words it mentions, or “Otherwise”."))
         case .attempt: return (L("Try"), L("If a step under “Try” fails, the steps under “If it fails” run instead. The steps under “Either way” run in any case."))
-        case .parallel: return (L("At the same time"), L("Each lane runs at once, and it carries on when all are done. If one fails, the step fails."))
+        case .parallel: return (L("At the same time"), L("Each lane runs at once. It carries on when you say below, and a lane it no longer needs is stopped."))
         case .call: return (L("Run a flow and wait"), L("It runs another flow from start to end, then carries on with its result."))
         case .finish: return (L("Finish here"), L("The flow ends at this step. A flow that called this one gets the result."))
         case .data: return (L("Work with data"), L("It changes a value into another, with nothing outside this run."))
@@ -269,9 +273,17 @@ import SidefolkExtensionKit
         case .parallel(let lanes):
             for (at, lane) in lanes.enumerated() {
                 main.append(.edit(EditField("\(step.id).lane.\(at)", L("Lane {count}", ["count": Format.integer(at + 1)]), value: lane.name, tool: "ui", input: input("lane_name", ["lane": at]))))
+                main.append(.edit(EditField("\(step.id).lane_limit.\(at)", L("Give up after, in minutes"), value: lane.timeoutMinutes.map(String.init) ?? "", placeholder: L("No limit"), kind: .number, tool: "ui", input: input("lane_limit", ["lane": at]))))
                 if lanes.count > 2 { main.append(.action(Action(L("Remove this lane"), tool: "ui", input: input("lane_remove", ["lane": at]), style: .plain, symbol: "minus.circle"))) }
             }
             if lanes.count < FlowBody.mostLanes { main.append(.action(Action(L("Add a lane"), tool: "ui", input: input("lane_add"), style: .plain, symbol: "plus.circle"))) }
+            let some = lanes.count > 2 ? (2..<lanes.count).map { Option(String($0), L("When {count} have finished", ["count": Format.integer($0)])) } : []
+            main.append(.picker(L("It carries on"), style: .menu, [Option("all", L("When all have finished")), Option("first", L("When the first has finished"))] + some + [Option("settled", L("When all have ended, whichever way"))], selected: step.join.word, tool: "ui", input: input("lane_join")))
+            switch step.join {
+            case .first: main.append(.note(L("What finished first is also “{value}”.", ["value": "{{\(step.id).\(Engine.winner)}}"])))
+            case .settled: main.append(.note(L("A lane that fails gives nothing. “{value}” lists those that didn't finish.", ["value": "{{\(step.id).\(Engine.notFinished)}}"])))
+            case .all, .atLeast: main.append(.toggle(L("Stop the others as soon as it can't work out"), detail: L("Otherwise they finish first, and then the step fails."), on: step.failFast, tool: "ui", input: input("lane_fail_fast")))
+            }
         case .call(let name, let inputs):
             main.append(flowPicker(flow, selected: name, app, input: input("call_flow")))
             let wanted = app.store.named(name).map { Self.inputs(of: $0.running) } ?? []
