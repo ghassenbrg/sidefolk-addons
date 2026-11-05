@@ -1096,7 +1096,10 @@
     "It keeps an eye on: {list}": "它会留意：{list}",
     "It sets off a flow of yours: {list}": "它会启动你的流程：{list}",
     "It needs what isn't here, so Sideflow can't say what that does: {list}": "它需要这里没有的东西，所以 Sideflow 说不出那会做什么：{list}",
-    "There's more than this page can show. Read its steps before you turn it on.": "内容超出了这个页面能显示的范围。开启前请先读一读它的步骤。"
+    "There's more than this page can show. Read its steps before you turn it on.": "内容超出了这个页面能显示的范围。开启前请先读一读它的步骤。",
+    "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.": "内容太长，页面放不下。请删除过长的内容，或让代理缩短它。",
+    "Too long to show": "太长，无法显示",
+    "Its runs and what you allowed for it go too. This can't be undone.": "它的运行记录和你允许的内容也会一并删除。无法撤销。"
   },
   "drops": {
     "flow_file": {

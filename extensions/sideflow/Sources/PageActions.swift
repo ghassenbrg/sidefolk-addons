@@ -126,7 +126,7 @@ import SidefolkExtensionKit
             let f = try flow()
             guard let id = a.string("step"), let name = a.string("name"), let step = f.draft.step(id), case .action = step.kind else { return .stay }
             let t = text.trimmed
-            let parsed: JSON? = t.isEmpty ? nil : (try? JSONSerialization.jsonObject(with: Data(t.utf8), options: .fragmentsAllowed)).map { JSON($0) }
+            let parsed: JSON? = t.isEmpty || !JSONText.saysOneThing(Data(t.utf8)) ? nil : (try? JSONSerialization.jsonObject(with: Data(t.utf8), options: .fragmentsAllowed)).map { JSON($0) }
             if !t.isEmpty, parsed == nil { throw Problem(L("That isn't written the way it needs to be: check its brackets and quotes.")) }
             try editStep { s in
                 guard case .action(let tool, let input) = s.kind else { return }
@@ -472,6 +472,11 @@ import SidefolkExtensionKit
             guard let id = a.string("step") ?? { if case .step(let s) = app.nav.inspecting(f) { s } else { nil } }(), let (body, new) = Editing.duplicate(id, in: f.draft) else { break }
             try draft { $0 = body }
             app.nav.inspect(.step(new), in: f.id)
+        case "delete_too_long":
+            // The page that says so has no room for a question first, and only that page holds this.
+            guard a.string("page_token") == app.pageKey, let id = a.string("flow") else { break }
+            app.engine.delete(id)
+            return .home
         case "ask_delete":
             let id = try flow().id
             app.nav.pickingFlows = [id]

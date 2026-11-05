@@ -132,6 +132,34 @@ import Testing
         #expect(words.contains("more than this page can show"))
     }
 
+    @Test func aFlowTooLongToDrawLeavesAWayToFixIt() async throws {
+        let w = try World()
+        let app = app(w)
+        let long = String(repeating: "A", count: 135_000)
+        let flow = app.newFlow(name: "Long", body: try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://example.com/" + long], "steps": [["id": "a", "name": long, "text": long]]]))
+        for state: [String: Any] in [[:], ["flow": flow.id]] {
+            let page = await Pages.make(app, state: Arguments(state), background: false)
+            #expect(JSONText.write(page.sent).utf8.count < 128_000, "\(state)")
+        }
+        let many = app.newFlow(name: "Many", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": (0..<100).map { ["id": "s\($0)", "name": String(repeating: "界", count: 40), "text": String(repeating: "界", count: 200)] }]))
+        #expect(JSONText.write(await Pages.make(app, state: Arguments(["flow": many.id]), background: false).sent).utf8.count < 128_000)
+        _ = try await Actions_UI.handle(Arguments(["op": "delete_too_long", "flow": many.id, "page_token": "guess"]), app)
+        #expect(app.store.flow(many.id) != nil)
+        _ = try await Actions_UI.handle(Arguments(["op": "delete_too_long", "flow": many.id, "page_token": app.pageKey]), app)
+        #expect(app.store.flow(many.id) == nil)
+    }
+
+    @Test func whatMattersMostIsntPushedOffByALongList() throws {
+        let w = try World()
+        let app = app(w)
+        _ = app.newFlow(name: "Mine", body: try FlowCodec.body(simple))
+        let steps: [[String: Any]] = (0..<99).map { ["id": "s\($0)", "do": "writes.\($0)." + String(repeating: "x", count: 70)] } + [["id": "c", "call_flow": "Mine"]]
+        let id = try FlowFile.stage(file([["name": "L", "flow": ["trigger": ["type": "manual"], "steps": steps]]]), in: app.folder)
+        let words = String(describing: Pages.importPage(id, app, state: Arguments([:]))).filter { !"\u{2068}\u{2069}\\".contains($0) }
+        #expect(words.contains("It sets off a flow of yours: Mine"))
+        #expect(words.contains("more than this page can show"))
+    }
+
     @Test func goingElsewhereLeavesItBehind() {
         #expect(Pages.place(["flow": "x"])["import"] is NSNull)
     }

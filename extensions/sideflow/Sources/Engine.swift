@@ -728,6 +728,9 @@ extension FlowHost {
             await askTheWayForward(run)
         case .failed:
             await host?.notify(title: L("{flow} stopped", ["flow": run.flowName]), body: run.problem, attention: true)
+        // Stopped for a reason of its own, not by someone pressing Stop: that isn't something they know already.
+        case .stopped where run.problem != nil:
+            await host?.notify(title: L("{flow} stopped", ["flow": run.flowName]), body: run.problem, attention: true)
         case .done:
             guard ExtensionSettings.string("tell") == "always" else { return }
             let last = run.records.reversed().first { $0.status == .done && $0.output?.nonEmpty != nil }
@@ -1037,7 +1040,7 @@ extension FlowHost {
     }
 
     /// `byThePerson`: their word means nothing writes after it, so it ends all of what this run is part of, the lanes beside it too, and no try or "go on with the rest" gets past it.
-    /// A flow paused or its approval ended stops a run for its own reasons, which is a failure for whatever called it.
+    /// A stop of any kind stops whatever called this run too (`joined`), never a failure for it to carry past.
     func stop(run id: String, byThePerson: Bool = false) {
         // Even from a run that's just ended: its page can still show Stop, and what it was part of is what they mean.
         if byThePerson {
@@ -1163,6 +1166,12 @@ extension FlowHost {
                 walk(inside)
                 // What a loop or a repeat gives comes from what's in it.
                 switch step.kind {
+                case .form(let form):
+                    // It asks the person, on the page rather than by a card, so the plan's own word for that is what the card says.
+                    if let as_ = name(step) { steps.append(PlanStep("ask.user", ["question": form.title, "timeout_seconds": 300], named: as_, title: step.name ?? form.title.nonEmpty)) }
+                case .parallel:
+                    let made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
+                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: said(made.sorted()))) }
                 case .forEach, .repeatUntil:
                     var made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
                     // A go where nothing inside made anything keeps the item itself.
@@ -1173,6 +1182,20 @@ extension FlowHost {
             }
         }
         walk(body.steps)
+        // What a try's recover reads comes from the steps it tried. Named once, as `{{item}}` is.
+        if body.allSteps.flatMap(\.usedTexts).flatMap(Values.references).contains("error"), !body.allSteps.contains(where: { $0.id == "error" }) {
+            func tried(_ list: [Step]) -> [String] {
+                list.flatMap { step -> [String] in
+                    var out: [String] = []
+                    if case .attempt(let first, _, _) = step.kind { out += FlowBody(steps: first).allSteps.filter(\.hasOutput).map(\.id) }
+                    _ = step.mappingParts { out += tried($0); return $0 }
+                    return out
+                }
+            }
+            steps.append(.value(named: "error", reads: said(Array(Set(tried(body.steps))).sorted())))
+        }
+        // Words written in a step are no step's to name on a card. They read only themselves, which counts as from outside: an edit can change them with no card.
+        if !names.contains(writtenWords), steps.contains(where: { $0.line.contains(writtenWords) }) { steps.append(.value(named: writtenWords, reads: [writtenWords])) }
         if case .watch(let w) = body.trigger {
             add("watch.create", watchInput(w, title: title))
             add("watch.stop", ["id": title])

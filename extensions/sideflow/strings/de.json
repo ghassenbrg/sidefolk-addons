@@ -1117,7 +1117,10 @@
     "It keeps an eye on: {list}": "Er beobachtet: {list}",
     "It sets off a flow of yours: {list}": "Er startet einen deiner Abläufe: {list}",
     "It needs what isn't here, so Sideflow can't say what that does: {list}": "Er braucht etwas, das hier fehlt, daher kann Sideflow nicht sagen, was es tut: {list}",
-    "There's more than this page can show. Read its steps before you turn it on.": "Es gibt mehr, als diese Seite zeigen kann. Lies die Schritte, bevor du ihn einschaltest."
+    "There's more than this page can show. Read its steps before you turn it on.": "Es gibt mehr, als diese Seite zeigen kann. Lies die Schritte, bevor du ihn einschaltest.",
+    "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.": "Das ist zu lang für eine Seite. Lösche, was zu lang ist, oder lass es von einem Agenten kürzen.",
+    "Too long to show": "Zu lang zum Anzeigen",
+    "Its runs and what you allowed for it go too. This can't be undone.": "Seine Durchläufe und was du erlaubt hast, verschwinden auch. Das lässt sich nicht rückgängig machen."
   },
   "drops": {
     "flow_file": {

@@ -15,6 +15,28 @@ import SidefolkExtensionKit
     static func make(_ app: App, state: Arguments, background: Bool) async -> Page {
         // Today and the sidebar read only the summary, once a minute.
         if background { return Page(summary: summary(app)) }
+        let page = whole(app, state: state)
+        // Sidefolk shows nothing of a page past its limit, so there'd be no way left to fix what made it so long. What's small enough to always show takes its place.
+        return JSONText.write(page.sent).utf8.count <= mostOnAPage ? page : tooLong(app, state: state)
+    }
+
+    static let mostOnAPage = 126_000
+
+    /// A flow or a list too long to draw, with what can be done about it. Every word here is short by being cut.
+    static func tooLong(_ app: App, state: Arguments) -> Page {
+        var body: [Block] = [.note(L("This is too long to show on a page. Delete what's too long, or ask an agent to shorten it."), tone: .warn)]
+        if case .flow(let id) = Nav.place(state), let flow = app.store.flow(id) {
+            body.append(.note(FlowFile.short(flow.name, 60)))
+            body.append(.action(button(L("Delete this flow"), "delete_too_long", ["flow": flow.id, "page_token": app.pageKey], style: .destructive, symbol: "trash", detail: L("Its runs and what you allowed for it go too. This can't be undone."))))
+            return Page(summary: summary(app), sections: [Section(L("Too long to show"), body, wide: true)], back: L("All flows"), workspace: true)
+        }
+        for flow in app.store.flows().prefix(20) {
+            body.append(.action(Action(FlowFile.short(flow.name, 60), act: .go(Go(set: place(["flow": flow.id]), push: true)), symbol: "point.3.connected.trianglepath.dotted")))
+        }
+        return Page(summary: summary(app), sections: [Section(L("Too long to show"), body, wide: true)], workspace: true)
+    }
+
+    private static func whole(_ app: App, state: Arguments) -> Page {
         // An extension just turned on or off shows on the next look, not at the next tick.
         if app.catalog.loadedAt.map({ Date().timeIntervalSince($0) > 5 }) ?? true { Task { await app.catalog.refresh() } }
         if let id = state.string("import"), let page = importPage(id, app, state: state) { return page }
@@ -276,15 +298,18 @@ import SidefolkExtensionKit
 
     /// A flow's small drawing of itself: its shape, for recognising it.
     static func mini(_ body: FlowBody, pending: Bool, _ app: App) -> CardTree {
+        // It's a picture of its shape, and a page holds many: past this it's enough to know it goes on.
+        var left = 24
         func nodes(_ steps: [Step]) -> [CardTree.Node] {
-            steps.map { step in
+            steps.prefix(while: { _ in left > 0 }).map { step in
+                left -= 1
                 let look = look(step, app)
                 var branches: [CardTree.Branch] = []
                 branches = step.parts.map { CardTree.Branch("\($0.id):\(step.id)", partLabel($0.id, of: step), nodes: nodes($0.steps)) }
-                return CardTree.Node(step.id, Words.label(step, catalog: app.catalog), symbol: look.symbol, color: look.color, state: pending ? .pending : .none, branches: branches)
+                return CardTree.Node(step.id, FlowFile.short(Words.label(step, catalog: app.catalog), 60), symbol: look.symbol, color: look.color, state: pending ? .pending : .none, branches: branches)
             }
         }
-        let first = CardTree.Node("start", Words.trigger(body.trigger), symbol: triggerSymbol(body.trigger), color: tile[0], state: pending ? .pending : .none)
+        let first = CardTree.Node("start", FlowFile.short(Words.trigger(body.trigger), 60), symbol: triggerSymbol(body.trigger), color: tile[0], state: pending ? .pending : .none)
         return CardTree([first] + nodes(body.steps), line: line)
     }
 
@@ -320,34 +345,39 @@ import SidefolkExtensionKit
         for flow in FlowFile.survey(arriving, store: app.store, catalog: app.catalog) {
             var blocks: [Block] = [], cut = false
             func say(_ words: String, tone: Tone = .neutral) {
-                guard blocks.count < 23, room > 0 else { return cut = true }
                 // As it's carried, escapes and all.
-                room -= JSONText.write([words]).utf8.count + 40
+                let cost = JSONText.write([words]).utf8.count + 40
+                guard blocks.count < 22, room >= cost else { return cut = true }
+                room -= cost
                 blocks.append(.note(words, tone: tone))
             }
-            /// A list in as many notes as it takes: a note holds so many characters.
-            func line(_ list: [String], tone: Tone = .warn, _ words: (String) -> String) {
-                var part: [String] = [], size = 0
-                for item in list {
-                    if size + item.count > 240 {
-                        say(words(Format.list(part)), tone: tone)
-                        (part, size) = ([], 0)
-                    }
-                    part.append(item)
-                    size += item.count + 2
+            /// A list in as many notes as it takes, up to a few: what comes after it matters too.
+            func line(_ list: [String], tone: Tone = .warn, notes most: Int = 4, _ words: (String) -> String) {
+                var part: [String] = [], size = 0, said = 0
+                func flush() {
+                    guard !part.isEmpty else { return }
+                    if said < most { say(words(Format.list(part)), tone: tone) } else { cut = true }
+                    said += 1
+                    (part, size) = ([], 0)
                 }
-                if !part.isEmpty { say(words(Format.list(part)), tone: tone) }
+                for item in list {
+                    if size + item.unicodeScalars.count > 240 { flush() }
+                    part.append(item)
+                    size += item.unicodeScalars.count + 2
+                }
+                flush()
             }
+            // Most to know first: if room runs out, what's left is what matters least, and the page says there's more.
             line(flow.deletes) { L("By their names, these may delete: {list}", ["list": $0]) }
-            line(flow.changes) { L("It changes or sends something: {list}", ["list": $0]) }
+            line(flow.setsOffYours) { L("It sets off a flow of yours: {list}", ["list": $0]) }
             line(flow.servers) { L("It uses a server you added: {list}", ["list": $0]) }
-            line(flow.files) { L("It works with files: {list}", ["list": $0]) }
-            line(flow.readsFilled) { L("It reads, using values from earlier steps, which could send them out: {list}", ["list": $0]) }
             if flow.companionJobs > 0 { say(L("It gives your companion a whole job to do."), tone: .warn) }
             if flow.usesAI > 0 { say(L("It uses your AI."), tone: .warn) }
-            line(flow.setsOffYours) { L("It sets off a flow of yours: {list}", ["list": $0]) }
-            line(flow.setsOff) { L("It sets off another flow: {list}", ["list": $0]) }
             line(flow.watches) { L("It keeps an eye on: {list}", ["list": $0]) }
+            line(flow.changes) { L("It changes or sends something: {list}", ["list": $0]) }
+            line(flow.files) { L("It works with files: {list}", ["list": $0]) }
+            line(flow.readsFilled) { L("It reads, using values from earlier steps, which could send them out: {list}", ["list": $0]) }
+            line(flow.setsOff) { L("It sets off another flow: {list}", ["list": $0]) }
             line(flow.missingTools) { L("It needs what isn't here, so Sideflow can't say what that does: {list}", ["list": $0]) }
             line(flow.missingFlows) { L("It names a flow that isn't here: {list}", ["list": $0]) }
             line(flow.reads, tone: .neutral) { L("It reads: {list}", ["list": $0]) }
@@ -668,7 +698,7 @@ import SidefolkExtensionKit
         let live = flow.state == .on && !flow.hasChanges && !flow.hasUnsaved
         let run = live ? app.store.runs(of: flow.id).first { $0.mode == .live && $0.body == flow.draft } : practice(flow, app)
         let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges || flow.hasUnsaved ? .pending : .none
-        var first = CardTree.Node("start", Words.triggers(flow.draft), kind: L("It starts"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
+        var first = CardTree.Node("start", FlowFile.short(Words.triggers(flow.draft), 240), kind: L("It starts"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
         if let check = app.preflight[flow.id]?[App.triggerCheck], check.decision == .deny {
             first.state = .attention
             first.pill = Badge(check.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
@@ -696,11 +726,12 @@ import SidefolkExtensionKit
             let look = look(step, app)
             let check = flow.flatMap { app.preflight[$0.id]?[step.id] }
             let said = Words.card(step, body: body, catalog: app.catalog)
-            var node = CardTree.Node(step.id, said.line, kind: said.head, symbol: look.symbol, color: look.color, state: untested)
+            // What's shown of what's written: a step can hold far more than a card, and a page fails whole past its limit.
+            var node = CardTree.Node(step.id, FlowFile.short(said.line, 240), kind: FlowFile.short(said.head, 30), symbol: look.symbol, color: look.color, state: untested)
             if let problem = problems.first(where: { $0.step == step.id }) {
                 node.state = .attention
                 node.pill = Badge(L("To fix"), tone: .warn)
-                node.title = problem.text
+                node.title = FlowFile.short(problem.text, 240)
             } else if check?.decision == .deny {
                 node.state = .attention
                 node.pill = Badge(check?.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
@@ -933,7 +964,7 @@ import SidefolkExtensionKit
         if let output = run.records.reversed().first(where: { $0.output?.nonEmpty != nil })?.output?.clipped(Engine.keptOutput) {
             end.append(Section(L("What it came to"), [.notice(PageNotice(title: run.flowName, body: output, time: run.endedAt.map { Format.time($0) }))], place: .trailing))
         }
-        var nodes = [CardTree.Node("start", run.why, kind: L("It started"), symbol: triggerSymbol(run.body.trigger), color: tile[0], state: .done, fixed: true)]
+        var nodes = [CardTree.Node("start", FlowFile.short(run.why, 240), kind: L("It started"), symbol: triggerSymbol(run.body.trigger), color: tile[0], state: .done, fixed: true)]
         nodes += treeNodes(run.body.steps, body: run.body, app, run: withLanes(run, app), untested: .pending, flow: nil, problems: [])
         let selected = app.nav.runStep[run.id]
         if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }

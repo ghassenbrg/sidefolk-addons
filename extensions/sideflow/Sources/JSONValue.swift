@@ -67,7 +67,7 @@ enum JSONText {
     }
 
     /// Over JSON the parser already took, so it only has to tell strings, numbers and brackets apart.
-    private static func saysOneThing(_ data: Data) -> Bool {
+    static func saysOneThing(_ data: Data) -> Bool {
         let bytes = [UInt8](data)
         var open: [Set<String>?] = [], at = 0
         func isNumberByte(_ byte: UInt8) -> Bool { (48...57).contains(byte) || [43, 45, 46, 69, 101].contains(byte) }
@@ -87,11 +87,10 @@ enum JSONText {
                 while end < bytes.count, bytes[end] != 0x22 { end += bytes[end] == 0x5C ? 2 : 1 }
                 var next = end + 1
                 while next < bytes.count, [32, 9, 10, 13].contains(bytes[next]) { next += 1 }
-                if next < bytes.count, bytes[next] == 0x3A, var keys = open.last ?? nil {
+                if next < bytes.count, bytes[next] == 0x3A, !open.isEmpty, open[open.count - 1] != nil {
                     // Escapes count: `"a"` and `"\u0061"` are one key.
                     let key = (try? JSONSerialization.jsonObject(with: Data(bytes[at...min(end, bytes.count - 1)]), options: .fragmentsAllowed)) as? String ?? ""
-                    guard keys.insert(key).inserted else { return false }
-                    open[open.count - 1] = keys
+                    guard open[open.count - 1]!.insert(key).inserted else { return false }
                 }
                 at = end + 1
             case let byte where byte == 45 || (48...57).contains(byte):

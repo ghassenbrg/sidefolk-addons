@@ -1096,7 +1096,10 @@
     "It keeps an eye on: {list}": "監視するもの: {list}",
     "It sets off a flow of yours: {list}": "あなたのルーティンを起動します: {list}",
     "It needs what isn't here, so Sideflow can't say what that does: {list}": "ここにないものが必要なため、Sideflow にはその動作がわかりません: {list}",
-    "There's more than this page can show. Read its steps before you turn it on.": "このページに表示しきれません。オンにする前にステップを読んでください。"
+    "There's more than this page can show. Read its steps before you turn it on.": "このページに表示しきれません。オンにする前にステップを読んでください。",
+    "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.": "ページに表示するには長すぎます。長すぎるものを削除するか、エージェントに短くしてもらってください。",
+    "Too long to show": "長すぎて表示できません",
+    "Its runs and what you allowed for it go too. This can't be undone.": "実行履歴と許可した内容も削除されます。元に戻せません。"
   },
   "drops": {
     "flow_file": {

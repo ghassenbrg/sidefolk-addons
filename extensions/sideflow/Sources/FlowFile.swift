@@ -222,7 +222,7 @@ enum FlowFile {
                     let filled = input.values.flatMap(\.strings).contains { !Values.references($0).isEmpty }
                     // Where it goes or what it touches, if that's written in: "Read a file" says little, the file says more.
                     let places = input.keys.sorted().filter { $0.range(of: #"(?i)url|path|address|recipient|^to$|channel|host|repo|file|folder|email|target"#, options: .regularExpression) != nil }.flatMap { input[$0]?.strings ?? [] }.map { short($0, 80) }
-                    let line = places.isEmpty ? tool.title : "\(tool.title) (\(places.prefix(2).joined(separator: ", ")))"
+                    let line = places.isEmpty ? tool.title : "\(tool.title) (\(places.prefix(2).joined(separator: ", "))\(places.count > 2 ? ", …" : ""))"
                     if !tool.readsOnly { add(line, to: &out.changes) } else if filled { add(line, to: &out.readsFilled) } else { add(line, to: &out.reads) }
                     if !tool.readsOnly, name.range(of: #"(?i)trash|delete|remove|erase|wipe|clear"#, options: .regularExpression) != nil { add(tool.title, to: &out.deletes) }
                     if tool.fromServer { add(tool.title, to: &out.servers) }

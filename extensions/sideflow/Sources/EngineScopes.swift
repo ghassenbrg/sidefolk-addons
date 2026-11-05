@@ -305,9 +305,15 @@ extension Engine {
     /// Back at a call or a parallel. Carries on when all it waits for are over; a child that needs the person leaves this waiting too.
     func joined(_ step: Step, in run: inout Run) -> Bool {
         let children = run.waitingOn.compactMap { store.run($0) }
+        // Deleted while this waited, most likely. Nobody can say it went wrong or right, so nothing goes on from it: not a recover, not the next item.
         guard children.count == run.waitingOn.count else {
             run.waitingOn = []
-            return failed(step, why: L("What it was waiting for is gone."), reads: false, in: &run)
+            run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), note: L("What it was waiting for is gone."), at: clock()))
+            run.status = .stopped
+            run.problem = L("What it was waiting for is gone.")
+            run.resumeAt = nil
+            run.frames = []
+            return false
         }
         guard children.allSatisfy({ $0.status.isOver }) else {
             run.status = .waiting
@@ -319,7 +325,8 @@ extension Engine {
         if children.contains(where: { $0.status == .stopped }) {
             run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
             run.status = .stopped
-            run.problem = nil
+            // What it says for itself, if it does: a plan that ended, a flow nobody read.
+            run.problem = children.first { $0.status == .stopped }?.problem
             run.resumeAt = nil
             run.frames = []
             return false
