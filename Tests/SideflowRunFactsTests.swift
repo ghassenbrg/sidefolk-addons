@@ -4,7 +4,7 @@ import Testing
 import SidefolkExtensionKit
 
 /// Reading a run closely: how long each part took and what it used. Reading a flow closely: what it may do, in Sidefolk's own answer.
-@MainActor @Suite(.serialized) struct SideflowDiagnosisTests {
+@MainActor @Suite(.serialized) struct SideflowRunFactsTests {
     typealias World = SideflowTests.World
 
     private func app(_ w: World) -> App {
@@ -96,7 +96,7 @@ import SidefolkExtensionKit
                             ([["op": "add", "after": "a", "step": ["id": "b", "text": "dup"]]], "Edit 1"),
                             ([["op": "add", "after": "nope", "step": ["id": "c", "text": "x"]]], "Edit 1"),
                             ([["op": "remove", "id": "a"], ["op": "fly"]], "Edit 2")] as [([[String: Any]], String)] {
-            #expect { try AgentEdits.apply(bad, to: body) } throws: { ($0 as? Problem)?.message.contains(says) == true }
+            #expect { try AgentEdits.apply(bad, to: body) } throws: { ($0 as? Problem)?.message.filter { !"\u{2068}\u{2069}".contains($0) }.contains(says) == true }
         }
     }
 

@@ -45,7 +45,7 @@ import SidefolkExtensionKit
         #expect(!w.host.calls.contains { $0.tool == "changes.it" })
         _ = try callee(w, name: "Gives", steps: [["finish": "1.000"]], output: "number")
         #expect(try await runs(w, try w.flow([["id": "r", "call_flow": "Gives"]])).status == .failed)
-        #expect(ValueType.number.fit(.string("3.142")) == nil, "a decimal that's plainly one stays one")
+        #expect(ValueType.number.fit(.string("3.142")) == nil, "words that could be a thousand, whichever way they look")
         #expect(ValueType.number.fit(.string("12.50")) == .number(12.5))
     }
 
