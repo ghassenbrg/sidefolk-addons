@@ -66,7 +66,7 @@ extension Engine {
         }
         let inside = FlowBody(steps: steps).allSteps
         // The last that made something: a path not taken at the end of a go made nothing.
-        let made = inside.last(where: { $0.hasOutput && run.values.gaveAnswer($0) }).flatMap { run.values.whole($0.id) } ?? .null
+        let made = inside.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }).flatMap { run.values.whole($0.id) } ?? .null
         let holds = until.holds(run.values)
         let go = run.frames[at].index + 1
         func leave() {
@@ -158,7 +158,7 @@ extension Engine {
         }
         let inside = FlowBody(steps: steps).allSteps
         // What this go gave: what the last step that makes something made. Steps inside start each go with nothing.
-        let made = inside.last(where: { $0.hasOutput }).flatMap { run.values.gaveAnswer($0) ? run.values.whole($0.id) : nil } ?? run.frames[at].items[run.frames[at].index]
+        let made = inside.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }).flatMap { run.values.whole($0.id) } ?? run.frames[at].items[run.frames[at].index]
         // Room is left for what the items still to come will say at the least, so the list as a whole is never cut to text.
         let left = run.frames[at].items.count - run.frames[at].index - 1
         let fits = JSONText.write((run.frames[at].results + [made]).map(\.any)).utf8.count + left * 40 <= Values.keepWhole
@@ -315,7 +315,8 @@ extension Engine {
         } else {
             result = children[0].answer
         }
-        run.values.set(step.id, result)
+        // A flow that made nothing has given nothing: not an empty answer a real action could be sent. A null it made is its answer.
+        if case .parallel = step.kind { run.values.set(step.id, result) } else if children[0].output != nil { run.values.set(step.id, result) }
         run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: Values.text(result).clipped(2000), at: clock()))
         run.pc += 1
         run.retries = 0

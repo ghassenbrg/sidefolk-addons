@@ -99,13 +99,6 @@ struct Values: Equatable, Sendable {
         named[name].map { value in said[name].map(JSON.string) ?? value }
     }
 
-    /// Whether a step left an answer. A data step's null is one; a called flow that made nothing didn't.
-    func gaveAnswer(_ step: Step) -> Bool {
-        guard let value = named[step.id] else { return false }
-        if case .call = step.kind { return value != .null }
-        return true
-    }
-
     /// `name` with what's after it, or nil when nothing is there.
     func resolve(_ name: String, path: String = "") -> JSON? {
         guard let value = base(name) else { return nil }

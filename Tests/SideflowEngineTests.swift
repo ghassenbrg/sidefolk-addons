@@ -2509,6 +2509,27 @@ extension JSON {
         #expect(run?.values.value("t").contains("one") == true, "what a go gave when the last step made nothing, as for a path not taken")
     }
 
+    @Test func aCalledFlowsNullIsAnAnswerToo() async throws {
+        let w = try World()
+        var child = try w.flow([["id": "d", "data": ["op": "field", "from": "{{input.r}}", "field": "email"]]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "l", "data": ["op": "parse_json", "from": #"[{"email":null,"id":7}]"#]], ["id": "e", "for_each": "{{l}}", "steps": [["id": "k", "call_flow": "Child", "inputs": ["r": "{{item}}"]]]], ["id": "t", "text": "{{e}}"]])
+        let started = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let run = w.store.run(started.id)
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t").contains("7") == false, "the record doesn't go in the list where the field's null was")
+    }
+
+    @Test func aLoopInsideALoopGivesItsListNotTheItem() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "e", "for_each": "a\nb", "steps": [["id": "inner", "for_each": "x", "steps": [["id": "s", "text": "said {{item}}"]]]]], ["id": "t", "text": "{{e}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t").contains("said") == true)
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])
