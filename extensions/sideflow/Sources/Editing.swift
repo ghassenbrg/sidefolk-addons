@@ -238,10 +238,10 @@ enum Editing {
             }
         }
         // `{{item}}` and `{{error}}` are its own only inside what brings them: above a loop or a try they're still the ones from outside.
-        let inAList = body.allSteps.contains { holder in
-            if case .forEach = holder.kind { return FlowBody(steps: [holder]).allSteps.dropFirst().contains { $0.id == id } }
-            return false
-        }
+        let holders = body.allSteps.filter { FlowBody(steps: [$0]).allSteps.dropFirst().contains { $0.id == id } }
+        // A lane starts with the item of the go it's in, and a new flow starts with none.
+        let inAList = holders.contains { if case .forEach = $0.kind { true } else { false } }
+            || (holders.contains { if case .parallel = $0.kind { true } else { false } } && holders.contains { if case .repeatUntil = $0.kind { true } else { false } })
         func scoped(_ one: Step, keeping own: Set<String>) -> Step {
             var within = own
             var here = own

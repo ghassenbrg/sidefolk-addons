@@ -2456,6 +2456,15 @@ extension JSON {
         #expect(inner.step("t")?.kind == .text("{{item}}"))
     }
 
+    @Test func aLaneInARepeatGivesItsItemFromOutsideToo() throws {
+        let inner: [String: Any] = ["id": "r2", "repeat": [["id": "t", "text": "{{item}}"]], "until": ["value": "{{t}}", "test": "contains", "than": "x"], "times": 2]
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "r", "repeat": [["id": "both", "parallel": [["name": "one", "steps": [inner]], ["name": "two", "steps": [["id": "o", "text": "o"]]]]]], "until": ["value": "{{index}}", "test": "is", "than": "2"], "times": 2]]])
+        let (outer, made) = try Editing.extract("r2", in: body, named: "New")
+        guard case .call(_, let inputs)? = outer.step("r2")?.kind else { Issue.record("not a call"); return }
+        #expect(inputs == ["item": "{{item}}"])
+        #expect(made.step("t")?.kind == .text("{{input.item}}"))
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])
