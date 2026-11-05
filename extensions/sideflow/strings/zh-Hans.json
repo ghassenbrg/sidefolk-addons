@@ -1038,6 +1038,35 @@
     "“timeout_minutes” is 1 to {count}.": "“timeout_minutes”为 1 到 {count}。",
     "“{lane}” took longer than {count} minutes, so it was stopped.": {
       "other": "“{lane}”超过了 {count} 分钟，因此已停止。"
-    }
+    },
+    "Add something it takes": "添加它接收的内容",
+    "As": "类型",
+    "Inside this flow: “{value}”.": "在这个流程中是“{value}”。",
+    "It already takes something by that name.": "已经接收一个同名的内容。",
+    "It can't go without it": "缺了它不行",
+    "It stays on this one: what changes in that flow doesn't reach here. If that version asks for something new to be allowed, it asks when it runs.": "它停留在这个版本：那个流程的改动不会影响这里。如果这个版本需要新的许可，会在运行时询问。",
+    "It stays on version {count} of “{name}”, and that version is no longer kept.": "它停留在“{name}”的版本 {count}，而该版本已不再保留。",
+    "It uses “{value}”, and that isn't among what this flow says it takes.": "它用了“{value}”，但这不在这个流程声明接收的内容中。",
+    "Not needed": "不是必需的",
+    "Up to 40 letters, digits and _.": "最多 40 个字母、数字和 _。",
+    "Version {count}, live now": "版本 {count}，当前生效",
+    "Version {count}, until {date}": "版本 {count}，到 {date} 为止",
+    "What it gives back": "它返回的内容",
+    "What it was given › {name}": "它收到的内容 › {name}",
+    "Whatever it makes": "它产生的任何内容",
+    "Whatever's live": "当时生效的版本",
+    "Which version": "哪个版本",
+    "a record": "一条记录",
+    "a yes or no": "是或否",
+    "words": "文字",
+    "“inputs” is at most {count} things, each with a “name”, and a “type” of text, number, yes_no, list or record.": "“inputs”最多 {count} 项，每项有“name”和“type”（text、number、yes_no、list 或 record）。",
+    "“output” is text, number, yes_no, list or record.": "“output”可以是 text、number、yes_no、list 或 record。",
+    "“version” goes with “call_flow”, and is a version's number.": "“version”要与“call_flow”一起用，是版本号。",
+    "“{flow}” doesn't take “{input}”.": "“{flow}”不接收“{input}”。",
+    "“{flow}” needs “{input}”, and this gives it nothing.": "“{flow}”需要“{input}”，而这里没有给它任何内容。",
+    "“{flow}” needs “{input}”: say what to give it.": "“{flow}”需要“{input}”：请说明给它什么。",
+    "“{flow}” says it gives {type}, and it gave “{value}”.": "“{flow}”声明返回{type}，实际返回了“{value}”。",
+    "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "“{flow}”的“{input}”需要{type}，而这里给的是“{value}”。",
+    "“{flow}” wants {type} for “{input}”.": "“{flow}”的“{input}”需要{type}。"
   }
 }

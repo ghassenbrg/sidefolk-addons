@@ -87,6 +87,7 @@ import SidefolkExtensionKit
         }
         main += alsoWhen(flow)
         more.append(.edit(EditField("name", L("This flow's name"), value: flow.name, tool: "ui", input: base(flow, "rename"))))
+        more += Self.contract(flow, base: base)
         if case .manual = t {} else {
             more.append(.choice(L("If it's set off while running"), options: [("one_more", L("Run once more after")), ("queue", L("Run each in turn")), ("skip", L("Let it go"))], selected: flow.draft.overlap.rawValue, tool: "ui", input: base(flow, "overlap")))
         }
@@ -172,6 +173,7 @@ import SidefolkExtensionKit
         case .watch, .event: out.append(.init(L("What set it off"), value: "{{trigger}}", symbol: "bolt", group: always))
         default: break
         }
+        for one in flow.draft.inputs { out.append(.init(L("What it was given › {name}", ["name": one.name]), value: "{{input.\(one.name)}}", symbol: "arrow.down.to.line", group: always)) }
         out.append(.init(L("Today's date"), value: "{{today}}", symbol: "calendar", group: always))
         out.append(.init(L("The time"), value: "{{now}}", symbol: "clock", group: always))
         return out
@@ -286,11 +288,20 @@ import SidefolkExtensionKit
             }
         case .call(let name, let inputs):
             main.append(flowPicker(flow, selected: name, app, input: input("call_flow")))
-            let wanted = app.store.named(name).map { Self.inputs(of: $0.running) } ?? []
+            let called = app.catalog.calledBody(name, step.pin)
+            let declared = called?.inputs ?? []
+            let wanted = declared.map(\.name) + (called.map(Self.inputs(of:)) ?? []).filter { key in !declared.contains { $0.name == key } }
             for key in wanted {
-                main.append(.edit(EditField("\(step.id).input.\(key)", key.replacingOccurrences(of: "_", with: " ").capitalizedFirst, value: inputs[key] ?? "", tokens: tokens, tool: "ui", input: input("call_input", ["name": key]))))
+                let says = declared.first { $0.name == key }
+                main.append(.edit(EditField("\(step.id).input.\(key)", key.replacingOccurrences(of: "_", with: " ").capitalizedFirst, value: inputs[key] ?? "", detail: says.map { L("It wants {what}.", ["what": $0.type.word]) }, placeholder: says?.required == false ? L("Not needed") : nil, tokens: tokens, tool: "ui", input: input("call_input", ["name": key]))))
             }
             if wanted.isEmpty { main.append(.note(L("That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps."))) }
+            if let other = app.store.named(name), !other.revisions.isEmpty || step.pin != nil {
+                let kept = (other.revisions.map { ($0.version, Format.dateTime($0.at)) }.reversed() as [(Int, String)])
+                let options = [Option("", L("Whatever's live"))] + (other.live == nil ? [] : [Option(String(other.version), L("Version {count}, live now", ["count": Format.integer(other.version)]))]) + kept.map { Option(String($0.0), L("Version {count}, until {date}", ["count": Format.integer($0.0), "date": $0.1])) }
+                main.append(.picker(L("Which version"), style: .menu, options, selected: step.pin.map(String.init) ?? "", tool: "ui", input: input("call_pin")))
+                if step.pin != nil { main.append(.note(L("It stays on this one: what changes in that flow doesn't reach here. If that version asks for something new to be allowed, it asks when it runs."))) }
+            }
         case .finish(let value):
             main.append(.edit(EditField("\(step.id).value", L("Its result"), value: value, placeholder: L("Nothing"), tokens: tokens, tool: "ui", input: input("finish_value"))))
         case .data(let data):
@@ -402,6 +413,21 @@ import SidefolkExtensionKit
         return [own, .action(Action(L("Use a value from an earlier step"), tool: "ui", input: input("param_mode", ["name": path, "on": true]), style: .plain, symbol: "arrow.turn.down.right"))]
     }
 
+    /// What it says it takes and gives, for a flow that calls it.
+    private static func contract(_ flow: Flow, base: (Flow, String, [String: Any]) -> [String: Any]) -> [Block] {
+        let types = ValueType.allCases.map { Option($0.rawValue, $0.word.capitalizedFirst) }
+        var out: [Block] = []
+        for (at, one) in flow.draft.inputs.enumerated() {
+            out.append(.edit(EditField("takes.\(at)", L("It takes"), value: one.name, detail: L("Inside this flow: “{value}”.", ["value": "{{input.\(one.name)}}"]), tool: "ui", input: base(flow, "takes_name", ["at": at]))))
+            out.append(.picker(L("As"), style: .menu, types, selected: one.type.rawValue, tool: "ui", input: base(flow, "takes_type", ["at": at])))
+            out.append(.toggle(L("It can't go without it"), on: one.required, tool: "ui", input: base(flow, "takes_required", ["at": at])))
+            out.append(.action(Action(L("Remove this"), tool: "ui", input: base(flow, "takes_remove", ["at": at]), style: .plain, symbol: "minus.circle")))
+        }
+        if flow.draft.inputs.count < Contract.mostInputs { out.append(.action(Action(L("Add something it takes"), tool: "ui", input: base(flow, "takes_add", [:]), style: .plain, symbol: "plus.circle"))) }
+        out.append(.picker(L("What it gives back"), style: .menu, [Option("", L("Whatever it makes"))] + types, selected: flow.draft.output?.rawValue ?? "", tool: "ui", input: base(flow, "gives", [:])))
+        return out
+    }
+
     /// What a value would be, going by the last run: a look, with nothing run.
     private static func preview(_ text: String, _ last: Values?) -> String? {
         guard let last, !Values.slots(text).isEmpty, last.missing(in: [text]).isEmpty else { return nil }
@@ -430,12 +456,15 @@ import SidefolkExtensionKit
     /// The values on offer, each with its type where the tool says and what it was in the last run.
     private static func annotated(_ tokens: [EditField.Token], flow: Flow, _ app: App, last: Values?) -> [Token] {
         var types: [String: String] = [:]
+        for one in flow.draft.inputs { types["{{input.\(one.name)}}"] = one.type.schemaWord }
         for step in flow.draft.allSteps {
             switch step.kind {
             case .action(let tool, _):
                 for (field, type) in app.catalog.tool(tool)?.outputTypes ?? [:] { types["{{\(step.id).\(field)}}"] = type }
             case .form(let form):
                 for field in form.fields { types["{{\(step.id).\(field.name)}}"] = field.kind == .number ? "number" : field.kind == .yes_no ? "boolean" : "string" }
+            case .call(let name, _):
+                if let gives = app.catalog.calledBody(name, step.pin)?.output { types["{{\(step.id)}}"] = gives.schemaWord }
             default: break
             }
         }

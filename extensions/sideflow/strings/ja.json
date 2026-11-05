@@ -1038,6 +1038,35 @@
     "“timeout_minutes” is 1 to {count}.": "「timeout_minutes」は1〜{count}です。",
     "“{lane}” took longer than {count} minutes, so it was stopped.": {
       "other": "「{lane}」は{count}分を超えたため停止しました。"
-    }
+    },
+    "Add something it takes": "受け取るものを追加",
+    "As": "形式",
+    "Inside this flow: “{value}”.": "このルーティン内では「{value}」です。",
+    "It already takes something by that name.": "その名前のものはすでに受け取ります。",
+    "It can't go without it": "これがないと動かない",
+    "It stays on this one: what changes in that flow doesn't reach here. If that version asks for something new to be allowed, it asks when it runs.": "このバージョンのままです。あのルーティンの変更はここには届きません。このバージョンに新しい許可が必要なときは、実行時に確認します。",
+    "It stays on version {count} of “{name}”, and that version is no longer kept.": "「{name}」のバージョン{count}のままですが、そのバージョンはもう保存されていません。",
+    "It uses “{value}”, and that isn't among what this flow says it takes.": "「{value}」を使っていますが、このルーティンが受け取るものに含まれていません。",
+    "Not needed": "なくてもよい",
+    "Up to 40 letters, digits and _.": "40文字以内の英字、数字、_ です。",
+    "Version {count}, live now": "バージョン{count}(現在有効)",
+    "Version {count}, until {date}": "バージョン{count}({date}まで)",
+    "What it gives back": "返すもの",
+    "What it was given › {name}": "受け取ったもの › {name}",
+    "Whatever it makes": "作られたものをそのまま",
+    "Whatever's live": "そのとき有効なもの",
+    "Which version": "どのバージョン",
+    "a record": "レコード",
+    "a yes or no": "はい/いいえ",
+    "words": "テキスト",
+    "“inputs” is at most {count} things, each with a “name”, and a “type” of text, number, yes_no, list or record.": "「inputs」は最大{count}個で、それぞれ「name」と「type」(text、number、yes_no、list、record)を持ちます。",
+    "“output” is text, number, yes_no, list or record.": "「output」はtext、number、yes_no、list、recordのいずれかです。",
+    "“version” goes with “call_flow”, and is a version's number.": "「version」は「call_flow」と一緒に使い、バージョンの番号を指定します。",
+    "“{flow}” doesn't take “{input}”.": "「{flow}」は「{input}」を受け取りません。",
+    "“{flow}” needs “{input}”, and this gives it nothing.": "「{flow}」には「{input}」が必要ですが、何も渡されていません。",
+    "“{flow}” needs “{input}”: say what to give it.": "「{flow}」には「{input}」が必要です。何を渡すか指定してください。",
+    "“{flow}” says it gives {type}, and it gave “{value}”.": "「{flow}」は{type}を返すはずですが、「{value}」を返しました。",
+    "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "「{flow}」は「{input}」に{type}を求めていますが、渡されたのは「{value}」です。",
+    "“{flow}” wants {type} for “{input}”.": "「{flow}」は「{input}」に{type}を求めています。"
   }
 }

@@ -22,7 +22,7 @@ import SidefolkExtensionKit
             guard f.draft != before else { return }
             guard f.draft.depth <= FlowBody.maxDepth || f.draft.depth <= before.depth else { throw Problem(L("That goes too deep: a flow can hold steps inside steps {count} levels down.", ["count": Format.integer(FlowBody.maxDepth)])) }
             // Typing in a field is one step back: the same field, moments apart.
-            let typing = ["step_name", "ai_prompt", "compose", "question", "options", "param", "cond_value", "cond_than", "watch_target", "watch_contains", "watch_pattern", "event_contains", "each_items", "choose_value", "path_when", "lane_name", "call_input", "finish_value", "data_from", "data_field", "data_than", "data_separator", "form_title", "form_label", "form_options", "wait_contains", "sample", "trigger_sample", "time_zone"].contains(op)
+            let typing = ["step_name", "ai_prompt", "compose", "question", "options", "param", "cond_value", "cond_than", "watch_target", "watch_contains", "watch_pattern", "event_contains", "each_items", "choose_value", "path_when", "lane_name", "lane_limit", "takes_name", "call_input", "finish_value", "data_from", "data_field", "data_than", "data_separator", "form_title", "form_label", "form_options", "wait_contains", "sample", "trigger_sample", "time_zone"].contains(op)
             app.history[f.id, default: Editing.History()].record(before, key: typing ? "\(op)|\(a.string("step") ?? "")|\(a.string("name") ?? "")" : nil, at: Date())
             f.hold(before)
             app.store.save(f)
@@ -223,7 +223,10 @@ import SidefolkExtensionKit
         case "lane_fail_fast":
             if let on = a.bool("on") { try editStep { $0.failFast = on } }
         case "call_flow":
-            if let name = a.string("value") { try editStep { if case .call(_, let inputs) = $0.kind { $0.kind = .call(flow: name, inputs: inputs) } } }
+            // A version's number means nothing to another flow.
+            if let name = a.string("value") { try editStep { if case .call(let was, let inputs) = $0.kind { $0.kind = .call(flow: name, inputs: inputs); if was != name { $0.pin = nil } } } }
+        case "call_pin":
+            try editStep { $0.pin = (a.values["value"] as? String).flatMap { Int($0) } }
         case "call_input":
             if let name = a.string("name") {
                 try editStep { if case .call(let flow, var inputs) = $0.kind { inputs[name] = text.nonEmpty; $0.kind = .call(flow: flow, inputs: inputs) } }
@@ -297,6 +300,28 @@ import SidefolkExtensionKit
             let made = app.newFlow(name: (o["name"] as? String) ?? L("New flow"), body: body)
             app.refreshPreflight(made.id)
             return .flow(made.id)
+        case "takes_add":
+            try draft { body in
+                guard body.inputs.count < Contract.mostInputs else { return }
+                var n = body.inputs.count + 1
+                while body.inputs.contains(where: { $0.name == "input_\(n)" }) { n += 1 }
+                body.inputs.append(FlowInput(name: "input_\(n)"))
+            }
+        case "takes_name", "takes_type", "takes_required", "takes_remove":
+            let at = a.int("at") ?? -1
+            if op == "takes_name", text.trimmed.range(of: #"^[A-Za-z0-9_]{1,40}$"#, options: .regularExpression) == nil { throw Problem(L("Up to 40 letters, digits and _.")) }
+            if op == "takes_name", try flow().draft.inputs.enumerated().contains(where: { $0.offset != at && $0.element.name == text.trimmed }) { throw Problem(L("It already takes something by that name.")) }
+            try draft { body in
+                guard body.inputs.indices.contains(at) else { return }
+                switch op {
+                case "takes_name": body.inputs[at].name = text.trimmed
+                case "takes_type": if let type = a.string("value").flatMap(ValueType.init(rawValue:)) { body.inputs[at].type = type }
+                case "takes_required": if let on = a.bool("on") { body.inputs[at].required = on }
+                default: body.inputs.remove(at: at)
+                }
+            }
+        case "gives":
+            try draft { $0.output = (a.values["value"] as? String).flatMap(ValueType.init(rawValue:)) }
         case "overlap":
             if let raw = a.string("value"), let overlap = FlowBody.Overlap(rawValue: raw) { try draft { $0.overlap = overlap } }
         case "time_zone":

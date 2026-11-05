@@ -1038,6 +1038,35 @@
     "“timeout_minutes” is 1 to {count}.": "“timeout_minutes”는 1~{count}입니다.",
     "“{lane}” took longer than {count} minutes, so it was stopped.": {
       "other": "“{lane}”이(가) {count}분을 넘겨 중지되었습니다."
-    }
+    },
+    "Add something it takes": "받는 것 추가",
+    "As": "형식",
+    "Inside this flow: “{value}”.": "이 루틴 안에서는 “{value}”입니다.",
+    "It already takes something by that name.": "이미 그 이름으로 받는 것이 있습니다.",
+    "It can't go without it": "이것 없이는 안 됨",
+    "It stays on this one: what changes in that flow doesn't reach here. If that version asks for something new to be allowed, it asks when it runs.": "이 버전에 머뭅니다. 그 루틴의 변경 사항은 여기에 오지 않습니다. 이 버전에 새로운 허용이 필요하면 실행할 때 묻습니다.",
+    "It stays on version {count} of “{name}”, and that version is no longer kept.": "“{name}”의 버전 {count}에 머물러 있지만 그 버전은 더 이상 보관되지 않습니다.",
+    "It uses “{value}”, and that isn't among what this flow says it takes.": "“{value}”를 쓰고 있지만 이 루틴이 받는다고 한 것에 없습니다.",
+    "Not needed": "없어도 됨",
+    "Up to 40 letters, digits and _.": "영문자, 숫자, _ 로 40자까지입니다.",
+    "Version {count}, live now": "버전 {count}, 현재 사용 중",
+    "Version {count}, until {date}": "버전 {count}, {date}까지",
+    "What it gives back": "돌려주는 것",
+    "What it was given › {name}": "받은 것 › {name}",
+    "Whatever it makes": "만들어지는 대로",
+    "Whatever's live": "그때 사용 중인 버전",
+    "Which version": "어떤 버전",
+    "a record": "레코드",
+    "a yes or no": "예 또는 아니요",
+    "words": "글",
+    "“inputs” is at most {count} things, each with a “name”, and a “type” of text, number, yes_no, list or record.": "“inputs”는 최대 {count}개이며, 각각 “name”과 “type”(text, number, yes_no, list, record)을 가집니다.",
+    "“output” is text, number, yes_no, list or record.": "“output”은 text, number, yes_no, list, record 중 하나입니다.",
+    "“version” goes with “call_flow”, and is a version's number.": "“version”은 “call_flow”와 함께 쓰며 버전 번호입니다.",
+    "“{flow}” doesn't take “{input}”.": "“{flow}”는 “{input}”을 받지 않습니다.",
+    "“{flow}” needs “{input}”, and this gives it nothing.": "“{flow}”에는 “{input}”이 필요한데 여기서 아무것도 주지 않습니다.",
+    "“{flow}” needs “{input}”: say what to give it.": "“{flow}”에는 “{input}”이 필요합니다. 무엇을 줄지 정하세요.",
+    "“{flow}” says it gives {type}, and it gave “{value}”.": "“{flow}”는 {type}을(를) 돌려준다고 했지만 “{value}”을(를) 돌려주었습니다.",
+    "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "“{flow}”는 “{input}”에 {type}을(를) 원하는데 여기서 “{value}”을(를) 줍니다.",
+    "“{flow}” wants {type} for “{input}”.": "“{flow}”는 “{input}”에 {type}을(를) 원합니다."
   }
 }

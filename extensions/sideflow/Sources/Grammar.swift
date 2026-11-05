@@ -5,6 +5,8 @@ enum Grammar {
     static let text = """
     A flow is JSON: {"trigger": …, "steps": […]}.
 
+    "inputs":[{"name":"customer","type":"text|number|yes_no|list|record","required":true}] and "output":"number" say what it takes and gives when another flow calls it: the caller is checked, and a value that plainly is what's wanted is made that. Left out, it takes and gives anything.
+
     "also_when":[…] adds more ways to start: schedules or events, up to 7, never a watch or manual. It starts once for each moment, however many match.
     trigger, one of:
       {"type":"manual"}
@@ -21,7 +23,7 @@ enum Grammar {
       {"choose":"{{value}}","paths":[{"when":"words","steps":[…]}],"else":[…]}
       {"try":[…],"recover":[…],"always":[…]}  ({{error}} in recover)
       {"id":"both","parallel":[{"name":"first","steps":[…],"timeout_minutes":10},{"name":"second","steps":[…]}],"join":"all","fail_fast":false}  ({{both.first}}: 2 to 4 lanes. "join": "all", "first" ({{both.winner}} is what finished first), how many are enough as a number, or "settled" (all ended, a failed lane gives null, {{both.not_finished}} lists those). A lane no longer needed or past "timeout_minutes" is stopped. "fail_fast" stops the others once enough can't finish; otherwise they finish, then the step fails)
-      {"id":"r","call_flow":"its name","inputs":{"name":"{{value}}"}}  (waits for it; {{r}} is its result. Inside the flow: {{input.name}})
+      {"id":"r","call_flow":"its name","inputs":{"name":"{{value}}"},"version":3}  (waits for it; {{r}} is its result. Inside the flow: {{input.name}}. "version" stays on that version of it, from get_flow's "versions"; left out, whatever's live)
       {"finish":"{{value}}"}  (ends here with this result)
       {"id":"d","data":{"op":"parse_json|parse_csv|lines|join|field|filter|sort|unique|count|first|sum|number|batches|group|fallback","from":"{{x}}","field":"a.b","test":"contains","than":"words","descending":true,"count":3,"separator":", "}}
       {"id":"f","form":{"title":"Check this","hours":72,"fields":[{"name":"ok","label":"Is it right?","kind":"text|number|yes_no|choice","options":["a","b"],"required":true}]}}  (waits on this page; {{f.ok}})

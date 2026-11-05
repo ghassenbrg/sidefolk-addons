@@ -262,10 +262,23 @@ extension Engine {
         if !practicing, pauseIfBlank(other) {
             return failed(step, why: L("It has a step that says nothing, so it's paused until that's fixed."), reads: false, in: &run)
         }
+        let body: FlowBody
+        if let pin = step.pin {
+            guard let held = other.body(version: pin) else {
+                return failed(step, why: L("It stays on version {count} of “{name}”, and that version is no longer kept.", ["count": Format.integer(pin), "name": other.name]), reads: false, in: &run)
+            }
+            body = held
+        } else {
+            body = practicing ? other.draft : other.running
+        }
+        var given = inputs.mapValues { run.values.fill(native: .string($0)) }
+        // A practice run's values from earlier steps may be stand-ins: only what's written out can be held to it.
+        let written = practicing ? Set(inputs.filter { Values.slots($0.value).isEmpty }.keys).union(body.inputs.map(\.name).filter { inputs[$0] == nil }) : nil
+        if let wrong = Contract.check(&given, body.inputs, flow: other.name, written: written) { return failed(step, why: wrong, reads: false, in: &run) }
         var values = Values()
         (values.today, values.now) = (run.values.today, run.values.now)
-        values.set("input", JSON.object(inputs.mapValues { run.values.fill(native: .string($0)) }))
-        let child = startChild(of: run, flow: other.id, flowName: other.name, body: practicing ? other.draft : other.running, mode: practicing ? .practice : run.mode == .once ? .once : .live, why: L("{flow} called it.", ["flow": run.flowName]), values: values)
+        values.set("input", JSON.object(given))
+        let child = startChild(of: run, flow: other.id, flowName: other.name, body: body, mode: practicing ? .practice : run.mode == .once ? .once : .live, why: L("{flow} called it.", ["flow": run.flowName]), values: values)
         run.waitingOn = [child.id]
         run.status = .waiting
         run.record(.init(step: step.id, status: .waiting, summary: L("Waiting for {flow}", ["flow": other.name]), at: clock()))
@@ -325,6 +338,12 @@ extension Engine {
             if case .first = step.join, fields[Self.winner] == nil, let first = done.min(by: { ($0.endedAt ?? .distantFuture) < ($1.endedAt ?? .distantFuture) }) { fields[Self.winner] = first.answer }
             if case .settled = step.join, fields[Self.notFinished] == nil { fields[Self.notFinished] = .array(children.filter { $0.status != .done }.map { .string($0.why) }) }
             result = .object(fields)
+        } else if let wanted = children[0].body.output, children[0].mode != .practice {
+            let gave = children[0].output
+            guard let fitted = gave.flatMap(wanted.fit) else {
+                return failed(step, why: L("“{flow}” says it gives {type}, and it gave “{value}”.", ["flow": children[0].flowName, "type": wanted.word, "value": gave.map { Values.text($0).clipped(80) } ?? ""]), reads: false, in: &run)
+            }
+            result = fitted
         } else {
             result = children[0].answer
         }

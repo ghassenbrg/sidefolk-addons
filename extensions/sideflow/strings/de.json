@@ -1056,6 +1056,35 @@
     "“{lane}” took longer than {count} minutes, so it was stopped.": {
       "one": "„{lane}“ hat länger als {count} Minute gedauert und wurde deshalb gestoppt.",
       "other": "„{lane}“ hat länger als {count} Minuten gedauert und wurde deshalb gestoppt."
-    }
+    },
+    "Add something it takes": "Etwas hinzufügen, das er bekommt",
+    "As": "Als",
+    "Inside this flow: “{value}”.": "In diesem Ablauf: „{value}“.",
+    "It already takes something by that name.": "Er bekommt schon etwas mit diesem Namen.",
+    "It can't go without it": "Er kommt nicht ohne aus",
+    "It stays on this one: what changes in that flow doesn't reach here. If that version asks for something new to be allowed, it asks when it runs.": "Er bleibt bei dieser: Änderungen an jenem Ablauf kommen hier nicht an. Braucht diese Version eine neue Erlaubnis, fragt sie beim Ausführen.",
+    "It stays on version {count} of “{name}”, and that version is no longer kept.": "Er bleibt bei Version {count} von „{name}“, und diese Version wird nicht mehr aufbewahrt.",
+    "It uses “{value}”, and that isn't among what this flow says it takes.": "Er nutzt „{value}“, und das gehört nicht zu dem, was dieser Ablauf laut Angabe bekommt.",
+    "Not needed": "Nicht nötig",
+    "Up to 40 letters, digits and _.": "Bis zu 40 Buchstaben, Ziffern und _.",
+    "Version {count}, live now": "Version {count}, jetzt aktiv",
+    "Version {count}, until {date}": "Version {count}, bis {date}",
+    "What it gives back": "Was er zurückgibt",
+    "What it was given › {name}": "Was er bekommen hat › {name}",
+    "Whatever it makes": "Was er erzeugt",
+    "Whatever's live": "Was gerade aktiv ist",
+    "Which version": "Welche Version",
+    "a record": "einen Datensatz",
+    "a yes or no": "ein Ja oder Nein",
+    "words": "Wörter",
+    "“inputs” is at most {count} things, each with a “name”, and a “type” of text, number, yes_no, list or record.": "„inputs“ sind höchstens {count} Dinge, jedes mit „name“ und einem „type“: text, number, yes_no, list oder record.",
+    "“output” is text, number, yes_no, list or record.": "„output“ ist text, number, yes_no, list oder record.",
+    "“version” goes with “call_flow”, and is a version's number.": "„version“ gehört zu „call_flow“ und ist die Nummer einer Version.",
+    "“{flow}” doesn't take “{input}”.": "„{flow}“ bekommt kein „{input}“.",
+    "“{flow}” needs “{input}”, and this gives it nothing.": "„{flow}“ braucht „{input}“, und das hier gibt ihm nichts.",
+    "“{flow}” needs “{input}”: say what to give it.": "„{flow}“ braucht „{input}“: Sag, was er bekommen soll.",
+    "“{flow}” says it gives {type}, and it gave “{value}”.": "„{flow}“ gibt laut Angabe {type} zurück und gab „{value}“.",
+    "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "„{flow}“ will {type} für „{input}“, und das hier gibt ihm „{value}“.",
+    "“{flow}” wants {type} for “{input}”.": "„{flow}“ will {type} für „{input}“."
   }
 }

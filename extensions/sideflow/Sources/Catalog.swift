@@ -50,6 +50,8 @@ import SidefolkExtensionKit
     private(set) var loadedAt: Date?
     /// Whether exactly one flow goes by this name, as a step finds it. The engine says.
     var findsFlow: (String) -> Bool = { _ in true }
+    /// What a call would run, by that flow's name and the version it stays on: nil when there's no such thing.
+    var calledBody: (String, Int?) -> FlowBody? = { _, _ in nil }
 
     /// What tools and connections were called while they were here: all that's left to say about one that's gone. `Connections` keeps these on disk.
     var rememberedTools: [String: String] = [:]
@@ -268,6 +270,14 @@ extension FlowBody {
 
     @MainActor func problems(_ catalog: Catalog) -> [FlowProblem] {
         var out: [FlowProblem] = []
+        // Saying what it takes and then using something else is a call that can never get it.
+        if !inputs.isEmpty {
+            for step in allSteps {
+                for name in step.usedTexts.flatMap(Values.slots).filter({ $0.0 == "input" }).compactMap({ $0.1.dropFirst().first }).map(String.init) where !inputs.contains(where: { $0.name == name }) {
+                    out.append(FlowProblem(step: step.id, text: L("It uses “{value}”, and that isn't among what this flow says it takes.", ["value": "{{input.\(name)}}"])))
+                }
+            }
+        }
         if steps.isEmpty { out.append(FlowProblem(step: nil, text: L("It has no steps yet."))) }
         if allSteps.count > FlowBody.maxSteps { out.append(FlowProblem(step: nil, text: L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))) }
         if let wrong = triggerProblem { out.append(FlowProblem(step: nil, text: wrong)) }
@@ -316,7 +326,12 @@ extension FlowBody {
                 if steps.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add the steps to try."))) }
             case .parallel(let lanes):
                 if lanes.contains(where: { $0.steps.isEmpty }) { out.append(FlowProblem(step: step.id, text: L("Each lane needs a step."))) }
-            case .call(let flow, _):
+            case .call(let flow, let inputs):
+                if let body = catalog.calledBody(flow, step.pin) {
+                    out += Contract.problems(of: inputs, to: body, flow: flow).map { FlowProblem(step: step.id, text: $0) }
+                } else if let pin = step.pin, catalog.findsFlow(flow), !flow.trimmed.isEmpty {
+                    out.append(FlowProblem(step: step.id, text: L("It stays on version {count} of “{name}”, and that version is no longer kept.", ["count": Format.integer(pin), "name": flow])))
+                }
                 if flow.trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Pick which flow to run."))) } else if !catalog.findsFlow(flow) { out.append(FlowProblem(step: step.id, text: L("There's no one flow called “{name}”. Pick it again.", ["name": flow]))) }
             case .form(let form):
                 if form.fields.isEmpty { out.append(FlowProblem(step: step.id, text: L("Add something for the form to ask."))) }

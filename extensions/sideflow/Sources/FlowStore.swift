@@ -242,7 +242,7 @@ import SidefolkExtensionKit
             "created": time(flow.createdAt), "updated": time(flow.updatedAt), "watch_outdated": flow.watchOutdated ? true : nil, "last_fire": time(flow.lastFire), "last_every": flow.lastEvery.isEmpty ? nil : Dictionary(uniqueKeysWithValues: flow.lastEvery.map { (String($0.key), $0.value.timeIntervalSince1970) }), "watch": flow.watchTitle,
             "missed": flow.missed.map(\.timeIntervalSince1970), "start_problem": flow.startProblem, "paused_because": flow.pausedBecause,
             "practiced": flow.practiced.map(FlowCodec.json), "waiting_starts": flow.waitingStarts.isEmpty ? nil : flow.waitingStarts,
-            "revisions": flow.revisions.isEmpty ? nil : flow.revisions.map { ["at": $0.at.timeIntervalSince1970, "body": FlowCodec.json($0.body)] as [String: Any] },
+            "revisions": flow.revisions.isEmpty ? nil : flow.revisions.map { ["at": $0.at.timeIntervalSince1970, "body": FlowCodec.json($0.body), "version": $0.version] as [String: Any] }, "version": flow.version == 1 ? nil : flow.version,
         ]
         return out.compactMapValues { $0 }
     }
@@ -274,8 +274,11 @@ import SidefolkExtensionKit
         flow.waitingStarts = o["waiting_starts"] as? [String] ?? []
         flow.revisions = (o["revisions"] as? [[String: Any]] ?? []).compactMap { r in
             guard let at = date(r["at"]), let body = try? FlowCodec.body(r["body"], saved: true) else { return nil }
-            return Flow.Revision(at: at, body: body)
+            return Flow.Revision(at: at, body: body, version: r["version"] as? Int ?? 0)
         }
+        // From before versions had numbers: in the order they went.
+        flow.version = o["version"] as? Int ?? flow.revisions.count + 1
+        for at in flow.revisions.indices where flow.revisions[at].version == 0 { flow.revisions[at].version = at + 1 }
         return flow
     }
 

@@ -210,6 +210,8 @@ struct Step: Equatable, Sendable {
     /// For a parallel: when it carries on, and whether to stop the other lanes as soon as it can't get there.
     var join: Join = .all
     var failFast = false
+    /// For a call: the version of that flow it stays on. None: whatever's live.
+    var pin: Int?
 
     /// Whether it leaves a value later steps can use.
     var hasOutput: Bool {
@@ -241,6 +243,9 @@ struct FlowBody: Equatable, Sendable {
     var timeZone: String?
     /// In a practice run, what set it off.
     var triggerSample: String?
+    /// What it says it takes when another flow calls it, and gives back. None said: whatever it's given, whatever it makes.
+    var inputs: [FlowInput] = []
+    var output: ValueType?
 
     static let maxSteps = 100
     static let longestQueue = 20
@@ -320,9 +325,12 @@ struct Flow: Equatable, Sendable, Identifiable {
     struct Revision: Equatable, Sendable {
         var at: Date
         var body: FlowBody
+        var version = 0
     }
 
     var revisions: [Revision] = []
+    /// The number of what's live, one up each time what's live is put aside.
+    var version = 1
     static let keptRevisions = 20
     /// Starts waiting their turn, on a queue: what set each off.
     var waitingStarts: [String] = []
@@ -371,6 +379,8 @@ enum FlowCodec {
         if body.overlap != .one_more { out["overlap"] = body.overlap.rawValue }
         if let zone = body.timeZone { out["time_zone"] = zone }
         if let sample = body.triggerSample { out["trigger_sample"] = sample }
+        if !body.inputs.isEmpty { out["inputs"] = body.inputs.map { ["name": $0.name, "type": $0.type.rawValue, "required": $0.required] as [String: Any] } }
+        if let output = body.output { out["output"] = output.rawValue }
         return out
     }
 
@@ -441,6 +451,7 @@ enum FlowCodec {
         case .call(let flow, let inputs):
             out["call_flow"] = flow
             if !inputs.isEmpty { out["inputs"] = inputs }
+            if let pin = step.pin { out["version"] = pin }
         case .finish(let value): out["finish"] = value
         case .data(let d):
             var data: [String: Any] = ["op": d.op.rawValue, "from": d.from]
@@ -497,7 +508,7 @@ enum FlowCodec {
 
     static func body(_ any: Any?, saved: Bool = false) throws -> FlowBody {
         guard let o = any as? [String: Any] else { throw Problem(L("A flow is an object with “trigger” and “steps”.")) }
-        try only(o, ["trigger", "also_when", "steps", "overlap", "time_zone", "trigger_sample"], in: "flow")
+        try only(o, ["trigger", "also_when", "steps", "overlap", "time_zone", "trigger_sample", "inputs", "output"], in: "flow")
         var used = Set<String>()
         var made = FlowBody(trigger: try trigger(o["trigger"], saved: saved), steps: try steps(o["steps"] ?? [], depth: saved ? -64 : 1, used: &used))
         let also = o["also_when"] as? [Any] ?? []
@@ -514,6 +525,23 @@ enum FlowCodec {
             made.overlap = overlap
         }
         made.triggerSample = (o["trigger_sample"] as? String)?.nonEmpty
+        if let raw = o["inputs"] {
+            guard let list = raw as? [[String: Any]], saved || list.count <= Contract.mostInputs else { throw Problem(L("“inputs” is at most {count} things, each with a “name”, and a “type” of text, number, yes_no, list or record.", ["count": Format.integer(Contract.mostInputs)])) }
+            var names = Set<String>()
+            made.inputs = try list.compactMap { one in
+                let name = one["name"] as? String ?? "", type = (one["type"] as? String).map(ValueType.init(rawValue:)) ?? .some(.text)
+                guard name.range(of: #"^[A-Za-z0-9_]{1,40}$"#, options: .regularExpression) != nil, let type, names.insert(name).inserted else {
+                    if saved { return nil }
+                    throw Problem(L("“inputs” is at most {count} things, each with a “name”, and a “type” of text, number, yes_no, list or record.", ["count": Format.integer(Contract.mostInputs)]))
+                }
+                return FlowInput(name: name, type: type, required: one["required"] as? Bool ?? true)
+            }
+        }
+        if let raw = o["output"] {
+            let output = (raw as? String).flatMap(ValueType.init(rawValue:))
+            guard saved || output != nil else { throw Problem(L("“output” is text, number, yes_no, list or record.")) }
+            made.output = output
+        }
         if let zone = (o["time_zone"] as? String)?.nonEmpty {
             guard TimeZone(identifier: zone) != nil else { throw Problem(L("“{zone}” isn't a time zone: use a name like Europe/Paris.", ["zone": zone])) }
             made.timeZone = zone
@@ -591,7 +619,7 @@ enum FlowCodec {
         let saved = depth < 0
         guard let o = any as? [String: Any] else { throw Problem(L("Each step is an object.")) }
         try only(o, ["id", "name", "on_failure", "sample", "do", "with", "ai", "fields", "ask", "options", "text", "if", "then", "else", "wait_minutes", "run_flow",
-                     "for_each", "limit", "item_failure", "steps", "repeat", "until", "times", "choose", "paths", "try", "recover", "always", "parallel", "join", "fail_fast", "call_flow", "inputs", "finish", "data", "form", "wait_for"], in: "step")
+                     "for_each", "limit", "item_failure", "steps", "repeat", "until", "times", "choose", "paths", "try", "recover", "always", "parallel", "join", "fail_fast", "call_flow", "inputs", "version", "finish", "data", "form", "wait_for"], in: "step")
         let kinds = doers.filter { o[$0] != nil }
         guard kinds.count == 1 else { throw Problem(L("A step does one thing: {kinds}.", ["kinds": doers.joined(separator: ", ")])) }
         var id = (o["id"] as? String)?.trimmed ?? ""
@@ -713,7 +741,8 @@ enum FlowCodec {
             fields = raw
         }
         guard saved || !(o["join"] != nil || o["fail_fast"] != nil) || o["parallel"] != nil else { throw Problem(L("“join” and “fail_fast” go with “parallel”.")) }
-        return Step(id: id, name: (o["name"] as? String)?.nonEmpty, kind: kind, onFailure: failure, sample: (o["sample"] as? String)?.nonEmpty, fields: fields, join: join, failFast: o["fail_fast"] as? Bool ?? false)
+        guard saved || o["version"] == nil || (o["call_flow"] != nil && (o["version"] as? Int ?? 0) >= 1) else { throw Problem(L("“version” goes with “call_flow”, and is a version's number.")) }
+        return Step(id: id, name: (o["name"] as? String)?.nonEmpty, kind: kind, onFailure: failure, sample: (o["sample"] as? String)?.nonEmpty, fields: fields, join: join, failFast: o["fail_fast"] as? Bool ?? false, pin: o["version"] as? Int)
     }
 
     private static func only(_ o: [String: Any], _ keys: Set<String>, in what: String) throws {

@@ -62,6 +62,10 @@ extension FlowHost {
         self.store = store
         self.catalog = catalog
         catalog.findsFlow = { [store] in store.named($0) != nil }
+        catalog.calledBody = { [store] name, pin in
+            guard let flow = store.named(name) else { return nil }
+            return pin.map { flow.body(version: $0) } ?? flow.running
+        }
     }
 
     // MARK: Starting
@@ -1212,8 +1216,20 @@ extension FlowHost {
 
     private func keepBefore(_ reviewed: FlowBody, in flow: inout Flow) {
         guard let was = flow.live, was != reviewed else { return }
-        flow.revisions.append(Flow.Revision(at: clock(), body: was))
-        flow.revisions = Array(flow.revisions.suffix(Flow.keptRevisions))
+        flow.keep(was, at: clock(), keeping: versionsHeld(of: flow))
+    }
+
+    /// The versions of this flow other flows' steps stay on.
+    private func versionsHeld(of flow: Flow) -> Set<Int> {
+        var out = Set<Int>()
+        for other in store.flows() where other.id != flow.id {
+            for body in [other.draft, other.saved, other.live].compactMap(\.self) {
+                for step in body.allSteps {
+                    if case .call(let name, _) = step.kind, let pin = step.pin, store.named(name)?.id == flow.id { out.insert(pin) }
+                }
+            }
+        }
+        return out
     }
 
     private func settleWatch(_ id: String, wasLive: FlowBody?, wasOn: Bool, reviewed: FlowBody, title: String) async {
@@ -1615,10 +1631,7 @@ extension FlowHost {
         flow.state = .paused
         flow.pausedBecause = here ? L("You ended what you'd allowed, so it asks again before running.") : L("You ended what you'd allowed in Settings, so it asks again before running.")
         let ended = flow.live
-        if let was = flow.live {
-            flow.revisions.append(Flow.Revision(at: clock(), body: was))
-            flow.revisions = Array(flow.revisions.suffix(Flow.keptRevisions))
-        }
+        if let was = flow.live { flow.keep(was, at: clock(), keeping: versionsHeld(of: flow)) }
         flow.live = nil
         store.save(flow)
         // What's under way was running on what they just ended, called by another flow or set off by a draft too. An AI step or a set-off never reaches Sidefolk's check, so this is what stops those.
