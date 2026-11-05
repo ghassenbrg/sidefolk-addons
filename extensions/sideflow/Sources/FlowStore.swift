@@ -106,9 +106,33 @@ import SidefolkExtensionKit
         if ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).contains(where: { $0.hasPrefix("flows-damaged-") }) { hasFileAside = true }
         if let data = try? Data(contentsOf: eventsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] { seenEvents = list }
         if let data = try? Data(contentsOf: stopsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] {
-            stopsAsked = Set(list.filter { runsById[$0.replacingOccurrences(of: "pause:", with: "").replacingOccurrences(of: "person:", with: "")]?.status.isOver == false })
+            stopsAsked = Set(list.filter { $0.hasPrefix(Self.startsStopped) || runsById[$0.replacingOccurrences(of: "pause:", with: "").replacingOccurrences(of: "person:", with: "")]?.status.isOver == false })
         }
+        settleStartsStopped()
     }
+
+    /// Stop was pressed on a flow that couldn't be read, so its waiting starts couldn't be cleared then. They're cleared the first time it can be, before anything could start them.
+    private func settleStartsStopped() {
+        var flowsChanged = false, stopsChanged = false
+        for key in stopsAsked where key.hasPrefix(Self.startsStopped) {
+            let id = String(key.dropFirst(Self.startsStopped.count))
+            if var flow = flowsById[id] {
+                flowsChanged = flowsChanged || !flow.waitingStarts.isEmpty
+                flow.waitingStarts = []
+                flowsById[id] = flow
+            } else if isHeldBack(flow: id) {
+                continue
+            }
+            stopsAsked.remove(key)
+            stopsChanged = true
+        }
+        if flowsChanged { flowsNotSaved = !write(flows().map(Self.json) + unreadable, to: flowsFile) }
+        if stopsChanged { write(stopsAsked.sorted(), to: stopsFile) }
+    }
+
+    func askToStopStarts(of flow: String) { askStop(Self.startsStopped + flow) }
+
+    private static let startsStopped = "starts:"
 
     private var flowsFile: URL { folder.appendingPathComponent("flows.json") }
     private var eventsFile: URL { folder.appendingPathComponent("events.json") }

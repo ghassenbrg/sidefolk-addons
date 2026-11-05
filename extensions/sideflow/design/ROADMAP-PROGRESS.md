@@ -33,12 +33,9 @@ Known gap, in plain words (the coordinator's ruling, 2026-11-05): when you ask t
 
 ## First after the stack ships (the coordinator, 2026-11-05)
 
-The first fix of the next batch, before the small gaps below (the coordinator's ruling): Stop on a flow whose file can't be read can't clear its waiting starts, so they can go ahead after someone repairs that file. It needs a damaged flows file and a deliberate repair, and what goes ahead runs under the plan the person approved.
+Done on `team/sideflow-lanes`: Stop on a flow whose file can't be read now clears its waiting starts the first time it can be read, through a restart.
 
 Known small gaps accepted for now, to fix first in the next batch:
-- `{{a}} {{b}}` with one null and one empty sends spaces.
-- `{{a}}, {{b}}` with both null sends ",".
-- A final data step's null hides earlier words as the answer.
 - Nulls inside a list passed as one whole value aren't checked.
 - A callee, lane or repeat with only a carried-past failure gives "", so a later `{{k}}` can write a blank (the person's own choice).
 

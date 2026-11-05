@@ -1832,6 +1832,58 @@ extension JSON {
         #expect(w.store.run(run.id)?.status == .stopped)
     }
 
+    @Test func whatWaitedOnAFlowThatCouldntBeReadStaysStoppedOnceItCan() async throws {
+        let w = try World()
+        w.host.hold = "reads.it"
+        let flow = try w.flow([["id": "a", "do": "reads.it"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let file = w.folder.appendingPathComponent("flows.json")
+        var list = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [[String: Any]])
+        let good = list[0]["draft"]
+        list[0]["waiting_starts"] = ["one", "two"]
+        list[0]["draft"] = ["trigger": ["type": "from_the_future"], "steps": []]
+        try JSONSerialization.data(withJSONObject: list).write(to: file)
+        w.restart()
+        #expect(w.store.heldBackRuns.count == 1)
+        w.engine.stop(run: run.id, byThePerson: true)
+        #expect(w.store.run(run.id)?.status == .stopped)
+        // Through a restart with it still unreadable, then with it repaired.
+        w.restart()
+        list[0]["draft"] = good
+        try JSONSerialization.data(withJSONObject: list).write(to: file)
+        w.restart()
+        #expect(w.store.flow(flow.id)?.waitingStarts == [])
+        let saved = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [[String: Any]])
+        #expect(saved[0]["waiting_starts"] == nil)
+        // It's settled: a start that waits from now on isn't cleared by the old Stop.
+        var again = try #require(w.store.flow(flow.id))
+        again.waitingStarts = ["later"]
+        w.store.save(again)
+        w.restart()
+        #expect(w.store.flow(flow.id)?.waitingStarts == ["later"])
+    }
+
+    @Test func aStopThatWasntThePersonsLeavesWhatWaitsForAFlowThatCantBeRead() async throws {
+        let w = try World()
+        w.host.hold = "reads.it"
+        let flow = try w.flow([["id": "a", "do": "reads.it"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let file = w.folder.appendingPathComponent("flows.json")
+        var list = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [[String: Any]])
+        let good = list[0]["draft"]
+        list[0]["waiting_starts"] = ["one"]
+        list[0]["draft"] = ["trigger": ["type": "from_the_future"], "steps": []]
+        try JSONSerialization.data(withJSONObject: list).write(to: file)
+        w.restart()
+        w.engine.stop(run: run.id)
+        list[0]["draft"] = good
+        try JSONSerialization.data(withJSONObject: list).write(to: file)
+        w.restart()
+        #expect(w.store.flow(flow.id)?.waitingStarts == ["one"])
+    }
+
     @Test func thePersonCanLetHeldRunsGoAndTheyHearWhy() async throws {
         let w = try World()
         let flow = try w.flow([["id": "a", "wait_minutes": 60]])

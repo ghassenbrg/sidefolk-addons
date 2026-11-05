@@ -195,6 +195,25 @@ import SidefolkExtensionKit
         #expect(wrong?.status != .done, "its tool says what it gives, and this isn't one")
     }
 
+    @Test func wordsThatComeToNothingAreNoAnswer() throws {
+        var values = Values()
+        values.set("gone", JSON.null)
+        values.set("also", JSON.null)
+        values.set("blank", "")
+        values.set("some", "words")
+        for text in ["{{gone}}", "{{gone}} {{blank}}", "{{blank}} {{gone}}", "{{gone}}, {{also}}", "({{gone}})"] { #expect(values.saysNothing(text) == "gone", "\(text)") }
+        for text in ["{{blank}}", "{{blank}} {{blank}}", "{{gone}} {{some}}", "{{gone}}, {{some}}", "Hello {{gone}}", "1 {{gone}}", "no values"] { #expect(values.saysNothing(text) == nil, "\(text)") }
+    }
+
+    @Test func aNullLeftLastDoesntTakeTheAnswerAway() throws {
+        var values = Values()
+        values.set("said", "words")
+        values.set("left", JSON.null)
+        let steps = [Step(id: "said", kind: .text("x")), Step(id: "left", kind: .text("y"))]
+        #expect(values.lastAnswer(of: steps, itself: true) == .string("words"))
+        #expect(values.lastAnswer(of: [steps[1]], itself: true) == .null, "with nothing else, it's what there is")
+    }
+
     @Test func aRecordInASentenceIsCutLikeWordsAre() throws {
         var values = Values()
         values.set("big", JSON.object(["a": .string(String(repeating: "x", count: Values.wordsKept * 2))]))

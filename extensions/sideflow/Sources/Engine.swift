@@ -1070,6 +1070,7 @@ extension FlowHost {
                 // On disk: a restart before the step comes back still ends it this way.
                 store.askStop(Self.personStopKey(top))
                 clearedOnStop[top, default: 0] += clearQueue(of: root.flow)
+                if store.isHeldBack(flow: root.flow) { store.askToStopStarts(of: root.flow) }
             }
             if top != id { stop(run: top) }
         }
