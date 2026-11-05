@@ -65,6 +65,9 @@
         "Ouvrir Sideflow",
         "Changer quelque chose dans Sideflow : {op}"
       ]
+    },
+    "import_file": {
+      "title": "Importer un fichier de routine"
     }
   },
   "pages": {
@@ -798,7 +801,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "Cette routine ne demande rien au départ. Une routine demande quelque chose en utilisant « {{input.name}} » dans ses étapes.",
     "That form has been answered already.": "Ce formulaire a déjà reçu une réponse.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "C’est trop profond : une routine peut contenir des étapes dans des étapes sur {count} niveaux.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "Ce n’est pas la définition d’une routine. Utilisez « Copier comme définition » sur une routine.",
     "That run isn't stopped: it's waiting for something.": "Cette exécution n’est pas arrêtée : elle attend quelque chose.",
     "The AI's answer didn't have the fields this step needs.": "La réponse de l’IA n’avait pas les champs dont cette étape a besoin.",
     "The choices": "Les choix",
@@ -1082,6 +1084,45 @@
     "Two columns are called “{name}”.": "Deux colonnes s’appellent « {name} ».",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "La ligne {row} a plus de cellules qu’il n’y a de colonnes. Une valeur contenant une virgule doit être entre guillemets.",
     "Some columns have no name.": "Certaines colonnes n’ont pas de nom.",
-    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "Ce n’est pas du JSON, ou il dit quelque chose deux fois, ou il contient un nombre trop grand ou trop petit."
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "Ce n’est pas du JSON, ou il dit quelque chose deux fois, ou il contient un nombre trop grand ou trop petit.",
+    "Import a file": "Importer un fichier",
+    "Bring this in?": "L’importer ?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "Elle arrive en brouillon, désactivée. Rien ne s’exécute tant que vous ne l’activez pas après avoir lu sa carte.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "Voici ce que Sideflow peut déduire du fichier. La vraie protection, c’est la carte au moment de l’activer.",
+    "Bring in": "Importer",
+    "Not now": "Pas maintenant",
+    "It starts: {when}": "Elle démarre : {when}",
+    "It reads: {list}": "Elle lit : {list}",
+    "It changes or sends something: {list}": "Elle modifie ou envoie quelque chose : {list}",
+    "By their names, these may delete: {list}": "D’après leur nom, ceux-ci peuvent supprimer : {list}",
+    "It uses a server you added: {list}": "Elle utilise un serveur que vous avez ajouté : {list}",
+    "It works with files: {list}": "Elle travaille sur des fichiers : {list}",
+    "It uses your AI.": "Elle utilise votre IA.",
+    "It gives your companion a whole job to do.": "Elle confie toute une tâche à votre compagnon.",
+    "It sets off another flow: {list}": "Elle lance une autre routine : {list}",
+    "It names a flow that isn't here: {list}": "Elle nomme une routine absente d’ici : {list}",
+    "It only works with words: it reads and changes nothing.": "Elle ne travaille qu’avec des mots : elle ne lit et ne modifie rien.",
+    "That file can't be read.": "Ce fichier ne peut pas être lu.",
+    "That file is too big to be flows.": "Ce fichier est trop gros pour contenir des routines.",
+    "That isn't a Sideflow file or a flow's definition.": "Ce n’est ni un fichier Sideflow ni la définition d’une routine.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "Ce fichier vient d’un Sideflow plus récent. Mettez Sideflow à jour, puis réessayez.",
+    "A file holds at most {count} flows.": "Un fichier contient au plus {count} routines.",
+    "Every flow in a file needs a name.": "Chaque routine d’un fichier doit avoir un nom.",
+    "Two flows in this file are called “{name}”.": "Deux routines de ce fichier s’appellent « {name} ».",
+    "“{name}” can't be brought in: {why}": "Impossible d’importer « {name} » : {why}",
+    "{name} (imported)": "{name} (importée)",
+    "{name} (imported {count})": "{name} (importée {count})",
+    "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "« {name} » n’est pas un nom de routine simple : il est trop long ou contient des caractères cachés.",
+    "It reads, using values from earlier steps, which could send them out: {list}": "Elle lit en utilisant des valeurs d’étapes précédentes, ce qui pourrait les envoyer ailleurs : {list}",
+    "It keeps an eye on: {list}": "Elle surveille : {list}",
+    "It sets off a flow of yours: {list}": "Elle déclenche une de vos routines : {list}",
+    "It needs what isn't here, so Sideflow can't say what that does: {list}": "Il lui faut ce qui n’est pas ici, donc Sideflow ne peut pas dire ce que cela fait : {list}",
+    "There's more than this page can show. Read its steps before you turn it on.": "Il y a plus que ce que cette page peut afficher. Lisez ses étapes avant de l’activer."
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Importer dans Sideflow",
+      "detail": "En brouillon. Vous lisez d’abord ce qu’elle fait."
+    }
   }
 }

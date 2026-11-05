@@ -65,6 +65,9 @@
         "打开 Sideflow",
         "在 Sideflow 中更改内容：{op}"
       ]
+    },
+    "import_file": {
+      "title": "导入流程文件"
     }
   },
   "pages": {
@@ -789,7 +792,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "那个流程开始时不需要任何东西。流程要在步骤里使用“{{input.name}}”才会要求输入。",
     "That form has been answered already.": "那个表单已经回答过了。",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "嵌套太深了：流程里的步骤最多可以嵌套 {count} 层。",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "这不是流程的定义。请在流程上使用“复制为定义”。",
     "That run isn't stopped: it's waiting for something.": "那次运行并没有停止：它在等待某件事。",
     "The AI's answer didn't have the fields this step needs.": "AI 的回答没有这个步骤所需的字段。",
     "The choices": "可选项",
@@ -1061,6 +1063,45 @@
     "Two columns are called “{name}”.": "有两列都叫“{name}”。",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "第 {row} 行的单元格比列多。含逗号的值需要加引号。",
     "Some columns have no name.": "有些列没有名称。",
-    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "这不是 JSON，或有内容重复，或有数字太大或太小。"
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "这不是 JSON，或有内容重复，或有数字太大或太小。",
+    "Import a file": "导入文件",
+    "Bring this in?": "要导入吗?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "它以草稿形式导入并保持关闭。在你开启并阅读其卡片之前,不会运行任何内容。",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "这是 Sideflow 能从文件中看出的内容。真正的保障是开启时的卡片。",
+    "Bring in": "导入",
+    "Not now": "暂不",
+    "It starts: {when}": "开始:{when}",
+    "It reads: {list}": "读取:{list}",
+    "It changes or sends something: {list}": "会更改或发送内容:{list}",
+    "By their names, these may delete: {list}": "从名称看,这些可能会删除:{list}",
+    "It uses a server you added: {list}": "使用你添加的服务器:{list}",
+    "It works with files: {list}": "处理文件:{list}",
+    "It uses your AI.": "使用你的 AI。",
+    "It gives your companion a whole job to do.": "让你的伙伴完成一整项任务。",
+    "It sets off another flow: {list}": "触发另一个流程:{list}",
+    "It names a flow that isn't here: {list}": "提到了此处没有的流程:{list}",
+    "It only works with words: it reads and changes nothing.": "只处理文字:不读取也不更改任何内容。",
+    "That file can't be read.": "无法读取该文件。",
+    "That file is too big to be flows.": "该文件太大,不可能是流程。",
+    "That isn't a Sideflow file or a flow's definition.": "这不是 Sideflow 文件,也不是流程定义。",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "此文件由较新版本的 Sideflow 创建。请更新 Sideflow 后重试。",
+    "A file holds at most {count} flows.": "一个文件最多包含 {count} 个流程。",
+    "Every flow in a file needs a name.": "文件中的每个流程都需要名称。",
+    "Two flows in this file are called “{name}”.": "此文件中有两个流程都叫“{name}”。",
+    "“{name}” can't be brought in: {why}": "无法导入“{name}”:{why}",
+    "{name} (imported)": "{name}(已导入)",
+    "{name} (imported {count})": "{name}(已导入 {count})",
+    "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "“{name}”不能作为流程名称：太长，或含有隐藏字符。",
+    "It reads, using values from earlier steps, which could send them out: {list}": "它会用前面步骤的值来读取，这些值可能因此被发送出去：{list}",
+    "It keeps an eye on: {list}": "它会留意：{list}",
+    "It sets off a flow of yours: {list}": "它会启动你的流程：{list}",
+    "It needs what isn't here, so Sideflow can't say what that does: {list}": "它需要这里没有的东西，所以 Sideflow 说不出那会做什么：{list}",
+    "There's more than this page can show. Read its steps before you turn it on.": "内容超出了这个页面能显示的范围。开启前请先读一读它的步骤。"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "导入 Sideflow",
+      "detail": "以草稿形式。先看看它会做什么。"
+    }
   }
 }

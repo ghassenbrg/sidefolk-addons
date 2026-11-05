@@ -65,6 +65,9 @@
         "Sideflowを開く",
         "Sideflowの内容を変更: {op}"
       ]
+    },
+    "import_file": {
+      "title": "ルーティンのファイルを読み込む"
     }
   },
   "pages": {
@@ -790,7 +793,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "そのルーティンは、開始時に何も求めません。ルーティンがステップの中で「{{input.name}}」を使うと、何かを求めます。",
     "That form has been answered already.": "そのフォームにはすでに答えがあります。",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "深すぎます。ルーティンの中のステップは、{count}段階まで入れ子にできます。",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "ルーティンの定義ではありません。ルーティンで「定義としてコピー」を使ってください。",
     "That run isn't stopped: it's waiting for something.": "その実行は止まっていません。何かを待っています。",
     "The AI's answer didn't have the fields this step needs.": "AIの答えに、このステップが必要とする項目がありませんでした。",
     "The choices": "選択肢",
@@ -1061,6 +1063,45 @@
     "Two columns are called “{name}”.": "「{name}」という名前の列が2つあります。",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "{row} 行目のセル数が列数より多くなっています。カンマを含む値は引用符で囲んでください。",
     "Some columns have no name.": "名前のない列があります。",
-    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "JSON ではないか、同じものが2回書かれているか、数が大きすぎるか小さすぎます。"
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "JSON ではないか、同じものが2回書かれているか、数が大きすぎるか小さすぎます。",
+    "Import a file": "ファイルを読み込む",
+    "Bring this in?": "読み込みますか?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "下書きとしてオフの状態で入ります。オンにしてカードを読むまで何も実行されません。",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "これはファイルから Sideflow が分かる範囲の内容です。本当の安全策は、オンにするときのカードです。",
+    "Bring in": "読み込む",
+    "Not now": "今はしない",
+    "It starts: {when}": "開始: {when}",
+    "It reads: {list}": "読み取るもの: {list}",
+    "It changes or sends something: {list}": "変更または送信するもの: {list}",
+    "By their names, these may delete: {list}": "名前から見て削除する可能性があるもの: {list}",
+    "It uses a server you added: {list}": "追加したサーバーを使います: {list}",
+    "It works with files: {list}": "ファイルを扱います: {list}",
+    "It uses your AI.": "AI を使います。",
+    "It gives your companion a whole job to do.": "コンパニオンに仕事をまるごと任せます。",
+    "It sets off another flow: {list}": "別のルーティンを開始します: {list}",
+    "It names a flow that isn't here: {list}": "ここにないルーティンを指定しています: {list}",
+    "It only works with words: it reads and changes nothing.": "言葉だけを扱い、何も読み取らず変更もしません。",
+    "That file can't be read.": "そのファイルは読み取れません。",
+    "That file is too big to be flows.": "ルーティンのファイルとしては大きすぎます。",
+    "That isn't a Sideflow file or a flow's definition.": "Sideflow のファイルでもルーティンの定義でもありません。",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "このファイルは新しい Sideflow で作られました。Sideflow を更新してもう一度お試しください。",
+    "A file holds at most {count} flows.": "1 つのファイルに入るルーティンは最大 {count} 個です。",
+    "Every flow in a file needs a name.": "ファイル内の各ルーティンには名前が必要です。",
+    "Two flows in this file are called “{name}”.": "このファイルには「{name}」という名前のルーティンが 2 つあります。",
+    "“{name}” can't be brought in: {why}": "「{name}」は読み込めません: {why}",
+    "{name} (imported)": "{name}(読み込み)",
+    "{name} (imported {count})": "{name}(読み込み {count})",
+    "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "「{name}」はルーティンの名前として使えません。長すぎるか、隠し文字が含まれています。",
+    "It reads, using values from earlier steps, which could send them out: {list}": "前のステップの値を使って読み取ります。値が外部に送られる可能性があります: {list}",
+    "It keeps an eye on: {list}": "監視するもの: {list}",
+    "It sets off a flow of yours: {list}": "あなたのルーティンを起動します: {list}",
+    "It needs what isn't here, so Sideflow can't say what that does: {list}": "ここにないものが必要なため、Sideflow にはその動作がわかりません: {list}",
+    "There's more than this page can show. Read its steps before you turn it on.": "このページに表示しきれません。オンにする前にステップを読んでください。"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Sideflow に読み込む",
+      "detail": "下書きとして。まず内容を確認します。"
+    }
   }
 }

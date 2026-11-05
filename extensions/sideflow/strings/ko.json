@@ -65,6 +65,9 @@
         "Sideflow 열기",
         "Sideflow에서 무언가 변경: {op}"
       ]
+    },
+    "import_file": {
+      "title": "루틴 파일 가져오기"
     }
   },
   "pages": {
@@ -790,7 +793,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "그 루틴은 시작할 때 아무것도 요구하지 않습니다. 루틴은 단계 안에서 ‘{{input.name}}’을 쓰면 무언가를 요구합니다.",
     "That form has been answered already.": "그 양식에는 이미 답이 있습니다.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "너무 깊습니다. 루틴은 단계 안에 단계를 {count}단계까지만 담을 수 있습니다.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "루틴의 정의가 아닙니다. 루틴에서 ‘정의로 복사’를 사용하세요.",
     "That run isn't stopped: it's waiting for something.": "그 실행은 중지된 것이 아닙니다. 무언가를 기다리고 있습니다.",
     "The AI's answer didn't have the fields this step needs.": "AI의 답에 이 단계가 필요로 하는 필드가 없었습니다.",
     "The choices": "선택지",
@@ -1061,6 +1063,45 @@
     "Two columns are called “{name}”.": "이름이 “{name}”인 열이 두 개 있습니다.",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "{row}행의 칸 수가 열 수보다 많습니다. 쉼표가 있는 값은 따옴표로 묶어야 합니다.",
     "Some columns have no name.": "이름이 없는 열이 있습니다.",
-    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "JSON이 아니거나, 같은 것이 두 번 있거나, 숫자가 너무 크거나 작습니다."
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "JSON이 아니거나, 같은 것이 두 번 있거나, 숫자가 너무 크거나 작습니다.",
+    "Import a file": "파일 가져오기",
+    "Bring this in?": "가져올까요?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "초안으로, 꺼진 상태로 들어옵니다. 켜고 카드를 읽기 전에는 아무것도 실행되지 않습니다.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "파일에서 Sideflow가 알 수 있는 내용입니다. 실제 안전장치는 켤 때 나오는 카드입니다.",
+    "Bring in": "가져오기",
+    "Not now": "나중에",
+    "It starts: {when}": "시작: {when}",
+    "It reads: {list}": "읽는 것: {list}",
+    "It changes or sends something: {list}": "변경하거나 보내는 것: {list}",
+    "By their names, these may delete: {list}": "이름으로 보아 삭제할 수 있는 것: {list}",
+    "It uses a server you added: {list}": "추가한 서버를 사용합니다: {list}",
+    "It works with files: {list}": "파일을 다룹니다: {list}",
+    "It uses your AI.": "AI를 사용합니다.",
+    "It gives your companion a whole job to do.": "동반자에게 작업 전체를 맡깁니다.",
+    "It sets off another flow: {list}": "다른 루틴을 시작합니다: {list}",
+    "It names a flow that isn't here: {list}": "여기에 없는 루틴을 지정합니다: {list}",
+    "It only works with words: it reads and changes nothing.": "글자만 다루며, 아무것도 읽거나 변경하지 않습니다.",
+    "That file can't be read.": "그 파일을 읽을 수 없습니다.",
+    "That file is too big to be flows.": "루틴 파일로 보기에는 너무 큽니다.",
+    "That isn't a Sideflow file or a flow's definition.": "Sideflow 파일도 루틴 정의도 아닙니다.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "이 파일은 더 새로운 Sideflow에서 만들어졌습니다. Sideflow를 업데이트한 뒤 다시 시도하세요.",
+    "A file holds at most {count} flows.": "파일 하나에는 루틴을 최대 {count}개까지 담을 수 있습니다.",
+    "Every flow in a file needs a name.": "파일의 모든 루틴에는 이름이 필요합니다.",
+    "Two flows in this file are called “{name}”.": "이 파일에 “{name}” 루틴이 두 개 있습니다.",
+    "“{name}” can't be brought in: {why}": "“{name}”을(를) 가져올 수 없습니다: {why}",
+    "{name} (imported)": "{name} (가져옴)",
+    "{name} (imported {count})": "{name} (가져옴 {count})",
+    "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "“{name}”은(는) 루틴 이름으로 쓸 수 없습니다. 너무 길거나 숨은 문자가 있습니다.",
+    "It reads, using values from earlier steps, which could send them out: {list}": "이전 단계의 값을 사용해 읽으므로 그 값이 밖으로 나갈 수 있습니다: {list}",
+    "It keeps an eye on: {list}": "지켜보는 대상: {list}",
+    "It sets off a flow of yours: {list}": "내 루틴을 실행합니다: {list}",
+    "It needs what isn't here, so Sideflow can't say what that does: {list}": "여기에 없는 것이 필요해서 Sideflow가 그 동작을 알 수 없습니다: {list}",
+    "There's more than this page can show. Read its steps before you turn it on.": "이 페이지에 다 표시할 수 없습니다. 켜기 전에 단계를 읽어 보세요."
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Sideflow로 가져오기",
+      "detail": "초안으로. 먼저 하는 일을 읽습니다."
+    }
   }
 }

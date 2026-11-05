@@ -172,16 +172,28 @@ import SidefolkExtensionKit
             return L("Deleted “{name}”.", ["name": flow.name])
         }
 
+        ext.tool("import_file", "Bring in a flow file", "Reads a flow file the person chose or dropped, and shows them what it would do. Nothing comes in until they say so.",
+                 input: Schema.object(["path": Schema.path("The file.")], required: ["path"]), reply: { args in
+            let path = try args.required("path")
+            // Asked first: a pipe or a device has no end to read to.
+            let about = try? FileManager.default.attributesOfItem(atPath: path)
+            guard about?[.type] as? FileAttributeType == .typeRegular, let data = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe) else { throw Problem(L("That file can't be read.")) }
+            guard data.count <= FlowFile.longest else { throw Problem(L("That file is too big to be flows.")) }
+            let id = try FlowFile.stage(String(decoding: data, as: UTF8.self), in: app.folder)
+            return ToolReply("").opening(page: "flows", state: ["import": id], push: true)
+        })
+
         ext.tool("ui", "Open Sideflow", "The page's own clicks.", input: ["type": "object"], reply: { args in
             // A sentence opens the page; a click that makes or removes a flow moves it; the rest are already there.
             guard args.string("op") != nil else { return ToolReply(L("Sideflow is open in Home.")).opening(page: "flows") }
             switch try await Actions_UI.handle(args, app) {
             case .stay: return ToolReply("").row(L("Changed something in Sideflow"))
-            case .flow(let id): return ToolReply("").opening(page: "flows", state: Nav.open(flow: id), push: true)
+            case .flow(let id): return ToolReply("").opening(page: "flows", state: ["flow": id, "import": NSNull()], push: true)
             // The builder's side panel of the same flow: another tab goes back to it, and it isn't a step to come back from.
             case .panel(let id): return ToolReply("").opening(page: "flows", state: ["flow": id, "run": NSNull(), "tab": NSNull()])
             case .run(let id): return ToolReply("").opening(page: "flows", state: ["run": id], push: true)
-            case .home: return ToolReply("").opening(page: "flows", state: ["flow": NSNull(), "run": NSNull()])
+            case .importing(let id): return ToolReply("").opening(page: "flows", state: ["import": id], push: true)
+            case .home: return ToolReply("").opening(page: "flows", state: ["flow": NSNull(), "run": NSNull(), "import": NSNull()])
             }
         })
     }

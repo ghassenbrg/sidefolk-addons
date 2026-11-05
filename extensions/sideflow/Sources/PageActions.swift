@@ -4,7 +4,7 @@ import SidefolkExtensionKit
 /// What a click on the page does: the one tool `ui`, as the person (never offered to a model). Every change goes to the draft.
 @MainActor enum Actions_UI {
     /// Where the click leaves the page.
-    enum Leaves { case stay, flow(String), panel(String), run(String), home }
+    enum Leaves { case stay, flow(String), panel(String), run(String), importing(String), home }
 
     static func handle(_ a: Arguments, _ app: App) async throws -> Leaves {
         let op = a.string("op") ?? ""
@@ -278,12 +278,18 @@ import SidefolkExtensionKit
             app.store.save(f)
             app.refreshPreflight(f.id)
         case "import":
-            guard let o = JSONText.read(text) as? [String: Any], let raw = o["flow"], let body = try? FlowCodec.body(raw) else {
-                throw Problem(L("That isn't a flow's definition. Use “Copy as a definition” on a flow."))
-            }
-            let made = app.newFlow(name: (o["name"] as? String) ?? L("New flow"), body: body)
-            app.refreshPreflight(made.id)
-            return .flow(made.id)
+            // What's pasted goes the way a file goes: read, shown, and brought in only on the page's own yes.
+            return .importing(try FlowFile.stage(text, in: app.folder))
+        case "import_cancel":
+            if let id = a.string("id") { FlowFile.unstage(id, in: app.folder) }
+            return .home
+        case "import_confirm":
+            // A file comes from anywhere and another extension can call this, so only the page's own button counts.
+            guard a.string("page_token") == app.pageKey, let id = a.string("id"), let words = FlowFile.staged(id, in: app.folder) else { break }
+            let made = try FlowFile.arriving(try FlowFile.read(words), store: app.store).map { app.newFlow(name: $0.name, body: $0.body) }
+            FlowFile.unstage(id, in: app.folder)
+            for flow in made { app.refreshPreflight(flow.id) }
+            if let first = made.first { return .flow(first.id) }
         case "overlap":
             if let raw = a.string("value"), let overlap = FlowBody.Overlap(rawValue: raw) { try draft { $0.overlap = overlap } }
         case "time_zone":

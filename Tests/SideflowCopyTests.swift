@@ -57,9 +57,13 @@ import SidefolkExtensionKit
         let app = app(w)
         let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(everything))
         let words = try #require(copied(Pages.copyDefinition(flow)))
-        _ = try await Actions_UI.handle(Arguments(["op": "import", "text": words]), app)
+        guard case .importing(let id) = try await Actions_UI.handle(Arguments(["op": "import", "text": words]), app) else { Issue.record("it should stop to show it"); return }
+        _ = try await Actions_UI.handle(Arguments(["op": "import_confirm", "id": id, "page_token": app.pageKey]), app)
         let back = try #require(app.store.flows().first { $0.id != flow.id })
-        #expect(back.draft == flow.draft)
+        var without = flow.draft
+        without.triggerSample = nil
+        #expect(FlowCodec.json(back.draft)["steps"] != nil && back.draft.allSteps.map(\.id) == without.allSteps.map(\.id), "the same steps")
+        #expect(back.draft.allSteps.allSatisfy { $0.sample == nil }, "not a practice's made-up answers")
         #expect(back.state == .draft)
         #expect(back.live == nil)
         #expect(back.name != "Mine", "a name that's taken isn't taken over")

@@ -24,8 +24,10 @@ import SidefolkExtensionKit
 
     /// On the page's own Stop buttons. Another extension can call `ui` too, on a card, but can't read this folder or a page: only with this is it the person pressing Stop.
     let pageKey: String
+    let folder: URL
 
     init(folder: URL) {
+        self.folder = folder
         let keyFile = folder.appendingPathComponent("page-key")
         if let kept = try? String(contentsOf: keyFile, encoding: .utf8), !kept.isEmpty {
             pageKey = kept
