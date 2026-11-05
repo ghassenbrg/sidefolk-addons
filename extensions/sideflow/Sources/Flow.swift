@@ -105,7 +105,7 @@ struct Condition: Equatable, Sendable {
         return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
-    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])[-−]?\d{1,3}(?:[ \x{00A0}\x{202F}]\d{3})+(?![0-9])(?:[.,]\d{1,2}(?![0-9]))?|(?<![A-Za-z0-9])[-−]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
+    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])[-−–]?\d{1,3}(?:[ \x{00A0}\x{202F}]\d{3})+(?![0-9])(?:[.,]\d{1,2}(?![0-9]))?|(?<![A-Za-z0-9])[-−–]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
     private static let currency = CharacterSet(charactersIn: "€$£¥₹")
 
     /// Exactly as a machine writes one, exponent and all: what a tool's number comes out as in words.
@@ -123,9 +123,9 @@ struct Condition: Equatable, Sendable {
         let moneyBefore = before.unicodeScalars.last.map(currency.contains) == true
         let moneyAfter = after.unicodeScalars.first.map(currency.contains) == true && after.dropFirst().first?.isNumber != true
         let isMoney = moneyBefore || moneyAfter
-        var found = text[range].replacingOccurrences(of: "−", with: "-")
+        var found = text[range].replacingOccurrences(of: "−", with: "-").replacingOccurrences(of: "–", with: "-")
         // The sign can come before the currency: `-$5.00`.
-        if moneyBefore, !found.hasPrefix("-"), let sign = before.dropLast().last, sign == "-" || sign == "−" { found = "-" + found }
+        if moneyBefore, !found.hasPrefix("-"), let sign = before.dropLast().last, sign == "-" || sign == "−" || sign == "–", before.dropLast(2).last?.isLetter != true, before.dropLast(2).last?.isNumber != true { found = "-" + found }
         if after.range(of: #"^(?i)(thousand|million|billion|trillion)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
         // Spaced in threes it's one number if a decimal comma or a currency says so: `1 299,00`, `1 299 €`. Bare, `100 200` could be two.
         if found.contains(where: { !$0.isNumber && $0 != "-" && $0 != "." && $0 != "," }) {
@@ -134,7 +134,8 @@ struct Condition: Equatable, Sendable {
             return (found, !hasDecimals && !isMoney || found.prefix { $0 != "." }.filter(\.isNumber).count > 15)
         }
         if text[range.upperBound...].range(of: #"^(k|K|M|bn|Bn)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
-        if isMoney, text[range.upperBound...].hasPrefix("B") { return (found, true) }
+        // With a currency, a letter after it is how much: `£2.5m`, `$1.2 M`, `$1B`.
+        if isMoney, after.range(of: #"^(?i)(k|m|b|bn)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
         let marks = found.filter { $0 == "." || $0 == "," }
         let parts = found.split(whereSeparator: { $0 == "." || $0 == "," }).map(String.init)
         let plain: String
