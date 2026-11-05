@@ -455,7 +455,7 @@ import SidefolkExtensionKit
                 extra.append(button(L("End what you allowed"), "end_plan", id, symbol: "xmark.seal", detail: L("It pauses, and asks again before it runs.")))
             }
         }
-        if flow.hasChanges, !running { sentence = L("On, as before. Your changes aren't live.") }
+        if flow.state == .on, flow.hasChanges, !running { sentence = L("On, as before. Your changes aren't live.") }
         // Unsaved comes first: the one thing to do is keep or drop them, and the mark and the button say so wherever the flow stands.
         // A run that's under way has what it was given, so it doesn't stand in the way: one in a wait can be there for a day. A practice has the bar to itself until it stops.
         if saveFirst, !(running && practice?.status == .running) {

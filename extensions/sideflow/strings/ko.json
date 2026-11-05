@@ -310,7 +310,6 @@
     "Run {flow}": "{flow} 실행",
     "Running": "실행 중",
     "Running now": "지금 실행 중",
-    "Running “{name}” once. Each action asks you on a card.": "‘{name}’을(를) 한 번 실행합니다. 동작마다 카드로 물어봅니다.",
     "Running “{name}”.": "‘{name}’을(를) 실행하는 중입니다.",
     "Runs": "실행",
     "Runs this week": "이번 주 실행",
@@ -986,7 +985,6 @@
     },
     "Nothing new to allow": "새로 허용할 것이 없습니다",
     "Write this part yourself: words from outside can't go in here.": "이 부분은 직접 작성하세요. 외부에서 온 말은 여기에 넣을 수 없습니다.",
-    "Sidefolk won't let a flow do this.": "Sidefolk은 루틴이 이 일을 하도록 허용하지 않습니다.",
     "Runs by itself only under Full access.": "전체 액세스에서만 저절로 실행됩니다.",
     "This says where it goes. Write it here, or it asks each run.": "여기는 보낼 곳을 정합니다. 여기에 적지 않으면 실행할 때마다 묻습니다.",
     "Its program can't be checked, so it asks each run.": "프로그램을 확인할 수 없어 실행할 때마다 묻습니다.",
@@ -1001,6 +999,9 @@
     "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "한 번 실행에 허용한 한도에 도달해 일시 중지되었습니다. 더 보내지 않았습니다.",
     "{count} new things to allow": {
       "other": "새로 허용할 것 {count}개"
-    }
+    },
+    "Its limits go further than what you allowed": "한도가 허용한 범위를 넘습니다",
+    "You ended what you'd allowed, so it asks again before running.": "허용한 내용을 끝냈으므로 실행 전에 다시 묻습니다.",
+    "“{name}” has something new to allow first. Open it to run it.": "“{name}”에 먼저 허용할 새 내용이 있습니다. 열어서 실행하세요."
   }
 }

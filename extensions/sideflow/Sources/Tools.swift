@@ -119,13 +119,13 @@ import SidefolkExtensionKit
             try await resuming(try app.flow(named: try args.required("flow")), app)
         }
 
-        ext.tool("run_flow", "Run a flow now", "Runs a flow once, now. An On flow runs under what the person allowed; a draft runs for real, every action on its own card. Returns at once: the result is in get_run.",
+        ext.tool("run_flow", "Run a flow now", "Runs a flow once, now, as last saved. What the person already allowed asks nothing; anything new shows them one card first, and only their own click can answer it, so this can come back saying it wasn't asked. Returns once it has started: the result is in get_run.",
                  input: Schema.object(["flow": flowParam, "input": Schema.string("Words for this run, if the person gave any: its steps read them as {{trigger}}.")], required: ["flow"])) { args in
             let flow = try app.flow(named: try args.required("flow"))
             // Paused is the person's word. Going on from it is theirs too.
             guard flow.state != .paused else { throw Problem(L("“{name}” is paused. Ask the person to resume it first.", ["name": flow.name])) }
             if app.store.flowsFileIsHeld { throw Problem(L("Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.")) }
-            let problems = (flow.live == nil ? flow.kept : flow.running).problems(app.catalog).map(\.text)
+            let problems = flow.kept.problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             guard let started = await app.engine.runNow(flow.id, why: L("You asked for it."), trigger: args.string("input")) else {
                 // Saying no, or starting it being what paused it, says so on the flow.

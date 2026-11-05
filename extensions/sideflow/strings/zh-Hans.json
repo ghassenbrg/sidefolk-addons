@@ -310,7 +310,6 @@
     "Run {flow}": "运行 {flow}",
     "Running": "运行中",
     "Running now": "正在运行",
-    "Running “{name}” once. Each action asks you on a card.": "正在运行“{name}”一次。每个操作都会用卡片问你。",
     "Running “{name}”.": "正在运行“{name}”。",
     "Runs": "运行",
     "Runs this week": "本周运行",
@@ -986,7 +985,6 @@
     },
     "Nothing new to allow": "没有新内容需要允许",
     "Write this part yourself: words from outside can't go in here.": "这部分请自己写：外来的文字不能放在这里。",
-    "Sidefolk won't let a flow do this.": "Sidefolk 不允许流程这样做。",
     "Runs by itself only under Full access.": "只有在完全访问下才会自行运行。",
     "This says where it goes. Write it here, or it asks each run.": "这里决定发往哪里。请写在这里，否则每次运行都会询问。",
     "Its program can't be checked, so it asks each run.": "无法检查它的程序，所以每次运行都会询问。",
@@ -1001,6 +999,9 @@
     "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "已达到你允许的单次运行上限，因此已暂停。没有再发送任何内容。",
     "{count} new things to allow": {
       "other": "有 {count} 项新内容需要允许"
-    }
+    },
+    "Its limits go further than what you allowed": "它的上限超出了你允许的范围",
+    "You ended what you'd allowed, so it asks again before running.": "你已结束之前允许的内容，因此运行前会再次询问。",
+    "“{name}” has something new to allow first. Open it to run it.": "“{name}”有新内容需要先允许。请打开它来运行。"
   }
 }

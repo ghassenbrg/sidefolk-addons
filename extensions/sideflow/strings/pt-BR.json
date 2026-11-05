@@ -312,7 +312,6 @@
     "Run {flow}": "Executar {flow}",
     "Running": "Em execução",
     "Running now": "Rodando agora",
-    "Running “{name}” once. Each action asks you on a card.": "Executando “{name}” uma vez. Cada ação pergunta a você em um cartão.",
     "Running “{name}”.": "Executando “{name}”.",
     "Runs": "Execuções",
     "Runs this week": "Execuções esta semana",
@@ -1002,7 +1001,6 @@
     },
     "Nothing new to allow": "Nada novo para permitir",
     "Write this part yourself: words from outside can't go in here.": "Escreva esta parte você mesmo: palavras de fora não podem entrar aqui.",
-    "Sidefolk won't let a flow do this.": "O Sidefolk não deixa uma rotina fazer isso.",
     "Runs by itself only under Full access.": "Só roda sozinha com Acesso total.",
     "This says where it goes. Write it here, or it asks each run.": "Isto diz para onde vai. Escreva aqui, ou perguntará a cada execução.",
     "Its program can't be checked, so it asks each run.": "O programa dele não pode ser verificado, então pergunta a cada execução.",
@@ -1018,6 +1016,9 @@
     "{count} new things to allow": {
       "one": "{count} coisa nova para permitir",
       "other": "{count} coisas novas para permitir"
-    }
+    },
+    "Its limits go further than what you allowed": "Os limites dela vão além do que você permitiu",
+    "You ended what you'd allowed, so it asks again before running.": "Você encerrou o que tinha permitido, então ela pergunta de novo antes de rodar.",
+    "“{name}” has something new to allow first. Open it to run it.": "“{name}” tem algo novo para permitir primeiro. Abra para rodar."
   }
 }

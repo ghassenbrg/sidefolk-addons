@@ -89,6 +89,9 @@ import SidefolkExtensionKit
             return aiAnswer
         }
 
+        var planChecked: Plans.Checked?
+        func checkPlan(_ plan: Plan) async -> Plans.Checked? { planChecked }
+
         func approve(_ plan: Plan) async -> Plans.Answer {
             plans.append(plan)
             if let planWait { try? await Task.sleep(for: planWait) }
@@ -324,14 +327,14 @@ import SidefolkExtensionKit
         #expect(!tooMany(try actions(1)))
         #expect(!tooMany(try actions(32)))
         #expect(tooMany(try actions(Plans.maxSteps + 1)))
-        #expect(!tooMany(try actions(28, trigger: watching)), "28 and the watch's four")
+        #expect(!tooMany(try actions(Plans.maxSteps - 4, trigger: watching)), "and the watch's four")
         #expect(tooMany(try actions(Plans.maxSteps - 3, trigger: watching)))
         #expect(Engine.planSteps(try actions(29, trigger: watching), title: "t").count == 33)
     }
 
     @Test func theSameActionTwiceIsOneLineToAllow() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "notes.save", "with": ["text": "x"]], ["id": "b", "do": "notes.save", "with": ["text": "x"]], ["id": "c", "do": "notes.save", "with": ["text": "y"]]]])
-        #expect(Set(Engine.planSteps(body, title: "t").map(\.line)).count == 2, "a step each for the card to name, one line to allow")
+        #expect(Engine.lines(Engine.planSteps(body, title: "t")) == 3, "a step with a name of its own is a line of its own, for the host")
     }
 
     /// No action, nothing to read on a card, and Sidefolk refuses an empty plan: it just turns on.

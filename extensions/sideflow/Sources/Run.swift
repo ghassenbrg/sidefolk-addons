@@ -96,6 +96,8 @@ struct Run: Equatable, Sendable, Identifiable {
     /// A wait or a retry: when to carry on.
     var resumeAt: Date?
     var retries = 0
+    /// How many times the person said "Try again": a plan's limit for one run counts each afresh.
+    var triedAgain = 0
     /// What the person should know, when it stopped.
     var problem: String?
     var frames: [Frame] = []

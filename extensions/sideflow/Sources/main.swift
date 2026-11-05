@@ -25,9 +25,12 @@ ext.palette("run", query: { words in
 }, choose: { id, _ in
     guard let flow = app.store.flow(id) else { return PaletteChoice(message: L("That flow is gone.")) }
     // What this would run: what's on, or what was saved, not what's being typed.
-    let problems = (flow.live == nil ? flow.kept : flow.running).problems(app.catalog)
+    let problems = flow.kept.problems(app.catalog)
     guard problems.isEmpty else { return PaletteChoice(message: L("To fix first: {list}", ["list": problems.map(\.text).joined(separator: " ")])) }
-    // A card can wait two minutes, and the palette doesn't: what comes of it shows on the flow's page.
+    // Choosing here isn't a click on a card's words, and there's nowhere here to read one: what's new is read on its page.
+    guard flow.live == flow.kept, app.catalog.plan(flow.planId) != nil || !Engine.needsCard(flow.kept) else {
+        return PaletteChoice(message: L("“{name}” has something new to allow first. Open it to run it.", ["name": flow.name]))
+    }
     Task { await app.engine.runNow(flow.id, why: L("You asked for it.")) }
     return PaletteChoice(close: true, message: L("Running “{name}”.", ["name": flow.name]))
 })

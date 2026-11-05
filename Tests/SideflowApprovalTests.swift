@@ -36,10 +36,74 @@ import SidefolkExtensionKit
         flow.saved = flow.draft
         flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "typed"]]]])
         w.store.save(flow)
-        _ = try #require(await w.engine.runNow(flow.id, why: "t"))
+        _ = try #require(await w.engine.runNow(flow.id, why: "t", saving: true))
         await w.quiet()
         #expect(w.store.flow(flow.id)?.hasUnsaved == false)
         #expect(w.host.calls.first { $0.tool == "changes.it" }?.input["text"] as? String == "typed", "what's on the page is what's asked about and run")
+    }
+
+    @Test func anyoneElseRunsWhatWasKeptAndLeavesWhatsBeingTyped() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "kept"]]], state: .draft)
+        flow.saved = flow.draft
+        flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "typed"]]]])
+        w.store.save(flow)
+        _ = try #require(await w.engine.runNow(flow.id, why: "t"))
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.hasUnsaved == true)
+        #expect(w.host.calls.first { $0.tool == "changes.it" }?.input["text"] as? String == "kept")
+    }
+
+    @Test func whatStillStandsRunsWithNoCardSoNoClickIsNeeded() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        w.host.planChecked = Plans.Checked(steps: [.init(state: "stands")], silent: true)
+        w.host.planAnswer = .refused("not_asked")
+        let run = await w.engine.runNow(flow.id, why: "t")
+        #expect(run != nil, "a schedule or an agent can go on with what's approved")
+        #expect(w.host.plans.isEmpty)
+    }
+
+    @Test func anApprovalThatStoodOnlyUnderFullAccessAsksAgain() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        w.host.planChecked = Plans.Checked(steps: [.init(state: "stands")], silent: false)
+        w.host.planAnswer = .refused("denied")
+        let run = await w.engine.runNow(flow.id, why: "t")
+        #expect(run == nil)
+        #expect(w.host.plans.count == 1)
+    }
+
+    @Test func aPausedFlowIsntRunBehindItsOwnPause() async throws {
+        let w = try World()
+        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        flow.state = .paused
+        w.store.save(flow)
+        #expect(await w.engine.runNow(flow.id, why: "t") == nil)
+        #expect(w.host.plans.isEmpty && w.host.calls.isEmpty)
+        #expect(w.store.flow(flow.id)?.startProblem != nil)
+    }
+
+    @Test func tryAgainIsCountedAfresh() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .failed, text: "no"), Actions.Outcome(status: .ok, text: "yes")]
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .interrupted)
+        w.engine.proceed(try #require(run).id, .try_again)
+        await w.quiet()
+        #expect(w.host.runIds.count == 2)
+        #expect(Set(w.host.runIds).count == 2, "the person asked, so the limit for one run doesn't count the first try against it")
+        #expect(w.host.runIds.allSatisfy { $0.count <= 64 })
+    }
+
+    @Test func aWriteInASchedulesDayIsAllowedForByTheLimit() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 15], "steps": [["id": "a", "do": "changes.it", "with": ["text": "a"]], ["id": "b", "do": "changes.it", "with": ["text": "b"]], ["id": "c", "do": "changes.it", "with": ["text": "c"]]]])
+        #expect(Engine.callsPerDay(body, perRun: 3, goesRound: false) == 288)
+        let manual = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "changes.it", "with": ["text": "a"]]]])
+        #expect(Engine.callsPerDay(manual, perRun: 1, goesRound: false) == Engine.ordinaryPerDay)
+        #expect(Engine.callsPerDay(manual, perRun: 1, goesRound: true) == Engine.loopsPerDay)
+        #expect(Engine.callsPerDay(body, perRun: 1000, goesRound: true) == Engine.loopsPerDay, "the most a plan can say")
     }
 
     @Test func sayingNoStartsNothingAndKeepsTheEditAndWhatWasLive() async throws {
@@ -110,13 +174,23 @@ import SidefolkExtensionKit
     @Test func whatComesFromThePersonIsSaidToBeInside() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
             ["id": "f", "form": ["title": "Who", "fields": [["name": "n", "label": "Name", "kind": "text"]]]],
-            ["id": "t", "text": "Hi {{f.n}}, on {{today}}"],
-            ["id": "d", "data": ["op": "first", "from": "{{t}}"]],
+            ["id": "whole", "text": "{{f.n}}"],
+            ["id": "literal", "text": "https://evil.example"],
+            ["id": "added", "text": "https://evil.example/{{f.n}}"],
+            ["id": "clock", "text": "{{today}}"],
+            ["id": "d", "data": ["op": "first", "from": "{{f.n}}"]],
             ["id": "r", "do": "reads.it"],
-            ["id": "mixed", "text": "{{t}} {{r}}"],
+            ["id": "mixed", "text": "{{whole}} {{r}}"],
             ["id": "outside", "text": "{{trigger}}"],
         ]])
-        #expect(Engine.inside(body) == ["f", "t", "d"])
+        #expect(Engine.inside(body) == ["f", "whole"], "words written in a step aren't the person's answer: an edit could change them with no card")
+    }
+
+    @Test func aFormNamedLikeWhatALoopBringsIsntTakenForTheLoopsItem() throws {
+        let top = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "form": ["title": "Who", "fields": [["name": "n", "label": "Name", "kind": "text"]]]]]])
+        guard case .form(let form)? = top.step("f")?.kind else { Issue.record("not a form"); return }
+        let body = FlowBody(steps: [Step(id: "item", kind: .form(form)), Step(id: "t", kind: .text("{{item}}"))])
+        #expect(Engine.inside(body).isEmpty, "inside a loop that name is the page's item")
     }
 
     @Test func thePerRunLimitIsWhatTheFlowCanDo() throws {
@@ -165,6 +239,8 @@ import SidefolkExtensionKit
         #expect(look.byStep.count == 3, "a step with no name isn't lost track of as another's")
         let quiet = PlanLook(Plans.Checked(steps: [], silent: true), of: Plan(id: "p", title: "t", steps: []))
         #expect(quiet.head == L("Nothing new to allow"))
+        let wider = PlanLook(Plans.Checked(steps: [], new: [], silent: false, widened: true), of: Plan(id: "p", title: "t", steps: []))
+        #expect(wider.head != L("Nothing new to allow"), "a card is coming, so it can't say that")
     }
 
     @Test func eachWayAStepBehavesHasItsWords() {
@@ -172,8 +248,9 @@ import SidefolkExtensionKit
         #expect(words(.init(state: "stands")) == nil, "running by itself is what's expected, so nothing's said")
         #expect(words(.init(state: "listed")) == nil)
         #expect(words(.init(state: "refused", why: "code_field"))?.contains("Write this part yourself") == true)
-        #expect(words(.init(state: "refused", why: "shell")) != nil)
-        #expect(words(.init(state: "stands_in_full_access", why: "reach_field"))?.contains("Full access") == true)
+        #expect(words(.init(state: "refused", why: "shell"))?.contains("ask each run") == true, "those show a card: never say it can't")
+        #expect(words(.init(state: "stands_in_full_access", why: "reach_field"))?.contains("where it goes") == true, "what the host sends for it")
+        #expect(words(.init(state: "stands_in_full_access", why: "filled_value"))?.contains("Full access") == true)
         #expect(words(.init(state: "asks", why: "reach_field"))?.contains("where it goes") == true)
         #expect(words(.init(state: "asks", why: "server_unpinned"))?.contains("program") == true)
         #expect(words(.init(state: "asks", why: "filled_value"))?.contains("ask each run") == true)

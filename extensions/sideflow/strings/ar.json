@@ -320,7 +320,6 @@
     "Run {flow}": "تشغيل {flow}",
     "Running": "قيد التشغيل",
     "Running now": "يعمل الآن",
-    "Running “{name}” once. Each action asks you on a card.": "جارٍ تشغيل «{name}» مرة واحدة. كل إجراء يسألك في بطاقة.",
     "Running “{name}”.": "جارٍ تشغيل «{name}».",
     "Runs": "عمليات التشغيل",
     "Runs this week": "عمليات التشغيل هذا الأسبوع",
@@ -1066,7 +1065,6 @@
     },
     "Nothing new to allow": "لا جديد للسماح به",
     "Write this part yourself: words from outside can't go in here.": "اكتب هذا الجزء بنفسك: لا يمكن وضع كلمات من الخارج هنا.",
-    "Sidefolk won't let a flow do this.": "لا يسمح Sidefolk للروتين بفعل هذا.",
     "Runs by itself only under Full access.": "لا يعمل تلقائيًا إلا مع الوصول الكامل.",
     "This says where it goes. Write it here, or it asks each run.": "يحدد هذا وجهته. اكتبه هنا، وإلا فسيسأل في كل تشغيل.",
     "Its program can't be checked, so it asks each run.": "لا يمكن فحص برنامجه، لذا يسأل في كل تشغيل.",
@@ -1086,6 +1084,9 @@
       "few": "{count} أشياء جديدة للسماح بها",
       "many": "{count} شيئًا جديدًا للسماح به",
       "other": "{count} شيء جديد للسماح به"
-    }
+    },
+    "Its limits go further than what you allowed": "تتجاوز حدوده ما سمحت به",
+    "You ended what you'd allowed, so it asks again before running.": "أنهيت ما سمحت به، لذا سيسأل مجددًا قبل التشغيل.",
+    "“{name}” has something new to allow first. Open it to run it.": "لدى «{name}» شيء جديد للسماح به أولًا. افتحه لتشغيله."
   }
 }

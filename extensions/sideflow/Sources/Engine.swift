@@ -544,7 +544,9 @@ extension FlowHost {
         let reads = step.reads(catalog)
         let plan = run.mode == .live ? "flow-\(run.flow)" : nil
         let id = run.id
-        let outcome = await host?.call(tool, input, plan: plan, written: written, run: id, progress: { [weak self] in
+        // "Try again" is the person asking, so its calls are counted afresh.
+        let counted = run.triedAgain == 0 ? id : "\(id)-\(run.triedAgain)"
+        let outcome = await host?.call(tool, input, plan: plan, written: written, run: counted, progress: { [weak self] in
             self?.progress[id] = $0
             self?.changed()
         }) ?? Actions.Outcome(status: .lost, text: "", summary: "", untrusted: false, standing: false)
@@ -579,6 +581,8 @@ extension FlowHost {
                 flow.state = .paused
                 flow.pausedBecause = why
                 store.save(flow)
+                // Paused, not stopped: Resume brings the same watch back.
+                Task { await pauseWatch(flow) }
             }
             // Not a failure a try or "carry on" gets past: the person said this much and no more.
             run.frames = []
@@ -819,6 +823,7 @@ extension FlowHost {
             break
         case .try_again:
             run.retries = 0
+            run.triedAgain += 1
             run.resumeAt = nil
             run.problem = nil
             store.save(run)
@@ -1116,15 +1121,18 @@ extension FlowHost {
         return steps
     }
 
-    /// The steps whose values come only from the person or the clock, however they were put together. Not a list's item or what a flow was given: those can come from anywhere.
+    /// The steps whose values come only from the person: a form, or a step that's nothing but one of those. Believed from this pack, so it says no more than it knows: words written
+    /// into a text step aren't the person's answer, and an edit could change them with no card. A name that means something else in a loop or a try isn't one.
     static func inside(_ body: FlowBody) -> [String] {
         var known = Set<String>()
-        func holds(_ text: String) -> Bool { Values.slots(text).allSatisfy { known.contains($0.name) || (["today", "now"].contains($0.name) && $0.path.isEmpty) } }
-        for step in body.allSteps {
+        func isOne(_ text: String) -> Bool {
+            let slots = Values.slots(text)
+            return slots.count == 1 && text.trimmed == "{{\(slots[0].name)\(slots[0].path)}}" && known.contains(slots[0].name)
+        }
+        for step in body.allSteps where !Values.reserved.contains(step.id) {
             switch step.kind {
             case .form: known.insert(step.id)
-            case .text(let text) where holds(text): known.insert(step.id)
-            case .data(let data) where holds(data.from) && holds(data.than ?? ""): known.insert(step.id)
+            case .text(let text) where isOne(text): known.insert(step.id)
             default: break
             }
         }
@@ -1148,6 +1156,17 @@ extension FlowHost {
         }
     }
 
+    /// Enough for what it's set to do in a day, so that the limit stops something gone wrong and not the flow doing as it was told.
+    static func callsPerDay(_ body: FlowBody, perRun: Int, goesRound: Bool) -> Int {
+        let runs = body.triggers.reduce(0) { total, trigger in
+            switch trigger {
+            case .every(let minutes, _): total + 1440 / max(minutes, 1)
+            default: total + 1
+            }
+        }
+        return min(max(goesRound ? loopsPerDay : ordinaryPerDay, runs * perRun), loopsPerDay)
+    }
+
     private func keepBefore(_ reviewed: FlowBody, in flow: inout Flow) {
         guard let was = flow.live, was != reviewed else { return }
         flow.revisions.append(Flow.Revision(at: clock(), body: was))
@@ -1168,12 +1187,21 @@ extension FlowHost {
         }
     }
 
-    /// Run: one version, the one they read. What's on the page is saved, whatever's new is asked about (nothing, if nothing is), that goes live, and it runs.
-    /// A flow that isn't on stays as it is, with its approval kept. Saying no leaves the edit saved and what was live as it was, and the page says what's waiting.
-    @discardableResult func runNow(_ id: String, why: String, trigger: String? = nil) async -> Run? {
+    /// Run: one version, the one they read. Whatever's new is asked about (nothing, if nothing is), that goes live, and it runs. A flow that isn't on stays as it is, with its
+    /// approval kept. Saying no leaves the edit where it is and what was live as it was, and the page says what's waiting.
+    /// `saving`: the person pressed Run on the page they're looking at, so what's on it is what they mean. Anyone else gets what was kept, and half-typed words stay half-typed.
+    @discardableResult func runNow(_ id: String, why: String, trigger: String? = nil, saving: Bool = false) async -> Run? {
         guard var flow = store.flow(id) else { return nil }
-        flow.saved = nil
-        flow.settleNote()
+        guard flow.state != .paused else {
+            flow.startProblem = L("“{name}” is paused. Ask the person to resume it first.", ["name": flow.name])
+            store.save(flow)
+            changed()
+            return nil
+        }
+        if saving {
+            flow.saved = nil
+            flow.settleNote()
+        }
         if let wrong = flow.kept.unfinished {
             flow.startProblem = wrong
             store.save(flow)
@@ -1184,7 +1212,7 @@ extension FlowHost {
         store.save(flow)
         changed()
         let plan = livePlan(flow, intent: "run")
-        let lines = Set(plan.steps.map(\.line)).count
+        let lines = Self.lines(plan.steps)
         if lines > Plans.maxSteps {
             flow.startProblem = L("It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.", ["count": Format.integer(lines), "limit": Format.integer(Plans.maxSteps)])
             store.save(flow)
@@ -1192,7 +1220,10 @@ extension FlowHost {
             return nil
         }
         let reviewed = flow.kept, title = Self.watchTitle(flow)
-        if Self.needsCard(reviewed), let answer = await host?.approve(plan), case .refused(let reason) = answer {
+        // What's approved and hasn't changed needs no one's click: a schedule, an agent or a palette can go on with it. An approval that stood only under Full access doesn't stand now.
+        var standsAlready = false
+        if flow.live == reviewed { standsAlready = await host?.checkPlan(plan)?.silent == true }
+        if !standsAlready, Self.needsCard(reviewed), let answer = await host?.approve(plan), case .refused(let reason) = answer {
             guard var current = store.flow(id) else { return nil }
             current.startProblem = Words.planRefusal(reason)
             store.save(current)
@@ -1205,11 +1236,19 @@ extension FlowHost {
         keepBefore(reviewed, in: &current)
         current.live = reviewed
         current.startProblem = nil
+        // A change to when it runs counts from now, as turning on does.
+        if wasOn, wasLive != reviewed {
+            current.lastFire = clock()
+            current.lastEvery = [:]
+        }
         store.save(current)
         if wasOn, wasLive != reviewed { await settleWatch(id, wasLive: wasLive, wasOn: true, reviewed: reviewed, title: title) }
         changed()
         return store.flow(id).flatMap { start($0, mode: .live, why: why, trigger: trigger) }
     }
+
+    /// How many lines the host will count: a step with a name of its own is a line of its own.
+    static func lines(_ steps: [PlanStep]) -> Int { Set(steps.map { "\($0.named ?? "") \($0.line)" }).count }
 
     /// Everything the draft may do, as the person will read it. `intent`: what they pressed, for the card's heading.
     func livePlan(_ flow: Flow, intent: String = "turn_on") -> Plan {
@@ -1242,11 +1281,13 @@ extension FlowHost {
         }
         // A loop does its lines many times over: the card says the higher limit that takes.
         let goesRound = flow.kept.allSteps.contains { switch $0.kind { case .forEach, .repeatUntil: true; default: false } }
-        return Plan(id: flow.planId, title: flow.name, when: when, steps: steps, perDay: goesRound ? Self.loopsPerDay : nil,
-                    perRun: max(Self.callsPerRun(flow.kept.steps), 1), intent: intent, goesRound: goesRound, inside: Self.inside(flow.kept))
+        let perRun = max(Self.callsPerRun(flow.kept.steps), 1)
+        return Plan(id: flow.planId, title: flow.name, when: when, steps: steps, perDay: Self.callsPerDay(flow.kept, perRun: perRun, goesRound: goesRound),
+                    perRun: perRun, intent: intent, goesRound: goesRound, inside: Self.inside(flow.kept))
     }
 
     static let loopsPerDay = 1000
+    static let ordinaryPerDay = 200
     static let longestSetsOff = 180
     static let longestTriggerWords = 280
 
@@ -1289,7 +1330,7 @@ extension FlowHost {
         changed()
         let plan = livePlan(flow)
         // Stopping the watch it had can be the line too many, which only shows here.
-        if Set(plan.steps.map(\.line)).count > Plans.maxSteps {
+        if Self.lines(plan.steps) > Plans.maxSteps {
             flow.startProblem = L("It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.", ["count": Format.integer(plan.steps.count), "limit": Format.integer(Plans.maxSteps)])
             store.save(flow)
             return changed()
@@ -1518,7 +1559,7 @@ extension FlowHost {
     /// The person ending it from the flow's page: as if they had in Settings.
     func endPlan(_ id: String) {
         host?.forgetPlan(store.flow(id)?.planId ?? "")
-        planEnded(id)
+        planEnded(id, here: true)
     }
 
     /// "Saved. Nothing new to allow." while that's still what's on the page.
@@ -1526,10 +1567,10 @@ extension FlowHost {
         quietlyApproved[flow.id] == flow.kept ? L("Saved. Nothing new to allow.") : nil
     }
 
-    func planEnded(_ id: String) {
+    func planEnded(_ id: String, here: Bool = false) {
         guard var flow = store.flow(id) else { return }
         flow.state = .paused
-        flow.pausedBecause = L("You ended what you'd allowed in Settings, so it asks again before running.")
+        flow.pausedBecause = here ? L("You ended what you'd allowed, so it asks again before running.") : L("You ended what you'd allowed in Settings, so it asks again before running.")
         let ended = flow.live
         if let was = flow.live {
             flow.revisions.append(Flow.Revision(at: clock(), body: was))

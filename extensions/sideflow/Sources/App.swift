@@ -112,7 +112,10 @@ import SidefolkExtensionKit
             if case .watch(let w) = flow.draft.trigger, let check = await host.check("watch.create", Engine.watchInput(w, title: Engine.watchTitle(flow)), plan: plan) {
                 out[Self.triggerCheck] = check
             }
-            let plan2 = engine.livePlan(flow)
+            // What's on the page is what its marks are about.
+            var shown = flow
+            shown.saved = nil
+            let plan2 = engine.livePlan(shown)
             let looked = await host.checkPlan(plan2)
             // A slower look from before an edit doesn't overwrite a newer one.
             guard preflightAsked[id] == asked else { return }
@@ -136,24 +139,23 @@ struct PlanLook {
 
     /// What the flow's head says before anyone presses anything.
     var head: String {
-        silent || new == 0 ? L("Nothing new to allow") : L(one: "{count} new thing to allow", other: "{count} new things to allow", count: new)
+        if silent { return L("Nothing new to allow") }
+        return new == 0 ? L("Its limits go further than what you allowed") : L(one: "{count} new thing to allow", other: "{count} new things to allow", count: new)
     }
 
     /// What a step's form says of how it'll behave, if that's anything but running by itself.
     static func mark(_ line: Plans.Checked.Line) -> (words: String, tone: Tone)? {
-        if line.state == "refused" {
-            return (line.why == "code_field" ? L("Write this part yourself: words from outside can't go in here.") : L("Sidefolk won't let a flow do this."), .bad)
+        switch line.why {
+        case "code_field": return (L("Write this part yourself: words from outside can't go in here."), .bad)
+        case "reach_field": return (L("This says where it goes. Write it here, or it asks each run."), .warn)
+        case "server_unpinned": return (L("Its program can't be checked, so it asks each run."), .warn)
+        default: break
         }
-        if line.state == "stands_in_full_access" { return (L("Runs by itself only under Full access."), .info) }
-        if line.state == "asks" {
-            switch line.why {
-            case "reach_field": return (L("This says where it goes. Write it here, or it asks each run."), .warn)
-            case "server_unpinned": return (L("Its program can't be checked, so it asks each run."), .warn)
-            default: return (L("This step will ask each run."), .info)
-            }
+        switch line.state {
+        case "stands_in_full_access": return (L("Runs by itself only under Full access."), .info)
+        case "asks", "refused": return (L("This step will ask each run."), .info)
+        default: return line.warning == "crossing" ? (L("It passes on what this flow reads. The card says so."), .warn) : nil
         }
-        if line.warning == "crossing" { return (L("It passes on what this flow reads. The card says so."), .warn) }
-        return nil
     }
 }
 
