@@ -1014,6 +1014,12 @@
     "a list": "リスト",
     "Last time: {value}": "前回: {value}",
     "Written out, as a record or a list. Values from earlier steps go in quotes.": "レコードまたはリストとして書きます。前のステップの値は引用符で囲みます。",
-    "That isn't written the way it needs to be: check its brackets and quotes.": "書き方が正しくありません。かっこと引用符を確認してください。"
+    "That isn't written the way it needs to be: check its brackets and quotes.": "書き方が正しくありません。かっこと引用符を確認してください。",
+    "That isn't a whole number.": "整数ではありません。",
+    "a whole number": "整数",
+    "“{name}” has an entry that came back with nothing in it.": "「{name}」に空で返ってきた項目があります。",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "「{name}」はテキストのリストですが、そうでない項目があります:「{value}」。",
+    "“{name}” is needed, and this gives it nothing.": "「{name}」は必須ですが、何も渡されていません。",
+    "“{name}” wants {what}, and this gives it “{value}”.": "「{name}」には{what}が必要ですが、渡されたのは「{value}」です。"
   }
 }

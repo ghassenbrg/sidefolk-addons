@@ -1031,6 +1031,12 @@
     "a list": "una lista",
     "Last time: {value}": "La última vez: {value}",
     "Written out, as a record or a list. Values from earlier steps go in quotes.": "Escrito completo, como registro o lista. Los valores de pasos anteriores van entre comillas.",
-    "That isn't written the way it needs to be: check its brackets and quotes.": "No está escrito como debe: revisa los corchetes y las comillas."
+    "That isn't written the way it needs to be: check its brackets and quotes.": "No está escrito como debe: revisa los corchetes y las comillas.",
+    "That isn't a whole number.": "Eso no es un número entero.",
+    "a whole number": "un número entero",
+    "“{name}” has an entry that came back with nothing in it.": "«{name}» tiene una entrada que volvió vacía.",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "«{name}» es una lista de palabras, y una entrada no lo es: «{value}».",
+    "“{name}” is needed, and this gives it nothing.": "«{name}» hace falta, y esto no le da nada.",
+    "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» quiere {what}, y esto le da «{value}»."
   }
 }

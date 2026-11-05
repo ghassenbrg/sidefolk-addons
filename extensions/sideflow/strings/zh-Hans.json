@@ -1014,6 +1014,12 @@
     "a list": "一个列表",
     "Last time: {value}": "上次：{value}",
     "Written out, as a record or a list. Values from earlier steps go in quotes.": "以记录或列表的形式写出。之前步骤的值放在引号内。",
-    "That isn't written the way it needs to be: check its brackets and quotes.": "写法不对：请检查括号和引号。"
+    "That isn't written the way it needs to be: check its brackets and quotes.": "写法不对：请检查括号和引号。",
+    "That isn't a whole number.": "这不是整数。",
+    "a whole number": "整数",
+    "“{name}” has an entry that came back with nothing in it.": "“{name}”有一项返回时是空的。",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "“{name}”是文字列表，但有一项不是：“{value}”。",
+    "“{name}” is needed, and this gives it nothing.": "“{name}”是必需的，而这里没有给它任何内容。",
+    "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”需要{what}，而这里给的是“{value}”。"
   }
 }

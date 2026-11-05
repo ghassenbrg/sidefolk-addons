@@ -1031,6 +1031,12 @@
     "a list": "un elenco",
     "Last time: {value}": "L'ultima volta: {value}",
     "Written out, as a record or a list. Values from earlier steps go in quotes.": "Scritto per intero, come record o elenco. I valori dei passaggi precedenti vanno tra virgolette.",
-    "That isn't written the way it needs to be: check its brackets and quotes.": "Non è scritto come deve: controlla parentesi e virgolette."
+    "That isn't written the way it needs to be: check its brackets and quotes.": "Non è scritto come deve: controlla parentesi e virgolette.",
+    "That isn't a whole number.": "Non è un numero intero.",
+    "a whole number": "un numero intero",
+    "“{name}” has an entry that came back with nothing in it.": "«{name}» ha una voce tornata vuota.",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "«{name}» è un elenco di parole, e una voce non lo è: «{value}».",
+    "“{name}” is needed, and this gives it nothing.": "«{name}» è necessario, e questo non gli dà nulla.",
+    "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» vuole {what}, e questo gli dà «{value}»."
   }
 }

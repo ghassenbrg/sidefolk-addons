@@ -374,6 +374,11 @@ enum Editing {
         return Double(t.replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil }
     }
 
+    /// Words that are a whole number and nothing else: "1.000" could be a thousand, and "12.0" isn't how anyone writes a count.
+    static func wholeNumber(_ text: String) -> Int? {
+        Int(text.trimmed).flatMap { abs(Double($0)) < 1e15 ? $0 : nil }
+    }
+
     static func yesOrNo(_ text: String) -> Bool? {
         switch text.trimmed.lowercased() {
         case "true", "yes", "on": true
@@ -404,12 +409,16 @@ enum Editing {
         // An earlier step's value is filled in when it runs, as what it is then. In a list, among other words, it's one entry of it.
         if !Values.slots(t).isEmpty, parameter.kind != .text, parameter.kind != .list || Values.replacingSlots(in: t, { _, _ in "" }).trimmed.isEmpty { return .string(t) }
         switch parameter.kind {
-        case .integer, .number:
+        case .integer:
+            return wholeNumber(t).map { .number(Double($0)) } ?? .string(t)
+        case .number:
             return number(t).map { .number($0) } ?? .string(t)
         case .boolean:
             return yesOrNo(t).map { .bool($0) } ?? .string(t)
         case .list:
-            return .array(t.split(separator: ",").map { .string(String($0).trimmed) })
+            // Only commas is nothing typed, not a list with nothing in it.
+            let entries = t.split(separator: ",").map { String($0).trimmed }.filter { !$0.isEmpty }
+            return entries.isEmpty ? nil : .array(entries.map { .string($0) })
         default:
             return .string(text)
         }

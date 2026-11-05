@@ -17,7 +17,8 @@ import SidefolkExtensionKit
         /// What the person is told it wants. Text says nothing: that's what's expected.
         var typeWord: String? {
             switch kind {
-            case .number, .integer: L("a number")
+            case .number: L("a number")
+            case .integer: L("a whole number")
             case .boolean: L("yes or no")
             case .list: L("a list")
             default: nil
@@ -95,7 +96,7 @@ import SidefolkExtensionKit
         }
         // Words stored for a list mean what typing them there would.
         for parameter in parameters where parameter.kind == .list {
-            if let words = plain[parameter.name]?.string, let typed = Editing.value(words, for: parameter) { plain[parameter.name] = typed }
+            if let words = plain[parameter.name]?.string { plain[parameter.name] = Editing.value(words, for: parameter) }
         }
         for (key, value) in values.fill(plain, wordsIn: wordy, listsIn: lists, absentIn: absent) {
             out[key] = parameters.first { $0.name == key }.map { Self.asItWants(value, $0) } ?? value
@@ -108,12 +109,46 @@ import SidefolkExtensionKit
         guard let words = (value as? String)?.trimmed, !words.isEmpty else { return value }
         switch parameter.kind {
         case .number: return Editing.number(words) ?? value
-        case .integer: return Editing.number(words).flatMap { $0 == $0.rounded() && abs($0) < 1e15 ? Int($0) : nil } ?? value
+        case .integer: return Editing.wholeNumber(words) ?? value
         case .boolean:
             return Editing.yesOrNo(words) ?? value
         case .list: return [words]
         default: return value
         }
+    }
+
+    /// Why what's been filled in can't go to this tool. Nothing is reshaped to make it fit: a plain reason, before it gets there.
+    func doesntFit(_ name: String, _ filled: [String: Any]) -> String? {
+        func check(_ filled: [String: Any], _ parameters: [Parameter]) -> String? {
+            for parameter in parameters {
+                // A blank in a field that can go without one is nothing given, as it was.
+                guard let given = filled[parameter.name], !(given is NSNull) else {
+                    if parameter.required { return L("“{name}” is needed, and this gives it nothing.", ["name": parameter.title]) }
+                    continue
+                }
+                let value = JSON(given)
+                let wrong: Bool
+                switch parameter.kind {
+                case .integer:
+                    if case .number(let n) = value { wrong = n != n.rounded() } else { wrong = true }
+                case .number:
+                    if case .number = value { wrong = false } else { wrong = true }
+                case .boolean:
+                    if case .bool = value { wrong = false } else { wrong = true }
+                case .list:
+                    guard case .array(let items) = value else { wrong = true; break }
+                    if items.contains(.null) { return L("“{name}” has an entry that came back with nothing in it.", ["name": parameter.title]) }
+                    if let odd = items.first(where: { $0.string == nil }) { return L("“{name}” is a list of words, and one entry isn't: “{value}”.", ["name": parameter.title, "value": Values.text(odd).clipped(80)]) }
+                    wrong = false
+                default:
+                    wrong = false
+                }
+                if wrong, let what = parameter.typeWord { return L("“{name}” wants {what}, and this gives it “{value}”.", ["name": parameter.title, "what": what, "value": Values.text(value).clipped(80)]) }
+                if !parameter.children.isEmpty, let inner = given as? [String: Any], let found = check(inner, parameter.children) { return found }
+            }
+            return nil
+        }
+        return check(filled, tool(name)?.parameters ?? [])
     }
 
     /// A dotted name's way through the parameters. A parameter whose own name has a dot in it is that parameter.

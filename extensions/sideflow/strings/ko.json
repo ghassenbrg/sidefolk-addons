@@ -1014,6 +1014,12 @@
     "a list": "목록",
     "Last time: {value}": "지난번: {value}",
     "Written out, as a record or a list. Values from earlier steps go in quotes.": "레코드나 목록으로 씁니다. 이전 단계의 값은 따옴표 안에 넣습니다.",
-    "That isn't written the way it needs to be: check its brackets and quotes.": "형식이 맞지 않습니다. 괄호와 따옴표를 확인하세요."
+    "That isn't written the way it needs to be: check its brackets and quotes.": "형식이 맞지 않습니다. 괄호와 따옴표를 확인하세요.",
+    "That isn't a whole number.": "정수가 아닙니다.",
+    "a whole number": "정수",
+    "“{name}” has an entry that came back with nothing in it.": "“{name}”에 비어서 돌아온 항목이 있습니다.",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "“{name}”은(는) 글 목록인데 그렇지 않은 항목이 있습니다: “{value}”.",
+    "“{name}” is needed, and this gives it nothing.": "“{name}”이(가) 필요한데 여기서 아무것도 주지 않습니다.",
+    "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”에는 {what}이(가) 필요한데 여기서 “{value}”을(를) 줍니다."
   }
 }

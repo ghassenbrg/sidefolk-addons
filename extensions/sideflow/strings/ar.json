@@ -1099,6 +1099,12 @@
     "a list": "قائمة",
     "Last time: {value}": "آخر مرة: {value}",
     "Written out, as a record or a list. Values from earlier steps go in quotes.": "يُكتب كاملًا كسجل أو قائمة. توضع قيم الخطوات السابقة بين علامتي اقتباس.",
-    "That isn't written the way it needs to be: check its brackets and quotes.": "لم يُكتب بالشكل المطلوب: تحقق من الأقواس وعلامات الاقتباس."
+    "That isn't written the way it needs to be: check its brackets and quotes.": "لم يُكتب بالشكل المطلوب: تحقق من الأقواس وعلامات الاقتباس.",
+    "That isn't a whole number.": "هذا ليس عددًا صحيحًا.",
+    "a whole number": "عددًا صحيحًا",
+    "“{name}” has an entry that came back with nothing in it.": "في «{name}» عنصر عاد فارغًا.",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "«{name}» قائمة كلمات، وأحد عناصرها ليس كذلك: «{value}».",
+    "“{name}” is needed, and this gives it nothing.": "«{name}» مطلوب، وهذا لا يعطيه شيئًا.",
+    "“{name}” wants {what}, and this gives it “{value}”.": "يريد «{name}» {what}، وهذا يعطيه «{value}»."
   }
 }

@@ -42,7 +42,7 @@ Known small gaps accepted for now, to fix first in the next batch:
 
 Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off flow in an untaken branch refuses the whole run; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
 
-Typed mapping's later list: `one, {{n}}` in a list with n null sends a null entry, for Sidefolk's check to refuse; `one, {{x.tags}}` with a list value sends a list inside the list, the same way; an entry with a comma in it reads as two in the form and goes as one; a lone `,` sends an empty list; `1.000` from a step reaches an integer field as 1; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
+Typed mapping's later list: an entry with a comma in it reads as two in the form and goes as one; `1.000` from a step reaches a number field (not a whole-number one) as 1, read as a decimal; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
 
 ## Left out on purpose
 
