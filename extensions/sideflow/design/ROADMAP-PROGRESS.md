@@ -56,7 +56,11 @@ The person hears before a real run: a step's form and the flow's page mark a ste
 
 Later list, for the expression language: units, currencies, thousands marks, percent.
 
-Also later: JSON written inside words (`[1.000]` in a sum) is read as JSON first; the editor's mark doesn't cover a sort, whose list usually is words; a person typing `1.234` into a number field gets 1.234; a value reading more than 32 names says it reads nothing nameable, so edits to those aren't new (its rank stays outside); applying a change doesn't stop runs already under way.
+A sort has its own words to think of, since sorting names is its job. Words with no digits sort as words. A name with a bare count in it sorts as a person reads it, `Item 9` before `Item 12`, as in Finder. A date written year first sorts as it reads. Anything else with digits in it stops: `USD 1,500`, `CPU: 12%`, `Nov 5, 2026`, `1.2.10`. So does a list with both numbers and words, like `10`, `9`, `N/A`, and a field that no row has. Blanks and rows without the field go last either way round. Still sorting by its letters: a date with no marks, `Nov 5 2026`.
+
+An agent's `continue_run` with stop on a called flow ends that run only: to the flow that called it, that's a failed step, so under "collect" its loop goes on to the next item. Only the page's own Stop or the person's answer stops all of it (the coordinator's ruling above).
+
+Also later: JSON written inside words is read as JSON first, by JSON's rules (`[1.000]` in a sum, `{"n":5e3}` through `{{s.n}}`); a JSON object with one key twice keeps one of them; `1e-999` in JSON reads 0; the editor's mark doesn't cover a sort, whose list usually is words; a person typing `1.234` into a number field gets 1.234; a value reading more than 32 names says it reads nothing nameable, so edits to those aren't new (its rank stays outside); applying a change doesn't stop runs already under way.
 
 ## Deleting several flows and moving steps (the founder's feedback, read clean at 2980498)
 

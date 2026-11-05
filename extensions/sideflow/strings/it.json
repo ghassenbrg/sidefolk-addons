@@ -1078,6 +1078,9 @@
       "other": "{count} selezionate"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Si possono scegliere solo le prime {count} routine alla volta. Eliminale e compariranno le altre.",
-    "The nearest places are listed. To go further, move it there and choose again.": "Sono elencati i punti più vicini. Per andare oltre, spostalo lì e scegli di nuovo."
+    "The nearest places are listed. To go further, move it there and choose again.": "Sono elencati i punti più vicini. Per andare oltre, spostalo lì e scegli di nuovo.",
+    "None of these has “{field}”, so there's nothing to sort by.": "Nessuno di questi ha «{field}», quindi non c’è nulla in base a cui ordinare.",
+    "Two columns are called “{name}”.": "Due colonne si chiamano «{name}».",
+    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "La riga {row} ha più celle che colonne. Un valore con una virgola va messo tra virgolette."
   }
 }
