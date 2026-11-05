@@ -280,6 +280,17 @@ struct Values: Equatable, Sendable {
         return named[root] == nil ? L("It uses “{name}”, but that step didn't run this time.", ["name": name]) : L("It uses “{name}”, but that step's answer doesn't have it.", ["name": name])
     }
 
+    /// Whether a step left something to go on from: a carried-past failure's blank isn't, and neither is words that say nothing.
+    func leftSomething(_ name: String) -> Bool {
+        guard let value = whole(name) else { return false }
+        return value != .string("")
+    }
+
+    /// A value an action would get as a blank because it says nothing: a field that's null, a lane that made nothing. Empty words are words; this is no answer at all.
+    func saysNull(in texts: [String]) -> String? {
+        texts.flatMap(Self.slots).first { resolve($0.name, path: $0.path) == .null }.map { $0.name + $0.path }
+    }
+
     /// What these words use that no step has made and this run has to stop for. A practice only pretended, so a field of that isn't one.
     func stopsFor(_ texts: [String], practice: Bool) -> String? {
         missing(in: texts).first { !practice || !isSampleField($0) }

@@ -2539,6 +2539,35 @@ extension JSON {
         #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing to send, so nothing is sent")
     }
 
+    @Test func aLaneThatMadeNothingIsntSentAsABlank() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "both", "parallel": [["name": "a", "steps": [["id": "m", "if": ["value": "x", "test": "is", "than": "y"], "then": [["id": "n", "text": "never"]], "else": []]]], ["name": "b", "steps": [["id": "o", "text": "o"]]]]],
+                               ["id": "c", "do": "changes.it", "with": ["text": "{{both.a}}"]]])
+        let started = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(started.id)?.status != .done)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func aFieldThatSaysNothingIsntSentAsABlank() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Looked", summary: "", data: #"{"id": null}"#)]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "{{r.id}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func aFailureCarriedPastDoesntTakeTheAnswerAway() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = (0..<4).map { _ in Actions.Outcome(status: .error, text: "no") }
+        let flow = try w.flow([["id": "again", "repeat": [["id": "a", "text": "report"], ["id": "b", "do": "changes.it", "with": ["text": "x"], "on_failure": "carry_on"]], "until": ["value": "{{a}}", "test": "contains", "than": "report"], "times": 2],
+                               ["id": "t", "text": "got {{again}}"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t") == "got report")
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])

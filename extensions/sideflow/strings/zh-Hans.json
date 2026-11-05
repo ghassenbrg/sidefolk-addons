@@ -977,6 +977,7 @@
     "Say what to use instead.": "说明改用什么。",
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "它会成为一个单独的流程，在你开启之前处于关闭状态，此步骤会调用它。",
     "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "后面的步骤用到了它的字段“{name}”，而流程只返回文字。请先修改这些步骤。",
-    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "后面的步骤用到了“{name}”，它会移到新流程中。请先修改这些步骤。"
+    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "后面的步骤用到了“{name}”，它会移到新流程中。请先修改这些步骤。",
+    "It uses “{name}”, which came back with nothing in it.": "它用到了“{name}”，但返回的内容是空的。"
   }
 }

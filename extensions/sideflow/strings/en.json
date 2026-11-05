@@ -287,6 +287,7 @@
     "It takes": "It takes",
     "It uses “{name}”, but that step didn't run this time.": "It uses “{name}”, but that step didn't run this time.",
     "It uses “{name}”, but that step's answer doesn't have it.": "It uses “{name}”, but that step's answer doesn't have it.",
+    "It uses “{name}”, which came back with nothing in it.": "It uses “{name}”, which came back with nothing in it.",
     "It uses “{name}”, which no earlier step makes.": "It uses “{name}”, which no earlier step makes.",
     "It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.": "It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.",
     "It uses “{name}”, which that step doesn't give. It may have been renamed.": "It uses “{name}”, which that step doesn't give. It may have been renamed.",

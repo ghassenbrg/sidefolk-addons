@@ -285,6 +285,10 @@ extension FlowHost {
         }
         // Before it's done: for a repeat, which can't tell from a value alone what going round would do again.
         if step.doesSomething(catalog) { for i in run.frames.indices { run.frames[i].wrote = true } }
+        // A real action sent a blank where a value should be could do anything with it.
+        if case .action = step.kind, run.mode != .practice, let name = run.values.saysNull(in: step.usedTexts) {
+            return failed(step, why: L("It uses “{name}”, which came back with nothing in it.", ["name": name]), reads: false, in: &run)
+        }
         switch step.kind {
         case .call(let flow, let inputs):
             return run.waitingOn.isEmpty ? calling(step, flow: flow, inputs: inputs, in: &run) : joined(step, in: &run)
@@ -631,7 +635,7 @@ extension FlowHost {
         // A flow's own run holds the flow; one that another waits for doesn't: it's that run's business.
         let holds = run.parent == nil
         // The last that has something to say: a loop's insides are gone by its end, and a path not taken never made anything.
-        if run.output == nil, run.status == .done, let last = run.body.allSteps.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }) { run.output = run.values.whole(last.id) }
+        if run.output == nil, run.status == .done, let last = run.body.allSteps.last(where: { $0.hasOutput && run.values.leftSomething($0.id) }) { run.output = run.values.whole(last.id) }
         if run.status.isOver {
             run.endedAt = clock()
             _ = store.takeStop(run.id)

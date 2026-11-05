@@ -1052,6 +1052,7 @@
     "Say what to use instead.": "حدّد ما يُستخدم بدلًا منه.",
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "يصبح روتينًا مستقلًا، متوقفًا حتى تشغّله، وتستدعيه هذه الخطوة.",
     "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "تستخدم الخطوات التالية حقله «{name}»، والروتين لا يعيد سوى كلماته. غيّرها أولًا.",
-    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "تستخدم الخطوات التالية «{name}»، وسينتقل إلى الروتين الجديد. غيّرها أولًا."
+    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "تستخدم الخطوات التالية «{name}»، وسينتقل إلى الروتين الجديد. غيّرها أولًا.",
+    "It uses “{name}”, which came back with nothing in it.": "يستخدم «{name}»، الذي عاد فارغًا."
   }
 }
