@@ -62,6 +62,12 @@ The rule (D199 in the app's docs, on app branch `team/sideflow-delete-docs`): de
 
 Later list: `delete_flow` removing a picked flow makes the press ask again; a name with hidden characters; 200 or more flows may pass the 128 KB page limit; moving walks every step at 100 steps; a guarded press still logs "Changed something"; Keep from the selection; a step whose id is `start` reads ambiguously. A drag handle on a card needs the app and isn't built.
 
+## Copy as a definition (the founder's report, reproduced on snapshot.10)
+
+The button opened a section with a second Copy button and copied nothing itself: from Runs or Activity nothing showed at all, and with a step selected it sat low in the side panel. It now copies at once from the menu on any tab, like Copy it in words. Both copy what's on screen and say when that includes changes that aren't saved. The label says when it includes unsaved changes, because a menu shows only its label. The page carries the words on every read, so past 20,000 bytes the button says it's too long rather than risk the page not drawing. What it copies comes back through Bring one in as the same flow.
+
+Later list: words still being typed in a field aren't in the copy until that field is left (the host hands over typing after the words were drawn; a general fix is the app's); a half-written draft can be copied and then refused on the way back in; hidden characters like a joiner inside an emoji are removed by the host as it copies, as they were before. Definitions between 20,000 and 30,000 bytes used to offer a second button and now say too long; Export is their way out.
+
 ## Left out on purpose
 
 Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.

@@ -4,7 +4,7 @@ import SidefolkExtensionKit
 /// What a click on the page does: the one tool `ui`, as the person (never offered to a model). Every change goes to the draft.
 @MainActor enum Actions_UI {
     /// Where the click leaves the page.
-    enum Leaves { case stay, flow(String), run(String), home }
+    enum Leaves { case stay, flow(String), panel(String), run(String), home }
 
     static func handle(_ a: Arguments, _ app: App) async throws -> Leaves {
         let op = a.string("op") ?? ""
@@ -88,6 +88,11 @@ import SidefolkExtensionKit
             if let id = a.string("step"), let after = a.string("value") { try draft { $0 = Editing.place(id, after: after, in: $0) } }
         case "up", "down":
             if let id = a.string("step") { try draft { $0 = Editing.nudge(id, by: op == "up" ? -1 : 1, in: $0) } }
+        case "rename_open":
+            // Its name is on the flow's own panel, whatever was selected and whichever tab this came from.
+            let f = try flow()
+            app.nav.inspect(.nothing, in: f.id)
+            return .panel(f.id)
         case "rename":
             var f = try flow()
             if let name = text.nonEmpty.map({ String($0.prefix(60)) }) {
@@ -257,10 +262,6 @@ import SidefolkExtensionKit
             app.engine.endHeldRuns()
         case "stop_run":
             if let id = a.string("run") { app.engine.stop(run: id, byThePerson: a.string("page_token") == app.pageKey) }
-        case "export":
-            app.nav.exporting = try flow().id
-        case "export_done":
-            app.nav.exporting = nil
         case "inspect_run":
             if let id = a.string("run"), let target = a.string("target") {
                 // Pressing what's selected puts it away, as on the board.
