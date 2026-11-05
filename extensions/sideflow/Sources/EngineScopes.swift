@@ -66,7 +66,7 @@ extension Engine {
         }
         let inside = FlowBody(steps: steps).allSteps
         // The last that made something: a path not taken at the end of a go made nothing.
-        let made = inside.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }).flatMap { run.values.whole($0.id) } ?? .null
+        let made = inside.last(where: { $0.hasOutput && run.values.named[$0.id] != nil }).flatMap { run.values.whole($0.id) }
         let holds = until.holds(run.values)
         let go = run.frames[at].index + 1
         func leave() {
@@ -99,10 +99,11 @@ extension Engine {
         }
         if holds || run.mode == .practice {
             leave()
-            run.values.set(step.id, made)
+            // Nothing inside made anything: nothing for a later step to be sent as if it were an answer.
+            if let made { run.values.set(step.id, made) }
             let summary = run.mode == .practice ? L("Went round once for practice; it would go on until this holds, {count} times at most", ["count": Format.integer(times)])
                 : L(one: "It held after {count} time", other: "It held after {count} times", count: go)
-            var record = Run.Record(step: step.id, status: run.mode == .practice ? .would : .done, summary: summary, output: Values.text(made).clipped(Self.keptOutput), at: clock())
+            var record = Run.Record(step: step.id, status: run.mode == .practice ? .would : .done, summary: summary, output: made.map { Values.text($0).clipped(Self.keptOutput) }, at: clock())
             record.scope = run.scope
             run.record(record)
             run.pc += 1

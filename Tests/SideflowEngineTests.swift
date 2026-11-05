@@ -2530,6 +2530,15 @@ extension JSON {
         #expect(run?.values.value("t").contains("said") == true)
     }
 
+    @Test func aRepeatThatMadeNothingIsntAnEmptyAnswer() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "again", "repeat": [["id": "m", "if": ["value": "{{index}}", "test": "is", "than": "9"], "then": [["id": "x", "text": "never"]], "else": []]], "until": ["value": "{{index}}", "test": "is", "than": "2"], "times": 3],
+                               ["id": "c", "do": "changes.it", "with": ["text": "{{again}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing to send, so nothing is sent")
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])
