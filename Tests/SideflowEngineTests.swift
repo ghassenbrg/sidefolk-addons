@@ -2753,6 +2753,44 @@ extension JSON {
         #expect(w.store.run(run.id)?.problem?.contains("1") == true)
     }
 
+    @Test func aStartThatArrivesWhileAStopFinishesIsClearedToo() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        w.host.honoursCancel = true
+        w.host.releaseQuietly = true
+        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]], ["id": "d", "do": "reads.it"]])
+        var body = flow.draft
+        body.overlap = .queue
+        flow.draft = body
+        flow.live = body
+        w.store.save(flow)
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.stop(run: run.id, byThePerson: true)
+        _ = w.engine.start(flow, mode: .live, why: "arrived while it was stopping")
+        #expect(w.store.flow(flow.id)?.waitingStarts.count == 1)
+        w.host.hold = nil
+        w.host.cancelled = true
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.waitingStarts.isEmpty == true)
+        #expect(w.store.runs(of: flow.id).count == 1, "nothing starts after Stop")
+        #expect(w.store.run(run.id)?.problem?.contains("1") == true, "\(w.store.run(run.id)?.problem ?? "")")
+    }
+
+    @Test func stoppingAPracticeLeavesTheRealQueueAlone() async throws {
+        let w = try World()
+        let flow = try queueing(w, overlap: "queue")
+        var waiting = flow
+        waiting.waitingStarts = ["later"]
+        w.store.save(waiting)
+        let current = try #require(w.store.flow(flow.id))
+        let practice = try #require(w.engine.start(current, mode: .practice, why: "t"))
+        await w.quiet()
+        w.engine.stop(run: practice.id, byThePerson: true)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.waitingStarts == ["later"] || w.store.runs(of: flow.id).contains { $0.why == L("Its turn came.") }, "not the practice's to clear")
+    }
+
     @Test func aStopThatIsntThePersonsLeavesTheQueueAlone() async throws {
         let w = try World()
         let flow = try queueing(w, overlap: "queue")
