@@ -2496,6 +2496,19 @@ extension JSON {
         #expect(run?.values.value("t").contains("7") == false, "the record doesn't go in the list where its field's null was")
     }
 
+    @Test func aLoopWhoseCalledFlowGaveNothingKeepsItsItem() async throws {
+        let w = try World()
+        var child = try w.flow([["id": "c", "if": ["value": "a", "test": "is", "than": "b"], "then": [["id": "n", "text": "never"]], "else": []]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "e", "for_each": "one\ntwo", "steps": [["id": "k", "call_flow": "Child"]]], ["id": "t", "text": "{{e}}"]])
+        let started = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let run = w.store.run(started.id)
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t").contains("one") == true, "what a go gave when the last step made nothing, as for a path not taken")
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])
