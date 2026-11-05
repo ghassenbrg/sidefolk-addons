@@ -77,16 +77,20 @@ extension Engine {
         }
         // What it can't see won't change by asking again. A go that only read is what a poll asks again, but one that did something would do it again, so one of its checks has
         // to be able to come out differently: something this go answered, or which go this is. Not an earlier value, a name gone with a loop inside, a misspelt one, or a blank.
-        let answeredHere = Set(inside.map(\.id)).union(["index"])
+        // Alone, a repeat's item is its go; inside a list it's the list's. Words a check doesn't compare with don't count, even if they're still written there.
+        let body = run.body
+        let inAList = run.frames.contains { frame in frame.kind == .loop && { if case .forEach? = body.step(frame.step)?.kind { true } else { false } }() }
+        let answeredHere = Set(inside.map(\.id)).union(inAList || run.startItem != nil ? ["index"] : ["index", "item"])
+        func looksAt(_ check: Condition) -> [(name: String, path: String)] { Values.slots(check.value) + (check.test == .is_empty || check.test == .not_empty ? [] : Values.slots(check.than)) }
         let canChange = until.checks.contains { check in
-            (Values.slots(check.value) + Values.slots(check.than)).contains { slot in
+            looksAt(check).contains { slot in
                 answeredHere.contains(slot.name) && run.values.resolve(slot.name, path: slot.path).map { !Condition.isBlank(Values.text($0).trimmed) } == true
             }
         }
         if run.mode != .practice, !holds, run.frames[at].wrote, !canChange {
-            let name = until.checks.flatMap { Values.slots($0.value) }.first.map { $0.name + $0.path } ?? until.checks.first?.value ?? ""
+            let name = until.checks.flatMap(looksAt).first.map { $0.name + $0.path } ?? until.checks.first?.value ?? ""
             leave()
-            return failed(step, why: L("Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.", ["name": name]), reads: false, in: &run)
+            return failed(step, why: L("“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.", ["name": name]), reads: false, in: &run)
         }
         if holds || run.mode == .practice {
             leave()

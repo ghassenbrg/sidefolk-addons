@@ -90,6 +90,40 @@ import SidefolkExtensionKit
         #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 2)
     }
 
+    @Test func wordsACheckDoesntCompareWithDontCount() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "there", summary: "")]
+        w.host.answers["changes.it"] = (0..<9).map { _ in Actions.Outcome(status: .ok, text: "Sent", summary: "") }
+        let flow = try w.flow([["id": "earlier", "do": "reads.it"], ["id": "again", "repeat": [Self.send], "until": ["value": "{{earlier}}", "test": "is_empty", "than": "{{send}}"], "times": 4]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1)
+    }
+
+    @Test func aRepeatsOwnItemIsItsGoAndCanEndIt() async throws {
+        let (run, sent) = try await sends([Self.send], until: ["value": "{{item}}", "test": "is", "than": "2"])
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(sent == 2)
+    }
+
+    @Test func insideAListTheItemCantChangeByGoingRound() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = (0..<9).map { _ in Actions.Outcome(status: .ok, text: "Sent", summary: "") }
+        let flow = try w.flow([["id": "each", "for_each": "a", "steps": [["id": "again", "repeat": [Self.send], "until": ["value": "{{item}}", "test": "is", "than": "b"], "times": 4]]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "\(run?.problem ?? "")")
+    }
+
+    @Test func whenItStopsItNamesWhatItLooksAtWhereverThatIsWritten() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "there", summary: "")]
+        w.host.answers["changes.it"] = (0..<9).map { _ in Actions.Outcome(status: .ok, text: "Sent", summary: "") }
+        let flow = try w.flow([["id": "earlier", "do": "reads.it"], ["id": "again", "repeat": [Self.send], "until": ["value": "done", "test": "contains", "than": "{{earlier}}"], "times": 4]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(run?.problem?.contains("earlier") == true, "\(run?.problem ?? "")")
+    }
+
     @Test func aGoThatCountsCanSayHowManyTimes() async throws {
         let (run, sent) = try await sends([Self.send], until: ["value": "{{index}}", "test": "is", "than": "2"])
         #expect(run?.status == .done, "\(run?.problem ?? "")")
@@ -99,8 +133,10 @@ import SidefolkExtensionKit
     @Test func aReadOfAToolThatsAwayIsntSomethingDone() throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: []))
-        let step = try #require(try FlowCodec.body(["trigger": ["type": "manual"], "steps": [Self.send]]).step("send"))
-        #expect(!step.doesSomething(w.catalog))
+        let away = try #require(try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "s", "do": "ext.gone.look"]]]).step("s"))
+        #expect(!away.doesSomething(w.catalog), "it comes back through here if it comes back")
+        let unlisted = try #require(try FlowCodec.body(["trigger": ["type": "manual"], "steps": [Self.send]]).step("send"))
+        #expect(unlisted.doesSomething(w.catalog), "not listed isn't away: it can still run, and nothing here says it only reads")
     }
 
     @Test func aFlowSetOffFromInsideCountsAsSomethingDone() async throws {
