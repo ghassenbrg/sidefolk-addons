@@ -105,10 +105,8 @@ struct Condition: Equatable, Sendable {
         return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
-    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])[-−]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
-    /// Spaced in threes with a currency or decimals to say it's one number: `1 299,00 €`. Bare, `100 200` could be two.
-    private static let spaced = try! NSRegularExpression(pattern: #"^\s*[^\d\s]{0,3}\s?(\d{1,3}(?:[ \x{00A0}\x{202F}]\d{3})+)([.,]\d+)?\s?[^\d\s]{0,3}\s*$"#)
-    private static let spacer = CharacterSet(charactersIn: " \u{00A0}\u{202F}")
+    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])[-−]?\d{1,3}(?:[ \x{00A0}\x{202F}]\d{3})+(?![0-9])(?:[.,]\d+)?|(?<![A-Za-z0-9])[-−]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
+    private static let currency = CharacterSet(charactersIn: "€$£¥₹")
 
     /// Exactly as a machine writes one, exponent and all: what a tool's number comes out as in words.
     private static func isMachineNumber(_ text: String) -> Bool {
@@ -120,17 +118,18 @@ struct Condition: Equatable, Sendable {
     /// `3.142`, `0.000`, `1,299.00` and `1,000,000` are what they say, and anything else with several marks, like a version, is its first two parts.
     private static func reading(_ text: String) -> (number: String, doubtful: Bool)? {
         if isMachineNumber(text) { return (text.trimmed, false) }
-        let whole = NSRange(text.startIndex..., in: text)
-        if let match = spaced.firstMatch(in: text, range: whole), let group = Range(match.range(at: 1), in: text) {
-            let digits = text[group].unicodeScalars.filter { !spacer.contains($0) }.map(String.init).joined()
-            let rest = Range(match.range(at: 2), in: text).map { text[$0].replacingOccurrences(of: ",", with: ".") }
-            let said = text.replacingOccurrences(of: String(text[group]), with: "").contains { !$0.isWhitespace && !$0.isNumber && $0 != "." && $0 != "," }
-            return (digits + (rest ?? ""), rest == nil && !said || digits.count > 15)
+        guard let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
+        let before = text[..<range.lowerBound].trimmingCharacters(in: .whitespaces), after = text[range.upperBound...].trimmingCharacters(in: .whitespaces)
+        let isMoney = before.unicodeScalars.last.map(currency.contains) == true || after.unicodeScalars.first.map(currency.contains) == true
+        var found = text[range].replacingOccurrences(of: "−", with: "-")
+        // Spaced in threes it's one number if it has decimals or a currency to say so: `1 299,00 €`. Bare, `100 200` could be two.
+        if found.contains(where: { !$0.isNumber && $0 != "-" && $0 != "." && $0 != "," }) {
+            let hasDecimals = found.contains { $0 == "." || $0 == "," }
+            found = String(found.filter { $0.isNumber || $0 == "-" || $0 == "." || $0 == "," }).replacingOccurrences(of: ",", with: ".")
+            return (found, !hasDecimals && !isMoney || found.prefix { $0 != "." }.filter(\.isNumber).count > 15)
         }
-        guard let match = digits.firstMatch(in: text, range: whole), let range = Range(match.range, in: text) else { return nil }
-        let found = text[range].replacingOccurrences(of: "−", with: "-")
-        let after = text[range.upperBound...]
-        if after.range(of: #"^(k|K|M|B|bn|Bn)(?![A-Za-z])"#, options: .regularExpression) != nil { return (found, true) }
+        if text[range.upperBound...].range(of: #"^(k|K|M|bn|Bn)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
+        if isMoney, text[range.upperBound...].hasPrefix("B") { return (found, true) }
         let marks = found.filter { $0 == "." || $0 == "," }
         let parts = found.split(whereSeparator: { $0 == "." || $0 == "," }).map(String.init)
         let plain: String
