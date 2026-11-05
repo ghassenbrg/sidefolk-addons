@@ -1086,6 +1086,12 @@
     "“{flow}” says it gives {type}, and it gave “{value}”.": "«{flow}» dice di restituire {type}, e ha restituito «{value}».",
     "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "«{flow}» vuole {type} per «{input}», e questo gli dà «{value}».",
     "“{flow}” wants {type} for “{input}”.": "«{flow}» vuole {type} per «{input}».",
-    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "La versione {count} di «{name}» ha un passaggio di IA o avvia una routine che ciò che hai consentito per «{name}» non ha più, quindi non può restare su quella versione."
+    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "La versione {count} di «{name}» ha un passaggio di IA o avvia una routine che ciò che hai consentito per «{name}» non ha più, quindi non può restare su quella versione.",
+    "That isn't a whole number.": "Non è un numero intero.",
+    "a whole number": "un numero intero",
+    "“{name}” has an entry that came back with nothing in it.": "«{name}» ha una voce tornata vuota.",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "«{name}» è un elenco di parole, e una voce non lo è: «{value}».",
+    "“{name}” is needed, and this gives it nothing.": "«{name}» è necessario, e questo non gli dà nulla.",
+    "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» vuole {what}, e questo gli dà «{value}»."
   }
 }

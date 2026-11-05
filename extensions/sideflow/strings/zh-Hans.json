@@ -1068,6 +1068,12 @@
     "“{flow}” says it gives {type}, and it gave “{value}”.": "“{flow}”声明返回{type}，实际返回了“{value}”。",
     "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "“{flow}”的“{input}”需要{type}，而这里给的是“{value}”。",
     "“{flow}” wants {type} for “{input}”.": "“{flow}”的“{input}”需要{type}。",
-    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "“{name}”的版本 {count} 含有你现在对“{name}”的许可中没有的 AI 步骤或要启动的流程，因此不能停留在该版本。"
+    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "“{name}”的版本 {count} 含有你现在对“{name}”的许可中没有的 AI 步骤或要启动的流程，因此不能停留在该版本。",
+    "That isn't a whole number.": "这不是整数。",
+    "a whole number": "整数",
+    "“{name}” has an entry that came back with nothing in it.": "“{name}”有一项返回时是空的。",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "“{name}”是文字列表，但有一项不是：“{value}”。",
+    "“{name}” is needed, and this gives it nothing.": "“{name}”是必需的，而这里没有给它任何内容。",
+    "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”需要{what}，而这里给的是“{value}”。"
   }
 }

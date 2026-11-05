@@ -1158,6 +1158,12 @@
     "“{flow}” says it gives {type}, and it gave “{value}”.": "يقول «{flow}» إنه يعيد {type}، وقد أعاد «{value}».",
     "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "يريد «{flow}» {type} لـ«{input}»، وهذا يعطيه «{value}».",
     "“{flow}” wants {type} for “{input}”.": "يريد «{flow}» {type} لـ«{input}».",
-    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "يحتوي الإصدار {count} من «{name}» على خطوة ذكاء اصطناعي أو يشغّل روتينًا لم يعد موجودًا فيما سمحت به لـ«{name}»، لذا لا يمكنه البقاء على ذلك الإصدار."
+    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "يحتوي الإصدار {count} من «{name}» على خطوة ذكاء اصطناعي أو يشغّل روتينًا لم يعد موجودًا فيما سمحت به لـ«{name}»، لذا لا يمكنه البقاء على ذلك الإصدار.",
+    "That isn't a whole number.": "هذا ليس عددًا صحيحًا.",
+    "a whole number": "عددًا صحيحًا",
+    "“{name}” has an entry that came back with nothing in it.": "في «{name}» عنصر عاد فارغًا.",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "«{name}» قائمة كلمات، وأحد عناصرها ليس كذلك: «{value}».",
+    "“{name}” is needed, and this gives it nothing.": "«{name}» مطلوب، وهذا لا يعطيه شيئًا.",
+    "“{name}” wants {what}, and this gives it “{value}”.": "يريد «{name}» {what}، وهذا يعطيه «{value}»."
   }
 }

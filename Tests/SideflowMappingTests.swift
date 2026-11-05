@@ -133,14 +133,6 @@ import SidefolkExtensionKit
         #expect(sent["tags"] as? [String] == ["one"])
     }
 
-    @Test func wordsThatArentWhatItWantsGoAsTheyAreForSidefolkToRefuse() async throws {
-        let w = try World()
-        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
-        let flow = try w.flow([["id": "n", "text": "many"], ["id": "c", "do": "changes.it", "with": ["text": "x", "count": "{{n}}"]]])
-        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
-        #expect(w.host.calls.first { $0.tool == "changes.it" }?.input["count"] as? String == "many", "never a guessed number")
-    }
-
     @Test func aRecordsFieldsGetWhatTheTopLevelDoes() async throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
@@ -223,14 +215,136 @@ import SidefolkExtensionKit
         #expect(Editing.number("+5") == 5)
     }
 
-    @Test func aWholeNumberWrittenWithAPointIsStillOneForAnInteger() async throws {
+    /// One changes.it after an earlier step made `made`, its result going in as `with`.
+    private func refused(_ with: [String: Any], made: String = "x") async throws -> (run: Run, sent: [[String: Any]]) {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
-        let flow = try w.flow([["id": "n", "text": "12.0"], ["id": "t", "text": "1,234"], ["id": "c", "do": "changes.it", "with": ["text": "x", "count": "{{n}}"]], ["id": "d", "do": "changes.it", "with": ["text": "y", "count": "{{t}}"]]])
+        let flow = try w.flow([["id": "n", "text": made], ["id": "c", "do": "changes.it", "with": with]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        return (run, w.host.calls.filter { $0.tool == "changes.it" }.map(\.input))
+    }
+
+    @Test func aCountIsAWholeNumberAndNothingElse() async throws {
+        for words in ["1.000", "12.0", "1,234", "1e3", "many"] {
+            let (run, sent) = try await refused(["text": "x", "count": "{{n}}"], made: words)
+            #expect(sent.isEmpty, "\(words) never reaches it")
+            #expect(run.status == .failed)
+            #expect(run.problem?.contains(words) == true && run.problem?.contains("Count") == true, "\(run.problem ?? "")")
+        }
+        let (_, sent) = try await refused(["text": "x", "count": "{{n}}"], made: "12")
+        #expect(sent.first?["count"] as? Int == 12)
+        let (_, written) = try await refused(["text": "x", "count": "1.000"])
+        #expect(written.isEmpty, "written out the same")
+    }
+
+    @Test func aPersonTypingACountHasToTypeOne() async throws {
+        let w = try World()
+        let app = try app(w)
+        let flow = try flow(app)
+        for words in ["1.000", "12.5", "1e3"] {
+            await #expect(throws: Problem.self) { _ = try await Actions_UI.handle(Arguments(["op": "param", "flow": flow.id, "step": "c", "name": "count", "text": words]), app) }
+        }
+        _ = try await Actions_UI.handle(Arguments(["op": "param", "flow": flow.id, "step": "c", "name": "count", "text": "12"]), app)
+        guard case .action(_, let input)? = app.store.flow(flow.id)?.draft.step("c")?.kind else { Issue.record("not a step"); return }
+        #expect(input["count"] == .number(12))
+    }
+
+    @Test func aListEntryThatCameBackWithNothingStopsIt() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"n":null}"#, summary: "")]
+        for tags: Any in ["one, {{r.n}}", ["one", "{{r.n}}"]] {
+            w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"n":null}"#, summary: "")]
+            let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "x", "tags": tags]]])
+            let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+            #expect(run.status == .failed, "\(tags)")
+            #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "a null never reaches the tool: \(tags)")
+        }
+    }
+
+    @Test func aListInsideAListStopsIt() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"tags":["a","b"]}"#, summary: "")]
+        let flow = try w.flow([["id": "x", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "y", "tags": "one, {{x.tags}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .failed)
+        #expect(run.problem?.contains("Tags") == true, "\(run.problem ?? "")")
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "not flattened, not sent")
+    }
+
+    @Test func onlyCommasIsNothingAndNeverAnEmptyList() async throws {
+        let (run, sent) = try await refused(["text": "x", "tags": ","])
+        #expect(run.status == .done, "it can go without: \(run.problem ?? "")")
+        #expect(sent.first?["tags"] == nil, "left out, not []")
+        for words in [",", " , ", ",,"] { #expect(Editing.value(words, for: Catalog.Parameter(name: "t", kind: .list, required: false, title: "T")) == nil) }
+
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: #"{"properties":{"tags":{"type":"array","items":{"type":"string"}}},"required":["tags"]}"#)]))
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["tags": ","]]])
+        let needed = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(needed.status == .failed, "it can't")
+        #expect(needed.problem?.contains("Tags") == true, "\(needed.problem ?? "")")
+        #expect(w.host.calls.isEmpty)
+    }
+
+    @Test func aBlankWhereItCantGoWithoutOneStopsIt() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"i":{"type":"integer"}},"required":["i"]}"#)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"x":""}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["i": "{{r.x}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .failed)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func nothingIsntEnoughWhereItsNeededWhateverTheSchemaSays() async throws {
+        for schema in [#"{"anyOf":[{"type":"integer"},{"type":"null"}]}"#, #"{"type":"integer"}"#] {
+            let w = try World()
+            w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"parent":"# + schema + #"},"required":["parent"]}"#)]))
+            let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["parent": NSNull()]]])
+            let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+            #expect(run.status == .failed, "Sidefolk counts it as missing, and this says so plainly: \(schema)")
+            #expect(run.problem?.contains("Parent") == true, "\(run.problem ?? "")")
+            #expect(w.host.calls.isEmpty, "\(schema)")
+        }
+    }
+
+    @Test func aBlankForSomethingItCanGoWithoutIsLeftOut() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"x":""}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "t", "text": ""], ["id": "c", "do": "changes.it", "with": ["text": "x", "tags": "{{r.x}}", "count": "{{t}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .done, "\(run.problem ?? "")")
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["tags"] == nil, "left out: not [\"\"], not a blank, not a null")
+        #expect(sent["count"] == nil)
+    }
+
+    @Test func anEmptyRecordSaidOnPurposeStaysOne() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: #"{"properties":{"to":{"type":"object","properties":{"city":{"type":"string"}}}}}"#)]))
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["to": [String: Any]()]]])
         _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
-        let calls = w.host.calls.filter { $0.tool == "changes.it" }
-        #expect(calls.first?.input["count"] as? Int == 12)
-        #expect(calls.last?.input["count"] as? String == "1,234", "as it is, for Sidefolk to refuse: never 1.234")
+        #expect((w.host.calls.first?.input["to"] as? [String: Any])?.isEmpty == true)
+        // What it needs inside is still needed.
+        let other = try World()
+        other.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let wanting = try other.flow([["id": "c", "do": "changes.it", "with": ["text": "x", "to": [String: Any]()]]])
+        #expect(try #require(await other.settled(other.engine.start(wanting, mode: .live, why: "t"))).status == .failed)
+    }
+
+    @Test func anEmptyListSaidOnPurposeStaysOne() async throws {
+        let (run, sent) = try await refused(["text": "x", "tags": [String]()])
+        #expect(run.status == .done)
+        #expect((sent.first?["tags"] as? [Any])?.isEmpty == true)
+    }
+
+    @Test func aFieldThatsWrongIsSaidInPlainWords() async throws {
+        let (run, sent) = try await refused(["text": "x", "urgent": "{{n}}"], made: "perhaps")
+        #expect(sent.isEmpty)
+        #expect(run.problem?.contains("perhaps") == true, "\(run.problem ?? "")")
     }
 
     @Test func wordsAnAgentStoredAreShownAsWhatsSent() throws {

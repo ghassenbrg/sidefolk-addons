@@ -1068,6 +1068,12 @@
     "“{flow}” says it gives {type}, and it gave “{value}”.": "「{flow}」は{type}を返すはずですが、「{value}」を返しました。",
     "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "「{flow}」は「{input}」に{type}を求めていますが、渡されたのは「{value}」です。",
     "“{flow}” wants {type} for “{input}”.": "「{flow}」は「{input}」に{type}を求めています。",
-    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "「{name}」のバージョン{count}には、「{name}」について今許可されている内容にないAIステップまたは起動するルーティンがあるため、そのバージョンのままにできません。"
+    "Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.": "「{name}」のバージョン{count}には、「{name}」について今許可されている内容にないAIステップまたは起動するルーティンがあるため、そのバージョンのままにできません。",
+    "That isn't a whole number.": "整数ではありません。",
+    "a whole number": "整数",
+    "“{name}” has an entry that came back with nothing in it.": "「{name}」に空で返ってきた項目があります。",
+    "“{name}” is a list of words, and one entry isn't: “{value}”.": "「{name}」はテキストのリストですが、そうでない項目があります:「{value}」。",
+    "“{name}” is needed, and this gives it nothing.": "「{name}」は必須ですが、何も渡されていません。",
+    "“{name}” wants {what}, and this gives it “{value}”.": "「{name}」には{what}が必要ですが、渡されたのは「{value}」です。"
   }
 }
