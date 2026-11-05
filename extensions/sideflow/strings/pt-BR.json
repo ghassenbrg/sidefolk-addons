@@ -65,6 +65,9 @@
         "Abrir o Sideflow",
         "Alterar algo no Sideflow: {op}"
       ]
+    },
+    "import_file": {
+      "title": "Importar um arquivo de rotina"
     }
   },
   "pages": {
@@ -797,7 +800,6 @@
     "That form has been answered already.": "Esse formulário já foi respondido.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "Isso é fundo demais: uma rotina pode ter etapas dentro de etapas até {count} níveis.",
     "That isn't JSON.": "Isso não é JSON.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "Isso não é a definição de uma rotina. Use “Copiar como definição” em uma rotina.",
     "That run isn't stopped: it's waiting for something.": "Essa execução não está parada: está esperando algo.",
     "The AI's answer didn't have the fields this step needs.": "A resposta da IA não tinha os campos de que esta etapa precisa.",
     "The choices": "As opções",
@@ -1035,6 +1037,40 @@
       "other": "{count} selecionadas"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Só as primeiras {count} rotinas podem ser escolhidas de uma vez. Exclua-as e as outras aparecem.",
-    "The nearest places are listed. To go further, move it there and choose again.": "Os lugares mais próximos estão listados. Para ir mais longe, mova para lá e escolha de novo."
+    "The nearest places are listed. To go further, move it there and choose again.": "Os lugares mais próximos estão listados. Para ir mais longe, mova para lá e escolha de novo.",
+    "Import a file": "Importar um arquivo",
+    "Bring this in?": "Importar?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "Chega como rascunho e desligada. Nada é executado até você ligá-la e ler o cartão dela.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "Isto é o que o Sideflow consegue saber pelo arquivo. A proteção real é o cartão ao ligá-la.",
+    "Bring in": "Importar",
+    "Not now": "Agora não",
+    "It starts: {when}": "Começa: {when}",
+    "It reads: {list}": "Lê: {list}",
+    "It changes or sends something: {list}": "Altera ou envia algo: {list}",
+    "By their names, these may delete: {list}": "Pelo nome, estes podem excluir: {list}",
+    "It uses a server you added: {list}": "Usa um servidor que você adicionou: {list}",
+    "It works with files: {list}": "Trabalha com arquivos: {list}",
+    "It uses your AI.": "Usa sua IA.",
+    "It gives your companion a whole job to do.": "Dá ao seu companheiro uma tarefa inteira.",
+    "It sets off another flow: {list}": "Inicia outra rotina: {list}",
+    "It needs what isn't here: {list}": "Precisa do que não está aqui: {list}",
+    "It names a flow that isn't here: {list}": "Cita uma rotina que não está aqui: {list}",
+    "It only works with words: it reads and changes nothing.": "Só trabalha com palavras: não lê nem altera nada.",
+    "That file can't be read.": "Não é possível ler esse arquivo.",
+    "That file is too big to be flows.": "Esse arquivo é grande demais para ser de rotinas.",
+    "That isn't a Sideflow file or a flow's definition.": "Isso não é um arquivo do Sideflow nem a definição de uma rotina.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "Este arquivo veio de um Sideflow mais novo. Atualize o Sideflow e tente de novo.",
+    "A file holds at most {count} flows.": "Um arquivo tem no máximo {count} rotinas.",
+    "Every flow in a file needs a name.": "Cada rotina em um arquivo precisa de um nome.",
+    "Two flows in this file are called “{name}”.": "Duas rotinas deste arquivo se chamam “{name}”.",
+    "“{name}” can't be brought in: {why}": "Não é possível importar “{name}”: {why}",
+    "{name} (imported)": "{name} (importada)",
+    "{name} (imported {count})": "{name} (importada {count})"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Importar no Sideflow",
+      "detail": "Como rascunho. Primeiro você lê o que ela faz."
+    }
   }
 }

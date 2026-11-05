@@ -65,6 +65,9 @@
         "Sideflowを開く",
         "Sideflowの内容を変更: {op}"
       ]
+    },
+    "import_file": {
+      "title": "ルーティンのファイルを読み込む"
     }
   },
   "pages": {
@@ -789,7 +792,6 @@
     "That form has been answered already.": "そのフォームにはすでに答えがあります。",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "深すぎます。ルーティンの中のステップは、{count}段階まで入れ子にできます。",
     "That isn't JSON.": "JSONではありません。",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "ルーティンの定義ではありません。ルーティンで「定義としてコピー」を使ってください。",
     "That run isn't stopped: it's waiting for something.": "その実行は止まっていません。何かを待っています。",
     "The AI's answer didn't have the fields this step needs.": "AIの答えに、このステップが必要とする項目がありませんでした。",
     "The choices": "選択肢",
@@ -1015,6 +1017,40 @@
       "other": "{count}件選択中"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "一度に選べるのは最初の{count}件のルーティンだけです。削除すると残りが表示されます。",
-    "The nearest places are listed. To go further, move it there and choose again.": "近い場所だけを表示しています。さらに遠くへ移すには、そこまで移動してからもう一度選んでください。"
+    "The nearest places are listed. To go further, move it there and choose again.": "近い場所だけを表示しています。さらに遠くへ移すには、そこまで移動してからもう一度選んでください。",
+    "Import a file": "ファイルを読み込む",
+    "Bring this in?": "読み込みますか?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "下書きとしてオフの状態で入ります。オンにしてカードを読むまで何も実行されません。",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "これはファイルから Sideflow が分かる範囲の内容です。本当の安全策は、オンにするときのカードです。",
+    "Bring in": "読み込む",
+    "Not now": "今はしない",
+    "It starts: {when}": "開始: {when}",
+    "It reads: {list}": "読み取るもの: {list}",
+    "It changes or sends something: {list}": "変更または送信するもの: {list}",
+    "By their names, these may delete: {list}": "名前から見て削除する可能性があるもの: {list}",
+    "It uses a server you added: {list}": "追加したサーバーを使います: {list}",
+    "It works with files: {list}": "ファイルを扱います: {list}",
+    "It uses your AI.": "AI を使います。",
+    "It gives your companion a whole job to do.": "コンパニオンに仕事をまるごと任せます。",
+    "It sets off another flow: {list}": "別のルーティンを開始します: {list}",
+    "It needs what isn't here: {list}": "ここにないものが必要です: {list}",
+    "It names a flow that isn't here: {list}": "ここにないルーティンを指定しています: {list}",
+    "It only works with words: it reads and changes nothing.": "言葉だけを扱い、何も読み取らず変更もしません。",
+    "That file can't be read.": "そのファイルは読み取れません。",
+    "That file is too big to be flows.": "ルーティンのファイルとしては大きすぎます。",
+    "That isn't a Sideflow file or a flow's definition.": "Sideflow のファイルでもルーティンの定義でもありません。",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "このファイルは新しい Sideflow で作られました。Sideflow を更新してもう一度お試しください。",
+    "A file holds at most {count} flows.": "1 つのファイルに入るルーティンは最大 {count} 個です。",
+    "Every flow in a file needs a name.": "ファイル内の各ルーティンには名前が必要です。",
+    "Two flows in this file are called “{name}”.": "このファイルには「{name}」という名前のルーティンが 2 つあります。",
+    "“{name}” can't be brought in: {why}": "「{name}」は読み込めません: {why}",
+    "{name} (imported)": "{name}(読み込み)",
+    "{name} (imported {count})": "{name}(読み込み {count})"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Sideflow に読み込む",
+      "detail": "下書きとして。まず内容を確認します。"
+    }
   }
 }

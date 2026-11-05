@@ -28,6 +28,9 @@
       "options": [{ "value": "40", "title": "40" }, { "value": "100", "title": "100" }, { "value": "400", "title": "400" }], "default": "40" }
   ],
   "examples": ["what flows do i have", "run morning brief", "every weekday at 8:30 tell me what's on today"],
+  "drops": [
+    { "id": "flow_file", "title": "Bring into Sideflow", "detail": "As a draft. You read what it does first.", "symbol": "point.3.connected.trianglepath.dotted", "kinds": ["file"], "patterns": ["*.sideflow"], "tool": "import_file", "input": { "path": "{value}" } }
+  ],
   "entries": [
     { "id": "flows", "title": "Sideflow", "symbol": "point.3.connected.trianglepath.dotted", "places": ["companion", "pocket"], "page": "flows" }
   ],
@@ -55,6 +58,7 @@
       "commands": [{ "say": ["how did {flow} go", "why did {flow} stop", "why did {flow} fail"] }] },
     "continue_run": { "title": "Carry on with a run", "risk": "medium", "mutates": true, "category": "extensions" },
     "delete_flow": { "title": "Delete a flow", "risk": "high", "mutates": true, "category": "extensions" },
+    "import_file": { "title": "Bring in a flow file", "risk": "low", "mutates": true, "ai": false, "category": "extensions", "paths": { "path": "read" } },
     "ui": { "title": "Open Sideflow", "summary": [{ "unless": "op", "text": "Open Sideflow" }, { "text": "Change something in Sideflow: {op}" }], "risk": "low", "mutates": true, "category": "extensions", "ai": false,
       "commands": [{ "say": ["open sideflow", "show sideflow"] }] }
   }

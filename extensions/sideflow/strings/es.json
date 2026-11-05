@@ -65,6 +65,9 @@
         "Abrir Sideflow",
         "Cambiar algo en Sideflow: {op}"
       ]
+    },
+    "import_file": {
+      "title": "Importar un archivo de rutina"
     }
   },
   "pages": {
@@ -797,7 +800,6 @@
     "That form has been answered already.": "Ese formulario ya se respondió.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "Eso es demasiado profundo: una rutina puede tener pasos dentro de pasos hasta {count} niveles.",
     "That isn't JSON.": "Eso no es JSON.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "Eso no es la definición de una rutina. Usa «Copiar como definición» en una rutina.",
     "That run isn't stopped: it's waiting for something.": "Esa ejecución no está detenida: está esperando algo.",
     "The AI's answer didn't have the fields this step needs.": "La respuesta de la IA no tenía los campos que necesita este paso.",
     "The choices": "Las opciones",
@@ -1035,6 +1037,40 @@
       "other": "{count} seleccionadas"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Solo se pueden elegir las primeras {count} rutinas a la vez. Elimínalas y aparecerán las demás.",
-    "The nearest places are listed. To go further, move it there and choose again.": "Se muestran los lugares más cercanos. Para ir más lejos, muévelo allí y vuelve a elegir."
+    "The nearest places are listed. To go further, move it there and choose again.": "Se muestran los lugares más cercanos. Para ir más lejos, muévelo allí y vuelve a elegir.",
+    "Import a file": "Importar un archivo",
+    "Bring this in?": "¿Importarlo?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "Llega como borrador y desactivada. Nada se ejecuta hasta que la actives y leas su tarjeta.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "Esto es lo que Sideflow puede saber por el archivo. La verdadera protección es la tarjeta al activarla.",
+    "Bring in": "Importar",
+    "Not now": "Ahora no",
+    "It starts: {when}": "Empieza: {when}",
+    "It reads: {list}": "Lee: {list}",
+    "It changes or sends something: {list}": "Cambia o envía algo: {list}",
+    "By their names, these may delete: {list}": "Por su nombre, estos pueden eliminar: {list}",
+    "It uses a server you added: {list}": "Usa un servidor que agregaste: {list}",
+    "It works with files: {list}": "Trabaja con archivos: {list}",
+    "It uses your AI.": "Usa tu IA.",
+    "It gives your companion a whole job to do.": "Le da a tu compañero un trabajo completo.",
+    "It sets off another flow: {list}": "Inicia otra rutina: {list}",
+    "It needs what isn't here: {list}": "Necesita lo que no está aquí: {list}",
+    "It names a flow that isn't here: {list}": "Nombra una rutina que no está aquí: {list}",
+    "It only works with words: it reads and changes nothing.": "Solo trabaja con palabras: no lee ni cambia nada.",
+    "That file can't be read.": "No se puede leer ese archivo.",
+    "That file is too big to be flows.": "Ese archivo es demasiado grande para ser rutinas.",
+    "That isn't a Sideflow file or a flow's definition.": "Eso no es un archivo de Sideflow ni la definición de una rutina.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "Este archivo es de un Sideflow más reciente. Actualiza Sideflow y vuelve a intentarlo.",
+    "A file holds at most {count} flows.": "Un archivo contiene como máximo {count} rutinas.",
+    "Every flow in a file needs a name.": "Cada rutina de un archivo necesita un nombre.",
+    "Two flows in this file are called “{name}”.": "Dos rutinas de este archivo se llaman «{name}».",
+    "“{name}” can't be brought in: {why}": "No se puede importar «{name}»: {why}",
+    "{name} (imported)": "{name} (importada)",
+    "{name} (imported {count})": "{name} (importada {count})"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Importar en Sideflow",
+      "detail": "Como borrador. Primero lees lo que hace."
+    }
   }
 }

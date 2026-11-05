@@ -65,6 +65,9 @@
         "فتح Sideflow",
         "تغيير شيء في Sideflow: {op}"
       ]
+    },
+    "import_file": {
+      "title": "استيراد ملف روتين"
     }
   },
   "pages": {
@@ -833,7 +836,6 @@
     "That form has been answered already.": "سبق أن أُجيب عن هذا النموذج.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "هذا عميق جدًا: يمكن للروتين أن يضم خطوات داخل خطوات حتى {count} مستويات.",
     "That isn't JSON.": "هذا ليس JSON.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "هذا ليس تعريف روتين. استخدم «نسخ كتعريف» على روتين.",
     "That run isn't stopped: it's waiting for something.": "هذا التشغيل لم يتوقف: إنه ينتظر شيئًا.",
     "The AI's answer didn't have the fields this step needs.": "لم تتضمن إجابة الذكاء الاصطناعي الحقول التي تحتاجها هذه الخطوة.",
     "The choices": "الخيارات",
@@ -1115,6 +1117,40 @@
       "other": "تم تحديد {count}"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "يمكن اختيار أول {count} روتينًا فقط في كل مرة. احذفها وستظهر البقية.",
-    "The nearest places are listed. To go further, move it there and choose again.": "تُعرض أقرب الأماكن. للانتقال أبعد، انقلها إلى هناك ثم اختر مرة أخرى."
+    "The nearest places are listed. To go further, move it there and choose again.": "تُعرض أقرب الأماكن. للانتقال أبعد، انقلها إلى هناك ثم اختر مرة أخرى.",
+    "Import a file": "استيراد ملف",
+    "Bring this in?": "هل تريد استيراده؟",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "يصل كمسودة وغير مفعّل. لا يعمل شيء حتى تفعّله وتقرأ بطاقته.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "هذا ما يمكن لـ Sideflow معرفته من الملف. الحماية الحقيقية هي البطاقة عند تفعيله.",
+    "Bring in": "استيراد",
+    "Not now": "ليس الآن",
+    "It starts: {when}": "يبدأ: {when}",
+    "It reads: {list}": "يقرأ: {list}",
+    "It changes or sends something: {list}": "يغيّر أو يرسل شيئًا: {list}",
+    "By their names, these may delete: {list}": "بحسب أسمائها، قد تحذف هذه: {list}",
+    "It uses a server you added: {list}": "يستخدم خادمًا أضفته: {list}",
+    "It works with files: {list}": "يعمل على الملفات: {list}",
+    "It uses your AI.": "يستخدم الذكاء الاصطناعي لديك.",
+    "It gives your companion a whole job to do.": "يكلّف رفيقك بمهمة كاملة.",
+    "It sets off another flow: {list}": "يشغّل روتينًا آخر: {list}",
+    "It needs what isn't here: {list}": "يحتاج إلى ما ليس هنا: {list}",
+    "It names a flow that isn't here: {list}": "يذكر روتينًا غير موجود هنا: {list}",
+    "It only works with words: it reads and changes nothing.": "يعمل بالكلمات فقط: لا يقرأ شيئًا ولا يغيّر شيئًا.",
+    "That file can't be read.": "لا يمكن قراءة هذا الملف.",
+    "That file is too big to be flows.": "هذا الملف أكبر من أن يكون روتينات.",
+    "That isn't a Sideflow file or a flow's definition.": "هذا ليس ملف Sideflow ولا تعريف روتين.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "أُنشئ هذا الملف بإصدار أحدث من Sideflow. حدّث Sideflow ثم حاول مجددًا.",
+    "A file holds at most {count} flows.": "يحوي الملف {count} روتينات على الأكثر.",
+    "Every flow in a file needs a name.": "يحتاج كل روتين في الملف إلى اسم.",
+    "Two flows in this file are called “{name}”.": "يوجد في هذا الملف روتينان باسم «{name}».",
+    "“{name}” can't be brought in: {why}": "لا يمكن استيراد «{name}»: {why}",
+    "{name} (imported)": "{name} (مستورد)",
+    "{name} (imported {count})": "{name} (مستورد {count})"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "استيراد إلى Sideflow",
+      "detail": "كمسودة. تقرأ أولًا ما يفعله."
+    }
   }
 }

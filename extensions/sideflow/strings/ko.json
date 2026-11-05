@@ -65,6 +65,9 @@
         "Sideflow 열기",
         "Sideflow에서 무언가 변경: {op}"
       ]
+    },
+    "import_file": {
+      "title": "루틴 파일 가져오기"
     }
   },
   "pages": {
@@ -789,7 +792,6 @@
     "That form has been answered already.": "그 양식에는 이미 답이 있습니다.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "너무 깊습니다. 루틴은 단계 안에 단계를 {count}단계까지만 담을 수 있습니다.",
     "That isn't JSON.": "JSON이 아닙니다.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "루틴의 정의가 아닙니다. 루틴에서 ‘정의로 복사’를 사용하세요.",
     "That run isn't stopped: it's waiting for something.": "그 실행은 중지된 것이 아닙니다. 무언가를 기다리고 있습니다.",
     "The AI's answer didn't have the fields this step needs.": "AI의 답에 이 단계가 필요로 하는 필드가 없었습니다.",
     "The choices": "선택지",
@@ -1015,6 +1017,40 @@
       "other": "{count}개 선택됨"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "한 번에 처음 {count}개의 루틴만 고를 수 있습니다. 삭제하면 나머지가 나타납니다.",
-    "The nearest places are listed. To go further, move it there and choose again.": "가까운 위치만 표시됩니다. 더 멀리 옮기려면 그곳으로 옮긴 뒤 다시 고르세요."
+    "The nearest places are listed. To go further, move it there and choose again.": "가까운 위치만 표시됩니다. 더 멀리 옮기려면 그곳으로 옮긴 뒤 다시 고르세요.",
+    "Import a file": "파일 가져오기",
+    "Bring this in?": "가져올까요?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "초안으로, 꺼진 상태로 들어옵니다. 켜고 카드를 읽기 전에는 아무것도 실행되지 않습니다.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "파일에서 Sideflow가 알 수 있는 내용입니다. 실제 안전장치는 켤 때 나오는 카드입니다.",
+    "Bring in": "가져오기",
+    "Not now": "나중에",
+    "It starts: {when}": "시작: {when}",
+    "It reads: {list}": "읽는 것: {list}",
+    "It changes or sends something: {list}": "변경하거나 보내는 것: {list}",
+    "By their names, these may delete: {list}": "이름으로 보아 삭제할 수 있는 것: {list}",
+    "It uses a server you added: {list}": "추가한 서버를 사용합니다: {list}",
+    "It works with files: {list}": "파일을 다룹니다: {list}",
+    "It uses your AI.": "AI를 사용합니다.",
+    "It gives your companion a whole job to do.": "동반자에게 작업 전체를 맡깁니다.",
+    "It sets off another flow: {list}": "다른 루틴을 시작합니다: {list}",
+    "It needs what isn't here: {list}": "여기에 없는 것이 필요합니다: {list}",
+    "It names a flow that isn't here: {list}": "여기에 없는 루틴을 지정합니다: {list}",
+    "It only works with words: it reads and changes nothing.": "글자만 다루며, 아무것도 읽거나 변경하지 않습니다.",
+    "That file can't be read.": "그 파일을 읽을 수 없습니다.",
+    "That file is too big to be flows.": "루틴 파일로 보기에는 너무 큽니다.",
+    "That isn't a Sideflow file or a flow's definition.": "Sideflow 파일도 루틴 정의도 아닙니다.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "이 파일은 더 새로운 Sideflow에서 만들어졌습니다. Sideflow를 업데이트한 뒤 다시 시도하세요.",
+    "A file holds at most {count} flows.": "파일 하나에는 루틴을 최대 {count}개까지 담을 수 있습니다.",
+    "Every flow in a file needs a name.": "파일의 모든 루틴에는 이름이 필요합니다.",
+    "Two flows in this file are called “{name}”.": "이 파일에 “{name}” 루틴이 두 개 있습니다.",
+    "“{name}” can't be brought in: {why}": "“{name}”을(를) 가져올 수 없습니다: {why}",
+    "{name} (imported)": "{name} (가져옴)",
+    "{name} (imported {count})": "{name} (가져옴 {count})"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Sideflow로 가져오기",
+      "detail": "초안으로. 먼저 하는 일을 읽습니다."
+    }
   }
 }

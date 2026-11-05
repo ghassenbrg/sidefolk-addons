@@ -17,6 +17,7 @@ import SidefolkExtensionKit
         if background { return Page(summary: summary(app)) }
         // An extension just turned on or off shows on the next look, not at the next tick.
         if app.catalog.loadedAt.map({ Date().timeIntervalSince($0) > 5 }) ?? true { Task { await app.catalog.refresh() } }
+        if let id = state.string("import"), let page = importPage(id, app, state: state) { return page }
         switch Nav.place(state) {
         case .flow(let id):
             if let flow = app.store.flow(id) {
@@ -173,7 +174,7 @@ import SidefolkExtensionKit
         let flows = app.store.flows()
         guard !flows.isEmpty else { return firstRun(app, state: state) }
         if let picked = app.nav.pickingFlows { return pickingPage(flows, picked: picked, app, state: state) }
-        var main: [Section] = [Section(nil, [.bar(PageBar(L("Your flows"), detail: L("Your companion runs these for you."), actions: [button(L("Select"), "pick_flows", symbol: "checkmark.circle"), button(L("New flow"), "new", style: .primary, symbol: "plus")]))])]
+        var main: [Section] = [Section(nil, [.bar(PageBar(L("Your flows"), detail: L("Your companion runs these for you."), actions: [button(L("Select"), "pick_flows", symbol: "checkmark.circle"), importButton, button(L("New flow"), "new", style: .primary, symbol: "plus")]))])]
         var body: [Section] = []
         let on = flows.filter { $0.state == .on }
         let nextUp = on.compactMap { flow in Summaries.next(flow).map { (flow, $0) } }.min { $0.1 < $1.1 }
@@ -304,6 +305,35 @@ import SidefolkExtensionKit
         }
     }
 
+    static var importButton: Action { Action(L("Import a file"), act: .file(tool: "import_file", param: "path", types: [FlowFile.type, "json"]), symbol: "square.and.arrow.down") }
+
+    /// A flow from a file, before it comes in: what it would do and need, as far as Sideflow can tell.
+    static func importPage(_ id: String, _ app: App, state: Arguments) -> Page? {
+        guard let words = FlowFile.staged(id, in: app.folder), let incoming = try? FlowFile.read(words) else { return nil }
+        let arriving = FlowFile.arriving(incoming, store: app.store)
+        var main = [Section(nil, [.bar(PageBar(L("Bring this in?"), detail: L("It comes in as a draft and off. Nothing runs until you turn it on and read its card."), actions: [
+            button(L("Not now"), "import_cancel", ["id": id]),
+            button(L("Bring in"), "import_confirm", ["id": id, "page_token": app.pageKey], style: .primary, symbol: "square.and.arrow.down"),
+        ])), .note(L("This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on."))], wide: true)]
+        for flow in FlowFile.survey(arriving, store: app.store, catalog: app.catalog) {
+            func line(_ list: [String], tone: Tone = .warn, _ words: (String) -> String) -> [Block] { list.isEmpty ? [] : [.note(words(Format.list(list)), tone: tone)] }
+            var blocks: [Block] = [.note(L("It starts: {when}", ["when": flow.when]))]
+            blocks += line(flow.reads, tone: .neutral) { L("It reads: {list}", ["list": $0]) }
+            blocks += line(flow.changes) { L("It changes or sends something: {list}", ["list": $0]) }
+            blocks += line(flow.deletes) { L("By their names, these may delete: {list}", ["list": $0]) }
+            blocks += line(flow.servers) { L("It uses a server you added: {list}", ["list": $0]) }
+            blocks += line(flow.files) { L("It works with files: {list}", ["list": $0]) }
+            if flow.usesAI > 0 { blocks.append(.note(L("It uses your AI."), tone: .warn)) }
+            if flow.companionJobs > 0 { blocks.append(.note(L("It gives your companion a whole job to do."), tone: .warn)) }
+            blocks += line(flow.setsOff) { L("It sets off another flow: {list}", ["list": $0]) }
+            blocks += line(flow.missingTools) { L("It needs what isn't here: {list}", ["list": $0]) }
+            blocks += line(flow.missingFlows) { L("It names a flow that isn't here: {list}", ["list": $0]) }
+            if blocks.count == 1 { blocks.append(.note(L("It only works with words: it reads and changes nothing."))) }
+            main.append(Section(flow.name, blocks, wide: true))
+        }
+        return frame(app, state: state, here: "flows", main)
+    }
+
     static func firstRun(_ app: App, state: Arguments) -> Page {
         var hero = Hero(L("Teach your companion a routine"), detail: L("Say it once. Watch it practice, with nothing changed. Then it's yours."), symbol: "point.3.connected.trianglepath.dotted")
         hero.figure = .companion(.full)
@@ -313,6 +343,7 @@ import SidefolkExtensionKit
         hero.wash = [accent[1]]
         var main = [Section(nil, [.hero(hero)], wide: true)]
         if !describing(app).isEmpty { main.append(Section(nil, describing(app), wide: true)) }
+        main.append(Section(nil, [.action(importButton)], wide: true))
         main.append(Section(L("Or start from one of these"), [.cards(size: .small, templateCards(app)), .action(button(L("Start blank"), "new", style: .plain, symbol: "plus"))], wide: true))
         main.append(Section(L("Good to know"), [
             .note(L("Flows run while Sidefolk is running and your Mac is awake. If the Mac was asleep at the time, a flow runs once when it's back, or says it missed it: you choose per flow.")),

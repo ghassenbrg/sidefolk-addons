@@ -65,6 +65,9 @@
         "Aprire Sideflow",
         "Modificare qualcosa in Sideflow: {op}"
       ]
+    },
+    "import_file": {
+      "title": "Importa un file di routine"
     }
   },
   "pages": {
@@ -797,7 +800,6 @@
     "That form has been answered already.": "A quel modulo è già stata data una risposta.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "È troppo in profondità: una routine può contenere passaggi dentro passaggi fino a {count} livelli.",
     "That isn't JSON.": "Questo non è JSON.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "Questa non è la definizione di una routine. Usa «Copia come definizione» su una routine.",
     "That run isn't stopped: it's waiting for something.": "Quell’esecuzione non è ferma: sta aspettando qualcosa.",
     "The AI's answer didn't have the fields this step needs.": "La risposta dell’IA non aveva i campi che servono a questo passaggio.",
     "The choices": "Le scelte",
@@ -1035,6 +1037,40 @@
       "other": "{count} selezionate"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Si possono scegliere solo le prime {count} routine alla volta. Eliminale e compariranno le altre.",
-    "The nearest places are listed. To go further, move it there and choose again.": "Sono elencati i punti più vicini. Per andare oltre, spostalo lì e scegli di nuovo."
+    "The nearest places are listed. To go further, move it there and choose again.": "Sono elencati i punti più vicini. Per andare oltre, spostalo lì e scegli di nuovo.",
+    "Import a file": "Importa un file",
+    "Bring this in?": "Importarlo?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "Arriva come bozza e disattivata. Non parte nulla finché non la attivi e leggi la sua scheda.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "Questo è ciò che Sideflow può capire dal file. La vera protezione è la scheda quando la attivi.",
+    "Bring in": "Importa",
+    "Not now": "Non ora",
+    "It starts: {when}": "Parte: {when}",
+    "It reads: {list}": "Legge: {list}",
+    "It changes or sends something: {list}": "Modifica o invia qualcosa: {list}",
+    "By their names, these may delete: {list}": "Dal nome, questi possono eliminare: {list}",
+    "It uses a server you added: {list}": "Usa un server che hai aggiunto: {list}",
+    "It works with files: {list}": "Lavora con i file: {list}",
+    "It uses your AI.": "Usa la tua IA.",
+    "It gives your companion a whole job to do.": "Affida al tuo compagno un intero lavoro.",
+    "It sets off another flow: {list}": "Avvia un’altra routine: {list}",
+    "It needs what isn't here: {list}": "Ha bisogno di ciò che manca qui: {list}",
+    "It names a flow that isn't here: {list}": "Nomina una routine che qui non c’è: {list}",
+    "It only works with words: it reads and changes nothing.": "Lavora solo con le parole: non legge e non modifica nulla.",
+    "That file can't be read.": "Questo file non si può leggere.",
+    "That file is too big to be flows.": "Questo file è troppo grande per contenere routine.",
+    "That isn't a Sideflow file or a flow's definition.": "Non è un file di Sideflow né la definizione di una routine.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "Questo file viene da un Sideflow più recente. Aggiorna Sideflow e riprova.",
+    "A file holds at most {count} flows.": "Un file contiene al massimo {count} routine.",
+    "Every flow in a file needs a name.": "Ogni routine in un file deve avere un nome.",
+    "Two flows in this file are called “{name}”.": "Due routine di questo file si chiamano «{name}».",
+    "“{name}” can't be brought in: {why}": "Impossibile importare «{name}»: {why}",
+    "{name} (imported)": "{name} (importata)",
+    "{name} (imported {count})": "{name} (importata {count})"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Importa in Sideflow",
+      "detail": "Come bozza. Prima leggi cosa fa."
+    }
   }
 }

@@ -65,6 +65,9 @@
         "Sideflow öffnen",
         "Etwas in Sideflow ändern: {op}"
       ]
+    },
+    "import_file": {
+      "title": "Ablaufdatei importieren"
     }
   },
   "pages": {
@@ -797,7 +800,6 @@
     "That form has been answered already.": "Dieses Formular wurde schon beantwortet.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "Das geht zu tief: Ein Ablauf kann Schritte in Schritten bis zu {count} Ebenen tief enthalten.",
     "That isn't JSON.": "Das ist kein JSON.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "Das ist keine Definition eines Ablaufs. Nutze „Als Definition kopieren“ bei einem Ablauf.",
     "That run isn't stopped: it's waiting for something.": "Dieser Lauf ist nicht gestoppt: Er wartet auf etwas.",
     "The AI's answer didn't have the fields this step needs.": "Die Antwort der KI hatte nicht die Felder, die dieser Schritt braucht.",
     "The choices": "Die Auswahl",
@@ -1035,6 +1037,40 @@
       "other": "{count} ausgewählt"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Nur die ersten {count} Abläufe können auf einmal gewählt werden. Lösche sie, dann erscheinen die übrigen.",
-    "The nearest places are listed. To go further, move it there and choose again.": "Die nächstgelegenen Stellen sind aufgeführt. Um weiter zu kommen, verschiebe ihn dorthin und wähle erneut."
+    "The nearest places are listed. To go further, move it there and choose again.": "Die nächstgelegenen Stellen sind aufgeführt. Um weiter zu kommen, verschiebe ihn dorthin und wähle erneut.",
+    "Import a file": "Datei importieren",
+    "Bring this in?": "Importieren?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "Er kommt als Entwurf und ausgeschaltet an. Nichts läuft, bis du ihn einschaltest und seine Karte liest.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "Das kann Sideflow aus der Datei erkennen. Der echte Schutz ist die Karte beim Einschalten.",
+    "Bring in": "Importieren",
+    "Not now": "Nicht jetzt",
+    "It starts: {when}": "Er startet: {when}",
+    "It reads: {list}": "Er liest: {list}",
+    "It changes or sends something: {list}": "Er ändert oder sendet etwas: {list}",
+    "By their names, these may delete: {list}": "Dem Namen nach können diese löschen: {list}",
+    "It uses a server you added: {list}": "Er nutzt einen von dir hinzugefügten Server: {list}",
+    "It works with files: {list}": "Er arbeitet mit Dateien: {list}",
+    "It uses your AI.": "Er nutzt deine KI.",
+    "It gives your companion a whole job to do.": "Er gibt deinem Begleiter eine ganze Aufgabe.",
+    "It sets off another flow: {list}": "Er startet einen anderen Ablauf: {list}",
+    "It needs what isn't here: {list}": "Er braucht, was hier fehlt: {list}",
+    "It names a flow that isn't here: {list}": "Er nennt einen Ablauf, den es hier nicht gibt: {list}",
+    "It only works with words: it reads and changes nothing.": "Er arbeitet nur mit Wörtern: Er liest und ändert nichts.",
+    "That file can't be read.": "Diese Datei kann nicht gelesen werden.",
+    "That file is too big to be flows.": "Diese Datei ist zu groß für Abläufe.",
+    "That isn't a Sideflow file or a flow's definition.": "Das ist weder eine Sideflow-Datei noch die Definition eines Ablaufs.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "Diese Datei stammt von einem neueren Sideflow. Aktualisiere Sideflow und versuche es erneut.",
+    "A file holds at most {count} flows.": "Eine Datei enthält höchstens {count} Abläufe.",
+    "Every flow in a file needs a name.": "Jeder Ablauf in einer Datei braucht einen Namen.",
+    "Two flows in this file are called “{name}”.": "Zwei Abläufe in dieser Datei heißen „{name}“.",
+    "“{name}” can't be brought in: {why}": "„{name}“ kann nicht importiert werden: {why}",
+    "{name} (imported)": "{name} (importiert)",
+    "{name} (imported {count})": "{name} (importiert {count})"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "In Sideflow importieren",
+      "detail": "Als Entwurf. Du liest zuerst, was er tut."
+    }
   }
 }

@@ -65,6 +65,9 @@
         "Ouvrir Sideflow",
         "Changer quelque chose dans Sideflow : {op}"
       ]
+    },
+    "import_file": {
+      "title": "Importer un fichier de routine"
     }
   },
   "pages": {
@@ -797,7 +800,6 @@
     "That form has been answered already.": "Ce formulaire a déjà reçu une réponse.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "C’est trop profond : une routine peut contenir des étapes dans des étapes sur {count} niveaux.",
     "That isn't JSON.": "Ce n’est pas du JSON.",
-    "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "Ce n’est pas la définition d’une routine. Utilisez « Copier comme définition » sur une routine.",
     "That run isn't stopped: it's waiting for something.": "Cette exécution n’est pas arrêtée : elle attend quelque chose.",
     "The AI's answer didn't have the fields this step needs.": "La réponse de l’IA n’avait pas les champs dont cette étape a besoin.",
     "The choices": "Les choix",
@@ -1035,6 +1037,40 @@
       "other": "{count} sélectionnées"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Seules les {count} premières routines peuvent être choisies à la fois. Supprimez-les, et les autres apparaîtront.",
-    "The nearest places are listed. To go further, move it there and choose again.": "Les endroits les plus proches sont listés. Pour aller plus loin, déplacez-la là puis choisissez à nouveau."
+    "The nearest places are listed. To go further, move it there and choose again.": "Les endroits les plus proches sont listés. Pour aller plus loin, déplacez-la là puis choisissez à nouveau.",
+    "Import a file": "Importer un fichier",
+    "Bring this in?": "L’importer ?",
+    "It comes in as a draft and off. Nothing runs until you turn it on and read its card.": "Elle arrive en brouillon, désactivée. Rien ne s’exécute tant que vous ne l’activez pas après avoir lu sa carte.",
+    "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "Voici ce que Sideflow peut déduire du fichier. La vraie protection, c’est la carte au moment de l’activer.",
+    "Bring in": "Importer",
+    "Not now": "Pas maintenant",
+    "It starts: {when}": "Elle démarre : {when}",
+    "It reads: {list}": "Elle lit : {list}",
+    "It changes or sends something: {list}": "Elle modifie ou envoie quelque chose : {list}",
+    "By their names, these may delete: {list}": "D’après leur nom, ceux-ci peuvent supprimer : {list}",
+    "It uses a server you added: {list}": "Elle utilise un serveur que vous avez ajouté : {list}",
+    "It works with files: {list}": "Elle travaille sur des fichiers : {list}",
+    "It uses your AI.": "Elle utilise votre IA.",
+    "It gives your companion a whole job to do.": "Elle confie toute une tâche à votre compagnon.",
+    "It sets off another flow: {list}": "Elle lance une autre routine : {list}",
+    "It needs what isn't here: {list}": "Elle a besoin de ce qui n’est pas ici : {list}",
+    "It names a flow that isn't here: {list}": "Elle nomme une routine absente d’ici : {list}",
+    "It only works with words: it reads and changes nothing.": "Elle ne travaille qu’avec des mots : elle ne lit et ne modifie rien.",
+    "That file can't be read.": "Ce fichier ne peut pas être lu.",
+    "That file is too big to be flows.": "Ce fichier est trop gros pour contenir des routines.",
+    "That isn't a Sideflow file or a flow's definition.": "Ce n’est ni un fichier Sideflow ni la définition d’une routine.",
+    "This file was made by a newer Sideflow. Update Sideflow, then try it again.": "Ce fichier vient d’un Sideflow plus récent. Mettez Sideflow à jour, puis réessayez.",
+    "A file holds at most {count} flows.": "Un fichier contient au plus {count} routines.",
+    "Every flow in a file needs a name.": "Chaque routine d’un fichier doit avoir un nom.",
+    "Two flows in this file are called “{name}”.": "Deux routines de ce fichier s’appellent « {name} ».",
+    "“{name}” can't be brought in: {why}": "Impossible d’importer « {name} » : {why}",
+    "{name} (imported)": "{name} (importée)",
+    "{name} (imported {count})": "{name} (importée {count})"
+  },
+  "drops": {
+    "flow_file": {
+      "title": "Importer dans Sideflow",
+      "detail": "En brouillon. Vous lisez d’abord ce qu’elle fait."
+    }
   }
 }
