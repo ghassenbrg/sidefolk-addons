@@ -159,6 +159,9 @@ struct Condition: Equatable, Sendable {
         return Double(read.number).flatMap { $0.isFinite ? $0 : nil }
     }
 
+    /// Words a step couldn't read as a number, for a reason that names both.
+    struct Unreadable: Error { var words: String }
+
     /// The first words these checks would compare as a number that could be more than one: it can't tell, and going one way regardless would look like an answer.
     func doubtful(_ values: Values) -> String? {
         for check in checks where check.test == .more_than || check.test == .less_than {

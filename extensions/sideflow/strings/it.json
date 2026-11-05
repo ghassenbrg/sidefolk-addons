@@ -1039,9 +1039,7 @@
     "“{name}” is needed, and this gives it nothing.": "«{name}» è necessario, e questo non gli dà nulla.",
     "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» vuole {what}, e questo gli dà «{value}».",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: tagliato a {count} caratteri verso lo strumento. Il resto non è stato inviato.",
-    "“{value}” could be more than one number, so it stopped.": "«{value}» potrebbe essere più di un numero, quindi si è fermato.",
-    "“{value}” could be more than one number, so it can't tell which way to go.": "«{value}» potrebbe essere più di un numero, quindi non può sapere da che parte andare.",
-    "“{value}” could be more than one number, so it can't tell whether to go round again.": "«{value}» potrebbe essere più di un numero, quindi non può sapere se ripetere.",
-    "“{name}” is one of {answers}, and this gives it “{value}”.": "«{name}» è uno tra {answers}, e questo gli dà «{value}»."
+    "“{name}” is one of {answers}, and this gives it “{value}”.": "«{name}» è uno tra {answers}, e questo gli dà «{value}».",
+    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "«{step}» non può leggere «{value}»: potrebbe essere più di un numero, quindi si è fermato qui."
   }
 }

@@ -183,7 +183,7 @@ extension FlowHost {
             case .branch(let step, let condition, let otherwise):
                 let unknown = run.values.undecided(condition)
                 let why = unknown.map { L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": $0]) }
-                    ?? condition.doubtful(run.values).map { L("“{value}” could be more than one number, so it can't tell which way to go.", ["value": $0.clipped(80)]) }
+                    ?? condition.doubtful(run.values).map { Self.cantRead($0, at: step, catalog: catalog) }
                 // A practice goes on, and says so: that's what it's for.
                 if let why, run.mode != .practice {
                     guard failed(step, why: why, reads: false, in: &run) else {
@@ -330,6 +330,8 @@ extension FlowHost {
                 run.pc += 1
                 store.save(run)
                 return true
+            } catch let unreadable as Condition.Unreadable {
+                return failed(step, why: Self.cantRead(unreadable.words, at: step, catalog: catalog), reads: true, in: &run)
             } catch {
                 return failed(step, why: (error as? Problem)?.message ?? L("It didn't work."), reads: true, in: &run)
             }
@@ -637,6 +639,11 @@ extension FlowHost {
 
     /// What a failure does, as the step says. Trying again is only for what changes nothing: repeating an action that may have happened
     /// is the one thing that must not happen by itself.
+    /// A number that could be more than one, said with the step and the words, since it stops what used to go one way without a word.
+    static func cantRead(_ words: String, at step: Step, catalog: Catalog) -> String {
+        L("“{step}” can't read “{value}”: it could be more than one number, so it stopped here.", ["step": Words.label(step, catalog: catalog), "value": words.clipped(80)])
+    }
+
     func failed(_ step: Step, why: String, reads: Bool, in run: inout Run, said: String? = nil) -> Bool {
         let summary = said ?? Words.step(step, body: run.body, catalog: catalog)
         switch step.onFailure {

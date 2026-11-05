@@ -81,7 +81,7 @@ extension Engine {
         }
         if run.mode != .practice, let doubtful = until.doubtful(run.values) {
             leave()
-            return failed(step, why: L("“{value}” could be more than one number, so it can't tell whether to go round again.", ["value": doubtful.clipped(80)]), reads: false, in: &run)
+            return failed(step, why: Self.cantRead(doubtful, at: step, catalog: catalog), reads: false, in: &run)
         }
         // What it can't see won't change by asking again. A go that only read is what a poll asks again, but one that did something would do it again, so one of its checks has
         // to be able to come out differently: something this go answered, or which go this is. Not an earlier value, a name gone with a loop inside, a misspelt one, or a blank.
