@@ -97,35 +97,33 @@ import SidefolkExtensionKit
             guard let id = a.string("step"), let name = a.string("name"), let step = f.draft.step(id), case .action(let tool, _) = step.kind else { return .stay }
             let parameter = app.catalog.parameter(name, of: tool) ?? Catalog.Parameter(name: name, kind: .text, required: false, title: name)
             // One infinity would stop the whole file saving, so it never gets in.
-            if case .integer = parameter.kind, Editing.isNotARealNumber(text) { throw Problem(L("That isn't a number.")) }
-            if case .number = parameter.kind, Editing.isNotARealNumber(text) { throw Problem(L("That isn't a number.")) }
+            let isValue = !Values.slots(text).isEmpty
+            if case .integer = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.isNotARealNumber(text) || Double(text.trimmed.replacingOccurrences(of: ",", with: ".")) == nil { throw Problem(L("That isn't a number.")) }
+            if case .number = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.isNotARealNumber(text) || Double(text.trimmed.replacingOccurrences(of: ",", with: ".")) == nil { throw Problem(L("That isn't a number.")) }
             let value: JSON? = if let on = a.bool("on") { .bool(on) } else if let picked = a.string("value") { picked == "" ? nil : .string(picked) } else { Editing.value(text, for: parameter) }
             try editStep { s in
                 guard case .action(let t, let input) = s.kind else { return }
-                s.kind = .action(tool: t, input: Editing.setting(name.split(separator: ".").map(String.init), to: value, in: input))
+                s.kind = .action(tool: t, input: Editing.setting(app.catalog.path(name, of: t), to: value, in: input))
             }
         case "param_mode":
             // Pointing a field at an earlier step, or back to writing it here: what was there doesn't fit the other way.
             let f = try flow()
             guard let id = a.string("step"), let name = a.string("name"), let step = f.draft.step(id), case .action = step.kind else { return .stay }
-            let on = a.bool("on") == true
-            app.nav.useValue(on, step: id, parameter: name)
-            if !on {
-                try editStep { s in
-                    guard case .action(let t, let input) = s.kind else { return }
-                    s.kind = .action(tool: t, input: Editing.setting(name.split(separator: ".").map(String.init), to: nil, in: input))
-                }
+            app.nav.useValue(a.bool("on") == true, flow: f.id, step: id, parameter: name)
+            try editStep { s in
+                guard case .action(let t, let input) = s.kind else { return }
+                s.kind = .action(tool: t, input: Editing.setting(app.catalog.path(name, of: t), to: nil, in: input))
             }
         case "param_json":
             // What the form can't draw, written out: as itself, or it's said why not.
             let f = try flow()
             guard let id = a.string("step"), let name = a.string("name"), let step = f.draft.step(id), case .action = step.kind else { return .stay }
             let t = text.trimmed
-            let parsed: JSON? = t.isEmpty ? nil : JSONText.read(t).map { JSON($0) }
+            let parsed: JSON? = t.isEmpty ? nil : (try? JSONSerialization.jsonObject(with: Data(t.utf8), options: .fragmentsAllowed)).map { JSON($0) }
             if !t.isEmpty, parsed == nil { throw Problem(L("That isn't written the way it needs to be: check its brackets and quotes.")) }
             try editStep { s in
                 guard case .action(let tool, let input) = s.kind else { return }
-                s.kind = .action(tool: tool, input: Editing.setting(name.split(separator: ".").map(String.init), to: parsed, in: input))
+                s.kind = .action(tool: tool, input: Editing.setting(app.catalog.path(name, of: tool), to: parsed, in: input))
             }
         case "step_name":
             try editStep { $0.name = text.nonEmpty }

@@ -121,6 +121,96 @@ import SidefolkExtensionKit
         #expect(input(f, app)["tags"] == .array([.string("a"), .string("b")]))
     }
 
+    @Test func wordsThatPlainlyAreWhatItWantsGoAsThat() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let flow = try w.flow([["id": "n", "text": "12"], ["id": "y", "text": "yes"], ["id": "l", "text": "one"],
+                               ["id": "c", "do": "changes.it", "with": ["text": "x", "count": "{{n}}", "urgent": "{{y}}", "tags": "{{l}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["count"] as? Int == 12)
+        #expect(sent["urgent"] as? Bool == true)
+        #expect(sent["tags"] as? [String] == ["one"])
+    }
+
+    @Test func wordsThatArentWhatItWantsGoAsTheyAreForSidefolkToRefuse() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let flow = try w.flow([["id": "n", "text": "many"], ["id": "c", "do": "changes.it", "with": ["text": "x", "count": "{{n}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(w.host.calls.first { $0.tool == "changes.it" }?.input["count"] as? String == "many", "never a guessed number")
+    }
+
+    @Test func aRecordsFieldsGetWhatTheTopLevelDoes() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Looked", summary: "", data: #"{"total": 2, "blank": null}"#)]
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let long = String(repeating: "x", count: Values.wordsKept + 100)
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "big", "text": long],
+                               ["id": "c", "do": "changes.it", "with": ["text": "x", "to": ["city": "{{big}}", "zip": "{{r.total}}"]]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let to = w.host.calls.first { $0.tool == "changes.it" }?.input["to"] as? [String: Any]
+        #expect((to?["city"] as? String)?.count == Values.wordsKept, "words are kept to the same length")
+        #expect(to?["zip"] as? Double == 2 || to?["zip"] as? Int == 2)
+    }
+
+    @Test func anOptionalFieldOfARecordIsLeftOutWhenItSaysNothingAndARequiredOneStops() async throws {
+        let w = try World()
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Looked", summary: "", data: #"{"blank": null}"#), Actions.Outcome(status: .ok, text: "Looked", summary: "", data: #"{"blank": null}"#)]
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read it", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let leftOut = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "x", "to": ["city": "Tunis", "zip": "{{r.blank}}"]]]])
+        let fine = await w.settled(w.engine.start(leftOut, mode: .live, why: "t"))
+        #expect(fine?.status == .done, "\(fine?.problem ?? "")")
+        let to = w.host.calls.first { $0.tool == "changes.it" }?.input["to"] as? [String: Any]
+        #expect(to?["city"] as? String == "Tunis" && to?["zip"] == nil)
+        w.host.calls.removeAll()
+        let stops = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "x", "to": ["city": "{{r.blank}}"]]]])
+        let stopped = await w.settled(w.engine.start(stops, mode: .live, why: "t"))
+        #expect(stopped?.status != .done)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func aRequiredFieldOfARecordIsAskedForOnceItsStarted() throws {
+        let w = try World()
+        let app = try app(w)
+        let started = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "x", "to": ["zip": 1000]]]]])
+        #expect(started.problems(app.catalog).contains { $0.text.contains("City") }, "\(started.problems(app.catalog))")
+        let optional = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "x"]]]])
+        #expect(!optional.problems(app.catalog).contains { $0.text.contains("City") }, "the record itself is optional")
+    }
+
+    @Test func listsAmongWordsAndWhatsTypedStayWhatTheyAre() async throws {
+        let w = try World()
+        let app = try app(w)
+        let f = try flow(app)
+        _ = try await Actions_UI.handle(Arguments(["op": "param", "flow": f.id, "step": "c", "name": "tags", "text": "a, {{r.who}}"]), app)
+        #expect(input(f, app)["tags"] == .array([.string("a"), .string("{{r.who}}")]), "an entry of the list")
+        await #expect(throws: Problem.self, "not a number, and not kept as if it were") { _ = try await Actions_UI.handle(Arguments(["op": "param", "flow": f.id, "step": "c", "name": "count", "text": "abc"]), app) }
+        #expect(input(f, app)["count"] == nil)
+        _ = try await Actions_UI.handle(Arguments(["op": "param", "flow": f.id, "step": "c", "name": "count", "text": "3"]), app)
+        _ = try await Actions_UI.handle(Arguments(["op": "param_mode", "flow": f.id, "step": "c", "name": "count", "on": true]), app)
+        #expect(input(f, app)["count"] == nil, "what's shown is what's sent")
+    }
+
+    @Test func whatsWrittenOutCanBeOneValue() async throws {
+        let w = try World()
+        let app = try app(w)
+        let f = try flow(app)
+        _ = try await Actions_UI.handle(Arguments(["op": "param_json", "flow": f.id, "step": "c", "name": "extra", "text": #""{{r.rows}}""#]), app)
+        #expect(input(f, app)["extra"] == .string("{{r.rows}}"), "as the form says it can be")
+        #expect(form(f, app).contains(#"\"{{r.rows}}\""#) || form(f, app).contains(#""{{r.rows}}""#))
+    }
+
+    @Test func aParameterWithADotInItsNameIsThatParameter() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: #"{"properties":{"filter.status":{"type":"string"}}}"#)]))
+        let f = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it"]]]))
+        _ = try await Actions_UI.handle(Arguments(["op": "param", "flow": f.id, "step": "c", "name": "filter.status", "text": "open"]), app)
+        #expect(input(f, app)["filter.status"] == .string("open"))
+    }
+
     @Test func aFieldSaysWhatItWouldBeGoingByTheLastRun() async throws {
         let w = try World()
         let app = try app(w)

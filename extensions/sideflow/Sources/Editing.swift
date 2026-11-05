@@ -391,8 +391,8 @@ enum Editing {
     static func value(_ text: String, for parameter: Catalog.Parameter) -> JSON? {
         let t = text.trimmed
         guard !t.isEmpty else { return nil }
-        // An earlier step's value is filled in when it runs, as what it is then.
-        if !Values.slots(t).isEmpty, parameter.kind != .text { return .string(t) }
+        // An earlier step's value is filled in when it runs, as what it is then. In a list, among other words, it's one entry of it.
+        if !Values.slots(t).isEmpty, parameter.kind != .text, parameter.kind != .list || Values.replacingSlots(in: t, { _, _ in "" }).trimmed.isEmpty { return .string(t) }
         switch parameter.kind {
         case .integer, .number:
             if let n = Double(t.replacingOccurrences(of: ",", with: ".")), n.isFinite { return .number(n) }

@@ -77,17 +77,69 @@ import SidefolkExtensionKit
 
     /// What goes to a tool for a step's values: one way, so a page's mark and a run agree.
     func filled(_ name: String, _ input: [String: JSON], from values: Values) -> [String: Any] {
-        let parameters = tool(name)?.parameters ?? []
+        fill(tool(name)?.parameters ?? [], input, from: values)
+    }
+
+    /// One level at a time, so a record's own fields get what its top level does.
+    private func fill(_ parameters: [Parameter], _ input: [String: JSON], from values: Values) -> [String: Any] {
         let wordy = Set(parameters.filter { if case .text = $0.kind { true } else { false } }.map(\.name))
         let lists = Set(parameters.filter { $0.kind == .list }.map(\.name))
         let absent = Set(parameters.filter { switch $0.kind { case .number, .integer, .boolean: true; case .choice(let answers): !answers.contains(""); default: false } }.map(\.name))
-        return values.fill(input, wordsIn: wordy, listsIn: lists, absentIn: absent)
+        var plain = input
+        var out: [String: Any] = [:]
+        for parameter in parameters where !parameter.children.isEmpty {
+            guard case .object(let inner)? = input[parameter.name] else { continue }
+            plain[parameter.name] = nil
+            let filled = fill(parameter.children, inner, from: values)
+            if !filled.isEmpty { out[parameter.name] = filled }
+        }
+        for (key, value) in values.fill(plain, wordsIn: wordy, listsIn: lists, absentIn: absent) {
+            out[key] = parameters.first { $0.name == key }.map { Self.asItWants(value, $0) } ?? value
+        }
+        return out
+    }
+
+    /// Words from an earlier step that plainly are what this wants: "12" for a number, "yes" for a yes or no, a single line for a list. Anything else goes as it is, and Sidefolk says it doesn't fit.
+    private static func asItWants(_ value: Any, _ parameter: Parameter) -> Any {
+        guard let words = (value as? String)?.trimmed, !words.isEmpty else { return value }
+        switch parameter.kind {
+        case .number: return Double(words.replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil } ?? value
+        case .integer: return Int(words) ?? value
+        case .boolean:
+            switch words.lowercased() {
+            case "true", "yes": return true
+            case "false", "no": return false
+            default: return value
+            }
+        case .list: return [words]
+        default: return value
+        }
+    }
+
+    /// A dotted name's way through the parameters. A parameter whose own name has a dot in it is that parameter.
+    func path(_ name: String, of tool: String) -> [String] {
+        func walk(_ left: String, _ list: [Parameter]) -> [String]? {
+            if list.contains(where: { $0.name == left }) { return [left] }
+            for p in list where left.hasPrefix(p.name + ".") {
+                if let rest = walk(String(left.dropFirst(p.name.count + 1)), p.children) { return [p.name] + rest }
+            }
+            return nil
+        }
+        return walk(name, self.tool(tool)?.parameters ?? []) ?? [name]
+    }
+
+    /// The parameters a tool needs and hasn't got, a record's own too once it's been started.
+    static func unfilled(_ parameters: [Parameter], _ input: [String: JSON]) -> [Parameter] {
+        parameters.flatMap { p -> [Parameter] in
+            guard let value = input[p.name], value.string?.trimmed.isEmpty != true else { return p.required ? [p] : [] }
+            if case .object(let inner) = value, !p.children.isEmpty { return unfilled(p.children, inner) }
+            return []
+        }
     }
 
     /// What a tool would get nothing for where it can't go without: words that are nothing but values that came back null, for a parameter it needs or doesn't say it can leave
-    /// out, or anywhere inside a list or a record, where there's no leaving it out. Other words around a value stand, and an optional parameter is left out.
+    /// out, a record's own fields by the same rule, or inside a list or a record it doesn't describe, where there's no leaving it out. Other words around a value stand.
     func nothingFor(_ name: String, _ input: [String: JSON], from values: Values) -> String? {
-        let parameters = tool(name)?.parameters
         func within(_ value: JSON) -> String? {
             switch value {
             case .string(let text): values.saysNothing(text)
@@ -96,14 +148,20 @@ import SidefolkExtensionKit
             default: nil
             }
         }
-        for (key, value) in input.sorted(by: { $0.key < $1.key }) {
-            if case .string(let text) = value {
-                if parameters?.first(where: { $0.name == key })?.required != false, let name = values.saysNothing(text) { return name }
-            } else if let name = within(value) {
-                return name
+        func check(_ input: [String: JSON], _ parameters: [Parameter]?) -> String? {
+            for (key, value) in input.sorted(by: { $0.key < $1.key }) {
+                let parameter = parameters?.first { $0.name == key }
+                if case .string(let text) = value {
+                    if parameter?.required != false, let found = values.saysNothing(text) { return found }
+                } else if case .object(let fields) = value, let inner = parameter?.children, !inner.isEmpty {
+                    if let found = check(fields, inner) { return found }
+                } else if let found = within(value) {
+                    return found
+                }
             }
+            return nil
         }
-        return nil
+        return check(input, tool(name)?.parameters)
     }
 
     func plan(_ id: String) -> Plans.Standing? { plans.first { $0.id == id } }
@@ -149,7 +207,7 @@ import SidefolkExtensionKit
     func parameter(_ path: String, of tool: String) -> Parameter? {
         var list = self.tool(tool)?.parameters ?? []
         var found: Parameter?
-        for part in path.split(separator: ".").map(String.init) {
+        for part in self.path(path, of: tool) {
             found = list.first { $0.name == part }
             list = found?.children ?? []
         }
@@ -278,7 +336,7 @@ extension FlowBody {
                     }
                     if catalog.loadedAt != nil {
                         if let known = catalog.tool(tool) {
-                            for p in known.parameters where p.required && (input[p.name] == nil || input[p.name]?.string?.trimmed.isEmpty == true) {
+                            for p in Catalog.unfilled(known.parameters, input) {
                                 out.append(FlowProblem(step: step.id, text: L("“{name}” needs a value.", ["name": p.title])))
                             }
                             for key in input.keys.sorted() where !known.parameters.contains(where: { $0.name == key }) {

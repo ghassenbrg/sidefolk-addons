@@ -194,9 +194,9 @@ struct Nav {
     mutating func inspect(_ what: Inspecting, in flow: String) { inspected[flow] = what }
     /// Parameters the person is pointing at an earlier step's value, by step and name, before they've picked one.
     private var usingValues: Set<String> = []
-    func usesValue(step: String, parameter: String) -> Bool { usingValues.contains("\(step) \(parameter)") }
-    mutating func useValue(_ on: Bool, step: String, parameter: String) {
-        if on { usingValues.insert("\(step) \(parameter)") } else { usingValues.remove("\(step) \(parameter)") }
+    func usesValue(flow: String, step: String, parameter: String) -> Bool { usingValues.contains("\(flow) \(step) \(parameter)") }
+    mutating func useValue(_ on: Bool, flow: String, step: String, parameter: String) {
+        if on { usingValues.insert("\(flow) \(step) \(parameter)") } else { usingValues.remove("\(flow) \(step) \(parameter)") }
     }
 
     /// Where the page's state says it is: Sidefolk keeps it while Home is open, with the way back.

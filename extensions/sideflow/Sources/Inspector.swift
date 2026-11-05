@@ -224,8 +224,9 @@ import SidefolkExtensionKit
                 break
             }
             let lastRun = app.store.latest(of: flow.id)?.values
+            let offered = annotated(tokens, flow: flow, app, last: lastRun)
             for p in tool.parameters {
-                let blocks = field(p, value: values[p.name], step: step, tokens: annotated(tokens, flow: flow, app, last: lastRun), last: lastRun, app, input: input)
+                let blocks = field(p, value: values[p.name], step: step, flow: flow.id, tokens: offered, last: lastRun, app, input: input)
                 // What's optional stays out of the way unless it's been filled in.
                 if p.required || values[p.name] != nil { main += blocks } else { more += blocks }
             }
@@ -339,17 +340,20 @@ import SidefolkExtensionKit
     }
 
     /// A step's parameter as a form asks it: written out, or an earlier step's value, whichever it wants. A record's own fields each their own; what a form can't draw, written out.
-    private static func field(_ p: Catalog.Parameter, name: String? = nil, value current: JSON?, step: Step, tokens: [Token], last: Values?, _ app: App, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
+    private static func field(_ p: Catalog.Parameter, name: String? = nil, value current: JSON?, step: Step, flow: String, tokens: [Token], last: Values?, _ app: App, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
         let path = name ?? p.name
         if !p.children.isEmpty {
             var fields: [String: JSON] = [:]
             if case .object(let o)? = current { fields = o }
-            return p.children.flatMap { field($0, name: "\(path).\($0.name)", value: fields[$0.name], step: step, tokens: tokens, last: last, app, input: input) }
+            // A value for the whole record has no fields to show: it's written out instead.
+            if current?.string == nil {
+                return p.children.flatMap { field($0, name: "\(path).\($0.name)", value: fields[$0.name], step: step, flow: flow, tokens: tokens, last: last, app, input: input) }
+            }
         }
         let args = input("param", ["name": path])
         let shown = "\(step.id).\(path)"
         if p.kind == .other {
-            let text = current.map { JSONText.write($0.any) } ?? ""
+            let text = current.flatMap { try? JSONSerialization.data(withJSONObject: $0.any, options: .fragmentsAllowed) }.map { String(decoding: $0, as: UTF8.self) } ?? ""
             return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.detail.map { String($0.prefix(140)) } ?? L("Written out, as a record or a list. Values from earlier steps go in quotes."), kind: .multiline, tool: "ui", input: input("param_json", ["name": path])))]
         }
         if p.kind == .text {
@@ -359,8 +363,8 @@ import SidefolkExtensionKit
         }
         // A number, a yes or no, a choice or a list: its own control, or an earlier step's value. Never words that look like one.
         let pointed = current?.string.map { !Values.slots($0).isEmpty } ?? false
-        if pointed || app.nav.usesValue(step: step.id, parameter: path) {
-            let text = current?.string ?? ""
+        if pointed || app.nav.usesValue(flow: flow, step: step.id, parameter: path) {
+            let text = current.map(Values.text) ?? ""
             return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.typeWord.map { L("It wants {what}.", ["what": $0]) } ?? p.detail.map { String($0.prefix(140)) },
                                     placeholder: L("Pick a value below"), tokens: tokens.filter { $0.fits(p.kind) }.map(\.field), tool: "ui", input: args)),
                     .action(Action(L("Write it here instead"), tool: "ui", input: input("param_mode", ["name": path, "on": false]), style: .plain, symbol: "pencil"))]
@@ -389,7 +393,7 @@ import SidefolkExtensionKit
     private static func preview(_ text: String, _ last: Values?) -> String? {
         guard let last, !Values.slots(text).isEmpty, last.missing(in: [text]).isEmpty else { return nil }
         let filled = last.fill(text, each: 80)
-        return filled.trimmed.isEmpty ? nil : L("Last time: {value}", ["value": String(filled.prefix(80))])
+        return filled.trimmed.isEmpty || filled.contains(L("(sample)")) ? nil : L("Last time: {value}", ["value": String(filled.prefix(80)).split(whereSeparator: \.isNewline).joined(separator: " ")])
     }
 
     /// A value on offer, with what it is, so a field can offer what fits and the person can tell two apart.
@@ -424,7 +428,9 @@ import SidefolkExtensionKit
         }
         return tokens.map { token in
             var shown = token
-            if let last, last.missing(in: [token.value]).isEmpty, let sample = last.fill(token.value, each: 30).trimmed.nonEmpty { shown.label = "\(token.label): \(sample.prefix(30))" }
+            if let last, last.missing(in: [token.value]).isEmpty, let sample = last.fill(token.value, each: 30).trimmed.nonEmpty, !sample.contains(L("(sample)")) {
+                shown.label = "\(token.label): \(String(sample.prefix(30)).split(whereSeparator: \.isNewline).joined(separator: " "))"
+            }
             return Token(field: shown, type: types[token.value])
         }
     }
