@@ -1221,6 +1221,10 @@
       "other": "تم تحديد {count}"
     },
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "يمكن اختيار أول {count} روتينًا فقط في كل مرة. احذفها وستظهر البقية.",
-    "The nearest places are listed. To go further, move it there and choose again.": "تُعرض أقرب الأماكن. للانتقال أبعد، انقلها إلى هناك ثم اختر مرة أخرى."
+    "The nearest places are listed. To go further, move it there and choose again.": "تُعرض أقرب الأماكن. للانتقال أبعد، انقلها إلى هناك ثم اختر مرة أخرى.",
+    "None of these has “{field}”, so there's nothing to sort by.": "لا يحتوي أي من هذه على «{field}»، فلا يوجد ما يُرتَّب حسبه.",
+    "Two columns are called “{name}”.": "يوجد عمودان باسم «{name}».",
+    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "يحتوي الصف {row} على خلايا أكثر من عدد الأعمدة. يجب وضع القيمة التي فيها فاصلة بين علامتي اقتباس.",
+    "Some columns have no name.": "بعض الأعمدة بلا اسم."
   }
 }

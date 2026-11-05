@@ -8,7 +8,8 @@ enum JSON: Equatable, Sendable {
         switch any {
         // Only a real true or false: a plain 1 also passes for a Bool in Swift.
         case let b as Bool where CFGetTypeID(any! as CFTypeRef) == CFBooleanGetTypeID(): self = .bool(b)
-        case let n as NSNumber: self = .number(n.doubleValue)
+        // A number too big for a Double to hold exactly (a 16-digit id, or past any size) stays as what it said, so it's never quietly another number.
+        case let n as NSNumber: self = abs(n.doubleValue) < 9_007_199_254_740_992 ? .number(n.doubleValue) : .string(n.stringValue)
         case let s as String: self = .string(s)
         case let a as [Any]: self = .array(a.map { JSON($0) })
         case let o as [String: Any]: self = .object(o.mapValues { JSON($0) })

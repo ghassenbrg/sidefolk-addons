@@ -20,6 +20,8 @@ enum NumberWords {
     static func read(_ words: String) -> Reading {
         let text = words.trimmingCharacters(in: .whitespacesAndNewlines)
         guard text.utf8.contains(where: { (48...57).contains($0) }) else { return .none }
+        // What's kept of a long value is cut, so spaces and then digits could be the start of a bigger number.
+        guard words.utf8.count <= 1000 else { return .unreadable }
         // `1.500` and `3.142` could be thousands, and `007` is a name: a plain number isn't either.
         guard isPlain(text), text.range(of: #"^-?[1-9][0-9]{0,2}\.[0-9]{3}$"#, options: .regularExpression) == nil else { return .unreadable }
         return Double(text).flatMap { $0.isFinite ? .number($0) : nil } ?? .unreadable

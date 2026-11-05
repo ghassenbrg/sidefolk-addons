@@ -339,7 +339,7 @@ extension FlowHost {
             }
             do {
                 let from = run.values.fill(native: .string(data.from))
-                let made = try data.apply(to: from, than: run.values.fill(data.than ?? ""))
+                let made = try data.apply(to: from, than: run.values.fill(data.than ?? ""), thanValue: data.than.map { run.values.fill(native: .string($0)) })
                 guard run.values.fits(made) else { throw Problem(L("The result is too long to keep.")) }
                 run.values.set(step.id, made)
                 run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: Values.text(made).clipped(2000), at: clock(), input: Values.text(from).clipped(2000)))
@@ -1175,7 +1175,9 @@ extension FlowHost {
                 case .ai(let prompt):
                     // Too many to name means everything before it, which is what no names says.
                     let reads = sources([prompt]).filter { $0 != writtenWords }
-                    steps.append(.ai(named: name(step), title: step.name, reads: reads.count > mostReads ? [] : reads))
+                    // A saved flow's step called `index` can't be named, so what it reads could go unsaid: no names means everything before it.
+                    let unnamed = Values.references(prompt).contains("index") && body.allSteps.contains { $0.id.lowercased() == "index" }
+                    steps.append(.ai(named: name(step), title: step.name, reads: reads.count > mostReads || unnamed ? [] : reads))
                 case .flow(let other), .call(let other, _): steps.append(.flow(other, named: name(step), title: step.name))
                 case .text(let text):
                     if let as_ = name(step) { steps.append(.value(named: as_, reads: said(sources([text])))) }
