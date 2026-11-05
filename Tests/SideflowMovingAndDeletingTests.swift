@@ -121,8 +121,11 @@ import SidefolkExtensionKit
         words = await pageWords(app)
         #expect(words.contains("Delete these 2 flows?"))
         #expect(words.contains("Morning check") && words.contains("Invoice run"))
-        #expect(words.contains("• Morning check") && words.contains("• Invoice run"))
-        #expect(!words.contains("• Stays here"), "it's in the sidebar, but it isn't going")
+        let drawn = await Pages.make(app, state: Arguments([:]), background: false)
+        let going = drawn.sections.flatMap(\.blocks).compactMap { block -> [String]? in
+            if case .facts(_, let items) = block { items.map(\.0) } else { nil }
+        }.flatMap(\.self)
+        #expect(going == ["Morning check", "Invoice run"], "these and only these, the one staying isn't named: \(going)")
         #expect(words.contains("be undone"))
         #expect(app.store.flows().count == 3, "asking deletes nothing")
         try await page(app, "pick_delete_sure")

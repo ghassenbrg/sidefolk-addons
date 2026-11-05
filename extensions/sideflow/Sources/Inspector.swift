@@ -398,7 +398,7 @@ import SidefolkExtensionKit
         ]
         let startsIt = flow.draft.steps.first?.id == step.id
         let spots = (startsIt ? [] : [Option("start", L("The very start"))]) + Editing.placesToMove(step.id, in: flow.draft).map { Option($0.id, L("After {step}", ["step": Words.label($0, catalog: app.catalog)])) }
-        if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, [Option("", L("Choose a place"))] + spots, selected: "", tool: "ui", input: input("move_after", [:]))) }
+        if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, spots, selected: "", tool: "ui", input: input("move_after", [:]))) }
         return out
     }
 

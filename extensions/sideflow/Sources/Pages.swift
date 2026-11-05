@@ -197,7 +197,7 @@ import SidefolkExtensionKit
         let chosen = flows.filter { picked.contains($0.id) }
         var main: [Section] = []
         if app.nav.askingToDelete, !chosen.isEmpty {
-            var blocks: [Block] = [.note(chosen.map { "• \($0.name)" }.joined(separator: "\n"))]
+            var blocks: [Block] = [.facts(nil, chosen.map { ($0.name, stateWord($0)) })]
             let on = chosen.filter { $0.state == .on }.count
             if on > 0 { blocks.append(.note(L(one: "{count} of them is on. It stops running.", other: "{count} of them are on. They stop running.", count: on), tone: .warn)) }
             let doomed = Set(chosen.map(\.name))
@@ -223,9 +223,13 @@ import SidefolkExtensionKit
             button(chosen.isEmpty ? L("Delete") : L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count), "pick_delete", style: .destructive, symbol: "trash", disabled: chosen.isEmpty),
         ]))]))
         main.append(Section(nil, flows.map { flow in
-            .toggle(flow.name, detail: flow.state == .on ? L("On") : flow.state == .paused ? L("Paused") : L("Draft"), on: picked.contains(flow.id), tool: "ui", input: ui("pick_flow", ["picked": flow.id]))
+            .toggle(flow.name, detail: stateWord(flow), on: picked.contains(flow.id), tool: "ui", input: ui("pick_flow", ["picked": flow.id]))
         }, wide: true))
         return frame(app, state: state, here: "flows", main)
+    }
+
+    private static func stateWord(_ flow: Flow) -> String {
+        flow.state == .on ? L("On") : flow.state == .paused ? L("Paused") : L("Draft")
     }
 
     static func needsYou(_ app: App) -> [Section] {

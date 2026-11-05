@@ -989,7 +989,6 @@
       "other": "已停止。已清除 {count} 个排队的启动。"
     },
     "After {step}": "在“{step}”之后",
-    "Choose a place": "选择位置",
     "Delete": "删除",
     "Keep them": "保留",
     "Move down": "下移",
