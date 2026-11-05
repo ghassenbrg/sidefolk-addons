@@ -317,7 +317,7 @@ import SidefolkExtensionKit
             main.append(.edit(EditField("\(step.id).value", L("Its result"), value: value, placeholder: L("Nothing"), tokens: tokens, tool: "ui", input: input("finish_value"))))
         case .data(let data):
             main.append(.picker(L("What to do"), style: .menu, DataStep.Op.allCases.map { Option($0.rawValue, Words.dataName($0)) }, selected: data.op.rawValue, tool: "ui", input: input("data_op")))
-            main.append(.edit(EditField("\(step.id).from", L("From"), value: data.from, placeholder: L("Which value"), tokens: tokens, tool: "ui", input: input("data_from"))))
+            main.append(.edit(EditField("\(step.id).from", data.op == .work_out ? L("What to work out") : L("From"), value: data.from, detail: data.op == .work_out ? L("Like round({{price}} * 1.2, 2), or number({{total}}, \"1,234.56\"). It can only compute: it can't reach anything.") : nil, placeholder: data.op == .work_out ? "" : L("Which value"), tokens: tokens, tool: "ui", input: input("data_from"))))
             if [.field, .filter, .sort, .unique, .sum, .group].contains(data.op) {
                 main.append(.edit(EditField("\(step.id).field", L("The field in each"), value: data.field ?? "", detail: L("A name, or a.b for one inside another. Empty for the item itself."), tool: "ui", input: input("data_field"))))
             }

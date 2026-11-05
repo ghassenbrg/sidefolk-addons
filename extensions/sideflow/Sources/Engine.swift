@@ -355,6 +355,16 @@ extension FlowHost {
                 return true
             }
             do {
+                // Worked out from the values themselves: filled in as words first, words a value holds could read as part of it.
+                if data.op == .work_out {
+                    let made = try Expression.evaluate(data.from, values: run.values)
+                    guard run.values.fits(made) else { throw Problem(L("The result is too long to keep.")) }
+                    run.values.set(step.id, made)
+                    run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: Values.text(made).clipped(2000), at: clock(), input: data.from.clipped(2000)))
+                    run.pc += 1
+                    store.save(run)
+                    return true
+                }
                 let from = run.values.fill(native: .string(data.from))
                 let made = try data.apply(to: from, than: run.values.fill(data.than ?? ""), thanValue: data.than.map { run.values.fill(native: .string($0)) })
                 guard run.values.fits(made) else { throw Problem(L("The result is too long to keep.")) }

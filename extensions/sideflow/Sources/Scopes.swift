@@ -160,7 +160,7 @@ struct FormStep: Equatable, Sendable {
 /// One thing done to data, with no code and nothing outside the run.
 struct DataStep: Equatable, Sendable {
     enum Op: String, Equatable, Sendable, CaseIterable {
-        case parse_json, parse_csv, lines, join, field, filter, sort, unique, count, first, sum, number, batches, group, fallback
+        case parse_json, parse_csv, lines, join, field, filter, sort, unique, count, first, sum, number, batches, group, fallback, work_out
     }
 
     var op: Op
@@ -182,6 +182,9 @@ struct DataStep: Equatable, Sendable {
         }
         func at(_ item: JSON) -> JSON? { field?.nonEmpty.map { Values.walk(item, path: Values.parts(of: $0)) } ?? item }
         switch op {
+        case .work_out:
+            // It's the values it needs, not one value: the engine asks `Expression` itself.
+            throw Problem(L("It can't follow what to work out."))
         case .parse_json:
             guard let parsed = JSONText.read(Values.text(value)) else { throw Problem(L("That isn't JSON.")) }
             return JSON(parsed)

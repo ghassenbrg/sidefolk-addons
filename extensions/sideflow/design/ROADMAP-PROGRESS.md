@@ -87,6 +87,12 @@ T entry, for SECURITY's Sideflow section when it lands:
 
 Not verified: real clicks; a real agent's patch.
 
+## The expression language (`Expression.swift`, data op `work_out`)
+
+T entry, for SECURITY's Sideflow section when it lands: *Working a value out.* What a flow writes in `work_out` is a small expression read by Sideflow's own parser and evaluated in Sideflow's process, with no way in it to name a tool, a file, the network or the clock, no loops or definitions, and fixed limits on length (2,000 bytes), depth (32), work (20,000 steps) and text (100 KB). A value comes in by `{{name}}` as a value: it isn't filled in as words first, so what a page or a person's note says can't become part of what's computed. Its result is a value like any other, and it counts as coming from what it names: `sources` reads its slots as any step's, so on a plan it's as far out as the furthest thing it read. An expression can still turn outside words into a number or a piece of words that a later step uses, as a text step can. It's no more than that.
+
+Not read yet; not on a card of its own, since it does nothing outside the run.
+
 ## Left out on purpose
 
 Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.

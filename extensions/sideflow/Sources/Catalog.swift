@@ -410,6 +410,9 @@ extension FlowBody {
                 else if let wrong = step.saysNothing { out.append(FlowProblem(step: step.id, text: wrong)) }
             case .data(let data):
                 if data.from.trimmed.isEmpty, let wrong = step.saysNothing { out.append(FlowProblem(step: step.id, text: wrong)) }
+                if data.op == .work_out, !data.from.trimmed.isEmpty {
+                    do { _ = try Expression.parse(data.from) } catch { out.append(FlowProblem(step: step.id, text: (error as? Problem)?.message ?? L("It can't follow what to work out."))) }
+                }
             default: break
             }
         }
