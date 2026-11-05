@@ -31,6 +31,8 @@ Also stated and owed: the later lists in each landing's MERGE-READY, among them 
 
 ## First after the stack ships (the coordinator, 2026-11-05)
 
+The first fix of the next batch, before the small gaps below (the coordinator's ruling): Stop on a flow whose file can't be read can't clear its waiting starts, so they can go ahead after someone repairs that file. It needs a damaged flows file and a deliberate repair, and what goes ahead runs under the plan the person approved.
+
 Known small gaps accepted for now, to fix first in the next batch:
 - `{{a}} {{b}}` with one null and one empty sends spaces.
 - `{{a}}, {{b}}` with both null sends ",".
