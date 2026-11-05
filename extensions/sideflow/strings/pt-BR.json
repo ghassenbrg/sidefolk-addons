@@ -1019,6 +1019,8 @@
     },
     "Its limits go further than what you allowed": "Os limites dela vão além do que você permitiu",
     "You ended what you'd allowed, so it asks again before running.": "Você encerrou o que tinha permitido, então ela pergunta de novo antes de rodar.",
-    "“{name}” has something new to allow first. Open it to run it.": "“{name}” tem algo novo para permitir primeiro. Abra para rodar."
+    "“{name}” has something new to allow first. Open it to run it.": "“{name}” tem algo novo para permitir primeiro. Abra para rodar.",
+    "It runs a program, so it asks each run.": "Executa um programa, então pergunta a cada execução.",
+    "Its words are read in full each time.": "As palavras dela são lidas por inteiro a cada vez."
   }
 }

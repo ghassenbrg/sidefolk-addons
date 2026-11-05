@@ -334,7 +334,7 @@ import SidefolkExtensionKit
 
     @Test func theSameActionTwiceIsOneLineToAllow() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "notes.save", "with": ["text": "x"]], ["id": "b", "do": "notes.save", "with": ["text": "x"]], ["id": "c", "do": "notes.save", "with": ["text": "y"]]]])
-        #expect(Engine.lines(Engine.planSteps(body, title: "t")) == 3, "a step with a name of its own is a line of its own, for the host")
+        #expect(Engine.lines(Engine.planSteps(body, title: "t")) == 2, "a step each for the card to name, one line to allow")
     }
 
     /// No action, nothing to read on a card, and Sidefolk refuses an empty plan: it just turns on.

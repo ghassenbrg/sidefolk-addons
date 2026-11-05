@@ -1093,20 +1093,56 @@ extension FlowHost {
         }
         // A name the host can trust to be one step's: it refuses a whole plan over a bad one.
         func name(_ step: Step) -> String? {
-            step.id.count <= 60 && !["today", "now"].contains(step.id) && step.id.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "_" || $0 == "-") }) && names.insert(step.id).inserted ? step.id : nil
+            step.id.count <= 60 && !Values.reserved.contains(step.id) && step.id.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "_" || $0 == "-") }) && names.insert(step.id).inserted ? step.id : nil
         }
-        for step in body.allSteps {
-            switch step.kind {
-            case .action(let tool, let input): steps.append(PlanStep(tool, input.mapValues(\.any), named: name(step), title: step.name))
-            case .ask(let question, let options):
-                var input: [String: Any] = ["question": question, "timeout_seconds": 300]
-                if !options.isEmpty { input["options"] = options }
-                steps.append(PlanStep("ask.user", input, named: name(step), title: step.name))
-            case .ai(let prompt): steps.append(.ai(named: name(step), title: step.name, reads: Values.references(prompt).filter { !Values.reserved.contains($0) }))
-            case .flow(let other), .call(let other, _): steps.append(.flow(other, named: name(step), title: step.name))
-            default: break
+        // What a value is made from, so the host can follow a step's value back to what really gave it. Words written in with it are a source of their own: an edit
+        // could change them with no card, so they never count as the person's.
+        func sources(_ texts: [String]) -> [String] {
+            let named = texts.flatMap(Values.references).filter { !["item", "index"].contains($0) }
+            let written = texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
+            let looped = texts.flatMap(Values.references).contains("item") ? ["item"] : []
+            return Array(Set(named + looped + (written ? [writtenWords] : []))).sorted()
+        }
+        // Every loop's list, as one: `{{item}}` is the one name for them all.
+        var lists: [String] = []
+        func gatherLists(_ held: [Step]) {
+            for step in held {
+                if case .forEach(let items, _, _, _) = step.kind { lists.append(items) }
+                _ = step.mappingParts { gatherLists($0); return $0 }
             }
         }
+        gatherLists(body.steps)
+        let fromLists = sources(lists)
+        if !fromLists.isEmpty { steps.append(.value(named: "item", reads: fromLists.filter { $0 != "item" }.isEmpty ? [writtenWords] : fromLists.filter { $0 != "item" })) }
+        func walk(_ held: [Step]) {
+            for step in held {
+                switch step.kind {
+                case .action(let tool, let input): steps.append(PlanStep(tool, input.mapValues(\.any), named: name(step), title: step.name))
+                case .ask(let question, let options):
+                    var input: [String: Any] = ["question": question, "timeout_seconds": 300]
+                    if !options.isEmpty { input["options"] = options }
+                    steps.append(PlanStep("ask.user", input, named: name(step), title: step.name))
+                case .ai(let prompt): steps.append(.ai(named: name(step), title: step.name, reads: sources([prompt]).filter { $0 != writtenWords }))
+                case .flow(let other), .call(let other, _): steps.append(.flow(other, named: name(step), title: step.name))
+                case .text(let text):
+                    if let as_ = name(step) { steps.append(.value(named: as_, reads: sources([text]))) }
+                case .data(let data):
+                    if let as_ = name(step) { steps.append(.value(named: as_, reads: sources([data.from, data.than ?? ""].filter { !$0.isEmpty }))) }
+                default: break
+                }
+                var inside: [Step] = []
+                _ = step.mappingParts { inside += $0; return $0 }
+                walk(inside)
+                // What a loop or a repeat gives comes from what's in it.
+                switch step.kind {
+                case .forEach, .repeatUntil:
+                    let made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
+                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: made)) }
+                default: break
+                }
+            }
+        }
+        walk(body.steps)
         if case .watch(let w) = body.trigger {
             add("watch.create", watchInput(w, title: title))
             add("watch.stop", ["id": title])
@@ -1121,23 +1157,17 @@ extension FlowHost {
         return steps
     }
 
-    /// The steps whose values come only from the person: a form, or a step that's nothing but one of those. Believed from this pack, so it says no more than it knows: words written
-    /// into a text step aren't the person's answer, and an edit could change them with no card. A name that means something else in a loop or a try isn't one.
+    /// The steps whose values are the person's own answer. Believed from this pack, so it says no more than it knows; what's built from these says what it reads on its own row.
+    /// A name that means something else in a loop or a try isn't one.
     static func inside(_ body: FlowBody) -> [String] {
-        var known = Set<String>()
-        func isOne(_ text: String) -> Bool {
-            let slots = Values.slots(text)
-            return slots.count == 1 && text.trimmed == "{{\(slots[0].name)\(slots[0].path)}}" && known.contains(slots[0].name)
-        }
-        for step in body.allSteps where !Values.reserved.contains(step.id) {
-            switch step.kind {
-            case .form: known.insert(step.id)
-            case .text(let text) where isOne(text): known.insert(step.id)
-            default: break
-            }
-        }
-        return body.allSteps.map(\.id).filter(known.contains)
+        body.allSteps.filter { step in
+            if case .form = step.kind { return !Values.reserved.contains(step.id) }
+            return false
+        }.map(\.id)
     }
+
+    /// What a value is said to read when words were written into it: no step goes by this, so it counts as from outside.
+    static let writtenWords = "_written_words"
 
     /// The most calls one run of these can make, for the card to say and Sidefolk to hold it to.
     static func callsPerRun(_ steps: [Step]) -> Int {
@@ -1247,8 +1277,8 @@ extension FlowHost {
         return store.flow(id).flatMap { start($0, mode: .live, why: why, trigger: trigger) }
     }
 
-    /// How many lines the host will count: a step with a name of its own is a line of its own.
-    static func lines(_ steps: [PlanStep]) -> Int { Set(steps.map { "\($0.named ?? "") \($0.line)" }).count }
+    /// How many different lines the host counts: alike ones are one, whatever they're called.
+    static func lines(_ steps: [PlanStep]) -> Int { Set(steps.map(\.line)).count }
 
     /// Everything the draft may do, as the person will read it. `intent`: what they pressed, for the card's heading.
     func livePlan(_ flow: Flow, intent: String = "turn_on") -> Plan {
@@ -1294,7 +1324,7 @@ extension FlowHost {
     /// There's something to read before it runs by itself. Only a flow someone starts by hand that does nothing but work on its own values has nothing to say.
     static func needsCard(_ body: FlowBody) -> Bool {
         if case .manual = body.trigger, body.alsoWhen.isEmpty {} else { return true }
-        return !planSteps(body, title: "").isEmpty || body.allSteps.contains { switch $0.kind { case .flow, .call, .ai: true; default: false } }
+        return planSteps(body, title: "").contains { !$0.onlyPassesOn }
     }
 
     static let busyWait: TimeInterval = 61

@@ -1002,6 +1002,8 @@
     },
     "Its limits go further than what you allowed": "한도가 허용한 범위를 넘습니다",
     "You ended what you'd allowed, so it asks again before running.": "허용한 내용을 끝냈으므로 실행 전에 다시 묻습니다.",
-    "“{name}” has something new to allow first. Open it to run it.": "“{name}”에 먼저 허용할 새 내용이 있습니다. 열어서 실행하세요."
+    "“{name}” has something new to allow first. Open it to run it.": "“{name}”에 먼저 허용할 새 내용이 있습니다. 열어서 실행하세요.",
+    "It runs a program, so it asks each run.": "프로그램을 실행하므로 실행할 때마다 묻습니다.",
+    "Its words are read in full each time.": "그 내용은 매번 전체를 읽습니다."
   }
 }

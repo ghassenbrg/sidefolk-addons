@@ -1087,6 +1087,8 @@
     },
     "Its limits go further than what you allowed": "تتجاوز حدوده ما سمحت به",
     "You ended what you'd allowed, so it asks again before running.": "أنهيت ما سمحت به، لذا سيسأل مجددًا قبل التشغيل.",
-    "“{name}” has something new to allow first. Open it to run it.": "لدى «{name}» شيء جديد للسماح به أولًا. افتحه لتشغيله."
+    "“{name}” has something new to allow first. Open it to run it.": "لدى «{name}» شيء جديد للسماح به أولًا. افتحه لتشغيله.",
+    "It runs a program, so it asks each run.": "يشغّل برنامجًا، لذا يسأل في كل تشغيل.",
+    "Its words are read in full each time.": "تُقرأ كلماته كاملة في كل مرة."
   }
 }

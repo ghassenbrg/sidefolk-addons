@@ -293,6 +293,15 @@ public struct PlanStep: @unchecked Sendable {
         return step
     }
 
+    /// A step that only passes something on: never on the card, but what a later step's value really comes from. `reads`: the names it's made from, at least one.
+    /// A name Sidefolk can't place counts as from outside.
+    public static func value(named: String, reads: [String]) -> PlanStep {
+        var step = PlanStep("", named: named)
+        step.kind = "value"
+        step.reads = reads
+        return step
+    }
+
     /// A step that sets off another flow, which has its own approval.
     public static func flow(_ name: String, named: String? = nil, title: String? = nil) -> PlanStep {
         var step = PlanStep("", named: named, title: title)
@@ -314,6 +323,9 @@ public struct PlanStep: @unchecked Sendable {
         if let from { out["from"] = from }
         return out
     }
+
+    /// It's only there to say where a value comes from, and isn't on the card.
+    public var onlyPassesOn: Bool { kind == "value" }
 
     /// What makes it the same line on a card as another step.
     public var line: String {

@@ -1002,6 +1002,8 @@
     },
     "Its limits go further than what you allowed": "它的上限超出了你允许的范围",
     "You ended what you'd allowed, so it asks again before running.": "你已结束之前允许的内容，因此运行前会再次询问。",
-    "“{name}” has something new to allow first. Open it to run it.": "“{name}”有新内容需要先允许。请打开它来运行。"
+    "“{name}” has something new to allow first. Open it to run it.": "“{name}”有新内容需要先允许。请打开它来运行。",
+    "It runs a program, so it asks each run.": "它会运行程序，所以每次运行都会询问。",
+    "Its words are read in full each time.": "它的文字每次都会被完整读取。"
   }
 }

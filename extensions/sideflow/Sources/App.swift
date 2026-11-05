@@ -149,6 +149,8 @@ struct PlanLook {
         case "code_field": return (L("Write this part yourself: words from outside can't go in here."), .bad)
         case "reach_field": return (L("This says where it goes. Write it here, or it asks each run."), .warn)
         case "server_unpinned": return (L("Its program can't be checked, so it asks each run."), .warn)
+        case "shell": return (L("It runs a program, so it asks each run."), .info)
+        case "text_to_read": return (L("Its words are read in full each time."), .info)
         default: break
         }
         switch line.state {

@@ -1002,6 +1002,8 @@
     },
     "Its limits go further than what you allowed": "上限が許可した範囲を超えています",
     "You ended what you'd allowed, so it asks again before running.": "許可を終了したため、実行前にもう一度確認します。",
-    "“{name}” has something new to allow first. Open it to run it.": "「{name}」には先に許可する新しい内容があります。開いて実行してください。"
+    "“{name}” has something new to allow first. Open it to run it.": "「{name}」には先に許可する新しい内容があります。開いて実行してください。",
+    "It runs a program, so it asks each run.": "プログラムを実行するため、実行のたびに確認します。",
+    "Its words are read in full each time.": "その言葉は毎回全文が読まれます。"
   }
 }

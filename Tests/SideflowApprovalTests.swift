@@ -171,19 +171,13 @@ import SidefolkExtensionKit
         #expect(rows.map(\.named) == [nil, nil, "same", nil], "one bad name makes the whole plan unusable, so none goes")
     }
 
-    @Test func whatComesFromThePersonIsSaidToBeInside() throws {
+    @Test func onlyAFormIsSaidToBeThePersonsOwn() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
             ["id": "f", "form": ["title": "Who", "fields": [["name": "n", "label": "Name", "kind": "text"]]]],
             ["id": "whole", "text": "{{f.n}}"],
             ["id": "literal", "text": "https://evil.example"],
-            ["id": "added", "text": "https://evil.example/{{f.n}}"],
-            ["id": "clock", "text": "{{today}}"],
-            ["id": "d", "data": ["op": "first", "from": "{{f.n}}"]],
-            ["id": "r", "do": "reads.it"],
-            ["id": "mixed", "text": "{{whole}} {{r}}"],
-            ["id": "outside", "text": "{{trigger}}"],
         ]])
-        #expect(Engine.inside(body) == ["f", "whole"], "words written in a step aren't the person's answer: an edit could change them with no card")
+        #expect(Engine.inside(body) == ["f"], "what's built from it says what it reads, on its own row")
     }
 
     @Test func aFormNamedLikeWhatALoopBringsIsntTakenForTheLoopsItem() throws {
@@ -191,6 +185,58 @@ import SidefolkExtensionKit
         guard case .form(let form)? = top.step("f")?.kind else { Issue.record("not a form"); return }
         let body = FlowBody(steps: [Step(id: "item", kind: .form(form)), Step(id: "t", kind: .text("{{item}}"))])
         #expect(Engine.inside(body).isEmpty, "inside a loop that name is the page's item")
+    }
+
+    /// The host follows a value back through these to what really gave it: editing a step in between is new, when what it reads changes.
+    @Test func aStepInBetweenSaysWhatItReads() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "w", "do": "reads.it"],
+            ["id": "alias", "text": "{{w}}"],
+            ["id": "added", "text": "Today: {{w}}"],
+            ["id": "literal", "text": "https://evil.example"],
+            ["id": "d", "data": ["op": "first", "from": "{{alias}}"]],
+            ["id": "c", "do": "changes.it", "with": ["text": "{{d}}"]],
+        ]])
+        let rows = Engine.planSteps(body, title: "t")
+        func line(_ name: String) -> String { rows.first { $0.named == name }?.line ?? "" }
+        #expect(line("alias").contains("[\"w\"]"))
+        #expect(line("added").contains("w") && line("added").contains(Engine.writtenWords), "words written in with it aren't the step's to vouch for")
+        #expect(line("literal").contains(Engine.writtenWords))
+        #expect(line("d").contains("alias"))
+        #expect(rows.map(\.named).firstIndex(of: "alias")! < rows.map(\.named).firstIndex(of: "d")!, "what feeds a step comes before it")
+    }
+
+    @Test func aLoopsItemAndAnswerSayWhereTheyComeFrom() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "pages", "do": "reads.it"],
+            ["id": "e", "for_each": "{{pages}}", "steps": [["id": "s", "ai": "Sum up {{item}}"], ["id": "c", "do": "changes.it", "with": ["text": "{{item}}"]]]],
+            ["id": "after", "do": "changes.it", "with": ["text": "{{e}}"]],
+        ]])
+        let rows = Engine.planSteps(body, title: "t")
+        let names = rows.map(\.named)
+        #expect(rows.first { $0.named == "item" }?.line.contains("pages") == true)
+        #expect(rows.first { $0.named == "e" }?.line.contains("c") == true)
+        #expect(names.firstIndex(of: "e")! > names.firstIndex(of: "c")!, "its answer comes after what makes it")
+        #expect(names.firstIndex(of: "e")! < names.firstIndex(of: "after")!)
+        #expect(Set(names.compactMap(\.self)).count == names.compactMap(\.self).count, "the host refuses a whole plan over one name twice")
+    }
+
+    @Test func twoLoopsShareTheOneItemRow() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "a", "do": "reads.it"], ["id": "b", "do": "reads.it"],
+            ["id": "e", "for_each": "{{a}}", "steps": [["id": "c", "do": "changes.it", "with": ["text": "{{item}}"]]]],
+            ["id": "f", "for_each": "{{b}}", "steps": [["id": "d", "do": "changes.it", "with": ["text": "{{item}}"]]]],
+        ]])
+        let rows = Engine.planSteps(body, title: "t").filter { $0.named == "item" }
+        #expect(rows.count == 1)
+        #expect(rows.first?.line.contains("a") == true && rows.first?.line.contains("b") == true)
+    }
+
+    @Test func manyAlikeStepsAreFewLines() throws {
+        let steps: [[String: Any]] = (0..<70).map { ["id": "s\($0)", "do": "notes.save", "with": ["text": "x"]] }
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": steps])
+        #expect(Engine.lines(Engine.planSteps(body, title: "t")) == 1, "the host counts different lines")
+        #expect(!body.problems(try World().catalog).contains { $0.step == nil && $0.text.contains("different things to allow") })
     }
 
     @Test func thePerRunLimitIsWhatTheFlowCanDo() throws {
@@ -248,7 +294,8 @@ import SidefolkExtensionKit
         #expect(words(.init(state: "stands")) == nil, "running by itself is what's expected, so nothing's said")
         #expect(words(.init(state: "listed")) == nil)
         #expect(words(.init(state: "refused", why: "code_field"))?.contains("Write this part yourself") == true)
-        #expect(words(.init(state: "refused", why: "shell"))?.contains("ask each run") == true, "those show a card: never say it can't")
+        #expect(words(.init(state: "refused", why: "shell"))?.contains("runs a program") == true, "those show a card: never say it can't")
+        #expect(words(.init(state: "refused", why: "text_to_read"))?.contains("read in full") == true)
         #expect(words(.init(state: "stands_in_full_access", why: "reach_field"))?.contains("where it goes") == true, "what the host sends for it")
         #expect(words(.init(state: "stands_in_full_access", why: "filled_value"))?.contains("Full access") == true)
         #expect(words(.init(state: "asks", why: "reach_field"))?.contains("where it goes") == true)
