@@ -60,7 +60,11 @@
       "title": "Eliminar una rutina"
     },
     "ui": {
-      "title": "Abrir Sideflow"
+      "title": "Abrir Sideflow",
+      "summary": [
+        "Abrir Sideflow",
+        "Cambiar algo en Sideflow: {op}"
+      ]
     }
   },
   "pages": {

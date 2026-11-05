@@ -60,7 +60,11 @@
       "title": "删除流程"
     },
     "ui": {
-      "title": "打开 Sideflow"
+      "title": "打开 Sideflow",
+      "summary": [
+        "打开 Sideflow",
+        "在 Sideflow 中更改内容：{op}"
+      ]
     }
   },
   "pages": {

@@ -234,7 +234,7 @@ import SidefolkExtensionKit
         case "end_held":
             app.engine.endHeldRuns()
         case "stop_run":
-            if let id = a.string("run") { app.engine.stop(run: id, byThePerson: true) }
+            if let id = a.string("run") { app.engine.stop(run: id, byThePerson: a.string("page_token") == app.pageKey) }
         case "export":
             app.nav.exporting = try flow().id
         case "export_done":
@@ -448,7 +448,7 @@ import SidefolkExtensionKit
         case "proceed":
             if let id = a.string("run"), let how = a.string("how").flatMap(Engine.Forward.init(rawValue:)) {
                 // Stop works while it's running too, between steps.
-                if how == .stop { app.engine.stop(run: id, byThePerson: true) } else { app.engine.proceed(id, how) }
+                if how == .stop { app.engine.stop(run: id, byThePerson: a.string("page_token") == app.pageKey) } else { app.engine.proceed(id, how) }
             }
         default:
             break

@@ -60,7 +60,11 @@
       "title": "루틴 삭제"
     },
     "ui": {
-      "title": "Sideflow 열기"
+      "title": "Sideflow 열기",
+      "summary": [
+        "Sideflow 열기",
+        "Sideflow에서 무언가 변경: {op}"
+      ]
     }
   },
   "pages": {

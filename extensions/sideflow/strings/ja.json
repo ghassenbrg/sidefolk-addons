@@ -60,7 +60,11 @@
       "title": "ルーティンを削除"
     },
     "ui": {
-      "title": "Sideflowを開く"
+      "title": "Sideflowを開く",
+      "summary": [
+        "Sideflowを開く",
+        "Sideflowの内容を変更: {op}"
+      ]
     }
   },
   "pages": {

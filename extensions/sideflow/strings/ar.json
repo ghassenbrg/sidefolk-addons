@@ -60,7 +60,11 @@
       "title": "حذف روتين"
     },
     "ui": {
-      "title": "فتح Sideflow"
+      "title": "فتح Sideflow",
+      "summary": [
+        "فتح Sideflow",
+        "تغيير شيء في Sideflow: {op}"
+      ]
     }
   },
   "pages": {

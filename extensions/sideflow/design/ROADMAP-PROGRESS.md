@@ -31,6 +31,8 @@ Each its own landing, with independent reads until a clean one, a suite on a bui
 
 Also stated and owed: the later lists in each landing's MERGE-READY, among them a write's thrown error going to "did it happen?" rather than Recover, "Next:" ignoring the flow's time zone, `{{today}}` going stale over a days-long form, Skip sending a later action an empty value.
 
+Known gap, in plain words (the coordinator's ruling, 2026-11-05): when you ask the agent to stop a flow, it stops that run and what it started, but not the lanes beside it, and it doesn't clear the flow's waiting starts; the Stop on the flow's page does all of it. On the later list: knowing who called, so an agent acting for the person can count as the person, is a general Kit ability for a later batch and needs a decision of its own.
+
 ## Left out on purpose
 
 Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.

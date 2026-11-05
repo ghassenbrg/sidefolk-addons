@@ -426,7 +426,7 @@ import SidefolkExtensionKit
         if running, practice?.status == .running {
             pill = Badge(L("Practicing"), tone: .info)
             sentence = L("It reads for real and changes nothing.")
-            if let practice { actions = [button(L("Stop practicing"), "stop_run", ["run": practice.id], symbol: "stop.fill")] }
+            if let practice { actions = [button(L("Stop practicing"), "stop_run", ["run": practice.id, "page_token": app.pageKey], symbol: "stop.fill")] }
         } else {
             switch flow.state {
             case .draft:
@@ -732,7 +732,7 @@ import SidefolkExtensionKit
         var end: [Section] = []
         func choices(_ title: String, _ options: [Option], note: Block? = nil) -> Section {
             var blocks: [Block] = note.map { [$0] } ?? []
-            blocks.append(.picker(title, style: .rows, options, selected: "", tool: "ui", input: ui("proceed", id), key: "how"))
+            blocks.append(.picker(title, style: .rows, options, selected: "", tool: "ui", input: ui("proceed", ["run": run.id, "page_token": app.pageKey]), key: "how"))
             return Section(nil, blocks, place: .trailing)
         }
         let current = currentStep(run)
@@ -805,7 +805,7 @@ import SidefolkExtensionKit
         if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }
         return frame(app, state: state, here: nil, flow: run.flow, back: run.flowName, [
             Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail, actions: run.status == .running || run.status == .waiting
-                ? (run.status == .running && run.mode != .practice ? [button(L("Pause after this step"), "pause_run", id, symbol: "pause.fill")] : []) + [button(L("Stop"), "stop_run", id, symbol: "stop.fill")]
+                ? (run.status == .running && run.mode != .practice ? [button(L("Pause after this step"), "pause_run", id, symbol: "pause.fill")] : []) + [button(L("Stop"), "stop_run", ["run": run.id, "page_token": app.pageKey], symbol: "stop.fill")]
                 : run.status.isOver && run.parent == nil ? [button(L("Run again"), "run_again", id, symbol: "arrow.clockwise")] : []))]),
             Section(nil, [.tree(CardTree(nodes, selected: selected, select: .init(tool: "ui", input: ui("inspect_run", ["run": run.id]), key: "target"), line: line))], wide: true),
         ], end: end)
