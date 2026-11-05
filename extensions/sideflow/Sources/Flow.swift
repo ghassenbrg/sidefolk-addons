@@ -168,7 +168,7 @@ struct Step: Equatable, Sendable {
     @MainActor func doesSomething(_ catalog: Catalog) -> Bool {
         switch kind {
         // A tool that's away did nothing yet, and it comes back through here if it comes back.
-        case .action(let tool, _): catalog.tool(tool) != nil && !reads(catalog)
+        case .action(let tool, _): !Connections.isMissing(tool, catalog) && !reads(catalog)
         case .call, .parallel, .flow: true
         default: false
         }

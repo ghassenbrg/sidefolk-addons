@@ -1020,6 +1020,6 @@
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "وافقت على نسخة أخرى من هذا الروتين أثناء هذا التشغيل، ولم تعد هذه الخطوة كما كانت فيها، لذا لم تُنفَّذ. تخطَّها أو توقف هنا.",
     "Inside it": "بداخله",
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "في انتظار {name}، و{flow} متوقف مؤقتًا. لم تُنفَّذ هذه الخطوة: بعد عودته، يتابع عندما تستأنف {flow}.",
-    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "لن تغيّر جولة أخرى «{name}» وستعيد كل شيء، لذا توقف هنا."
+    "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "لم يُجب «{name}» بعد، وستعيد جولة أخرى كل شيء، لذا توقف هنا."
   }
 }

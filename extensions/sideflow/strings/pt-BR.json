@@ -960,6 +960,6 @@
     "You approved another version of this flow while this run was under way, and this step isn't in it as it was, so it didn't run. Skip it or stop here.": "Você aprovou outra versão desta rotina durante esta execução, e esta etapa não está mais igual, então não foi executada. Pule-a ou pare aqui.",
     "Inside it": "Dentro",
     "Waiting for {name}, and {flow} is paused. This step hasn't run: once it's back, it goes on when you resume {flow}.": "Aguardando {name}, e {flow} está pausada. Esta etapa não foi executada: quando voltar, continua ao retomar {flow}.",
-    "Going round wouldn't change “{name}”, and it would do this all again, so it stopped here.": "Dar outra volta não mudaria “{name}” e faria tudo de novo, então parou aqui."
+    "“{name}” doesn't answer it yet, and going round would do this all again, so it stopped here.": "“{name}” ainda não responde, e dar outra volta faria tudo de novo, então parou aqui."
   }
 }
