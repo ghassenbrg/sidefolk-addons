@@ -1112,6 +1112,8 @@
       "few": "تم تحديد {count}",
       "many": "تم تحديد {count}",
       "other": "تم تحديد {count}"
-    }
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "يمكن اختيار أول {count} روتينًا فقط في كل مرة. احذفها وستظهر البقية.",
+    "The nearest places are listed. To go further, move it there and choose again.": "تُعرض أقرب الأماكن. للانتقال أبعد، انقلها إلى هناك ثم اختر مرة أخرى."
   }
 }

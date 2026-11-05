@@ -387,7 +387,6 @@ import SidefolkExtensionKit
         return out
     }
 
-    /// What a flow asks to be given: every `{{input.name}}` it uses, in order. Its interface is what it uses, so it can't say one thing and do another.
     /// Moving it: in plain sight, for whoever doesn't find the card's menu or think to drag it.
     private static func moving(_ step: Step, _ flow: Flow, _ app: App, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
         let list = Editing.siblings(of: step.id, in: flow.draft)
@@ -397,11 +396,18 @@ import SidefolkExtensionKit
             .action(Action(L("Move down"), tool: "ui", input: input("down", [:]), style: .plain, symbol: "arrow.down", disabled: at == list.count - 1)),
         ]
         let startsIt = flow.draft.steps.first?.id == step.id
-        let spots = (startsIt ? [] : [Option("start", L("The very start"))]) + Editing.placesToMove(step.id, in: flow.draft).map { Option($0.id, L("After {step}", ["step": Words.label($0, catalog: app.catalog)])) }
+        // Sidefolk keeps 24 of a menu: on a long flow, those nearest it.
+        let places = Editing.placesToMove(step.id, in: flow.draft)
+        let middle = max(0, flow.draft.allSteps.firstIndex { $0.id == step.id } ?? 0)
+        let near = places.sorted { abs((flow.draft.allSteps.firstIndex(of: $0) ?? 0) - middle) < abs((flow.draft.allSteps.firstIndex(of: $1) ?? 0) - middle) }.prefix(startsIt ? 24 : 23)
+        let kept = places.filter { place in near.contains { $0.id == place.id } }
+        let spots = (startsIt ? [] : [Option("start", L("The very start"))]) + kept.map { Option($0.id, L("After {step}", ["step": Words.label($0, catalog: app.catalog)])) }
         if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, spots, selected: "", tool: "ui", input: input("move_after", [:]))) }
+        if kept.count < places.count { out.append(.note(L("The nearest places are listed. To go further, move it there and choose again."))) }
         return out
     }
 
+    /// What a flow asks to be given: every `{{input.name}}` it uses, in order. Its interface is what it uses, so it can't say one thing and do another.
     static func inputs(of body: FlowBody) -> [String] {
         var out: [String] = []
         let pattern = try! NSRegularExpression(pattern: #"\{\{\s*input\.([A-Za-z0-9_]{1,40})"#)

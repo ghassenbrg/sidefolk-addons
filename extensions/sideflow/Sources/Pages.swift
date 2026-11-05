@@ -192,12 +192,21 @@ import SidefolkExtensionKit
         return frame(app, state: state, here: "flows", main)
     }
 
+    /// What Sidefolk keeps of a list or a section: past it, the rest wouldn't show. And how many sections that leaves room for.
+    static let inABlock = 24
+    static let mostToPick = inABlock * 12
+    /// Long enough that the second click of a double click isn't taken for being sure.
+    static let settling: TimeInterval = 0.6
+
     /// Choosing flows to delete, and then being sure: how many, which, and what goes with them. What's gone doesn't come back, so it's said before it happens.
     static func pickingPage(_ flows: [Flow], picked: Set<String>, _ app: App, state: Arguments) -> Page {
         let chosen = flows.filter { picked.contains($0.id) }
         var main: [Section] = []
         if app.nav.askingToDelete, !chosen.isEmpty {
-            var blocks: [Block] = [.facts(nil, chosen.map { ($0.name, stateWord($0)) })]
+            // In lists of what a list can hold: nothing goes that isn't named.
+            var blocks: [Block] = stride(from: 0, to: chosen.count, by: inABlock).map { start in
+                .facts(nil, chosen[start..<min(start + inABlock, chosen.count)].map { ($0.name, stateWord($0)) })
+            }
             let on = chosen.filter { $0.state == .on }.count
             if on > 0 { blocks.append(.note(L(one: "{count} of them is on. It stops running.", other: "{count} of them are on. They stop running.", count: on), tone: .warn)) }
             let doomed = Set(chosen.map(\.name))
@@ -212,7 +221,7 @@ import SidefolkExtensionKit
             }
             blocks.append(.note(L("Their runs and what you allowed for them go too. This can't be undone.")))
             let sure = L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count)
-            main.append(Section(nil, [.bar(PageBar(L(one: "Delete this flow?", other: "Delete these {count} flows?", count: chosen.count), detail: nil, actions: [button(L("Keep them"), "pick_keep"), button(sure, "pick_delete_sure", style: .destructive, symbol: "trash")]))]))
+            main.append(Section(nil, [.bar(PageBar(L(one: "Delete this flow?", other: "Delete these {count} flows?", count: chosen.count), detail: nil, actions: [button(L("Keep them"), "pick_keep"), button(sure, "pick_delete_sure", ["page_token": app.pageKey], style: .destructive, symbol: "trash")]))]))
             main.append(Section(nil, blocks, wide: true))
             return frame(app, state: state, here: "flows", main)
         }
@@ -222,9 +231,13 @@ import SidefolkExtensionKit
             button(L("Select all"), "pick_all", disabled: chosen.count == flows.count),
             button(chosen.isEmpty ? L("Delete") : L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count), "pick_delete", style: .destructive, symbol: "trash", disabled: chosen.isEmpty),
         ]))]))
-        main.append(Section(nil, flows.map { flow in
-            .toggle(flow.name, detail: stateWord(flow), on: picked.contains(flow.id), tool: "ui", input: ui("pick_flow", ["picked": flow.id]))
-        }, wide: true))
+        let shown = Array(flows.prefix(mostToPick))
+        for start in stride(from: 0, to: shown.count, by: inABlock) {
+            main.append(Section(nil, shown[start..<min(start + inABlock, shown.count)].map { flow in
+                .toggle(flow.name, detail: stateWord(flow), on: picked.contains(flow.id), tool: "ui", input: ui("pick_flow", ["picked": flow.id]))
+            }, wide: true))
+        }
+        if flows.count > shown.count { main.append(Section(nil, [.note(L("Only the first {count} flows can be picked at once. Delete these, and the rest come up.", ["count": Format.integer(shown.count)]))], wide: true)) }
         return frame(app, state: state, here: "flows", main)
     }
 

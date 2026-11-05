@@ -98,6 +98,12 @@ import SidefolkExtensionKit
         #expect(said.count == 1, "\(said)")
     }
 
+    /// As the page's own button sends it, after long enough to read it.
+    private func sure(_ app: App) async throws {
+        app.nav.askedToDeleteAt = Date().addingTimeInterval(-10)
+        try await page(app, "pick_delete_sure", ["page_token": app.pageKey])
+    }
+
     private func pageWords(_ app: App) async -> String {
         String(describing: await Pages.make(app, state: Arguments([:]), background: false).sent).filter { !"\u{2068}\u{2069}".contains($0) }
     }
@@ -128,9 +134,113 @@ import SidefolkExtensionKit
         #expect(going == ["Morning check", "Invoice run"], "these and only these, the one staying isn't named: \(going)")
         #expect(words.contains("be undone"))
         #expect(app.store.flows().count == 3, "asking deletes nothing")
-        try await page(app, "pick_delete_sure")
+        try await sure(app)
         #expect(app.store.flows().map(\.id) == [three.id])
         #expect(app.nav.pickingFlows == nil)
+    }
+
+    @Test func onlyThePagesOwnButtonDeletes() async throws {
+        let w = try World()
+        let app = app(w)
+        _ = try flow(app, "One")
+        // All the way through, as another extension could on cards that name no flow.
+        try await page(app, "pick_flows")
+        try await page(app, "pick_all")
+        try await page(app, "pick_delete")
+        app.nav.askedToDeleteAt = Date().addingTimeInterval(-10)
+        try await page(app, "pick_delete_sure")
+        #expect(app.store.flows().count == 1, "no token")
+        try await page(app, "pick_delete_sure", ["page_token": "a guess"])
+        #expect(app.store.flows().count == 1, "the wrong one")
+        let drawn = String(describing: await Pages.make(app, state: Arguments([:]), background: false).sections)
+        #expect(drawn.contains(app.pageKey), "the button has it")
+    }
+
+    @Test func theOldWayInIsGone() async throws {
+        let w = try World()
+        let app = app(w)
+        let one = try flow(app, "One")
+        _ = try? await Actions_UI.handle(Arguments(["op": "delete", "flow": one.id]), app)
+        #expect(app.store.flow(one.id) != nil)
+    }
+
+    @Test func theSecondClickOfADoubleClickIsntBeingSure() async throws {
+        let w = try World()
+        let app = app(w)
+        let one = try flow(app, "One")
+        try await page(app, "ask_delete", ["flow": one.id])
+        try await page(app, "pick_delete_sure", ["page_token": app.pageKey])
+        #expect(app.store.flow(one.id) != nil, "too soon after asking")
+        try await sure(app)
+        #expect(app.store.flow(one.id) == nil)
+    }
+
+    @Test func aLongListNamesEveryOneItWillDelete() async throws {
+        let w = try World()
+        let app = app(w)
+        for n in 1...30 { _ = try flow(app, "Flow \(n)") }
+        try await page(app, "pick_flows")
+        var drawn = await Pages.make(app, state: Arguments([:]), background: false)
+        #expect(drawn.sections.allSatisfy { $0.blocks.count <= Pages.inABlock }, "none is cut off")
+        let switches = drawn.sections.flatMap(\.blocks).filter { if case .toggle = $0 { true } else { false } }
+        #expect(switches.count == 30, "each can be picked")
+        try await page(app, "pick_all")
+        try await page(app, "pick_delete")
+        drawn = await Pages.make(app, state: Arguments([:]), background: false)
+        let lists = drawn.sections.flatMap(\.blocks).compactMap { block -> [String]? in if case .facts(_, let items) = block { items.map(\.0) } else { nil } }
+        #expect(lists.allSatisfy { $0.count <= Pages.inABlock }, "none is cut off")
+        #expect(Set(lists.flatMap(\.self)) == Set((1...30).map { "Flow \($0)" }))
+        try await sure(app)
+        #expect(app.store.flows().isEmpty)
+    }
+
+    @Test func whatCantBeShownCantBePicked() async throws {
+        let w = try World()
+        let app = app(w)
+        for n in 1...(Pages.mostToPick + 2) { _ = try flow(app, "Flow \(n)") }
+        try await page(app, "pick_flows")
+        try await page(app, "pick_all")
+        #expect(app.nav.pickingFlows?.count == Pages.mostToPick)
+        #expect(await pageWords(app).contains("Only the first"))
+    }
+
+    @Test func aLongFlowsMenuFitsAndSaysSo() throws {
+        let w = try World()
+        let app = app(w)
+        let steps: [[String: Any]] = (1...40).map { ["id": "s\($0)", "name": "Step \($0)", "text": "x"] }
+        let f = app.newFlow(name: "Long", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": steps]))
+        let sections = { () -> [Section] in
+            app.nav.inspect(.step("s20"), in: f.id)
+            return Inspector.sections(try! #require(app.store.flow(f.id)), app, problems: [])
+        }()
+        let options = sections.flatMap(\.blocks).compactMap { block -> [Option]? in if case .picker(let title, _, _, let list, _, _, _, _, _) = block, title == "Move to" { list } else { nil } }.first
+        #expect(options?.count ?? 99 <= 24)
+        let words = (options ?? []).map { $0.label }.joined()
+        #expect(words.contains("Step 25") && words.contains("Step 15"), "the nearest")
+        #expect(String(describing: sections).contains("nearest places"))
+    }
+
+    @Test func keepingAFlowFromItsOwnMenuLeavesPicking() async throws {
+        let w = try World()
+        let app = app(w)
+        let one = try flow(app, "One")
+        try await page(app, "ask_delete", ["flow": one.id])
+        try await page(app, "pick_keep")
+        #expect(app.nav.pickingFlows == nil)
+    }
+
+    @Test func changingWhatsPickedAsksAgain() async throws {
+        let w = try World()
+        let app = app(w)
+        let one = try flow(app, "One"), two = try flow(app, "Two")
+        try await page(app, "pick_flows")
+        try await page(app, "pick_flow", ["picked": one.id, "on": true])
+        try await page(app, "pick_delete")
+        try await page(app, "pick_flow", ["picked": two.id, "on": true])
+        #expect(!app.nav.askingToDelete, "what it asked about has changed")
+        app.nav.askedToDeleteAt = Date().addingTimeInterval(-10)
+        try await page(app, "pick_delete_sure", ["page_token": app.pageKey])
+        #expect(app.store.flows().count == 2)
     }
 
     @Test func keepingThemOrLeavingDeletesNothing() async throws {
@@ -160,7 +270,7 @@ import SidefolkExtensionKit
         try await page(app, "pick_flows")
         try await page(app, "pick_all")
         try await page(app, "pick_delete")
-        try await page(app, "pick_delete_sure")
+        try await sure(app)
         #expect(app.store.flows().isEmpty)
     }
 
@@ -183,7 +293,7 @@ import SidefolkExtensionKit
         let one = try flow(app, "One")
         try await page(app, "ask_delete", ["flow": one.id])
         #expect(app.store.flow(one.id) != nil, "it asks first")
-        try await page(app, "pick_delete_sure")
+        try await sure(app)
         #expect(app.store.flow(one.id) == nil)
     }
 

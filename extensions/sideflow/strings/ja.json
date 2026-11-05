@@ -1012,6 +1012,8 @@
     },
     "{count} selected": {
       "other": "{count}件選択中"
-    }
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "一度に選べるのは最初の{count}件のルーティンだけです。削除すると残りが表示されます。",
+    "The nearest places are listed. To go further, move it there and choose again.": "近い場所だけを表示しています。さらに遠くへ移すには、そこまで移動してからもう一度選んでください。"
   }
 }

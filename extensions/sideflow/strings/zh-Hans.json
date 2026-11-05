@@ -1012,6 +1012,8 @@
     },
     "{count} selected": {
       "other": "已选择 {count} 个"
-    }
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "一次只能选择前 {count} 个流程。删除后会显示其余流程。",
+    "The nearest places are listed. To go further, move it there and choose again.": "这里列出最近的位置。要移得更远，请先移到那里再重新选择。"
   }
 }

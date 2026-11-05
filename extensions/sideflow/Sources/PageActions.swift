@@ -439,35 +439,46 @@ import SidefolkExtensionKit
             guard let id = a.string("step") ?? { if case .step(let s) = app.nav.inspecting(f) { s } else { nil } }(), let (body, new) = Editing.duplicate(id, in: f.draft) else { break }
             try draft { $0 = body }
             app.nav.inspect(.step(new), in: f.id)
-        case "delete":
-            app.engine.delete(try flow().id)
-            return .home
         case "ask_delete":
-            app.nav.pickingFlows = [try flow().id]
+            let id = try flow().id
+            app.nav.pickingFlows = [id]
+            app.nav.askedFromAFlow = true
             app.nav.askingToDelete = true
+            app.nav.askedToDeleteAt = Date()
             return .home
         case "pick_flows":
             app.nav.pickingFlows = []
             app.nav.askingToDelete = false
+            app.nav.askedFromAFlow = false
         case "pick_flow":
             if let id = a.string("picked"), app.store.flow(id) != nil {
                 if a.bool("on") == false { app.nav.pickingFlows?.remove(id) } else { app.nav.pickingFlows?.insert(id) }
+                app.nav.askingToDelete = false
             }
         case "pick_all":
-            app.nav.pickingFlows = Set(app.store.flows().map(\.id))
+            app.nav.pickingFlows = Set(app.store.flows().prefix(Pages.mostToPick).map(\.id))
+            app.nav.askingToDelete = false
         case "pick_none":
             app.nav.pickingFlows = nil
             app.nav.askingToDelete = false
+            app.nav.askedFromAFlow = false
         case "pick_delete":
             app.nav.askingToDelete = !(app.nav.pickingFlows ?? []).isEmpty
+            app.nav.askedToDeleteAt = Date()
         case "pick_keep":
             app.nav.askingToDelete = false
+            if app.nav.askedFromAFlow {
+                app.nav.pickingFlows = nil
+                app.nav.askedFromAFlow = false
+            }
         case "pick_delete_sure":
-            // Only what the page said it would delete, and only after it said so.
-            guard app.nav.askingToDelete else { break }
+            // Another extension can call this on a card that names no flow, so only the page's own button counts. And only what the page said it would delete, after it said so.
+            guard a.string("page_token") == app.pageKey, app.nav.askingToDelete else { break }
+            if let asked = app.nav.askedToDeleteAt, Date().timeIntervalSince(asked) < Pages.settling { break }
             for id in app.nav.pickingFlows ?? [] { app.engine.delete(id) }
             app.nav.pickingFlows = nil
             app.nav.askingToDelete = false
+            app.nav.askedFromAFlow = false
             return .home
         case "duplicate":
             let f = try flow()

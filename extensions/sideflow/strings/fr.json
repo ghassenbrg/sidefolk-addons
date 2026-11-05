@@ -1032,6 +1032,8 @@
     "{count} selected": {
       "one": "{count} sélectionnée",
       "other": "{count} sélectionnées"
-    }
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Seules les {count} premières routines peuvent être choisies à la fois. Supprimez-les, et les autres apparaîtront.",
+    "The nearest places are listed. To go further, move it there and choose again.": "Les endroits les plus proches sont listés. Pour aller plus loin, déplacez-la là puis choisissez à nouveau."
   }
 }
