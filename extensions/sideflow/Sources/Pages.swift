@@ -578,6 +578,7 @@ import SidefolkExtensionKit
         if !notes.isEmpty { end.append(Section(nil, notes, place: .trailing)) }
         end += Inspector.sections(flow, app, problems: problems)
         end += checks(flow, app, problems: problems)
+        if let examples = examples(flow, app) { end.append(examples) }
         end.append(Section(L("What you'll get"), [arriving(flow, app)], place: .trailing))
         var page = frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)
         let id = ["flow": flow.id]
@@ -932,6 +933,9 @@ import SidefolkExtensionKit
         let selected = app.nav.runStep[run.id]
         if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }
         end.append(runFacts(run, app))
+        if run.status.isOver, run.parent == nil, run.example == nil, !run.values.named.isEmpty {
+            end.append(Section(nil, [.action(button(L("Keep for practice"), "keep_example", ["run": run.id], style: .plain, symbol: "pin", detail: L("A practice can go by what this run's steps gave, with nothing asked or read again.")))], place: .trailing))
+        }
         return frame(app, state: state, here: nil, flow: run.flow, back: run.flowName, [
             Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail, actions: run.status == .running || run.status == .waiting
                 ? (run.status == .running && run.mode != .practice ? [button(L("Pause after this step"), "pause_run", id, symbol: "pause.fill")] : []) + [button(L("Stop"), "stop_run", ["run": run.id, "page_token": app.pageKey], symbol: "stop.fill")]

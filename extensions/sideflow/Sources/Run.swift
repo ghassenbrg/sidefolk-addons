@@ -102,6 +102,9 @@ struct Run: Equatable, Sendable, Identifiable {
     var actionsDone = 0
     /// Which version of the flow it ran, when that went live. Nil for a draft's practice.
     var version: Int?
+    /// A practice going by an example: what each step gave then, with its name to say so.
+    var example: [String: JSON]?
+    var exampleName: String?
     /// A wait or a retry: when to carry on.
     var resumeAt: Date?
     var retries = 0

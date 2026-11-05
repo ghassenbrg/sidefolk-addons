@@ -340,6 +340,10 @@ struct Flow: Equatable, Sendable, Identifiable {
     var watchOutdated = false
     /// Times it was meant to run and couldn't, newest last.
     var missed: [Date] = []
+    /// What a practice can go by instead of asking and reading for real. On this Mac, in this flow: never in a copy or a file.
+    var examples: [PracticeExample] = []
+    /// The one a practice goes by, if any.
+    var chosenExample: String?
     /// Why the card didn't end in On, for the page.
     var startProblem: String?
     /// Stopped by the runaway guard.
@@ -783,4 +787,31 @@ extension String {
     var nonEmpty: String? { let t = trimmed; return t.isEmpty ? nil : t }
     func clipped(_ longest: Int) -> String { count <= longest ? self : String(prefix(longest)) + "…" }
     func prefixString(_ n: Int) -> String { String(prefix(n)) }
+}
+
+/// What a run's steps gave, kept for a practice to go by: no calls, no AI, no questions, and the person's own words kept as they say.
+struct PracticeExample: Equatable, Sendable, Identifiable {
+    var id: String
+    var name: String
+    var at: Date
+    var trigger: String?
+    var values: [String: JSON]
+
+    static let most = 8
+    static let longest = 64_000
+
+    /// What a run gave, of the steps that ask or fetch. The steps that work with words will work them out again.
+    static func from(_ run: Run, at now: Date) throws -> PracticeExample {
+        var values: [String: JSON] = [:]
+        for step in run.body.allSteps {
+            switch step.kind {
+            case .action, .ai, .ask, .form:
+                if let given = run.values.named[step.id] { values[step.id] = given }
+            default: break
+            }
+        }
+        let made = PracticeExample(id: UUID().uuidString.lowercased(), name: L("From {time}", ["time": Format.dateTime(run.startedAt)]), at: now, trigger: run.values.named["trigger"].map(Values.text), values: values)
+        guard JSONText.write(made.values.mapValues(\.any)).utf8.count + (made.trigger?.utf8.count ?? 0) <= longest else { throw Problem(L("What this run gave is too long to keep as an example.")) }
+        return made
+    }
 }

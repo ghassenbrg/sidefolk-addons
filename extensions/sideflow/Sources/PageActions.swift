@@ -325,6 +325,44 @@ import SidefolkExtensionKit
             }
         case "gives":
             try draft { $0.output = (a.values["value"] as? String).flatMap(ValueType.init(rawValue:)) }
+        case "keep_example":
+            guard let id = a.string("run"), let run = app.store.run(id), var f = app.store.flow(run.flow) else { break }
+            guard f.examples.count < PracticeExample.most else { throw Problem(L("A flow keeps {count} examples at most. Delete one first.", ["count": Format.integer(PracticeExample.most)])) }
+            let made = try PracticeExample.from(run, at: Date())
+            f.examples.append(made)
+            f.chosenExample = made.id
+            app.store.save(f)
+        case "choose_example":
+            var f = try flow()
+            f.chosenExample = a.string("value")?.nonEmpty
+            app.store.save(f)
+        case "drop_example":
+            var f = try flow()
+            f.examples.removeAll { $0.id == a.string("example") }
+            if f.chosenExample == a.string("example") { f.chosenExample = nil }
+            app.store.save(f)
+        case "name_example":
+            var f = try flow()
+            if let at = f.examples.firstIndex(where: { $0.id == a.string("example") }), let name = text.trimmed.nonEmpty { f.examples[at].name = String(name.prefix(60)) }
+            app.store.save(f)
+        case "example_value":
+            var f = try flow()
+            guard let at = f.examples.firstIndex(where: { $0.id == a.string("example") }), let step = a.string("step"), let was = f.examples[at].values[step] else { break }
+            // What it was stays what it is: a number stays a number, and words that aren't one say so.
+            switch was {
+            case .number:
+                guard let number = Editing.number(text) else { throw Problem(L("Write a number here, plainly: like 12 or 12.5.")) }
+                f.examples[at].values[step] = .number(number)
+            case .bool:
+                guard let yes = Editing.yesOrNo(text) else { throw Problem(L("Write yes or no here.")) }
+                f.examples[at].values[step] = .bool(yes)
+            case .array, .object:
+                guard let read = JSONText.read(text), (read is [Any]) == { if case .array = was { true } else { false } }() else { throw Problem(L("That isn't what it was: keep it in the same shape.")) }
+                f.examples[at].values[step] = JSON(read)
+            case .string, .null:
+                f.examples[at].values[step] = .string(text)
+            }
+            app.store.save(f)
         case "repair_move":
             if let id = a.string("step"), let name = a.string("name") { try draft { $0 = Repairs.moved(name, before: id, in: $0) } }
         case "repair_drop":

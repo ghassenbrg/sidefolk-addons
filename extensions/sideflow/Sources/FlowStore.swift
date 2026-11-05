@@ -266,6 +266,7 @@ import SidefolkExtensionKit
             "created": time(flow.createdAt), "updated": time(flow.updatedAt), "watch_outdated": flow.watchOutdated ? true : nil, "last_fire": time(flow.lastFire), "last_every": flow.lastEvery.isEmpty ? nil : Dictionary(uniqueKeysWithValues: flow.lastEvery.map { (String($0.key), $0.value.timeIntervalSince1970) }), "watch": flow.watchTitle,
             "missed": flow.missed.map(\.timeIntervalSince1970), "start_problem": flow.startProblem, "paused_because": flow.pausedBecause,
             "practiced": flow.practiced.map(FlowCodec.json), "waiting_starts": flow.waitingStarts.isEmpty ? nil : flow.waitingStarts,
+            "examples": flow.examples.isEmpty ? nil : flow.examples.map { ["id": $0.id, "name": $0.name, "at": $0.at.timeIntervalSince1970, "trigger": $0.trigger as Any, "values": $0.values.mapValues(\.any)] as [String: Any] }, "chosen_example": flow.chosenExample,
             "revisions": flow.revisions.isEmpty ? nil : flow.revisions.map { ["at": $0.at.timeIntervalSince1970, "body": FlowCodec.json($0.body), "version": $0.version] as [String: Any] }, "version": flow.version == 1 ? nil : flow.version,
         ]
         return out.compactMapValues { $0 }
@@ -274,6 +275,11 @@ import SidefolkExtensionKit
     static func flow(_ o: [String: Any]) -> Flow? {
         guard let id = o["id"] as? String, let name = o["name"] as? String, let draft = try? FlowCodec.body(o["draft"], saved: true) else { return nil }
         var flow = Flow(id: id, name: name, draft: draft, createdAt: date(o["created"]) ?? Date(), updatedAt: date(o["updated"]) ?? Date())
+        flow.examples = (o["examples"] as? [[String: Any]] ?? []).compactMap { e in
+            guard let id = e["id"] as? String, let name = e["name"] as? String, let values = e["values"] as? [String: Any] else { return nil }
+            return PracticeExample(id: id, name: name, at: date(e["at"]) ?? Date(), trigger: e["trigger"] as? String, values: values.mapValues { JSON($0) })
+        }
+        flow.chosenExample = o["chosen_example"] as? String
         // What's live can't be read: kept as it was, rather than an On flow running its draft.
         if let raw = o["live"] {
             guard let live = try? FlowCodec.body(raw, saved: true) else { return nil }
@@ -313,6 +319,7 @@ import SidefolkExtensionKit
             "today": run.values.today, "now": run.values.now, "records": run.records.map(json), "resume_at": time(run.resumeAt), "retries": run.retries, "tried_again": run.triedAgain == 0 ? nil : run.triedAgain, "problem": run.problem, "frames": run.frames.isEmpty ? nil : run.frames.map(json), "parent": run.parent, "lineage": run.lineage.isEmpty ? nil : run.lineage,
             "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "paused": run.paused ? true : nil, "set_off_runs": run.setOffRuns.isEmpty ? nil : run.setOffRuns, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
             "connection": run.connection.map { ["tool": $0.tool, "until": $0.until.timeIntervalSince1970] as [String: Any] }, "deadline": time(run.deadline),
+            "example": run.example?.mapValues(\.any), "example_name": run.exampleName,
             "ai_requests": run.aiRequests == 0 ? nil : run.aiRequests, "actions_done": run.actionsDone == 0 ? nil : run.actionsDone, "version": run.version,
         ]
         return out.compactMapValues { $0 }
@@ -343,6 +350,8 @@ import SidefolkExtensionKit
         run.paused = o["paused"] as? Bool ?? false
         run.setOffRuns = o["set_off_runs"] as? [String] ?? []
         run.deadline = date(o["deadline"])
+        run.example = (o["example"] as? [String: Any])?.mapValues { JSON($0) }
+        run.exampleName = o["example_name"] as? String
         run.aiRequests = (o["ai_requests"] as? NSNumber)?.intValue ?? 0
         run.actionsDone = (o["actions_done"] as? NSNumber)?.intValue ?? 0
         run.version = (o["version"] as? NSNumber)?.intValue

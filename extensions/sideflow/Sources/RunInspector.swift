@@ -58,6 +58,25 @@ import SidefolkExtensionKit
         return out
     }
 
+    /// What a practice can go by: choosing one, and each thing it holds to change, so a practice can go down another way.
+    static func examples(_ flow: Flow, _ app: App) -> Section? {
+        guard !flow.examples.isEmpty else { return nil }
+        var blocks: [Block] = [.picker(L("A practice goes by"), style: .menu, [Option("", L("Nothing kept: reads for real"))] + flow.examples.map { Option($0.id, $0.name) }, selected: flow.chosenExample ?? "", tool: "ui", input: ui("choose_example", ["flow": flow.id]))]
+        if let chosen = flow.examples.first(where: { $0.id == flow.chosenExample }) {
+            blocks.append(.edit(EditField("example.\(chosen.id).name", L("Its name"), value: chosen.name, tool: "ui", input: ui("name_example", ["flow": flow.id, "example": chosen.id]))))
+            for step in flow.draft.allSteps {
+                guard let value = chosen.values[step.id], blocks.count < 20 else { continue }
+                let words: String = if case .string(let plain) = value { plain } else { Values.text(value) }
+                blocks.append(.edit(EditField("example.\(chosen.id).\(step.id)", String(Words.label(step, catalog: app.catalog).prefix(40)), value: words, kind: .multiline, tool: "ui", input: ui("example_value", ["flow": flow.id, "example": chosen.id, "step": step.id]))))
+            }
+            let left = chosen.values.keys.filter { flow.draft.step($0) == nil }.count
+            if left > 0 { blocks.append(.note(L(one: "It holds {count} step this flow no longer has.", other: "It holds {count} steps this flow no longer has.", count: left))) }
+            blocks.append(.action(button(L("Delete this example"), "drop_example", ["flow": flow.id, "example": chosen.id], style: .plain, symbol: "trash")))
+        }
+        blocks.append(.note(L("It stays on this Mac, in this flow. It doesn't go in a copy or a file.")))
+        return Section(L("Practice examples"), blocks, place: .trailing, collapsed: flow.chosenExample == nil)
+    }
+
     /// When it ran, how long for and what it used, counting the runs it waited for: lanes and called flows use the same AI and do things too.
     static func runFacts(_ run: Run, _ app: App) -> Section {
         var runs = [run], next = [run.id]

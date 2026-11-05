@@ -104,6 +104,11 @@ extension FlowHost {
         run.values.now = Format.time(now)
         if let trigger { run.values.set("trigger", trigger) }
         if mode == .practice, trigger == nil, let sample = run.body.triggerSample { run.values.set("trigger", sample) }
+        if mode == .practice, let chosen = flow.examples.first(where: { $0.id == flow.chosenExample }) {
+            run.example = chosen.values
+            run.exampleName = chosen.name
+            if trigger == nil, let words = chosen.trigger { run.values.set("trigger", words) }
+        }
         run.setOff = setOff
         // It would fail there, after what comes before it has been done.
         if mode != .practice, let off = run.body.allSteps.lazy.compactMap({ step -> String? in
@@ -296,6 +301,18 @@ extension FlowHost {
     private func perform(_ step: Step, in run: inout Run) async -> Bool {
         // Reached only by a flow that went on before this was marked: nothing goes to the AI or the person for a step that says nothing.
         if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
+        // What it gave then, with nothing asked or read again. What has no example goes as a practice always does.
+        if run.mode == .practice, let given = run.example?[step.id] {
+            switch step.kind {
+            case .action, .ai, .ask, .form:
+                run.values.set(step.id, given)
+                run.record(.init(step: step.id, status: .would, summary: L("Would: {what}", ["what": Words.step(step, body: run.body, catalog: catalog)]), output: Values.text(given).clipped(Self.keptOutput), note: L("From the example “{name}”, not done for real.", ["name": run.exampleName ?? ""]), at: clock()))
+                run.pc += 1
+                store.save(run)
+                return true
+            default: break
+            }
+        }
         // Sidefolk checks an action against what they read last at each call. Nothing checks these two, so it's looked at here: a run under way when they approved an edit that took one out.
         // Not a call coming back with its answer: that already ran.
         if run.waitingOn.isEmpty, isLeftBehind(step, in: run) {

@@ -142,3 +142,70 @@ import SidefolkExtensionKit
         #expect(app.agentEdits[flow.id] == nil)
     }
 }
+
+/// A practice going by what a run gave.
+@MainActor @Suite(.serialized) struct SideflowExampleTests {
+    typealias World = SideflowTests.World
+
+    private func app(_ w: World) -> App {
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        return app
+    }
+
+    @Test func aPracticeGoesByTheExampleAndAsksAndReadsNothing() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "q", "ask": "Which way?", "options": ["left", "right"]],
+            ["id": "w", "ai": "write something"],
+            ["id": "said", "text": "{{q}} and {{w}}"],
+        ]]))
+        flow.examples = [PracticeExample(id: "e", name: "Mine", at: Date(), trigger: nil, values: ["q": .string("right"), "w": .string("kept words")])]
+        flow.chosenExample = "e"
+        app.store.save(flow)
+        app.engine.practice(flow)
+        for _ in 0..<200 where app.store.runs(of: flow.id).first?.status.isOver != true { try await Task.sleep(for: .milliseconds(10)) }
+        let run = try #require(app.store.runs(of: flow.id).first)
+        #expect(run.status == .done)
+        #expect(run.record(of: "said")?.output == "right and kept words")
+        #expect(run.record(of: "w")?.note?.contains("Mine") == true)
+        #expect(run.aiRequests == 0, "no AI asked")
+    }
+
+    @Test func itKeepsWhatAskedAndFetchedNotWhatWordsWereMadeOf() throws {
+        var run = Run(id: "r", flow: "f", flowName: "F", mode: .live, status: .done, why: "", startedAt: Date(), body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "ai": "x"], ["id": "t", "text": "y"]]]))
+        run.values.set("w", "from ai")
+        run.values.set("t", "words")
+        let kept = try PracticeExample.from(run, at: Date())
+        #expect(kept.values == ["w": .string("from ai")])
+        run.values.set("w", String(repeating: "x", count: PracticeExample.longest + 1))
+        #expect(throws: Problem.self) { try PracticeExample.from(run, at: Date()) }
+    }
+
+    @Test func aValueKeepsItsShapeWhenItsChanged() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "ai": "x"]]]))
+        flow.examples = [PracticeExample(id: "e", name: "Mine", at: Date(), trigger: nil, values: ["w": .number(1), "l": .array([.number(1)])])]
+        app.store.save(flow)
+        func set(_ step: String, _ text: String) async throws { _ = try await Actions_UI.handle(Arguments(["op": "example_value", "flow": flow.id, "example": "e", "step": step, "text": text]), app) }
+        try await set("w", "12.5")
+        #expect(app.store.flow(flow.id)?.examples[0].values["w"] == .number(12.5))
+        await #expect(throws: Problem.self) { try await set("w", "many") }
+        await #expect(throws: Problem.self) { try await set("l", "{\"a\": 1}") }
+        try await set("l", "[2]")
+        #expect(app.store.flow(flow.id)?.examples[0].values["l"] == .array([.number(2)]))
+    }
+
+    @Test func itGoesInNoCopyOrFileAndComesBackAfterARestart() throws {
+        let w = try World()
+        let app = app(w)
+        var flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "ai": "x"]]]))
+        flow.examples = [PracticeExample(id: "e", name: "Secret words", at: Date(), trigger: "t", values: ["w": .string("private")])]
+        flow.chosenExample = "e"
+        #expect(!JSONText.write(FlowCodec.json(flow.draft)).contains("private"))
+        let back = try #require(FlowStore.flow(JSONText.read(JSONText.write(FlowStore.json(flow))) as? [String: Any] ?? [:]))
+        #expect(back.examples == flow.examples.map { var e = $0; e.at = back.examples[0].at; return e } && back.chosenExample == "e")
+    }
+}
