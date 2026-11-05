@@ -370,7 +370,7 @@ enum Editing {
     /// Words that are plainly a number. A comma with one or two digits after it is a decimal; "1,234" could be either, and a number nobody meant is worse than none.
     static func number(_ text: String) -> Double? {
         let t = text.trimmed
-        guard t.range(of: #"^-?[0-9]+(\.[0-9]+|,[0-9]{1,2})?([eE][+-]?[0-9]+)?$"#, options: .regularExpression) != nil else { return nil }
+        guard t.range(of: #"^[+-]?([0-9]+(\.[0-9]+|,[0-9]{1,2})?|\.[0-9]+)([eE][+-]?[0-9]+)?$"#, options: .regularExpression) != nil else { return nil }
         return Double(t.replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil }
     }
 

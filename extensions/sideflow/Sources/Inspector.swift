@@ -357,7 +357,7 @@ import SidefolkExtensionKit
             return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.detail.map { String($0.prefix(140)) } ?? L("Written out, as a record or a list. Values from earlier steps go in quotes."), kind: .multiline, tool: "ui", input: input("param_json", ["name": path])))]
         }
         if p.kind == .text {
-            let text = current?.string ?? ""
+            let text = current.map(Values.text) ?? ""
             return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.detail.map { String($0.prefix(140)) },
                                     kind: path == "text" || path == "body" || path == "job" ? .multiline : .text, tokens: tokens.filter { $0.fits(p.kind) }.map(\.field), tool: "ui", input: args))]
         }
@@ -368,8 +368,9 @@ import SidefolkExtensionKit
             if case .choice(let options) = p.kind, options.contains(words) { return false }
             return true
         }()
+        let written: String = if case .array(let items)? = current { items.map(Values.text).joined(separator: ", ") } else { current.map(Values.text) ?? "" }
         if pointed || app.nav.usesValue(flow: flow, step: step.id, parameter: path) {
-            let text = current.map(Values.text) ?? ""
+            let text = written
             return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.typeWord.map { L("It wants {what}.", ["what": $0]) } ?? p.detail.map { String($0.prefix(140)) },
                                     placeholder: L("Pick a value below"), tokens: tokens.filter { $0.fits(p.kind) }.map(\.field), tool: "ui", input: args)),
                     .action(Action(L("Write it here instead"), tool: "ui", input: input("param_mode", ["name": path, "on": false]), style: .plain, symbol: "pencil"))]
@@ -384,12 +385,7 @@ import SidefolkExtensionKit
             let list = p.required ? options : [""] + options
             own = .choice(p.title, detail: p.detail, options: list.map { ($0, $0.isEmpty ? L("Not set") : $0.replacingOccurrences(of: "_", with: " ")) }, selected: current?.string ?? "", tool: "ui", input: args)
         default:
-            let text: String = switch current {
-            case .number(let n)?: n == n.rounded() && abs(n) < 1e15 ? String(Int(n)) : String(n)
-            case .array(let a)?: a.compactMap(\.string).joined(separator: ", ")
-            default: ""
-            }
-            own = .edit(EditField(shown, p.title, value: text, detail: p.detail.map { String($0.prefix(140)) }, kind: p.kind == .list ? .text : .number, tool: "ui", input: args))
+            own = .edit(EditField(shown, p.title, value: written, detail: p.detail.map { String($0.prefix(140)) }, kind: p.kind == .list ? .text : .number, tool: "ui", input: args))
         }
         return [own, .action(Action(L("Use a value from an earlier step"), tool: "ui", input: input("param_mode", ["name": path, "on": true]), style: .plain, symbol: "arrow.turn.down.right"))]
     }

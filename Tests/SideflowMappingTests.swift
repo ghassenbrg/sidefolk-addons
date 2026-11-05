@@ -219,6 +219,8 @@ import SidefolkExtensionKit
         #expect(Editing.number("0x10") == nil)
         #expect(Editing.number("many") == nil)
         #expect(Editing.number("1e400") == nil)
+        #expect(Editing.number(".5") == 0.5)
+        #expect(Editing.number("+5") == 5)
     }
 
     @Test func aWholeNumberWrittenWithAPointIsStillOneForAnInteger() async throws {
@@ -238,6 +240,30 @@ import SidefolkExtensionKit
         let shown = form(f, app)
         for value in ["\"yes\"", "\"12\"", "\"one\""] { #expect(shown.contains(value) || shown.contains(value.replacingOccurrences(of: "\"", with: "")), "\(value) in \(shown)") }
         #expect(!shown.contains("Use a value from an earlier step") || shown.contains("Write it here instead"))
+    }
+
+    @Test func wordsStoredForAListGoAsTypingThemWouldSendThem() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let flow = try w.flow([["id": "n", "text": "Smith, John"],
+                               ["id": "a", "do": "changes.it", "with": ["text": "x", "tags": "one, two"]],
+                               ["id": "b", "do": "changes.it", "with": ["text": "y", "tags": "one"]],
+                               ["id": "c", "do": "changes.it", "with": ["text": "z", "tags": "{{n}}"]],
+                               ["id": "d", "do": "changes.it", "with": ["text": "v", "tags": "one, {{n}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let sent = w.host.calls.filter { $0.tool == "changes.it" }.map { $0.input["tags"] as? [String] }
+        #expect(sent == [["one", "two"], ["one"], ["Smith, John"], ["one", "Smith, John"]], "a value from a step is one entry")
+    }
+
+    @Test func aFieldShowsWhatItHoldsWhateverItHolds() throws {
+        let w = try World()
+        let app = try app(w)
+        let f = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": 42]]]]))
+        #expect(form(f, app).contains("42"), "a number in a words field isn't a blank")
+        let g = app.newFlow(name: "G", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "x", "tags": ["one", "two"]]]]]))
+        app.nav.useValue(true, flow: g.id, step: "c", parameter: "tags")
+        let shown = form(g, app)
+        #expect(shown.contains("one, two") && !shown.contains("[\"one\""), "a list is shown as it's typed, either way")
     }
 
     @Test func aYesOrNoTypedAsAValueIsThat() async throws {

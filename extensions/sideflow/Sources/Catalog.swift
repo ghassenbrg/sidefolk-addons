@@ -93,13 +93,17 @@ import SidefolkExtensionKit
             let filled = fill(parameter.children, inner, from: values)
             if !filled.isEmpty { out[parameter.name] = filled }
         }
+        // Words stored for a list mean what typing them there would.
+        for parameter in parameters where parameter.kind == .list {
+            if let words = plain[parameter.name]?.string, let typed = Editing.value(words, for: parameter) { plain[parameter.name] = typed }
+        }
         for (key, value) in values.fill(plain, wordsIn: wordy, listsIn: lists, absentIn: absent) {
             out[key] = parameters.first { $0.name == key }.map { Self.asItWants(value, $0) } ?? value
         }
         return out
     }
 
-    /// Words from an earlier step that plainly are what this wants: "12" for a number, "yes" for a yes or no, a single line for a list. Anything else goes as it is, and Sidefolk says it doesn't fit.
+    /// Words from an earlier step that plainly are what this wants: "12" for a number, "yes" for a yes or no, one entry for a list. Anything else goes as it is, and Sidefolk says it doesn't fit.
     private static func asItWants(_ value: Any, _ parameter: Parameter) -> Any {
         guard let words = (value as? String)?.trimmed, !words.isEmpty else { return value }
         switch parameter.kind {
