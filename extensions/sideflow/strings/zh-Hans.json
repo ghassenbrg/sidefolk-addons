@@ -61,7 +61,10 @@
     },
     "ui": {
       "title": "打开 Sideflow",
-      "summary": "在 Sideflow 中更改内容"
+      "summary": [
+        "打开 Sideflow",
+        "在 Sideflow 中更改内容：{op}"
+      ]
     }
   },
   "pages": {

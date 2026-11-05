@@ -61,7 +61,10 @@
     },
     "ui": {
       "title": "Sideflowを開く",
-      "summary": "Sideflowの内容を変更"
+      "summary": [
+        "Sideflowを開く",
+        "Sideflowの内容を変更: {op}"
+      ]
     }
   },
   "pages": {

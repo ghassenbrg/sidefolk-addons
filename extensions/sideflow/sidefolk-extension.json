@@ -55,7 +55,7 @@
       "commands": [{ "say": ["how did {flow} go", "why did {flow} stop", "why did {flow} fail"] }] },
     "continue_run": { "title": "Carry on with a run", "risk": "medium", "mutates": true, "category": "extensions" },
     "delete_flow": { "title": "Delete a flow", "risk": "high", "mutates": true, "category": "extensions" },
-    "ui": { "title": "Open Sideflow", "summary": "Change something in Sideflow", "risk": "low", "mutates": true, "category": "extensions", "ai": false,
+    "ui": { "title": "Open Sideflow", "summary": [{ "unless": "op", "text": "Open Sideflow" }, { "text": "Change something in Sideflow: {op}" }], "risk": "low", "mutates": true, "category": "extensions", "ai": false,
       "commands": [{ "say": ["open sideflow", "show sideflow"] }] }
   }
 }

@@ -61,7 +61,10 @@
     },
     "ui": {
       "title": "Sideflow öffnen",
-      "summary": "Etwas in Sideflow ändern"
+      "summary": [
+        "Sideflow öffnen",
+        "Etwas in Sideflow ändern: {op}"
+      ]
     }
   },
   "pages": {

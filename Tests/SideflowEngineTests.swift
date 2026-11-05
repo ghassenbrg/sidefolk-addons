@@ -2729,8 +2729,12 @@ extension JSON {
         let file = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("extensions/sideflow/sidefolk-extension.json")
         let manifest = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: Any])
         let ui = try #require((manifest["tools"] as? [String: Any])?["ui"] as? [String: Any])
-        let summary = try #require(ui["summary"] as? String)
-        #expect(!summary.contains("{"), "nothing of what it's given goes in")
+        let forms = try #require(ui["summary"] as? [[String: String]])
+        let text = forms.compactMap { $0["text"] }.joined(separator: " ")
+        #expect(text.contains("{op}"), "what's being done shows on a card when another extension asks")
+        // A placeholder it isn't given would fall back to the arguments in words, the token among them.
+        #expect(forms.first?["unless"] == "op", "with nothing to say, it's only opening")
+        #expect(Values.slots(text.replacingOccurrences(of: "{", with: "{{").replacingOccurrences(of: "}", with: "}}")).map(\.name) == ["op"], "nothing else of what it's given goes in")
     }
 
     @Test func thePagesKeyLastsAcrossARestart() throws {

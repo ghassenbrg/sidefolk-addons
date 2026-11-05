@@ -61,7 +61,10 @@
     },
     "ui": {
       "title": "Sideflow 열기",
-      "summary": "Sideflow에서 무언가 변경"
+      "summary": [
+        "Sideflow 열기",
+        "Sideflow에서 무언가 변경: {op}"
+      ]
     }
   },
   "pages": {
