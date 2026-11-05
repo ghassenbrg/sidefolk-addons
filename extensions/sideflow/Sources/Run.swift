@@ -111,6 +111,8 @@ struct Run: Equatable, Sendable, Identifiable {
     var setOff = false
     /// Stopped between steps at the person's asking, to go on when they say.
     var paused = false
+    /// Other flows' runs this one set off: separate, each with its own approval, so Stop here doesn't end them, and the page says where to press it.
+    var setOffRuns: [String] = []
     /// A lane's item and its number, from the loop it's in.
     var startItem: JSON?
     var startIndex: JSON?

@@ -993,6 +993,12 @@
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "Se convierte en una rutina propia, apagada hasta que la actives, y este paso la llama.",
     "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "Los pasos siguientes usan su campo «{name}», y una rutina solo devuelve sus palabras. Cámbialos primero.",
     "Steps after it use “{name}”, which would go into the new flow. Change those first.": "Los pasos siguientes usan «{name}», que pasaría a la nueva rutina. Cámbialos primero.",
-    "It uses “{name}”, which came back with nothing in it.": "Usa «{name}», que volvió sin nada."
+    "It uses “{name}”, which came back with nothing in it.": "Usa «{name}», que volvió sin nada.",
+    "Another flow it started is still running: {name}.": "Otra rutina que inició sigue en marcha: {name}.",
+    "Open it": "Abrirla",
+    "Stopped. {count} starts waiting their turn were cleared.": {
+      "one": "Detenida. Se canceló {count} inicio en espera.",
+      "other": "Detenida. Se cancelaron {count} inicios en espera."
+    }
   }
 }

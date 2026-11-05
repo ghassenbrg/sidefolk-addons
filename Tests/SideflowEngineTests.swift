@@ -2698,6 +2698,100 @@ extension JSON {
         #expect(!w.host.calls.contains { $0.tool == "changes.it" })
     }
 
+    private func queueing(_ w: World, overlap: String) throws -> Flow {
+        var flow = try w.flow([["id": "wait", "wait_minutes": 60], ["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "overlap": overlap, "steps": [["id": "wait", "wait_minutes": 60], ["id": "c", "do": "changes.it", "with": ["text": "x"]]]])
+        flow.draft = body
+        flow.live = body
+        w.store.save(flow)
+        return flow
+    }
+
+    @Test func aPersonsStopClearsWhatsWaitingItsTurnAndSaysSo() async throws {
+        let w = try World()
+        let flow = try queueing(w, overlap: "queue")
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        _ = w.engine.start(flow, mode: .live, why: "second")
+        _ = w.engine.start(flow, mode: .live, why: "third")
+        #expect(w.store.flow(flow.id)?.waitingStarts.count == 2)
+        w.engine.stop(run: run.id, byThePerson: true)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.waitingStarts.isEmpty == true)
+        #expect(w.store.runs(of: flow.id).count == 1, "nothing starts in its place")
+        #expect(w.store.run(run.id)?.problem?.contains("2") == true, "\(w.store.run(run.id)?.problem ?? "")")
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func aPersonsStopClearsTheOneMoreToo() async throws {
+        let w = try World()
+        let flow = try queueing(w, overlap: "one_more")
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        _ = w.engine.start(flow, mode: .live, why: "again")
+        w.engine.stop(run: run.id, byThePerson: true)
+        await w.quiet()
+        #expect(w.store.runs(of: flow.id).count == 1)
+        #expect(w.store.run(run.id)?.problem?.contains("1") == true)
+    }
+
+    @Test func aStopFromALaneClearsTheOutermostFlowsQueue() async throws {
+        let w = try World()
+        var flow = try twoLanes(w, [["id": "a", "wait_minutes": 60]], [["id": "b", "wait_minutes": 60]])
+        var body = flow.draft
+        body.overlap = .queue
+        flow.draft = body
+        flow.live = body
+        w.store.save(flow)
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        _ = w.engine.start(flow, mode: .live, why: "second")
+        let lane = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id })
+        w.engine.stop(run: lane.id, byThePerson: true)
+        await w.quiet()
+        #expect(w.store.flow(flow.id)?.waitingStarts.isEmpty == true)
+        #expect(w.store.run(run.id)?.problem?.contains("1") == true)
+    }
+
+    @Test func aStopThatIsntThePersonsLeavesTheQueueAlone() async throws {
+        let w = try World()
+        let flow = try queueing(w, overlap: "queue")
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        _ = w.engine.start(flow, mode: .live, why: "second")
+        w.engine.stop(run: run.id)
+        await w.quiet()
+        #expect(w.store.runs(of: flow.id).count == 2, "its turn came, as it always did")
+        #expect(w.store.run(run.id)?.problem == nil)
+    }
+
+    @Test func thePageSaysAFlowItSetOffIsStillGoing() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        var other = app.newFlow(name: "Other", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "wait_minutes": 60]]]))
+        other.live = other.draft
+        other.state = .on
+        app.store.save(other)
+        var flow = app.newFlow(name: "Sets off", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "run_flow": "Other"], ["id": "hold", "wait_minutes": 60]]]))
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        let run = try #require(app.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        app.engine.stop(run: run.id, byThePerson: true)
+        await w.quiet(app.store)
+        let setOff = try #require(app.store.runs(of: other.id).first)
+        #expect(!setOff.status.isOver, "another flow with its own approval, stopped from its own page")
+        var page = await Pages.make(app, state: Arguments(["run": run.id]), background: false)
+        #expect(String(describing: page.sent).contains("Other"), "where to press Stop")
+        app.engine.stop(run: setOff.id, byThePerson: true)
+        await w.quiet(app.store)
+        page = await Pages.make(app, state: Arguments(["run": run.id]), background: false)
+        #expect(!String(describing: page.sent).contains("still running"), "only while it's true")
+        #expect(app.store.run(run.id)?.setOffRuns == [setOff.id], "kept with the run")
+    }
+
     @Test func aLaneMidStepIsToldAndSaysItMayHaveHappened() async throws {
         let w = try World()
         w.host.hold = "changes.it"

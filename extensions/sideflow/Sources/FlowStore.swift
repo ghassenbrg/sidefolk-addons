@@ -284,7 +284,7 @@ import SidefolkExtensionKit
             "id": run.id, "flow": run.flow, "flow_name": run.flowName, "mode": run.mode.rawValue, "status": run.status.rawValue, "why": run.why,
             "started": time(run.startedAt), "ended": time(run.endedAt), "body": FlowCodec.json(run.body), "pc": run.pc, "values": run.values.named.mapValues(\.any), "said": run.values.said.isEmpty ? nil : run.values.said,
             "today": run.values.today, "now": run.values.now, "records": run.records.map(json), "resume_at": time(run.resumeAt), "retries": run.retries, "problem": run.problem, "frames": run.frames.isEmpty ? nil : run.frames.map(json), "parent": run.parent, "lineage": run.lineage.isEmpty ? nil : run.lineage,
-            "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "paused": run.paused ? true : nil, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
+            "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "paused": run.paused ? true : nil, "set_off_runs": run.setOffRuns.isEmpty ? nil : run.setOffRuns, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
             "connection": run.connection.map { ["tool": $0.tool, "until": $0.until.timeIntervalSince1970] as [String: Any] },
         ]
         return out.compactMapValues { $0 }
@@ -312,6 +312,7 @@ import SidefolkExtensionKit
         run.output = o["output"].map { JSON($0) }
         run.setOff = o["set_off"] as? Bool ?? false
         run.paused = o["paused"] as? Bool ?? false
+        run.setOffRuns = o["set_off_runs"] as? [String] ?? []
         run.startItem = o["start_item"].map { JSON($0) }
         run.startIndex = o["start_index"].map { JSON($0) }
         if let form = o["form"] as? [String: Any], let step = form["step"] as? String {

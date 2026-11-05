@@ -47,6 +47,8 @@ extension FlowHost {
     private var aiWaiting: [CheckedContinuation<Void, Never>] = []
     /// Watches being made: a card can be up for one, and pausing and resuming meanwhile would ask for a second of the same name.
     private var makingWatch: Set<String> = []
+    /// What a stopped run says when it ends, once it has. Not kept: it's only news now.
+    private var stoppedSaying: [String: String] = [:]
     /// How far along the step under way is, by run, while it says. Not kept: it's only true now.
     private(set) var progress: [String: Actions.Progress] = [:]
 
@@ -406,6 +408,7 @@ extension FlowHost {
                     return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
                 }
                 if let started, started.status.isOver, let why = started.problem { return failed(step, why: why, reads: false, in: &run) }
+                if let started { run.setOffRuns.append(started.id) }
                 run.record(.init(step: step.id, status: .done, summary: started != nil ? L("Ran {flow}", ["flow": other.name]) : run.mode == .once && isRunning(other.id) ? L("{flow} was already running, so it didn't start", ["flow": other.name]) : L("{flow} was already running or held back, so its own rule for that decides", ["flow": other.name]), at: clock()))
             } else {
                 return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
@@ -636,6 +639,7 @@ extension FlowHost {
         let holds = run.parent == nil
         // The last that has something to say: a loop's insides are gone by its end, and a path not taken never made anything.
         if run.output == nil, run.status == .done, let last = run.values.lastAnswer(of: run.body.allSteps) { run.output = last }
+        if run.status == .stopped, let said = stoppedSaying.removeValue(forKey: run.id) { run.problem = said }
         if run.status.isOver {
             run.endedAt = clock()
             _ = store.takeStop(run.id)
@@ -968,15 +972,32 @@ extension FlowHost {
     func queuedCount(_ flow: String) -> Int { (queued[flow] == nil ? 0 : 1) + (store.flow(flow)?.waitingStarts.count ?? 0) }
 
     /// Stops a run the person is looking at, and any it waits for. A step under way is told to stop, and the run stays "stopping" until it answers; its answer can only say it may or may not have happened.
+    /// How many starts were waiting, now none.
+    private func clearQueue(of id: String) -> Int {
+        var cleared = queued.removeValue(forKey: id) == nil ? 0 : 1
+        if var flow = store.flow(id), !flow.waitingStarts.isEmpty {
+            cleared += flow.waitingStarts.count
+            flow.waitingStarts = []
+            store.save(flow)
+        }
+        return cleared
+    }
+
     /// `byThePerson`: their word means nothing writes after it, so it ends all of what this run is part of, the lanes beside it too, and no try or "go on with the rest" gets past it.
     /// A flow paused or its approval ended stops a run for its own reasons, which is a failure for whatever called it.
     func stop(run id: String, byThePerson: Bool = false) {
         // Even from a run that's just ended: its page can still show Stop, and what it was part of is what they mean.
         if byThePerson {
-            var top = id, above = store.run(id)?.parent
-            while let here = above, let holder = store.run(here) {
+            var top = id, above = store.run(id)?.parent, seen: Set<String> = [id]
+            // A damaged file can't send this round for ever.
+            while let here = above, seen.insert(here).inserted, let holder = store.run(here) {
                 if !holder.status.isOver { top = here }
                 above = holder.parent
+            }
+            // What's waiting its turn goes too: stopping a flow that then starts again isn't stopping it.
+            if let root = store.run(top), !root.status.isOver {
+                let cleared = clearQueue(of: root.flow)
+                if cleared > 0 { stoppedSaying[top] = L(one: "Stopped. {count} start waiting its turn was cleared.", other: "Stopped. {count} starts waiting their turn were cleared.", count: cleared) }
             }
             if top != id { stop(run: top) }
         }

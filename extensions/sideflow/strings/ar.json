@@ -1053,6 +1053,16 @@
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "يصبح روتينًا مستقلًا، متوقفًا حتى تشغّله، وتستدعيه هذه الخطوة.",
     "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "تستخدم الخطوات التالية حقله «{name}»، والروتين لا يعيد سوى كلماته. غيّرها أولًا.",
     "Steps after it use “{name}”, which would go into the new flow. Change those first.": "تستخدم الخطوات التالية «{name}»، وسينتقل إلى الروتين الجديد. غيّرها أولًا.",
-    "It uses “{name}”, which came back with nothing in it.": "يستخدم «{name}»، الذي عاد فارغًا."
+    "It uses “{name}”, which came back with nothing in it.": "يستخدم «{name}»، الذي عاد فارغًا.",
+    "Another flow it started is still running: {name}.": "روتين آخر بدأه ما زال يعمل: {name}.",
+    "Open it": "افتحه",
+    "Stopped. {count} starts waiting their turn were cleared.": {
+      "zero": "توقف. لم يكن هناك بدء منتظر.",
+      "one": "توقف. أُلغي بدء منتظر واحد.",
+      "two": "توقف. أُلغي بدءان منتظران.",
+      "few": "توقف. أُلغيت {count} بدايات منتظرة.",
+      "many": "توقف. أُلغي {count} بدءًا منتظرًا.",
+      "other": "توقف. أُلغي {count} بدء منتظر."
+    }
   }
 }

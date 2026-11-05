@@ -978,6 +978,11 @@
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "独立したルーティンになります。オンにするまでは動かず、このステップがそれを呼び出します。",
     "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "後のステップがフィールド「{name}」を使っていますが、ルーティンが返すのは言葉だけです。先にそれらを変更してください。",
     "Steps after it use “{name}”, which would go into the new flow. Change those first.": "後のステップが「{name}」を使っていますが、これは新しいルーティンに移ります。先にそれらを変更してください。",
-    "It uses “{name}”, which came back with nothing in it.": "「{name}」を使っていますが、中身がありませんでした。"
+    "It uses “{name}”, which came back with nothing in it.": "「{name}」を使っていますが、中身がありませんでした。",
+    "Another flow it started is still running: {name}.": "開始した別のルーティンがまだ動いています: {name}。",
+    "Open it": "開く",
+    "Stopped. {count} starts waiting their turn were cleared.": {
+      "other": "停止しました。順番待ちの開始 {count} 件を取り消しました。"
+    }
   }
 }

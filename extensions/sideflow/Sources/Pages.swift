@@ -773,6 +773,13 @@ import SidefolkExtensionKit
             end.append(choices(L("What now?"), app.engine.stepLeftBehind(run) ? [stop, skip] : [Option("try_again", L("Try again"), detail: L("Does it now, then carries on."), symbol: "arrow.clockwise"), skip, stop]))
         case .failed:
             if let problem = run.problem { detail = problem }
+        case .stopped:
+            // Stop ends this and what it's part of. A flow it set off has its own approval and its own Stop, and they should know it's there.
+            let still = run.setOffRuns.compactMap { app.store.run($0) }.filter { !$0.status.isOver }
+            let says = still.map { L("Another flow it started is still running: {name}.", ["name": $0.flowName]) }
+            let all = [run.problem].compactMap(\.self) + says
+            if !all.isEmpty { detail = Format.sentences(all) }
+            if let first = still.first { end.append(Section(nil, [.action(go(L("Open it"), place(["run": first.id]), symbol: "arrow.up.right"))], place: .trailing)) }
         case .running:
             if let now = app.engine.progress[run.id] {
                 let parts = [now.fraction.map { Format.percent($0) }, now.message].compactMap(\.self)

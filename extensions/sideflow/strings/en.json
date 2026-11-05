@@ -68,6 +68,7 @@
     "An event trigger needs “event”, one of {kinds}.": "An event trigger needs “event”, one of {kinds}.",
     "An hour of Focus when you ask, and a word when it's over.": "An hour of Focus when you ask, and a word when it's over.",
     "And if": "And if",
+    "Another flow it started is still running: {name}.": "Another flow it started is still running: {name}.",
     "Another lane already goes by that name.": "Another lane already goes by that name.",
     "Answer": "Answer",
     "Answers to choose from": "Answers to choose from",
@@ -407,6 +408,7 @@
     "Only when it says": "Only when it says",
     "Open": "Open",
     "Open Add-ons": "Open Add-ons",
+    "Open it": "Open it",
     "Or if": "Or if",
     "Or start from one of these": "Or start from one of these",
     "Otherwise": "Otherwise",
@@ -545,6 +547,10 @@
     "Stop when": "Stop when",
     "Stopped": "Stopped",
     "Stopped before this came back.": "Stopped before this came back.",
+    "Stopped. {count} starts waiting their turn were cleared.": {
+      "one": "Stopped. {count} start waiting its turn was cleared.",
+      "other": "Stopped. {count} starts waiting their turn were cleared."
+    },
     "Suggested": "Suggested",
     "Sum it up with the AI": "Sum it up with the AI",
     "Summarise, rewrite, sum up": "Summarise, rewrite, sum up",

@@ -993,6 +993,12 @@
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "Er wird zu einem eigenen Ablauf, der aus bleibt, bis du ihn einschaltest, und dieser Schritt ruft ihn auf.",
     "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "Spätere Schritte nutzen sein Feld „{name}“, und ein Ablauf gibt nur seine Worte zurück. Ändere sie zuerst.",
     "Steps after it use “{name}”, which would go into the new flow. Change those first.": "Spätere Schritte nutzen „{name}“, das in den neuen Ablauf wandern würde. Ändere sie zuerst.",
-    "It uses “{name}”, which came back with nothing in it.": "Es nutzt „{name}“, das ohne Inhalt zurückkam."
+    "It uses “{name}”, which came back with nothing in it.": "Es nutzt „{name}“, das ohne Inhalt zurückkam.",
+    "Another flow it started is still running: {name}.": "Ein anderer Ablauf, den es gestartet hat, läuft noch: {name}.",
+    "Open it": "Öffnen",
+    "Stopped. {count} starts waiting their turn were cleared.": {
+      "one": "Angehalten. {count} wartender Start wurde gelöscht.",
+      "other": "Angehalten. {count} wartende Starts wurden gelöscht."
+    }
   }
 }
