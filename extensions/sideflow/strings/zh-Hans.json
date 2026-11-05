@@ -995,8 +995,6 @@
     "End what you allowed": "结束已允许的内容",
     "It pauses, and asks again before it runs.": "它会暂停，并在运行前再次询问。",
     "Saved. Nothing new to allow.": "已保存。没有新内容需要允许。",
-    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "已达到你允许的每日上限，因此已暂停。没有再发送任何内容。",
-    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "已达到你允许的单次运行上限，因此已暂停。没有再发送任何内容。",
     "{count} new things to allow": {
       "other": "有 {count} 项新内容需要允许"
     },
@@ -1004,6 +1002,8 @@
     "You ended what you'd allowed, so it asks again before running.": "你已结束之前允许的内容，因此运行前会再次询问。",
     "“{name}” has something new to allow first. Open it to run it.": "“{name}”有新内容需要先允许。请打开它来运行。",
     "It runs a program, so it asks each run.": "它会运行程序，所以每次运行都会询问。",
-    "Its words are read in full each time.": "它的文字每次都会被完整读取。"
+    "Its words are read in full each time.": "它的文字每次都会被完整读取。",
+    "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "已达到你允许的每日上限，因此已停止。没有再发送任何内容。",
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "已达到你允许的单次运行上限，因此已停止。没有再发送任何内容。"
   }
 }

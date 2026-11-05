@@ -1011,8 +1011,6 @@
     "End what you allowed": "Termina ciò che hai consentito",
     "It pauses, and asks again before it runs.": "Va in pausa e chiede di nuovo prima di eseguirsi.",
     "Saved. Nothing new to allow.": "Salvato. Niente di nuovo da consentire.",
-    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "Ha raggiunto il limite consentito per un giorno, quindi è in pausa. Non è stato inviato altro.",
-    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "Ha raggiunto il limite consentito per un'esecuzione, quindi è in pausa. Non è stato inviato altro.",
     "{count} new things to allow": {
       "one": "{count} cosa nuova da consentire",
       "other": "{count} cose nuove da consentire"
@@ -1021,6 +1019,8 @@
     "You ended what you'd allowed, so it asks again before running.": "Hai terminato ciò che avevi consentito, quindi chiederà di nuovo prima di eseguirsi.",
     "“{name}” has something new to allow first. Open it to run it.": "«{name}» ha prima qualcosa di nuovo da consentire. Aprila per eseguirla.",
     "It runs a program, so it asks each run.": "Esegue un programma, quindi chiede a ogni esecuzione.",
-    "Its words are read in full each time.": "Le sue parole vengono lette per intero ogni volta."
+    "Its words are read in full each time.": "Le sue parole vengono lette per intero ogni volta.",
+    "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "Ha raggiunto il limite consentito per un giorno, quindi si è fermata. Non è stato inviato altro.",
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "Ha raggiunto il limite consentito per un'esecuzione, quindi si è fermata. Non è stato inviato altro."
   }
 }

@@ -36,7 +36,8 @@ extension FlowHost {
     var retryWaits: [TimeInterval] = [30, 120, 600]
     static let retriesAtMost = 3
     /// Runs in an hour past which a flow is paused and the person told: something set off that shouldn't be.
-    var runawayLimit = 30
+    static let runawayPerHour = 30
+    var runawayLimit = Engine.runawayPerHour
     /// Called after anything a page shows changed.
     var changed: () -> Void = {}
 
@@ -575,8 +576,8 @@ extension FlowHost {
             return false
         case .capped:
             // The limit the card said. Nothing happened, and going on would only be refused again until the person looks.
-            let why = outcome.limit == "day" ? L("It reached the limit you allowed for a day, so it's paused. Nothing more was sent.")
-                : L("It reached the limit you allowed for one run, so it's paused. Nothing more was sent.")
+            let why = outcome.limit == "day" ? L("It reached the limit you allowed for a day, so it stopped. Nothing more was sent.")
+                : L("It reached the limit you allowed for one run, so it stopped. Nothing more was sent.")
             if var flow = store.flow(run.flow), flow.state == .on {
                 flow.state = .paused
                 flow.pausedBecause = why
@@ -1103,6 +1104,8 @@ extension FlowHost {
             let looped = texts.flatMap(Values.references).contains("item") ? ["item"] : []
             return Array(Set(named + looped + (written ? [writtenWords] : []))).sorted()
         }
+        // The host won't take an empty list or a very long one for a value, and neither says the value is the person's.
+        func said(_ reads: [String]) -> [String] { reads.isEmpty || reads.count > mostReads ? [writtenWords] : reads }
         // Every loop's list, as one: `{{item}}` is the one name for them all.
         var lists: [String] = []
         func gatherLists(_ held: [Step]) {
@@ -1113,7 +1116,8 @@ extension FlowHost {
         }
         gatherLists(body.steps)
         let fromLists = sources(lists)
-        if !fromLists.isEmpty { steps.append(.value(named: "item", reads: fromLists.filter { $0 != "item" }.isEmpty ? [writtenWords] : fromLists.filter { $0 != "item" })) }
+        // A step called `item` can stand for it at the top level, and that's not what the lists say.
+        if !lists.isEmpty { steps.append(.value(named: "item", reads: body.allSteps.contains { $0.id == "item" } ? [writtenWords] : said(fromLists.filter { $0 != "item" }))) }
         func walk(_ held: [Step]) {
             for step in held {
                 switch step.kind {
@@ -1122,12 +1126,15 @@ extension FlowHost {
                     var input: [String: Any] = ["question": question, "timeout_seconds": 300]
                     if !options.isEmpty { input["options"] = options }
                     steps.append(PlanStep("ask.user", input, named: name(step), title: step.name))
-                case .ai(let prompt): steps.append(.ai(named: name(step), title: step.name, reads: sources([prompt]).filter { $0 != writtenWords }))
+                case .ai(let prompt):
+                    // Too many to name means everything before it, which is what no names says.
+                    let reads = sources([prompt]).filter { $0 != writtenWords }
+                    steps.append(.ai(named: name(step), title: step.name, reads: reads.count > mostReads ? [] : reads))
                 case .flow(let other), .call(let other, _): steps.append(.flow(other, named: name(step), title: step.name))
                 case .text(let text):
-                    if let as_ = name(step) { steps.append(.value(named: as_, reads: sources([text]))) }
+                    if let as_ = name(step) { steps.append(.value(named: as_, reads: said(sources([text])))) }
                 case .data(let data):
-                    if let as_ = name(step) { steps.append(.value(named: as_, reads: sources([data.from, data.than ?? ""].filter { !$0.isEmpty }))) }
+                    if let as_ = name(step) { steps.append(.value(named: as_, reads: said(sources([data.from, data.than ?? ""].filter { !$0.isEmpty })))) }
                 default: break
                 }
                 var inside: [Step] = []
@@ -1137,7 +1144,7 @@ extension FlowHost {
                 switch step.kind {
                 case .forEach, .repeatUntil:
                     let made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
-                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: made)) }
+                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: said(made))) }
                 default: break
                 }
             }
@@ -1166,8 +1173,10 @@ extension FlowHost {
         }.map(\.id)
     }
 
-    /// What a value is said to read when words were written into it: no step goes by this, so it counts as from outside.
-    static let writtenWords = "_written_words"
+    /// What a value is said to read when words were written into it: no step can be called this, so it counts as from outside.
+    static let writtenWords = "written-words"
+    /// The most a step can say it reads: the host's limit. Past it, say it's from outside rather than be refused.
+    static let mostReads = 32
 
     /// The most calls one run of these can make, for the card to say and Sidefolk to hold it to.
     static func callsPerRun(_ steps: [Step]) -> Int {
@@ -1191,6 +1200,8 @@ extension FlowHost {
         let runs = body.triggers.reduce(0) { total, trigger in
             switch trigger {
             case .every(let minutes, _): total + 1440 / max(minutes, 1)
+            // What sets these off isn't known: as many as the hourly stop would let through.
+            case .watch, .event: total + runawayPerHour * 24
             default: total + 1
             }
         }
@@ -1278,7 +1289,7 @@ extension FlowHost {
     }
 
     /// How many different lines the host counts: alike ones are one, whatever they're called.
-    static func lines(_ steps: [PlanStep]) -> Int { Set(steps.map(\.line)).count }
+    static func lines(_ steps: [PlanStep]) -> Int { Set(steps.filter { !$0.onlyPassesOn }.map(\.line)).count }
 
     /// Everything the draft may do, as the person will read it. `intent`: what they pressed, for the card's heading.
     func livePlan(_ flow: Flow, intent: String = "turn_on") -> Plan {

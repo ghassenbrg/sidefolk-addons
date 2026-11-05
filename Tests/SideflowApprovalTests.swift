@@ -232,6 +232,39 @@ import SidefolkExtensionKit
         #expect(rows.first?.line.contains("a") == true && rows.first?.line.contains("b") == true)
     }
 
+    @Test func nothingHereMakesThePlanUnusableOrSaysMoreThanItKnows() throws {
+        let written = Engine.writtenWords
+        #expect(written.contains("-"), "no step can be called this")
+        #expect((try? FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": written, "text": "x"]]])) == nil)
+        // A blank step, and a step with nothing but a go number: the host refuses an empty list.
+        let blank = FlowBody(steps: [Step(id: "t", kind: .text("")), Step(id: "n", kind: .text("{{index}}"))])
+        for row in Engine.planSteps(blank, title: "x") where row.onlyPassesOn { #expect(row.line.contains(written), "\(row.line)") }
+        // A loop holding more than the host takes.
+        let many: [[String: Any]] = (0..<33).map { ["id": "s\($0)", "text": "x"] }
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "e", "for_each": "x", "steps": many]]])
+        let row = try #require(Engine.planSteps(body, title: "x").first { $0.named == "e" })
+        #expect(row.line.contains(written) && !row.line.contains("s32"), "\(row.line)")
+    }
+
+    @Test func aStepCalledItemIsntVouchedForByTheLists() throws {
+        let steps = [Step(id: "q", kind: .ask(question: "Which?", options: [])),
+                     Step(id: "each", kind: .forEach(items: "{{q}}", limit: 5, onFailure: .stop, steps: [Step(id: "c", kind: .action(tool: "a.b", input: ["url": .string("{{item}}")]))])),
+                     Step(id: "item", kind: .action(tool: "web.read", input: [:]))]
+        let row = try #require(Engine.planSteps(FlowBody(steps: steps), title: "x").first { $0.named == "item" })
+        #expect(row.line.contains(Engine.writtenWords), "\(row.line)")
+        #expect(!row.line.contains("q"))
+    }
+
+    @Test func whatSetsItOffOftenIsAllowedForByTheDay() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "event", "event": "note.saved"], "steps": (0..<8).map { ["id": "s\($0)", "do": "changes.it", "with": ["text": "\($0)"]] }])
+        #expect(Engine.callsPerDay(body, perRun: 8, goesRound: false) == Engine.loopsPerDay, "the hourly stop is what stops it running away, not this")
+    }
+
+    @Test func aFreshFlowWithNoToolsHasNothingNewToAllow() {
+        let look = PlanLook(Plans.Checked(steps: [], new: [], silent: false, widened: false), of: Plan(id: "p", title: "t", steps: []))
+        #expect(look.head == L("Nothing new to allow"))
+    }
+
     @Test func manyAlikeStepsAreFewLines() throws {
         let steps: [[String: Any]] = (0..<70).map { ["id": "s\($0)", "do": "notes.save", "with": ["text": "x"]] }
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": steps])

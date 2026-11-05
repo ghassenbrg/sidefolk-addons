@@ -995,8 +995,6 @@
     "End what you allowed": "허용한 내용 끝내기",
     "It pauses, and asks again before it runs.": "일시 중지되고 실행 전에 다시 묻습니다.",
     "Saved. Nothing new to allow.": "저장했습니다. 새로 허용할 것이 없습니다.",
-    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "하루에 허용한 한도에 도달해 일시 중지되었습니다. 더 보내지 않았습니다.",
-    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "한 번 실행에 허용한 한도에 도달해 일시 중지되었습니다. 더 보내지 않았습니다.",
     "{count} new things to allow": {
       "other": "새로 허용할 것 {count}개"
     },
@@ -1004,6 +1002,8 @@
     "You ended what you'd allowed, so it asks again before running.": "허용한 내용을 끝냈으므로 실행 전에 다시 묻습니다.",
     "“{name}” has something new to allow first. Open it to run it.": "“{name}”에 먼저 허용할 새 내용이 있습니다. 열어서 실행하세요.",
     "It runs a program, so it asks each run.": "프로그램을 실행하므로 실행할 때마다 묻습니다.",
-    "Its words are read in full each time.": "그 내용은 매번 전체를 읽습니다."
+    "Its words are read in full each time.": "그 내용은 매번 전체를 읽습니다.",
+    "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "하루에 허용한 한도에 도달해 중지되었습니다. 더 보내지 않았습니다.",
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "한 번 실행에 허용한 한도에 도달해 중지되었습니다. 더 보내지 않았습니다."
   }
 }

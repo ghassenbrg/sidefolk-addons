@@ -27,6 +27,7 @@ ext.palette("run", query: { words in
     // What this would run: what's on, or what was saved, not what's being typed.
     let problems = flow.kept.problems(app.catalog)
     guard problems.isEmpty else { return PaletteChoice(message: L("To fix first: {list}", ["list": problems.map(\.text).joined(separator: " ")])) }
+    guard flow.state != .paused else { return PaletteChoice(message: L("“{name}” is paused. Ask the person to resume it first.", ["name": flow.name])) }
     // Choosing here isn't a click on a card's words, and there's nowhere here to read one: what's new is read on its page.
     guard flow.live == flow.kept, app.catalog.plan(flow.planId) != nil || !Engine.needsCard(flow.kept) else {
         return PaletteChoice(message: L("“{name}” has something new to allow first. Open it to run it.", ["name": flow.name]))

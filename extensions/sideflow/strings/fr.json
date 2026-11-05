@@ -1011,8 +1011,6 @@
     "End what you allowed": "Mettre fin à ce que vous avez autorisé",
     "It pauses, and asks again before it runs.": "Elle se met en pause et redemande avant de s'exécuter.",
     "Saved. Nothing new to allow.": "Enregistré. Rien de nouveau à autoriser.",
-    "It reached the limit you allowed for a day, so it's paused. Nothing more was sent.": "Elle a atteint la limite autorisée pour un jour, alors elle est en pause. Rien de plus n'a été envoyé.",
-    "It reached the limit you allowed for one run, so it's paused. Nothing more was sent.": "Elle a atteint la limite autorisée pour une exécution, alors elle est en pause. Rien de plus n'a été envoyé.",
     "{count} new things to allow": {
       "one": "{count} nouvelle chose à autoriser",
       "other": "{count} nouvelles choses à autoriser"
@@ -1021,6 +1019,8 @@
     "You ended what you'd allowed, so it asks again before running.": "Vous avez mis fin à ce que vous aviez autorisé, alors elle redemandera avant de s'exécuter.",
     "“{name}” has something new to allow first. Open it to run it.": "« {name} » a d'abord quelque chose de nouveau à autoriser. Ouvrez-la pour l'exécuter.",
     "It runs a program, so it asks each run.": "Elle exécute un programme, alors elle demande à chaque exécution.",
-    "Its words are read in full each time.": "Ses mots sont lus en entier à chaque fois."
+    "Its words are read in full each time.": "Ses mots sont lus en entier à chaque fois.",
+    "It reached the limit you allowed for a day, so it stopped. Nothing more was sent.": "Elle a atteint la limite autorisée pour un jour, alors elle s'est arrêtée. Rien de plus n'a été envoyé.",
+    "It reached the limit you allowed for one run, so it stopped. Nothing more was sent.": "Elle a atteint la limite autorisée pour une exécution, alors elle s'est arrêtée. Rien de plus n'a été envoyé."
   }
 }

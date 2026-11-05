@@ -128,19 +128,21 @@ import SidefolkExtensionKit
 /// What Sidefolk says of a flow's plan: how many things are new, and each step's line by the step's name.
 struct PlanLook {
     var silent: Bool
+    var widened: Bool
     var new: Int
     var byStep: [String: Plans.Checked.Line]
 
     init(_ checked: Plans.Checked, of plan: Plan) {
         silent = checked.silent
+        widened = checked.widened
         new = Set(checked.new.compactMap { plan.steps.indices.contains($0) ? plan.steps[$0].line : nil }).count
         byStep = Dictionary(zip(plan.steps, checked.steps).compactMap { step, line in step.named.map { ($0, line) } }, uniquingKeysWith: { first, _ in first })
     }
 
     /// What the flow's head says before anyone presses anything.
     var head: String {
-        if silent { return L("Nothing new to allow") }
-        return new == 0 ? L("Its limits go further than what you allowed") : L(one: "{count} new thing to allow", other: "{count} new things to allow", count: new)
+        if new > 0 { return L(one: "{count} new thing to allow", other: "{count} new things to allow", count: new) }
+        return !silent && widened ? L("Its limits go further than what you allowed") : L("Nothing new to allow")
     }
 
     /// What a step's form says of how it'll behave, if that's anything but running by itself.
