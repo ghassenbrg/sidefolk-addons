@@ -48,11 +48,13 @@ Typed mapping's later list: an entry with a comma in it reads as two in the form
 
 ## How words become a number (the coordinator's ruling, 2026-11-05)
 
-`NumberWords` is the one reader, and a whitelist: words read as a number only when they're one number and little else, with at most a label ending in a colon, one sign, and one known currency or unit. Everything else stops and names the words. Nothing is picked from among other words, because lists of what changes a number never ended: three reads in a row found another. A number a tool gave as a number is compared as that number, never as words.
+`NumberWords` is the one reader: a number written plainly (`12`, `-3`, `12.5`), and nothing else. A number a tool or a form gave as a number is compared as that number, never as words. Every route goes through it: conditions, repeat checks, filters, sums, sort, the number op, a tool's number field, a called flow's number. Someone typing into a number field gets the same shape, and is told to write it plainly. We tried reading more twice, and each final read found ordinary strings read wrong without a stop (`Ports: 80,81`, `1 GB` against `500 MB`, `Down: 5%`), so this is the safe subset.
 
-For the release notes, in plain words: a flow that compares text with anything but one number in it, like `Rain at 18 °C`, `12 apples` or `1.5 to 2`, now stops and says why instead of picking one. `1.500` and `1,500` stop too, since they could be fifteen hundred. Take the number from a tool's field or an AI step's field instead.
+For the release notes, in plain words: a flow that compares or adds up text like `18 °C`, `$1,299.00`, `12%`, `CPU: 12%` or `Rain at 18` now stops, says which step and which words, and tells you to take the number from a tool's field or an AI step's field. It no longer picks a number out of the words. `1.500` and `1,500` stop too, since they could be fifteen hundred.
 
-The person hears before a real run (the coordinator's condition): a step's form and the flow's page mark a step that compares or adds up words, an agent sees it in `get_flow` and `update_flow`, a practice notes it on the step and goes on, and a real stop says the words and the fix.
+The person hears before a real run: a step's form and the flow's page mark a step that compares or adds up words, an agent sees it in `get_flow` and `update_flow`, a practice notes it on the step and goes on, and a real stop says the words and the fix.
+
+Later list, for the expression language: units, currencies, thousands marks, percent.
 
 ## Left out on purpose
 

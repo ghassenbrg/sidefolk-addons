@@ -1112,7 +1112,7 @@ extension FlowHost {
         }
         // A name the host can trust to be one step's: it refuses a whole plan over a bad one.
         func name(_ step: Step) -> String? {
-            step.id.count <= 60 && !Values.reserved.contains(step.id) && step.id.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "_" || $0 == "-") }) && names.insert(step.id).inserted ? step.id : nil
+            step.id.count <= 60 && !Values.reserved.contains(step.id.lowercased()) && step.id.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "_" || $0 == "-") }) && names.insert(step.id).inserted ? step.id : nil
         }
         // What a value is made from, so the host can follow a step's value back to what really gave it. Words written in with it are a source of their own: an edit
         // could change them with no card, so they never count as the person's.
@@ -1186,7 +1186,7 @@ extension FlowHost {
     /// A name that means something else in a loop or a try isn't one.
     static func inside(_ body: FlowBody) -> [String] {
         body.allSteps.filter { step in
-            if case .form = step.kind { return !Values.reserved.contains(step.id) }
+            if case .form = step.kind { return !Values.reserved.contains(step.id.lowercased()) }
             return false
         }.map(\.id)
     }

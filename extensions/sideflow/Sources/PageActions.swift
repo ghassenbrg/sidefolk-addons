@@ -291,12 +291,14 @@ import SidefolkExtensionKit
         case "trigger_sample":
             try draft { $0.triggerSample = text.nonEmpty }
         case "form_field":
-            // Typed so far: kept with the run, so a restart doesn't lose it.
+            // Typed so far: kept with the run, so a restart doesn't lose it. What a form says is believed to be the person's own, so only the page's own fields count.
+            guard a.string("page_token") == app.pageKey else { break }
             if let id = a.string("run"), let name = a.string("name"), var run = app.store.run(id), run.form != nil {
                 run.form?.answers[name] = a.values["value"] != nil ? JSON(a.values["value"]) : (a.bool("on").map { JSON.bool($0) } ?? JSON.string(text))
                 app.store.save(run)
             }
         case "form_send":
+            guard a.string("page_token") == app.pageKey else { break }
             if let id = a.string("run") { try app.engine.answer(run: id, form: [:]) }
         case "wait_event", "wait_contains", "wait_minutes":
             if op == "wait_minutes", (Int(text.trimmed) ?? 0) < 1 || (Int(text.trimmed) ?? 0) > FlowBody.longestWait * 30 {

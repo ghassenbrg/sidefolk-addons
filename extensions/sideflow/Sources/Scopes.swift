@@ -161,7 +161,8 @@ struct DataStep: Equatable, Sendable {
         case .sort:
             let sorted = try list().sorted { a, b in
                 let (x, y) = (at(a).map(Values.text) ?? "", at(b).map(Values.text) ?? "")
-                if let n = Double(x), let m = Double(y) { return n < m }
+                // Numbers by what they are, by the one reader. Anything else goes by its words, which claims no number.
+                if case .number(let n)? = at(a).map(Condition.reading(of:)), case .number(let m)? = at(b).map(Condition.reading(of:)) { return n < m }
                 return x.localizedStandardCompare(y) == .orderedAscending
             }
             return .array(descending ? sorted.reversed() : sorted)

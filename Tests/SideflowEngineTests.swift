@@ -52,7 +52,9 @@ import SidefolkExtensionKit
         #expect(try run(DataStep(op: .join, from: "", separator: "+"), .array([.string("a"), .number(1)])) == .string("a+1"))
         #expect(try run(DataStep(op: .parse_json, from: ""), .string(#"{"a":[1]}"#)) == .object(["a": .array([.number(1)])]))
         #expect(try run(DataStep(op: .parse_csv, from: ""), .string("name,note\nAda,\"a, b\"\n")) == .array([.object(["name": .string("Ada"), "note": .string("a, b")])]))
-        #expect(try run(DataStep(op: .number, from: ""), .string("18 °C")) == .number(18))
+        #expect(try run(DataStep(op: .number, from: ""), .string("18")) == .number(18))
+        #expect(throws: Condition.Unreadable.self) { try run(DataStep(op: .number, from: ""), .string("18 °C")) }
+        #expect(try run(DataStep(op: .sort, from: ""), .array([.string("10"), .string("9")])) == .array([.string("9"), .string("10")]))
         #expect(throws: Problem.self) { try run(DataStep(op: .sort, from: ""), .string("not a list")) }
         #expect(throws: Problem.self) { try run(DataStep(op: .parse_json, from: ""), .string("nope")) }
     }

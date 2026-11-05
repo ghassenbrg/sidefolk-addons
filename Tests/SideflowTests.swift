@@ -944,7 +944,7 @@ import SidefolkExtensionKit
     @Test func conditionsReadValuesAsPeopleWould() {
         var v = Values()
         v.set("t", "Rain at 18 °C")
-        v.set("n", "18 °C")
+        v.set("n", "18")
         #expect(Condition(value: "{{t}}", test: .contains, than: "rain").holds(v))
         #expect(!Condition(value: "{{t}}", test: .not_contains, than: "RAIN").holds(v))
         #expect(Condition(value: "{{n}}", test: .more_than, than: "17").holds(v))
@@ -1314,8 +1314,7 @@ import SidefolkExtensionKit
     @Test func aVeryLargeNumberDoesntStopTheProgram() async throws {
         let w = try World()
         let app = app(w)
-        let flow = try make(app, [["id": "a", "do": "reads.it"]])
-        try await page(app, "param", flow, ["step": "a", "name": "n", "text": "1e30"])
+        let flow = try make(app, [["id": "a", "do": "reads.it", "with": ["n": 1e30]]])
         let now = try #require(app.store.flow(flow.id))
         app.nav.inspect(.step("a"), in: now.id)
         #expect(!Inspector.sections(now, app, problems: []).isEmpty, "drawing its form")
@@ -2011,8 +2010,7 @@ import SidefolkExtensionKit
     @Test func aVeryLargeNumberDoesntStopTheProgram() async throws {
         let w = try World()
         let app = app(w)
-        let flow = try make(app, [["id": "a", "do": "reads.it"]])
-        try await page(app, "param", flow, ["step": "a", "name": "n", "text": "1e30"])
+        let flow = try make(app, [["id": "a", "do": "reads.it", "with": ["n": 1e30]]])
         let now = try #require(app.store.flow(flow.id))
         app.nav.inspect(.step("a"), in: now.id)
         let drawn = await Pages.make(app, state: Arguments(["flow": now.id]), background: false)

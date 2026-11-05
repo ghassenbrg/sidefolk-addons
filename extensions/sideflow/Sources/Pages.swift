@@ -760,7 +760,7 @@ import SidefolkExtensionKit
             ]))
         case .waiting where run.form != nil || !run.waitingOn.isEmpty:
             detail = said
-            if let form = formSection(run) { end.append(form) }
+            if let form = formSection(run, app) { end.append(form) }
             if let asking = run.waitingOn.compactMap({ app.store.run($0) }).first(where: { $0.form != nil }) {
                 end.append(Section(nil, [.action(go(L("Fill it in"), place(["run": asking.id]), style: .accent, symbol: "square.and.pencil"))], place: .trailing))
             }
