@@ -1118,7 +1118,8 @@ extension FlowHost {
         // could change them with no card, so they never count as the person's.
         func sources(_ texts: [String]) -> [String] {
             let named = texts.flatMap(Values.references).filter { !["item", "index"].contains($0) }
-            let written = texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
+            // Which go it is says nothing of the person, and a saved flow can still have a step called that.
+            let written = texts.flatMap(Values.references).contains("index") || texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
             let looped = texts.flatMap(Values.references).contains("item") ? ["item"] : []
             return Array(Set(named + looped + (written ? [writtenWords] : []))).sorted()
         }

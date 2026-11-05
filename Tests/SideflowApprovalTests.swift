@@ -231,6 +231,11 @@ import SidefolkExtensionKit
         #expect(row?.line.contains("\"f\"") == true)
     }
 
+    @Test func aStepKeptFromBeforeCalledIndexCantPassForThePersons() throws {
+        let rows = Engine.planSteps(FlowBody(steps: [Step(id: "a", kind: .ask(question: "Q", options: [])), Step(id: "index", kind: .action(tool: "reads.it", input: [:])), Step(id: "mix", kind: .text("{{a}} {{index}}"))]), title: "t")
+        #expect(rows.first { $0.named == "mix" }?.line.contains(Engine.writtenWords) == true)
+    }
+
     @Test func aFormNamedLikeWhatALoopBringsIsntTakenForTheLoopsItem() throws {
         let top = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "form": ["title": "Who", "fields": [["name": "n", "label": "Name", "kind": "text"]]]]]])
         guard case .form(let form)? = top.step("f")?.kind else { Issue.record("not a form"); return }

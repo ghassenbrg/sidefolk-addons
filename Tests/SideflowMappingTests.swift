@@ -411,7 +411,10 @@ import SidefolkExtensionKit
         #expect(try sort([.string("2026-11-05"), .string("2025-01-01")]) == .array([.string("2025-01-01"), .string("2026-11-05")]), "a date written year first")
         #expect(try sort([.string("pear"), .string("Apple")]) == .array([.string("Apple"), .string("pear")]))
         #expect(try sort([.string("file10"), .string("file2")]) == .array([.string("file10"), .string("file2")]), "by its letters: no number read out of it")
-        for words in ["1,500", "$1,500", "-5 kg", "12%", "1.500", "10:30"] {
+        #expect(try sort([.string("10"), .string("9"), .string("2026-01-02")]) == .array([.string("9"), .string("10"), .string("2026-01-02")]), "numbers first, whatever order they came in")
+        #expect(try sort([.string("2026-01-02"), .string("10"), .string("9")]) == .array([.string("9"), .string("10"), .string("2026-01-02")]))
+        #expect(try sort([.string("9"), .string("2026-01-02"), .string("10")]) == .array([.string("9"), .string("10"), .string("2026-01-02")]))
+        for words in ["1,500", "$1,500", "-5 kg", "12%", "1.500", "10:30", ".5", "-$2,000", "١٠", "３", "²", "(5)"] {
             #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("200")]) }
             #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("200")], descending: true) }
         }

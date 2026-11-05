@@ -160,18 +160,26 @@ struct DataStep: Equatable, Sendable {
             })
         case .sort:
             let items = try list()
-            // What starts like a number and isn't plainly one would sort as words, and `first` would look like an answer: `1,500` before `200`.
+            // Words that have a number in them sort by their letters only if they start with a letter, or are a date written year first: anything else would look like an answer (`1,500` before `200`).
             for item in items {
                 let found = at(item)
-                let text = found.map(Values.text) ?? ""
-                if case .unreadable? = found.map(Condition.reading(of:)), text.trimmed.range(of: #"^[-−–+\p{Sc}]?\s*[0-9]"#, options: .regularExpression) != nil, text.trimmed.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}"#, options: .regularExpression) == nil {
+                let text = found.map(Values.text)?.trimmed ?? ""
+                if case .number? = found.map(Condition.reading(of:)) { continue }
+                if text.range(of: #"\p{N}"#, options: .regularExpression) != nil, text.first?.isLetter != true, text.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}"#, options: .regularExpression) == nil {
                     throw Condition.Unreadable(words: text)
                 }
             }
+            func number(_ item: JSON) -> Double? {
+                if case .number(let n)? = at(item).map(Condition.reading(of:)) { n } else { nil }
+            }
+            // Numbers come first, by what they are, then words by their letters: one order, whatever order they arrived in.
             let sorted = items.sorted { a, b in
-                // Numbers by what they are, by the one reader. Anything else goes by its letters, reading no number out of them: a date written year first sorts right that way.
-                if case .number(let n)? = at(a).map(Condition.reading(of:)), case .number(let m)? = at(b).map(Condition.reading(of:)) { return n < m }
-                return (at(a).map(Values.text) ?? "").localizedCaseInsensitiveCompare(at(b).map(Values.text) ?? "") == .orderedAscending
+                switch (number(a), number(b)) {
+                case (let n?, let m?): n < m
+                case (.some, nil): true
+                case (nil, .some): false
+                case (nil, nil): (at(a).map(Values.text) ?? "").localizedCaseInsensitiveCompare(at(b).map(Values.text) ?? "") == .orderedAscending
+                }
             }
             return .array(descending ? sorted.reversed() : sorted)
         case .unique:

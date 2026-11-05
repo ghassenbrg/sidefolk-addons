@@ -56,6 +56,8 @@ The person hears before a real run: a step's form and the flow's page mark a ste
 
 Later list, for the expression language: units, currencies, thousands marks, percent.
 
+Also later: JSON written inside words (`[1.000]` in a sum) is read as JSON first; the editor's mark doesn't cover a sort, whose list usually is words; a person typing `1.234` into a number field gets 1.234; a value reading more than 32 names says it reads nothing nameable, so edits to those aren't new (its rank stays outside); applying a change doesn't stop runs already under way.
+
 ## Deleting several flows and moving steps (the founder's feedback, read clean at 2980498)
 
 The rule (D199 in the app's docs, on app branch `team/sideflow-delete-docs`): deleting flows from the selection is the page's own button and nothing else. The press carries the page's private token (`page_token`, the `page-key` file in the extension's data folder), has to come at least 0.6 seconds after the confirmation appeared, and has to name exactly the flows the confirmation listed. The `ui` tool has no plain `delete` any more. An agent, or another extension acting through a plan, goes through `delete_flow`: high risk, one flow, on a card each time.
