@@ -106,13 +106,7 @@ import SidefolkExtensionKit
         if ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).contains(where: { $0.hasPrefix("flows-damaged-") }) { hasFileAside = true }
         if let data = try? Data(contentsOf: eventsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] { seenEvents = list }
         if let data = try? Data(contentsOf: stopsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] {
-            // A person's stop is about the run that waits for this one, which may still be waiting after this one has ended.
-            stopsAsked = Set(list.filter { key in
-                if key.hasPrefix("person:") {
-                    return runsById[String(key.dropFirst("person:".count))]?.parent.flatMap { runsById[$0] }?.status.isOver == false
-                }
-                return runsById[key.replacingOccurrences(of: "pause:", with: "")]?.status.isOver == false
-            })
+            stopsAsked = Set(list.filter { runsById[$0.replacingOccurrences(of: "pause:", with: "")]?.status.isOver == false })
         }
     }
 

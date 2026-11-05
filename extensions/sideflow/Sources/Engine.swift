@@ -818,7 +818,6 @@ extension FlowHost {
     }
 
     static func pauseKey(_ id: String) -> String { "pause:\(id)" }
-    static func personStopKey(_ id: String) -> String { "person:\(id)" }
 
     /// Stops it at the next step, kept where it is. Nothing is cut short: the step under way finishes.
     func pause(run id: String) {
@@ -969,10 +968,11 @@ extension FlowHost {
     func queuedCount(_ flow: String) -> Int { (queued[flow] == nil ? 0 : 1) + (store.flow(flow)?.waitingStarts.count ?? 0) }
 
     /// Stops a run the person is looking at, and any it waits for. A step under way is told to stop, and the run stays "stopping" until it answers; its answer can only say it may or may not have happened.
-    /// `byThePerson`: their word, which ends what this run is part of too. A flow paused or its approval ended stops a run for its own reasons, which is a failure for whatever called it.
+    /// `byThePerson`: their word means nothing writes after it, so it ends all of what this run is part of, the lanes beside it too, and no try or "go on with the rest" gets past it.
+    /// A flow paused or its approval ended stops a run for its own reasons, which is a failure for whatever called it.
     func stop(run id: String, byThePerson: Bool = false) {
         guard var run = store.run(id), !run.status.isOver else { return }
-        if byThePerson, run.parent != nil { store.askStop(Self.personStopKey(id)) }
+        if byThePerson, let parent = run.parent, store.run(parent)?.status.isOver == false { return stop(run: parent, byThePerson: true) }
         for child in run.waitingOn { stop(run: child) }
         // A run held back has no walk to notice a stop, so it ends here.
         if run.status == .running, !store.isHeldBack(flow: run.flow) {
@@ -980,6 +980,11 @@ extension FlowHost {
             // A card goes away and nothing happens; a tool under way is told, and what it answers says whether it may have happened.
             host?.cancel(run: id)
         } else {
+            // What it was waiting for was under way, and may have done something by now.
+            let program = FlowProgram(run.body)
+            if !run.waitingOn.isEmpty, run.pc < program.ops.count, case .step(let step) = program.ops[run.pc] {
+                run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
+            }
             run.status = .stopped
             run.problem = nil
             run.resumeAt = nil

@@ -2640,7 +2640,6 @@ extension JSON {
         let after = w.store.run(run.id)
         #expect(after?.status == .stopped, "\(after?.problem ?? "")")
         #expect(after?.record(of: "k")?.status == .unknown, "what it did by then may have happened")
-        #expect(w.store.takeStop(Engine.personStopKey(called.id)) == false, "nothing left behind")
         #expect(after?.record(of: "r") == nil, "not something to recover from")
         #expect(!w.host.calls.contains { $0.tool == "reads.it" })
         #expect(w.store.runs(of: child.id).count == 1, "the next item isn't begun")
@@ -2661,24 +2660,83 @@ extension JSON {
         #expect(w.host.calls.contains { $0.tool == "reads.it" }, "the flow's own failure handling takes it, as before")
     }
 
-    @Test func aPersonsStopOfOneLaneStillCountsAfterARestart() async throws {
+    private func twoLanes(_ w: World, _ first: [[String: Any]], _ second: [[String: Any]]) throws -> Flow {
+        try w.flow([["id": "t", "try": [["id": "both", "parallel": [["name": "one", "steps": first], ["name": "two", "steps": second]]]], "recover": [["id": "r", "do": "reads.it"]]],
+                    ["id": "after", "do": "reads.it"]])
+    }
+
+    @Test func nothingWritesInALaneBesideOneThePersonStopped() async throws {
         let w = try World()
-        let flow = try w.flow([["id": "t", "try": [["id": "both", "parallel": [["name": "one", "steps": [["id": "a", "wait_minutes": 60]]], ["name": "two", "steps": [["id": "b", "wait_minutes": 5]]]]]], "recover": [["id": "r", "do": "changes.it", "with": ["text": "recovered"]]]], ["id": "after", "do": "changes.it", "with": ["text": "after"]]])
+        let flow = try twoLanes(w, [["id": "a", "wait_minutes": 60]], [["id": "b", "wait_minutes": 5], ["id": "late", "do": "changes.it", "with": ["text": "too late"]]])
         let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
         await w.quiet()
-        let lanes = w.store.runs(of: flow.id).filter { $0.parent == run.id }
-        let lane = try #require(lanes.first { $0.body.step("a") != nil })
+        let lane = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("a") != nil })
         w.engine.stop(run: lane.id, byThePerson: true)
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .stopped, "at once, not when the other lane ends")
+        #expect(w.store.runs(of: flow.id).filter { $0.parent == run.id }.allSatisfy { $0.status == .stopped })
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing writes after Stop")
+        #expect(!w.host.calls.contains { $0.tool == "reads.it" }, "neither the way to recover nor what comes after")
+    }
+
+    @Test func aLaneMidStepIsToldAndSaysItMayHaveHappened() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        w.host.honoursCancel = true
+        let flow = try twoLanes(w, [["id": "a", "do": "changes.it", "with": ["text": "x"]], ["id": "next", "do": "changes.it", "with": ["text": "y"]]], [["id": "b", "wait_minutes": 60]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let waiting = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("b") != nil })
+        let writing = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("a") != nil })
+        w.engine.stop(run: waiting.id, byThePerson: true)
+        await w.quiet()
+        #expect(w.host.cancelled, "it was told")
+        #expect(w.store.run(writing.id)?.status == .stopped)
+        #expect(w.store.run(writing.id)?.record(of: "a")?.status == .unknown)
+        #expect(w.store.run(run.id)?.record(of: "both")?.status == .unknown, "what they were part of says so too")
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "the next step in that lane isn't started")
+    }
+
+    @Test func aPersonsStopSurvivesARestartBeforeTheStepCameBack() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        let flow = try twoLanes(w, [["id": "a", "do": "changes.it", "with": ["text": "x"]], ["id": "next", "do": "changes.it", "with": ["text": "y"]]], [["id": "b", "wait_minutes": 5], ["id": "late", "do": "changes.it", "with": ["text": "too late"]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let waiting = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("b") != nil })
+        let writing = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("a") != nil })
+        w.engine.stop(run: waiting.id, byThePerson: true)
         await w.quiet()
         w.restart()
         w.engine.recover()
+        await w.quiet()
+        #expect(w.store.run(writing.id)?.status == .stopped, "it stays pressed")
+        #expect(w.store.run(writing.id)?.record(of: "a")?.status == .unknown)
+        #expect(w.store.run(run.id)?.status == .stopped)
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "nothing more after the restart")
+    }
+
+    @Test func aStopThatIsntThePersonsLeavesTheOtherLanesAndIsAFailure() async throws {
+        let w = try World()
+        let flow = try twoLanes(w, [["id": "a", "wait_minutes": 60]], [["id": "b", "wait_minutes": 5], ["id": "o", "text": "other"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let lane = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("a") != nil })
+        w.engine.stop(run: lane.id)
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .waiting, "as it always was: it waits for the other lane")
         w.now = w.now.addingTimeInterval(6 * 60)
         w.engine.tick()
         await w.quiet()
         w.engine.tick()
         await w.quiet()
-        #expect(w.store.run(run.id)?.status == .stopped, "\(w.store.run(run.id)?.problem ?? "")")
-        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "neither the way to recover nor what comes after")
+        #expect(w.store.run(run.id)?.record(of: "r") != nil, "a failure the try takes")
     }
 
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {

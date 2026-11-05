@@ -307,17 +307,6 @@ extension Engine {
             return false
         }
         run.waitingOn = []
-        // The person stopped it: nothing more of what it was part of. That isn't a failure for a try or "go on with the rest" to get past. What it did by then may have happened.
-        // Asked of every child, so none of their asks is left behind.
-        if children.map({ store.takeStop(Self.personStopKey($0.id)) }).contains(true) {
-            if run.parent != nil { store.askStop(Self.personStopKey(run.id)) }
-            run.frames = []
-            run.status = .stopped
-            run.problem = nil
-            run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
-            store.save(run)
-            return false
-        }
         if let bad = children.first(where: { $0.status != .done }) {
             return failed(step, why: bad.problem ?? L("{flow} didn't finish.", ["flow": bad.flowName]), reads: false, in: &run)
         }
