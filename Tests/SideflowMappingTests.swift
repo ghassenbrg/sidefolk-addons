@@ -411,11 +411,7 @@ import SidefolkExtensionKit
         #expect(try sort([.string("10"), .string("9"), .number(9.5)]) == .array([.string("9"), .number(9.5), .string("10")]), "plain numbers, as numbers")
         #expect(try sort([.string("2026-11-05"), .string("2025-01-01")]) == strings("2025-01-01", "2026-11-05"), "a date written year first")
         #expect(try sort([.string("pear"), .string("Apple")]) == strings("Apple", "pear"))
-        #expect(try sort([.string("file10"), .string("file2")]) == strings("file2", "file10"), "as a person reads them")
-        #expect(try sort([.string("Item 12"), .string("Item 9"), .string("Item 100")]) == strings("Item 9", "Item 12", "Item 100"))
-        #expect(try sort([.string("v10"), .string("v9")], descending: true) == strings("v10", "v9"))
-        #expect(try sort([.string("report-2"), .string("report-10")]) == strings("report-2", "report-10"))
-        for words in ["1,500", "$1,500", "-5 kg", "12%", "1.500", "10:30", ".5", "-$2,000", "١٠", "３", "²", "(5)", "USD 1,500", "CPU: 12%", "Nov 5, 2026", "v1.2.10", "Item ١٢", "1234-56-78", "2026-11-05 kg", "2026-11-05T23:00+09:00", "11/05/2026"] {
+        for words in ["1,500", "$1,500", "-5 kg", "12%", "1.500", "10:30", ".5", "-$2,000", "١٠", "３", "²", "(5)", "USD 1,500", "CPU: 12%", "Nov 5, 2026", "v1.2.10", "Item ١٢", "1234-56-78", "2026-11-05 kg", "2026-11-05T23:00+09:00", "11/05/2026", "file10", "Item 12", "v10", "Temp -5", "USD 1 500", "Size 1GB", "at 9pm", "Q1 2026"] {
             #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("pear")]) }
             #expect(throws: Condition.Unreadable.self, "\(words)") { try sort([.string(words), .string("pear")], descending: true) }
         }
@@ -431,6 +427,10 @@ import SidefolkExtensionKit
         #expect(NumberWords.read("9007199254740993") == .unreadable)
         #expect(parsed("[12.5, 9007199254740991, 0.1]") == .array([.number(12.5), .number(9007199254740991), .number(0.1)]))
         if case .array(let huge) = parsed("[-1e999]"), case .number = huge[0] { Issue.record("past any size isn't a number") }
+        #expect(try csv("a,b\n1,2,\n,,\n") == .array([.object(["a": .string("1"), "b": .string("2")]), .object(["a": .string(""), "b": .string("")])]), "trailing commas lose nothing")
+        #expect(try csv("Name,Price,,\nA,1") == .array([.object(["Name": .string("A"), "Price": .string("1")])]))
+        #expect(throws: Problem.self) { try csv("a,,b,,c\n1,2,3,4,5") }
+        #expect(throws: Problem.self, "past what's exact") { try DataStep(op: .sum, from: "").apply(to: .array([.number(9e15), .number(9e15)]), than: "") }
         #expect(NumberWords.read(String(repeating: " ", count: 63_999) + "1") == .unreadable, "what's kept of a long value is cut")
         #expect(NumberWords.read("  12\n") == .number(12))
     }

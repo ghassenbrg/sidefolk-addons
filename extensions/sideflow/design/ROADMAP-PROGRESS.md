@@ -56,7 +56,7 @@ The person hears before a real run: a step's form and the flow's page mark a ste
 
 Later list, for the expression language: units, currencies, thousands marks, percent.
 
-A sort has its own words to think of, since sorting names is its job. Words with no digits sort as words. A name with a bare count in it sorts as a person reads it, `Item 9` before `Item 12`, as in Finder. A date written year first sorts as it reads. Anything else with digits in it stops: `USD 1,500`, `CPU: 12%`, `Nov 5, 2026`, `1.2.10`. So does a list with both numbers and words, like `10`, `9`, `N/A`, and a field that no row has. Blanks and rows without the field go last either way round. Still sorting by its letters: a date with no marks, `Nov 5 2026`.
+A sort takes numbers, words with no digits in them, or dates written year first, and blanks go last either way round. Anything else with digits in it stops (`Item 12`, `USD 1,500`, `Q1 2026`), since which of those read as numbers never ended, as it didn't for reading a number out of words. So does a list of numbers and words together, and a field no row has. Later list: a sort that says it's by name, so `Item 9` comes before `Item 12` on the person's word; a JSON number with more than 17 digits after the point is rounded.
 
 An agent's `continue_run` with stop on a called flow ends that run only: to the flow that called it, that's a failed step, so under "collect" its loop goes on to the next item. Only the page's own Stop or the person's answer stops all of it (the coordinator's ruling above).
 

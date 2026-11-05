@@ -1060,6 +1060,7 @@
     "The nearest places are listed. To go further, move it there and choose again.": "가까운 위치만 표시됩니다. 더 멀리 옮기려면 그곳으로 옮긴 뒤 다시 고르세요.",
     "None of these has “{field}”, so there's nothing to sort by.": "어느 항목에도 “{field}”이(가) 없어 정렬할 기준이 없습니다.",
     "Two columns are called “{name}”.": "이름이 “{name}”인 열이 두 개 있습니다.",
-    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "{row}행의 칸 수가 열 수보다 많습니다. 쉼표가 있는 값은 따옴표로 묶어야 합니다."
+    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "{row}행의 칸 수가 열 수보다 많습니다. 쉼표가 있는 값은 따옴표로 묶어야 합니다.",
+    "Some columns have no name.": "이름이 없는 열이 있습니다."
   }
 }

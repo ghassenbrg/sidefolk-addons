@@ -1081,6 +1081,7 @@
     "The nearest places are listed. To go further, move it there and choose again.": "Die nächstgelegenen Stellen sind aufgeführt. Um weiter zu kommen, verschiebe ihn dorthin und wähle erneut.",
     "None of these has “{field}”, so there's nothing to sort by.": "Keines davon hat „{field}“, also gibt es nichts, wonach sortiert werden kann.",
     "Two columns are called “{name}”.": "Zwei Spalten heißen „{name}“.",
-    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "Zeile {row} hat mehr Zellen, als es Spalten gibt. Ein Wert mit einem Komma muss in Anführungszeichen stehen."
+    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "Zeile {row} hat mehr Zellen, als es Spalten gibt. Ein Wert mit einem Komma muss in Anführungszeichen stehen.",
+    "Some columns have no name.": "Einige Spalten haben keinen Namen."
   }
 }

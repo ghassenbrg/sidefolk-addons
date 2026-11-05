@@ -1060,6 +1060,7 @@
     "The nearest places are listed. To go further, move it there and choose again.": "这里列出最近的位置。要移得更远，请先移到那里再重新选择。",
     "None of these has “{field}”, so there's nothing to sort by.": "这些项都没有“{field}”，所以没有可排序的依据。",
     "Two columns are called “{name}”.": "有两列都叫“{name}”。",
-    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "第 {row} 行的单元格比列多。含逗号的值需要加引号。"
+    "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "第 {row} 行的单元格比列多。含逗号的值需要加引号。",
+    "Some columns have no name.": "有些列没有名称。"
   }
 }

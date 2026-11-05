@@ -134,10 +134,13 @@ struct DataStep: Equatable, Sendable {
         case .parse_csv:
             let rows = CSV.rows(Values.text(value))
             guard let head = rows.first else { return .array([]) }
-            // A cell with no column usually means a comma in a value (`A,1,299.00`), and two columns of one name can't both be kept: what's left would look whole.
-            if let twice = head.first(where: { name in head.filter { $0 == name }.count > 1 }) { throw Problem(L("Two columns are called “{name}”.", ["name": twice])) }
-            if let at = rows.firstIndex(where: { $0.count > head.count }) { throw Problem(L("Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.", ["row": Format.integer(at)])) }
-            return .array(rows.dropFirst().map { row in .object(Dictionary(zip(head, row.map { JSON.string($0) }), uniquingKeysWith: { a, _ in a })) })
+            // A cell with something in it and no column usually means a comma in a value (`A,1,299.00`), and two columns of one name can't both be kept: what's left would look whole. Trailing commas lose nothing.
+            let named = Array(head.reversed().drop { $0.trimmed.isEmpty }.reversed())
+            if let twice = named.first(where: { name in named.filter { $0 == name }.count > 1 }) {
+                throw Problem(twice.trimmed.isEmpty ? L("Some columns have no name.") : L("Two columns are called “{name}”.", ["name": twice]))
+            }
+            if let at = rows.firstIndex(where: { $0.dropFirst(named.count).contains { !$0.trimmed.isEmpty } }) { throw Problem(L("Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.", ["row": Format.integer(at)])) }
+            return .array(rows.dropFirst().map { row in .object(Dictionary(zip(named, row.map { JSON.string($0) }), uniquingKeysWith: { a, _ in a })) })
         case .lines:
             return .array(Values.text(value).split(whereSeparator: \.isNewline).map { .string(String($0).trimmed) }.filter { $0 != .string("") })
         case .join:
@@ -149,7 +152,7 @@ struct DataStep: Equatable, Sendable {
             return found
         case .filter:
             // What the page shows selected before anyone picks. Looking for nothing would look like an answer: an empty list.
-            if [nil, .contains, .not_contains].contains(test), resolved.trimmed.isEmpty { throw Problem(L("Say what to compare it with.")) }
+            if [nil, .contains, .not_contains, .more_than, .less_than].contains(test), resolved.trimmed.isEmpty { throw Problem(L("Say what to compare it with.")) }
             return .array(try list().filter { item in
                 let found = at(item)
                 let left = found.map(Values.text) ?? ""
@@ -192,7 +195,8 @@ struct DataStep: Equatable, Sendable {
                 guard case .number(let n) = Condition.reading(of: found) else { throw Condition.Unreadable(words: Values.text(found)) }
                 return sum + n
             }
-            guard total.isFinite else { throw Problem(L("Those numbers add up to too much.")) }
+            // Past what can be held exactly it wouldn't be the sum, and it wouldn't come back from disk as a number.
+            guard abs(total) < 9_007_199_254_740_992 else { throw Problem(L("Those numbers add up to too much.")) }
             return .number(total)
         case .number:
             guard case .number(let n) = Condition.reading(of: value) else { throw Condition.Unreadable(words: Values.text(value)) }
@@ -276,19 +280,15 @@ enum SortKey: Equatable {
     func isBefore(_ other: SortKey) -> Bool {
         switch (self, other) {
         case (.number(let a), .number(let b)): a < b
-        case (.words(let a), .words(let b)): a.localizedStandardCompare(b) == .orderedAscending
+        case (.words(let a), .words(let b)): a.localizedCaseInsensitiveCompare(b) == .orderedAscending
         default: false
         }
     }
 
-    /// Words with no digits, a name with a bare count in it (`Item 12`, `v10`, `report-2`: Item 9 comes before Item 12, as in Finder), or a date written year first, which sorts as it reads.
-    /// Anything else with digits in it holds a number or a date that could be put in the wrong place without anyone seeing: `USD 1,500`, `CPU: 12%`, `Nov 5, 2026`, `1.2.10`, `١٢`.
+    /// Words with no digits in them, or a date written year first, which sorts as it reads. Anything else with digits in it holds a number or a date that could land in the wrong place with no one seeing: `Item 12`, `USD 1,500`, `Temp -5`, `Q1 2026`, `at 9pm`.
+    /// Which of those read as numbers never ends, as it didn't for reading a number out of words, so none do. A sort that says it's by name is on the later list.
     static func canOrder(_ text: String) -> Bool {
-        guard text.range(of: #"\p{N}"#, options: .regularExpression) != nil else { return true }
-        if text.range(of: #"^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(T([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?Z?)?$"#, options: .regularExpression) != nil { return true }
-        guard text.first?.isLetter == true else { return false }
-        if text.unicodeScalars.contains(where: { $0.properties.numericType != nil && !("0"..."9").contains($0) }) { return false }
-        // A digit against a mark is a decimal, a thousand, a percent, a time or part of a date. A hyphen or underscore before a count is only a name.
-        return text.range(of: #"[0-9][^\s\p{L}0-9_]|[^\s\p{L}0-9_-][0-9]"#, options: .regularExpression) == nil
+        text.range(of: #"\p{N}"#, options: .regularExpression) == nil
+            || text.range(of: #"^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(T([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?Z?)?$"#, options: .regularExpression) != nil
     }
 }
