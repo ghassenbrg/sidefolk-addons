@@ -710,7 +710,8 @@ extension FlowHost {
         guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil, written: nil), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
-        proceed(run.id, chosen.how)
+        // Their own answer, on their own card.
+        if chosen.how == .stop { stop(run: run.id, byThePerson: true) } else { proceed(run.id, chosen.how) }
     }
 
     // MARK: After a stop
@@ -787,8 +788,9 @@ extension FlowHost {
     /// The way forward from a stop, from the page or a request.
     enum Forward: String, Sendable { case try_again, carry_on, stop }
 
+    /// Going on from a run that stopped, for whoever asked: Stop from here ends that run and what it started, and only the person's own does more.
     func proceed(_ id: String, _ how: Forward) {
-        if how == .stop { return stop(run: id, byThePerson: true) }
+        if how == .stop { return stop(run: id) }
         guard let current = store.run(id), !current.status.isOver, current.status != .running, !store.isHeldBack(flow: current.flow) else { return }
         // A form or another run is what it's waiting for: going past that isn't anyone's to choose from here.
         guard var run = store.run(id), run.form == nil, run.waitingOn.isEmpty else { return }

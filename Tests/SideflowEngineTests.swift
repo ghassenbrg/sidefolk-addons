@@ -2665,6 +2665,89 @@ extension JSON {
                     ["id": "after", "do": "reads.it"]])
     }
 
+    /// A flow with two lanes under way, and another start waiting its turn.
+    private func lanesAndAQueue(_ w: World, app: App? = nil) async throws -> (flow: Flow, run: Run, lane: Run) {
+        let engine = app?.engine ?? w.engine, store = app?.store ?? w.store
+        let flow = try twoLanes(w, [["id": "a", "wait_minutes": 60]], [["id": "b", "wait_minutes": 60]])
+        if app != nil { store.save(flow) }
+        let run = try #require(engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(store)
+        var held = try #require(store.flow(flow.id))
+        held.waitingStarts = ["next"]
+        store.save(held)
+        let lane = try #require(store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("a") != nil })
+        return (flow, run, lane)
+    }
+
+    @Test func anotherExtensionsStopEndsThatRunAndNotTheRest() async throws {
+        let w = try World()
+        let (flow, run, lane) = try await lanesAndAQueue(w)
+        // What `continue_run` does, for an agent or another extension on a card.
+        w.engine.proceed(lane.id, .stop)
+        await w.quiet()
+        #expect(w.store.run(lane.id)?.status == .stopped, "that run")
+        let beside = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("b") != nil })
+        #expect(w.store.run(beside.id)?.status.isOver == false, "not the lane beside it")
+        #expect(w.store.run(run.id)?.status.isOver == false, "not what it's part of")
+        #expect(w.store.flow(flow.id)?.waitingStarts == ["next"], "and what's waiting its turn stays")
+    }
+
+    @Test func aStopWithoutThePagesKeyIsAPlainStop() async throws {
+        let w = try World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        let (flow, run, lane) = try await lanesAndAQueue(w, app: app)
+        for input: [String: Any] in [["op": "stop_run", "flow": flow.id, "run": lane.id], ["op": "proceed", "flow": flow.id, "run": lane.id, "how": "stop"], ["op": "stop_run", "flow": flow.id, "run": lane.id, "key": "a guess"]] {
+            _ = try await Actions_UI.handle(Arguments(input), app)
+            await w.quiet(app.store)
+            #expect(app.store.run(lane.id)?.status == .stopped)
+            #expect(app.store.run(run.id)?.status.isOver == false, "\(input)")
+            #expect(app.store.flow(flow.id)?.waitingStarts == ["next"], "\(input)")
+        }
+    }
+
+    @Test func thePagesOwnStopDoesAllOfIt() async throws {
+        for op: [String: Any] in [["op": "stop_run"], ["op": "proceed", "how": "stop"]] {
+            let w = try World()
+            let app = App(folder: w.folder.appendingPathComponent("app"))
+            app.engine.host = w.host
+            let (flow, run, lane) = try await lanesAndAQueue(w, app: app)
+            let page = await Pages.make(app, state: Arguments(["run": run.id]), background: false)
+            #expect(String(describing: page.sent).contains(app.pageKey), "its Stop carries the key")
+            var input = op
+            input.merge(["flow": flow.id, "run": lane.id, "key": app.pageKey]) { _, new in new }
+            _ = try await Actions_UI.handle(Arguments(input), app)
+            await w.quiet(app.store)
+            #expect(app.store.run(run.id)?.status == .stopped, "what it's part of, \(op)")
+            #expect(app.store.runs(of: flow.id).filter { $0.parent == run.id }.allSatisfy { $0.status == .stopped }, "the lane beside it")
+            #expect(app.store.flow(flow.id)?.waitingStarts.isEmpty == true, "what's waiting its turn")
+        }
+    }
+
+    @Test func thePagesKeyLastsAcrossARestart() throws {
+        let w = try World()
+        let folder = w.folder.appendingPathComponent("app")
+        let first = App(folder: folder).pageKey
+        #expect(!first.isEmpty)
+        #expect(App(folder: folder).pageKey == first, "a page drawn before a restart still counts as the person")
+        #expect(App(folder: w.folder.appendingPathComponent("other")).pageKey != first)
+    }
+
+    @Test func thePersonsStopOnTheirOwnCardIsStillThem() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .failed, text: "cut off", summary: "")]
+        w.host.wayForward = L("Stop here")
+        let flow = try w.flow([["id": "a", "do": "changes.it", "with": ["text": "x"]]])
+        var held = try #require(w.store.flow(flow.id))
+        held.waitingStarts = ["next"]
+        w.store.save(held)
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.host.forwardOptions.contains(L("Stop here")), "it asked")
+        #expect(w.store.run(run.id)?.status == .stopped)
+        #expect(w.store.flow(flow.id)?.waitingStarts.isEmpty == true, "their word, on their card: what's waiting goes too")
+    }
+
     @Test func nothingWritesInALaneBesideOneThePersonStopped() async throws {
         let w = try World()
         let flow = try twoLanes(w, [["id": "a", "wait_minutes": 60]], [["id": "b", "wait_minutes": 5], ["id": "late", "do": "changes.it", "with": ["text": "too late"]]])

@@ -20,7 +20,18 @@ import SidefolkExtensionKit
     var draftProblem: String?
     var startDelay: Double = 8
 
+    /// On the page's own Stop buttons. Another extension can call `ui` too, on a card, but can't read this folder or a page: only with this is it the person pressing Stop.
+    let pageKey: String
+
     init(folder: URL) {
+        let keyFile = folder.appendingPathComponent("page-key")
+        if let kept = try? String(contentsOf: keyFile, encoding: .utf8), !kept.isEmpty {
+            pageKey = kept
+        } else {
+            pageKey = UUID().uuidString
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try? pageKey.write(to: keyFile, atomically: true, encoding: .utf8)
+        }
         store = FlowStore(folder: folder)
         engine = Engine(store: store, catalog: catalog)
         Connections.remember(catalog, store)
