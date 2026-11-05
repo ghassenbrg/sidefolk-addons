@@ -237,10 +237,6 @@ import SidefolkExtensionKit
             app.engine.endHeldRuns()
         case "stop_run":
             if let id = a.string("run") { app.engine.stop(run: id, byThePerson: a.string("page_token") == app.pageKey) }
-        case "export":
-            app.nav.exporting = try flow().id
-        case "export_done":
-            app.nav.exporting = nil
         case "inspect_run":
             if let id = a.string("run"), let target = a.string("target") {
                 // Pressing what's selected puts it away, as on the board.

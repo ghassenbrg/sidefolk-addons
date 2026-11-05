@@ -454,6 +454,18 @@ import SidefolkExtensionKit
 
     // MARK: One flow
 
+    /// Copies at once, as the button says, on any tab. It's what's on screen, like the words beside it, and says when that isn't saved. Past what the clipboard takes it says so: said, not cut.
+    static func copyDefinition(_ flow: Flow) -> Action {
+        let words = JSONText.write(["name": flow.name, "flow": FlowCodec.json(flow.draft)] as [String: Any])
+        guard words.count <= longestCopy else {
+            return Action(L("Copy as a definition"), tool: "ui", input: ui("save", ["flow": flow.id]), symbol: "curlybraces", detail: L("It's too long to copy from here. Ask your companion to read it with get_flow."), disabled: true)
+        }
+        return Action(L("Copy as a definition"), act: .copy(words), symbol: "curlybraces", detail: flow.draft != flow.kept ? L("Includes changes you haven't saved.") : nil)
+    }
+
+    /// What Sidefolk's clipboard tool takes.
+    static let longestCopy = 20_000
+
     static func tabs(_ flow: Flow, state: Arguments) -> Block {
         var builder = PageTab("builder", L("Builder"), symbol: "point.3.connected.trianglepath.dotted", sections: [])
         builder.go = Go(set: ["tab": "builder"])
@@ -513,8 +525,8 @@ import SidefolkExtensionKit
             actions.insert(Action(L("Saved"), tool: "ui", input: ui("save", id), style: .plain, symbol: "checkmark", disabled: true), at: 0)
         }
         extra += [button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
-                  button(L("Copy as a definition"), "export", id, symbol: "curlybraces"),
-                  Action(L("Copy it in words"), act: .copy(Words.aloud(flow.draft, catalog: app.catalog)), symbol: "doc.on.doc"),
+                  copyDefinition(flow),
+                  Action(L("Copy it in words"), act: .copy(Words.aloud(flow.draft, catalog: app.catalog)), symbol: "doc.on.doc", detail: flow.draft != flow.kept ? L("Includes changes you haven't saved.") : nil),
                   button(L("Delete this flow"), "ask_delete", id, style: .destructive, symbol: "trash")]
         return PageBar(flow.name, pill: pill, detail: sentence, actions: actions, menu: extra)
     }
@@ -536,15 +548,6 @@ import SidefolkExtensionKit
         var end: [Section] = []
         if !notes.isEmpty { end.append(Section(nil, notes, place: .trailing)) }
         end += Inspector.sections(flow, app, problems: problems)
-        // Only when asked for: it's as long as the flow, and the page is read every few seconds.
-        if app.nav.exporting == flow.id {
-            let words = JSONText.write(["name": flow.name, "flow": FlowCodec.json(flow.kept)] as [String: Any])
-            // A page can't hold more: said, not cut.
-            let copy: Block = words.utf8.count <= 30_000 ? .action(Action(L("Copy"), act: .copy(words), style: .accent, symbol: "doc.on.doc"))
-                : .note(L("It's too long to copy from here. Ask your companion to read it with get_flow."), tone: .warn)
-            end.append(Section(L("Its definition"), [.note(L("What was last saved, as words. Nothing in it is a secret unless you typed one into a step.")), copy,
-                                                     .action(button(L("Done"), "export_done", style: .plain))], place: .trailing))
-        }
         end += checks(flow, app, problems: problems)
         end.append(Section(L("What you'll get"), [arriving(flow, app)], place: .trailing))
         var page = frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)

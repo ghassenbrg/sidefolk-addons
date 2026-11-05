@@ -39,6 +39,10 @@ The rule (D199 in the app's docs, on app branch `team/sideflow-delete-docs`): de
 
 Later list: `delete_flow` removing a picked flow makes the press ask again; a name with hidden characters; 200 or more flows may pass the 128 KB page limit; moving walks every step at 100 steps; a guarded press still logs "Changed something"; Keep from the selection; a step whose id is `start` reads ambiguously. A drag handle on a card needs the app and isn't built.
 
+## Copy as a definition (the founder's report, reproduced on snapshot.10)
+
+The button opened a section with a second Copy button and copied nothing itself: from Runs or Activity nothing showed at all, and with a step selected it sat low in the side panel. It now copies at once from the menu on any tab, like Copy it in words. Both copy what's on screen and say when that includes changes that aren't saved. The limit is the clipboard's 20,000 characters, and past it the button says so. What it copies comes back through Bring one in as the same flow.
+
 ## Left out on purpose
 
 Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.

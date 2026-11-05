@@ -151,7 +151,6 @@ struct Nav {
     func inspecting(_ flow: Flow) -> Inspecting { inspected[flow.id] ?? .nothing }
 
     /// The flow whose definition is showing to copy.
-    var exporting: String?
     /// The flows picked on the home page, while choosing some to delete, and whether it's asking to be sure.
     var pickingFlows: Set<String>?
     var askingToDelete = false
