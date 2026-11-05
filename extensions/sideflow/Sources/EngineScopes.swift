@@ -307,6 +307,15 @@ extension Engine {
             return false
         }
         run.waitingOn = []
+        // The person stopped it: nothing more of what it was part of. That isn't a failure for a try or "go on with the rest" to get past.
+        if children.contains(where: { $0.status == .stopped }) {
+            run.frames = []
+            run.status = .stopped
+            run.problem = nil
+            run.record(.init(step: step.id, status: .skipped, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
+            store.save(run)
+            return false
+        }
         if let bad = children.first(where: { $0.status != .done }) {
             return failed(step, why: bad.problem ?? L("{flow} didn't finish.", ["flow": bad.flowName]), reads: false, in: &run)
         }

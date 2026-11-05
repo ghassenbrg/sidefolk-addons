@@ -509,7 +509,7 @@ extension JSON {
         let called = try #require(w.store.runs(of: child.id).first)
         w.engine.stop(run: called.id)
         await w.quiet()
-        #expect(w.store.run(run.id)?.status == .failed)
+        #expect(w.store.run(run.id)?.status == .stopped)
         #expect(!w.engine.isRunning(flow.id), "the flow isn't held until a restart")
         #expect(!w.engine.isRunning(child.id))
     }
@@ -2622,6 +2622,26 @@ extension JSON {
         #expect(run?.status != .done)
         #expect(run?.problem?.contains("r.who") == true)
         #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func stoppingACalledFlowStopsWhatCalledItEvenPastACollect() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        w.host.honoursCancel = true
+        var child = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "e", "for_each": "a\nb", "item_failure": "collect", "steps": [["id": "t", "try": [["id": "k", "call_flow": "Child"]], "recover": [["id": "r", "text": "recovered"]]]]], ["id": "after", "do": "reads.it"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let called = try #require(w.store.runs(of: child.id).first)
+        w.engine.stop(run: called.id)
+        await w.quiet()
+        let after = w.store.run(run.id)
+        #expect(after?.status == .stopped, "\(after?.problem ?? "")")
+        #expect(after?.record(of: "r") == nil, "not something to recover from")
+        #expect(!w.host.calls.contains { $0.tool == "reads.it" })
+        #expect(w.store.runs(of: child.id).count == 1, "the next item isn't begun")
     }
 
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
