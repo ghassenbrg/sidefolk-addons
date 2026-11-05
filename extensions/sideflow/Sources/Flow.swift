@@ -47,13 +47,17 @@ struct Condition: Equatable, Sendable {
     }
 
     func checkHolds(_ values: Values) -> Bool {
+        if test == .more_than || test == .less_than {
+            guard case .number(let a) = Self.reading(value, values), case .number(let b) = Self.reading(than, values) else { return false }
+            return test == .more_than ? a > b : a < b
+        }
         let left = values.fill(value)
         // A No from a form or a tool isn't something to a condition, though the word "no" is, and a list of them keeps them.
         if test == .is_empty || test == .not_empty, left.trimmed == "false" { return test == .is_empty }
         return Self.test(test, left: left, right: values.fill(than))
     }
 
-    /// Numbers read from the first number in the value, so "18 °C" compares as 18.
+    /// A number compares as one only when that's all the value says (`NumberWords`), so "18 °C" compares as 18. A value that isn't one stops the step before it gets here (`doubtful`).
     /// Nothing there, however it's written: an empty list reads as "[]".
     static func isBlank(_ text: String) -> Bool { text.isEmpty || text == "[]" || text == "{}" }
 
@@ -89,7 +93,7 @@ struct Condition: Equatable, Sendable {
         case .is_empty: return isBlank(left)
         case .not_empty: return !isBlank(left)
         case .more_than, .less_than:
-            guard let a = number(left), let b = number(right) else { return false }
+            guard let a = NumberWords.number(left), let b = NumberWords.number(right) else { return false }
             return test == .more_than ? a > b : a < b
         }
     }
@@ -105,99 +109,29 @@ struct Condition: Equatable, Sendable {
         return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
-    private static let digits = try! NSRegularExpression(pattern: #"(?<![\p{L}\p{N}--\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}\x{30FC}])[-−–]?\d{1,3}(?:[ \x{00A0}\x{2008}\x{2009}\x{200A}\x{202F}'’]\d{3})+(?![0-9])(?:[.,]\d{1,2}(?![0-9]))?|(?<![\p{L}\p{N}--\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}\x{30FC}])[-−–]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
-    /// What makes the number before it bigger, in the languages Sidefolk speaks. Stopping for a `5 M` that meant metres costs less than comparing 5 for five million. A bare `B` or `T` stays out: `Room 4B`.
-    private static let magnitude = #"^(?i:thousands?|millions?|billions?|trillions?|lakhs?|crores?|mille|milliards?|mil|mill[oó]n|millones|billones?|tausend|millionen|milliarden?|mio|mrd|tsd|mila|milion[ei]|miliard[oi]|milh[ãa]o|milh[õo]es|bilh[ãa]o|bilh[õo]es|ألف|مليون|مليار)(?![\p{L}\p{N}])|^[百千万萬億亿兆백천만억조]|^(?:k|K|M|MM|Md|bn|Bn|BN|bi|mn|Mn|tn|Tn)(?![\p{L}\p{N}]|-\p{L})"#
-    private static let currencyCode = "USD|EUR|GBP|JPY|CHF|CAD|AUD|NZD|CNY|INR|BRL|MXN|SEK|NOK|DKK|PLN|CZK|HUF|TRY|RUB|KRW|SGD|HKD|ZAR|AED|SAR|ILS|TND|MAD|EGP|THB|IDR|MYR|PHP|VND|UAH|kr"
-    /// After a time or a share a mark is a decimal point: `12.340 ms`, `99.990%`. Not lengths or weights: `1.500 km` is either.
-    private static let unit = #"^(?i:%|‰|ms|ns|µs|s|secs?|seconds?|mins?|minutes?|h|hrs?|hours?)(?![\p{L}\p{N}\p{Sc}'’])"#
-    private static func isCurrency(_ scalar: Unicode.Scalar?) -> Bool { scalar?.properties.generalCategory == .currencySymbol }
-
-    /// Every script's digits as a machine reads them, with the Arabic decimal and thousands marks.
-    private static func withPlainDigits(_ text: String) -> String {
-        if text.utf8.allSatisfy({ $0 < 128 }) { return text }
-        var out = String.UnicodeScalarView()
-        for scalar in text.unicodeScalars {
-            if scalar.properties.numericType == .decimal, let value = scalar.properties.numericValue, let plain = Unicode.Scalar(UInt32(value) + 48) { out.append(plain) }
-            else if scalar == "\u{FF0D}" { out.append("-") }
-            else if scalar == "\u{066B}" { out.append(".") }
-            else if scalar == "\u{066C}" { out.append(",") }
-            else { out.append(scalar) }
-        }
-        return String(out)
-    }
-
-    /// Exactly as a machine writes one, exponent and all: what a tool's number comes out as in words.
-    private static func isMachineNumber(_ text: String) -> Bool {
-        text.trimmed.range(of: #"^[+-]?[0-9]*\.?[0-9]+[eE][+-]?[0-9]+$"#, options: .regularExpression) != nil
-    }
-
-    /// The first number in these words as a machine reads it, or nil with none. `doubtful` when it could be more than one: a number nobody meant is worse than none.
-    /// `1,000` and `1.000` could be a thousand or one; `1,23,456` is a lakh or a list; `$1.2M` isn't 1.2; a bare `100 200` could be two; one too long can't be held exactly.
-    /// `3.142`, `0.000`, `1,299.00` and `1,000,000` are what they say, and anything else with several marks, like a version, is its first two parts.
-    private static func reading(_ words: String) -> (number: String, doubtful: Bool)? {
-        let text = withPlainDigits(words)
-        if isMachineNumber(text) { return (text.trimmed, false) }
-        guard let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
-        let before = text[..<range.lowerBound].trimmingCharacters(in: .whitespaces), after = text[range.upperBound...].trimmingCharacters(in: .whitespaces)
-        let moneyBefore = isCurrency(before.unicodeScalars.last)
-        let moneyAfter = isCurrency(after.unicodeScalars.first) && after.dropFirst().first?.isNumber != true
-        // A currency's code counts too: `1.299 EUR`, `kr 1.500`. Any three capitals might be one, which is enough to stop at three decimals and not enough to call `ETA 12m` twelve million.
-        let maybeCode = before.range(of: #"(?<!\p{L})(?:[A-Z]{3}|(?i:euros?|dollars?|pounds?|francs?|yen|yuan|rupees?))$"#, options: .regularExpression) != nil || after.range(of: #"^(?:[A-Z]{3}|(?i:euros?|dollars?|pounds?|francs?|yen|yuan|rupees?))(?!\p{L})"#, options: .regularExpression) != nil
-        let codeBefore = before.range(of: "(?<!\\p{L})(?:\(currencyCode))$", options: .regularExpression) != nil, codeAfter = after.range(of: "^(?:\(currencyCode))(?!\\p{L})", options: .regularExpression) != nil
-        let isMoney = moneyBefore || moneyAfter || codeBefore || codeAfter
-        var found = text[range].replacingOccurrences(of: "−", with: "-").replacingOccurrences(of: "–", with: "-")
-        // The sign can come before the currency: `-$5.00`.
-        if moneyBefore, !found.hasPrefix("-"), let sign = before.dropLast().last, sign == "-" || sign == "−" || sign == "–", before.dropLast(2).last?.isLetter != true, before.dropLast(2).last?.isNumber != true { found = "-" + found }
-        if after.range(of: magnitude, options: .regularExpression) != nil { return (found, true) }
-        // Written without spaces, `前年比-5%` is a minus and `商品-12` is a dash: nothing says which.
-        if found.hasPrefix("-"), before.last.map({ $0.isLetter && !$0.isASCII }) == true { return (found, true) }
-        // `($1,299.00)` is how a ledger writes a minus. `1.5e3 units` is 1,500, not 1.5.
-        if moneyBefore, before.dropLast().last == "(", after.first == ")" { return (found, true) }
-        if text[range.upperBound...].range(of: #"^[eE][+-]?[0-9]"#, options: .regularExpression) != nil { return (found, true) }
-        // Spaced in threes it's one number if a decimal comma or a currency after it says so: `1 299,00`, `1 299 €`. Bare, `100 200` could be two, and so could `$5 100`.
-        if found.contains(where: { !$0.isNumber && $0 != "-" && $0 != "." && $0 != "," }) {
-            let hasDecimals = found.contains(",")
-            found = String(found.filter { $0.isNumber || $0 == "-" || $0 == "." || $0 == "," }).replacingOccurrences(of: ",", with: ".")
-            return (found, !hasDecimals && !moneyAfter || found.prefix { $0 != "." }.filter(\.isNumber).count > 15)
-        }
-        // With a currency, a small letter after it is how much too: `£2.5m`, `$2b`.
-        if isMoney, after.range(of: #"^(?i)(k|m|b|t|bn|mn|tn)(?![\p{L}\p{N}]|-\p{L})"#, options: .regularExpression) != nil { return (found, true) }
-        let marks = found.filter { $0 == "." || $0 == "," }
-        let parts = found.split(whereSeparator: { $0 == "." || $0 == "," }).map(String.init)
-        let plain: String
-        if marks.count > 1, let last = marks.last {
-            let sameMark = Set(marks).count == 1
-            let groups = sameMark ? parts.dropFirst() : parts.dropFirst().dropLast()
-            let grouped = (sameMark || marks.dropLast().allSatisfy { $0 != last }) && parts[0].filter(\.isNumber).count <= 3 && groups.allSatisfy { $0.count == 3 }
-            if !grouped, marks.contains(",") { return (found, true) }
-            plain = !grouped ? parts[0] + "." + parts[1] : sameMark ? parts.joined() : parts.dropLast().joined() + "." + parts[parts.count - 1]
-        } else {
-            // `1.500` could be fifteen hundred, since a machine doesn't end a number in a nought, unless a unit says otherwise. `1.299 €` too: a price to the thousandth is rare. Bare, `1.299` is what a tool wrote.
-            if found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.000)$"#, options: .regularExpression) != nil { return (found, true) }
-            let saysDecimal = after.range(of: unit, options: .regularExpression) != nil
-            if found.range(of: #"^-?[1-9][0-9]{0,2}\.[0-9]{2}0$"#, options: .regularExpression) != nil, !saysDecimal { return (found, true) }
-            if isMoney || maybeCode, !saysDecimal, found.range(of: #"^-?[1-9][0-9]{0,2}\.[0-9]{3}$"#, options: .regularExpression) != nil { return (found, true) }
-            plain = found.replacingOccurrences(of: ",", with: ".")
-        }
-        return (plain, plain.prefix { $0 != "." }.filter(\.isNumber).count > 15)
-    }
-
-    static func couldBeEither(_ text: String) -> Bool { reading(text)?.doubtful == true }
-
-    static func number(_ text: String) -> Double? {
-        guard let read = reading(text), !read.doubtful else { return nil }
-        // Hundreds of digits come out as infinity, which no file can hold.
-        return Double(read.number).flatMap { $0.isFinite ? $0 : nil }
-    }
-
     /// Words a step couldn't read as a number, for a reason that names both.
     struct Unreadable: Error { var words: String }
 
-    /// The first words these checks would compare as a number that could be more than one: it can't tell, and going one way regardless would look like an answer.
+    /// One side of a check as a number. A number a tool gave as a number is that number; words are read.
+    static func reading(_ side: String, _ values: Values) -> NumberWords.Reading {
+        values.number(in: side).map { .number($0) } ?? NumberWords.read(values.fill(side))
+    }
+
+    /// A value as a number, the same way.
+    static func reading(of value: JSON) -> NumberWords.Reading {
+        if case .number(let n) = value { return .number(n) }
+        return NumberWords.read(Values.text(value))
+    }
+
+    /// The first words these checks would compare as a number that aren't plainly one: it can't tell, and going one way regardless would look like an answer.
     func doubtful(_ values: Values) -> String? {
         for check in checks where check.test == .more_than || check.test == .less_than {
-            for words in [values.fill(check.value), values.fill(check.than)] where Self.couldBeEither(words) { return words }
+            for side in [check.value, check.than] {
+                if case .number = Self.reading(side, values) { continue }
+                // Nothing there isn't words it can't read: whether that may stop the step is `undecided`'s to say.
+                let words = values.fill(side)
+                if !words.trimmed.isEmpty { return words }
+            }
         }
         return nil
     }

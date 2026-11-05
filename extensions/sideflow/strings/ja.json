@@ -453,7 +453,7 @@
     "Would ask you: {question}": "あなたに質問します：{question}",
     "Would run {flow}": "{flow}を実行します",
     "Would wait {time}": "{time}待ちます",
-    "Would, not done": "実行内容（未実行）",
+    "Practice: not done": "練習実行: 未実行",
     "Would: {what}": "実行内容：{what}",
     "Write how many minutes, or leave it empty.": "分数を入力するか、空のままにしてください。",
     "Write how many seconds, or leave it empty.": "秒数を入力するか、空のままにしてください。",
@@ -521,6 +521,8 @@
     "“{tool}” has no value called “{name}”.": "「{tool}」に「{name}」という値はありません。",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "「{tool}」はいま使えません。その拡張機能がオフか削除されているか、Sidefolkが拡張機能に使わせていません。",
     "“every_minutes” must be from {least} to {most}.": "「every_minutes」は {least} から {most} の範囲で指定してください。",
+    "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "一部のステップは言葉から数値を読み取り、明らかに 1 つの数値でなければ停止します。対処方法は各ステップのフォームに表示されます。",
+    "This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field.": "ここでは言葉を比較するため、明らかに 1 つの数値でなければ停止します。数値はツールのフィールドか AI ステップのフィールドから取ってください。",
     "That could be more than one number. Write it plainly, like 1500 or 1.5.": "この数値は複数の読み方ができます。1500 や 1.5 のようにはっきり書いてください。",
     "That isn't a number.": "数値ではありません。",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "ルーティンをディスクに保存できませんでした。Sidefolk を終了すると変更が失われる可能性があります。",
@@ -590,6 +592,8 @@
     "Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.": "ボード上では、「そうなら」の下に置いたものがこの条件が成り立つときに、「そうでなければ」の下に置いたものが成り立たないときに動きます。どちらも空のままにできます。",
     "This": "これ",
     "This flow has unsaved changes on its page. Ask the person to save or discard them first.": "このルーティンのページには未保存の変更があります。先に保存するか破棄するよう、その人に伝えてください。",
+    "Choose a place": "場所を選択",
+    "Rename": "名前を変更",
     "This flow's name": "このルーティンの名前",
     "This number": "この数値",
     "Three short lines about…": "…についての短い3行",
@@ -669,7 +673,9 @@
     "Check this draft": "この下書きをチェック",
     "Check this invoice": "この請求書をチェック",
     "Choose a path": "ルートを選ぶ",
-    "Copy": "コピー",
+    "Copy definition, with unsaved": "定義をコピー(未保存を含む)",
+    "Copy in words, with unsaved": "文章でコピー(未保存を含む)",
+    "Too long to copy from here": "長すぎてコピーできません",
     "Copy as a definition": "定義としてコピー",
     "Count": "数える",
     "Do something else if a step fails": "ステップが失敗したら別のことをする",
@@ -724,10 +730,8 @@
     "It was given: {name}": "受け取った内容：{name}",
     "It was given: {what}": "受け取った内容：{what}",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "一度に長く続きすぎたため止まりました。ステップが{count}個を超えています。ループの中のループも数に入ります。",
-    "It's too long to copy from here. Ask your companion to read it with get_flow.": "長すぎて、ここからはコピーできません。コンパニオンにget_flowで読んでもらってください。",
     "Item {place} · {status}": "項目{place}・{status}",
     "Its answer was long: only the first {count} characters were kept.": "返答が長かったため、最初の{count}文字だけを残しました。",
-    "Its definition": "その定義",
     "Its number": "その番号",
     "Its result": "その結果",
     "Its turn came.": "順番が来ました。",
@@ -797,7 +801,6 @@
     "The same as what's running": "実行中のものと同じ",
     "The text, as it should be": "あるべき姿のテキスト",
     "Then it counts as this step failing.": "その場合は、このステップの失敗として扱われます。",
-    "There's no number in that.": "数値が見つかりません。",
     "This item": "この項目",
     "Tries": "試行回数",
     "Try": "試す",
@@ -816,7 +819,6 @@
     "What it was waiting for is gone.": "待っていたものはもうありません。",
     "What to do": "することを選ぶ",
     "What to look at": "見るもの",
-    "What was last saved, as words. Nothing in it is a secret unless you typed one into a step.": "最後に保存した内容を言葉で表示します。ステップに自分で入力しない限り、秘密は含まれません。",
     "What went wrong": "失敗の理由",
     "What's the list? One per line.": "リストは何ですか？1行に1つ。",
     "When": "いつ",
@@ -1082,6 +1084,33 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "「{name}」には{what}が必要ですが、渡されたのは「{value}」です。",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: ツールへ送る際に{count}文字に切り詰めました。残りは送信されていません。",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "「{name}」は {answers} のいずれかですが、渡されたのは「{value}」です。",
-    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "「{step}」は「{value}」を読み取れません。複数の数値に読めるため、ここで停止しました。"
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "「{step}」は「{value}」を 1 つの数値として読み取れないため、ここで停止しました。数値はツールのフィールドか AI ステップのフィールドから取ってください。",
+    "After {step}": "{step} の後",
+    "Delete": "削除",
+    "Keep them": "残す",
+    "Move down": "下へ移動",
+    "Move to": "移動先",
+    "Move up": "上へ移動",
+    "Pick the flows to delete.": "削除するルーティンを選んでください。",
+    "Select": "選択",
+    "Select all": "すべて選択",
+    "Select flows": "ルーティンを選択",
+    "The very start": "いちばん最初",
+    "Their runs and what you allowed for them go too. This can't be undone.": "実行記録と許可した内容も一緒に消えます。元に戻せません。",
+    "“{other}” runs “{name}”, and that step won't work after this.": "「{other}」は「{name}」を実行しています。このステップは動かなくなります。",
+    "Delete these {count} flows?": {
+      "other": "これら{count}件のルーティンを削除しますか?"
+    },
+    "Delete {count} flows": {
+      "other": "{count}件のルーティンを削除"
+    },
+    "{count} of them are on. They stop running.": {
+      "other": "{count}件が有効です。実行されなくなります。"
+    },
+    "{count} selected": {
+      "other": "{count}件選択中"
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "一度に選べるのは最初の{count}件のルーティンだけです。削除すると残りが表示されます。",
+    "The nearest places are listed. To go further, move it there and choose again.": "近い場所だけを表示しています。さらに遠くへ移すには、そこまで移動してからもう一度選んでください。"
   }
 }

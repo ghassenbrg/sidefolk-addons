@@ -180,6 +180,62 @@ import SidefolkExtensionKit
         #expect(Engine.inside(body) == ["f"], "what's built from it says what it reads, on its own row")
     }
 
+    @Test func noNameAFlowControlsCanPassForTheClock() throws {
+        // Written by hand, past what a definition lets in: the host would refuse the whole plan over these.
+        for name in ["today", "now", "Today", "NOW", "tOdAy", "Now"] {
+            #expect(Engine.planSteps(FlowBody(steps: [Step(id: name, kind: .text("x"))]), title: "t").allSatisfy { $0.named == nil }, "\(name)")
+            #expect(Engine.planSteps(FlowBody(steps: [Step(id: name, kind: .action(tool: "a.b", input: [:]))]), title: "t").allSatisfy { $0.named == nil }, "\(name)")
+            guard case .form(let form)? = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "form": ["title": "W", "fields": [["name": "n", "label": "N", "kind": "text"]]]]]]).step("f")?.kind else { Issue.record("not a form"); return }
+            #expect(Engine.inside(FlowBody(steps: [Step(id: name, kind: .form(form))])).isEmpty, "\(name)")
+            #expect(throws: (any Error).self, "a definition can't have one: \(name)") {
+                try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": name, "text": "x"]]])
+            }
+        }
+    }
+
+    @Test func whatComesFromOutsideIsNeverSaidToBeTheClockOrThePersons() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "f", "form": ["title": "W", "fields": [["name": "now", "label": "N", "kind": "text"]]]],
+            ["id": "clock", "text": "{{now}}"],
+            ["id": "field", "text": "{{f.now}}"],
+            ["id": "off", "text": "{{trigger}}"],
+            ["id": "called", "text": "{{input.now}}"],
+            ["id": "cased", "text": "{{Now}}"],
+            ["id": "each", "for_each": "{{off}}", "steps": [["id": "one", "text": "{{item}}"], ["id": "go", "text": "{{index}}"]]],
+            ["id": "tool", "do": "reads.it"],
+            ["id": "mix", "text": "{{tool}} {{now}}"],
+        ]])
+        let rows = Engine.planSteps(body, title: "t")
+        func says(_ name: String, _ reads: String) -> Bool { rows.first { $0.named == name }?.line.contains("[\"\(reads)\"]") == true }
+        #expect(says("clock", "now"), "the real one")
+        #expect(says("field", "f"), "a field called now is what the form said, not the clock")
+        #expect(says("off", "trigger"))
+        #expect(says("called", "input"), "an input called now is what the caller passed")
+        #expect(says("cased", "Now"), "not the clock, and at run time nothing's there")
+        #expect(says("one", "item"))
+        #expect(says("item", "off"), "what a loop brings is what its list reads")
+        #expect(says("go", Engine.writtenWords), "which go it is says nothing about the person")
+        #expect(rows.first { $0.named == "mix" }?.line.contains("tool") == true, "the clock beside a tool's words doesn't make them inside")
+        #expect(Engine.inside(body) == ["f"], "a loop, a trigger and an input are never said to be the person's")
+    }
+
+    @Test func whatALoopGivesSaysItReadsItsListToo() throws {
+        // A go that skips the branch keeps the item, which is the page's words, not the form's.
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "page", "do": "reads.it"],
+            ["id": "each", "for_each": "{{page}}", "steps": [["if": ["value": "{{item}}", "test": "contains", "than": "x"], "then": [["id": "f", "form": ["title": "W", "fields": [["name": "n", "label": "N", "kind": "text"]]]]]]]],
+            ["id": "use", "text": "{{each}}"],
+        ]])
+        let row = Engine.planSteps(body, title: "t").first { $0.named == "each" }
+        #expect(row?.line.contains("page") == true, "\(row?.line ?? "")")
+        #expect(row?.line.contains("\"f\"") == true)
+    }
+
+    @Test func aStepKeptFromBeforeCalledIndexCantPassForThePersons() throws {
+        let rows = Engine.planSteps(FlowBody(steps: [Step(id: "a", kind: .ask(question: "Q", options: [])), Step(id: "index", kind: .action(tool: "reads.it", input: [:])), Step(id: "mix", kind: .text("{{a}} {{index}}"))]), title: "t")
+        #expect(rows.first { $0.named == "mix" }?.line.contains(Engine.writtenWords) == true)
+    }
+
     @Test func aFormNamedLikeWhatALoopBringsIsntTakenForTheLoopsItem() throws {
         let top = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "form": ["title": "Who", "fields": [["name": "n", "label": "Name", "kind": "text"]]]]]])
         guard case .form(let form)? = top.step("f")?.kind else { Issue.record("not a form"); return }

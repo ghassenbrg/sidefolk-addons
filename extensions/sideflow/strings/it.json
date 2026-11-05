@@ -455,7 +455,7 @@
     "Would ask you: {question}": "Ti chiederebbe: {question}",
     "Would run {flow}": "Eseguirebbe {flow}",
     "Would wait {time}": "Attenderebbe {time}",
-    "Would, not done": "Farebbe, non fatto",
+    "Practice: not done": "Prova: non fatto",
     "Would: {what}": "Farebbe: {what}",
     "Write how many minutes, or leave it empty.": "Scrivi quanti minuti, o lascia vuoto.",
     "Write how many seconds, or leave it empty.": "Scrivi quanti secondi, o lascia vuoto.",
@@ -525,6 +525,8 @@
     "“{tool}” has no value called “{name}”.": "«{tool}» non ha nessun valore chiamato «{name}».",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» ora non è disponibile. La sua estensione potrebbe essere disattivata o sparita, oppure Sidefolk non lascia usarlo alle estensioni.",
     "“every_minutes” must be from {least} to {most}.": "«every_minutes» deve essere tra {least} e {most}.",
+    "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "Alcuni passaggi leggono un numero dalle parole e si fermano se non sono chiaramente un solo numero. Il modulo di ciascuno dice cosa fare.",
+    "This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field.": "Questo confronta parole, quindi si ferma se non sono chiaramente un solo numero. Prendi il numero da un campo di uno strumento o di un passaggio IA.",
     "That could be more than one number. Write it plainly, like 1500 or 1.5.": "Questo numero si può leggere in più modi. Scrivilo in modo chiaro, come 1500 o 1.5.",
     "That isn't a number.": "Non è un numero.",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "Non è stato possibile salvare le tue routine sul disco. Le modifiche potrebbero andare perse alla chiusura di Sidefolk.",
@@ -597,6 +599,8 @@
     "Then, on the board: what goes under “If so” runs when this holds, what goes under “Otherwise” when it doesn't. Either can stay empty.": "Poi, sulla lavagna: ciò che sta sotto «Se sì» viene eseguito quando questo è vero, ciò che sta sotto «Altrimenti» quando non lo è. Entrambi possono restare vuoti.",
     "This": "Questo",
     "This flow has unsaved changes on its page. Ask the person to save or discard them first.": "Questa routine ha modifiche non salvate nella sua pagina. Chiedi alla persona di salvarle o scartarle prima.",
+    "Choose a place": "Scegli un punto",
+    "Rename": "Rinomina",
     "This flow's name": "Nome di questa routine",
     "This number": "Questo numero",
     "Three short lines about…": "Tre righe brevi su…",
@@ -678,7 +682,9 @@
     "Check this draft": "Controlla questa bozza",
     "Check this invoice": "Controlla questa fattura",
     "Choose a path": "Scegli un percorso",
-    "Copy": "Copia",
+    "Copy definition, with unsaved": "Copia definizione (non salv.)",
+    "Copy in words, with unsaved": "Copia a parole (non salvato)",
+    "Too long to copy from here": "Troppo lungo da copiare",
     "Copy as a definition": "Copia come definizione",
     "Count": "Conta",
     "Do something else if a step fails": "Fai qualcos’altro se un passaggio non riesce",
@@ -733,10 +739,8 @@
     "It was given: {name}": "Ha ricevuto: {name}",
     "It was given: {what}": "Ha ricevuto: {what}",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "È andata avanti troppo a lungo in un colpo solo, quindi si è fermata: più di {count} passaggi. I cicli dentro i cicli si sommano.",
-    "It's too long to copy from here. Ask your companion to read it with get_flow.": "È troppo lungo da copiare da qui. Chiedi al tuo compagno di leggerlo con get_flow.",
     "Item {place} · {status}": "Elemento {place} · {status}",
     "Its answer was long: only the first {count} characters were kept.": "La sua risposta era lunga: sono stati tenuti solo i primi {count} caratteri.",
-    "Its definition": "La sua definizione",
     "Its number": "Il suo numero",
     "Its result": "Il suo risultato",
     "Its turn came.": "È arrivato il suo turno.",
@@ -805,7 +809,6 @@
     "The same as what's running": "Uguale a ciò che è in esecuzione",
     "The text, as it should be": "Il testo, come deve essere",
     "Then it counts as this step failing.": "Allora conta come un errore di questo passaggio.",
-    "There's no number in that.": "Lì non c’è nessun numero.",
     "This item": "Questo elemento",
     "Tries": "Tentativi",
     "Try": "Tenta",
@@ -824,7 +827,6 @@
     "What it was waiting for is gone.": "Ciò che aspettava non c’è più.",
     "What to do": "Cosa fare",
     "What to look at": "Cosa guardare",
-    "What was last saved, as words. Nothing in it is a secret unless you typed one into a step.": "Ciò che è stato salvato per ultimo, a parole. Niente è segreto, a meno che tu non l’abbia scritto in un passaggio.",
     "What went wrong": "Cosa è andato storto",
     "What's the list? One per line.": "Qual è la lista? Una per riga.",
     "When": "Quando",
@@ -1100,6 +1102,37 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» vuole {what}, e questo gli dà «{value}».",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: tagliato a {count} caratteri verso lo strumento. Il resto non è stato inviato.",
     "“{name}” is one of {answers}, and this gives it “{value}”.": "«{name}» è uno tra {answers}, e questo gli dà «{value}».",
-    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "«{step}» non può leggere «{value}»: potrebbe essere più di un numero, quindi si è fermato qui."
+    "“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.": "«{step}» non può leggere «{value}» come un solo numero, quindi si è fermato qui. Prendi il numero da un campo di uno strumento o di un passaggio IA.",
+    "After {step}": "Dopo {step}",
+    "Delete": "Elimina",
+    "Keep them": "Tienile",
+    "Move down": "Sposta giù",
+    "Move to": "Sposta in",
+    "Move up": "Sposta su",
+    "Pick the flows to delete.": "Scegli le routine da eliminare.",
+    "Select": "Seleziona",
+    "Select all": "Seleziona tutte",
+    "Select flows": "Seleziona routine",
+    "The very start": "All'inizio di tutto",
+    "Their runs and what you allowed for them go too. This can't be undone.": "Le loro esecuzioni e ciò che avevi consentito se ne vanno con loro. Non si può annullare.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "«{other}» avvia «{name}», e quel passaggio non funzionerà più.",
+    "Delete these {count} flows?": {
+      "one": "Eliminare questa routine?",
+      "other": "Eliminare queste {count} routine?"
+    },
+    "Delete {count} flows": {
+      "one": "Elimina {count} routine",
+      "other": "Elimina {count} routine"
+    },
+    "{count} of them are on. They stop running.": {
+      "one": "{count} di esse è attiva. Smetterà di funzionare.",
+      "other": "{count} di esse sono attive. Smetteranno di funzionare."
+    },
+    "{count} selected": {
+      "one": "{count} selezionata",
+      "other": "{count} selezionate"
+    },
+    "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Si possono scegliere solo le prime {count} routine alla volta. Eliminale e compariranno le altre.",
+    "The nearest places are listed. To go further, move it there and choose again.": "Sono elencati i punti più vicini. Per andare oltre, spostalo lì e scegli di nuovo."
   }
 }

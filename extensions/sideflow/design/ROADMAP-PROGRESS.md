@@ -41,7 +41,31 @@ Known small gaps accepted for now, to fix first in the next batch:
 
 Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off flow in an untaken branch refuses the whole run; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
 
-Typed mapping's later list: reading the first number in words is a judgement, not a parser, so `Pos 3 129,50 €` reads 3129.5, `,5` reads 5, `192.168.100.200` reads as one long number, `Nov 5 120 €` reads 5120, `$3.459`, `1.234 BTC` and `USD/JPY 149.253` stop though they could be read, and a bare `1.299` is 1.299 because that's what a tool writes; an entry with a comma in it reads as two in the form and goes as one; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
+Typed mapping's later list: an entry with a comma in it reads as two in the form and goes as one; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
+
+## How words become a number (the coordinator's ruling, 2026-11-05)
+
+`NumberWords` is the one reader: a number written plainly (`12`, `-3`, `12.5`), and nothing else. A number a tool or a form gave as a number is compared as that number, never as words. Every route goes through it: conditions, repeat checks, filters, sums, sort, the number op, a tool's number field, a called flow's number. Someone typing into a number field gets the same shape, and is told to write it plainly. We tried reading more twice, and each final read found ordinary strings read wrong without a stop (`Ports: 80,81`, `1 GB` against `500 MB`, `Down: 5%`), so this is the safe subset.
+
+For the release notes, in plain words: a flow that compares or adds up text like `18 °C`, `$1,299.00`, `12%`, `CPU: 12%` or `Rain at 18` now stops, says which step and which words, and tells you to take the number from a tool's field or an AI step's field. It no longer picks a number out of the words. `1.500` and `1,500` stop too, since they could be fifteen hundred.
+
+The person hears before a real run: a step's form and the flow's page mark a step that compares or adds up words, an agent sees it in `get_flow` and `update_flow`, a practice notes it on the step and goes on, and a real stop says the words and the fix.
+
+Later list, for the expression language: units, currencies, thousands marks, percent.
+
+Also later: JSON written inside words (`[1.000]` in a sum) is read as JSON first; the editor's mark doesn't cover a sort, whose list usually is words; a person typing `1.234` into a number field gets 1.234; a value reading more than 32 names says it reads nothing nameable, so edits to those aren't new (its rank stays outside); applying a change doesn't stop runs already under way.
+
+## Deleting several flows and moving steps (the founder's feedback, read clean at 2980498)
+
+The rule (D199 in the app's docs, on app branch `team/sideflow-delete-docs`): deleting flows from the selection is the page's own button and nothing else. The press carries the page's private token (`page_token`, the `page-key` file in the extension's data folder), has to come at least 0.6 seconds after the confirmation appeared, and has to name exactly the flows the confirmation listed. The `ui` tool has no plain `delete` any more. An agent, or another extension acting through a plan, goes through `delete_flow`: high risk, one flow, on a card each time.
+
+Later list: `delete_flow` removing a picked flow makes the press ask again; a name with hidden characters; 200 or more flows may pass the 128 KB page limit; moving walks every step at 100 steps; a guarded press still logs "Changed something"; Keep from the selection; a step whose id is `start` reads ambiguously. A drag handle on a card needs the app and isn't built.
+
+## Copy as a definition (the founder's report, reproduced on snapshot.10)
+
+The button opened a section with a second Copy button and copied nothing itself: from Runs or Activity nothing showed at all, and with a step selected it sat low in the side panel. It now copies at once from the menu on any tab, like Copy it in words. Both copy what's on screen and say when that includes changes that aren't saved. The label says when it includes unsaved changes, because a menu shows only its label. The page carries the words on every read, so past 20,000 bytes the button says it's too long rather than risk the page not drawing. What it copies comes back through Bring one in as the same flow.
+
+Later list: words still being typed in a field aren't in the copy until that field is left (the host hands over typing after the words were drawn; a general fix is the app's); a half-written draft can be copied and then refused on the way back in; hidden characters like a joiner inside an emoji are removed by the host as it copies, as they were before. Definitions between 20,000 and 30,000 bytes used to offer a second button and now say too long; Export is their way out.
 
 Typed mapping's later list, from its last read: `wrote` is set before the fit check, so a refusal carried on inside a repeat says it would do this all again; `{{a}}, {{b}}` into a list sends a blank entry when b is blank; a page's mark can pass what a run refuses; a practice skips the fit check.
 

@@ -656,7 +656,7 @@ extension FlowHost {
     /// is the one thing that must not happen by itself.
     /// A number that could be more than one, said with the step and the words, since it stops what used to go one way without a word.
     static func cantRead(_ words: String, at step: Step, catalog: Catalog) -> String {
-        L("“{step}” can't read “{value}”: it could be more than one number, so it stopped here.", ["step": Words.label(step, catalog: catalog), "value": words.clipped(80)])
+        L("“{step}” can't read “{value}” as one number, so it stopped here. Take the number from a tool's field or an AI step's field.", ["step": Words.label(step, catalog: catalog), "value": words.clipped(80)])
     }
 
     func failed(_ step: Step, why: String, reads: Bool, in run: inout Run, said: String? = nil) -> Bool {
@@ -1135,13 +1135,14 @@ extension FlowHost {
         }
         // A name the host can trust to be one step's: it refuses a whole plan over a bad one.
         func name(_ step: Step) -> String? {
-            step.id.count <= 60 && !Values.reserved.contains(step.id) && step.id.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "_" || $0 == "-") }) && names.insert(step.id).inserted ? step.id : nil
+            step.id.count <= 60 && !Values.reserved.contains(step.id.lowercased()) && step.id.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "_" || $0 == "-") }) && names.insert(step.id).inserted ? step.id : nil
         }
         // What a value is made from, so the host can follow a step's value back to what really gave it. Words written in with it are a source of their own: an edit
         // could change them with no card, so they never count as the person's.
         func sources(_ texts: [String]) -> [String] {
             let named = texts.flatMap(Values.references).filter { !["item", "index"].contains($0) }
-            let written = texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
+            // Which go it is says nothing of the person, and a saved flow can still have a step called that.
+            let written = texts.flatMap(Values.references).contains("index") || texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
             let looped = texts.flatMap(Values.references).contains("item") ? ["item"] : []
             return Array(Set(named + looped + (written ? [writtenWords] : []))).sorted()
         }
@@ -1184,8 +1185,10 @@ extension FlowHost {
                 // What a loop or a repeat gives comes from what's in it.
                 switch step.kind {
                 case .forEach, .repeatUntil:
-                    let made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
-                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: said(made))) }
+                    var made = FlowBody(steps: inside).allSteps.filter(\.hasOutput).map(\.id)
+                    // A go where nothing inside made anything keeps the item itself.
+                    if case .forEach(let items, _, _, _) = step.kind { made += sources([items]) }
+                    if !made.isEmpty, let as_ = name(step) { steps.append(.value(named: as_, reads: said(Array(Set(made)).sorted()))) }
                 default: break
                 }
             }
@@ -1209,7 +1212,7 @@ extension FlowHost {
     /// A name that means something else in a loop or a try isn't one.
     static func inside(_ body: FlowBody) -> [String] {
         body.allSteps.filter { step in
-            if case .form = step.kind { return !Values.reserved.contains(step.id) }
+            if case .form = step.kind { return !Values.reserved.contains(step.id.lowercased()) }
             return false
         }.map(\.id)
     }

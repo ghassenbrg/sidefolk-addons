@@ -944,10 +944,12 @@ import SidefolkExtensionKit
     @Test func conditionsReadValuesAsPeopleWould() {
         var v = Values()
         v.set("t", "Rain at 18 °C")
+        v.set("n", "18")
         #expect(Condition(value: "{{t}}", test: .contains, than: "rain").holds(v))
         #expect(!Condition(value: "{{t}}", test: .not_contains, than: "RAIN").holds(v))
-        #expect(Condition(value: "{{t}}", test: .more_than, than: "17").holds(v))
-        #expect(!Condition(value: "{{t}}", test: .less_than, than: "17").holds(v))
+        #expect(Condition(value: "{{n}}", test: .more_than, than: "17").holds(v))
+        #expect(!Condition(value: "{{n}}", test: .less_than, than: "17").holds(v))
+        #expect(Condition(value: "{{t}}", test: .more_than, than: "17").doubtful(v) == "Rain at 18 °C", "a number among other words stops")
         #expect(Condition(value: "{{missing}}", test: .is_empty, than: "").holds(v))
         #expect(Condition(value: "{{t}}", test: .not_empty, than: "").holds(v))
         #expect(!Condition(value: "words", test: .more_than, than: "1").holds(v), "no number, no comparison")
@@ -1129,7 +1131,7 @@ import SidefolkExtensionKit
     }
 
     @Test func aHugeNumberAFlowReadNeverStopsTheSaving() throws {
-        #expect(Condition.number(String(repeating: "9", count: 400)) == nil)
+        #expect(NumberWords.number(String(repeating: "9", count: 400)) == nil)
         let w = try World()
         var flow = try w.flow([["id": "a", "do": "reads.it"]])
         if case .action(let tool, var input) = flow.draft.steps[0].kind {
@@ -1312,8 +1314,7 @@ import SidefolkExtensionKit
     @Test func aVeryLargeNumberDoesntStopTheProgram() async throws {
         let w = try World()
         let app = app(w)
-        let flow = try make(app, [["id": "a", "do": "reads.it"]])
-        try await page(app, "param", flow, ["step": "a", "name": "n", "text": "1e30"])
+        let flow = try make(app, [["id": "a", "do": "reads.it", "with": ["n": 1e30]]])
         let now = try #require(app.store.flow(flow.id))
         app.nav.inspect(.step("a"), in: now.id)
         #expect(!Inspector.sections(now, app, problems: []).isEmpty, "drawing its form")
@@ -2009,8 +2010,7 @@ import SidefolkExtensionKit
     @Test func aVeryLargeNumberDoesntStopTheProgram() async throws {
         let w = try World()
         let app = app(w)
-        let flow = try make(app, [["id": "a", "do": "reads.it"]])
-        try await page(app, "param", flow, ["step": "a", "name": "n", "text": "1e30"])
+        let flow = try make(app, [["id": "a", "do": "reads.it", "with": ["n": 1e30]]])
         let now = try #require(app.store.flow(flow.id))
         app.nav.inspect(.step("a"), in: now.id)
         let drawn = await Pages.make(app, state: Arguments(["flow": now.id]), background: false)

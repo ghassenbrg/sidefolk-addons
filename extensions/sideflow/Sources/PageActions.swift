@@ -4,7 +4,7 @@ import SidefolkExtensionKit
 /// What a click on the page does: the one tool `ui`, as the person (never offered to a model). Every change goes to the draft.
 @MainActor enum Actions_UI {
     /// Where the click leaves the page.
-    enum Leaves { case stay, flow(String), run(String), home }
+    enum Leaves { case stay, flow(String), panel(String), run(String), home }
 
     static func handle(_ a: Arguments, _ app: App) async throws -> Leaves {
         let op = a.string("op") ?? ""
@@ -84,8 +84,15 @@ import SidefolkExtensionKit
                     try draft { $0 = Editing.move(id, before: (move["before"] as? String)?.nonEmpty, in: $0) }
                 }
             }
+        case "move_after":
+            if let id = a.string("step"), let after = a.string("value") { try draft { $0 = Editing.place(id, after: after, in: $0) } }
         case "up", "down":
             if let id = a.string("step") { try draft { $0 = Editing.nudge(id, by: op == "up" ? -1 : 1, in: $0) } }
+        case "rename_open":
+            // Its name is on the flow's own panel, whatever was selected and whichever tab this came from.
+            let f = try flow()
+            app.nav.inspect(.nothing, in: f.id)
+            return .panel(f.id)
         case "rename":
             var f = try flow()
             if let name = text.nonEmpty.map({ String($0.prefix(60)) }) {
@@ -99,7 +106,7 @@ import SidefolkExtensionKit
             // One infinity would stop the whole file saving, so it never gets in.
             let isValue = !Values.slots(text).isEmpty
             if case .integer = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.wholeNumber(text) == nil { throw Problem(L("That isn't a whole number.")) }
-            if case .number = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.number(text) == nil { throw Problem(Condition.couldBeEither(text) ? L("That could be more than one number. Write it plainly, like 1500 or 1.5.") : L("That isn't a number.")) }
+            if case .number = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.number(text) == nil { throw Problem(Editing.couldBeMoreThanOne(text) ? L("That could be more than one number. Write it plainly, like 1500 or 1.5.") : L("That isn't a number.")) }
             let value: JSON? = if let on = a.bool("on") { .bool(on) } else if let picked = a.string("value") { picked == "" ? nil : .string(picked) } else { Editing.value(text, for: parameter) }
             try editStep { s in
                 guard case .action(let t, let input) = s.kind else { return }
@@ -274,10 +281,6 @@ import SidefolkExtensionKit
             app.engine.endHeldRuns()
         case "stop_run":
             if let id = a.string("run") { app.engine.stop(run: id, byThePerson: a.string("page_token") == app.pageKey) }
-        case "export":
-            app.nav.exporting = try flow().id
-        case "export_done":
-            app.nav.exporting = nil
         case "inspect_run":
             if let id = a.string("run"), let target = a.string("target") {
                 // Pressing what's selected puts it away, as on the board.
@@ -332,12 +335,14 @@ import SidefolkExtensionKit
         case "trigger_sample":
             try draft { $0.triggerSample = text.nonEmpty }
         case "form_field":
-            // Typed so far: kept with the run, so a restart doesn't lose it.
+            // Typed so far: kept with the run, so a restart doesn't lose it. What a form says is believed to be the person's own, so only the page's own fields count.
+            guard a.string("page_token") == app.pageKey else { break }
             if let id = a.string("run"), let name = a.string("name"), var run = app.store.run(id), run.form != nil {
                 run.form?.answers[name] = a.values["value"] != nil ? JSON(a.values["value"]) : (a.bool("on").map { JSON.bool($0) } ?? JSON.string(text))
                 app.store.save(run)
             }
         case "form_send":
+            guard a.string("page_token") == app.pageKey else { break }
             if let id = a.string("run") { try app.engine.answer(run: id, form: [:]) }
         case "wait_event", "wait_contains", "wait_minutes":
             if op == "wait_minutes", (Int(text.trimmed) ?? 0) < 1 || (Int(text.trimmed) ?? 0) > FlowBody.longestWait * 30 {
@@ -502,8 +507,51 @@ import SidefolkExtensionKit
             guard let id = a.string("step") ?? { if case .step(let s) = app.nav.inspecting(f) { s } else { nil } }(), let (body, new) = Editing.duplicate(id, in: f.draft) else { break }
             try draft { $0 = body }
             app.nav.inspect(.step(new), in: f.id)
-        case "delete":
-            app.engine.delete(try flow().id)
+        case "ask_delete":
+            let id = try flow().id
+            app.nav.pickingFlows = [id]
+            app.nav.askedFromAFlow = true
+            app.nav.askingToDelete = true
+            app.nav.askedToDeleteAt = Date()
+            return .home
+        case "pick_flows":
+            app.nav.pickingFlows = []
+            app.nav.askingToDelete = false
+            app.nav.askedFromAFlow = false
+        case "pick_flow":
+            if let id = a.string("picked"), app.store.flow(id) != nil {
+                if a.bool("on") == false { app.nav.pickingFlows?.remove(id) } else { app.nav.pickingFlows?.insert(id) }
+                app.nav.askingToDelete = false
+            }
+        case "pick_all":
+            app.nav.pickingFlows = Set(app.store.flows().prefix(Pages.mostToPick).map(\.id))
+            app.nav.askingToDelete = false
+        case "pick_none":
+            app.nav.pickingFlows = nil
+            app.nav.askingToDelete = false
+            app.nav.askedFromAFlow = false
+        case "pick_delete":
+            app.nav.askingToDelete = !(app.nav.pickingFlows ?? []).isEmpty
+            app.nav.askedToDeleteAt = Date()
+        case "pick_keep":
+            app.nav.askingToDelete = false
+            if app.nav.askedFromAFlow {
+                app.nav.pickingFlows = nil
+                app.nav.askedFromAFlow = false
+            }
+        case "pick_delete_sure":
+            // Another extension can call this on a card that names no flow, so only the page's own button counts. And only what the page said it would delete, after it said so.
+            guard a.string("page_token") == app.pageKey, app.nav.askingToDelete else { break }
+            if let asked = app.nav.askedToDeleteAt, Date().timeIntervalSince(asked) < Pages.settling { break }
+            // What the button was drawn with, which is what the page named. Anything else since, and it asks again.
+            guard Set(a.strings("named")) == app.nav.pickingFlows else {
+                app.nav.askingToDelete = false
+                break
+            }
+            for id in app.nav.pickingFlows ?? [] { app.engine.delete(id) }
+            app.nav.pickingFlows = nil
+            app.nav.askingToDelete = false
+            app.nav.askedFromAFlow = false
             return .home
         case "duplicate":
             let f = try flow()

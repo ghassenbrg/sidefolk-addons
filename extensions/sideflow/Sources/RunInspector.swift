@@ -5,11 +5,11 @@ import SidefolkExtensionKit
 /// what the run wrote down at the time, on this Mac, in Sideflow's own folder.
 @MainActor extension Pages {
     /// The form a run waits on, to fill in here. Each field is kept as it's typed, so a restart loses nothing.
-    static func formSection(_ run: Run) -> Section? {
+    static func formSection(_ run: Run, _ app: App) -> Section? {
         guard let waiting = run.form, let step = run.body.step(waiting.step), case .form(let form) = step.kind else { return nil }
         var blocks: [Block] = []
         for field in form.fields {
-            let input = ui("form_field", ["run": run.id, "name": field.name])
+            let input = ui("form_field", ["run": run.id, "name": field.name, "page_token": app.pageKey])
             let now = waiting.answers[field.name].map(Values.text) ?? ""
             let label = field.required ? field.label : L("{field} (optional)", ["field": field.label])
             switch field.kind {
@@ -19,7 +19,7 @@ import SidefolkExtensionKit
             case .choice: blocks.append(.picker(label, style: .menu, field.options.map { Option($0, $0) }, selected: now, tool: "ui", input: input))
             }
         }
-        blocks.append(.action(Action(L("Send"), tool: "ui", input: ui("form_send", ["run": run.id]), style: .primary, symbol: "paperplane")))
+        blocks.append(.action(Action(L("Send"), tool: "ui", input: ui("form_send", ["run": run.id, "page_token": app.pageKey]), style: .primary, symbol: "paperplane")))
         let until = run.resumeAt.map { L("It waits until {time}.", ["time": Format.dateTime($0)]) }
         return Section(run.values.fill(form.title).clipped(Engine.longestFormTitle).nonEmpty ?? L("A form for you"), blocks, place: .trailing, detail: until)
     }

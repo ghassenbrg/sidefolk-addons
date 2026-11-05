@@ -321,7 +321,7 @@ import SidefolkExtensionKit
                                   ["id": "b", "if": ["value": "{{f.note}}", "test": "not_contains", "than": "urgent"], "then": [["id": "calm", "text": "x"]]]])
         let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
         await w.quiet(app.store)
-        try await page(app, "form_send", flow, ["run": run.id])
+        try await page(app, "form_send", flow, ["run": run.id, "page_token": app.pageKey])
         await w.quiet(app.store)
         let done = try #require(app.store.run(run.id))
         #expect(done.status == .done)
@@ -336,7 +336,7 @@ import SidefolkExtensionKit
                                   ["id": "c", "do": "changes.it", "with": ["n": "{{f.n}}", "pick": "{{f.n}}", "text": "{{f.n}}"]]])
         let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
         await w.quiet(app.store)
-        try await page(app, "form_send", flow, ["run": run.id])
+        try await page(app, "form_send", flow, ["run": run.id, "page_token": app.pageKey])
         await w.quiet(app.store)
         let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
         #expect(sent["n"] is NSNull, "absent, as it was, not an empty string a number can't be")
@@ -458,8 +458,8 @@ import SidefolkExtensionKit
                                   ["id": "c", "choose": "{{f.go}}", "paths": [["when": "Yes", "steps": [["id": "p", "text": "x"]]], ["when": "No", "steps": [["id": "q", "text": "y"]]]]]])
         let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
         await w.quiet(app.store)
-        try await page(app, "form_field", flow, ["run": run.id, "name": "go", "on": false])
-        try await page(app, "form_send", flow, ["run": run.id])
+        try await page(app, "form_field", flow, ["run": run.id, "name": "go", "on": false, "page_token": app.pageKey])
+        try await page(app, "form_send", flow, ["run": run.id, "page_token": app.pageKey])
         await w.quiet(app.store)
         let done = try #require(app.store.run(run.id))
         #expect(done.status == .done)
@@ -805,7 +805,7 @@ import SidefolkExtensionKit
         let now = try #require(app.store.run(run.id))
         #expect(!w.host.notices.isEmpty)
         #expect(w.host.notices.allSatisfy { ($0.body?.count ?? 0) < 300 })
-        #expect((Pages.formSection(now)?.title?.count ?? 0) < 300)
+        #expect((Pages.formSection(now, app)?.title?.count ?? 0) < 300)
     }
 
     @Test func goesPastWhatAMenuHoldsAreSaid() async throws {
@@ -848,7 +848,7 @@ import SidefolkExtensionKit
         #expect(w.host.notices.contains { $0.body == "Check the draft" }, "not its braces")
         let now = try #require(app.store.run(run.id))
         #expect(now.form != nil)
-        #expect(drawn(Pages.formSection(now).map { [$0] } ?? []).contains("Check the draft"))
+        #expect(drawn(Pages.formSection(now, app).map { [$0] } ?? []).contains("Check the draft"))
     }
 
     @Test func aLaneInAnyLanguageCanBeReached() {

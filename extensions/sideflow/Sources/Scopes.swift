@@ -201,15 +201,39 @@ struct DataStep: Equatable, Sendable {
             // What the page shows selected before anyone picks. Looking for nothing would look like an answer: an empty list.
             if [nil, .contains, .not_contains].contains(test), resolved.trimmed.isEmpty { throw Problem(L("Say what to compare it with.")) }
             return .array(try list().filter { item in
-                let left = at(item).map(Values.text) ?? ""
-                if test == .more_than || test == .less_than, let doubtful = [left, resolved].first(where: Condition.couldBeEither) { throw Condition.Unreadable(words: doubtful) }
+                let found = at(item)
+                let left = found.map(Values.text) ?? ""
+                if test == .more_than || test == .less_than {
+                    // A row with nothing there has nothing to compare. One with words that aren't one number can't be told.
+                    if left.trimmed.isEmpty || found == .null { return false }
+                    guard case .number(let a)? = found.map(Condition.reading(of:)) else { throw Condition.Unreadable(words: left) }
+                    guard let b = NumberWords.number(resolved) else { throw Condition.Unreadable(words: resolved) }
+                    return test == .more_than ? a > b : a < b
+                }
                 return Condition.test(test ?? .contains, left: left, right: resolved)
             })
         case .sort:
-            let sorted = try list().sorted { a, b in
-                let (x, y) = (at(a).map(Values.text) ?? "", at(b).map(Values.text) ?? "")
-                if let n = Double(x), let m = Double(y) { return n < m }
-                return x.localizedStandardCompare(y) == .orderedAscending
+            let items = try list()
+            // Words that have a number in them sort by their letters only if they start with a letter, or are a date written year first: anything else would look like an answer (`1,500` before `200`).
+            for item in items {
+                let found = at(item)
+                let text = found.map(Values.text)?.trimmed ?? ""
+                if case .number? = found.map(Condition.reading(of:)) { continue }
+                if text.range(of: #"\p{N}"#, options: .regularExpression) != nil, text.first?.isLetter != true, text.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}"#, options: .regularExpression) == nil {
+                    throw Condition.Unreadable(words: text)
+                }
+            }
+            func number(_ item: JSON) -> Double? {
+                if case .number(let n)? = at(item).map(Condition.reading(of:)) { n } else { nil }
+            }
+            // Numbers come first, by what they are, then words by their letters: one order, whatever order they arrived in.
+            let sorted = items.sorted { a, b in
+                switch (number(a), number(b)) {
+                case (let n?, let m?): n < m
+                case (.some, nil): true
+                case (nil, .some): false
+                case (nil, nil): (at(a).map(Values.text) ?? "").localizedCaseInsensitiveCompare(at(b).map(Values.text) ?? "") == .orderedAscending
+                }
             }
             return .array(descending ? sorted.reversed() : sorted)
         case .unique:
@@ -222,15 +246,14 @@ struct DataStep: Equatable, Sendable {
             return .array(Array(try list().prefix(max(count ?? 1, 0))))
         case .sum:
             let total = try list().reduce(0) { sum, item in
-                guard let text = at(item).map(Values.text) else { return sum }
-                if Condition.couldBeEither(text) { throw Condition.Unreadable(words: text) }
-                return sum + (Condition.number(text) ?? 0)
+                guard let found = at(item), found != .null, !Values.text(found).trimmed.isEmpty else { return sum }
+                guard case .number(let n) = Condition.reading(of: found) else { throw Condition.Unreadable(words: Values.text(found)) }
+                return sum + n
             }
             guard total.isFinite else { throw Problem(L("Those numbers add up to too much.")) }
             return .number(total)
         case .number:
-            if Condition.couldBeEither(Values.text(value)) { throw Condition.Unreadable(words: Values.text(value)) }
-            guard let n = Condition.number(Values.text(value)) else { throw Problem(L("There's no number in that.")) }
+            guard case .number(let n) = Condition.reading(of: value) else { throw Condition.Unreadable(words: Values.text(value)) }
             return .number(n)
         case .batches:
             let size = max(count ?? 10, 1), items = try list()

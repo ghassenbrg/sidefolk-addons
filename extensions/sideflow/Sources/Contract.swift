@@ -41,8 +41,8 @@ enum ValueType: String, Equatable, Sendable, CaseIterable {
         switch (self, value) {
         case (.text, .string), (.number, .number), (.yes_no, .bool), (.list, .array), (.record, .object): return value
         case (.text, .number), (.text, .bool): return .string(Values.text(value))
-        // "1.000" could be a thousand: `Editing.number` leaves what could be more than one number alone, so it doesn't go on as 1.
-        case (.number, .string(let words)): return Editing.number(words).map { .number($0) }
+        // Words coming into a flow read as words anywhere do: "1.000" could be a thousand, so it doesn't go on as 1.
+        case (.number, .string(let words)): return Editing.number(fromWords: words).map { .number($0) }
         case (.yes_no, .string(let words)): return Editing.yesOrNo(words).map { .bool($0) }
         case (.list, .string(let words)):
             if case .array(let items) = Values.structured(value) { return .array(items) }

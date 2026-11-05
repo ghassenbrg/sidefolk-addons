@@ -253,7 +253,13 @@ struct Values: Equatable, Sendable {
         })
     }
 
-    private static func isOneSlot(_ text: String) -> Bool {
+    /// The number these words are nothing but a value for, when that value is a number and not words about one.
+    func number(in text: String) -> Double? {
+        guard Self.isOneSlot(text), let slot = Self.slots(text).first, case .number(let n)? = resolve(slot.name, path: slot.path) else { return nil }
+        return n
+    }
+
+    static func isOneSlot(_ text: String) -> Bool {
         let whole = NSRange(text.startIndex..., in: text)
         return slot.firstMatch(in: text, range: whole)?.range == whole
     }

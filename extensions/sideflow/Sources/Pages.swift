@@ -172,7 +172,8 @@ import SidefolkExtensionKit
     static func homePage(_ app: App, state: Arguments) -> Page {
         let flows = app.store.flows()
         guard !flows.isEmpty else { return firstRun(app, state: state) }
-        var main: [Section] = [Section(nil, [.bar(PageBar(L("Your flows"), detail: L("Your companion runs these for you."), actions: [button(L("New flow"), "new", style: .primary, symbol: "plus")]))])]
+        if let picked = app.nav.pickingFlows { return pickingPage(flows, picked: picked, app, state: state) }
+        var main: [Section] = [Section(nil, [.bar(PageBar(L("Your flows"), detail: L("Your companion runs these for you."), actions: [button(L("Select"), "pick_flows", symbol: "checkmark.circle"), button(L("New flow"), "new", style: .primary, symbol: "plus")]))])]
         var body: [Section] = []
         let on = flows.filter { $0.state == .on }
         let nextUp = on.compactMap { flow in Summaries.next(flow).map { (flow, $0) } }.min { $0.1 < $1.1 }
@@ -189,6 +190,59 @@ import SidefolkExtensionKit
         body.append(Section(L("Bring one in"), [.edit(EditField("import", L("A flow's definition"), value: "", detail: L("One copied from Sideflow. It comes in as a draft: nothing runs until you've read it and turned it on."), placeholder: "{\"name\": …, \"flow\": …}", kind: .multiline, tool: "ui", input: ui("import")))], collapsed: true, wide: true))
         main += body
         return frame(app, state: state, here: "flows", main)
+    }
+
+    /// What Sidefolk keeps of a list or a section: past it, the rest wouldn't show. And how many sections that leaves room for.
+    static let inABlock = 24
+    static let mostToPick = inABlock * 12
+    /// Long enough that the second click of a double click isn't taken for being sure.
+    static let settling: TimeInterval = 0.6
+
+    /// Choosing flows to delete, and then being sure: how many, which, and what goes with them. What's gone doesn't come back, so it's said before it happens.
+    static func pickingPage(_ flows: [Flow], picked: Set<String>, _ app: App, state: Arguments) -> Page {
+        let chosen = flows.filter { picked.contains($0.id) }
+        var main: [Section] = []
+        if app.nav.askingToDelete, !chosen.isEmpty {
+            // In lists of what a list can hold: nothing goes that isn't named.
+            var blocks: [Block] = stride(from: 0, to: chosen.count, by: inABlock).map { start in
+                .facts(nil, chosen[start..<min(start + inABlock, chosen.count)].map { (stateWord($0), $0.name) })
+            }
+            let on = chosen.filter { $0.state == .on }.count
+            if on > 0 { blocks.append(.note(L(one: "{count} of them is on. It stops running.", other: "{count} of them are on. They stop running.", count: on), tone: .warn)) }
+            let doomed = Set(chosen.map(\.name))
+            for other in flows where !picked.contains(other.id) {
+                let runs = other.running.allSteps.compactMap { step -> String? in
+                    switch step.kind {
+                    case .call(let name, _), .flow(let name): doomed.contains(name) ? name : nil
+                    default: nil
+                    }
+                }
+                if let first = runs.first { blocks.append(.note(L("“{other}” runs “{name}”, and that step won't work after this.", ["other": other.name, "name": first]), tone: .warn)) }
+            }
+            blocks.append(.note(L("Their runs and what you allowed for them go too. This can't be undone.")))
+            let sure = L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count)
+            main.append(Section(nil, [.bar(PageBar(L(one: "Delete this flow?", other: "Delete these {count} flows?", count: chosen.count), detail: nil, actions: [button(L("Keep them"), "pick_keep"), button(sure, "pick_delete_sure", ["page_token": app.pageKey, "named": chosen.map(\.id)], style: .destructive, symbol: "trash")]))]))
+            main.append(Section(nil, blocks, wide: true))
+            return frame(app, state: state, here: "flows", main)
+        }
+        let detail = chosen.isEmpty ? L("Pick the flows to delete.") : L(one: "{count} selected", other: "{count} selected", count: chosen.count)
+        main.append(Section(nil, [.bar(PageBar(L("Select flows"), detail: detail, actions: [
+            button(L("Done"), "pick_none"),
+            button(L("Select all"), "pick_all", disabled: chosen.count == flows.count),
+            button(chosen.isEmpty ? L("Delete") : L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count), "pick_delete", style: .destructive, symbol: "trash", disabled: chosen.isEmpty),
+        ]))]))
+        let shown = Array(flows.prefix(mostToPick))
+        for start in stride(from: 0, to: shown.count, by: inABlock) {
+            main.append(Section(nil, shown[start..<min(start + inABlock, shown.count)].map { flow in
+                .toggle(flow.name, detail: stateWord(flow), on: picked.contains(flow.id), tool: "ui", input: ui("pick_flow", ["picked": flow.id]))
+            }, wide: true))
+        }
+        if flows.count > shown.count { main.append(Section(nil, [.note(L("Only the first {count} flows can be picked at once. Delete these, and the rest come up.", ["count": Format.integer(shown.count)]))], wide: true)) }
+        return frame(app, state: state, here: "flows", main)
+    }
+
+    private static func stateWord(_ flow: Flow) -> String {
+        flow.state == .on ? L("On") : flow.state == .paused ? L("Paused") : L("Draft")
     }
 
     static func needsYou(_ app: App) -> [Section] {
@@ -400,6 +454,26 @@ import SidefolkExtensionKit
 
     // MARK: One flow
 
+    /// Copies at once, as the button says, on any tab. It's what's on screen, like the words beside it, and a menu shows only its label, so the label says when that isn't saved.
+    static func copyDefinition(_ flow: Flow) -> Action {
+        copying(JSONText.write(["name": flow.name, "flow": FlowCodec.json(flow.draft)] as [String: Any]), flow, L("Copy as a definition"), unsaved: L("Copy definition, with unsaved"), symbol: "curlybraces")
+    }
+
+    static func copyWords(_ flow: Flow, _ app: App) -> Action {
+        copying(Words.aloud(flow.draft, catalog: app.catalog), flow, L("Copy it in words"), unsaved: L("Copy in words, with unsaved"), symbol: "doc.on.doc")
+    }
+
+    private static func copying(_ words: String, _ flow: Flow, _ label: String, unsaved: String, symbol: String) -> Action {
+        // Counted as the page carries it, escapes and all.
+        guard JSONText.write([words]).utf8.count <= longestCopy else {
+            return Action(L("Too long to copy from here"), tool: "ui", input: ui("save", ["flow": flow.id]), symbol: symbol, disabled: true)
+        }
+        return Action(flow.draft != flow.kept ? unsaved : label, act: .copy(words), symbol: symbol)
+    }
+
+    /// The page holds the words on every read, and a page past its own limit doesn't draw at all, so this stays well inside it.
+    static let longestCopy = 20_000
+
     static func tabs(_ flow: Flow, state: Arguments) -> Block {
         var builder = PageTab("builder", L("Builder"), symbol: "point.3.connected.trianglepath.dotted", sections: [])
         builder.go = Go(set: ["tab": "builder"])
@@ -467,10 +541,11 @@ import SidefolkExtensionKit
         } else if !running {
             actions.insert(Action(L("Saved"), tool: "ui", input: ui("save", id), style: .plain, symbol: "checkmark", disabled: true), at: 0)
         }
-        extra += [button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
-                  button(L("Copy as a definition"), "export", id, symbol: "curlybraces"),
-                  Action(L("Copy it in words"), act: .copy(Words.aloud(flow.draft, catalog: app.catalog)), symbol: "doc.on.doc"),
-                  button(L("Delete this flow"), "delete", id, style: .destructive, symbol: "trash")]
+        extra += [button(L("Rename"), "rename_open", id, symbol: "pencil"),
+                  button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
+                  copyDefinition(flow),
+                  copyWords(flow, app),
+                  button(L("Delete this flow"), "ask_delete", id, style: .destructive, symbol: "trash")]
         return PageBar(flow.name, pill: pill, detail: sentence, actions: actions, menu: extra)
     }
 
@@ -489,19 +564,11 @@ import SidefolkExtensionKit
             notes.append(.note(L(one: "It missed {count} run, last at {time}: Sidefolk or your Mac was off.", other: "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.", count: flow.missed.count, ["time": Format.dateTime(last)]), tone: .warn))
         }
         for p in problems where p.step == nil { notes.append(.note(p.text, tone: .warn)) }
+        if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { notes.append(.note(L("Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do."), tone: .warn)) }
         main.append(Section(nil, [.tree(tree(flow, app, problems: problems))], wide: true))
         var end: [Section] = []
         if !notes.isEmpty { end.append(Section(nil, notes, place: .trailing)) }
         end += Inspector.sections(flow, app, problems: problems)
-        // Only when asked for: it's as long as the flow, and the page is read every few seconds.
-        if app.nav.exporting == flow.id {
-            let words = JSONText.write(["name": flow.name, "flow": FlowCodec.json(flow.kept)] as [String: Any])
-            // A page can't hold more: said, not cut.
-            let copy: Block = words.utf8.count <= 30_000 ? .action(Action(L("Copy"), act: .copy(words), style: .accent, symbol: "doc.on.doc"))
-                : .note(L("It's too long to copy from here. Ask your companion to read it with get_flow."), tone: .warn)
-            end.append(Section(L("Its definition"), [.note(L("What was last saved, as words. Nothing in it is a secret unless you typed one into a step.")), copy,
-                                                     .action(button(L("Done"), "export_done", style: .plain))], place: .trailing))
-        }
         end += checks(flow, app, problems: problems)
         end.append(Section(L("What you'll get"), [arriving(flow, app)], place: .trailing))
         var page = frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)
@@ -616,7 +683,7 @@ import SidefolkExtensionKit
         switch r.status {
         case .running: (.active, Badge(L("Working…"), tone: .info))
         case .done: (.done, nil)
-        case .would: (.pending, Badge(L("Would, not done"), tone: .neutral))
+        case .would: (.pending, Badge(L("Practice: not done"), tone: .neutral))
         case .failed: (.attention, Badge(L("Failed"), tone: .bad))
         case .skipped: (.skipped, Badge(L("Skipped"), tone: .neutral))
         case .needs_you: (.attention, Badge(L("Needs you"), tone: .warn))
@@ -759,7 +826,7 @@ import SidefolkExtensionKit
             ]))
         case .waiting where run.form != nil || !run.waitingOn.isEmpty:
             detail = said
-            if let form = formSection(run) { end.append(form) }
+            if let form = formSection(run, app) { end.append(form) }
             if let asking = run.waitingOn.compactMap({ app.store.run($0) }).first(where: { $0.form != nil }) {
                 end.append(Section(nil, [.action(go(L("Fill it in"), place(["run": asking.id]), style: .accent, symbol: "square.and.pencil"))], place: .trailing))
             }
