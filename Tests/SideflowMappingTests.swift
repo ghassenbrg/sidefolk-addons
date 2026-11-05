@@ -435,6 +435,19 @@ import SidefolkExtensionKit
         #expect(NumberWords.read("  12\n") == .number(12))
     }
 
+    @Test func jsonThatSaysTwoThingsOrCantBeHeldIsntRead() throws {
+        for words in [#"{"a":1,"a":2}"#, #"{"a":1,"\u0061":2}"#, #"[{"x":{"a":1,"a":2}}]"#, "[1e-999]", "[-1e-999]", #"{"n":0.0000001e-999}"#, "[1e999]", "[-1e999]"] {
+            #expect(JSONText.read(words) == nil, "\(words)")
+            #expect(throws: Problem.self, "\(words)") { try DataStep(op: .parse_json, from: "").apply(to: .string(words), than: "") }
+        }
+        for words in [#"{"a":1,"b":{"a":2},"c":[{"a":3},{"a":4}]}"#, "[0, 0.0, 0e5, -0, 1e3, 1.5]", #"{"a\"b":"a:b","a":"{\"a\":1,\"a\":2}"}"#, #"[" {","}"]"#] {
+            #expect(JSONText.read(words) != nil, "\(words)")
+        }
+        var values = Values()
+        values.set("s", #"{"n":1,"n":2}"#)
+        #expect(values.number(in: "{{s.n}}") == nil, "words, not one of the two")
+    }
+
     @Test func aFiltersNumberFromAToolIsThatNumber() throws {
         let rows: JSON = .array([.object(["p": .number(1.2)]), .object(["p": .number(1)])])
         let step = DataStep(op: .filter, from: "", field: "p", test: .more_than)

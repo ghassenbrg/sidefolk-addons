@@ -58,9 +58,11 @@ Later list, for the expression language: units, currencies, thousands marks, per
 
 A sort takes numbers, words with no digits in them, or dates written year first, and blanks go last either way round. Anything else with digits in it stops (`Item 12`, `USD 1,500`, `Q1 2026`), since which of those read as numbers never ended, as it didn't for reading a number out of words. So does a list of numbers and words together, and a field no row has. Later list: a sort that says it's by name, so `Item 9` comes before `Item 12` on the person's word; a JSON number with more than 17 digits after the point is rounded.
 
-An agent's `continue_run` with stop on a called flow ends that run only: to the flow that called it, that's a failed step, so under "collect" its loop goes on to the next item. Only the page's own Stop or the person's answer stops all of it (the coordinator's ruling above).
+Stop isn't a failure (the coordinator's ruling, 2026-11-06): a called run or a lane that ends by a Stop, whoever said it, stops what called it too, once what's beside it has ended, and so on up. A loop told to collect failures doesn't go on to its next item, and a try's recover doesn't run. An agent's stop still reaches only that run and what it started, and whatever called it: not the lanes beside it, not a flow's waiting starts.
 
-Also later: JSON written inside words is read as JSON first, by JSON's rules (`[1.000]` in a sum, `{"n":5e3}` through `{{s.n}}`); a JSON object with one key twice keeps one of them; `1e-999` in JSON reads 0; the editor's mark doesn't cover a sort, whose list usually is words; a person typing `1.234` into a number field gets 1.234; a value reading more than 32 names says it reads nothing nameable, so edits to those aren't new (its rank stays outside); applying a change doesn't stop runs already under way.
+JSON that says one key twice or has a number too big or small to hold isn't read at all: it stays words, so a step asking for a number or a field out of it stops. For the guide: JSON written inside words is read by JSON's rules, so `{"n":5e3}` through `{{s.n}}` is 5000 and `[1.000]` in a sum is 1.
+
+Also later: the editor's mark doesn't cover a sort, whose list usually is words; a person typing `1.234` into a number field gets 1.234; a value reading more than 32 names says it reads nothing nameable, so edits to those aren't new (its rank stays outside); applying a change doesn't stop runs already under way.
 
 ## Deleting several flows and moving steps (the founder's feedback, read clean at 2980498)
 

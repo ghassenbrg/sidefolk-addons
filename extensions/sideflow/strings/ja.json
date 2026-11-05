@@ -790,7 +790,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "そのルーティンは、開始時に何も求めません。ルーティンがステップの中で「{{input.name}}」を使うと、何かを求めます。",
     "That form has been answered already.": "そのフォームにはすでに答えがあります。",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "深すぎます。ルーティンの中のステップは、{count}段階まで入れ子にできます。",
-    "That isn't JSON.": "JSONではありません。",
     "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "ルーティンの定義ではありません。ルーティンで「定義としてコピー」を使ってください。",
     "That run isn't stopped: it's waiting for something.": "その実行は止まっていません。何かを待っています。",
     "The AI's answer didn't have the fields this step needs.": "AIの答えに、このステップが必要とする項目がありませんでした。",
@@ -1061,6 +1060,7 @@
     "None of these has “{field}”, so there's nothing to sort by.": "どの項目にも「{field}」がないため、並べ替える基準がありません。",
     "Two columns are called “{name}”.": "「{name}」という名前の列が2つあります。",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "{row} 行目のセル数が列数より多くなっています。カンマを含む値は引用符で囲んでください。",
-    "Some columns have no name.": "名前のない列があります。"
+    "Some columns have no name.": "名前のない列があります。",
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "JSON ではないか、同じものが2回書かれているか、数が大きすぎるか小さすぎます。"
   }
 }

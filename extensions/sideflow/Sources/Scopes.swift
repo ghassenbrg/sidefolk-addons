@@ -129,7 +129,7 @@ struct DataStep: Equatable, Sendable {
         func at(_ item: JSON) -> JSON? { field?.nonEmpty.map { Values.walk(item, path: Values.parts(of: $0)) } ?? item }
         switch op {
         case .parse_json:
-            guard let parsed = JSONText.read(Values.text(value)) else { throw Problem(L("That isn't JSON.")) }
+            guard let parsed = JSONText.read(Values.text(value)) else { throw Problem(L("That isn't JSON, or it says something twice, or it has a number too big or small to hold.")) }
             return JSON(parsed)
         case .parse_csv:
             let rows = CSV.rows(Values.text(value))

@@ -834,7 +834,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "هذا الروتين لا يطلب شيئًا ليبدأ. يطلب الروتين شيئًا باستخدام «{{input.name}}» في خطواته.",
     "That form has been answered already.": "سبق أن أُجيب عن هذا النموذج.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "هذا عميق جدًا: يمكن للروتين أن يضم خطوات داخل خطوات حتى {count} مستويات.",
-    "That isn't JSON.": "هذا ليس JSON.",
     "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "هذا ليس تعريف روتين. استخدم «نسخ كتعريف» على روتين.",
     "That run isn't stopped: it's waiting for something.": "هذا التشغيل لم يتوقف: إنه ينتظر شيئًا.",
     "The AI's answer didn't have the fields this step needs.": "لم تتضمن إجابة الذكاء الاصطناعي الحقول التي تحتاجها هذه الخطوة.",
@@ -1166,6 +1165,7 @@
     "None of these has “{field}”, so there's nothing to sort by.": "لا يحتوي أي من هذه على «{field}»، فلا يوجد ما يُرتَّب حسبه.",
     "Two columns are called “{name}”.": "يوجد عمودان باسم «{name}».",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "يحتوي الصف {row} على خلايا أكثر من عدد الأعمدة. يجب وضع القيمة التي فيها فاصلة بين علامتي اقتباس.",
-    "Some columns have no name.": "بعض الأعمدة بلا اسم."
+    "Some columns have no name.": "بعض الأعمدة بلا اسم.",
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "ليس هذا JSON، أو يذكر شيئًا مرتين، أو فيه رقم كبير أو صغير جدًا."
   }
 }

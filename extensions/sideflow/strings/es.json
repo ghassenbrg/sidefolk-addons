@@ -798,7 +798,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "Esa rutina no pide nada para empezar. Una rutina pide algo usando «{{input.name}}» en sus pasos.",
     "That form has been answered already.": "Ese formulario ya se respondió.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "Eso es demasiado profundo: una rutina puede tener pasos dentro de pasos hasta {count} niveles.",
-    "That isn't JSON.": "Eso no es JSON.",
     "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "Eso no es la definición de una rutina. Usa «Copiar como definición» en una rutina.",
     "That run isn't stopped: it's waiting for something.": "Esa ejecución no está detenida: está esperando algo.",
     "The AI's answer didn't have the fields this step needs.": "La respuesta de la IA no tenía los campos que necesita este paso.",
@@ -1082,6 +1081,7 @@
     "None of these has “{field}”, so there's nothing to sort by.": "Ninguno de estos tiene «{field}», así que no hay nada por lo que ordenar.",
     "Two columns are called “{name}”.": "Dos columnas se llaman «{name}».",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "La fila {row} tiene más celdas que columnas. Un valor con una coma debe ir entre comillas.",
-    "Some columns have no name.": "Algunas columnas no tienen nombre."
+    "Some columns have no name.": "Algunas columnas no tienen nombre.",
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "No es JSON, o dice algo dos veces, o tiene un número demasiado grande o pequeño."
   }
 }

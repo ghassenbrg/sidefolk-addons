@@ -511,7 +511,7 @@ extension JSON {
         let called = try #require(w.store.runs(of: child.id).first)
         w.engine.stop(run: called.id)
         await w.quiet()
-        #expect(w.store.run(run.id)?.status == .failed, "not the person's word: a failure for whatever called it")
+        #expect(w.store.run(run.id)?.status == .stopped, "stop isn't a failure, whoever said it")
         #expect(!w.engine.isRunning(flow.id), "the flow isn't held until a restart")
         #expect(!w.engine.isRunning(child.id))
     }
@@ -2641,8 +2641,29 @@ extension JSON {
         let called = try #require(w.store.runs(of: child.id).first)
         w.engine.stop(run: called.id)
         await w.quiet()
-        #expect(w.store.run(run.id)?.status == .done, "\(w.store.run(run.id)?.problem ?? "")")
-        #expect(w.host.calls.contains { $0.tool == "reads.it" }, "the flow's own failure handling takes it, as before")
+        #expect(w.store.run(run.id)?.status == .stopped, "\(w.store.run(run.id)?.problem ?? "")")
+        #expect(!w.host.calls.contains { $0.tool == "reads.it" }, "a loop never goes on after someone said stop, even told to collect failures")
+    }
+
+    @Test func aStopOnACalledFlowStopsWhatCalledIt_AllTheWayUpAndTheRestOfTheListDoesntGoOn() async throws {
+        let w = try World()
+        var inner = try w.flow([["id": "wait", "wait_minutes": 60]])
+        inner.name = "Inner"
+        w.store.save(inner)
+        var middle = try w.flow([["id": "t", "try": [["id": "i", "call_flow": "Inner"]], "recover": [["id": "r", "do": "reads.it"]]]])
+        middle.name = "Middle"
+        w.store.save(middle)
+        let flow = try w.flow([["id": "e", "for_each": "[1, 2]", "item_failure": "collect", "steps": [["id": "m", "call_flow": "Middle"], ["id": "refund", "do": "changes.it"]]], ["id": "after", "do": "changes.it"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        // What `continue_run` does, for an agent or another extension on a card.
+        w.engine.proceed(try #require(w.store.runs(of: inner.id).first).id, .stop)
+        await w.quiet()
+        #expect(w.store.runs(of: middle.id).first?.status == .stopped, "and not its recover either")
+        #expect(w.store.run(run.id)?.status == .stopped)
+        #expect(w.store.run(run.id)?.problem == nil, "nothing went wrong")
+        #expect(w.host.calls.isEmpty, "\(w.host.calls.map(\.tool))")
+        #expect(w.store.runs(of: inner.id).count == 1, "the next item didn't start")
     }
 
     private func twoLanes(_ w: World, _ first: [[String: Any]], _ second: [[String: Any]]) throws -> Flow {
@@ -2673,8 +2694,11 @@ extension JSON {
         #expect(w.store.run(lane.id)?.status == .stopped, "that run")
         let beside = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("b") != nil })
         #expect(w.store.run(beside.id)?.status.isOver == false, "not the lane beside it")
-        #expect(w.store.run(run.id)?.status.isOver == false, "not what it's part of")
+        #expect(w.store.run(run.id)?.status.isOver == false, "what it's part of, while the lane beside it works")
         #expect(w.store.flow(flow.id)?.waitingStarts == ["next"], "and what's waiting its turn stays")
+        w.engine.proceed(beside.id, .stop)
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .stopped, "and then it stops too, past its own recover")
     }
 
     @Test func aStopWithoutThePagesKeyIsAPlainStop() async throws {

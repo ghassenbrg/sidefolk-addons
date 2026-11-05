@@ -789,7 +789,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "那个流程开始时不需要任何东西。流程要在步骤里使用“{{input.name}}”才会要求输入。",
     "That form has been answered already.": "那个表单已经回答过了。",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "嵌套太深了：流程里的步骤最多可以嵌套 {count} 层。",
-    "That isn't JSON.": "这不是 JSON。",
     "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "这不是流程的定义。请在流程上使用“复制为定义”。",
     "That run isn't stopped: it's waiting for something.": "那次运行并没有停止：它在等待某件事。",
     "The AI's answer didn't have the fields this step needs.": "AI 的回答没有这个步骤所需的字段。",
@@ -1061,6 +1060,7 @@
     "None of these has “{field}”, so there's nothing to sort by.": "这些项都没有“{field}”，所以没有可排序的依据。",
     "Two columns are called “{name}”.": "有两列都叫“{name}”。",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "第 {row} 行的单元格比列多。含逗号的值需要加引号。",
-    "Some columns have no name.": "有些列没有名称。"
+    "Some columns have no name.": "有些列没有名称。",
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "这不是 JSON，或有内容重复，或有数字太大或太小。"
   }
 }

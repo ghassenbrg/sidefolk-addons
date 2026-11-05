@@ -315,6 +315,15 @@ extension Engine {
             return false
         }
         run.waitingOn = []
+        // Someone said stop to what this called. That isn't a failure for a try or a loop to carry past: this stops too, and what called this hears the same.
+        if children.contains(where: { $0.status == .stopped }) {
+            run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
+            run.status = .stopped
+            run.problem = nil
+            run.resumeAt = nil
+            run.frames = []
+            return false
+        }
         if let bad = children.first(where: { $0.status != .done }) {
             return failed(step, why: bad.problem ?? L("{flow} didn't finish.", ["flow": bad.flowName]), reads: false, in: &run)
         }

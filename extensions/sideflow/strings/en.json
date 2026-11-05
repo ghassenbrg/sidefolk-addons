@@ -608,7 +608,7 @@
     "That flow is gone.": "That flow is gone.",
     "That form has been answered already.": "That form has been answered already.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "That goes too deep: a flow can hold steps inside steps {count} levels down.",
-    "That isn't JSON.": "That isn't JSON.",
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "That isn't JSON, or it says something twice, or it has a number too big or small to hold.",
     "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "That isn't a flow's definition. Use “Copy as a definition” on a flow.",
     "That isn't a number.": "That isn't a number.",
     "That isn't a way forward.": "That isn't a way forward.",

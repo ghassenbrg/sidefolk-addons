@@ -798,7 +798,6 @@
     "That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps.": "Cette routine ne demande rien au départ. Une routine demande quelque chose en utilisant « {{input.name}} » dans ses étapes.",
     "That form has been answered already.": "Ce formulaire a déjà reçu une réponse.",
     "That goes too deep: a flow can hold steps inside steps {count} levels down.": "C’est trop profond : une routine peut contenir des étapes dans des étapes sur {count} niveaux.",
-    "That isn't JSON.": "Ce n’est pas du JSON.",
     "That isn't a flow's definition. Use “Copy as a definition” on a flow.": "Ce n’est pas la définition d’une routine. Utilisez « Copier comme définition » sur une routine.",
     "That run isn't stopped: it's waiting for something.": "Cette exécution n’est pas arrêtée : elle attend quelque chose.",
     "The AI's answer didn't have the fields this step needs.": "La réponse de l’IA n’avait pas les champs dont cette étape a besoin.",
@@ -1082,6 +1081,7 @@
     "None of these has “{field}”, so there's nothing to sort by.": "Aucun de ces éléments n’a « {field} » : il n’y a donc rien pour trier.",
     "Two columns are called “{name}”.": "Deux colonnes s’appellent « {name} ».",
     "Row {row} has more cells than there are columns. A value with a comma in it needs quotes around it.": "La ligne {row} a plus de cellules qu’il n’y a de colonnes. Une valeur contenant une virgule doit être entre guillemets.",
-    "Some columns have no name.": "Certaines colonnes n’ont pas de nom."
+    "Some columns have no name.": "Certaines colonnes n’ont pas de nom.",
+    "That isn't JSON, or it says something twice, or it has a number too big or small to hold.": "Ce n’est pas du JSON, ou il dit quelque chose deux fois, ou il contient un nombre trop grand ou trop petit."
   }
 }
