@@ -781,7 +781,7 @@ extension FlowHost {
     enum Forward: String, Sendable { case try_again, carry_on, stop }
 
     func proceed(_ id: String, _ how: Forward) {
-        if how == .stop { return stop(run: id) }
+        if how == .stop { return stop(run: id, byThePerson: true) }
         guard let current = store.run(id), !current.status.isOver, current.status != .running, !store.isHeldBack(flow: current.flow) else { return }
         // A form or another run is what it's waiting for: going past that isn't anyone's to choose from here.
         guard var run = store.run(id), run.form == nil, run.waitingOn.isEmpty else { return }
@@ -818,6 +818,7 @@ extension FlowHost {
     }
 
     static func pauseKey(_ id: String) -> String { "pause:\(id)" }
+    static func personStopKey(_ id: String) -> String { "person:\(id)" }
 
     /// Stops it at the next step, kept where it is. Nothing is cut short: the step under way finishes.
     func pause(run id: String) {
@@ -968,8 +969,10 @@ extension FlowHost {
     func queuedCount(_ flow: String) -> Int { (queued[flow] == nil ? 0 : 1) + (store.flow(flow)?.waitingStarts.count ?? 0) }
 
     /// Stops a run the person is looking at, and any it waits for. A step under way is told to stop, and the run stays "stopping" until it answers; its answer can only say it may or may not have happened.
-    func stop(run id: String) {
+    /// `byThePerson`: their word, which ends what this run is part of too. A flow paused or its approval ended stops a run for its own reasons, which is a failure for whatever called it.
+    func stop(run id: String, byThePerson: Bool = false) {
         guard var run = store.run(id), !run.status.isOver else { return }
+        if byThePerson, run.parent != nil { store.askStop(Self.personStopKey(id)) }
         for child in run.waitingOn { stop(run: child) }
         // A run held back has no walk to notice a stop, so it ends here.
         if run.status == .running, !store.isHeldBack(flow: run.flow) {

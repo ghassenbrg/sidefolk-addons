@@ -509,7 +509,7 @@ extension JSON {
         let called = try #require(w.store.runs(of: child.id).first)
         w.engine.stop(run: called.id)
         await w.quiet()
-        #expect(w.store.run(run.id)?.status == .stopped)
+        #expect(w.store.run(run.id)?.status == .failed, "not the person's word: a failure for whatever called it")
         #expect(!w.engine.isRunning(flow.id), "the flow isn't held until a restart")
         #expect(!w.engine.isRunning(child.id))
     }
@@ -2635,13 +2635,30 @@ extension JSON {
         let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
         await w.quiet()
         let called = try #require(w.store.runs(of: child.id).first)
-        w.engine.stop(run: called.id)
+        w.engine.stop(run: called.id, byThePerson: true)
         await w.quiet()
         let after = w.store.run(run.id)
         #expect(after?.status == .stopped, "\(after?.problem ?? "")")
+        #expect(after?.record(of: "k")?.status == .unknown, "what it did by then may have happened")
+        #expect(w.store.takeStop(Engine.personStopKey(called.id)) == false, "nothing left behind")
         #expect(after?.record(of: "r") == nil, "not something to recover from")
         #expect(!w.host.calls.contains { $0.tool == "reads.it" })
         #expect(w.store.runs(of: child.id).count == 1, "the next item isn't begun")
+    }
+
+    @Test func aCalledFlowStoppedForItsOwnReasonsIsAFailureACollectGoesPast() async throws {
+        let w = try World()
+        var child = try w.flow([["id": "wait", "wait_minutes": 60]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "e", "for_each": "a", "item_failure": "collect", "steps": [["id": "k", "call_flow": "Child"]]], ["id": "after", "do": "reads.it"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let called = try #require(w.store.runs(of: child.id).first)
+        w.engine.stop(run: called.id)
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .done, "\(w.store.run(run.id)?.problem ?? "")")
+        #expect(w.host.calls.contains { $0.tool == "reads.it" }, "the flow's own failure handling takes it, as before")
     }
 
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
