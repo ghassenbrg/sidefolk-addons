@@ -475,6 +475,11 @@ import SidefolkExtensionKit
             // Another extension can call this on a card that names no flow, so only the page's own button counts. And only what the page said it would delete, after it said so.
             guard a.string("page_token") == app.pageKey, app.nav.askingToDelete else { break }
             if let asked = app.nav.askedToDeleteAt, Date().timeIntervalSince(asked) < Pages.settling { break }
+            // What the button was drawn with, which is what the page named. Anything else since, and it asks again.
+            guard Set(a.strings("named")) == app.nav.pickingFlows else {
+                app.nav.askingToDelete = false
+                break
+            }
             for id in app.nav.pickingFlows ?? [] { app.engine.delete(id) }
             app.nav.pickingFlows = nil
             app.nav.askingToDelete = false

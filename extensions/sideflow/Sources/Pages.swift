@@ -205,7 +205,7 @@ import SidefolkExtensionKit
         if app.nav.askingToDelete, !chosen.isEmpty {
             // In lists of what a list can hold: nothing goes that isn't named.
             var blocks: [Block] = stride(from: 0, to: chosen.count, by: inABlock).map { start in
-                .facts(nil, chosen[start..<min(start + inABlock, chosen.count)].map { ($0.name, stateWord($0)) })
+                .facts(nil, chosen[start..<min(start + inABlock, chosen.count)].map { (stateWord($0), $0.name) })
             }
             let on = chosen.filter { $0.state == .on }.count
             if on > 0 { blocks.append(.note(L(one: "{count} of them is on. It stops running.", other: "{count} of them are on. They stop running.", count: on), tone: .warn)) }
@@ -221,7 +221,7 @@ import SidefolkExtensionKit
             }
             blocks.append(.note(L("Their runs and what you allowed for them go too. This can't be undone.")))
             let sure = L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count)
-            main.append(Section(nil, [.bar(PageBar(L(one: "Delete this flow?", other: "Delete these {count} flows?", count: chosen.count), detail: nil, actions: [button(L("Keep them"), "pick_keep"), button(sure, "pick_delete_sure", ["page_token": app.pageKey], style: .destructive, symbol: "trash")]))]))
+            main.append(Section(nil, [.bar(PageBar(L(one: "Delete this flow?", other: "Delete these {count} flows?", count: chosen.count), detail: nil, actions: [button(L("Keep them"), "pick_keep"), button(sure, "pick_delete_sure", ["page_token": app.pageKey, "named": chosen.map(\.id)], style: .destructive, symbol: "trash")]))]))
             main.append(Section(nil, blocks, wide: true))
             return frame(app, state: state, here: "flows", main)
         }

@@ -101,7 +101,7 @@ import SidefolkExtensionKit
     /// As the page's own button sends it, after long enough to read it.
     private func sure(_ app: App) async throws {
         app.nav.askedToDeleteAt = Date().addingTimeInterval(-10)
-        try await page(app, "pick_delete_sure", ["page_token": app.pageKey])
+        try await page(app, "pick_delete_sure", ["page_token": app.pageKey, "named": Array(app.nav.pickingFlows ?? [])])
     }
 
     private func pageWords(_ app: App) async -> String {
@@ -129,7 +129,7 @@ import SidefolkExtensionKit
         #expect(words.contains("Morning check") && words.contains("Invoice run"))
         let drawn = await Pages.make(app, state: Arguments([:]), background: false)
         let going = drawn.sections.flatMap(\.blocks).compactMap { block -> [String]? in
-            if case .facts(_, let items) = block { items.map(\.0) } else { nil }
+            if case .facts(_, let items) = block { items.map(\.1) } else { nil }
         }.flatMap(\.self)
         #expect(going == ["Morning check", "Invoice run"], "these and only these, the one staying isn't named: \(going)")
         #expect(words.contains("be undone"))
@@ -156,6 +156,38 @@ import SidefolkExtensionKit
         #expect(drawn.contains(app.pageKey), "the button has it")
     }
 
+    /// Another extension changes the selection on a card while the person is looking at the page that names the old one.
+    @Test func whatTheButtonNamedIsWhatGoes() async throws {
+        let w = try World()
+        let app = app(w)
+        let one = try flow(app, "One"), two = try flow(app, "Two")
+        try await page(app, "pick_flows")
+        try await page(app, "pick_flow", ["picked": one.id, "on": true])
+        try await page(app, "pick_delete")
+        let named = [one.id]
+        app.nav.pickingFlows?.insert(two.id)
+        app.nav.askedToDeleteAt = Date().addingTimeInterval(-10)
+        try await page(app, "pick_delete_sure", ["page_token": app.pageKey, "named": named])
+        #expect(app.store.flows().count == 2, "it asks again")
+        #expect(!app.nav.askingToDelete)
+    }
+
+    @Test func aLongNameIsntClippedToLookLikeAnother() async throws {
+        let w = try World()
+        let app = app(w)
+        let long = String(repeating: "A long flow name ", count: 3)
+        let one = try flow(app, long + "1"), two = try flow(app, long + "2")
+        try await page(app, "pick_flows")
+        try await page(app, "pick_flow", ["picked": one.id, "on": true])
+        try await page(app, "pick_flow", ["picked": two.id, "on": true])
+        try await page(app, "pick_delete")
+        let drawn = await Pages.make(app, state: Arguments([:]), background: false)
+        let rows = drawn.sections.flatMap(\.blocks).compactMap { block -> [(String, String)]? in if case .facts(_, let items) = block { items } else { nil } }.flatMap(\.self)
+        // A fact's label is clipped much sooner than its value, so it's the value that holds the name.
+        #expect(Set(rows.map(\.1)).count == 2)
+        #expect(rows.allSatisfy { $0.0.count <= 40 })
+    }
+
     @Test func theOldWayInIsGone() async throws {
         let w = try World()
         let app = app(w)
@@ -169,7 +201,7 @@ import SidefolkExtensionKit
         let app = app(w)
         let one = try flow(app, "One")
         try await page(app, "ask_delete", ["flow": one.id])
-        try await page(app, "pick_delete_sure", ["page_token": app.pageKey])
+        try await page(app, "pick_delete_sure", ["page_token": app.pageKey, "named": [one.id]])
         #expect(app.store.flow(one.id) != nil, "too soon after asking")
         try await sure(app)
         #expect(app.store.flow(one.id) == nil)
@@ -187,7 +219,7 @@ import SidefolkExtensionKit
         try await page(app, "pick_all")
         try await page(app, "pick_delete")
         drawn = await Pages.make(app, state: Arguments([:]), background: false)
-        let lists = drawn.sections.flatMap(\.blocks).compactMap { block -> [String]? in if case .facts(_, let items) = block { items.map(\.0) } else { nil } }
+        let lists = drawn.sections.flatMap(\.blocks).compactMap { block -> [String]? in if case .facts(_, let items) = block { items.map(\.1) } else { nil } }
         #expect(lists.allSatisfy { $0.count <= Pages.inABlock }, "none is cut off")
         #expect(Set(lists.flatMap(\.self)) == Set((1...30).map { "Flow \($0)" }))
         try await sure(app)
@@ -239,7 +271,7 @@ import SidefolkExtensionKit
         try await page(app, "pick_flow", ["picked": two.id, "on": true])
         #expect(!app.nav.askingToDelete, "what it asked about has changed")
         app.nav.askedToDeleteAt = Date().addingTimeInterval(-10)
-        try await page(app, "pick_delete_sure", ["page_token": app.pageKey])
+        try await page(app, "pick_delete_sure", ["page_token": app.pageKey, "named": Array(app.nav.pickingFlows ?? [])])
         #expect(app.store.flows().count == 2)
     }
 
