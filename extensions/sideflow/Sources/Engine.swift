@@ -198,6 +198,7 @@ extension FlowHost {
             case .branch(let step, let condition, let otherwise):
                 let unknown = run.values.undecided(condition)
                 let why = unknown.map { L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": $0]) }
+                    ?? condition.doubtful(run.values).map { Self.cantRead($0, at: step, catalog: catalog) }
                 // A practice goes on, and says so: that's what it's for.
                 if let why, run.mode != .practice {
                     guard failed(step, why: why, reads: false, in: &run) else {
@@ -344,6 +345,8 @@ extension FlowHost {
                 run.pc += 1
                 store.save(run)
                 return true
+            } catch let unreadable as Condition.Unreadable {
+                return failed(step, why: Self.cantRead(unreadable.words, at: step, catalog: catalog), reads: true, in: &run)
             } catch {
                 return failed(step, why: (error as? Problem)?.message ?? L("It didn't work."), reads: true, in: &run)
             }
@@ -408,7 +411,8 @@ extension FlowHost {
             let cut = catalog.cutShort(tool, input, from: run.values)
             if run.mode != .practice, let wrong = catalog.doesntFit(tool, filled) { return failed(step, why: wrong, reads: false, in: &run) }
             let goesOn = run.mode == .practice ? await practicing(step, tool: tool, input: filled, in: &run) : await acting(step, tool: tool, input: filled, written: input.mapValues(\.any), in: &run)
-            if let cut, var record = run.record(of: step.id) {
+            // What wasn't sent wasn't cut: a card turned down, a tool that's busy.
+            if let cut, var record = run.record(of: step.id), record.status == .done || record.status == .would || record.status == .unknown {
                 record.note = [record.note, cut].compactMap(\.self).joined(separator: " ")
                 run.record(record)
                 store.save(run)
@@ -650,6 +654,11 @@ extension FlowHost {
 
     /// What a failure does, as the step says. Trying again is only for what changes nothing: repeating an action that may have happened
     /// is the one thing that must not happen by itself.
+    /// A number that could be more than one, said with the step and the words, since it stops what used to go one way without a word.
+    static func cantRead(_ words: String, at step: Step, catalog: Catalog) -> String {
+        L("“{step}” can't read “{value}”: it could be more than one number, so it stopped here.", ["step": Words.label(step, catalog: catalog), "value": words.clipped(80)])
+    }
+
     func failed(_ step: Step, why: String, reads: Bool, in run: inout Run, said: String? = nil) -> Bool {
         let summary = said ?? Words.step(step, body: run.body, catalog: catalog)
         switch step.onFailure {
@@ -758,7 +767,8 @@ extension FlowHost {
         guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil, written: nil), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
-        proceed(run.id, chosen.how)
+        // Their own answer, on their own card.
+        if chosen.how == .stop { stop(run: run.id, byThePerson: true) } else { proceed(run.id, chosen.how) }
     }
 
     // MARK: After a stop
@@ -835,8 +845,9 @@ extension FlowHost {
     /// The way forward from a stop, from the page or a request.
     enum Forward: String, Sendable { case try_again, carry_on, stop }
 
+    /// Going on from a run that stopped, for whoever asked: Stop from here ends that run and what it started, and only the person's own does more.
     func proceed(_ id: String, _ how: Forward) {
-        if how == .stop { return stop(run: id, byThePerson: true) }
+        if how == .stop { return stop(run: id) }
         guard let current = store.run(id), !current.status.isOver, current.status != .running, !store.isHeldBack(flow: current.flow) else { return }
         // A form or another run is what it's waiting for: going past that isn't anyone's to choose from here.
         guard var run = store.run(id), run.form == nil, run.waitingOn.isEmpty else { return }

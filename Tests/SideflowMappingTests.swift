@@ -362,6 +362,152 @@ import SidefolkExtensionKit
         }
     }
 
+    @Test func whatsSaidAboutCuttingIsAboutWhatsSent() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let long = String(repeating: "x", count: Values.wordsKept + 1)
+        // A tool's words are what `{{r}}` sends, whatever its fields hold.
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: long, summary: "", data: #"{"n":3}"#)]
+        let wordy = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "{{r}}"]]])
+        let cut = try #require(await w.settled(w.engine.start(wordy, mode: .live, why: "t")))
+        #expect(cut.record(of: "c")?.note?.contains("cut to") == true)
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Found 3", summary: "", data: "{\"n\":\"\(long)\"}")]
+        let brief = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "{{r}}"]]])
+        let whole = try #require(await w.settled(w.engine.start(brief, mode: .live, why: "t")))
+        #expect(whole.record(of: "c")?.note == nil, "its fields weren't sent")
+    }
+
+    @Test func whatWasntSentWasntCut() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .denied, text: "No", summary: "")]
+        let flow = try w.flow([["id": "n", "text": String(repeating: "x", count: Values.wordsKept + 1)], ["id": "c", "do": "changes.it", "with": ["text": "{{n}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.record(of: "c")?.note?.contains("cut to") != true, "\(run.record(of: "c")?.note ?? "")")
+    }
+
+    @Test func blankWordsInsideARecordCanBeWhatsMeant() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"change":{"type":"object","properties":{"replace":{"type":"string"}},"required":["replace"]}}}"#)]))
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["change": ["replace": ""]]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .done, "\(run.problem ?? "")")
+        #expect((w.host.calls.first?.input["change"] as? [String: Any])?["replace"] as? String == "")
+    }
+
+    @Test func aNumberThatLooksSmallerThanItIsStops() throws {
+        for words in ["1.500", "12.500", "1.250 visitors", "1.299 €", "€2.750", "kr 1.500", "1.299 EUR", "USD 1.299", "1'299.50", "CHF 1’299", "3 millions", "2,5 Mio. €", "1,5 Mrd", "2,5 M€", "1.2 M", "1万", "1万人", "$1.2mn", "$2T", "2 ألف", "5 Milliarden", "($1,299.00)", "Balance: ($1,299.00)", "$5 100 sold", "1.5e3 units", "١٬٠٠٠", "Nov 5 120 USD", "Room 5 100 USD20", "3 200 GET", "前年比-5%", "気温−5度", "商品-12", "エネルギー-5%", "$50k-$100k", "5M-10M", "1.299 ARS", "CLP 12.345", "Net ($1,299.00)", "Coffee ($4.50)", "1.500 m€", "1.500 l'anno", "1.000 km", "1.000 mg", "1.000 ml", "1.000 ms", "1.500 km", "1.234 BTC", "5百万円", "3백만", "R$ 5 bi", "2,5 Md€", "$5MM", "1.299 Euro", "1.299 dollars"] {
+            #expect(Condition.couldBeEither(words), "\(words)")
+            #expect(Condition.number(words) == nil, "\(words)")
+        }
+    }
+
+    @Test func anyScriptsDigitsAreReadAndALetterBeforeAMinusIsNoMinus() throws {
+        for (words, value) in [("٣٠٠", 300.0), ("١٢٣", 123), ("１２３", 123), ("٣٫٥", 3.5), ("३००", 300), ("Товар-12", 12), ("Café-5", 5), ("Room 4B", 4), ("10 T-shirts", 10), ("1\u{2009}299,50", 1299.5), ("0.500", 0.5), ("1.299", 1.299), ("1.125 seconds", 1.125), ("time=12.340 ms", 12.34), ("99.990%", 99.99), ("1.250s", 1.25), ("ETA 12m", 12), ("CPU 500m", 500), ("AVG 1.234 ms", 1.234), ("2 M4 Macs", 2), ("3 k8s clusters", 3), ("$10 T-shirts", 10), ("合計1 299,50 €", 1299.5), ("+1e3", 1000), ("－１２３", -123), ("サーバー1 299,50 €", 1299.5), ("M-series 5", 5), ("5 M-series", 5)] {
+            #expect(!Condition.couldBeEither(words), "\(words)")
+            #expect(Condition.number(words) == value, "\(words)")
+        }
+        #expect(Condition.test(.more_than, left: "٣٠٠", right: "100"))
+    }
+
+    @Test func aNumberFieldTakesOnlyWhatPlainlyIsOne() {
+        for words in ["1.000", "12.000", "1.500", "1,000"] { #expect(Editing.number(words) == nil, "\(words)") }
+        for (words, value) in [("1.299", 1.299), ("12,5", 12.5), ("0.500", 0.5), ("1e3", 1000.0), ("12", 12)] { #expect(Editing.number(words) == value, "\(words)") }
+    }
+
+    @Test func whatCouldBeMoreThanOneNumberIsntTakenForOne() throws {
+        for words in ["1,000", "1.000", "12.000", "about 1,000 of them", "12345678901234567890", "1,23,456", "12,345,678,901,234,567", "1,2,3", "₹1,23,456.00", "$1.2M", "12.3k", "100 200 300", "1 299", "5 500ml bottles", "at 100 200", "$1B", "Top 5 100,000 plays", "Nov 5 120.50", "$1.2 million", "Room 5 100 $20", "£2.5m", "$1.2 M"] {
+            #expect(Condition.couldBeEither(words), "\(words)")
+            #expect(Condition.number(words) == nil, "\(words)")
+        }
+        for (words, value) in [("3.142", 3.142), ("0.000", 0), ("12,5", 12.5), ("12 apples", 12), ("1000", 1000), ("$1,299.00", 1299), ("1.299,50", 1299.5), ("1,000,000", 1_000_000), ("1.000.000", 1_000_000), ("1.2.3", 1.2), ("12.2026", 12.2026), ("18 °C", 18), ("-3", -3), ("0,500", 0.5), ("1e-05", 0.00001), ("1.5e3", 1500), (".5", 0.5), ("$.99", 0.99), ("1 299,00 €", 1299), ("1\u{202F}299,50", 1299.5), ("SKU-12", 12), ("-5 °C", -5), ("2026-11-05", 2026), ("10:30", 10), ("about -3", -3), ("−5°C", -5), ("1 299 €", 1299), ("€ 1 299,00", 1299), ("10m", 10), ("5 km", 5), ("-1 299,00 €", -1299), ("Total: 1 299,00 €", 1299), ("1 299,00 euros", 1299), ("€ -1 299,00", -1299), ("Room 4B", 4), ("200Kč", 200), ("10kΩ", 10), ("2024 100 EUR", 2024), ("50%", 50), ("18.5 °C", 18.5), ("12.50", 12.5), ("-$5.00", -5), ("−€5", -5), ("Coffee-$3.50", 3.5), ("–5 °C", -5), ("5–10 days", 5), ("1 299.00 €", 1299), ("1 299,5", 1299.5)] {
+            #expect(!Condition.couldBeEither(words), "\(words)")
+            #expect(Condition.number(words) == value, "\(words)")
+        }
+        #expect(Editing.number("12345678901234567890") == nil)
+        #expect(Editing.number("123456789012345") == 123456789012345)
+    }
+
+    @Test func aConditionThatCantTellSaysSoRatherThanGoingOneWay() async throws {
+        for (made, than) in [("1,500", "2000"), ("12.000", "10"), ("5", "1,000")] {
+            let w = try World()
+            let flow = try w.flow([["id": "p", "text": made], ["id": "b", "name": "Check price", "if": ["value": "{{p}}", "test": "less_than", "than": than], "then": [["id": "y", "text": "yes"]], "else": [["id": "n", "text": "no"]]]])
+            let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+            #expect(run.status == .failed, "\(made) \(than): \(run.status)")
+            let said = (run.problem ?? "").filter { !"\u{2068}\u{2069}".contains($0) }
+            #expect(said.contains("could be more than one number") && said.contains("Check price"), "it names the step: \(said)")
+            #expect(said.contains(made) || said.contains(than), "and the words: \(said)")
+            #expect(run.record(of: "y") == nil && run.record(of: "n") == nil, "neither way")
+        }
+        let w = try World()
+        let flow = try w.flow([["id": "p", "text": "$1,299.00"], ["id": "b", "if": ["value": "{{p}}", "test": "less_than", "than": "2000"], "then": [["id": "y", "text": "yes"]], "else": [["id": "n", "text": "no"]]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.record(of: "y") != nil, "that one's plain")
+        // Words that aren't compared as numbers aren't its business.
+        #expect(Condition(value: "1,500", test: .contains, than: "500").doubtful(Values()) == nil)
+    }
+
+    @Test func aRepeatThatCantTellSaysSo() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "again", "name": "Keep checking", "repeat": [["id": "p", "text": "1,500"]], "until": ["value": "{{p}}", "test": "more_than", "than": "2000"], "times": 3]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .failed)
+        #expect(run.problem?.contains("could be more than one number") == true && run.problem?.contains("Keep checking") == true, "\(run.problem ?? "")")
+        #expect(run.records.filter { $0.step == "p" }.count == 1, "it didn't go round on a guess")
+    }
+
+    @Test func aFilterThatCantTellSaysSo() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "d", "name": "Pick cheap ones", "data": ["op": "filter", "from": #"["1,500","10"]"#, "test": "less_than", "than": "2000"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .failed)
+        #expect(run.problem?.contains("1,500") == true && run.problem?.contains("Pick cheap ones") == true, "\(run.problem ?? "")")
+    }
+
+    @Test func aWordThatIsntOneOfTheChoicesIsSaid() async throws {
+        let (run, sent) = try await refused(["text": "x", "mode": "{{n}}"], made: "High")
+        #expect(sent.isEmpty)
+        #expect(run.status == .failed)
+        #expect(run.problem?.contains("High") == true && run.problem?.contains("fast") == true, "\(run.problem ?? "")")
+        let (fine, went) = try await refused(["text": "x", "mode": "{{n}}"], made: "fast")
+        #expect(fine.status == .done)
+        #expect(went.first?["mode"] as? String == "fast")
+    }
+
+    @Test func aDataStepDoesntGuessEither() async throws {
+        for op: [String: Any] in [["op": "number", "from": "1,000"], ["op": "sum", "from": #"["1,000","2"]"#]] {
+            let w = try World()
+            let flow = try w.flow([["id": "d", "data": op], ["id": "s", "text": "went on"]])
+            let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+            #expect(run.status == .failed, "\(op)")
+            #expect(run.problem?.contains("1,000") == true, "\(run.problem ?? "")")
+        }
+    }
+
+    @Test func aFormsNumberIsntAGuess() async throws {
+        let w = try World()
+        let app = try app(w)
+        let flow = app.newFlow(name: "Asked", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "form": ["title": "T", "fields": [["name": "n", "label": "N", "kind": "number"]]]]]]))
+        let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
+        await w.quiet(app.store)
+        for words in ["1,000", "1.000"] {
+            #expect(throws: Problem.self, "\(words)") { try app.engine.answer(run: run.id, form: ["n": .string(words)]) }
+        }
+        try app.engine.answer(run: run.id, form: ["n": .string("1000")])
+        await w.quiet(app.store)
+        #expect(app.store.run(run.id)?.values.named["f"] == .object(["n": .number(1000)]))
+    }
+
+    @Test func aHugeNumberFromAToolIsntACount() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"n":12345678901234567890}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "x", "count": "{{r.n}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .failed)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
     @Test func wordsThatFitSayNothing() async throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))

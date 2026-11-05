@@ -79,6 +79,10 @@ extension Engine {
             leave()
             return failed(step, why: L("It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.", ["name": unknown]), reads: false, in: &run)
         }
+        if run.mode != .practice, let doubtful = until.doubtful(run.values) {
+            leave()
+            return failed(step, why: Self.cantRead(doubtful, at: step, catalog: catalog), reads: false, in: &run)
+        }
         // What it can't see won't change by asking again. A go that only read is what a poll asks again, but one that did something would do it again, so one of its checks has
         // to be able to come out differently: something this go answered, or which go this is. Not an earlier value, a name gone with a loop inside, a misspelt one, or a blank.
         // Alone, a repeat's item is its go; inside a list it's the list's. Words a check doesn't compare with don't count, even if they're still written there.

@@ -60,7 +60,11 @@
       "title": "Supprimer une routine"
     },
     "ui": {
-      "title": "Ouvrir Sideflow"
+      "title": "Ouvrir Sideflow",
+      "summary": [
+        "Ouvrir Sideflow",
+        "Changer quelque chose dans Sideflow : {op}"
+      ]
     }
   },
   "pages": {
@@ -521,6 +525,7 @@
     "“{tool}” has no value called “{name}”.": "« {tool} » n’a pas de valeur appelée « {name} ».",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "« {tool} » n’est pas disponible actuellement. Son extension est peut-être désactivée ou absente, ou Sidefolk ne laisse pas les extensions l’utiliser.",
     "“every_minutes” must be from {least} to {most}.": "« every_minutes » doit aller de {least} à {most}.",
+    "That could be more than one number. Write it plainly, like 1500 or 1.5.": "Ce nombre peut se lire de plusieurs façons. Écrivez-le simplement, par exemple 1500 ou 1.5.",
     "That isn't a number.": "Ce n'est pas un nombre.",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "Vos routines n'ont pas pu être enregistrées sur le disque. Vos changements peuvent être perdus quand Sidefolk quittera.",
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "Le fichier de vos routines n'a pas pu être lu : il est gardé à part sous le nom {file} et vous repartez de zéro.",
@@ -1093,6 +1098,8 @@
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "« {name} » est une liste de mots, et une entrée n’en est pas : « {value} ».",
     "“{name}” is needed, and this gives it nothing.": "« {name} » est nécessaire, et ceci ne lui donne rien.",
     "“{name}” wants {what}, and this gives it “{value}”.": "« {name} » attend {what}, et ceci lui donne « {value} ».",
-    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names} : coupé à {count} caractères en allant vers l’outil. Le reste n’a pas été envoyé."
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names} : coupé à {count} caractères en allant vers l’outil. Le reste n’a pas été envoyé.",
+    "“{name}” is one of {answers}, and this gives it “{value}”.": "« {name} » doit être {answers}, et ceci lui donne « {value} ».",
+    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "« {step} » ne peut pas lire « {value} » : cela pourrait être plusieurs nombres, l’exécution s’est donc arrêtée ici."
   }
 }

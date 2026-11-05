@@ -29,6 +29,8 @@ Each its own landing, with independent reads until a clean one, a suite on a bui
 
 Also stated and owed: the later lists in each landing's MERGE-READY, among them a write's thrown error going to "did it happen?" rather than Recover, "Next:" ignoring the flow's time zone, `{{today}}` going stale over a days-long form, Skip sending a later action an empty value.
 
+Known gap, in plain words (the coordinator's ruling, 2026-11-05): when you ask the agent to stop a flow, it stops that run and what it started, but not the lanes beside it, and it doesn't clear the flow's waiting starts; the Stop on the flow's page does all of it. On the later list: knowing who called, so an agent acting for the person can count as the person, is a general Kit ability for a later batch and needs a decision of its own.
+
 ## First after the stack ships (the coordinator, 2026-11-05)
 
 The first fix of the next batch, before the small gaps below (the coordinator's ruling): Stop on a flow whose file can't be read can't clear its waiting starts, so they can go ahead after someone repairs that file. It needs a damaged flows file and a deliberate repair, and what goes ahead runs under the plan the person approved.
@@ -42,7 +44,7 @@ Known small gaps accepted for now, to fix first in the next batch:
 
 Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off flow in an untaken branch refuses the whole run; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
 
-Typed mapping's later list: an entry with a comma in it reads as two in the form and goes as one; `1.000` from a step reaches a number field (not a whole-number one) as 1, read as a decimal; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
+Typed mapping's later list: reading the first number in words is a judgement, not a parser, so `Pos 3 129,50 €` reads 3129.5, `,5` reads 5, `192.168.100.200` reads as one long number, `Nov 5 120 €` reads 5120, `$3.459`, `1.234 BTC` and `USD/JPY 149.253` stop though they could be read, and a bare `1.299` is 1.299 because that's what a tool writes; an entry with a comma in it reads as two in the form and goes as one; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
 
 Typed mapping's later list, from its last read: `wrote` is set before the fit check, so a refusal carried on inside a repeat says it would do this all again; `{{a}}, {{b}}` into a list sends a blank entry when b is blank; a page's mark can pass what a run refuses; a practice skips the fit check.
 

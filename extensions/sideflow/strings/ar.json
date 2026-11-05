@@ -60,7 +60,11 @@
       "title": "حذف روتين"
     },
     "ui": {
-      "title": "فتح Sideflow"
+      "title": "فتح Sideflow",
+      "summary": [
+        "فتح Sideflow",
+        "تغيير شيء في Sideflow: {op}"
+      ]
     }
   },
   "pages": {
@@ -537,6 +541,7 @@
     "“{tool}” has no value called “{name}”.": "ليس في «{tool}» قيمة اسمها «{name}».",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» غير متاح الآن. قد تكون إضافته متوقفة أو اختفت، أو لا يسمح Sidefolk للإضافات باستخدامه.",
     "“every_minutes” must be from {least} to {most}.": "يجب أن تكون «every_minutes» من {least} إلى {most}.",
+    "That could be more than one number. Write it plainly, like 1500 or 1.5.": "يمكن قراءة هذا الرقم بأكثر من طريقة. اكتبه بوضوح، مثل 1500 أو 1.5.",
     "That isn't a number.": "هذا ليس رقمًا.",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "تعذر حفظ روتيناتك على القرص. قد تضيع تغييراتك عند إغلاق Sidefolk.",
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "تعذرت قراءة ملف روتيناتك، لذا حُفظ جانبًا باسم {file} وستبدأ من دونها.",
@@ -1165,6 +1170,8 @@
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "«{name}» قائمة كلمات، وأحد عناصرها ليس كذلك: «{value}».",
     "“{name}” is needed, and this gives it nothing.": "«{name}» مطلوب، وهذا لا يعطيه شيئًا.",
     "“{name}” wants {what}, and this gives it “{value}”.": "يريد «{name}» {what}، وهذا يعطيه «{value}».",
-    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: قُصّ إلى {count} حرفًا في الطريق إلى الأداة. ولم يُرسل الباقي."
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: قُصّ إلى {count} حرفًا في الطريق إلى الأداة. ولم يُرسل الباقي.",
+    "“{name}” is one of {answers}, and this gives it “{value}”.": "«{name}» واحد من {answers}، وهذا يعطيه «{value}».",
+    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "لا يستطيع «{step}» قراءة «{value}»: قد يعني أكثر من رقم واحد، لذا توقف هنا."
   }
 }

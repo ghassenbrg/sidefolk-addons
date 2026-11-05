@@ -132,10 +132,11 @@ import SidefolkExtensionKit
 
     /// Why what's been filled in can't go to this tool. Nothing is reshaped to make it fit: a plain reason, before it gets there.
     func doesntFit(_ name: String, _ filled: [String: Any]) -> String? {
-        func check(_ filled: [String: Any], _ parameters: [Parameter]) -> String? {
+        func check(_ filled: [String: Any], _ parameters: [Parameter], top: Bool = true) -> String? {
             for parameter in parameters {
                 // Sidefolk counts a null or blank words as missing where something's needed, whatever the schema says: it wouldn't have got there.
-                guard let given = filled[parameter.name], !(given is NSNull), (given as? String)?.trimmed.isEmpty != true else {
+                // It looks at the top level only: inside a record, blank words can be what's meant, like what to replace something with.
+                guard let given = filled[parameter.name], !(given is NSNull), !top || (given as? String)?.trimmed.isEmpty != true else {
                     if parameter.required { return L("“{name}” is needed, and this gives it nothing.", ["name": parameter.title]) }
                     continue
                 }
@@ -143,11 +144,15 @@ import SidefolkExtensionKit
                 let wrong: Bool
                 switch parameter.kind {
                 case .integer:
-                    if case .number(let n) = value { wrong = n != n.rounded() } else { wrong = true }
+                    // Past that a number no longer holds every digit, and what's sent wouldn't be what it was.
+                    if case .number(let n) = value { wrong = n != n.rounded() || abs(n) >= 1e15 } else { wrong = true }
                 case .number:
                     if case .number = value { wrong = false } else { wrong = true }
                 case .boolean:
                     if case .bool = value { wrong = false } else { wrong = true }
+                case .choice(let answers):
+                    if let word = value.string, !answers.contains(word) { return L("“{name}” is one of {answers}, and this gives it “{value}”.", ["name": parameter.title, "answers": Format.list(answers), "value": word.clipped(80)]) }
+                    wrong = false
                 case .list:
                     guard case .array(let items) = value else { wrong = true; break }
                     if items.contains(.null) { return L("“{name}” has an entry that came back with nothing in it.", ["name": parameter.title]) }
@@ -157,7 +162,7 @@ import SidefolkExtensionKit
                     wrong = false
                 }
                 if wrong, let what = parameter.typeWord { return L("“{name}” wants {what}, and this gives it “{value}”.", ["name": parameter.title, "what": what, "value": Values.text(value).clipped(80)]) }
-                if !parameter.children.isEmpty, let inner = given as? [String: Any], let found = check(inner, parameter.children) { return found }
+                if !parameter.children.isEmpty, let inner = given as? [String: Any], let found = check(inner, parameter.children, top: false) { return found }
             }
             return nil
         }

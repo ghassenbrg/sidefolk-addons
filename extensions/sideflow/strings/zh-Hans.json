@@ -60,7 +60,11 @@
       "title": "删除流程"
     },
     "ui": {
-      "title": "打开 Sideflow"
+      "title": "打开 Sideflow",
+      "summary": [
+        "打开 Sideflow",
+        "在 Sideflow 中更改内容：{op}"
+      ]
     }
   },
   "pages": {
@@ -517,6 +521,7 @@
     "“{tool}” has no value called “{name}”.": "“{tool}”没有名为“{name}”的值。",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "“{tool}”现在不可用。它的扩展可能已关闭或不见了，或者 Sidefolk 不允许扩展使用它。",
     "“every_minutes” must be from {least} to {most}.": "“every_minutes”必须在 {least} 到 {most} 之间。",
+    "That could be more than one number. Write it plainly, like 1500 or 1.5.": "这个数字可能有多种读法。请写清楚,例如 1500 或 1.5。",
     "That isn't a number.": "这不是数字。",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "无法将你的流程保存到磁盘。Sidefolk 退出时，你的更改可能会丢失。",
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "无法读取你的流程文件，因此已另存为 {file}，你将从空白开始。",
@@ -1075,6 +1080,8 @@
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "“{name}”是文字列表，但有一项不是：“{value}”。",
     "“{name}” is needed, and this gives it nothing.": "“{name}”是必需的，而这里没有给它任何内容。",
     "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”需要{what}，而这里给的是“{value}”。",
-    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}：发送给工具时被截断为 {count} 个字符。其余部分未发送。"
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}：发送给工具时被截断为 {count} 个字符。其余部分未发送。",
+    "“{name}” is one of {answers}, and this gives it “{value}”.": "“{name}”应为 {answers} 之一，而这里给的是“{value}”。",
+    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "“{step}”无法读取“{value}”：它可能表示不止一个数字，因此在此停止。"
   }
 }

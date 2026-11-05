@@ -60,7 +60,11 @@
       "title": "Elimina una routine"
     },
     "ui": {
-      "title": "Apri Sideflow"
+      "title": "Apri Sideflow",
+      "summary": [
+        "Aprire Sideflow",
+        "Modificare qualcosa in Sideflow: {op}"
+      ]
     }
   },
   "pages": {
@@ -521,6 +525,7 @@
     "“{tool}” has no value called “{name}”.": "«{tool}» non ha nessun valore chiamato «{name}».",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "«{tool}» ora non è disponibile. La sua estensione potrebbe essere disattivata o sparita, oppure Sidefolk non lascia usarlo alle estensioni.",
     "“every_minutes” must be from {least} to {most}.": "«every_minutes» deve essere tra {least} e {most}.",
+    "That could be more than one number. Write it plainly, like 1500 or 1.5.": "Questo numero si può leggere in più modi. Scrivilo in modo chiaro, come 1500 o 1.5.",
     "That isn't a number.": "Non è un numero.",
     "Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.": "Non è stato possibile salvare le tue routine sul disco. Le modifiche potrebbero andare perse alla chiusura di Sidefolk.",
     "Your flows file couldn't be read, so it was kept aside as {file} and you're starting from none.": "Non è stato possibile leggere il file delle tue routine: è stato tenuto da parte come {file} e riparti da zero.",
@@ -1093,6 +1098,8 @@
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "«{name}» è un elenco di parole, e una voce non lo è: «{value}».",
     "“{name}” is needed, and this gives it nothing.": "«{name}» è necessario, e questo non gli dà nulla.",
     "“{name}” wants {what}, and this gives it “{value}”.": "«{name}» vuole {what}, e questo gli dà «{value}».",
-    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: tagliato a {count} caratteri verso lo strumento. Il resto non è stato inviato."
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: tagliato a {count} caratteri verso lo strumento. Il resto non è stato inviato.",
+    "“{name}” is one of {answers}, and this gives it “{value}”.": "«{name}» è uno tra {answers}, e questo gli dà «{value}».",
+    "“{step}” can't read “{value}”: it could be more than one number, so it stopped here.": "«{step}» non può leggere «{value}»: potrebbe essere più di un numero, quindi si è fermato qui."
   }
 }
