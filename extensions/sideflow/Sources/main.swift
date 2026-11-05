@@ -27,10 +27,8 @@ ext.palette("run", query: { words in
     // What this would run: what's on, or what was saved, not what's being typed.
     let problems = (flow.live == nil ? flow.kept : flow.running).problems(app.catalog)
     guard problems.isEmpty else { return PaletteChoice(message: L("To fix first: {list}", ["list": problems.map(\.text).joined(separator: " ")])) }
-    guard let started = app.engine.start(flow, mode: flow.live != nil ? .live : .once, why: L("You asked for it.")) else {
-        return PaletteChoice(message: app.store.flow(id)?.pausedBecause ?? L("“{name}” is already running.", ["name": flow.name]))
-    }
-    if started.status.isOver, let why = started.problem { return PaletteChoice(message: why) }
+    // A card can wait two minutes, and the palette doesn't: what comes of it shows on the flow's page.
+    Task { await app.engine.runNow(flow.id, why: L("You asked for it.")) }
     return PaletteChoice(close: true, message: L("Running “{name}”.", ["name": flow.name]))
 })
 Plans.ended = { plan in

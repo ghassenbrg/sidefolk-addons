@@ -377,7 +377,8 @@ import SidefolkExtensionKit
             app.engine.resume(try flow().id)
         case "run":
             let f = try flow()
-            app.engine.start(f, mode: f.live != nil ? .live : .once, why: L("You asked for it."))
+            // A card can wait two minutes, and the page's own call doesn't.
+            Task { await app.engine.runNow(f.id, why: L("You asked for it.")) }
         case "save":
             var f = try flow()
             f.saved = nil

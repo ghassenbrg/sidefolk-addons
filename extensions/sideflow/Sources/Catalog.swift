@@ -174,7 +174,7 @@ extension FlowBody {
         if steps.isEmpty { out.append(FlowProblem(step: nil, text: L("It has no steps yet."))) }
         if allSteps.count > FlowBody.maxSteps { out.append(FlowProblem(step: nil, text: L("A flow can have at most {count} steps.", ["count": Format.integer(FlowBody.maxSteps)]))) }
         if let wrong = triggerProblem { out.append(FlowProblem(step: nil, text: wrong)) }
-        let actions = Engine.planSteps(self, title: "").count
+        let actions = Set(Engine.planSteps(self, title: "").map(\.line)).count
         if actions > Plans.maxSteps {
             out.append(FlowProblem(step: nil, text: L("It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.", ["count": Format.integer(actions), "limit": Format.integer(Plans.maxSteps)])))
         }

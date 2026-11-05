@@ -101,7 +101,7 @@ import SidefolkExtensionKit
             var values = Values()
             for step in flow.draft.allSteps where step.hasOutput { values.set(step.id, "…") }
             values.set("trigger", "…")
-            let plan = flow.state == .draft ? nil : flow.planId
+            let plan = flow.live == nil ? nil : flow.planId
             for step in flow.draft.allSteps {
                 guard case .action(let tool, let input) = step.kind else { continue }
                 if let check = await host.check(tool, catalog.filled(tool, input, from: values), plan: plan) { out[step.id] = check }

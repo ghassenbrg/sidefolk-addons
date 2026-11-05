@@ -25,6 +25,7 @@ import SidefolkExtensionKit
         var releaseQuietly = false
         var cancelled = false
         var progressWords: String?
+        var runIds: [String] = []
         var heard: ((Actions.Progress) -> Void)?
         var written: [String] = []
         /// What they answer when a stopped run asks the way forward: by default nobody does.
@@ -64,6 +65,7 @@ import SidefolkExtensionKit
 
         func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
             heard = progress
+            runIds.append(run)
             return await call(tool, input, plan: plan, written: written)
         }
 
@@ -321,15 +323,15 @@ import SidefolkExtensionKit
         func tooMany(_ body: FlowBody) -> Bool { body.problems(w.catalog).contains { $0.step == nil && $0.text.contains("different things to allow") } }
         #expect(!tooMany(try actions(1)))
         #expect(!tooMany(try actions(32)))
-        #expect(tooMany(try actions(33)))
+        #expect(tooMany(try actions(Plans.maxSteps + 1)))
         #expect(!tooMany(try actions(28, trigger: watching)), "28 and the watch's four")
-        #expect(tooMany(try actions(29, trigger: watching)))
+        #expect(tooMany(try actions(Plans.maxSteps - 3, trigger: watching)))
         #expect(Engine.planSteps(try actions(29, trigger: watching), title: "t").count == 33)
     }
 
     @Test func theSameActionTwiceIsOneLineToAllow() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "do": "notes.save", "with": ["text": "x"]], ["id": "b", "do": "notes.save", "with": ["text": "x"]], ["id": "c", "do": "notes.save", "with": ["text": "y"]]]])
-        #expect(Engine.planSteps(body, title: "t").count == 2)
+        #expect(Set(Engine.planSteps(body, title: "t").map(\.line)).count == 2, "a step each for the card to name, one line to allow")
     }
 
     /// No action, nothing to read on a card, and Sidefolk refuses an empty plan: it just turns on.

@@ -8,6 +8,7 @@ import SidefolkExtensionKit
     func check(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Check?
     func write(_ prompt: String, label: String) async -> AI.Result
     func approve(_ plan: Plan) async -> Plans.Answer
+    func checkPlan(_ plan: Plan) async -> Plans.Checked?
     func forgetPlan(_ id: String)
     func notify(title: String, body: String?, attention: Bool) async
     /// A call for a run: it can be followed while it's under way, and asked to stop.
@@ -20,6 +21,7 @@ extension FlowHost {
         await call(tool, input, plan: plan, written: written)
     }
     func cancel(run: String) {}
+    func checkPlan(_ plan: Plan) async -> Plans.Checked? { nil }
 }
 
 /// Runs flows. It decides nothing about what is allowed: every action goes to Sidefolk, which asks or doesn't; here is only the order of
@@ -32,6 +34,7 @@ extension FlowHost {
     var calendar = Calendar.autoupdatingCurrent
     /// Backoff for `retry`: what is tried again, and after how long.
     var retryWaits: [TimeInterval] = [30, 120, 600]
+    static let retriesAtMost = 3
     /// Runs in an hour past which a flow is paused and the person told: something set off that shouldn't be.
     var runawayLimit = 30
     /// Called after anything a page shows changed.
@@ -566,6 +569,22 @@ extension FlowHost {
             run.record(.init(step: step.id, status: .needs_you, summary: step.name ?? said, note: run.problem, at: clock()))
             store.save(run)
             return false
+        case .capped:
+            // The limit the card said. Nothing happened, and going on would only be refused again until the person looks.
+            let why = outcome.limit == "day" ? L("It reached the limit you allowed for a day, so it's paused. Nothing more was sent.")
+                : L("It reached the limit you allowed for one run, so it's paused. Nothing more was sent.")
+            if var flow = store.flow(run.flow), flow.state == .on {
+                flow.state = .paused
+                flow.pausedBecause = why
+                store.save(flow)
+            }
+            // Not a failure a try or "carry on" gets past: the person said this much and no more.
+            run.frames = []
+            run.status = .failed
+            run.problem = why
+            run.record(.init(step: step.id, status: .failed, summary: step.name ?? said, note: why, at: clock()))
+            store.save(run)
+            return false
         case .busy:
             // Nothing happened, and a minute puts it right: a long list isn't a failure.
             run.resumeAt = clock().addingTimeInterval(Self.busyWait)
@@ -837,9 +856,9 @@ extension FlowHost {
     /// Whether a run that ended can go on from where it ended: only from a step in the flow's main line, because a loop's place isn't kept once it's over, and only from
     /// what's still what it ran.
     func canGoOn(from run: Run) -> Bool {
-        guard run.status == .failed || run.status == .stopped, run.mode != .practice, run.parent == nil, let flow = store.flow(run.flow), !isRunning(run.flow) else { return false }
-        // What it ran is what's still there, read as `start` reads it: a run for real has only what was approved.
-        guard run.body == (run.mode == .live ? flow.live : flow.kept) else { return false }
+        guard run.status == .failed || run.status == .stopped, run.mode == .live, run.parent == nil, let flow = store.flow(run.flow), !isRunning(run.flow) else { return false }
+        // What it ran is what's still approved.
+        guard run.body == flow.live else { return false }
         let program = FlowProgram(run.body)
         guard run.pc < program.ops.count, case .step(let step) = program.ops[run.pc] else { return false }
         // It may have happened: doing it again is the person's to decide knowing that, on the run's own page, not a button's to assume.
@@ -863,11 +882,15 @@ extension FlowHost {
     /// and each action goes through Sidefolk as any does.
     func runAgain(_ id: String, fromHere: Bool) -> Run? {
         guard let old = store.run(id), old.status.isOver, old.parent == nil, let flow = store.flow(old.flow) else { return nil }
-        // What it ran, as it ran it: a look at a draft again stays that, even if another version is on.
-        let mode: Run.Mode = old.mode == .live && flow.live == nil ? .once : old.mode
         guard fromHere else {
             let trigger = old.values.named["trigger"].map(Values.text)
-            return start(flow, mode: mode, why: L("You ran it again."), trigger: trigger)
+            // A practice is a look at the draft. Anything else goes by what stands: if it's changed since, that's Run's to ask about.
+            if old.mode == .practice { return start(flow, mode: .practice, why: L("You ran it again."), trigger: trigger) }
+            guard flow.live != nil, flow.live == flow.kept, !flow.hasUnsaved else {
+                Task { await runNow(flow.id, why: L("You ran it again."), trigger: trigger) }
+                return nil
+            }
+            return start(flow, mode: .live, why: L("You ran it again."), trigger: trigger)
         }
         guard canGoOn(from: old), let started = start(flow, mode: old.mode, why: L("You tried again from where it ended.")) else { return nil }
         // The start's own walk hasn't begun: it picks up from here instead.
@@ -1056,18 +1079,24 @@ extension FlowHost {
     /// What a definition asks to be allowed, one line each, the same line once: what the card shows and what Sidefolk's limit on a plan counts.
     static func planSteps(_ body: FlowBody, title: String, oldWatch: String? = nil) -> [PlanStep] {
         var steps: [PlanStep] = []
-        var seen = Set<String>()
+        var seen = Set<String>(), names = Set<String>()
         func add(_ tool: String, _ input: [String: Any]) {
             let key = tool + JSONText.write(input)
             if seen.insert(key).inserted { steps.append(PlanStep(tool, input)) }
         }
+        // A name the host can trust to be one step's: it refuses a whole plan over a bad one.
+        func name(_ step: Step) -> String? {
+            step.id.count <= 60 && !["today", "now"].contains(step.id) && step.id.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "_" || $0 == "-") }) && names.insert(step.id).inserted ? step.id : nil
+        }
         for step in body.allSteps {
             switch step.kind {
-            case .action(let tool, let input): add(tool, input.mapValues(\.any))
+            case .action(let tool, let input): steps.append(PlanStep(tool, input.mapValues(\.any), named: name(step), title: step.name))
             case .ask(let question, let options):
                 var input: [String: Any] = ["question": question, "timeout_seconds": 300]
                 if !options.isEmpty { input["options"] = options }
-                add("ask.user", input)
+                steps.append(PlanStep("ask.user", input, named: name(step), title: step.name))
+            case .ai(let prompt): steps.append(.ai(named: name(step), title: step.name, reads: Values.references(prompt).filter { !Values.reserved.contains($0) }))
+            case .flow(let other), .call(let other, _): steps.append(.flow(other, named: name(step), title: step.name))
             default: break
             }
         }
@@ -1085,8 +1114,102 @@ extension FlowHost {
         return steps
     }
 
-    /// Everything the draft may do, as the person will read it.
-    func livePlan(_ flow: Flow) -> Plan {
+    /// The steps whose values come only from the person or the clock, however they were put together. Not a list's item or what a flow was given: those can come from anywhere.
+    static func inside(_ body: FlowBody) -> [String] {
+        var known = Set<String>()
+        func holds(_ text: String) -> Bool { Values.slots(text).allSatisfy { known.contains($0.name) || (["today", "now"].contains($0.name) && $0.path.isEmpty) } }
+        for step in body.allSteps {
+            switch step.kind {
+            case .form: known.insert(step.id)
+            case .text(let text) where holds(text): known.insert(step.id)
+            case .data(let data) where holds(data.from) && holds(data.than ?? ""): known.insert(step.id)
+            default: break
+            }
+        }
+        return body.allSteps.map(\.id).filter(known.contains)
+    }
+
+    /// The most calls one run of these can make, for the card to say and Sidefolk to hold it to.
+    static func callsPerRun(_ steps: [Step]) -> Int {
+        steps.reduce(0) { total, step in
+            let inner: Int = switch step.kind {
+            case .action, .ask: step.onFailure == .retry ? retriesAtMost + 1 : 1
+            case .forEach(_, let limit, _, let inside): limit * callsPerRun(inside)
+            case .repeatUntil(_, let times, let inside): times * callsPerRun(inside)
+            default: {
+                var held: [Step] = []
+                _ = step.mappingParts { held += $0; return $0 }
+                return callsPerRun(held)
+            }()
+            }
+            return min(total + inner, Plans.mostPerRun)
+        }
+    }
+
+    private func keepBefore(_ reviewed: FlowBody, in flow: inout Flow) {
+        guard let was = flow.live, was != reviewed else { return }
+        flow.revisions.append(Flow.Revision(at: clock(), body: was))
+        flow.revisions = Array(flow.revisions.suffix(Flow.keptRevisions))
+    }
+
+    private func settleWatch(_ id: String, wasLive: FlowBody?, wasOn: Bool, reviewed: FlowBody, title: String) async {
+        guard let current = store.flow(id) else { return }
+        let oldWatch = current.watchTitle
+        // A new name too: the card's lines go by it, and every call to the watch from now on has to fit them.
+        if oldWatch != nil, oldWatch != title || !Self.watchInputs(was: wasLive, now: reviewed) {
+            await replaceWatch(id, stopping: oldWatch)
+        } else if oldWatch == nil, case .watch = reviewed.trigger {
+            await makeWatch(id)
+        } else if !wasOn || current.watchOutdated {
+            // Paused, or on its way out: approving an edit is what brings it back, the same as Resume.
+            await resumeWatch(current)
+        }
+    }
+
+    /// Run: one version, the one they read. What's on the page is saved, whatever's new is asked about (nothing, if nothing is), that goes live, and it runs.
+    /// A flow that isn't on stays as it is, with its approval kept. Saying no leaves the edit saved and what was live as it was, and the page says what's waiting.
+    @discardableResult func runNow(_ id: String, why: String, trigger: String? = nil) async -> Run? {
+        guard var flow = store.flow(id) else { return nil }
+        flow.saved = nil
+        flow.settleNote()
+        if let wrong = flow.kept.unfinished {
+            flow.startProblem = wrong
+            store.save(flow)
+            changed()
+            return nil
+        }
+        flow.startProblem = nil
+        store.save(flow)
+        changed()
+        let plan = livePlan(flow, intent: "run")
+        let lines = Set(plan.steps.map(\.line)).count
+        if lines > Plans.maxSteps {
+            flow.startProblem = L("It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.", ["count": Format.integer(lines), "limit": Format.integer(Plans.maxSteps)])
+            store.save(flow)
+            changed()
+            return nil
+        }
+        let reviewed = flow.kept, title = Self.watchTitle(flow)
+        if Self.needsCard(reviewed), let answer = await host?.approve(plan), case .refused(let reason) = answer {
+            guard var current = store.flow(id) else { return nil }
+            current.startProblem = Words.planRefusal(reason)
+            store.save(current)
+            changed()
+            return nil
+        }
+        guard var current = store.flow(id) else { return nil }
+        let wasLive = current.live, wasOn = current.state == .on
+        keepBefore(reviewed, in: &current)
+        current.live = reviewed
+        current.startProblem = nil
+        store.save(current)
+        if wasOn, wasLive != reviewed { await settleWatch(id, wasLive: wasLive, wasOn: true, reviewed: reviewed, title: title) }
+        changed()
+        return store.flow(id).flatMap { start($0, mode: .live, why: why, trigger: trigger) }
+    }
+
+    /// Everything the draft may do, as the person will read it. `intent`: what they pressed, for the card's heading.
+    func livePlan(_ flow: Flow, intent: String = "turn_on") -> Plan {
         let steps = Self.planSteps(flow.kept, title: Self.watchTitle(flow), oldWatch: flow.watchTitle)
         // Setting another flow off needs no tool of its own, so the card says it here.
         let others = flow.kept.allSteps.compactMap { step -> (name: String, full: String)? in
@@ -1116,7 +1239,8 @@ extension FlowHost {
         }
         // A loop does its lines many times over: the card says the higher limit that takes.
         let goesRound = flow.kept.allSteps.contains { switch $0.kind { case .forEach, .repeatUntil: true; default: false } }
-        return Plan(id: flow.planId, title: flow.name, when: when, steps: steps, perDay: goesRound ? Self.loopsPerDay : nil)
+        return Plan(id: flow.planId, title: flow.name, when: when, steps: steps, perDay: goesRound ? Self.loopsPerDay : nil,
+                    perRun: max(Self.callsPerRun(flow.kept.steps), 1), intent: intent, goesRound: goesRound, inside: Self.inside(flow.kept))
     }
 
     static let loopsPerDay = 1000
@@ -1162,7 +1286,7 @@ extension FlowHost {
         changed()
         let plan = livePlan(flow)
         // Stopping the watch it had can be the line too many, which only shows here.
-        if plan.steps.count > Plans.maxSteps {
+        if Set(plan.steps.map(\.line)).count > Plans.maxSteps {
             flow.startProblem = L("It has {count} different things to allow, counting what it watches. A flow can have {limit}: move some into a flow of their own.", ["count": Format.integer(plan.steps.count), "limit": Format.integer(Plans.maxSteps)])
             store.save(flow)
             return changed()
@@ -1174,11 +1298,8 @@ extension FlowHost {
             guard let answer, var current = store.flow(id) else { return }
             switch answer {
             case .allowed:
-                let oldWatch = current.watchTitle, wasLive = current.live, wasOn = current.state == .on
-                if let was = current.live, was != reviewed {
-                    current.revisions.append(Flow.Revision(at: clock(), body: was))
-                    current.revisions = Array(current.revisions.suffix(Flow.keptRevisions))
-                }
+                let wasLive = current.live, wasOn = current.state == .on
+                keepBefore(reviewed, in: &current)
                 current.live = reviewed
                 current.state = .on
                 current.pausedBecause = nil
@@ -1186,15 +1307,7 @@ extension FlowHost {
                 current.lastEvery = [:]
                 current.startProblem = nil
                 store.save(current)
-                // A new name too: the card's lines go by it, and every call to the watch from now on has to fit them.
-                if oldWatch != nil, oldWatch != reviewedTitle || !Self.watchInputs(was: wasLive, now: reviewed) {
-                    await replaceWatch(id, stopping: oldWatch)
-                } else if oldWatch == nil, case .watch = reviewed.trigger {
-                    await makeWatch(id)
-                } else if !wasOn || current.watchOutdated {
-                    // Paused, or on its way out: approving an edit is what brings it back, the same as Resume.
-                    await resumeWatch(current)
-                }
+                await settleWatch(id, wasLive: wasLive, wasOn: wasOn, reviewed: reviewed, title: reviewedTitle)
             case .refused(let reason):
                 current.startProblem = Words.planRefusal(reason)
                 store.save(current)

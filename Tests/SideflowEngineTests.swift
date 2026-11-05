@@ -2270,18 +2270,8 @@ extension JSON {
         #expect(w.engine.runAgain(run.id, fromHere: true) == nil)
     }
 
-    @Test func runAgainKeepsTheModeItRanInAndTodaysDate() async throws {
+    @Test func tryingAgainSaysTodaysDate() async throws {
         let w = try World()
-        var flow = try w.flow([["id": "a", "text": "draft"]], state: .on)
-        flow.live = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "live"]]])
-        w.store.save(flow)
-        let once = await w.settled(w.engine.start(flow, mode: .once, why: "t"))
-        #expect(once?.values.value("a") == "draft")
-        let onceId = try #require(once).id
-        let again = try #require(w.engine.runAgain(onceId, fromHere: false))
-        await w.quiet()
-        #expect(w.store.run(again.id)?.values.value("a") == "draft", "it looked at the draft, so it looks at the draft again")
-
         let failing = try w.flow([["id": "x", "text": "kept"], ["id": "d", "do": "reads.it"], ["id": "t", "text": "{{today}}"]])
         w.host.answers["reads.it"] = [Actions.Outcome(status: .failed, text: "No", summary: "")]
         let failed = await w.settled(w.engine.start(failing, mode: .live, why: "t"))
@@ -2363,20 +2353,6 @@ extension JSON {
         flow.live = nil
         w.store.save(flow)
         #expect(!w.engine.canGoOn(from: failed!), "a run for real goes by what was approved, and nothing is now")
-    }
-
-    @Test func tryingAgainGoesByWhatARunFromTheKeptVersionRan() async throws {
-        let w = try World()
-        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken")]
-        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]], state: .draft)
-        let kept = flow.draft
-        flow.saved = kept
-        flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "other"]], ["id": "d", "text": "more"]]])
-        w.store.save(flow)
-        let failed = await w.settled(w.engine.start(flow, mode: .once, why: "t"))
-        #expect(failed?.status == .failed)
-        #expect(failed?.body == flow.kept)
-        #expect(w.engine.canGoOn(from: failed!), "what's on the page isn't what it ran, and doesn't matter")
     }
 
     @Test func aPauseAskedOfAStepThatEndsNeedingYouIsntTheAnswerToThat() async throws {

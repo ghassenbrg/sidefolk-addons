@@ -127,14 +127,14 @@ import SidefolkExtensionKit
             if app.store.flowsFileIsHeld { throw Problem(L("Your flows file can't be opened. It's untouched, and nothing runs or saves until it can be and Sidefolk starts again.")) }
             let problems = (flow.live == nil ? flow.kept : flow.running).problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
-            let mode: Run.Mode = flow.live != nil ? .live : .once
-            guard let started = app.engine.start(flow, mode: mode, why: L("You asked for it."), trigger: args.string("input")) else {
-                // Starting it can be what paused it: too many runs in an hour.
-                if let why = app.store.flow(flow.id)?.pausedBecause { throw Problem(why) }
+            guard let started = await app.engine.runNow(flow.id, why: L("You asked for it."), trigger: args.string("input")) else {
+                // Saying no, or starting it being what paused it, says so on the flow.
+                let now = app.store.flow(flow.id)
+                if let why = now?.startProblem ?? now?.pausedBecause { throw Problem(why) }
                 return L("“{name}” is already running.", ["name": flow.name])
             }
             if started.status.isOver, let why = started.problem { throw Problem(why) }
-            return mode == .once ? L("Running “{name}” once. Each action asks you on a card.", ["name": flow.name]) : L("Running “{name}”.", ["name": flow.name])
+            return L("Running “{name}”.", ["name": flow.name])
         }
 
         ext.tool("list_runs", "List runs", "A flow's recent runs, or all flows', newest first.", input: Schema.object(["flow": Schema.string("The flow's name or id.")])) { args in

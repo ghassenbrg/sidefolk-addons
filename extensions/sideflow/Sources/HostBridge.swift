@@ -11,7 +11,7 @@ import SidefolkExtensionKit
 
     func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
         defer { requests[run] = nil }
-        return await Actions.call(tool, input, plan: plan, written: written, seconds: tool == "ask.user" ? 615 : 300, request: { [weak self] in self?.requests[run] = $0 }, progress: progress)
+        return await Actions.call(tool, input, plan: plan, written: written, seconds: tool == "ask.user" ? 615 : 300, run: run, request: { [weak self] in self?.requests[run] = $0 }, progress: progress)
     }
 
     func cancel(run: String) {
@@ -29,6 +29,7 @@ import SidefolkExtensionKit
     }
 
     func approve(_ plan: Plan) async -> Plans.Answer { await Plans.approve(plan) }
+    func checkPlan(_ plan: Plan) async -> Plans.Checked? { await Plans.check(plan) }
     func forgetPlan(_ id: String) { Plans.forget(id) }
 
     func notify(title: String, body: String?, attention: Bool) async {
