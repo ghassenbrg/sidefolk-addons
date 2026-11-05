@@ -54,6 +54,7 @@
     "Add-ons you install appear here by themselves.": "Add-ons you install appear here by themselves.",
     "Added: {step}": "Added: {step}",
     "After it sets the flow off, for something that keeps changing.": "After it sets the flow off, for something that keeps changing.",
+    "After {step}": "After {step}",
     "Agents": "Agents",
     "All": "All",
     "All flows": "All flows",
@@ -109,6 +110,7 @@
       "other": "Check: {count} things to fix"
     },
     "Choose a path": "Choose a path",
+    "Choose a place": "Choose a place",
     "Compose text": "Compose text",
     "Compose: {text}": "Compose: {text}",
     "Condition": "Condition",
@@ -118,7 +120,16 @@
     "Copy it in words": "Copy it in words",
     "Count": "Count",
     "Days": "Days",
+    "Delete": "Delete",
+    "Delete these {count} flows?": {
+      "one": "Delete this flow?",
+      "other": "Delete these {count} flows?"
+    },
     "Delete this flow": "Delete this flow",
+    "Delete {count} flows": {
+      "one": "Delete {count} flow",
+      "other": "Delete {count} flows"
+    },
     "Deleted “{name}”.": "Deleted “{name}”.",
     "Different from what's running": "Different from what's running",
     "Discard": "Discard",
@@ -319,6 +330,7 @@
     "Join into text": "Join into text",
     "Keep only some": "Keep only some",
     "Keep the first few": "Keep the first few",
+    "Keep them": "Keep them",
     "Keeps what it made before this. These run again, for real: {steps}": "Keeps what it made before this. These run again, for real: {steps}",
     "Kind": "Kind",
     "Lane {count}": "Lane {count}",
@@ -347,6 +359,9 @@
     "Monday": "Monday",
     "More options": "More options",
     "Morning brief": "Morning brief",
+    "Move down": "Move down",
+    "Move to": "Move to",
+    "Move up": "Move up",
     "Moved: {step}": "Moved: {step}",
     "My flows": "My flows",
     "Needs a folder": "Needs a folder",
@@ -423,6 +438,7 @@
     "Paused": "Paused",
     "Paused between steps. Nothing more runs until you say.": "Paused between steps. Nothing more runs until you say.",
     "Paused “{name}”.": "Paused “{name}”.",
+    "Pick the flows to delete.": "Pick the flows to delete.",
     "Pick which flow": "Pick which flow",
     "Pick which flow to run.": "Pick which flow to run.",
     "Plan and weather together": "Plan and weather together",
@@ -504,6 +520,9 @@
     "Say which list to go through.": "Say which list to go through.",
     "Second": "Second",
     "See connections": "See connections",
+    "Select": "Select",
+    "Select all": "Select all",
+    "Select flows": "Select flows",
     "Send": "Send",
     "Set a reminder": "Set a reminder",
     "Sets it off and carries on": "Sets it off and carries on",
@@ -596,10 +615,12 @@
     "The text": "The text",
     "The text, as it should be": "The text, as it should be",
     "The time": "The time",
+    "The very start": "The very start",
     "The watch didn't start.": "The watch didn't start.",
     "The watch saw a change.": "The watch saw a change.",
     "The web": "The web",
     "The whole address of the page or site.": "The whole address of the page or site.",
+    "Their runs and what you allowed for them go too. This can't be undone.": "Their runs and what you allowed for them go too. This can't be undone.",
     "Then go through them with For each: each item is one batch.": "Then go through them with For each: each item is one batch.",
     "Then it counts as this step failing.": "Then it counts as this step failing.",
     "Then rest (minutes)": "Then rest (minutes)",
@@ -817,6 +838,10 @@
       "other": "{count} flows on"
     },
     "{count} missing": "{count} missing",
+    "{count} of them are on. They stop running.": {
+      "one": "{count} of them is on. It stops running.",
+      "other": "{count} of them are on. They stop running."
+    },
     "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
       "one": "{count} run is waiting for a flow that can't be read now. It goes on if the flow comes back.",
       "other": "{count} runs are waiting for flows that can't be read now. They go on if the flows come back."
@@ -824,6 +849,10 @@
     "{count} runs waiting for it": {
       "one": "{count} run waiting for it",
       "other": "{count} runs waiting for it"
+    },
+    "{count} selected": {
+      "one": "{count} selected",
+      "other": "{count} selected"
     },
     "{count} things at once": "{count} things at once",
     "{days} at {time}": "{days} at {time}",
@@ -896,6 +925,7 @@
     "“{name}” is running by itself again.": "“{name}” is running by itself again.",
     "“{name}” isn't on, so it can't run by itself.": "“{name}” isn't on, so it can't run by itself.",
     "“{name}” needs a value.": "“{name}” needs a value.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "“{other}” runs “{name}”, and that step won't work after this.",
     "“{tool}” has no value called “{name}”.": "“{tool}” has no value called “{name}”.",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.",
     "“{value}”: none of them, so the rest": "“{value}”: none of them, so the rest",

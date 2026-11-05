@@ -84,6 +84,8 @@ import SidefolkExtensionKit
                     try draft { $0 = Editing.move(id, before: (move["before"] as? String)?.nonEmpty, in: $0) }
                 }
             }
+        case "move_after":
+            if let id = a.string("step"), let after = a.string("value") { try draft { $0 = Editing.place(id, after: after, in: $0) } }
         case "up", "down":
             if let id = a.string("step") { try draft { $0 = Editing.nudge(id, by: op == "up" ? -1 : 1, in: $0) } }
         case "rename":
@@ -439,6 +441,33 @@ import SidefolkExtensionKit
             app.nav.inspect(.step(new), in: f.id)
         case "delete":
             app.engine.delete(try flow().id)
+            return .home
+        case "ask_delete":
+            app.nav.pickingFlows = [try flow().id]
+            app.nav.askingToDelete = true
+            return .home
+        case "pick_flows":
+            app.nav.pickingFlows = []
+            app.nav.askingToDelete = false
+        case "pick_flow":
+            if let id = a.string("picked"), app.store.flow(id) != nil {
+                if a.bool("on") == false { app.nav.pickingFlows?.remove(id) } else { app.nav.pickingFlows?.insert(id) }
+            }
+        case "pick_all":
+            app.nav.pickingFlows = Set(app.store.flows().map(\.id))
+        case "pick_none":
+            app.nav.pickingFlows = nil
+            app.nav.askingToDelete = false
+        case "pick_delete":
+            app.nav.askingToDelete = !(app.nav.pickingFlows ?? []).isEmpty
+        case "pick_keep":
+            app.nav.askingToDelete = false
+        case "pick_delete_sure":
+            // Only what the page said it would delete, and only after it said so.
+            guard app.nav.askingToDelete else { break }
+            for id in app.nav.pickingFlows ?? [] { app.engine.delete(id) }
+            app.nav.pickingFlows = nil
+            app.nav.askingToDelete = false
             return .home
         case "duplicate":
             let f = try flow()

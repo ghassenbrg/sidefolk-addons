@@ -987,6 +987,32 @@
     "Open it": "열기",
     "Stopped. {count} starts waiting their turn were cleared.": {
       "other": "중지했습니다. 대기 중인 시작 {count}개를 지웠습니다."
+    },
+    "After {step}": "{step} 다음",
+    "Choose a place": "위치 선택",
+    "Delete": "삭제",
+    "Keep them": "유지",
+    "Move down": "아래로 이동",
+    "Move to": "이동 위치",
+    "Move up": "위로 이동",
+    "Pick the flows to delete.": "삭제할 루틴을 고르세요.",
+    "Select": "선택",
+    "Select all": "모두 선택",
+    "Select flows": "루틴 선택",
+    "The very start": "맨 처음",
+    "Their runs and what you allowed for them go too. This can't be undone.": "실행 기록과 허용한 내용도 함께 사라집니다. 되돌릴 수 없습니다.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "“{other}”이(가) “{name}”을(를) 실행하므로 그 단계는 작동하지 않게 됩니다.",
+    "Delete these {count} flows?": {
+      "other": "이 루틴 {count}개를 삭제할까요?"
+    },
+    "Delete {count} flows": {
+      "other": "루틴 {count}개 삭제"
+    },
+    "{count} of them are on. They stop running.": {
+      "other": "{count}개가 켜져 있습니다. 실행이 멈춥니다."
+    },
+    "{count} selected": {
+      "other": "{count}개 선택됨"
     }
   }
 }

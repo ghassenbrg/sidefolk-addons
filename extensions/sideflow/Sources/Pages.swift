@@ -172,7 +172,8 @@ import SidefolkExtensionKit
     static func homePage(_ app: App, state: Arguments) -> Page {
         let flows = app.store.flows()
         guard !flows.isEmpty else { return firstRun(app, state: state) }
-        var main: [Section] = [Section(nil, [.bar(PageBar(L("Your flows"), detail: L("Your companion runs these for you."), actions: [button(L("New flow"), "new", style: .primary, symbol: "plus")]))])]
+        if let picked = app.nav.pickingFlows { return pickingPage(flows, picked: picked, app, state: state) }
+        var main: [Section] = [Section(nil, [.bar(PageBar(L("Your flows"), detail: L("Your companion runs these for you."), actions: [button(L("Select"), "pick_flows", symbol: "checkmark.circle"), button(L("New flow"), "new", style: .primary, symbol: "plus")]))])]
         var body: [Section] = []
         let on = flows.filter { $0.state == .on }
         let nextUp = on.compactMap { flow in Summaries.next(flow).map { (flow, $0) } }.min { $0.1 < $1.1 }
@@ -188,6 +189,42 @@ import SidefolkExtensionKit
         body.append(Section(nil, describing(app), wide: true))
         body.append(Section(L("Bring one in"), [.edit(EditField("import", L("A flow's definition"), value: "", detail: L("One copied from Sideflow. It comes in as a draft: nothing runs until you've read it and turned it on."), placeholder: "{\"name\": …, \"flow\": …}", kind: .multiline, tool: "ui", input: ui("import")))], collapsed: true, wide: true))
         main += body
+        return frame(app, state: state, here: "flows", main)
+    }
+
+    /// Choosing flows to delete, and then being sure: how many, which, and what goes with them. What's gone doesn't come back, so it's said before it happens.
+    static func pickingPage(_ flows: [Flow], picked: Set<String>, _ app: App, state: Arguments) -> Page {
+        let chosen = flows.filter { picked.contains($0.id) }
+        var main: [Section] = []
+        if app.nav.askingToDelete, !chosen.isEmpty {
+            var blocks: [Block] = [.note(chosen.map { "• \($0.name)" }.joined(separator: "\n"))]
+            let on = chosen.filter { $0.state == .on }.count
+            if on > 0 { blocks.append(.note(L(one: "{count} of them is on. It stops running.", other: "{count} of them are on. They stop running.", count: on), tone: .warn)) }
+            let doomed = Set(chosen.map(\.name))
+            for other in flows where !picked.contains(other.id) {
+                let runs = other.running.allSteps.compactMap { step -> String? in
+                    switch step.kind {
+                    case .call(let name, _), .flow(let name): doomed.contains(name) ? name : nil
+                    default: nil
+                    }
+                }
+                if let first = runs.first { blocks.append(.note(L("“{other}” runs “{name}”, and that step won't work after this.", ["other": other.name, "name": first]), tone: .warn)) }
+            }
+            blocks.append(.note(L("Their runs and what you allowed for them go too. This can't be undone.")))
+            let sure = L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count)
+            main.append(Section(nil, [.bar(PageBar(L(one: "Delete this flow?", other: "Delete these {count} flows?", count: chosen.count), detail: nil, actions: [button(L("Keep them"), "pick_keep"), button(sure, "pick_delete_sure", style: .destructive, symbol: "trash")]))]))
+            main.append(Section(nil, blocks, wide: true))
+            return frame(app, state: state, here: "flows", main)
+        }
+        let detail = chosen.isEmpty ? L("Pick the flows to delete.") : L(one: "{count} selected", other: "{count} selected", count: chosen.count)
+        main.append(Section(nil, [.bar(PageBar(L("Select flows"), detail: detail, actions: [
+            button(L("Done"), "pick_none"),
+            button(L("Select all"), "pick_all", disabled: chosen.count == flows.count),
+            button(chosen.isEmpty ? L("Delete") : L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count), "pick_delete", style: .destructive, symbol: "trash", disabled: chosen.isEmpty),
+        ]))]))
+        main.append(Section(nil, flows.map { flow in
+            .toggle(flow.name, detail: flow.state == .on ? L("On") : flow.state == .paused ? L("Paused") : L("Draft"), on: picked.contains(flow.id), tool: "ui", input: ui("pick_flow", ["picked": flow.id]))
+        }, wide: true))
         return frame(app, state: state, here: "flows", main)
     }
 
@@ -461,7 +498,7 @@ import SidefolkExtensionKit
         extra += [button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
                   button(L("Copy as a definition"), "export", id, symbol: "curlybraces"),
                   Action(L("Copy it in words"), act: .copy(Words.aloud(flow.draft, catalog: app.catalog)), symbol: "doc.on.doc"),
-                  button(L("Delete this flow"), "delete", id, style: .destructive, symbol: "trash")]
+                  button(L("Delete this flow"), "ask_delete", id, style: .destructive, symbol: "trash")]
         return PageBar(flow.name, pill: pill, detail: sentence, actions: actions, menu: extra)
     }
 

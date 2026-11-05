@@ -1067,6 +1067,52 @@
       "few": "توقف. أُلغيت {count} بدايات منتظرة.",
       "many": "توقف. أُلغي {count} بدءًا منتظرًا.",
       "other": "توقف. أُلغي {count} بدء منتظر."
+    },
+    "After {step}": "بعد {step}",
+    "Choose a place": "اختر مكانًا",
+    "Delete": "حذف",
+    "Keep them": "إبقاؤها",
+    "Move down": "نقل لأسفل",
+    "Move to": "نقل إلى",
+    "Move up": "نقل لأعلى",
+    "Pick the flows to delete.": "اختر الروتينات المراد حذفها.",
+    "Select": "تحديد",
+    "Select all": "تحديد الكل",
+    "Select flows": "تحديد الروتينات",
+    "The very start": "في البداية تمامًا",
+    "Their runs and what you allowed for them go too. This can't be undone.": "ستُحذف معها مرات تشغيلها وما سمحت به لها. لا يمكن التراجع عن ذلك.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "«{other}» يشغّل «{name}»، ولن تعمل تلك الخطوة بعد ذلك.",
+    "Delete these {count} flows?": {
+      "zero": "حذف هذه الروتينات ({count})؟",
+      "one": "حذف هذا الروتين؟",
+      "two": "حذف هذه الروتينات ({count})؟",
+      "few": "حذف هذه الروتينات ({count})؟",
+      "many": "حذف هذه الروتينات ({count})؟",
+      "other": "حذف هذه الروتينات ({count})؟"
+    },
+    "Delete {count} flows": {
+      "zero": "حذف الروتينات ({count})",
+      "one": "حذف روتين واحد",
+      "two": "حذف الروتينات ({count})",
+      "few": "حذف الروتينات ({count})",
+      "many": "حذف الروتينات ({count})",
+      "other": "حذف الروتينات ({count})"
+    },
+    "{count} of them are on. They stop running.": {
+      "zero": "{count} منها مفعّلة وستتوقف عن العمل.",
+      "one": "أحدها مفعّل وسيتوقف عن العمل.",
+      "two": "{count} منها مفعّلة وستتوقف عن العمل.",
+      "few": "{count} منها مفعّلة وستتوقف عن العمل.",
+      "many": "{count} منها مفعّلة وستتوقف عن العمل.",
+      "other": "{count} منها مفعّلة وستتوقف عن العمل."
+    },
+    "{count} selected": {
+      "zero": "تم تحديد {count}",
+      "one": "تم تحديد واحد",
+      "two": "تم تحديد {count}",
+      "few": "تم تحديد {count}",
+      "many": "تم تحديد {count}",
+      "other": "تم تحديد {count}"
     }
   }
 }

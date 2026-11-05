@@ -329,7 +329,7 @@ import SidefolkExtensionKit
         let said = explanation(step, app)
         return [Section(said.title, main, place: .trailing, detail: said.detail),
                 Section(L("More options"), more, place: .trailing, collapsed: true),
-                Section(nil, [.action(Action(L("Duplicate this step"), tool: "ui", input: input("dup_step"), style: .plain, symbol: "plus.square.on.square")),
+                Section(nil, moving(step, flow, app, input: input) + [.action(Action(L("Duplicate this step"), tool: "ui", input: input("dup_step"), style: .plain, symbol: "plus.square.on.square")),
                               .action(Action(L("Make this its own flow"), tool: "ui", input: input("extract"), style: .plain, symbol: "rectangle.portrait.and.arrow.right", detail: L("It becomes a flow of its own, off until you turn it on, and this step calls it."))),
                               .action(Action(L("Remove this step"), tool: "ui", input: input("remove"), style: .destructive, symbol: "trash"))], place: .trailing)]
     }
@@ -388,6 +388,20 @@ import SidefolkExtensionKit
     }
 
     /// What a flow asks to be given: every `{{input.name}}` it uses, in order. Its interface is what it uses, so it can't say one thing and do another.
+    /// Moving it: in plain sight, for whoever doesn't find the card's menu or think to drag it.
+    private static func moving(_ step: Step, _ flow: Flow, _ app: App, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
+        let list = Editing.siblings(of: step.id, in: flow.draft)
+        guard let at = list.firstIndex(where: { $0.id == step.id }) else { return [] }
+        var out: [Block] = [
+            .action(Action(L("Move up"), tool: "ui", input: input("up", [:]), style: .plain, symbol: "arrow.up", disabled: at == 0)),
+            .action(Action(L("Move down"), tool: "ui", input: input("down", [:]), style: .plain, symbol: "arrow.down", disabled: at == list.count - 1)),
+        ]
+        let startsIt = flow.draft.steps.first?.id == step.id
+        let spots = (startsIt ? [] : [Option("start", L("The very start"))]) + Editing.placesToMove(step.id, in: flow.draft).map { Option($0.id, L("After {step}", ["step": Words.label($0, catalog: app.catalog)])) }
+        if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, [Option("", L("Choose a place"))] + spots, selected: "", tool: "ui", input: input("move_after", [:]))) }
+        return out
+    }
+
     static func inputs(of body: FlowBody) -> [String] {
         var out: [String] = []
         let pattern = try! NSRegularExpression(pattern: #"\{\{\s*input\.([A-Za-z0-9_]{1,40})"#)

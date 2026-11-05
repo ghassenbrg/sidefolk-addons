@@ -1003,6 +1003,36 @@
     "Stopped. {count} starts waiting their turn were cleared.": {
       "one": "Fermata. {count} avvio in attesa è stato annullato.",
       "other": "Fermata. {count} avvii in attesa sono stati annullati."
+    },
+    "After {step}": "Dopo {step}",
+    "Choose a place": "Scegli un punto",
+    "Delete": "Elimina",
+    "Keep them": "Tienile",
+    "Move down": "Sposta giù",
+    "Move to": "Sposta in",
+    "Move up": "Sposta su",
+    "Pick the flows to delete.": "Scegli le routine da eliminare.",
+    "Select": "Seleziona",
+    "Select all": "Seleziona tutte",
+    "Select flows": "Seleziona routine",
+    "The very start": "All'inizio di tutto",
+    "Their runs and what you allowed for them go too. This can't be undone.": "Le loro esecuzioni e ciò che avevi consentito se ne vanno con loro. Non si può annullare.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "«{other}» avvia «{name}», e quel passaggio non funzionerà più.",
+    "Delete these {count} flows?": {
+      "one": "Eliminare questa routine?",
+      "other": "Eliminare queste {count} routine?"
+    },
+    "Delete {count} flows": {
+      "one": "Elimina {count} routine",
+      "other": "Elimina {count} routine"
+    },
+    "{count} of them are on. They stop running.": {
+      "one": "{count} di esse è attiva. Smetterà di funzionare.",
+      "other": "{count} di esse sono attive. Smetteranno di funzionare."
+    },
+    "{count} selected": {
+      "one": "{count} selezionata",
+      "other": "{count} selezionate"
     }
   }
 }

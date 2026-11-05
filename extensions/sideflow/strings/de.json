@@ -1003,6 +1003,36 @@
     "Stopped. {count} starts waiting their turn were cleared.": {
       "one": "Angehalten. {count} wartender Start wurde gelöscht.",
       "other": "Angehalten. {count} wartende Starts wurden gelöscht."
+    },
+    "After {step}": "Nach {step}",
+    "Choose a place": "Stelle wählen",
+    "Delete": "Löschen",
+    "Keep them": "Behalten",
+    "Move down": "Nach unten",
+    "Move to": "Verschieben nach",
+    "Move up": "Nach oben",
+    "Pick the flows to delete.": "Wähle die Abläufe aus, die du löschen willst.",
+    "Select": "Auswählen",
+    "Select all": "Alle auswählen",
+    "Select flows": "Abläufe auswählen",
+    "The very start": "Ganz an den Anfang",
+    "Their runs and what you allowed for them go too. This can't be undone.": "Ihre Ausführungen und was du für sie erlaubt hast, gehen mit. Das lässt sich nicht rückgängig machen.",
+    "“{other}” runs “{name}”, and that step won't work after this.": "„{other}“ startet „{name}“, und dieser Schritt funktioniert danach nicht mehr.",
+    "Delete these {count} flows?": {
+      "one": "Diesen Ablauf löschen?",
+      "other": "Diese {count} Abläufe löschen?"
+    },
+    "Delete {count} flows": {
+      "one": "{count} Ablauf löschen",
+      "other": "{count} Abläufe löschen"
+    },
+    "{count} of them are on. They stop running.": {
+      "one": "{count} davon ist aktiv. Er läuft nicht mehr.",
+      "other": "{count} davon sind aktiv. Sie laufen nicht mehr."
+    },
+    "{count} selected": {
+      "one": "{count} ausgewählt",
+      "other": "{count} ausgewählt"
     }
   }
 }

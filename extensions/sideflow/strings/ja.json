@@ -987,6 +987,32 @@
     "Open it": "開く",
     "Stopped. {count} starts waiting their turn were cleared.": {
       "other": "停止しました。順番待ちの開始 {count} 件を取り消しました。"
+    },
+    "After {step}": "{step} の後",
+    "Choose a place": "場所を選択",
+    "Delete": "削除",
+    "Keep them": "残す",
+    "Move down": "下へ移動",
+    "Move to": "移動先",
+    "Move up": "上へ移動",
+    "Pick the flows to delete.": "削除するルーティンを選んでください。",
+    "Select": "選択",
+    "Select all": "すべて選択",
+    "Select flows": "ルーティンを選択",
+    "The very start": "いちばん最初",
+    "Their runs and what you allowed for them go too. This can't be undone.": "実行記録と許可した内容も一緒に消えます。元に戻せません。",
+    "“{other}” runs “{name}”, and that step won't work after this.": "「{other}」は「{name}」を実行しています。このステップは動かなくなります。",
+    "Delete these {count} flows?": {
+      "other": "これら{count}件のルーティンを削除しますか?"
+    },
+    "Delete {count} flows": {
+      "other": "{count}件のルーティンを削除"
+    },
+    "{count} of them are on. They stop running.": {
+      "other": "{count}件が有効です。実行されなくなります。"
+    },
+    "{count} selected": {
+      "other": "{count}件選択中"
     }
   }
 }
