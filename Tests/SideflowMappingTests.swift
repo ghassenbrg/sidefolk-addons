@@ -395,6 +395,26 @@ import SidefolkExtensionKit
         #expect((w.host.calls.first?.input["change"] as? [String: Any])?["replace"] as? String == "")
     }
 
+    @Test func aNumberThatLooksSmallerThanItIsStops() throws {
+        for words in ["1.500", "12.500", "1.250 ms", "1.299 €", "€2.750", "kr 1.500", "1.299 EUR", "USD 1.299", "1'299.50", "CHF 1’299", "3 millions", "2,5 Mio. €", "1,5 Mrd", "2,5 M€", "1.2 M", "1万", "1万人", "$1.2mn", "$2T", "2 ألف", "5 Milliarden", "($1,299.00)", "$5 100 sold", "1.5e3 units", "١٬٠٠٠"] {
+            #expect(Condition.couldBeEither(words), "\(words)")
+            #expect(Condition.number(words) == nil, "\(words)")
+        }
+    }
+
+    @Test func anyScriptsDigitsAreReadAndALetterBeforeAMinusIsNoMinus() throws {
+        for (words, value) in [("٣٠٠", 300.0), ("١٢٣", 123), ("１２３", 123), ("٣٫٥", 3.5), ("३००", 300), ("商品-12", 12), ("Товар-12", 12), ("Café-5", 5), ("Room 4B", 4), ("10 T-shirts", 10), ("1\u{2009}299,50", 1299.5), ("0.500", 0.5), ("1.299", 1.299), ("1.125 seconds", 1.125)] {
+            #expect(!Condition.couldBeEither(words), "\(words)")
+            #expect(Condition.number(words) == value, "\(words)")
+        }
+        #expect(Condition.test(.more_than, left: "٣٠٠", right: "100"))
+    }
+
+    @Test func aNumberFieldTakesOnlyWhatPlainlyIsOne() {
+        for words in ["1.000", "12.000", "1.500", "1,000"] { #expect(Editing.number(words) == nil, "\(words)") }
+        for (words, value) in [("1.299", 1.299), ("12,5", 12.5), ("0.500", 0.5), ("1e3", 1000.0), ("12", 12)] { #expect(Editing.number(words) == value, "\(words)") }
+    }
+
     @Test func whatCouldBeMoreThanOneNumberIsntTakenForOne() throws {
         for words in ["1,000", "1.000", "12.000", "about 1,000 of them", "12345678901234567890", "1,23,456", "12,345,678,901,234,567", "1,2,3", "₹1,23,456.00", "$1.2M", "12.3k", "100 200 300", "1 299", "5 500ml bottles", "at 100 200", "$1B", "Top 5 100,000 plays", "Nov 5 120.50", "$1.2 million", "Room 5 100 $20", "£2.5m", "$1.2 M"] {
             #expect(Condition.couldBeEither(words), "\(words)")

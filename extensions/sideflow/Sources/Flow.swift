@@ -105,8 +105,23 @@ struct Condition: Equatable, Sendable {
         return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
-    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])[-−–]?\d{1,3}(?:[ \x{00A0}\x{202F}]\d{3})+(?![0-9])(?:[.,]\d{1,2}(?![0-9]))?|(?<![A-Za-z0-9])[-−–]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
-    private static let currency = CharacterSet(charactersIn: "€$£¥₹")
+    private static let digits = try! NSRegularExpression(pattern: #"(?<![\p{L}\p{N}])[-−–]?\d{1,3}(?:[ \x{00A0}\x{2008}\x{2009}\x{200A}\x{202F}'’]\d{3})+(?![0-9])(?:[.,]\d{1,2}(?![0-9]))?|(?<![\p{L}\p{N}])[-−–]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
+    /// What makes the number before it bigger, in the languages Sidefolk speaks. Stopping for a `5 M` that meant metres costs less than comparing 5 for five million. A bare `B` or `T` stays out: `Room 4B`.
+    private static let magnitude = #"^(?i:thousands?|millions?|billions?|trillions?|lakhs?|crores?|mille|milliards?|mil|mill[oó]n|millones|billones?|tausend|millionen|milliarden?|mio|mrd|tsd|mila|milion[ei]|miliard[oi]|milh[ãa]o|milh[õo]es|bilh[ãa]o|bilh[õo]es|ألف|مليون|مليار)(?!\p{L})|^[千万萬億亿兆천만억조]|^(?:k|K|M|bn|Bn|BN|mn|Mn|tn|Tn)(?!\p{L})"#
+    private static func isCurrency(_ scalar: Unicode.Scalar?) -> Bool { scalar?.properties.generalCategory == .currencySymbol }
+
+    /// Every script's digits as a machine reads them, with the Arabic decimal and thousands marks.
+    private static func withPlainDigits(_ text: String) -> String {
+        if text.utf8.allSatisfy({ $0 < 128 }) { return text }
+        var out = String.UnicodeScalarView()
+        for scalar in text.unicodeScalars {
+            if scalar.properties.numericType == .decimal, let value = scalar.properties.numericValue, let plain = Unicode.Scalar(UInt32(value) + 48) { out.append(plain) }
+            else if scalar == "\u{066B}" { out.append(".") }
+            else if scalar == "\u{066C}" { out.append(",") }
+            else { out.append(scalar) }
+        }
+        return String(out)
+    }
 
     /// Exactly as a machine writes one, exponent and all: what a tool's number comes out as in words.
     private static func isMachineNumber(_ text: String) -> Bool {
@@ -116,26 +131,31 @@ struct Condition: Equatable, Sendable {
     /// The first number in these words as a machine reads it, or nil with none. `doubtful` when it could be more than one: a number nobody meant is worse than none.
     /// `1,000` and `1.000` could be a thousand or one; `1,23,456` is a lakh or a list; `$1.2M` isn't 1.2; a bare `100 200` could be two; one too long can't be held exactly.
     /// `3.142`, `0.000`, `1,299.00` and `1,000,000` are what they say, and anything else with several marks, like a version, is its first two parts.
-    private static func reading(_ text: String) -> (number: String, doubtful: Bool)? {
+    private static func reading(_ words: String) -> (number: String, doubtful: Bool)? {
+        let text = withPlainDigits(words)
         if isMachineNumber(text) { return (text.trimmed, false) }
         guard let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
         let before = text[..<range.lowerBound].trimmingCharacters(in: .whitespaces), after = text[range.upperBound...].trimmingCharacters(in: .whitespaces)
-        let moneyBefore = before.unicodeScalars.last.map(currency.contains) == true
-        let moneyAfter = after.unicodeScalars.first.map(currency.contains) == true && after.dropFirst().first?.isNumber != true
-        let isMoney = moneyBefore || moneyAfter
+        let moneyBefore = isCurrency(before.unicodeScalars.last)
+        let moneyAfter = isCurrency(after.unicodeScalars.first) && after.dropFirst().first?.isNumber != true
+        // A currency's code counts too: `1.299 EUR`, `kr 1.500`.
+        let codeBefore = before.range(of: #"(?<!\p{L})(?:[A-Z]{3}|kr)$"#, options: .regularExpression) != nil, codeAfter = after.range(of: #"^(?:[A-Z]{3}|kr)(?!\p{L})"#, options: .regularExpression) != nil
+        let isMoney = moneyBefore || moneyAfter || codeBefore || codeAfter
         var found = text[range].replacingOccurrences(of: "−", with: "-").replacingOccurrences(of: "–", with: "-")
         // The sign can come before the currency: `-$5.00`.
         if moneyBefore, !found.hasPrefix("-"), let sign = before.dropLast().last, sign == "-" || sign == "−" || sign == "–", before.dropLast(2).last?.isLetter != true, before.dropLast(2).last?.isNumber != true { found = "-" + found }
-        if after.range(of: #"^(?i)(thousand|million|billion|trillion)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
-        // Spaced in threes it's one number if a decimal comma or a currency says so: `1 299,00`, `1 299 €`. Bare, `100 200` could be two.
+        if after.range(of: magnitude, options: .regularExpression) != nil { return (found, true) }
+        // `($1,299.00)` is how a ledger writes a minus. `1.5e3 units` is 1,500, not 1.5.
+        if moneyBefore, before.dropLast().last == "(", after.first == ")" { return (found, true) }
+        if text[range.upperBound...].range(of: #"^[eE][+-]?[0-9]"#, options: .regularExpression) != nil { return (found, true) }
+        // Spaced in threes it's one number if a decimal comma or a currency after it says so: `1 299,00`, `1 299 €`. Bare, `100 200` could be two, and so could `$5 100`.
         if found.contains(where: { !$0.isNumber && $0 != "-" && $0 != "." && $0 != "," }) {
             let hasDecimals = found.contains(",")
             found = String(found.filter { $0.isNumber || $0 == "-" || $0 == "." || $0 == "," }).replacingOccurrences(of: ",", with: ".")
-            return (found, !hasDecimals && !isMoney || found.prefix { $0 != "." }.filter(\.isNumber).count > 15)
+            return (found, !hasDecimals && !moneyAfter && !codeAfter || found.prefix { $0 != "." }.filter(\.isNumber).count > 15)
         }
-        if text[range.upperBound...].range(of: #"^(k|K|M|bn|Bn)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
-        // With a currency, a letter after it is how much: `£2.5m`, `$1.2 M`, `$1B`.
-        if isMoney, after.range(of: #"^(?i)(k|m|b|bn)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
+        // With a currency, a small letter after it is how much too: `£2.5m`, `$2b`.
+        if isMoney, after.range(of: #"^(?i)(k|m|b|t|bn|mn|tn)(?!\p{L})"#, options: .regularExpression) != nil { return (found, true) }
         let marks = found.filter { $0 == "." || $0 == "," }
         let parts = found.split(whereSeparator: { $0 == "." || $0 == "," }).map(String.init)
         let plain: String
@@ -146,7 +166,9 @@ struct Condition: Equatable, Sendable {
             if !grouped, marks.contains(",") { return (found, true) }
             plain = !grouped ? parts[0] + "." + parts[1] : sameMark ? parts.joined() : parts.dropLast().joined() + "." + parts[parts.count - 1]
         } else {
-            if found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.000)$"#, options: .regularExpression) != nil { return (found, true) }
+            // `1.500` could be fifteen hundred, since a machine doesn't end a number in a nought. `1.299 €` too: nobody prices to the thousandth. Bare, `1.299` is what a tool wrote.
+            if found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.[0-9]{2}0)$"#, options: .regularExpression) != nil { return (found, true) }
+            if isMoney, found.range(of: #"^-?[1-9][0-9]{0,2}\.[0-9]{3}$"#, options: .regularExpression) != nil { return (found, true) }
             plain = found.replacingOccurrences(of: ",", with: ".")
         }
         return (plain, plain.prefix { $0 != "." }.filter(\.isNumber).count > 15)
