@@ -321,7 +321,8 @@ import SidefolkExtensionKit
             var blocks: [Block] = [], cut = false
             func say(_ words: String, tone: Tone = .neutral) {
                 guard blocks.count < 23, room > 0 else { return cut = true }
-                room -= words.utf8.count
+                // As it's carried, escapes and all.
+                room -= JSONText.write([words]).utf8.count + 40
                 blocks.append(.note(words, tone: tone))
             }
             /// A list in as many notes as it takes: a note holds so many characters.

@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import ext_sideflow
-import SidefolkExtensionKit
+@testable import SidefolkExtensionKit
 
 /// A flow from a file: read, shown in plain words, and brought in only on the page's own yes, always as a draft and off.
 @MainActor @Suite(.serialized) struct SideflowImportTests {
@@ -49,6 +49,10 @@ import SidefolkExtensionKit
         }
     }
 
+    @Test func aFileThatSaysOneThingTwiceIsntRead() {
+        #expect(throws: Problem.self) { try FlowFile.read(#"{"sideflow": 1, "flows": [{"name": "A", "name": "B", "flow": {"trigger": {"type": "manual"}, "steps": [{"id": "a", "text": "x"}]}}]}"#) }
+    }
+
     @Test func aDefinitionCopiedFromAFlowStillReads() throws {
         #expect(try FlowFile.read(JSONText.write(["name": "Old", "flow": simple] as [String: Any])).map(\.name) == ["Old"])
     }
@@ -59,7 +63,7 @@ import SidefolkExtensionKit
     }
 
     @Test func aNameIsTakenAsItIsOrNotAtAll() {
-        for name in [String(repeating: "x", count: 61), "A\u{00A0}B", "A\u{200B}B", "A\nB"] {
+        for name in [String(repeating: "x", count: 61), "A\u{00A0}B", "A\u{200B}B", "A\nB", "a" + String(repeating: "\u{0301}", count: 25_000)] {
             #expect(throws: Problem.self, "\(name)") { try FlowFile.read(file([["name": name, "flow": simple]])) }
         }
         #expect(throws: Problem.self, "the same to a step") { try FlowFile.read(file([["name": "Résumé", "flow": simple], ["name": "resume", "flow": simple]])) }
@@ -93,6 +97,27 @@ import SidefolkExtensionKit
         let id = try FlowFile.stage(file([["name": "L", "flow": long]]), in: app.folder)
         let words = String(describing: await Pages.make(app, state: Arguments(["import": id]), background: false)).filter { !"\u{2068}\u{2069}\\".contains($0) }
         #expect(words.contains("It sets off a flow of yours: Pay invoices"), "what's the person's own is said, and a long name can't push it off")
+    }
+
+    @Test func whereAStepGoesIsSaidAndWhatsCutSaysSo() throws {
+        let w = try World()
+        let app = app(w)
+        let long = "https://www.apple.com." + String(repeating: "pad.", count: 80) + "evil.example/"
+        let survey = FlowFile.survey(try FlowFile.read(file([["name": "S", "flow": ["trigger": ["type": "watch", "kind": "url_change", "target": long], "steps": [["id": "c", "call_flow": " S "]]]]])), store: app.store, catalog: app.catalog)[0]
+        #expect(survey.watches[0].hasSuffix("…") && survey.starts[0].hasSuffix("…"))
+        #expect(survey.setsOff == [" S ".trimmingCharacters(in: .whitespaces)] && survey.missingFlows.isEmpty, "the file's own, as it runs")
+        #expect(FlowFile.short("a" + String(repeating: "\u{0301}", count: 70_000), 60).unicodeScalars.count <= 61)
+    }
+
+    @Test func aPageOfEscapesStaysAPage() async throws {
+        let w = try World()
+        let app = app(w)
+        let many: [[String: Any]] = (0..<FlowFile.mostFlows).map { flow in
+            ["name": "F\(flow)", "flow": ["trigger": ["type": "manual"], "steps": (0..<30).map { ["id": "s\($0)", "do": String(repeating: "\"", count: 110) + "\(flow).\($0)"] }] as [String: Any]]
+        }
+        let id = try FlowFile.stage(file(many), in: app.folder)
+        let page = await Pages.make(app, state: Arguments(["import": id]), background: false)
+        #expect(JSONText.write(page.json).utf8.count < 128_000)
     }
 
     @Test func aPageOfLongNamesStaysAPageAndSaysThereIsMore() async throws {

@@ -98,8 +98,9 @@ enum FlowFile {
             if written.isEmpty, top["sideflow"] != nil { throw Problem(L("Every flow in a file needs a name.")) }
             let name = written.isEmpty ? stripped(L("New flow")) : written
             // Never cut or cleaned to fit: a step calling it would then go by another name.
-            guard name == stripped(name), !name.unicodeScalars.contains(where: { $0.properties.isWhitespace && $0 != " " }), name.count <= 60 else {
-                throw Problem(L("“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.", ["name": String(stripped(name).prefix(60))]))
+            // In what's stored, not what's seen: a letter can carry thousands of marks.
+            guard name == stripped(name), !name.unicodeScalars.contains(where: { $0.properties.isWhitespace && $0 != " " }), name.count <= 60, name.utf8.count <= 240 else {
+                throw Problem(L("“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.", ["name": short(name, 60)]))
             }
             guard names.insert(folded(name)).inserted else { throw Problem(L("Two flows in this file are called “{name}”.", ["name": name])) }
             do {
@@ -115,6 +116,12 @@ enum FlowFile {
     private static func stripped(_ name: String) -> String {
         let hidden: Set<Unicode.GeneralCategory> = [.control, .format, .lineSeparator, .paragraphSeparator, .privateUse, .unassigned, .surrogate]
         return String(String.UnicodeScalarView(name.unicodeScalars.filter { !hidden.contains($0.properties.generalCategory) })).trimmed
+    }
+
+    /// To show: nothing hidden, at most so many characters as they're stored, and an ending that says when there was more.
+    static func short(_ words: String, _ most: Int) -> String {
+        let plain = stripped(words).unicodeScalars
+        return plain.count <= most ? String(String.UnicodeScalarView(plain)) : String(String.UnicodeScalarView(plain.prefix(most))) + "…"
     }
 
     /// Two names are the same to a step if they differ only by case or accents, as `FlowStore.named` reads them.
@@ -196,13 +203,13 @@ enum FlowFile {
     @MainActor static func survey(_ incoming: [Incoming], store: FlowStore, catalog: Catalog) -> [Survey] {
         let here = Set(incoming.map { folded($0.name) })
         return incoming.map { item in
-            var out = Survey(name: item.name, starts: item.body.triggers.map { String(stripped(Words.trigger($0)).prefix(200)) })
-            func add(_ line: String, to list: inout [String]) {
-                let line = String(stripped(line).prefix(60))
+            var out = Survey(name: item.name, starts: item.body.triggers.map { short(Words.trigger($0), 240) })
+            func add(_ line: String, to list: inout [String], most: Int = 120) {
+                let line = short(line, most)
                 if !list.contains(line) { list.append(line) }
             }
             for trigger in item.body.triggers {
-                if case .watch(let watch) = trigger { add(watch.target, to: &out.watches) }
+                if case .watch(let watch) = trigger { add(watch.target, to: &out.watches, most: 240) }
             }
             for step in item.body.allSteps {
                 switch step.kind {
@@ -213,13 +220,16 @@ enum FlowFile {
                         continue
                     }
                     let filled = input.values.flatMap(\.strings).contains { !Values.references($0).isEmpty }
-                    if !tool.readsOnly { add(tool.title, to: &out.changes) } else if filled { add(tool.title, to: &out.readsFilled) } else { add(tool.title, to: &out.reads) }
+                    // Where it goes or what it touches, if that's written in: "Read a file" says little, the file says more.
+                    let places = input.keys.sorted().filter { $0.range(of: #"(?i)url|path|address|recipient|^to$|channel|host|repo|file|folder|email|target"#, options: .regularExpression) != nil }.flatMap { input[$0]?.strings ?? [] }.map { short($0, 80) }
+                    let line = places.isEmpty ? tool.title : "\(tool.title) (\(places.prefix(2).joined(separator: ", ")))"
+                    if !tool.readsOnly { add(line, to: &out.changes) } else if filled { add(line, to: &out.readsFilled) } else { add(line, to: &out.reads) }
                     if !tool.readsOnly, name.range(of: #"(?i)trash|delete|remove|erase|wipe|clear"#, options: .regularExpression) != nil { add(tool.title, to: &out.deletes) }
                     if tool.fromServer { add(tool.title, to: &out.servers) }
                     if tool.category == "files" { add(tool.title, to: &out.files) }
                 case .ai: out.usesAI += 1
                 case .call(let name, _), .flow(let name):
-                    if here.contains(folded(name)) { add(name, to: &out.setsOff) }
+                    if here.contains(folded(name.trimmed)) { add(name, to: &out.setsOff) }
                     else if store.named(name) != nil { add(name, to: &out.setsOffYours) }
                     else { add(name, to: &out.missingFlows) }
                 default: break
