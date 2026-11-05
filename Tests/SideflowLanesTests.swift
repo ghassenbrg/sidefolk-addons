@@ -148,6 +148,73 @@ import SidefolkExtensionKit
         #expect(w.store.run(run.id)?.status == .done)
     }
 
+    /// `join: first`, with something still under way two levels down.
+    private func heldTwoDown(_ w: World, _ inner: [String: Any]) throws -> Flow {
+        try w.flow([["id": "both", "parallel": [["name": "quick", "steps": [["id": "pause", "wait_minutes": 1], ["id": "a", "text": "A"]]], ["name": "deep", "steps": [inner]]], "join": "first"], ["id": "after", "text": "went on"]])
+    }
+
+    private func deeper(_ w: World) throws -> [[String: Any]] {
+        var slow = Flow(id: "slow", name: "Slow", draft: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "x", "do": "changes.it", "with": ["text": "x"]]]]), state: .on, createdAt: w.now, updatedAt: w.now)
+        slow.live = slow.draft
+        w.store.save(slow)
+        return [["id": "c", "call_flow": "Slow"], ["id": "n", "parallel": [bad, ["name": "other", "steps": [["id": "o", "text": "O"]]]]]]
+    }
+
+    @Test func itDoesntGoOnWhileSomethingFurtherDownIsStillGoing() async throws {
+        for inner in try deeper(World()) {
+            let w = try World()
+            _ = try deeper(w)
+            w.host.hold = "changes.it"
+            let flow = try heldTwoDown(w, inner)
+            let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+            await w.quiet()
+            #expect(w.host.calls.contains { $0.tool == "changes.it" }, "under way before the other finishes")
+            w.now = w.now.addingTimeInterval(120)
+            w.engine.tick()
+            await w.quiet()
+            #expect(try lane(w, flow.id, "quick").status == .done)
+            #expect(w.store.run(run.id)?.status == .waiting, "the action's still under way: \(inner.keys)")
+            #expect(w.store.run(run.id)?.values.resolve("after") == nil)
+            #expect(try lane(w, flow.id, "deep").status == .waiting, "and so is the lane")
+        }
+    }
+
+    @Test func itGoesOnOnceThatHasStopped() async throws {
+        for inner in try deeper(World()) {
+            let w = try World()
+            _ = try deeper(w)
+            w.host.hold = "changes.it"
+            w.host.honoursCancel = true
+            let flow = try heldTwoDown(w, inner)
+            let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+            await w.quiet()
+            #expect(!w.host.cancelled)
+            w.now = w.now.addingTimeInterval(120)
+            w.engine.tick()
+            await w.quiet()
+            #expect(w.host.cancelled, "the tool two levels down is told")
+            let back = try #require(w.store.run(run.id))
+            #expect(back.status == .done, "\(inner.keys): \(back.problem ?? "")")
+            #expect(back.values.value("after") == "went on")
+            #expect(try lane(w, flow.id, "deep").status == .stopped)
+            #expect(w.store.unfinished().isEmpty, "nothing's left working")
+        }
+    }
+
+    @Test func aLaneOutOfTimeWaitsForWhatsInsideItToo() async throws {
+        let w = try World()
+        _ = try deeper(w)
+        w.host.hold = "changes.it"
+        let flow = try w.flow([["id": "both", "parallel": [["name": "deep", "steps": [["id": "c", "call_flow": "Slow"]], "timeout_minutes": 5], quick]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .waiting, "the action's still under way")
+        #expect(try lane(w, flow.id, "deep").status == .waiting)
+    }
+
     @Test func thePersonsStopStillEndsAll() async throws {
         let w = try World()
         let flow = try w.flow([["id": "both", "parallel": [slow, quick], "join": 2]])
@@ -166,6 +233,8 @@ import SidefolkExtensionKit
         #expect(throws: Problem.self) { try body(["parallel": two, "join": "most"]) }
         #expect(throws: Problem.self) { try body(["text": "x", "join": "first"]) }
         #expect(throws: Problem.self) { try body(["text": "x", "fail_fast": true]) }
+        #expect(try body(["parallel": two, "join": 1]).steps[0].join == .first)
+        #expect(try body(["parallel": two, "join": 2]).steps[0].join == .all)
         var late = two
         late[0]["timeout_minutes"] = 0
         #expect(throws: Problem.self) { try body(["parallel": late]) }

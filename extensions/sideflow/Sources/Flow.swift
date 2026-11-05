@@ -700,6 +700,9 @@ enum FlowCodec {
             if !saved {
                 guard let wanted = Step.Join(o["join"]) else { throw Problem(L("“join” is all, first, settled, or how many lanes are enough.")) }
                 if case .atLeast(let count) = wanted, !(1...raw.count).contains(count) { throw Problem(L("“join” is all, first, settled, or how many lanes are enough.")) }
+                // One is the first, and all of them is all: one way of saying each, the one the page shows.
+                if case .atLeast(1) = wanted { join = .first }
+                if case .atLeast(raw.count) = wanted { join = .all }
             }
         } else if let flow = o["call_flow"] as? String, saved || !flow.trimmed.isEmpty {
             kind = .call(flow: flow, inputs: o["inputs"] as? [String: String] ?? [:])

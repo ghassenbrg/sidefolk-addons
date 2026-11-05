@@ -168,6 +168,17 @@ extension FlowHost {
             }
             // Asked to stop: between steps, never in the middle of one. What's done stays done.
             if store.takeStop(id) {
+                // Winding down: what it waits for is stopping, and it ends when they all have.
+                if run.waitingOn.contains(where: { store.run($0)?.status.isOver == false }) {
+                    store.askStop(id)
+                    run.status = .waiting
+                    store.save(run)
+                    return
+                }
+                if !run.waitingOn.isEmpty, run.pc < program.ops.count, case .step(let step) = program.ops[run.pc] {
+                    run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
+                }
+                run.waitingOn = []
                 run.status = .stopped
                 run.frames = []
                 finish(&run)
@@ -968,7 +979,7 @@ extension FlowHost {
             if let why = starts.first { start(flow, mode: .live, why: why) }
         }
         // A lane out of time. Held by a pause, it gets until the pause is over.
-        for run in store.unfinished() where run.deadline.map({ $0 <= now }) == true && !run.paused && !heldByPause(run) { stop(run: run.id) }
+        for run in store.unfinished() where run.deadline.map({ $0 <= now }) == true && !run.paused && !heldByPause(run) { stop(run: run.id, windingDown: true) }
         // One the person paused goes on when they say, whatever it was waiting for before.
         for run in store.unfinished() where run.status == .waiting && !run.paused {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
@@ -1026,7 +1037,8 @@ extension FlowHost {
 
     /// `byThePerson`: their word means nothing writes after it, so it ends all of what this run is part of, the lanes beside it too, and no try or "go on with the rest" gets past it.
     /// A flow paused or its approval ended stops a run for its own reasons, which is a failure for whatever called it.
-    func stop(run id: String, byThePerson: Bool = false) {
+    /// `windingDown`: a run waiting for others ends once they have, not at once, for what can't go on until nothing's still working behind it. The person's Stop doesn't wait.
+    func stop(run id: String, byThePerson: Bool = false, windingDown: Bool = false) {
         // Even from a run that's just ended: its page can still show Stop, and what it was part of is what they mean.
         if byThePerson {
             var top = id, above = store.run(id)?.parent, seen: Set<String> = [id]
@@ -1044,7 +1056,11 @@ extension FlowHost {
             if top != id { stop(run: top) }
         }
         guard var run = store.run(id), !run.status.isOver else { return }
-        for child in run.waitingOn { stop(run: child) }
+        for child in run.waitingOn { stop(run: child, windingDown: windingDown) }
+        if windingDown, run.waitingOn.contains(where: { store.run($0)?.status.isOver == false }) {
+            store.askStop(id)
+            return
+        }
         // A run held back has no walk to notice a stop, so it ends here.
         if run.status == .running, !store.isHeldBack(flow: run.flow) {
             store.askStop(id)

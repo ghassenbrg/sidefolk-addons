@@ -323,7 +323,7 @@ extension Engine {
             run.status = .waiting
             store.save(run)
             if (need > 0 && done.count >= need) || (step.failFast && done.count + going.count < need) {
-                for child in going { stop(run: child.id) }
+                for child in going { stop(run: child.id, windingDown: true) }
             }
             return false
         }
