@@ -2661,6 +2661,26 @@ extension JSON {
         #expect(w.host.calls.contains { $0.tool == "reads.it" }, "the flow's own failure handling takes it, as before")
     }
 
+    @Test func aPersonsStopOfOneLaneStillCountsAfterARestart() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "t", "try": [["id": "both", "parallel": [["name": "one", "steps": [["id": "a", "wait_minutes": 60]]], ["name": "two", "steps": [["id": "b", "wait_minutes": 5]]]]]], "recover": [["id": "r", "do": "changes.it", "with": ["text": "recovered"]]]], ["id": "after", "do": "changes.it", "with": ["text": "after"]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let lanes = w.store.runs(of: flow.id).filter { $0.parent == run.id }
+        let lane = try #require(lanes.first { $0.body.step("a") != nil })
+        w.engine.stop(run: lane.id, byThePerson: true)
+        await w.quiet()
+        w.restart()
+        w.engine.recover()
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.tick()
+        await w.quiet()
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .stopped, "\(w.store.run(run.id)?.problem ?? "")")
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "neither the way to recover nor what comes after")
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])
