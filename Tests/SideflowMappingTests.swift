@@ -298,6 +298,46 @@ import SidefolkExtensionKit
         #expect(!w.host.calls.contains { $0.tool == "changes.it" })
     }
 
+    @Test func nothingIsAnAnswerWhereTheSchemaSaysSo() async throws {
+        for schema in [#"{"anyOf":[{"type":"integer"},{"type":"null"}]}"#, #"{"type":["integer","null"]}"#, #"{"type":"integer","nullable":true}"#, #"{"enum":["a",null]}"#] {
+            let w = try World()
+            w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"parent":"# + schema + #"},"required":["parent"]}"#)]))
+            let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["parent": NSNull()]]])
+            let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+            #expect(run.status == .done, "\(schema): \(run.problem ?? "")")
+            #expect(w.host.calls.first?.input["parent"] is NSNull, "\(schema)")
+        }
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"parent":{"type":"integer"}},"required":["parent"]}"#)]))
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["parent": NSNull()]]])
+        #expect(try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t"))).status == .failed, "it doesn't say so here")
+    }
+
+    @Test func aBlankForSomethingItCanGoWithoutIsLeftOut() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"x":""}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "t", "text": ""], ["id": "c", "do": "changes.it", "with": ["text": "x", "tags": "{{r.x}}", "count": "{{t}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .done, "\(run.problem ?? "")")
+        let sent = try #require(w.host.calls.first { $0.tool == "changes.it" }?.input)
+        #expect(sent["tags"] == nil || sent["tags"] is NSNull, "not [\"\"] and not a blank")
+        #expect(sent["count"] == nil)
+    }
+
+    @Test func anEmptyRecordSaidOnPurposeStaysOne() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: #"{"properties":{"to":{"type":"object","properties":{"city":{"type":"string"}}}}}"#)]))
+        let flow = try w.flow([["id": "c", "do": "changes.it", "with": ["to": [String: Any]()]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect((w.host.calls.first?.input["to"] as? [String: Any])?.isEmpty == true)
+        // What it needs inside is still needed.
+        let other = try World()
+        other.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let wanting = try other.flow([["id": "c", "do": "changes.it", "with": ["text": "x", "to": [String: Any]()]]])
+        #expect(try #require(await other.settled(other.engine.start(wanting, mode: .live, why: "t"))).status == .failed)
+    }
+
     @Test func anEmptyListSaidOnPurposeStaysOne() async throws {
         let (run, sent) = try await refused(["text": "x", "tags": [String]()])
         #expect(run.status == .done)
