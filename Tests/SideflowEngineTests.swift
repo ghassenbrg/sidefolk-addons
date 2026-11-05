@@ -2997,7 +2997,7 @@ extension JSON {
         #expect(w.host.calls.filter { $0.tool == "changes.it" }.count == 1, "nothing more after the restart")
     }
 
-    @Test func aStopThatIsntThePersonsLeavesTheOtherLanesAndIsAFailure() async throws {
+    @Test func aStopThatIsntThePersonsLeavesTheOtherLanesThenStopsWhatItsPartOf() async throws {
         let w = try World()
         let flow = try twoLanes(w, [["id": "a", "wait_minutes": 60]], [["id": "b", "wait_minutes": 5], ["id": "o", "text": "other"]])
         let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
@@ -3011,7 +3011,8 @@ extension JSON {
         await w.quiet()
         w.engine.tick()
         await w.quiet()
-        #expect(w.store.run(run.id)?.record(of: "r") != nil, "a failure the try takes")
+        #expect(w.store.run(run.id)?.status == .stopped, "once the other lane has ended")
+        #expect(w.store.run(run.id)?.record(of: "r") == nil, "a stop isn't a failure for the try to take")
     }
 
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {

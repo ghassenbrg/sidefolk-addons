@@ -94,7 +94,7 @@ enum JSONText {
                     open[open.count - 1] = keys
                 }
                 at = end + 1
-            case let byte where isNumberByte(byte):
+            case let byte where byte == 45 || (48...57).contains(byte):
                 var end = at
                 while end < bytes.count, isNumberByte(bytes[end]) { end += 1 }
                 let word = String(decoding: bytes[at..<end], as: UTF8.self)
