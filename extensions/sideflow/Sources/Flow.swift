@@ -105,49 +105,54 @@ struct Condition: Equatable, Sendable {
         return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
-    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])-?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
-    /// A space or a narrow one between groups of three, as `1 299,00 €` is written.
-    private static let spaced = try! NSRegularExpression(pattern: #"(?<=\d)[ \x{00A0}\x{202F}](?=\d{3}(?:\D|$))"#)
-
-    private static func firstNumber(in text: String) -> String? {
-        let joined = spaced.stringByReplacingMatches(in: text, range: NSRange(text.startIndex..., in: text), withTemplate: "")
-        return digits.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)).flatMap { Range($0.range, in: joined) }.map { String(joined[$0]) }
-    }
-
-    /// Whether the first number in these words could be more than one: "1,000" and "1.000" could be a thousand or one, and a number nobody meant is worse than none.
-    /// So could one too long for a number to hold exactly. `3.142`, `0.000` and `1,299.00` are what they say.
-    static func couldBeEither(_ text: String) -> Bool {
-        if isMachineNumber(text) { return false }
-        guard let found = firstNumber(in: text) else { return false }
-        if found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.000)$"#, options: .regularExpression) != nil { return true }
-        // Commas that aren't every three digits: `1,23,456` is a lakh or a list, and no decimal.
-        if found.range(of: #"^-?\d+(,\d+){2,}$"#, options: .regularExpression) != nil, found.range(of: #"^-?\d{1,3}(,\d{3})+$"#, options: .regularExpression) == nil { return true }
-        return plain(found).prefix { $0 != "." }.filter(\.isNumber).count > 15
-    }
+    private static let digits = try! NSRegularExpression(pattern: #"(?<![A-Za-z0-9])[-−]?(?:\d+(?:[.,]\d+)*|\.\d+)|\d+(?:[.,]\d+)*"#)
+    /// Spaced in threes with a currency or decimals to say it's one number: `1 299,00 €`. Bare, `100 200` could be two.
+    private static let spaced = try! NSRegularExpression(pattern: #"^\s*[^\d\s]{0,3}\s?(\d{1,3}(?:[ \x{00A0}\x{202F}]\d{3})+)([.,]\d+)?\s?[^\d\s]{0,3}\s*$"#)
+    private static let spacer = CharacterSet(charactersIn: " \u{00A0}\u{202F}")
 
     /// Exactly as a machine writes one, exponent and all: what a tool's number comes out as in words.
     private static func isMachineNumber(_ text: String) -> Bool {
         text.trimmed.range(of: #"^-?[0-9]*\.?[0-9]+[eE][+-]?[0-9]+$"#, options: .regularExpression) != nil
     }
 
-    static func number(_ text: String) -> Double? {
-        if isMachineNumber(text) { return Double(text.trimmed).flatMap { $0.isFinite ? $0 : nil } }
-        guard !couldBeEither(text), let found = firstNumber(in: text) else { return nil }
-        // Hundreds of digits come out as infinity, which no file can hold.
-        return Double(plain(found)).flatMap { $0.isFinite ? $0 : nil }
+    /// The first number in these words as a machine reads it, or nil with none. `doubtful` when it could be more than one: a number nobody meant is worse than none.
+    /// `1,000` and `1.000` could be a thousand or one; `1,23,456` is a lakh or a list; `$1.2M` isn't 1.2; a bare `100 200` could be two; one too long can't be held exactly.
+    /// `3.142`, `0.000`, `1,299.00` and `1,000,000` are what they say, and anything else with several marks, like a version, is its first two parts.
+    private static func reading(_ text: String) -> (number: String, doubtful: Bool)? {
+        if isMachineNumber(text) { return (text.trimmed, false) }
+        let whole = NSRange(text.startIndex..., in: text)
+        if let match = spaced.firstMatch(in: text, range: whole), let group = Range(match.range(at: 1), in: text) {
+            let digits = text[group].unicodeScalars.filter { !spacer.contains($0) }.map(String.init).joined()
+            let rest = Range(match.range(at: 2), in: text).map { text[$0].replacingOccurrences(of: ",", with: ".") }
+            let said = text.replacingOccurrences(of: String(text[group]), with: "").contains { !$0.isWhitespace && !$0.isNumber && $0 != "." && $0 != "," }
+            return (digits + (rest ?? ""), rest == nil && !said || digits.count > 15)
+        }
+        guard let match = digits.firstMatch(in: text, range: whole), let range = Range(match.range, in: text) else { return nil }
+        let found = text[range].replacingOccurrences(of: "−", with: "-")
+        let after = text[range.upperBound...]
+        if after.range(of: #"^(k|K|M|B|bn|Bn)(?![A-Za-z])"#, options: .regularExpression) != nil { return (found, true) }
+        let marks = found.filter { $0 == "." || $0 == "," }
+        let parts = found.split(whereSeparator: { $0 == "." || $0 == "," }).map(String.init)
+        let plain: String
+        if marks.count > 1, let last = marks.last {
+            let sameMark = Set(marks).count == 1
+            let groups = sameMark ? parts.dropFirst() : parts.dropFirst().dropLast()
+            let grouped = (sameMark || marks.dropLast().allSatisfy { $0 != last }) && parts[0].filter(\.isNumber).count <= 3 && groups.allSatisfy { $0.count == 3 }
+            if !grouped, marks.contains(",") { return (found, true) }
+            plain = !grouped ? parts[0] + "." + parts[1] : sameMark ? parts.joined() : parts.dropLast().joined() + "." + parts[parts.count - 1]
+        } else {
+            if found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.000)$"#, options: .regularExpression) != nil { return (found, true) }
+            plain = found.replacingOccurrences(of: ",", with: ".")
+        }
+        return (plain, plain.prefix { $0 != "." }.filter(\.isNumber).count > 15)
     }
 
-    /// As a machine reads it. Marks every three digits, with or without a different one before the decimals, are only that: `1,299.00`, `1.299,00`, `1,000,000`.
-    /// Anything else with more than one, like a version, is the first two parts.
-    private static func plain(_ found: String) -> String {
-        let marks = found.filter { $0 == "." || $0 == "," }
-        guard marks.count > 1, let last = marks.last else { return found.replacingOccurrences(of: ",", with: ".") }
-        let sameMark = Set(marks).count == 1
-        let parts = found.split(whereSeparator: { $0 == "." || $0 == "," }).map(String.init)
-        let grouped = sameMark ? parts.dropFirst() : parts.dropFirst().dropLast()
-        let isGrouped = (sameMark || marks.dropLast().allSatisfy { $0 != last }) && parts[0].filter(\.isNumber).count <= 3 && grouped.allSatisfy { $0.count == 3 }
-        guard isGrouped else { return parts[0] + "." + parts[1] }
-        return sameMark ? parts.joined() : parts.dropLast().joined() + "." + parts[parts.count - 1]
+    static func couldBeEither(_ text: String) -> Bool { reading(text)?.doubtful == true }
+
+    static func number(_ text: String) -> Double? {
+        guard let read = reading(text), !read.doubtful else { return nil }
+        // Hundreds of digits come out as infinity, which no file can hold.
+        return Double(read.number).flatMap { $0.isFinite ? $0 : nil }
     }
 
     /// The first words these checks would compare as a number that could be more than one: it can't tell, and going one way regardless would look like an answer.
