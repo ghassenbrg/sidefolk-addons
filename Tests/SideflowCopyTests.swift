@@ -89,6 +89,10 @@ import SidefolkExtensionKit
             #expect(copied(action) == nil)
             #expect(action.disabled)
             #expect(action.label.contains("Too long"))
+            #expect(copied(Pages.copyWords(flow, app)) == nil, "the words beside it too")
         }
+        // Words that double when a page carries them, like a pasted definition.
+        let quoted = app.newFlow(name: "Quoted", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": String(repeating: "\"", count: Pages.longestCopy * 2 / 3)]]]))
+        #expect(copied(Pages.copyDefinition(quoted)) == nil)
     }
 }
