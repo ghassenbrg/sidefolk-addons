@@ -2682,6 +2682,22 @@ extension JSON {
         #expect(!w.host.calls.contains { $0.tool == "reads.it" }, "neither the way to recover nor what comes after")
     }
 
+    @Test func stopFromALaneThatJustEndedStillEndsTheRest() async throws {
+        let w = try World()
+        let flow = try twoLanes(w, [["id": "a", "text": "quick"]], [["id": "b", "wait_minutes": 5], ["id": "late", "do": "changes.it", "with": ["text": "too late"]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let done = try #require(w.store.runs(of: flow.id).first { $0.parent == run.id && $0.body.step("a") != nil })
+        #expect(done.status == .done)
+        w.engine.stop(run: done.id, byThePerson: true)
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .stopped)
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
     @Test func aLaneMidStepIsToldAndSaysItMayHaveHappened() async throws {
         let w = try World()
         w.host.hold = "changes.it"

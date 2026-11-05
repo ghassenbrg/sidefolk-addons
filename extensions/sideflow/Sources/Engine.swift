@@ -971,8 +971,16 @@ extension FlowHost {
     /// `byThePerson`: their word means nothing writes after it, so it ends all of what this run is part of, the lanes beside it too, and no try or "go on with the rest" gets past it.
     /// A flow paused or its approval ended stops a run for its own reasons, which is a failure for whatever called it.
     func stop(run id: String, byThePerson: Bool = false) {
+        // Even from a run that's just ended: its page can still show Stop, and what it was part of is what they mean.
+        if byThePerson {
+            var top = id, above = store.run(id)?.parent
+            while let here = above, let holder = store.run(here) {
+                if !holder.status.isOver { top = here }
+                above = holder.parent
+            }
+            if top != id { stop(run: top) }
+        }
         guard var run = store.run(id), !run.status.isOver else { return }
-        if byThePerson, let parent = run.parent, store.run(parent)?.status.isOver == false { return stop(run: parent, byThePerson: true) }
         for child in run.waitingOn { stop(run: child) }
         // A run held back has no walk to notice a stop, so it ends here.
         if run.status == .running, !store.isHeldBack(flow: run.flow) {
