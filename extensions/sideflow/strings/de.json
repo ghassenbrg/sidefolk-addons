@@ -1053,7 +1053,6 @@
     "It uses your AI.": "Er nutzt deine KI.",
     "It gives your companion a whole job to do.": "Er gibt deinem Begleiter eine ganze Aufgabe.",
     "It sets off another flow: {list}": "Er startet einen anderen Ablauf: {list}",
-    "It needs what isn't here: {list}": "Er braucht, was hier fehlt: {list}",
     "It names a flow that isn't here: {list}": "Er nennt einen Ablauf, den es hier nicht gibt: {list}",
     "It only works with words: it reads and changes nothing.": "Er arbeitet nur mit Wörtern: Er liest und ändert nichts.",
     "That file can't be read.": "Diese Datei kann nicht gelesen werden.",
@@ -1065,7 +1064,13 @@
     "Two flows in this file are called “{name}”.": "Zwei Abläufe in dieser Datei heißen „{name}“.",
     "“{name}” can't be brought in: {why}": "„{name}“ kann nicht importiert werden: {why}",
     "{name} (imported)": "{name} (importiert)",
-    "{name} (imported {count})": "{name} (importiert {count})"
+    "{name} (imported {count})": "{name} (importiert {count})",
+    "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "„{name}“ ist kein einfacher Name für einen Ablauf: Er ist zu lang oder enthält versteckte Zeichen.",
+    "It reads, using values from earlier steps, which could send them out: {list}": "Er liest mit Werten aus früheren Schritten und könnte sie so nach außen senden: {list}",
+    "It keeps an eye on: {list}": "Er beobachtet: {list}",
+    "It sets off a flow of yours: {list}": "Er startet einen deiner Abläufe: {list}",
+    "It needs what isn't here, so Sideflow can't say what that does: {list}": "Er braucht etwas, das hier fehlt, daher kann Sideflow nicht sagen, was es tut: {list}",
+    "There's more than this page can show. Read its steps before you turn it on.": "Es gibt mehr, als diese Seite zeigen kann. Lies die Schritte, bevor du ihn einschaltest."
   },
   "drops": {
     "flow_file": {

@@ -93,36 +93,46 @@ enum FlowFile {
         var names = Set<String>()
         return try raw.map { item in
             guard Set(item.keys).isSubset(of: ["name", "flow"]) else { throw Problem(L("That isn't a Sideflow file or a flow's definition.")) }
-            let name = plain(item["name"] as? String ?? "")
-            guard !name.isEmpty else { throw Problem(L("Every flow in a file needs a name.")) }
-            guard names.insert(name.lowercased()).inserted else { throw Problem(L("Two flows in this file are called “{name}”.", ["name": name])) }
+            // A definition on its own can leave its name out. In a file, a call may be naming it.
+            let written = (item["name"] as? String)?.trimmed ?? ""
+            if written.isEmpty, top["sideflow"] != nil { throw Problem(L("Every flow in a file needs a name.")) }
+            let name = written.isEmpty ? stripped(L("New flow")) : written
+            // Never cut or cleaned to fit: a step calling it would then go by another name.
+            guard name == stripped(name), !name.unicodeScalars.contains(where: { $0.properties.isWhitespace && $0 != " " }), name.count <= 60 else {
+                throw Problem(L("“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.", ["name": String(stripped(name).prefix(60))]))
+            }
+            guard names.insert(folded(name)).inserted else { throw Problem(L("Two flows in this file are called “{name}”.", ["name": name])) }
             do {
-                return Incoming(name: name, body: try FlowCodec.body(item["flow"]))
+                // A practice's made-up answers aren't for someone else's practice to go by.
+                return Incoming(name: name, body: try FlowCodec.body((item["flow"] as? [String: Any]).map(withoutSamples) ?? item["flow"]))
             } catch let problem as Problem {
                 throw Problem(L("“{name}” can't be brought in: {why}", ["name": name, "why": problem.message]))
             }
         }
     }
 
-    /// A name to show: one line, nothing hidden in it, and short enough to be a flow's.
-    private static func plain(_ name: String) -> String {
+    /// Without anything hidden: what L() puts round a value for showing, and what a file could put in a name.
+    private static func stripped(_ name: String) -> String {
         let hidden: Set<Unicode.GeneralCategory> = [.control, .format, .lineSeparator, .paragraphSeparator, .privateUse, .unassigned, .surrogate]
-        let shown = name.unicodeScalars.filter { !hidden.contains($0.properties.generalCategory) }
-        return String(String(String.UnicodeScalarView(shown)).trimmed.prefix(60))
+        return String(String.UnicodeScalarView(name.unicodeScalars.filter { !hidden.contains($0.properties.generalCategory) })).trimmed
     }
+
+    /// Two names are the same to a step if they differ only by case or accents, as `FlowStore.named` reads them.
+    private static func folded(_ name: String) -> String { name.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
 
     /// What each will be called here: never one that's taken, and what's in the file calls each other by the new names.
     @MainActor static func arriving(_ incoming: [Incoming], store: FlowStore) -> [Incoming] {
-        var taken = Set(incoming.map(\.name))
+        var taken = Set(incoming.map { folded($0.name) })
         var renamed: [String: String] = [:]
         for item in incoming where store.nameInUse(item.name) {
-            // `plain`: a name is kept and matched, so it holds none of what L() puts round a value for showing.
-            var name = plain(L("{name} (imported)", ["name": item.name])), n = 2
-            while store.nameInUse(name) || taken.contains(name) {
-                name = plain(L("{name} (imported {count})", ["name": item.name, "count": Format.integer(n)]))
+            // Short enough that what tells them apart fits in a name.
+            let stem = String(item.name.prefix(40)).trimmed
+            var name = stripped(L("{name} (imported)", ["name": stem])), n = 2
+            while store.nameInUse(name) || taken.contains(folded(name)) {
+                name = n < 1000 ? stripped(L("{name} (imported {count})", ["name": stem, "count": String(n)])) : stem + " " + UUID().uuidString.prefix(8)
                 n += 1
             }
-            taken.insert(name)
+            taken.insert(folded(name))
             renamed[item.name] = name
         }
         return incoming.map { item in
@@ -165,8 +175,11 @@ enum FlowFile {
     /// What a flow from a file would do and need, for someone deciding whether to bring it in. It's what Sideflow can tell, and it can't tell everything: for anything not marked as only reading, the cautious words.
     struct Survey: Equatable {
         var name: String
-        var when: String
+        var starts: [String] = []
+        var watches: [String] = []
         var reads: [String] = []
+        /// Only reads, with a value from an earlier step in what it's given: a read can carry that value out.
+        var readsFilled: [String] = []
         var changes: [String] = []
         /// By the tool's name alone: a hint, on top of `changes`.
         var deletes: [String] = []
@@ -175,31 +188,40 @@ enum FlowFile {
         var usesAI = 0
         var companionJobs = 0
         var setsOff: [String] = []
+        var setsOffYours: [String] = []
         var missingTools: [String] = []
         var missingFlows: [String] = []
     }
 
     @MainActor static func survey(_ incoming: [Incoming], store: FlowStore, catalog: Catalog) -> [Survey] {
-        let here = Set(incoming.map(\.name))
+        let here = Set(incoming.map { folded($0.name) })
         return incoming.map { item in
-            var out = Survey(name: item.name, when: Words.triggers(item.body))
-            func add(_ line: String, to list: inout [String]) { if !list.contains(line) { list.append(line) } }
+            var out = Survey(name: item.name, starts: item.body.triggers.map { String(stripped(Words.trigger($0)).prefix(200)) })
+            func add(_ line: String, to list: inout [String]) {
+                let line = String(stripped(line).prefix(60))
+                if !list.contains(line) { list.append(line) }
+            }
+            for trigger in item.body.triggers {
+                if case .watch(let watch) = trigger { add(watch.target, to: &out.watches) }
+            }
             for step in item.body.allSteps {
                 switch step.kind {
                 case .action("companion.job", _): out.companionJobs += 1
-                case .action(let name, _):
+                case .action(let name, let input):
                     guard let tool = catalog.tool(name) else {
                         add(name, to: &out.missingTools)
                         continue
                     }
-                    if tool.readsOnly { add(tool.title, to: &out.reads) } else { add(tool.title, to: &out.changes) }
+                    let filled = input.values.flatMap(\.strings).contains { !Values.references($0).isEmpty }
+                    if !tool.readsOnly { add(tool.title, to: &out.changes) } else if filled { add(tool.title, to: &out.readsFilled) } else { add(tool.title, to: &out.reads) }
                     if !tool.readsOnly, name.range(of: #"(?i)trash|delete|remove|erase|wipe|clear"#, options: .regularExpression) != nil { add(tool.title, to: &out.deletes) }
                     if tool.fromServer { add(tool.title, to: &out.servers) }
                     if tool.category == "files" { add(tool.title, to: &out.files) }
                 case .ai: out.usesAI += 1
                 case .call(let name, _), .flow(let name):
-                    add(name, to: &out.setsOff)
-                    if !here.contains(name), store.named(name) == nil { add(name, to: &out.missingFlows) }
+                    if here.contains(folded(name)) { add(name, to: &out.setsOff) }
+                    else if store.named(name) != nil { add(name, to: &out.setsOffYours) }
+                    else { add(name, to: &out.missingFlows) }
                 default: break
                 }
             }

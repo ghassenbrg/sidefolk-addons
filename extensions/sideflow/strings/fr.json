@@ -1053,7 +1053,6 @@
     "It uses your AI.": "Elle utilise votre IA.",
     "It gives your companion a whole job to do.": "Elle confie toute une tâche à votre compagnon.",
     "It sets off another flow: {list}": "Elle lance une autre routine : {list}",
-    "It needs what isn't here: {list}": "Elle a besoin de ce qui n’est pas ici : {list}",
     "It names a flow that isn't here: {list}": "Elle nomme une routine absente d’ici : {list}",
     "It only works with words: it reads and changes nothing.": "Elle ne travaille qu’avec des mots : elle ne lit et ne modifie rien.",
     "That file can't be read.": "Ce fichier ne peut pas être lu.",
@@ -1065,7 +1064,13 @@
     "Two flows in this file are called “{name}”.": "Deux routines de ce fichier s’appellent « {name} ».",
     "“{name}” can't be brought in: {why}": "Impossible d’importer « {name} » : {why}",
     "{name} (imported)": "{name} (importée)",
-    "{name} (imported {count})": "{name} (importée {count})"
+    "{name} (imported {count})": "{name} (importée {count})",
+    "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "« {name} » n’est pas un nom de routine simple : il est trop long ou contient des caractères cachés.",
+    "It reads, using values from earlier steps, which could send them out: {list}": "Elle lit en utilisant des valeurs d’étapes précédentes, ce qui pourrait les envoyer ailleurs : {list}",
+    "It keeps an eye on: {list}": "Elle surveille : {list}",
+    "It sets off a flow of yours: {list}": "Elle déclenche une de vos routines : {list}",
+    "It needs what isn't here, so Sideflow can't say what that does: {list}": "Il lui faut ce qui n’est pas ici, donc Sideflow ne peut pas dire ce que cela fait : {list}",
+    "There's more than this page can show. Read its steps before you turn it on.": "Il y a plus que ce que cette page peut afficher. Lisez ses étapes avant de l’activer."
   },
   "drops": {
     "flow_file": {

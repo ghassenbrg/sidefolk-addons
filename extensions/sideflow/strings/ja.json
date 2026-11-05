@@ -1033,7 +1033,6 @@
     "It uses your AI.": "AI を使います。",
     "It gives your companion a whole job to do.": "コンパニオンに仕事をまるごと任せます。",
     "It sets off another flow: {list}": "別のルーティンを開始します: {list}",
-    "It needs what isn't here: {list}": "ここにないものが必要です: {list}",
     "It names a flow that isn't here: {list}": "ここにないルーティンを指定しています: {list}",
     "It only works with words: it reads and changes nothing.": "言葉だけを扱い、何も読み取らず変更もしません。",
     "That file can't be read.": "そのファイルは読み取れません。",
@@ -1045,7 +1044,13 @@
     "Two flows in this file are called “{name}”.": "このファイルには「{name}」という名前のルーティンが 2 つあります。",
     "“{name}” can't be brought in: {why}": "「{name}」は読み込めません: {why}",
     "{name} (imported)": "{name}(読み込み)",
-    "{name} (imported {count})": "{name}(読み込み {count})"
+    "{name} (imported {count})": "{name}(読み込み {count})",
+    "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "「{name}」はルーティンの名前として使えません。長すぎるか、隠し文字が含まれています。",
+    "It reads, using values from earlier steps, which could send them out: {list}": "前のステップの値を使って読み取ります。値が外部に送られる可能性があります: {list}",
+    "It keeps an eye on: {list}": "監視するもの: {list}",
+    "It sets off a flow of yours: {list}": "あなたのルーティンを起動します: {list}",
+    "It needs what isn't here, so Sideflow can't say what that does: {list}": "ここにないものが必要なため、Sideflow にはその動作がわかりません: {list}",
+    "There's more than this page can show. Read its steps before you turn it on.": "このページに表示しきれません。オンにする前にステップを読んでください。"
   },
   "drops": {
     "flow_file": {

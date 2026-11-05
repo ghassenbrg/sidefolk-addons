@@ -172,7 +172,9 @@ import SidefolkExtensionKit
         ext.tool("import_file", "Bring in a flow file", "Reads a flow file the person chose or dropped, and shows them what it would do. Nothing comes in until they say so.",
                  input: Schema.object(["path": Schema.path("The file.")], required: ["path"]), reply: { args in
             let path = try args.required("path")
-            guard let data = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe) else { throw Problem(L("That file can't be read.")) }
+            // Asked first: a pipe or a device has no end to read to.
+            let about = try? FileManager.default.attributesOfItem(atPath: path)
+            guard about?[.type] as? FileAttributeType == .typeRegular, let data = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe) else { throw Problem(L("That file can't be read.")) }
             guard data.count <= FlowFile.longest else { throw Problem(L("That file is too big to be flows.")) }
             let id = try FlowFile.stage(String(decoding: data, as: UTF8.self), in: app.folder)
             return ToolReply("").opening(page: "flows", state: ["import": id], push: true)

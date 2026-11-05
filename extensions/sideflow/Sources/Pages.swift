@@ -101,7 +101,7 @@ import SidefolkExtensionKit
 
     /// Goes to a place, leaving what the page was showing.
     static func place(_ set: [String: Any]) -> [String: Any] {
-        var out: [String: Any] = ["flow": NSNull(), "run": NSNull(), "view": NSNull(), "tab": NSNull()]
+        var out: [String: Any] = ["flow": NSNull(), "run": NSNull(), "view": NSNull(), "tab": NSNull(), "import": NSNull()]
         out.merge(set) { _, new in new }
         return out
     }
@@ -315,20 +315,44 @@ import SidefolkExtensionKit
             button(L("Not now"), "import_cancel", ["id": id]),
             button(L("Bring in"), "import_confirm", ["id": id, "page_token": app.pageKey], style: .primary, symbol: "square.and.arrow.down"),
         ])), .note(L("This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on."))], wide: true)]
+        // A page can hold so much, and words can be long: what's most to know goes first, and if it runs out the page says so.
+        var room = 90_000
         for flow in FlowFile.survey(arriving, store: app.store, catalog: app.catalog) {
-            func line(_ list: [String], tone: Tone = .warn, _ words: (String) -> String) -> [Block] { list.isEmpty ? [] : [.note(words(Format.list(list)), tone: tone)] }
-            var blocks: [Block] = [.note(L("It starts: {when}", ["when": flow.when]))]
-            blocks += line(flow.reads, tone: .neutral) { L("It reads: {list}", ["list": $0]) }
-            blocks += line(flow.changes) { L("It changes or sends something: {list}", ["list": $0]) }
-            blocks += line(flow.deletes) { L("By their names, these may delete: {list}", ["list": $0]) }
-            blocks += line(flow.servers) { L("It uses a server you added: {list}", ["list": $0]) }
-            blocks += line(flow.files) { L("It works with files: {list}", ["list": $0]) }
-            if flow.usesAI > 0 { blocks.append(.note(L("It uses your AI."), tone: .warn)) }
-            if flow.companionJobs > 0 { blocks.append(.note(L("It gives your companion a whole job to do."), tone: .warn)) }
-            blocks += line(flow.setsOff) { L("It sets off another flow: {list}", ["list": $0]) }
-            blocks += line(flow.missingTools) { L("It needs what isn't here: {list}", ["list": $0]) }
-            blocks += line(flow.missingFlows) { L("It names a flow that isn't here: {list}", ["list": $0]) }
-            if blocks.count == 1 { blocks.append(.note(L("It only works with words: it reads and changes nothing."))) }
+            var blocks: [Block] = [], cut = false
+            func say(_ words: String, tone: Tone = .neutral) {
+                guard blocks.count < 23, room > 0 else { return cut = true }
+                room -= words.utf8.count
+                blocks.append(.note(words, tone: tone))
+            }
+            /// A list in as many notes as it takes: a note holds so many characters.
+            func line(_ list: [String], tone: Tone = .warn, _ words: (String) -> String) {
+                var part: [String] = [], size = 0
+                for item in list {
+                    if size + item.count > 240 {
+                        say(words(Format.list(part)), tone: tone)
+                        (part, size) = ([], 0)
+                    }
+                    part.append(item)
+                    size += item.count + 2
+                }
+                if !part.isEmpty { say(words(Format.list(part)), tone: tone) }
+            }
+            line(flow.deletes) { L("By their names, these may delete: {list}", ["list": $0]) }
+            line(flow.changes) { L("It changes or sends something: {list}", ["list": $0]) }
+            line(flow.servers) { L("It uses a server you added: {list}", ["list": $0]) }
+            line(flow.files) { L("It works with files: {list}", ["list": $0]) }
+            line(flow.readsFilled) { L("It reads, using values from earlier steps, which could send them out: {list}", ["list": $0]) }
+            if flow.companionJobs > 0 { say(L("It gives your companion a whole job to do."), tone: .warn) }
+            if flow.usesAI > 0 { say(L("It uses your AI."), tone: .warn) }
+            line(flow.setsOffYours) { L("It sets off a flow of yours: {list}", ["list": $0]) }
+            line(flow.setsOff) { L("It sets off another flow: {list}", ["list": $0]) }
+            line(flow.watches) { L("It keeps an eye on: {list}", ["list": $0]) }
+            line(flow.missingTools) { L("It needs what isn't here, so Sideflow can't say what that does: {list}", ["list": $0]) }
+            line(flow.missingFlows) { L("It names a flow that isn't here: {list}", ["list": $0]) }
+            line(flow.reads, tone: .neutral) { L("It reads: {list}", ["list": $0]) }
+            if blocks.isEmpty, !cut { say(L("It only works with words: it reads and changes nothing.")) }
+            line(flow.starts, tone: .neutral) { L("It starts: {when}", ["when": $0]) }
+            if cut { blocks.append(.note(L("There's more than this page can show. Read its steps before you turn it on."), tone: .warn)) }
             main.append(Section(flow.name, blocks, wide: true))
         }
         return frame(app, state: state, here: "flows", main)

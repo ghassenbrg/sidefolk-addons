@@ -53,6 +53,64 @@ import SidefolkExtensionKit
         #expect(try FlowFile.read(JSONText.write(["name": "Old", "flow": simple] as [String: Any])).map(\.name) == ["Old"])
     }
 
+    @Test func aDefinitionOnItsOwnCanLeaveItsNameOutButNotInAFile() throws {
+        #expect(try FlowFile.read(JSONText.write(["flow": simple] as [String: Any])).map(\.name) == ["New flow"])
+        #expect(throws: Problem.self) { try FlowFile.read(file([["flow": simple]])) }
+    }
+
+    @Test func aNameIsTakenAsItIsOrNotAtAll() {
+        for name in [String(repeating: "x", count: 61), "A\u{00A0}B", "A\u{200B}B", "A\nB"] {
+            #expect(throws: Problem.self, "\(name)") { try FlowFile.read(file([["name": name, "flow": simple]])) }
+        }
+        #expect(throws: Problem.self, "the same to a step") { try FlowFile.read(file([["name": "Résumé", "flow": simple], ["name": "resume", "flow": simple]])) }
+    }
+
+    @Test func aLongNameTakenAgainAndAgainStillFindsOne() throws {
+        let w = try World()
+        let app = app(w)
+        let long = String(repeating: "x", count: 60)
+        _ = app.newFlow(name: long, body: try FlowCodec.body(simple))
+        for _ in 0..<3 {
+            let name = FlowFile.arriving(try FlowFile.read(file([["name": long, "flow": simple]])), store: app.store)[0].name
+            #expect(name.count <= 60 && !app.store.nameInUse(name), "\(name)")
+            _ = app.newFlow(name: name, body: try FlowCodec.body(simple))
+        }
+    }
+
+    @Test func aPracticesMadeUpAnswersDontComeWithIt() throws {
+        let back = try FlowFile.read(file([["name": "A", "flow": ["trigger": ["type": "manual"], "trigger_sample": "x", "steps": [["id": "a", "text": "t", "sample": "y"]]]]]))[0].body
+        #expect(back.triggerSample == nil && back.step("a")?.sample == nil)
+    }
+
+    @Test func thePageNeverSaysLessThanItDoes() async throws {
+        let w = try World()
+        let app = app(w)
+        let watching: [String: Any] = ["trigger": ["type": "watch", "kind": "url_change", "target": "https://example.com/pixel"], "steps": [["id": "a", "text": "x"]]]
+        let page = try FlowFile.survey(try FlowFile.read(file([["name": "W", "flow": watching]])), store: app.store, catalog: app.catalog)[0]
+        #expect(page.watches == ["https://example.com/pixel"])
+        _ = app.newFlow(name: "Pay invoices", body: try FlowCodec.body(simple))
+        let long: [String: Any] = ["trigger": ["type": "manual"], "steps": [["id": "s", "run_flow": String(repeating: "x", count: 400)], ["id": "p", "call_flow": "Pay invoices"]]]
+        let id = try FlowFile.stage(file([["name": "L", "flow": long]]), in: app.folder)
+        let words = String(describing: await Pages.make(app, state: Arguments(["import": id]), background: false)).filter { !"\u{2068}\u{2069}\\".contains($0) }
+        #expect(words.contains("It sets off a flow of yours: Pay invoices"), "what's the person's own is said, and a long name can't push it off")
+    }
+
+    @Test func aPageOfLongNamesStaysAPageAndSaysThereIsMore() async throws {
+        let w = try World()
+        let app = app(w)
+        let many: [[String: Any]] = (0..<FlowFile.mostFlows).map { flow in
+            ["name": "F\(flow)", "flow": ["trigger": ["type": "manual"], "steps": (0..<80).map { ["id": "s\($0)", "do": "x.\(flow).\($0)." + String(repeating: "界", count: 50)] }] as [String: Any]]
+        }
+        let id = try FlowFile.stage(file(many), in: app.folder)
+        let page = await Pages.make(app, state: Arguments(["import": id]), background: false)
+        let words = String(describing: page).filter { !"\u{2068}\u{2069}\\".contains($0) }
+        #expect(words.contains("more than this page can show"))
+    }
+
+    @Test func goingElsewhereLeavesItBehind() {
+        #expect(Pages.place(["flow": "x"])["import"] is NSNull)
+    }
+
     @Test func aNameThatsTakenMakesACopyAndCallsInTheFileFollow() throws {
         let w = try World()
         let app = app(w)
@@ -76,7 +134,7 @@ import SidefolkExtensionKit
         #expect(survey.missingTools == ["no.such.tool"])
         #expect(survey.usesAI == 1)
         #expect(survey.companionJobs == 1)
-        #expect(survey.setsOff == ["Nowhere"] && survey.missingFlows == ["Nowhere"])
+        #expect(survey.missingFlows == ["Nowhere"] && survey.setsOff.isEmpty)
     }
 
     @Test func nothingComesInWithoutThePagesOwnYesAndThenAsADraftAndOff() async throws {

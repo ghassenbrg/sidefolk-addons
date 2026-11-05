@@ -1133,7 +1133,6 @@
     "It uses your AI.": "يستخدم الذكاء الاصطناعي لديك.",
     "It gives your companion a whole job to do.": "يكلّف رفيقك بمهمة كاملة.",
     "It sets off another flow: {list}": "يشغّل روتينًا آخر: {list}",
-    "It needs what isn't here: {list}": "يحتاج إلى ما ليس هنا: {list}",
     "It names a flow that isn't here: {list}": "يذكر روتينًا غير موجود هنا: {list}",
     "It only works with words: it reads and changes nothing.": "يعمل بالكلمات فقط: لا يقرأ شيئًا ولا يغيّر شيئًا.",
     "That file can't be read.": "لا يمكن قراءة هذا الملف.",
@@ -1145,7 +1144,13 @@
     "Two flows in this file are called “{name}”.": "يوجد في هذا الملف روتينان باسم «{name}».",
     "“{name}” can't be brought in: {why}": "لا يمكن استيراد «{name}»: {why}",
     "{name} (imported)": "{name} (مستورد)",
-    "{name} (imported {count})": "{name} (مستورد {count})"
+    "{name} (imported {count})": "{name} (مستورد {count})",
+    "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "«{name}» ليس اسمًا بسيطًا لروتين: فهو طويل جدًا أو يحتوي على أحرف مخفية.",
+    "It reads, using values from earlier steps, which could send them out: {list}": "يقرأ باستخدام قيم من خطوات سابقة، وقد يرسلها ذلك إلى الخارج: {list}",
+    "It keeps an eye on: {list}": "يراقب: {list}",
+    "It sets off a flow of yours: {list}": "يشغّل روتينًا لك: {list}",
+    "It needs what isn't here, so Sideflow can't say what that does: {list}": "يحتاج إلى ما ليس موجودًا هنا، لذا لا يستطيع Sideflow تحديد ما يفعله: {list}",
+    "There's more than this page can show. Read its steps before you turn it on.": "هناك أكثر مما تستطيع هذه الصفحة عرضه. اقرأ خطواته قبل تشغيله."
   },
   "drops": {
     "flow_file": {
