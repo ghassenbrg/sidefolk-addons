@@ -2568,6 +2568,45 @@ extension JSON {
         #expect(run?.values.value("t") == "got report")
     }
 
+    @Test func aLaneOrCalleeThatCarriedPastAFailureStillAnswersEmpty() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = (0..<4).map { _ in Actions.Outcome(status: .error, text: "no") }
+        var child = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"], "on_failure": "carry_on"]])
+        child.name = "Child"
+        w.store.save(child)
+        let flow = try w.flow([["id": "k", "call_flow": "Child"], ["id": "t", "text": "got: {{k}}"]])
+        let started = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let run = w.store.run(started.id)
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        #expect(run?.values.value("t") == "got: ", "they said to carry on past it, so it isn't a step that never ran")
+    }
+
+    @Test func aFieldThatSaysNothingAmongWordsIsLeftEmpty() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"text":{"type":"string"},"due":{"type":"string"}},"required":["text"]}"#)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Looked", summary: "", data: #"{"title": "T", "body": null, "due": null}"#)]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "{{r.title}}: {{r.body}}", "due": "{{r.due}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status == .done, "\(run?.problem ?? "")")
+        let sent = w.host.calls.first { $0.tool == "changes.it" }?.input
+        #expect(sent?["text"] as? String == "T: ")
+        #expect(sent?["due"] == nil, "optional, so left out")
+    }
+
+    @Test func aRequiredFieldThatSaysNothingStopsTheAction() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true),
+                                              Actions.Tool(name: "changes.it", title: "Change", schema: #"{"properties":{"to":{"type":"string"}},"required":["to"]}"#)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "Looked", summary: "", data: #"{"who": null}"#)]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["to": "{{r.who}}"]]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done)
+        #expect(run?.problem?.contains("r.who") == true)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
     @Test func aTryInsideDoesntTakeTheErrorAround() throws {
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": [["id": "x", "text": "x"]], "recover": [
             ["id": "b", "if": ["value": "{{error}}", "test": "contains", "than": "no"], "then": [["id": "in", "try": [["id": "y", "text": "y"]], "recover": [["id": "z", "text": "{{error}}"]]]], "else": []]]]]])

@@ -233,7 +233,9 @@ struct Values: Equatable, Sendable {
     /// A tool's answer that's a list goes as a list only to a parameter that says it takes one, and only as a whole value: anywhere else it's the words it was, what a card showed.
     /// `absentIn`: what can't be empty, a number or a choice: a field left blank isn't given to it.
     func fill(_ input: [String: JSON], wordsIn textual: Set<String>, listsIn lists: Set<String> = [], absentIn absent: Set<String> = []) -> [String: Any] {
-        Dictionary(uniqueKeysWithValues: input.map { key, value in
+        Dictionary(uniqueKeysWithValues: input.compactMap { key, value -> (String, Any)? in
+            // Nothing for it: not given, as a blank would be. What can't go without one has already stopped the run (`Catalog.nothingFor`).
+            if case .string(let s) = value, Self.isOneSlot(s), let only = Self.slots(s).first, resolve(only.name, path: only.path) == .null { return nil }
             if textual.contains(key), case .string(let s) = value { return (key, fill(s, each: Self.wordsKept) as Any) }
             let filled = fill(native: value)
             if absent.contains(key), filled == .string(""), case .string(let s) = value, Self.isOneSlot(s), Self.slots(s).first?.path.isEmpty == false { return (key, JSON.null.any) }
@@ -280,15 +282,10 @@ struct Values: Equatable, Sendable {
         return named[root] == nil ? L("It uses “{name}”, but that step didn't run this time.", ["name": name]) : L("It uses “{name}”, but that step's answer doesn't have it.", ["name": name])
     }
 
-    /// Whether a step left something to go on from: a carried-past failure's blank isn't, and neither is words that say nothing.
-    func leftSomething(_ name: String) -> Bool {
-        guard let value = whole(name) else { return false }
-        return value != .string("")
-    }
-
-    /// A value an action would get as a blank because it says nothing: a field that's null, a lane that made nothing. Empty words are words; this is no answer at all.
-    func saysNull(in texts: [String]) -> String? {
-        texts.flatMap(Self.slots).first { resolve($0.name, path: $0.path) == .null }.map { $0.name + $0.path }
+    /// What steps left, as a whole: the last with something to say, or if none has, the last that left anything. A failure carried past leaves empty words, which don't take the answer away from what came before it.
+    func lastAnswer(of steps: [Step]) -> JSON? {
+        let left = steps.filter { $0.hasOutput }.compactMap { whole($0.id) }
+        return left.last { $0 != .string("") } ?? left.last
     }
 
     /// What these words use that no step has made and this run has to stop for. A practice only pretended, so a field of that isn't one.

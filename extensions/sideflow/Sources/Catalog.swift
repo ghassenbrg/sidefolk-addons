@@ -70,6 +70,17 @@ import SidefolkExtensionKit
         return values.fill(input, wordsIn: wordy, listsIn: lists, absentIn: absent)
     }
 
+    /// What a tool can't do without and would get nothing for: a value on its own that came back null, for a parameter it needs or one it doesn't say it can leave out. Words
+    /// around it stand, and an optional parameter is left out.
+    func nothingFor(_ name: String, _ input: [String: JSON], from values: Values) -> String? {
+        let parameters = tool(name)?.parameters
+        for (key, value) in input.sorted(by: { $0.key < $1.key }) {
+            guard case .string(let text) = value, let only = Values.slots(text).first, text.trimmed == "{{\(only.name)\(only.path)}}", values.resolve(only.name, path: only.path) == .null else { continue }
+            if parameters?.first(where: { $0.name == key })?.required != false { return only.name + only.path }
+        }
+        return nil
+    }
+
     func plan(_ id: String) -> Plans.Standing? { plans.first { $0.id == id } }
 
     func refresh() async {

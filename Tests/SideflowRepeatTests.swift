@@ -48,8 +48,7 @@ import SidefolkExtensionKit
         #expect(run?.status != .done && sent == 1)
         // A loop inside that made a list of nothing.
         (run, sent) = try await sends([["id": "each", "for_each": "a", "steps": [Self.send]]], until: ["value": "{{each[0]}}", "test": "not_empty"], answer: "")
-        #expect(sent == 1, "a go whose write said nothing gives its item, so this holds: it doesn't go again")
-        _ = run
+        #expect(run?.status != .done && sent == 1)
         // A repeat inside.
         (run, sent) = try await sends([["id": "inner", "repeat": [Self.send], "until": ["value": "{{send}}", "test": "contains", "than": "Sent"], "times": 2]], until: ["value": "{{inner}}", "test": "contains", "than": "never"], answer: "")
         #expect(run?.status != .done && sent == 1)

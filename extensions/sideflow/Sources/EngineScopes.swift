@@ -66,7 +66,7 @@ extension Engine {
         }
         let inside = FlowBody(steps: steps).allSteps
         // The last that made something: a path not taken at the end of a go made nothing.
-        let made = inside.last(where: { $0.hasOutput && run.values.leftSomething($0.id) }).flatMap { run.values.whole($0.id) }
+        let made = run.values.lastAnswer(of: inside)
         let holds = until.holds(run.values)
         let go = run.frames[at].index + 1
         func leave() {
@@ -159,7 +159,7 @@ extension Engine {
         }
         let inside = FlowBody(steps: steps).allSteps
         // What this go gave: what the last step that makes something made. Steps inside start each go with nothing.
-        let made = inside.last(where: { $0.hasOutput && run.values.leftSomething($0.id) }).flatMap { run.values.whole($0.id) } ?? run.frames[at].items[run.frames[at].index]
+        let made = run.values.lastAnswer(of: inside) ?? run.frames[at].items[run.frames[at].index]
         // Room is left for what the items still to come will say at the least, so the list as a whole is never cut to text.
         let left = run.frames[at].items.count - run.frames[at].index - 1
         let fits = JSONText.write((run.frames[at].results + [made]).map(\.any)).utf8.count + left * 40 <= Values.keepWhole
