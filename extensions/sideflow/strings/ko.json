@@ -1021,6 +1021,7 @@
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "“{name}”은(는) 글 목록인데 그렇지 않은 항목이 있습니다: “{value}”.",
     "“{name}” is needed, and this gives it nothing.": "“{name}”이(가) 필요한데 여기서 아무것도 주지 않습니다.",
     "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”에는 {what}이(가) 필요한데 여기서 “{value}”을(를) 줍니다.",
-    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: 도구로 보내면서 {count}자로 잘렸습니다. 나머지는 보내지 않았습니다."
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: 도구로 보내면서 {count}자로 잘렸습니다. 나머지는 보내지 않았습니다.",
+    "“{value}” could be more than one number, so it stopped.": "“{value}”은(는) 여러 숫자로 읽힐 수 있어 멈췄습니다."
   }
 }

@@ -395,6 +395,53 @@ import SidefolkExtensionKit
         #expect((w.host.calls.first?.input["change"] as? [String: Any])?["replace"] as? String == "")
     }
 
+    @Test func whatCouldBeMoreThanOneNumberIsntTakenForOne() throws {
+        for words in ["1,000", "1.000", "12.000", "about 1,000 of them", "12345678901234567890"] {
+            #expect(Condition.couldBeEither(words), "\(words)")
+            #expect(Condition.number(words) == nil, "\(words)")
+        }
+        for (words, value) in [("3.142", 3.142), ("0.000", 0), ("12,5", 12.5), ("12 apples", 12), ("1000", 1000)] {
+            #expect(!Condition.couldBeEither(words), "\(words)")
+            #expect(Condition.number(words) == value, "\(words)")
+        }
+        #expect(Editing.number("12345678901234567890") == nil)
+        #expect(Editing.number("123456789012345") == 123456789012345)
+    }
+
+    @Test func aDataStepDoesntGuessEither() async throws {
+        for op: [String: Any] in [["op": "number", "from": "1,000"], ["op": "sum", "from": #"["1,000","2"]"#]] {
+            let w = try World()
+            let flow = try w.flow([["id": "d", "data": op], ["id": "s", "text": "went on"]])
+            let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+            #expect(run.status == .failed, "\(op)")
+            #expect(run.problem?.contains("1,000") == true, "\(run.problem ?? "")")
+        }
+    }
+
+    @Test func aFormsNumberIsntAGuess() async throws {
+        let w = try World()
+        let app = try app(w)
+        let flow = app.newFlow(name: "Asked", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "f", "form": ["title": "T", "fields": [["name": "n", "label": "N", "kind": "number"]]]]]]))
+        let run = try #require(app.engine.start(flow, mode: .once, why: "t"))
+        await w.quiet(app.store)
+        for words in ["1,000", "1.000"] {
+            #expect(throws: Problem.self, "\(words)") { try app.engine.answer(run: run.id, form: ["n": .string(words)]) }
+        }
+        try app.engine.answer(run: run.id, form: ["n": .string("1000")])
+        await w.quiet(app.store)
+        #expect(app.store.run(run.id)?.values.named["f"] == .object(["n": .number(1000)]))
+    }
+
+    @Test func aHugeNumberFromAToolIsntACount() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "reads.it", title: "Read", schema: #"{"properties":{}}"#, mutates: false, readsOnly: true), Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: #"{"n":12345678901234567890}"#, summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "c", "do": "changes.it", "with": ["text": "x", "count": "{{r.n}}"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .failed)
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
     @Test func wordsThatFitSayNothing() async throws {
         let w = try World()
         w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))

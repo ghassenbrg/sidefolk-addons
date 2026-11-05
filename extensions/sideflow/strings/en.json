@@ -937,6 +937,7 @@
     "“{name}” wants {what}, and this gives it “{value}”.": "“{name}” wants {what}, and this gives it “{value}”.",
     "“{tool}” has no value called “{name}”.": "“{tool}” has no value called “{name}”.",
     "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.": "“{tool}” isn't available now. Its extension may be off or gone, or Sidefolk doesn't let extensions use it.",
+    "“{value}” could be more than one number, so it stopped.": "“{value}” could be more than one number, so it stopped.",
     "“{value}”: none of them, so the rest": "“{value}”: none of them, so the rest",
     "“{value}”: {way}": "“{value}”: {way}",
     "“{way}” of “{step}”": "“{way}” of “{step}”",

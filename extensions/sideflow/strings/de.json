@@ -1038,6 +1038,7 @@
     "“{name}” is a list of words, and one entry isn't: “{value}”.": "„{name}“ ist eine Liste von Wörtern, und ein Eintrag ist keins: „{value}“.",
     "“{name}” is needed, and this gives it nothing.": "„{name}“ wird gebraucht, und das hier gibt ihm nichts.",
     "“{name}” wants {what}, and this gives it “{value}”.": "„{name}“ will {what}, und das hier gibt ihm „{value}“.",
-    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: auf dem Weg zum Werkzeug auf {count} Zeichen gekürzt. Der Rest wurde nicht gesendet."
+    "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: auf dem Weg zum Werkzeug auf {count} Zeichen gekürzt. Der Rest wurde nicht gesendet.",
+    "“{value}” could be more than one number, so it stopped.": "„{value}“ könnte mehr als eine Zahl sein, deshalb wurde angehalten."
   }
 }

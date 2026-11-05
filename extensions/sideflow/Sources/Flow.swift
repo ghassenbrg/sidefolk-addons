@@ -107,8 +107,16 @@ struct Condition: Equatable, Sendable {
 
     private static let digits = try! NSRegularExpression(pattern: #"-?\d+(?:[.,]\d+)?"#)
 
+    /// Whether the first number in these words could be more than one: "1,000" and "1.000" could be a thousand or one, and a number nobody meant is worse than none.
+    /// So could one too long for a number to hold exactly. `3.142` and `0.000` are what they say.
+    static func couldBeEither(_ text: String) -> Bool {
+        guard let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return false }
+        let found = String(text[range])
+        return found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.000)$"#, options: .regularExpression) != nil || found.prefix { $0 != "." && $0 != "," }.filter(\.isNumber).count > 15
+    }
+
     static func number(_ text: String) -> Double? {
-        guard let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
+        guard !couldBeEither(text), let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
         // Hundreds of digits come out as infinity, which no file can hold.
         return Double(text[range].replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil }
     }

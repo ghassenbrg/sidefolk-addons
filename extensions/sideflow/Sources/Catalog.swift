@@ -142,7 +142,8 @@ import SidefolkExtensionKit
                 let wrong: Bool
                 switch parameter.kind {
                 case .integer:
-                    if case .number(let n) = value { wrong = n != n.rounded() } else { wrong = true }
+                    // Past that a number no longer holds every digit, and what's sent wouldn't be what it was.
+                    if case .number(let n) = value { wrong = n != n.rounded() || abs(n) >= 1e15 } else { wrong = true }
                 case .number:
                     if case .number = value { wrong = false } else { wrong = true }
                 case .boolean:

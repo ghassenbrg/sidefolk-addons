@@ -163,10 +163,15 @@ struct DataStep: Equatable, Sendable {
         case .first:
             return .array(Array(try list().prefix(max(count ?? 1, 0))))
         case .sum:
-            let total = try list().reduce(0) { $0 + (at($1).flatMap { Condition.number(Values.text($0)) } ?? 0) }
+            let total = try list().reduce(0) { sum, item in
+                guard let text = at(item).map(Values.text) else { return sum }
+                if Condition.couldBeEither(text) { throw Problem(L("“{value}” could be more than one number, so it stopped.", ["value": text.clipped(80)])) }
+                return sum + (Condition.number(text) ?? 0)
+            }
             guard total.isFinite else { throw Problem(L("Those numbers add up to too much.")) }
             return .number(total)
         case .number:
+            if Condition.couldBeEither(Values.text(value)) { throw Problem(L("“{value}” could be more than one number, so it stopped.", ["value": Values.text(value).clipped(80)])) }
             guard let n = Condition.number(Values.text(value)) else { throw Problem(L("There's no number in that.")) }
             return .number(n)
         case .batches:
