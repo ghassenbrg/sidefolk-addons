@@ -400,12 +400,56 @@ import SidefolkExtensionKit
             #expect(Condition.couldBeEither(words), "\(words)")
             #expect(Condition.number(words) == nil, "\(words)")
         }
-        for (words, value) in [("3.142", 3.142), ("0.000", 0), ("12,5", 12.5), ("12 apples", 12), ("1000", 1000)] {
+        for (words, value) in [("3.142", 3.142), ("0.000", 0), ("12,5", 12.5), ("12 apples", 12), ("1000", 1000), ("$1,299.00", 1299), ("1.299,50", 1299.5), ("1,000,000", 1_000_000), ("1.000.000", 1_000_000), ("1.2.3", 1.2), ("12.2026", 12.2026), ("18 °C", 18), ("-3", -3), ("0,500", 0.5)] {
             #expect(!Condition.couldBeEither(words), "\(words)")
             #expect(Condition.number(words) == value, "\(words)")
         }
         #expect(Editing.number("12345678901234567890") == nil)
         #expect(Editing.number("123456789012345") == 123456789012345)
+    }
+
+    @Test func aConditionThatCantTellSaysSoRatherThanGoingOneWay() async throws {
+        for (made, than) in [("1,500", "2000"), ("12.000", "10"), ("5", "1,000")] {
+            let w = try World()
+            let flow = try w.flow([["id": "p", "text": made], ["id": "b", "if": ["value": "{{p}}", "test": "less_than", "than": than], "then": [["id": "y", "text": "yes"]], "else": [["id": "n", "text": "no"]]]])
+            let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+            #expect(run.status == .failed, "\(made) \(than): \(run.status)")
+            #expect(run.problem?.contains("could be more than one number") == true, "\(run.problem ?? "")")
+            #expect(run.record(of: "y") == nil && run.record(of: "n") == nil, "neither way")
+        }
+        let w = try World()
+        let flow = try w.flow([["id": "p", "text": "$1,299.00"], ["id": "b", "if": ["value": "{{p}}", "test": "less_than", "than": "2000"], "then": [["id": "y", "text": "yes"]], "else": [["id": "n", "text": "no"]]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.record(of: "y") != nil, "that one's plain")
+        // Words that aren't compared as numbers aren't its business.
+        #expect(Condition(value: "1,500", test: .contains, than: "500").doubtful(Values()) == nil)
+    }
+
+    @Test func aRepeatThatCantTellSaysSo() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "again", "repeat": [["id": "p", "text": "1,500"]], "until": ["value": "{{p}}", "test": "more_than", "than": "2000"], "times": 3]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .failed)
+        #expect(run.problem?.contains("could be more than one number") == true, "\(run.problem ?? "")")
+        #expect(run.records.filter { $0.step == "p" }.count == 1, "it didn't go round on a guess")
+    }
+
+    @Test func aFilterThatCantTellSaysSo() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "d", "data": ["op": "filter", "from": #"["1,500","10"]"#, "test": "less_than", "than": "2000"]]])
+        let run = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        #expect(run.status == .failed)
+        #expect(run.problem?.contains("1,500") == true, "\(run.problem ?? "")")
+    }
+
+    @Test func aWordThatIsntOneOfTheChoicesIsSaid() async throws {
+        let (run, sent) = try await refused(["text": "x", "mode": "{{n}}"], made: "High")
+        #expect(sent.isEmpty)
+        #expect(run.status == .failed)
+        #expect(run.problem?.contains("High") == true && run.problem?.contains("fast") == true, "\(run.problem ?? "")")
+        let (fine, went) = try await refused(["text": "x", "mode": "{{n}}"], made: "fast")
+        #expect(fine.status == .done)
+        #expect(went.first?["mode"] as? String == "fast")
     }
 
     @Test func aDataStepDoesntGuessEither() async throws {

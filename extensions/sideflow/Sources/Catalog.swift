@@ -148,6 +148,9 @@ import SidefolkExtensionKit
                     if case .number = value { wrong = false } else { wrong = true }
                 case .boolean:
                     if case .bool = value { wrong = false } else { wrong = true }
+                case .choice(let answers):
+                    if let word = value.string, !answers.contains(word) { return L("“{name}” is one of {answers}, and this gives it “{value}”.", ["name": parameter.title, "answers": Format.list(answers), "value": word.clipped(80)]) }
+                    wrong = false
                 case .list:
                     guard case .array(let items) = value else { wrong = true; break }
                     if items.contains(.null) { return L("“{name}” has an entry that came back with nothing in it.", ["name": parameter.title]) }

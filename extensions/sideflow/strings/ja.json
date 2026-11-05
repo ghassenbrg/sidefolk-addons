@@ -1022,6 +1022,9 @@
     "“{name}” is needed, and this gives it nothing.": "「{name}」は必須ですが、何も渡されていません。",
     "“{name}” wants {what}, and this gives it “{value}”.": "「{name}」には{what}が必要ですが、渡されたのは「{value}」です。",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: ツールへ送る際に{count}文字に切り詰めました。残りは送信されていません。",
-    "“{value}” could be more than one number, so it stopped.": "「{value}」は複数の数値に読めるため、停止しました。"
+    "“{value}” could be more than one number, so it stopped.": "「{value}」は複数の数値に読めるため、停止しました。",
+    "“{value}” could be more than one number, so it can't tell which way to go.": "「{value}」は複数の数値に読めるため、どちらに進むか判断できません。",
+    "“{value}” could be more than one number, so it can't tell whether to go round again.": "「{value}」は複数の数値に読めるため、繰り返すかどうか判断できません。",
+    "“{name}” is one of {answers}, and this gives it “{value}”.": "「{name}」は {answers} のいずれかですが、渡されたのは「{value}」です。"
   }
 }

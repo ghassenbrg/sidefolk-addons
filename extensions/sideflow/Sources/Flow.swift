@@ -105,20 +105,44 @@ struct Condition: Equatable, Sendable {
         return left.compare(right, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 
-    private static let digits = try! NSRegularExpression(pattern: #"-?\d+(?:[.,]\d+)?"#)
+    private static let digits = try! NSRegularExpression(pattern: #"-?\d+(?:[.,]\d+)*"#)
+
+    private static func firstNumber(in text: String) -> String? {
+        digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)).flatMap { Range($0.range, in: text) }.map { String(text[$0]) }
+    }
 
     /// Whether the first number in these words could be more than one: "1,000" and "1.000" could be a thousand or one, and a number nobody meant is worse than none.
-    /// So could one too long for a number to hold exactly. `3.142` and `0.000` are what they say.
+    /// So could one too long for a number to hold exactly. `3.142`, `0.000` and `1,299.00` are what they say.
     static func couldBeEither(_ text: String) -> Bool {
-        guard let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return false }
-        let found = String(text[range])
+        guard let found = firstNumber(in: text) else { return false }
         return found.range(of: #"^-?[1-9][0-9]{0,2}(,[0-9]{3}|\.000)$"#, options: .regularExpression) != nil || found.prefix { $0 != "." && $0 != "," }.filter(\.isNumber).count > 15
     }
 
     static func number(_ text: String) -> Double? {
-        guard !couldBeEither(text), let match = digits.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
+        guard !couldBeEither(text), let found = firstNumber(in: text) else { return nil }
         // Hundreds of digits come out as infinity, which no file can hold.
-        return Double(text[range].replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil }
+        return Double(plain(found)).flatMap { $0.isFinite ? $0 : nil }
+    }
+
+    /// As a machine reads it. Marks every three digits, with or without a different one before the decimals, are only that: `1,299.00`, `1.299,00`, `1,000,000`.
+    /// Anything else with more than one, like a version, is the first two parts.
+    private static func plain(_ found: String) -> String {
+        let marks = found.filter { $0 == "." || $0 == "," }
+        guard marks.count > 1, let last = marks.last else { return found.replacingOccurrences(of: ",", with: ".") }
+        let sameMark = Set(marks).count == 1
+        let parts = found.split(whereSeparator: { $0 == "." || $0 == "," }).map(String.init)
+        let grouped = sameMark ? parts.dropFirst() : parts.dropFirst().dropLast()
+        let isGrouped = (sameMark || marks.dropLast().allSatisfy { $0 != last }) && parts[0].filter(\.isNumber).count <= 3 && grouped.allSatisfy { $0.count == 3 }
+        guard isGrouped else { return parts[0] + "." + parts[1] }
+        return sameMark ? parts.joined() : parts.dropLast().joined() + "." + parts[parts.count - 1]
+    }
+
+    /// The first words these checks would compare as a number that could be more than one: it can't tell, and going one way regardless would look like an answer.
+    func doubtful(_ values: Values) -> String? {
+        for check in checks where check.test == .more_than || check.test == .less_than {
+            for words in [values.fill(check.value), values.fill(check.than)] where Self.couldBeEither(words) { return words }
+        }
+        return nil
     }
 }
 

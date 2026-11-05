@@ -1022,6 +1022,9 @@
     "“{name}” is needed, and this gives it nothing.": "“{name}”是必需的，而这里没有给它任何内容。",
     "“{name}” wants {what}, and this gives it “{value}”.": "“{name}”需要{what}，而这里给的是“{value}”。",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}：发送给工具时被截断为 {count} 个字符。其余部分未发送。",
-    "“{value}” could be more than one number, so it stopped.": "“{value}”可能表示不止一个数字，因此已停止。"
+    "“{value}” could be more than one number, so it stopped.": "“{value}”可能表示不止一个数字，因此已停止。",
+    "“{value}” could be more than one number, so it can't tell which way to go.": "“{value}”可能表示不止一个数字，因此无法判断走哪条路。",
+    "“{value}” could be more than one number, so it can't tell whether to go round again.": "“{value}”可能表示不止一个数字，因此无法判断是否再来一轮。",
+    "“{name}” is one of {answers}, and this gives it “{value}”.": "“{name}”应为 {answers} 之一，而这里给的是“{value}”。"
   }
 }

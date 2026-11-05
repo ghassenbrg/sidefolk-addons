@@ -1107,6 +1107,9 @@
     "“{name}” is needed, and this gives it nothing.": "«{name}» مطلوب، وهذا لا يعطيه شيئًا.",
     "“{name}” wants {what}, and this gives it “{value}”.": "يريد «{name}» {what}، وهذا يعطيه «{value}».",
     "{names}: cut to {count} characters on the way to the tool. The rest wasn't sent.": "{names}: قُصّ إلى {count} حرفًا في الطريق إلى الأداة. ولم يُرسل الباقي.",
-    "“{value}” could be more than one number, so it stopped.": "قد يعني «{value}» أكثر من رقم واحد، لذا توقف."
+    "“{value}” could be more than one number, so it stopped.": "قد يعني «{value}» أكثر من رقم واحد، لذا توقف.",
+    "“{value}” could be more than one number, so it can't tell which way to go.": "قد يعني «{value}» أكثر من رقم واحد، لذا لا يمكنه تحديد الطريق.",
+    "“{value}” could be more than one number, so it can't tell whether to go round again.": "قد يعني «{value}» أكثر من رقم واحد، لذا لا يمكنه تحديد ما إذا كان سيعيد الجولة.",
+    "“{name}” is one of {answers}, and this gives it “{value}”.": "«{name}» واحد من {answers}، وهذا يعطيه «{value}»."
   }
 }

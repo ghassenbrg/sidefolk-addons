@@ -146,7 +146,13 @@ struct DataStep: Equatable, Sendable {
         case .filter:
             // What the page shows selected before anyone picks. Looking for nothing would look like an answer: an empty list.
             if [nil, .contains, .not_contains].contains(test), resolved.trimmed.isEmpty { throw Problem(L("Say what to compare it with.")) }
-            return .array(try list().filter { item in Condition.test(test ?? .contains, left: at(item).map(Values.text) ?? "", right: resolved) })
+            return .array(try list().filter { item in
+                let left = at(item).map(Values.text) ?? ""
+                if test == .more_than || test == .less_than, let doubtful = [left, resolved].first(where: Condition.couldBeEither) {
+                    throw Problem(L("“{value}” could be more than one number, so it stopped.", ["value": doubtful.clipped(80)]))
+                }
+                return Condition.test(test ?? .contains, left: left, right: resolved)
+            })
         case .sort:
             let sorted = try list().sorted { a, b in
                 let (x, y) = (at(a).map(Values.text) ?? "", at(b).map(Values.text) ?? "")
