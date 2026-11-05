@@ -141,16 +141,18 @@ import Testing
             let page = await Pages.make(app, state: Arguments(state), background: false)
             #expect(JSONText.write(page.sent).utf8.count < 128_000, "\(state)")
         }
-        let many = app.newFlow(name: "Many", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": (0..<190).map { ["id": "s\($0)", "name": String(repeating: "😀", count: 40), "text": String(repeating: "😀", count: 240)] }]))
+        let many = app.newFlow(name: "Many", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": (0..<FlowBody.maxSteps).map { ["id": "s\($0)", "name": String(repeating: "😀", count: 40), "text": String(repeating: "😀", count: 240)] }]))
         #expect(JSONText.write(await Pages.make(app, state: Arguments(["flow": many.id]), background: false).sent).utf8.count < 128_000)
-        #expect(Pages.isTooLong(flow: many.id, app))
         let short = app.newFlow(name: "Short", body: try FlowCodec.body(simple))
         _ = try await Actions_UI.handle(Arguments(["op": "delete_too_long", "flow": short.id, "page_token": app.pageKey]), app)
         #expect(app.store.flow(short.id) != nil, "not a way to delete a flow with no question")
-        _ = try await Actions_UI.handle(Arguments(["op": "delete_too_long", "flow": many.id, "page_token": "guess"]), app)
-        #expect(app.store.flow(many.id) != nil)
-        _ = try await Actions_UI.handle(Arguments(["op": "delete_too_long", "flow": many.id, "page_token": app.pageKey]), app)
-        #expect(app.store.flow(many.id) == nil)
+        let page = String(describing: Pages.tooLong(app, state: Arguments(["flow": many.id])).sent).filter { !"\u{2068}\u{2069}\\".contains($0) }
+        #expect(page.contains("Delete this flow") && page.contains("delete_too_long"))
+        var run = Run(id: "r", flow: many.id, flowName: "Many", mode: .live, status: .waiting, why: "", startedAt: Date(), body: many.draft)
+        run.status = .running
+        app.store.save(run)
+        let stopping = String(describing: Pages.tooLong(app, state: Arguments(["run": "r"])).sent).filter { !"\u{2068}\u{2069}\\".contains($0) }
+        #expect(stopping.contains("stop_run"), "a run can still be stopped")
     }
 
     @Test func whatMattersMostIsntPushedOffByALongList() throws {
