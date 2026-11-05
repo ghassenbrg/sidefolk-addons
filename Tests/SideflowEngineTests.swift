@@ -2777,6 +2777,28 @@ extension JSON {
         #expect(w.store.run(run.id)?.problem?.contains("1") == true, "\(w.store.run(run.id)?.problem ?? "")")
     }
 
+    @Test func aStartWaitingAtARestartMidStopStaysCleared() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        var flow = try w.flow([["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        var body = flow.draft
+        body.overlap = .queue
+        flow.draft = body
+        flow.live = body
+        w.store.save(flow)
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.stop(run: run.id, byThePerson: true)
+        _ = w.engine.start(flow, mode: .live, why: "arrived while it was stopping")
+        #expect(w.store.flow(flow.id)?.waitingStarts.count == 1)
+        w.restart()
+        w.engine.recover()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .stopped)
+        #expect(w.store.flow(flow.id)?.waitingStarts.isEmpty == true)
+        #expect(w.store.runs(of: flow.id).count == 1, "nothing starts after Stop, restart or not")
+    }
+
     @Test func stoppingAPracticeLeavesTheRealQueueAlone() async throws {
         let w = try World()
         let flow = try queueing(w, overlap: "queue")

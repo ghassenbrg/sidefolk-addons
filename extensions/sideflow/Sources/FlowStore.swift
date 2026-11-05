@@ -106,7 +106,7 @@ import SidefolkExtensionKit
         if ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).contains(where: { $0.hasPrefix("flows-damaged-") }) { hasFileAside = true }
         if let data = try? Data(contentsOf: eventsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] { seenEvents = list }
         if let data = try? Data(contentsOf: stopsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] {
-            stopsAsked = Set(list.filter { runsById[$0.replacingOccurrences(of: "pause:", with: "")]?.status.isOver == false })
+            stopsAsked = Set(list.filter { runsById[$0.replacingOccurrences(of: "pause:", with: "").replacingOccurrences(of: "person:", with: "")]?.status.isOver == false })
         }
     }
 
