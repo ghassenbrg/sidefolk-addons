@@ -1644,15 +1644,22 @@ extension JSON {
         #expect(after.watchTitle == nil)
     }
 
+    /// Into the pause after Sidefolk said busy: gone by, however slow the machine, only if the machine stalls for the whole of it.
+    private static let aLongPause = 1.0
+
+    private func waitForTheBusyStop(_ w: World) async {
+        for _ in 0..<2000 where !w.host.calls.contains(where: { $0.tool == "watch.stop" }) { try? await Task.sleep(for: .milliseconds(5)) }
+    }
+
     @Test func deletingDuringTheWaitDoesntBringTheFlowBackOrLeaveAWatch() async throws {
         let w = try World()
-        w.engine.busyPause = 0.2
+        w.engine.busyPause = Self.aLongPause
         let flow = try applied(w, to: Self.y)
         w.host.answers["watch.stop"] = [Actions.Outcome(status: .busy, text: "")]
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(60))
+        await waitForTheBusyStop(w)
         w.engine.delete(flow.id)
-        try await Task.sleep(for: .milliseconds(500))
+        try await Task.sleep(for: .seconds(Self.aLongPause + 0.3))
         await w.quiet()
         #expect(w.store.flow(flow.id) == nil, "not written back")
         #expect(!w.host.calls.contains { $0.tool == "watch.create" }, "and nothing made for it")
@@ -1660,13 +1667,13 @@ extension JSON {
 
     @Test func pausingDuringTheWaitStaysPaused() async throws {
         let w = try World()
-        w.engine.busyPause = 0.2
+        w.engine.busyPause = Self.aLongPause
         let flow = try applied(w, to: Self.y)
         w.host.answers["watch.stop"] = [Actions.Outcome(status: .busy, text: "")]
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(60))
+        await waitForTheBusyStop(w)
         w.engine.pause(flow.id)
-        try await Task.sleep(for: .milliseconds(400))
+        try await Task.sleep(for: .seconds(Self.aLongPause + 0.3))
         await w.quiet()
         #expect(w.store.flow(flow.id)?.state == .paused)
         #expect(!w.host.calls.contains { $0.tool == "watch.create" })
@@ -1674,16 +1681,16 @@ extension JSON {
 
     @Test func twoAppliesInARowEndOnTheLastOne() async throws {
         let w = try World()
-        w.engine.busyPause = 0.1
+        w.engine.busyPause = Self.aLongPause
         let flow = try applied(w, to: Self.y)
         w.host.answers["watch.stop"] = [Actions.Outcome(status: .busy, text: "")]
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(40))
+        await waitForTheBusyStop(w)
         var again = try #require(w.store.flow(flow.id))
         again.draft = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://z.example"], "steps": [["id": "a", "do": "reads.it"]]])
         w.store.save(again)
         w.engine.turnOn(flow.id)
-        try await Task.sleep(for: .milliseconds(400))
+        try await Task.sleep(for: .seconds(Self.aLongPause + 0.3))
         await w.quiet()
         let creates = w.host.calls.filter { $0.tool == "watch.create" }
         #expect(creates.last?.input["target"] as? String == "https://z.example")
