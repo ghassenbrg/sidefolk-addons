@@ -32,6 +32,23 @@ import SidefolkExtensionKit
         #expect(back.values.named["r"] == .number(12), "a number, for what comes after")
     }
 
+    @Test func wordsThatCouldBeAThousandDontBecomeOneOnTheWay() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: #"{"properties":{"count":{"type":"integer"}}}"#)]))
+        _ = try callee(w, steps: [["id": "c", "do": "changes.it", "with": ["count": "{{input.n}}"]]], inputs: [["name": "n", "type": "number"]])
+        for words in ["1.000", "12.000"] {
+            let caller = try w.flow([["id": "t", "text": words], ["id": "r", "call_flow": "Pay", "inputs": ["n": "{{t}}"]]])
+            let back = try await runs(w, caller)
+            #expect(back.status == .failed, "\(words)")
+            #expect(back.problem?.contains(words) == true, "\(back.problem ?? "")")
+        }
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+        _ = try callee(w, name: "Gives", steps: [["finish": "1.000"]], output: "number")
+        #expect(try await runs(w, try w.flow([["id": "r", "call_flow": "Gives"]])).status == .failed)
+        #expect(ValueType.number.fit(.string("3.142")) == .number(3.142), "a decimal that's plainly one stays one")
+        #expect(ValueType.number.fit(.string("12.50")) == .number(12.5))
+    }
+
     @Test func aRequiredOneLeftOutStopsBeforeItStarts() async throws {
         let w = try World()
         let pay = try callee(w, steps: [["id": "a", "text": "{{input.count}}"]], inputs: [["name": "count", "type": "number"]])

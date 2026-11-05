@@ -44,7 +44,9 @@ Also on the later list: `{{k}}` after a called flow or repeat that made nothing 
 
 Typed mapping's later list: an entry with a comma in it reads as two in the form and goes as one; `1.000` from a step reaches a number field (not a whole-number one) as 1, read as a decimal; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
 
-Parallel and called flows' later list: a join-stopped lane ending past its limit reads as timed out; after a crash a parallel only joins again once all its lanes are over; a lane's limit keeps counting across a pause; a practice run really sends an old version's AI prompt, as it does a draft's, and passes where a live run refuses; a callee edited mid-run under the old Run isn't caught (gone with L2); steps without ids are numbered by position, so inserting one refuses an identical AI step in an old version; a changed text step can feed an unchanged AI prompt in an old version; a list input over 256 KB becomes one entry of clipped JSON.
+Typed mapping's later list, from its last read: `wrote` is set before the fit check, so a refusal carried on inside a repeat says it would do this all again; `{{a}}, {{b}}` into a list sends a blank entry when b is blank; a page's mark can pass what a run refuses; a practice skips the fit check.
+
+Parallel and called flows' later list: "a, b" written for a called flow's list input is one entry where a tool's list field would split it; a join-stopped lane ending past its limit reads as timed out; after a crash a parallel only joins again once all its lanes are over; a lane's limit keeps counting across a pause; a practice run really sends an old version's AI prompt, as it does a draft's, and passes where a live run refuses; a callee edited mid-run under the old Run isn't caught (gone with L2); steps without ids are numbered by position, so inserting one refuses an identical AI step in an old version; a changed text step can feed an unchanged AI prompt in an old version; a list input over 256 KB becomes one entry of clipped JSON.
 
 ## Left out on purpose
 

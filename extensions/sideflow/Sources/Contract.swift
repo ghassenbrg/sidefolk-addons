@@ -41,7 +41,8 @@ enum ValueType: String, Equatable, Sendable, CaseIterable {
         switch (self, value) {
         case (.text, .string), (.number, .number), (.yes_no, .bool), (.list, .array), (.record, .object): return value
         case (.text, .number), (.text, .bool): return .string(Values.text(value))
-        case (.number, .string(let words)): return Editing.number(words).map { .number($0) }
+        // "1.000" could be a thousand, and as a number it's on its way to a count as 1: a plain tool's number field reads it as a decimal, but this makes it what the flow goes on with.
+        case (.number, .string(let words)): return words.trimmed.range(of: #"^[+-]?[0-9]{1,3}(\.000)+$"#, options: .regularExpression) != nil ? nil : Editing.number(words).map { .number($0) }
         case (.yes_no, .string(let words)): return Editing.yesOrNo(words).map { .bool($0) }
         case (.list, .string(let words)):
             if case .array(let items) = Values.structured(value) { return .array(items) }
