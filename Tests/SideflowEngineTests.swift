@@ -2404,6 +2404,31 @@ extension JSON {
         #expect((try? Editing.extract("read", in: ai, named: "New")) != nil, "what an AI gives as fields it hands back as fields")
     }
 
+    @Test func aFieldUsedInAConditionAlsoKeepsAStepFromBecomingAFlow() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "get", "do": "reads.it"], ["id": "b", "if": ["value": "{{get.status}}", "test": "is", "than": "ok"], "then": [["id": "t", "text": "x"]], "else": []]]])
+        #expect(throws: Problem.self) { _ = try Editing.extract("get", in: body, named: "New") }
+    }
+
+    @Test func whatWouldGoIntoTheNewFlowCantBeUsedAfterIt() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "if": ["value": "a", "test": "is", "than": "a"], "then": [["id": "inner", "text": "x"]], "else": []], ["id": "b", "if": ["value": "{{inner}}", "test": "is_empty"], "then": [["id": "t", "text": "y"]], "else": []]]])
+        #expect(throws: Problem.self) { _ = try Editing.extract("c", in: body, named: "New") }
+        #expect((try? Editing.extract("t", in: body, named: "New")) != nil, "nothing after it uses what's in this one")
+    }
+
+    @Test func aFlowSetOffWhoseCallIsOffStopsTheOneThatSetItOff() async throws {
+        let w = try World()
+        var off = try w.flow([["id": "t", "text": "x"]], state: .draft)
+        off.name = "Off"
+        w.store.save(off)
+        var middle = try w.flow([["id": "c", "call_flow": "Off"]])
+        middle.name = "Middle"
+        w.store.save(middle)
+        let flow = try w.flow([["id": "m", "run_flow": "Middle"]])
+        let run = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        #expect(run?.status != .done, "it can't say it ran it")
+        #expect(run?.problem?.contains("Off") == true, "\(run?.problem ?? "")")
+    }
+
     @Test func aRunWithACallToAFlowThatsOffDoesNothingAtAll() async throws {
         let w = try World()
         var child = try w.flow([["id": "t", "text": "x"]], state: .draft)

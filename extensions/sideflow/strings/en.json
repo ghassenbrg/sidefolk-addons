@@ -536,6 +536,7 @@
     "Start blank": "Start blank",
     "Start from one, then make it yours.": "Start from one, then make it yours.",
     "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.",
+    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "Steps after it use “{name}”, which would go into the new flow. Change those first.",
     "Stop": "Stop",
     "Stop here": "Stop here",
     "Stop practicing": "Stop practicing",

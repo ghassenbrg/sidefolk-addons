@@ -401,6 +401,7 @@ extension FlowHost {
                 guard store.flow(other.id)?.state == .on else {
                     return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
                 }
+                if let started, started.status.isOver, let why = started.problem { return failed(step, why: why, reads: false, in: &run) }
                 run.record(.init(step: step.id, status: .done, summary: started != nil ? L("Ran {flow}", ["flow": other.name]) : run.mode == .once && isRunning(other.id) ? L("{flow} was already running, so it didn't start", ["flow": other.name]) : L("{flow} was already running or held back, so its own rule for that decides", ["flow": other.name]), at: clock()))
             } else {
                 return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
@@ -744,6 +745,7 @@ extension FlowHost {
                 if step.reads(catalog) || run.mode == .practice {
                     Task { await advance(run.id) }
                 } else {
+                    _ = store.takeStop(Self.pauseKey(run.id))
                     run.status = .interrupted
                     run.problem = L("Sidefolk stopped while this was running. It may or may not have happened.")
                     if var r = run.record(of: step.id) {

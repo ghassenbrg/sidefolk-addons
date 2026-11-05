@@ -27,7 +27,9 @@ ext.palette("run", query: { words in
     // What this would run: what's on, or what was saved, not what's being typed.
     let problems = (flow.live == nil ? flow.kept : flow.running).problems(app.catalog)
     guard problems.isEmpty else { return PaletteChoice(message: L("To fix first: {list}", ["list": problems.map(\.text).joined(separator: " ")])) }
-    _ = app.engine.start(flow, mode: flow.live != nil ? .live : .once, why: L("You asked for it."))
+    if let started = app.engine.start(flow, mode: flow.live != nil ? .live : .once, why: L("You asked for it.")), started.status.isOver, let why = started.problem {
+        return PaletteChoice(message: why)
+    }
     return PaletteChoice(close: true, message: L("Running “{name}”.", ["name": flow.name]))
 })
 Plans.ended = { plan in

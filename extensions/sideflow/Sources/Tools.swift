@@ -128,9 +128,10 @@ import SidefolkExtensionKit
             let problems = (flow.live == nil ? flow.kept : flow.running).problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             let mode: Run.Mode = flow.live != nil ? .live : .once
-            guard app.engine.start(flow, mode: mode, why: L("You asked for it."), trigger: args.string("input")) != nil else {
+            guard let started = app.engine.start(flow, mode: mode, why: L("You asked for it."), trigger: args.string("input")) else {
                 return L("“{name}” is already running.", ["name": flow.name])
             }
+            if started.status.isOver, let why = started.problem { throw Problem(why) }
             return mode == .once ? L("Running “{name}” once. Each action asks you on a card.", ["name": flow.name]) : L("Running “{name}”.", ["name": flow.name])
         }
 

@@ -975,7 +975,6 @@
     "Go on": "Continuar",
     "Group by a field": "Agrupar por um campo",
     "How many in each": "Quantos em cada",
-    "It becomes a flow you can reuse, and this step calls it.": "Vira uma rotina reutilizável, e esta etapa a chama.",
     "It has a step that ends the flow, which would then end only the new one. Take that out first.": "Tem uma etapa que encerra a rotina, que então só encerraria a nova. Tire-a primeiro.",
     "Keeps what it made before this. These run again, for real: {steps}": "Mantém o que fez antes. Estas rodam de novo, de verdade: {steps}",
     "Make this its own flow": "Transformar em uma rotina própria",
@@ -992,6 +991,7 @@
     "You tried again from where it ended.": "Você tentou de novo de onde parou.",
     "Say what to use instead.": "Diga o que usar no lugar.",
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "Vira uma rotina própria, desligada até você ligá-la, e esta etapa a chama.",
-    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "As etapas seguintes usam o campo “{name}”, e uma rotina só devolve suas palavras. Altere-as primeiro."
+    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "As etapas seguintes usam o campo “{name}”, e uma rotina só devolve suas palavras. Altere-as primeiro.",
+    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "As etapas seguintes usam “{name}”, que iria para a nova rotina. Altere-as primeiro."
   }
 }

@@ -960,7 +960,6 @@
     "Go on": "继续",
     "Group by a field": "按字段分组",
     "How many in each": "每批数量",
-    "It becomes a flow you can reuse, and this step calls it.": "它会成为可重用的流程，由此步骤调用。",
     "It has a step that ends the flow, which would then end only the new one. Take that out first.": "其中有结束流程的步骤，届时只会结束新流程。请先移除它。",
     "Keeps what it made before this. These run again, for real: {steps}": "保留之前的结果。这些步骤会真实地再次运行：{steps}",
     "Make this its own flow": "变成独立流程",
@@ -977,6 +976,7 @@
     "You tried again from where it ended.": "你从结束处重试了。",
     "Say what to use instead.": "说明改用什么。",
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "它会成为一个单独的流程，在你开启之前处于关闭状态，此步骤会调用它。",
-    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "后面的步骤用到了它的字段“{name}”，而流程只返回文字。请先修改这些步骤。"
+    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "后面的步骤用到了它的字段“{name}”，而流程只返回文字。请先修改这些步骤。",
+    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "后面的步骤用到了“{name}”，它会移到新流程中。请先修改这些步骤。"
   }
 }

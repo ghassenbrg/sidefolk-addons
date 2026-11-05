@@ -975,7 +975,6 @@
     "Go on": "Weiter",
     "Group by a field": "Nach einem Feld gruppieren",
     "How many in each": "Wie viele in jedem",
-    "It becomes a flow you can reuse, and this step calls it.": "Er wird ein wiederverwendbarer Ablauf, und dieser Schritt ruft ihn auf.",
     "It has a step that ends the flow, which would then end only the new one. Take that out first.": "Er enthält einen Schritt, der den Ablauf beendet, und der würde dann nur den neuen beenden. Nimm ihn zuerst heraus.",
     "Keeps what it made before this. These run again, for real: {steps}": "Behält, was vorher entstanden ist. Diese laufen erneut, wirklich: {steps}",
     "Make this its own flow": "Daraus einen eigenen Ablauf machen",
@@ -992,6 +991,7 @@
     "You tried again from where it ended.": "Du hast es dort erneut versucht, wo er endete.",
     "Say what to use instead.": "Sag, was stattdessen verwendet werden soll.",
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "Er wird zu einem eigenen Ablauf, der aus bleibt, bis du ihn einschaltest, und dieser Schritt ruft ihn auf.",
-    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "Spätere Schritte nutzen sein Feld „{name}“, und ein Ablauf gibt nur seine Worte zurück. Ändere sie zuerst."
+    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "Spätere Schritte nutzen sein Feld „{name}“, und ein Ablauf gibt nur seine Worte zurück. Ändere sie zuerst.",
+    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "Spätere Schritte nutzen „{name}“, das in den neuen Ablauf wandern würde. Ändere sie zuerst."
   }
 }

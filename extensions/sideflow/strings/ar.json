@@ -1035,7 +1035,6 @@
     "Go on": "متابعة",
     "Group by a field": "التجميع حسب حقل",
     "How many in each": "كم في كل دفعة",
-    "It becomes a flow you can reuse, and this step calls it.": "يصبح روتينًا يمكن إعادة استخدامه، وتستدعيه هذه الخطوة.",
     "It has a step that ends the flow, which would then end only the new one. Take that out first.": "فيه خطوة تُنهي الروتين، وعندها ستنهي الجديد فقط. أزلها أولًا.",
     "Keeps what it made before this. These run again, for real: {steps}": "يحتفظ بما أنتجه قبل ذلك. هذه تعمل من جديد فعلًا: {steps}",
     "Make this its own flow": "اجعله روتينًا مستقلًا",
@@ -1052,6 +1051,7 @@
     "You tried again from where it ended.": "أعدت المحاولة من حيث انتهى.",
     "Say what to use instead.": "حدّد ما يُستخدم بدلًا منه.",
     "It becomes a flow of its own, off until you turn it on, and this step calls it.": "يصبح روتينًا مستقلًا، متوقفًا حتى تشغّله، وتستدعيه هذه الخطوة.",
-    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "تستخدم الخطوات التالية حقله «{name}»، والروتين لا يعيد سوى كلماته. غيّرها أولًا."
+    "Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.": "تستخدم الخطوات التالية حقله «{name}»، والروتين لا يعيد سوى كلماته. غيّرها أولًا.",
+    "Steps after it use “{name}”, which would go into the new flow. Change those first.": "تستخدم الخطوات التالية «{name}»، وسينتقل إلى الروتين الجديد. غيّرها أولًا."
   }
 }

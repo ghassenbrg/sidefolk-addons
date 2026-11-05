@@ -209,9 +209,16 @@ enum Editing {
         if inside.contains(where: { if case .finish = $0.kind { true } else { false } }) {
             throw Problem(L("It has a step that ends the flow, which would then end only the new one. Take that out first."))
         }
-        // A flow hands back a tool's words, which have no fields: a later `{{step.field}}` would stop a run that had already done things.
-        if case .action = step.kind, let used = body.allSteps.flatMap(\.usedTexts).flatMap(Values.slots).first(where: { $0.name == id && !$0.path.isEmpty }) {
+        // What's left around it, conditions and all. A flow hands back a tool's words, which have no fields, and what's inside it goes with it: a later use of either would stop
+        // a run that had already done things, or quietly take the wrong way.
+        var around: [(name: String, path: String)] = []
+        _ = change(id, in: body) { $0.kind = .text("") }.steps.map { rewriting($0) { text in around += Values.slots(text); return text } }
+        if case .action = step.kind, let used = around.first(where: { $0.name == id && !$0.path.isEmpty }) {
             throw Problem(L("Steps after it use its field “{name}”, and a flow hands back only its words. Change those first.", ["name": used.name + used.path]))
+        }
+        let goesWithIt = Set(inside.dropFirst().map(\.id))
+        if let used = around.first(where: { goesWithIt.contains($0.name) }) {
+            throw Problem(L("Steps after it use “{name}”, which would go into the new flow. Change those first.", ["name": used.name + used.path]))
         }
         // What set the caller off isn't what sets the new flow off, so that comes in as an input too.
         var own = Set(inside.map(\.id)).union(["today", "now"])
