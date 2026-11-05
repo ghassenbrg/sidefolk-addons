@@ -353,7 +353,7 @@ import SidefolkExtensionKit
         let args = input("param", ["name": path])
         let shown = "\(step.id).\(path)"
         if p.kind == .other {
-            let text = current.flatMap { try? JSONSerialization.data(withJSONObject: $0.any, options: .fragmentsAllowed) }.map { String(decoding: $0, as: UTF8.self) } ?? ""
+            let text = current.flatMap { try? JSONSerialization.data(withJSONObject: $0.any, options: [.fragmentsAllowed, .withoutEscapingSlashes, .sortedKeys]) }.map { String(decoding: $0, as: UTF8.self) } ?? ""
             return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.detail.map { String($0.prefix(140)) } ?? L("Written out, as a record or a list. Values from earlier steps go in quotes."), kind: .multiline, tool: "ui", input: input("param_json", ["name": path])))]
         }
         if p.kind == .text {
@@ -362,7 +362,12 @@ import SidefolkExtensionKit
                                     kind: path == "text" || path == "body" || path == "job" ? .multiline : .text, tokens: tokens.filter { $0.fits(p.kind) }.map(\.field), tool: "ui", input: args))]
         }
         // A number, a yes or no, a choice or a list: its own control, or an earlier step's value. Never words that look like one.
-        let pointed = current?.string.map { !Values.slots($0).isEmpty } ?? false
+        // Words stored for one, from a flow an agent wrote: shown as they are, so what's shown is what's sent. A choice's own words are its own control.
+        let pointed: Bool = {
+            guard let words = current?.string else { return false }
+            if case .choice(let options) = p.kind, options.contains(words) { return false }
+            return true
+        }()
         if pointed || app.nav.usesValue(flow: flow, step: step.id, parameter: path) {
             let text = current.map(Values.text) ?? ""
             return [.edit(EditField(shown, p.title, value: text, detail: preview(text, last) ?? p.typeWord.map { L("It wants {what}.", ["what": $0]) } ?? p.detail.map { String($0.prefix(140)) },

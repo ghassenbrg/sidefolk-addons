@@ -98,8 +98,8 @@ import SidefolkExtensionKit
             let parameter = app.catalog.parameter(name, of: tool) ?? Catalog.Parameter(name: name, kind: .text, required: false, title: name)
             // One infinity would stop the whole file saving, so it never gets in.
             let isValue = !Values.slots(text).isEmpty
-            if case .integer = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.isNotARealNumber(text) || Double(text.trimmed.replacingOccurrences(of: ",", with: ".")) == nil { throw Problem(L("That isn't a number.")) }
-            if case .number = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.isNotARealNumber(text) || Double(text.trimmed.replacingOccurrences(of: ",", with: ".")) == nil { throw Problem(L("That isn't a number.")) }
+            if case .integer = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.number(text) == nil { throw Problem(L("That isn't a number.")) }
+            if case .number = parameter.kind, !isValue, !text.trimmed.isEmpty, Editing.number(text) == nil { throw Problem(L("That isn't a number.")) }
             let value: JSON? = if let on = a.bool("on") { .bool(on) } else if let picked = a.string("value") { picked == "" ? nil : .string(picked) } else { Editing.value(text, for: parameter) }
             try editStep { s in
                 guard case .action(let t, let input) = s.kind else { return }

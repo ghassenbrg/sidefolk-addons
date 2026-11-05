@@ -211,6 +211,45 @@ import SidefolkExtensionKit
         #expect(input(f, app)["filter.status"] == .string("open"))
     }
 
+    @Test func aNumberIsOnlyWhatPlainlyIsOne() {
+        #expect(Editing.number("12") == 12)
+        #expect(Editing.number("-3.5") == -3.5)
+        #expect(Editing.number("1,5") == 1.5)
+        #expect(Editing.number("1,234") == nil, "a thousand or one and a bit: not a guess")
+        #expect(Editing.number("0x10") == nil)
+        #expect(Editing.number("many") == nil)
+        #expect(Editing.number("1e400") == nil)
+    }
+
+    @Test func aWholeNumberWrittenWithAPointIsStillOneForAnInteger() async throws {
+        let w = try World()
+        w.catalog.use(Actions.Listing(tools: [Actions.Tool(name: "changes.it", title: "Change it", schema: Self.schema)]))
+        let flow = try w.flow([["id": "n", "text": "12.0"], ["id": "t", "text": "1,234"], ["id": "c", "do": "changes.it", "with": ["text": "x", "count": "{{n}}"]], ["id": "d", "do": "changes.it", "with": ["text": "y", "count": "{{t}}"]]])
+        _ = await w.settled(w.engine.start(flow, mode: .live, why: "t"))
+        let calls = w.host.calls.filter { $0.tool == "changes.it" }
+        #expect(calls.first?.input["count"] as? Int == 12)
+        #expect(calls.last?.input["count"] as? String == "1,234", "as it is, for Sidefolk to refuse: never 1.234")
+    }
+
+    @Test func wordsAnAgentStoredAreShownAsWhatsSent() throws {
+        let w = try World()
+        let app = try app(w)
+        let f = app.newFlow(name: "F", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "c", "do": "changes.it", "with": ["text": "x", "urgent": "yes", "count": "12", "tags": "one", "mode": "fast"]]]]))
+        let shown = form(f, app)
+        for value in ["\"yes\"", "\"12\"", "\"one\""] { #expect(shown.contains(value) || shown.contains(value.replacingOccurrences(of: "\"", with: "")), "\(value) in \(shown)") }
+        #expect(!shown.contains("Use a value from an earlier step") || shown.contains("Write it here instead"))
+    }
+
+    @Test func aYesOrNoTypedAsAValueIsThat() async throws {
+        let w = try World()
+        let app = try app(w)
+        let f = try flow(app)
+        _ = try await Actions_UI.handle(Arguments(["op": "param", "flow": f.id, "step": "c", "name": "urgent", "text": "yes"]), app)
+        #expect(input(f, app)["urgent"] == .bool(true), "not false")
+        _ = try await Actions_UI.handle(Arguments(["op": "param", "flow": f.id, "step": "c", "name": "urgent", "text": "maybe"]), app)
+        #expect(input(f, app)["urgent"] == .string("maybe"), "kept to be seen, and refused when it runs, rather than quietly false")
+    }
+
     @Test func aFieldSaysWhatItWouldBeGoingByTheLastRun() async throws {
         let w = try World()
         let app = try app(w)

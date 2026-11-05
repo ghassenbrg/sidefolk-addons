@@ -367,12 +367,21 @@ enum Editing {
         return body
     }
 
-    /// `inf`, `nan`, `1e999`: what reads as a number and isn't one.
-    static func isNotARealNumber(_ text: String) -> Bool {
-        Double(text.trimmed.replacingOccurrences(of: ",", with: ".")).map { !$0.isFinite } ?? false
+    /// Words that are plainly a number. A comma with one or two digits after it is a decimal; "1,234" could be either, and a number nobody meant is worse than none.
+    static func number(_ text: String) -> Double? {
+        let t = text.trimmed
+        guard t.range(of: #"^-?[0-9]+(\.[0-9]+|,[0-9]{1,2})?([eE][+-]?[0-9]+)?$"#, options: .regularExpression) != nil else { return nil }
+        return Double(t.replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil }
     }
 
-    /// A value typed for a tool's parameter, as the schema wants it. A number with `{{x}}` stays text and shows as something to fix.
+    static func yesOrNo(_ text: String) -> Bool? {
+        switch text.trimmed.lowercased() {
+        case "true", "yes", "on": true
+        case "false", "no", "off": false
+        default: nil
+        }
+    }
+
     /// The same input with one value set at a dotted name, a record's own field at a time. Nothing left in a record takes the record with it.
     static func setting(_ path: [String], to value: JSON?, in input: [String: JSON]) -> [String: JSON] {
         guard let first = path.first else { return input }
@@ -388,6 +397,7 @@ enum Editing {
         return out
     }
 
+    /// A value typed for a tool's parameter, as the schema wants it. A number with `{{x}}` stays text and shows as something to fix.
     static func value(_ text: String, for parameter: Catalog.Parameter) -> JSON? {
         let t = text.trimmed
         guard !t.isEmpty else { return nil }
@@ -395,10 +405,9 @@ enum Editing {
         if !Values.slots(t).isEmpty, parameter.kind != .text, parameter.kind != .list || Values.replacingSlots(in: t, { _, _ in "" }).trimmed.isEmpty { return .string(t) }
         switch parameter.kind {
         case .integer, .number:
-            if let n = Double(t.replacingOccurrences(of: ",", with: ".")), n.isFinite { return .number(n) }
-            return .string(t)
+            return number(t).map { .number($0) } ?? .string(t)
         case .boolean:
-            return .bool(t == "true" || t == "on")
+            return yesOrNo(t).map { .bool($0) } ?? .string(t)
         case .list:
             return .array(t.split(separator: ",").map { .string(String($0).trimmed) })
         default:

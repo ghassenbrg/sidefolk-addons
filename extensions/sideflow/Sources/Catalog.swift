@@ -103,14 +103,10 @@ import SidefolkExtensionKit
     private static func asItWants(_ value: Any, _ parameter: Parameter) -> Any {
         guard let words = (value as? String)?.trimmed, !words.isEmpty else { return value }
         switch parameter.kind {
-        case .number: return Double(words.replacingOccurrences(of: ",", with: ".")).flatMap { $0.isFinite ? $0 : nil } ?? value
-        case .integer: return Int(words) ?? value
+        case .number: return Editing.number(words) ?? value
+        case .integer: return Editing.number(words).flatMap { $0 == $0.rounded() && abs($0) < 1e15 ? Int($0) : nil } ?? value
         case .boolean:
-            switch words.lowercased() {
-            case "true", "yes": return true
-            case "false", "no": return false
-            default: return value
-            }
+            return Editing.yesOrNo(words) ?? value
         case .list: return [words]
         default: return value
         }
