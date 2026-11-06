@@ -1444,8 +1444,12 @@
     "When something it watches changes": "عندما يتغير شيء يراقبه",
     "When you start it": "عندما تبدؤه",
     "Ends the {count} runs under way.": {
+      "zero": "لا تشغيلات جارية لإنهائها.",
       "one": "ينهي التشغيل الجاري.",
-      "other": "ينهي التشغيلات الجارية وعددها {count}."
+      "two": "ينهي التشغيلين الجاريين.",
+      "few": "ينهي {count} تشغيلات جارية.",
+      "many": "ينهي {count} تشغيلًا جاريًا.",
+      "other": "ينهي {count} تشغيل جارٍ."
     },
     "It wasn't there.": "لم يكن موجودًا.",
     "Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line.": "في كلماتها فاصل أسطر أو علامة لا تستطيع البطاقة عرضها كما هي، لذا ستسأل في كل تشغيل. اكتبها في سطر واحد.",

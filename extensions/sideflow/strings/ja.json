@@ -1294,7 +1294,6 @@
     "When something it watches changes": "見守っているものが変わったとき",
     "When you start it": "自分で開始したとき",
     "Ends the {count} runs under way.": {
-      "one": "実行中の実行を終了します。",
       "other": "実行中の{count}件の実行を終了します。"
     },
     "It wasn't there.": "見つかりませんでした。",

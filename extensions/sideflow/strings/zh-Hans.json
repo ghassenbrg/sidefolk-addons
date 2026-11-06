@@ -1294,7 +1294,6 @@
     "When something it watches changes": "当它关注的内容变化时",
     "When you start it": "由你启动时",
     "Ends the {count} runs under way.": {
-      "one": "结束正在进行的运行。",
       "other": "结束正在进行的 {count} 次运行。"
     },
     "It wasn't there.": "它不在那里。",

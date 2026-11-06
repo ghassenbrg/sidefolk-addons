@@ -1294,7 +1294,6 @@
     "When something it watches changes": "지켜보는 것이 바뀔 때",
     "When you start it": "직접 시작할 때",
     "Ends the {count} runs under way.": {
-      "one": "진행 중인 실행을 끝냅니다.",
       "other": "진행 중인 실행 {count}개를 끝냅니다."
     },
     "It wasn't there.": "없었습니다.",
