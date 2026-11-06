@@ -1,0 +1,24 @@
+{
+  "name": "Wikipedia",
+  "tagline": "Wikipedia durchsuchen, in jeder ihrer Sprachen",
+  "description": "Durchsucht Wikipedia in der gewählten Sprache und gibt Titel, eine Zeile und Adresse jedes Treffers aus, Seite für Seite.",
+  "network_purpose": "Um Wikipedia zu durchsuchen",
+  "tools": {
+    "search_wikipedia": {
+      "title": "Wikipedia durchsuchen",
+      "summary": "{query} in Wikipedia suchen"
+    }
+  },
+  "text": {
+    "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Wikipedia ist nicht erreichbar ({error}). Prüfe die Internetverbindung.",
+    "Give a language code, like en or fr.": "Gib einen Sprachcode an, etwa en oder fr.",
+    "Nothing found.": "Nichts gefunden.",
+    "There are more: the next page starts at {offset}.": "Es gibt mehr: Die nächste Seite beginnt bei {offset}.",
+    "Wikipedia answered with HTTP {status}.": "Wikipedia hat mit HTTP {status} geantwortet.",
+    "Wikipedia asks to wait {time} before asking again. Nothing was read.": "Wikipedia bittet, {time} zu warten, bevor erneut gefragt wird. Es wurde nichts gelesen.",
+    "Wikipedia sent something that isn't a list of results.": "Wikipedia hat etwas geschickt, das keine Trefferliste ist."
+  },
+  "examples": [
+    "such Gezeitenkopplung in Wikipedia"
+  ]
+}

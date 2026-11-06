@@ -1,0 +1,24 @@
+{
+  "name": "Wikipédia",
+  "tagline": "Chercher dans Wikipédia, dans n’importe quelle langue",
+  "description": "Cherche dans Wikipédia dans la langue choisie et donne le titre de chaque résultat, une ligne de celui-ci et son adresse, une page à la fois.",
+  "network_purpose": "Pour chercher dans Wikipédia",
+  "tools": {
+    "search_wikipedia": {
+      "title": "Chercher dans Wikipédia",
+      "summary": "Chercher {query} dans Wikipédia"
+    }
+  },
+  "text": {
+    "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Impossible de joindre Wikipédia ({error}). Vérifiez la connexion Internet.",
+    "Give a language code, like en or fr.": "Indiquez un code de langue, comme en ou fr.",
+    "Nothing found.": "Rien trouvé.",
+    "There are more: the next page starts at {offset}.": "Il y en a d’autres : la page suivante commence à {offset}.",
+    "Wikipedia answered with HTTP {status}.": "Wikipédia a répondu HTTP {status}.",
+    "Wikipedia asks to wait {time} before asking again. Nothing was read.": "Wikipédia demande d’attendre {time} avant de redemander. Rien n’a été lu.",
+    "Wikipedia sent something that isn't a list of results.": "Wikipédia a envoyé autre chose qu’une liste de résultats."
+  },
+  "examples": [
+    "cherche le verrouillage gravitationnel dans wikipédia"
+  ]
+}

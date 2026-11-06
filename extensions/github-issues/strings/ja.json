@@ -1,0 +1,25 @@
+{
+  "name": "GitHub Issues",
+  "tagline": "公開リポジトリの Issue を読むだけ",
+  "description": "公開 GitHub リポジトリの Issue を、アカウントなしで1ページずつ読みます。ルーティンは全ページをたどれ、GitHub に求められると待ちます。",
+  "network_purpose": "GitHub の公開 Issue を読むため",
+  "tools": {
+    "list_issues": {
+      "title": "リポジトリの Issue を一覧",
+      "summary": "{repository} の {state} の Issue を一覧"
+    }
+  },
+  "text": {
+    "Couldn't reach GitHub ({error}). Check the internet connection.": "GitHub に接続できません（{error}）。インターネット接続を確認してください。",
+    "GitHub answered with HTTP {status}.": "GitHub の応答: HTTP {status}。",
+    "GitHub asks to wait {time} before asking again. Nothing was read.": "GitHub から、再度問い合わせる前に {time} 待つよう求められました。何も読み取っていません。",
+    "GitHub has no public repository {repo}.": "GitHub に公開リポジトリ {repo} はありません。",
+    "GitHub sent something that isn't a list of issues.": "GitHub から Issue の一覧ではないものが届きました。",
+    "Give the repository as owner/name, like apple/swift.": "リポジトリは owner/name の形で指定してください（例: apple/swift）。",
+    "No issues on this page.": "このページに Issue はありません。",
+    "There's another page: page {page}.": "次のページがあります: {page} ページ目。"
+  },
+  "examples": [
+    "apple/swift の未解決の Issue は？"
+  ]
+}

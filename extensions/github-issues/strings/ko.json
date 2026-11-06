@@ -1,0 +1,25 @@
+{
+  "name": "GitHub 이슈",
+  "tagline": "공개 저장소의 이슈, 읽기 전용",
+  "description": "공개 GitHub 저장소의 이슈를 계정 없이 한 페이지씩 읽습니다. 루틴은 모든 페이지를 훑을 수 있고, GitHub가 요청하면 기다립니다.",
+  "network_purpose": "GitHub의 공개 이슈를 읽기 위해",
+  "tools": {
+    "list_issues": {
+      "title": "저장소 이슈 목록",
+      "summary": "{repository}의 {state} 이슈 목록"
+    }
+  },
+  "text": {
+    "Couldn't reach GitHub ({error}). Check the internet connection.": "GitHub에 연결할 수 없습니다({error}). 인터넷 연결을 확인하세요.",
+    "GitHub answered with HTTP {status}.": "GitHub 응답: HTTP {status}.",
+    "GitHub asks to wait {time} before asking again. Nothing was read.": "GitHub가 다시 요청하기 전에 {time} 기다려 달라고 합니다. 아무것도 읽지 않았습니다.",
+    "GitHub has no public repository {repo}.": "GitHub에 공개 저장소 {repo}이(가) 없습니다.",
+    "GitHub sent something that isn't a list of issues.": "GitHub가 이슈 목록이 아닌 것을 보냈습니다.",
+    "Give the repository as owner/name, like apple/swift.": "저장소는 owner/name 형식으로 입력하세요(예: apple/swift).",
+    "No issues on this page.": "이 페이지에는 이슈가 없습니다.",
+    "There's another page: page {page}.": "다음 페이지가 있습니다: {page}페이지."
+  },
+  "examples": [
+    "apple/swift의 열린 이슈는?"
+  ]
+}

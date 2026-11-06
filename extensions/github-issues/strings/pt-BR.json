@@ -1,0 +1,25 @@
+{
+  "name": "Issues do GitHub",
+  "tagline": "As issues de um repositório público, só leitura",
+  "description": "Lê as issues de um repositório público do GitHub, uma página por vez, sem conta. Uma rotina pode percorrer todas as páginas e espera quando o GitHub pede.",
+  "network_purpose": "Para ler issues públicas do GitHub",
+  "tools": {
+    "list_issues": {
+      "title": "Listar as issues de um repositório",
+      "summary": "Listar as issues {state} de {repository}"
+    }
+  },
+  "text": {
+    "Couldn't reach GitHub ({error}). Check the internet connection.": "Não foi possível acessar o GitHub ({error}). Verifique a conexão com a internet.",
+    "GitHub answered with HTTP {status}.": "O GitHub respondeu com HTTP {status}.",
+    "GitHub asks to wait {time} before asking again. Nothing was read.": "O GitHub pede para esperar {time} antes de perguntar de novo. Nada foi lido.",
+    "GitHub has no public repository {repo}.": "O GitHub não tem um repositório público {repo}.",
+    "GitHub sent something that isn't a list of issues.": "O GitHub enviou algo que não é uma lista de issues.",
+    "Give the repository as owner/name, like apple/swift.": "Informe o repositório como dono/nome, por exemplo apple/swift.",
+    "No issues on this page.": "Nenhuma issue nesta página.",
+    "There's another page: page {page}.": "Há outra página: a página {page}."
+  },
+  "examples": [
+    "quais são as issues abertas de apple/swift?"
+  ]
+}

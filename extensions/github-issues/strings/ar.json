@@ -1,0 +1,25 @@
+{
+  "name": "مشكلات GitHub",
+  "tagline": "مشكلات مستودع عام، للقراءة فقط",
+  "description": "يقرأ مشكلات مستودع GitHub عام، صفحة في كل مرة، دون حساب. يمكن للروتين المرور بكل الصفحات، وينتظر عندما يطلب GitHub ذلك.",
+  "network_purpose": "لقراءة المشكلات العامة على GitHub",
+  "tools": {
+    "list_issues": {
+      "title": "عرض مشكلات مستودع",
+      "summary": "عرض مشكلات {state} في {repository}"
+    }
+  },
+  "text": {
+    "Couldn't reach GitHub ({error}). Check the internet connection.": "تعذر الوصول إلى GitHub ({error}). تحقق من الاتصال بالإنترنت.",
+    "GitHub answered with HTTP {status}.": "ردّ GitHub بـ HTTP {status}.",
+    "GitHub asks to wait {time} before asking again. Nothing was read.": "يطلب GitHub الانتظار {time} قبل السؤال مجددًا. لم يُقرأ شيء.",
+    "GitHub has no public repository {repo}.": "لا يوجد على GitHub مستودع عام باسم {repo}.",
+    "GitHub sent something that isn't a list of issues.": "أرسل GitHub شيئًا ليس قائمة مشكلات.",
+    "Give the repository as owner/name, like apple/swift.": "اكتب المستودع على شكل owner/name، مثل apple/swift.",
+    "No issues on this page.": "لا توجد مشكلات في هذه الصفحة.",
+    "There's another page: page {page}.": "هناك صفحة أخرى: الصفحة {page}."
+  },
+  "examples": [
+    "ما المشكلات المفتوحة في apple/swift؟"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "ويكيبيديا",
+  "tagline": "ابحث في ويكيبيديا بأي من لغاتها",
+  "description": "يبحث في ويكيبيديا باللغة التي تختارها ويعطي عنوان كل نتيجة وسطرًا منها وعنوانها، صفحة في كل مرة.",
+  "network_purpose": "للبحث في ويكيبيديا",
+  "tools": {
+    "search_wikipedia": {
+      "title": "البحث في ويكيبيديا",
+      "summary": "البحث عن {query} في ويكيبيديا"
+    }
+  },
+  "text": {
+    "Couldn't reach Wikipedia ({error}). Check the internet connection.": "تعذر الوصول إلى ويكيبيديا ({error}). تحقق من الاتصال بالإنترنت.",
+    "Give a language code, like en or fr.": "اكتب رمز لغة، مثل en أو fr.",
+    "Nothing found.": "لم يُعثر على شيء.",
+    "There are more: the next page starts at {offset}.": "هناك المزيد: تبدأ الصفحة التالية عند {offset}.",
+    "Wikipedia answered with HTTP {status}.": "ردّت ويكيبيديا بـ HTTP {status}.",
+    "Wikipedia asks to wait {time} before asking again. Nothing was read.": "تطلب ويكيبيديا الانتظار {time} قبل السؤال مجددًا. لم يُقرأ شيء.",
+    "Wikipedia sent something that isn't a list of results.": "أرسلت ويكيبيديا شيئًا ليس قائمة نتائج."
+  },
+  "examples": [
+    "ابحث في ويكيبيديا عن الانقفال المدي"
+  ]
+}

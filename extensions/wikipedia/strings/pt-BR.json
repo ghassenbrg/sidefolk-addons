@@ -1,0 +1,24 @@
+{
+  "name": "Wikipédia",
+  "tagline": "Pesquise na Wikipédia, em qualquer idioma",
+  "description": "Pesquisa na Wikipédia no idioma escolhido e dá o título de cada resultado, uma linha dele e seu endereço, uma página por vez.",
+  "network_purpose": "Para pesquisar na Wikipédia",
+  "tools": {
+    "search_wikipedia": {
+      "title": "Pesquisar na Wikipédia",
+      "summary": "Pesquisar {query} na Wikipédia"
+    }
+  },
+  "text": {
+    "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Não foi possível acessar a Wikipédia ({error}). Verifique a conexão com a internet.",
+    "Give a language code, like en or fr.": "Informe um código de idioma, como en ou fr.",
+    "Nothing found.": "Nada encontrado.",
+    "There are more: the next page starts at {offset}.": "Há mais: a próxima página começa em {offset}.",
+    "Wikipedia answered with HTTP {status}.": "A Wikipédia respondeu com HTTP {status}.",
+    "Wikipedia asks to wait {time} before asking again. Nothing was read.": "A Wikipédia pede para esperar {time} antes de perguntar de novo. Nada foi lido.",
+    "Wikipedia sent something that isn't a list of results.": "A Wikipédia enviou algo que não é uma lista de resultados."
+  },
+  "examples": [
+    "pesquise acoplamento de maré na wikipédia"
+  ]
+}

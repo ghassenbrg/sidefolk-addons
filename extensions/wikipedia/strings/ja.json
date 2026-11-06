@@ -1,0 +1,24 @@
+{
+  "name": "ウィキペディア",
+  "tagline": "どの言語でもウィキペディアを検索",
+  "description": "選んだ言語でウィキペディアを検索し、各結果のタイトル、1行の抜粋、アドレスを1ページずつ返します。",
+  "network_purpose": "ウィキペディアを検索するため",
+  "tools": {
+    "search_wikipedia": {
+      "title": "ウィキペディアを検索",
+      "summary": "ウィキペディアで {query} を検索"
+    }
+  },
+  "text": {
+    "Couldn't reach Wikipedia ({error}). Check the internet connection.": "ウィキペディアに接続できません（{error}）。インターネット接続を確認してください。",
+    "Give a language code, like en or fr.": "en や fr などの言語コードを指定してください。",
+    "Nothing found.": "見つかりませんでした。",
+    "There are more: the next page starts at {offset}.": "続きがあります。次のページは {offset} から始まります。",
+    "Wikipedia answered with HTTP {status}.": "ウィキペディアの応答: HTTP {status}。",
+    "Wikipedia asks to wait {time} before asking again. Nothing was read.": "ウィキペディアから、再度問い合わせる前に {time} 待つよう求められました。何も読み取っていません。",
+    "Wikipedia sent something that isn't a list of results.": "ウィキペディアから結果の一覧ではないものが届きました。"
+  },
+  "examples": [
+    "ウィキペディアで潮汐固定を検索"
+  ]
+}

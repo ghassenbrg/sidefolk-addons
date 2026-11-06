@@ -1,0 +1,24 @@
+{
+  "name": "Wikipedia",
+  "tagline": "Cerca su Wikipedia, in qualsiasi lingua",
+  "description": "Cerca su Wikipedia nella lingua scelta e dà il titolo di ogni risultato, una riga e il suo indirizzo, una pagina alla volta.",
+  "network_purpose": "Per cercare su Wikipedia",
+  "tools": {
+    "search_wikipedia": {
+      "title": "Cerca su Wikipedia",
+      "summary": "Cerca {query} su Wikipedia"
+    }
+  },
+  "text": {
+    "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Impossibile raggiungere Wikipedia ({error}). Controlla la connessione a Internet.",
+    "Give a language code, like en or fr.": "Indica un codice di lingua, come en o fr.",
+    "Nothing found.": "Nessun risultato.",
+    "There are more: the next page starts at {offset}.": "Ce ne sono altri: la pagina successiva inizia da {offset}.",
+    "Wikipedia answered with HTTP {status}.": "Wikipedia ha risposto con HTTP {status}.",
+    "Wikipedia asks to wait {time} before asking again. Nothing was read.": "Wikipedia chiede di aspettare {time} prima di chiedere di nuovo. Non è stato letto nulla.",
+    "Wikipedia sent something that isn't a list of results.": "Wikipedia ha inviato qualcosa che non è un elenco di risultati."
+  },
+  "examples": [
+    "cerca rotazione sincrona su wikipedia"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "GitHub 议题",
+  "tagline": "公开仓库的议题，只读",
+  "description": "无需账户，一页一页读取公开 GitHub 仓库的议题。流程可以翻完所有页面，GitHub 要求时会等待。",
+  "network_purpose": "用于读取 GitHub 上的公开议题",
+  "tools": {
+    "list_issues": {
+      "title": "列出仓库的议题",
+      "summary": "列出 {repository} 的 {state} 议题"
+    }
+  },
+  "text": {
+    "Couldn't reach GitHub ({error}). Check the internet connection.": "无法连接 GitHub（{error}）。请检查网络连接。",
+    "GitHub answered with HTTP {status}.": "GitHub 返回了 HTTP {status}。",
+    "GitHub asks to wait {time} before asking again. Nothing was read.": "GitHub 要求等待 {time} 后再请求。没有读取任何内容。",
+    "GitHub has no public repository {repo}.": "GitHub 上没有公开仓库 {repo}。",
+    "GitHub sent something that isn't a list of issues.": "GitHub 发来的不是议题列表。",
+    "Give the repository as owner/name, like apple/swift.": "请按 owner/name 的形式给出仓库，例如 apple/swift。",
+    "No issues on this page.": "这一页没有议题。",
+    "There's another page: page {page}.": "还有下一页：第 {page} 页。"
+  },
+  "examples": [
+    "apple/swift 有哪些未解决的议题？"
+  ]
+}

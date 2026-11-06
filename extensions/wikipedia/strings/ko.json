@@ -1,0 +1,24 @@
+{
+  "name": "위키백과",
+  "tagline": "어떤 언어로든 위키백과 검색",
+  "description": "선택한 언어로 위키백과를 검색해 결과마다 제목, 한 줄 발췌, 주소를 한 페이지씩 보여줍니다.",
+  "network_purpose": "위키백과를 검색하기 위해",
+  "tools": {
+    "search_wikipedia": {
+      "title": "위키백과 검색",
+      "summary": "위키백과에서 {query} 검색"
+    }
+  },
+  "text": {
+    "Couldn't reach Wikipedia ({error}). Check the internet connection.": "위키백과에 연결할 수 없습니다({error}). 인터넷 연결을 확인하세요.",
+    "Give a language code, like en or fr.": "en, fr 같은 언어 코드를 입력하세요.",
+    "Nothing found.": "찾은 결과가 없습니다.",
+    "There are more: the next page starts at {offset}.": "더 있습니다. 다음 페이지는 {offset}부터 시작합니다.",
+    "Wikipedia answered with HTTP {status}.": "위키백과 응답: HTTP {status}.",
+    "Wikipedia asks to wait {time} before asking again. Nothing was read.": "위키백과가 다시 요청하기 전에 {time} 기다려 달라고 합니다. 아무것도 읽지 않았습니다.",
+    "Wikipedia sent something that isn't a list of results.": "위키백과가 결과 목록이 아닌 것을 보냈습니다."
+  },
+  "examples": [
+    "위키백과에서 조석 고정 검색"
+  ]
+}
