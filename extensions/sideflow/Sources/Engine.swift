@@ -622,7 +622,7 @@ extension FlowHost {
         // A service asking to be left alone a while said so in its fields: it did nothing, and it's asked again when the wait is over, a few times at most.
         // Each go is a call Sidefolk counts against the run's limit, and that limit is what the card counted: a step set to try again has its tries there, one that isn't has none,
         // so going again would take a later step's call and stop the run halfway. Without one to spare, it says so instead.
-        case .ok where Self.askedToWait(outcome.data) != nil && run.retries >= Self.waitsAllowed(step):
+        case .ok where Self.askedToWait(outcome.data) != nil && run.retries >= Self.waitsAllowed(step, in: store.flow(run.flow)?.running ?? run.body):
             return failed(step, why: run.retries == 0 ? L("The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.") : L("The service kept asking to wait, so this step didn't run."), reads: false, in: &run)
         case .ok where Self.askedToWait(outcome.data) != nil:
             let seconds = min(Self.askedToWait(outcome.data) ?? 60, Self.longestWaitWhenAsked)
@@ -1348,8 +1348,15 @@ extension FlowHost {
         return max(1, (o["retry_after_seconds"] as? NSNumber)?.doubleValue ?? 60)
     }
     static let mostWaitsWhenAsked = 3
-    /// How many more goes a service's "wait" may have: the tries the plan counted for the step, never more than it has.
-    static func waitsAllowed(_ step: Step) -> Int { step.onFailure == .retry ? min(mostWaitsWhenAsked, retriesAtMost) : 0 }
+    /// How many more goes a service's "wait" may have: the tries the plan counted for the step, never more than it has. Only while the card's numbers really hold them:
+    /// past Sidefolk's most for a run or for a day they were cut down, and a wait would take a call the plain steps need.
+    static func waitsAllowed(_ step: Step, in body: FlowBody) -> Int { step.onFailure == .retry && triesCounted(body) ? min(mostWaitsWhenAsked, retriesAtMost) : 0 }
+
+    /// The tries a step set to try again has are in the plan's numbers, uncut.
+    static func triesCounted(_ body: FlowBody) -> Bool {
+        let perRun = callsPerRun(body.steps)
+        return perRun < Plans.mostPerRun && runsPerDay(body) * perRun <= loopsPerDay
+    }
     static let longestWaitWhenAsked: Double = 15 * 60
     /// The most a step can say it reads: the host's limit. Past it, say it's from outside rather than be refused.
     static let mostReads = 32
@@ -1373,7 +1380,12 @@ extension FlowHost {
 
     /// Enough for what it's set to do in a day, so that the limit stops something gone wrong and not the flow doing as it was told.
     static func callsPerDay(_ body: FlowBody, perRun: Int, goesRound: Bool) -> Int {
-        let runs = body.triggers.reduce(0) { total, trigger in
+        min(max(goesRound ? loopsPerDay : ordinaryPerDay, runsPerDay(body) * perRun), loopsPerDay)
+    }
+
+    /// How many times a day it may go, by what sets it off.
+    static func runsPerDay(_ body: FlowBody) -> Int {
+        body.triggers.reduce(0) { total, trigger in
             switch trigger {
             case .every(let minutes, _): total + 1440 / max(minutes, 1)
             // What sets these off isn't known: as many as the hourly stop would let through.
@@ -1381,7 +1393,6 @@ extension FlowHost {
             default: total + 1
             }
         }
-        return min(max(goesRound ? loopsPerDay : ordinaryPerDay, runs * perRun), loopsPerDay)
     }
 
     private func keepBefore(_ reviewed: FlowBody, in flow: inout Flow) {

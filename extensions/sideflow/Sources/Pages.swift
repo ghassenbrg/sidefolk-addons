@@ -933,67 +933,100 @@ import SidefolkExtensionKit
         let differs = flow.live.map { $0 != flow.draft } ?? false
         if let live = flow.live, differs || flow.state != .draft {
             let look = differs ? app.runningChecks[flow.id] : app.planChecks[flow.id]
-            sections.append(Section(L("Running now"), allowed(live, of: flow, look: look, app, head: !differs), wide: true))
+            sections += allowed(live, of: flow, look: look, app, head: !differs, title: L("Running now"))
         }
         if flow.live == nil || differs || flow.state == .draft {
-            sections.append(Section(differs ? L("After you apply") : nil, allowed(flow.draft, of: flow, look: app.planChecks[flow.id], app, head: true), wide: true))
+            sections += allowed(flow.draft, of: flow, look: app.planChecks[flow.id], app, head: true, title: differs ? L("After you apply") : nil)
         }
         return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), sections, end: [Section(nil, allowedEnding(flow, app), place: .trailing)])
     }
 
     /// One version's lines, from the plan the card is made of: its own name for a step only beside what the card says, since anyone writing the flow can choose it.
-    private static func allowed(_ body: FlowBody, of flow: Flow, look: PlanLook?, _ app: App, head: Bool) -> [Block] {
+    private static func allowed(_ body: FlowBody, of flow: Flow, look: PlanLook?, _ app: App, head: Bool, title: String?) -> [Section] {
         var version = flow
         version.draft = body
         version.saved = nil
         let plan = app.engine.livePlan(version)
         let (steps, shown) = Engine.planLines(body, title: Engine.watchTitle(flow), about: flow.name, oldWatch: flow.watchTitle)
-        // A look at another version of it says nothing of this one.
-        let answers = look.flatMap { $0.asked == steps.count && $0.lines.count == steps.count ? $0.lines : nil }
-        var lines: [(String, String)] = []
+        // A look at another version of it, or at this one before a value in it changed, says nothing of what's shown.
+        let answers = look.flatMap { $0.asked == steps.map(\.line) && $0.lines.count == steps.count ? $0.lines : nil }
+        // Alike lines are one, as on the card, however many steps they come from.
+        var rows: [(line: String, step: PlanStep, at: Int, count: Int)] = []
         for (i, step) in steps.enumerated() where !step.onlyPassesOn {
-            let (what, detail) = allowedLine(step, shown[i], app)
-            let word = allowedWord(answers?[i], asked: answers != nil)
-            let yours = step.title.map { L("your name for it: {name}", ["name": String($0.prefix(40))]) }
-            lines.append((String(what.prefix(40)), [word, detail, yours].compactMap { $0?.nonEmpty }.joined(separator: " · ")))
+            if let same = rows.firstIndex(where: { $0.line == step.line }) { rows[same].count += 1 } else { rows.append((step.line, step, i, 1)) }
         }
-        var out: [Block] = []
-        if head, let look { out.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
-        guard Engine.needsCard(body) else { return out + [.note(L("It only works with words: it needs nothing allowed."))] }
-        out.append(.note(plan.when))
-        // A section and a list hold so many: past that, the rest are said to be there.
-        let kept = lines.prefix(24 * 20)
-        out += stride(from: 0, to: kept.count, by: 24).map { .facts(nil, Array(kept[$0 ..< min($0 + 24, kept.count)])) }
-        if lines.count > kept.count { out.append(.note(L(one: "And {count} more line.", other: "And {count} more lines.", count: lines.count - kept.count))) }
-        return out
+        var notes: [Block] = []
+        if head, let look { notes.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
+        if Engine.needsCard(body) {
+            notes.append(.note(plan.when))
+            notes += rows.map { .note(allowedLine($0.step, shown[$0.at], times: $0.count, word: allowedWord(answers?[$0.at], asked: answers != nil), app)) }
+        } else {
+            notes.append(.note(L("It only works with words: it needs nothing allowed.")))
+        }
+        // A section holds so many, and a page so many sections: past that, the rest are said to be there.
+        let most = 24 * 4 - 1
+        let kept = Array(notes.prefix(most))
+        var sections = stride(from: 0, to: kept.count, by: 24).map { Section($0 == 0 ? title : nil, Array(kept[$0 ..< min($0 + 24, kept.count)]), wide: true) }
+        if notes.count > kept.count, !sections.isEmpty { sections[sections.count - 1].blocks.append(.note(L(one: "And {count} more line.", other: "And {count} more lines.", count: notes.count - kept.count))) }
+        return sections
     }
 
-    /// What a line is and where it goes, as the card names it: the tool and its values, the AI and what it reads, the flow it sets off.
-    private static func allowedLine(_ step: PlanStep, _ shown: Engine.PlanShown?, _ app: App) -> (String, String?) {
+    /// What a line is and where it goes, as the card names it, on one note: what it is and what Sidefolk says of it, then every place it goes whole, then the rest
+    /// while there's room. Each value is quoted and on one line, so none can pass for another field; the step's own name comes last, since whoever writes the flow chooses it.
+    private static func allowedLine(_ step: PlanStep, _ shown: Engine.PlanShown?, times: Int, word: String, _ app: App) -> String {
+        let room = 400
+        let what: String
+        var places: [String] = [], rest: [String] = []
         switch shown {
-        case .ai(let reads)?: return (L("Write with AI"), reads.isEmpty ? L("reads everything before it") : L("reads {list}", ["list": Format.list(reads)]))
-        case .flow(let name)?: return (L("Run {flow}", ["flow": name]), L("with its own approval"))
-        case nil: break
+        case .ai(let reads)?:
+            what = L("Write with AI")
+            rest.append(reads.isEmpty ? L("reads everything before it") : L("reads {list}", ["list": Format.list(reads)]))
+        case .flow(let name)?:
+            what = L("Run {flow}", ["flow": plain(name)])
+            rest.append(L("with its own approval"))
+        case nil:
+            what = step.tool == "ask.user" ? L("Ask me") : app.catalog.title(of: step.tool)
+            for key in step.input.keys.sorted() where key != "timeout_seconds" {
+                guard let value = valueWords(step.input[key]).map(plain), !value.isEmpty else { continue }
+                if isPlace(key) { places.append("\(key): “\(value.prefix(300))”") } else { rest.append("\(key): “\(value.count > 40 ? String(value.prefix(40)) + "…" : value)”") }
+            }
         }
-        let what = step.tool == "ask.user" ? L("Ask me") : app.catalog.title(of: step.tool)
-        // Where it goes comes first, so a long value can't push it out of the line.
-        let first = ["target", "path", "folder", "url", "to", "recipient", "recipients", "address", "email"]
-        let keys = first.filter { step.input[$0] != nil } + step.input.keys.sorted().filter { !first.contains($0) }
-        let values = keys.compactMap { key -> String? in
-            guard key != "timeout_seconds", let value = shortValue(step.input[key]) else { return nil }
-            return "\(key): \(value)"
-        }
-        return (what, values.isEmpty ? nil : String(values.joined(separator: ", ").prefix(70)))
+        var line = (times > 1 ? "\(what) × \(times)" : what) + " — " + word
+        for place in places { line += " · " + place }
+        let yours = step.title.map { " · " + L("your name for it: {name}", ["name": plain(String($0.prefix(40)))]) } ?? ""
+        for part in rest where line.count + part.count + 3 + yours.count <= room { line += " · " + part }
+        line += yours
+        return line.count > room ? String(line.prefix(room - 1)) + "…" : line
     }
 
-    private static func shortValue(_ value: Any?) -> String? {
+    private static func valueWords(_ value: Any?) -> String? {
         switch value {
-        case let text as String: return text.isEmpty ? nil : String(text.prefix(60))
+        case let text as String: return text
         case let number as NSNumber: return number.stringValue
-        case let list as [Any]: return list.isEmpty ? nil : String(list.compactMap { shortValue($0) }.joined(separator: ", ").prefix(60))
+        case let list as [Any]: return list.compactMap { valueWords($0) }.joined(separator: ", ")
         default: return nil
         }
     }
+
+    /// Words in a field's name that say it's where something goes: Sidefolk's own list for the card (ExtensionPlanCoverage), taken apart the way it does.
+    static func isPlace(_ key: String) -> Bool {
+        var words: [String] = [], word = ""
+        for ch in key {
+            guard ch.isLetter || ch.isNumber else { words.append(word); word = ""; continue }
+            if let last = word.last, last.isLowercase && ch.isUppercase { words.append(word); word = "" }
+            word.append(ch)
+        }
+        words.append(word)
+        return words.map { $0.lowercased() }.filter { !$0.isEmpty }.contains { w in
+            placeWords.contains(w) || (w.count > 3 && w.hasSuffix("s") && (placeWords.contains(String(w.dropLast())) || (w.hasSuffix("es") && placeWords.contains(String(w.dropLast(2))))))
+        }
+    }
+
+    static let placeWords: Set<String> = [
+        "url", "uri", "link", "href", "host", "hostname", "domain", "address", "endpoint", "path", "file", "filename", "filepath", "dir", "directory",
+        "folder", "recipient", "email", "repo", "repository", "branch", "channel", "webhook", "target", "destination", "server", "origin", "redirect", "to",
+        "cc", "bcc", "chat", "user", "phone", "number", "attendee", "invitee", "location", "workspace", "account", "device", "tv",
+    ]
 
     private static func allowedWord(_ line: Plans.Checked.Line?, asked: Bool) -> String {
         guard let line else { return asked ? L("Named on the card") : L("Still looking") }

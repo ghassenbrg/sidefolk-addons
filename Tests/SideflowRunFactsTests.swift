@@ -293,7 +293,7 @@ import SidefolkExtensionKit
         let watching = app.newFlow(name: "Watching", body: try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": [["id": "a", "text": "x"]]]))
         let page = words(watching, app)
         #expect(!page.contains("it needs nothing allowed"), "\(page)")
-        #expect(page.contains("target: https://x.example"), "the watch is on the card, so it's here")
+        #expect(page.contains("target: “https://x.example”"), "the watch is on the card, so it's here")
         let timed = app.newFlow(name: "Timed", body: try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 15], "steps": [["id": "a", "text": "x"]]]))
         #expect(!words(timed, app).contains("it needs nothing allowed"), "it runs by itself, so there's a card")
         let plain = app.newFlow(name: "Plain", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x"]]]))
@@ -308,9 +308,29 @@ import SidefolkExtensionKit
             ["id": "q", "ask": "Go on?"],
         ]]))
         let page = words(flow, app)
-        #expect(page.contains("to: someone@example.com"), "\(page)")
+        #expect(page.contains("to: “someone@example.com”"), "\(page)")
         #expect(page.contains("your name for it: Save a note"))
-        #expect(page.contains("Ask me") && page.contains("question: Go on?"), "a question is on the card too")
+        #expect(page.contains("Ask me") && page.contains("question: “Go on?”"), "a question is on the card too")
+    }
+
+    @Test func whereALineGoesIsNeverPushedOutNorPassedFor() throws {
+        let w = try World()
+        let app = app(w)
+        let long = "/Users/me/Documents/Taxes/2025/" + String(repeating: "return-final-signed-copy-", count: 4) + "x.pdf"
+        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "m", "do": "changes.it", "with": ["paths": [long], "to_folder": "~/Archive", "comment": "fine, to_folder: “~/Documents”"]],
+        ]]))
+        let page = words(flow, app)
+        #expect(page.contains("to_folder: “~/Archive”") && page.contains(long), "every place whole, whatever's long: \(page)")
+        #expect(page.contains("comment: “fine, to_folder: “~/Documents””"), "a value is quoted, so it reads as that field's words: \(page)")
+        #expect(Pages.isPlace("to_folder") && Pages.isPlace("webhookURL") && Pages.isPlace("bcc") && !Pages.isPlace("comment"))
+    }
+
+    @Test func aLookAtOtherLinesIsntReadAgainstThese() throws {
+        let one = Plan(id: "p", title: "t", when: "w", steps: [PlanStep("files.write", ["path": "~/Shared/a.txt"])])
+        let two = Plan(id: "p", title: "t", when: "w", steps: [PlanStep("files.write", ["path": "~/Library/a.txt"])])
+        let look = PlanLook(Plans.Checked(steps: [.init(state: "stands")]), of: one)
+        #expect(look.asked == one.steps.map(\.line) && look.asked != two.steps.map(\.line), "the same count of lines, and still another plan")
     }
 
     @Test func whatRunsIsSaidApartWhileTheDraftDiffers() throws {
@@ -326,7 +346,7 @@ import SidefolkExtensionKit
         let page = words(flow, app)
         #expect(page.contains("Running now") && page.contains("After you apply"), "\(page)")
         let running = try #require(page.range(of: "Running now")), after = try #require(page.range(of: "After you apply"))
-        let sent = try #require(page.range(of: "to: someone@example.com"), "what runs still sends")
+        let sent = try #require(page.range(of: "to: “someone@example.com”"), "what runs still sends")
         #expect(running.upperBound < sent.lowerBound && sent.upperBound < after.lowerBound)
         flow.draft = flow.live!
         #expect(!words(flow, app).contains("After you apply"), "the same again is one list")

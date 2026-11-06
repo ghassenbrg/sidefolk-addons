@@ -158,13 +158,14 @@ struct PlanLook {
     var widened: Bool
     var new: Int
     var byStep: [String: Plans.Checked.Line]
-    /// Each line's answer by place in the plan, and how many lines it was asked about, so a look at another version isn't read against this one.
+    /// Each line's answer by place in the plan, and the lines it was asked about, each as the card tells them apart: a look at another version, or at this one before
+    /// a path in it changed, isn't read against what's shown now.
     var lines: [Plans.Checked.Line]
-    var asked: Int
+    var asked: [String]
 
     init(_ checked: Plans.Checked, of plan: Plan) {
         lines = checked.steps
-        asked = plan.steps.count
+        asked = plan.steps.map(\.line)
         silent = checked.silent
         widened = checked.widened
         new = Set(checked.new.compactMap { plan.steps.indices.contains($0) ? plan.steps[$0].line : nil }).count

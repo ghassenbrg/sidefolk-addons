@@ -173,6 +173,17 @@ extension SideflowLaterListTests {
         w.engine.tick()
         await w.quiet()
         #expect(w.store.run(run.id)?.status == .done, "\(w.store.run(run.id)?.problem ?? "")")
-        #expect(Engine.waitsAllowed(try #require(flow.draft.step("a"))) <= Engine.retriesAtMost, "within what the card counted")
+        #expect(Engine.waitsAllowed(try #require(flow.draft.step("a")), in: flow.draft) <= Engine.retriesAtMost, "within what the card counted")
+    }
+
+    @Test func aWaitTakesNothingWhenTheCardsNumbersWereCutDown() throws {
+        let retrying: [String: Any] = ["id": "a", "do": "reads.it", "on_failure": "retry"]
+        let looped = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "each", "for_each": "{{x}}", "limit": 500, "steps": [retrying]]]])
+        #expect(Engine.callsPerRun(looped.steps) == Plans.mostPerRun, "500 goes of four tries is more than a run may have")
+        #expect(Engine.waitsAllowed(try #require(looped.step("a")), in: looped) == 0, "so a wait would take a plain go's call")
+        let watched = try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": [retrying]])
+        #expect(Engine.waitsAllowed(try #require(watched.step("a")), in: watched) == 0, "720 runs a day of four tries is more than a day may have")
+        let plain = try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 15], "steps": [retrying]])
+        #expect(Engine.waitsAllowed(try #require(plain.step("a")), in: plain) > 0, "96 runs of four fit, so its tries are really there")
     }
 }
