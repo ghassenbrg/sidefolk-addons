@@ -34,7 +34,7 @@ enum Search {
 
     /// From `offset`, up to `pages` pages, as one list, within what one call may take (D202). Busy before the first means nothing was read.
     static func find(_ words: String, language: String, from offset: Int, pages: Int) async throws -> ToolReply {
-        let got = try await Paging.gather(from: offset, most: min(pages, mostPages)) { at in try await fetch(words, language: language, from: at) }
+        let got = try await Paging.gather(from: offset, most: min(pages, mostPages)) { at, seconds in try await fetch(words, language: language, from: at, seconds: seconds) }
         if got.pages == 0, let wait = got.wait {
             return ToolReply(L("Wikipedia asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: got.fields)
         }
@@ -50,10 +50,10 @@ enum Search {
         return ToolReply(text).with(data: got.fields)
     }
 
-    private static func fetch(_ words: String, language: String, from offset: Int) async throws -> Paging.Fetched {
+    @Sendable private static func fetch(_ words: String, language: String, from offset: Int, seconds: TimeInterval) async throws -> Paging.Fetched {
         let url = Web.url("https://\(language).wikipedia.org/w/api.php", [("action", "query"), ("list", "search"), ("srsearch", words), ("format", "json"),
                                                                           ("srlimit", String(perPage)), ("sroffset", String(offset)), ("maxlag", "5")])
-        var request = URLRequest(url: url, timeoutInterval: 8)
+        var request = URLRequest(url: url, timeoutInterval: seconds)
         request.setValue("Sidefolk/1.0 (a Mac companion)", forHTTPHeaderField: "User-Agent")
         let (data, response): (Data, URLResponse)
         do { (data, response) = try await URLSession.shared.data(for: request) } catch {

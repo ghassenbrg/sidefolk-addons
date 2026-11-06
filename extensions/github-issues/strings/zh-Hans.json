@@ -21,7 +21,8 @@
     "It stopped after {count} pages to answer in time.": "为了按时回答，读了 {count} 页就停了。",
     "It stopped after {count} pages: the next one didn't come.": "读了 {count} 页就停了：下一页没有来。",
     "Some of what it read was left out to keep the answer small enough.": "为了让回答不至于太大，读到的部分内容被省略了。",
-    "It stopped after {count} pages: GitHub asks to wait {time}.": "读了 {count} 页就停了：GitHub 要求等待 {time}。"
+    "It stopped after {count} pages: GitHub asks to wait {time}.": "读了 {count} 页就停了：GitHub 要求等待 {time}。",
+    "It stopped at page 100, as far as it goes.": "停在第 100 页，最多到这里。"
   },
   "examples": [
     "apple/swift 有哪些未解决的议题？"

@@ -3,7 +3,8 @@ import Foundation
 /// Going through a service's pages inside one call (D202), within what one call may take: Sidefolk gives a tool 30 seconds, and keeps an answer's fields only up to 256 KB.
 /// What was read is never thrown away: stopping early says why and where to go on. (The same file in each connector.)
 enum Paging {
-    struct Fetched {
+    /// Plain values from JSON, made in one task and read in another, never shared while changing.
+    struct Fetched: @unchecked Sendable {
         var items: [[String: Any]]
         var next: Int?
         /// The service asked to wait this long, and nothing on this page was read.
@@ -30,8 +31,9 @@ enum Paging {
         }
     }
 
-    /// Well under the call's 30 seconds, so a slow page still leaves time to answer with what was read.
-    static let deadline: TimeInterval = 22
+    /// Well under the call's 30 seconds: no page starts that couldn't end by then, and each gets only the time that's left.
+    static let deadline: TimeInterval = 24
+    static let longestPage: TimeInterval = 8
     static let mostBytes = 150_000
 
     /// What a service said to wait, as a number of seconds Sidefolk can use: none if it's not a number, 1 at the least and an hour at the most.
@@ -40,19 +42,23 @@ enum Paging {
         return min(max(seconds, 1), 3600)
     }
 
-    static func gather(from start: Int, most: Int, clock: () -> Date = Date.init, fetch: (Int) async throws -> Fetched) async throws -> Gathered {
+    struct OutOfTime: Error {}
+
+    /// `fetch` gets the page and how long it may take, which it gives its request; the page is also stopped at that time, however slowly it trickles in.
+    static func gather(from start: Int, most: Int, clock: @escaping () -> Date = Date.init, fetch: @escaping @Sendable (Int, TimeInterval) async throws -> Fetched) async throws -> Gathered {
         var out = Gathered(next: start), bytes = 0
         let began = clock()
         while let at = out.next, out.pages < max(most, 1) {
-            if out.pages > 0, clock().timeIntervalSince(began) > deadline {
+            let left = deadline - clock().timeIntervalSince(began)
+            if out.pages > 0, left < longestPage {
                 out.stopped = "time"
                 break
             }
             let one: Fetched
-            do { one = try await fetch(at) } catch {
+            do { one = try await within(min(longestPage, max(left, 1))) { try await fetch(at, min(longestPage, max(left, 1))) } } catch {
                 // The first page failing is the call failing; a later one leaves what came before.
                 guard out.pages > 0 else { throw error }
-                out.stopped = "error"
+                out.stopped = error is OutOfTime ? "time" : "error"
                 break
             }
             if let wait = one.wait {
@@ -60,8 +66,15 @@ enum Paging {
                 if out.pages > 0 { out.stopped = "wait" }
                 break
             }
-            for item in one.items {
-                let size = (try? JSONSerialization.data(withJSONObject: item))?.count ?? 0
+            let sizes = one.items.map { (try? JSONSerialization.data(withJSONObject: $0))?.count ?? 0 }
+            // A page that doesn't fit stays for next time, whole: where to go on is that page, so nothing is skipped.
+            if out.pages > 0, bytes + sizes.reduce(0, +) > mostBytes {
+                out.truncated = true
+                out.next = at
+                break
+            }
+            // Only a first page too big on its own is cut, by whole items, and then it says so.
+            for (item, size) in zip(one.items, sizes) {
                 guard bytes + size <= mostBytes else {
                     out.truncated = true
                     break
@@ -74,5 +87,19 @@ enum Paging {
             if out.truncated { break }
         }
         return out
+    }
+
+    /// The work, or `OutOfTime` once these seconds are up.
+    static func within<T: Sendable>(_ seconds: TimeInterval, _ work: @escaping @Sendable () async throws -> T) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask { try await work() }
+            group.addTask {
+                try await Task.sleep(for: .seconds(seconds))
+                throw OutOfTime()
+            }
+            defer { group.cancelAll() }
+            guard let first = try await group.next() else { throw OutOfTime() }
+            return first
+        }
     }
 }

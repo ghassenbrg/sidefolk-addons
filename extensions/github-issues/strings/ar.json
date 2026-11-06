@@ -21,7 +21,8 @@
     "It stopped after {count} pages to answer in time.": "توقف بعد {count} صفحات ليجيب في الوقت.",
     "It stopped after {count} pages: the next one didn't come.": "توقف بعد {count} صفحات: لم تصل الصفحة التالية.",
     "Some of what it read was left out to keep the answer small enough.": "تُرك جزء مما قُرئ ليبقى الجواب صغيرًا بما يكفي.",
-    "It stopped after {count} pages: GitHub asks to wait {time}.": "توقف بعد {count} صفحات: يطلب GitHub الانتظار {time}."
+    "It stopped after {count} pages: GitHub asks to wait {time}.": "توقف بعد {count} صفحات: يطلب GitHub الانتظار {time}.",
+    "It stopped at page 100, as far as it goes.": "توقف عند الصفحة 100، وهي أقصى ما يصل إليه."
   },
   "examples": [
     "ما المشكلات المفتوحة في apple/swift؟"

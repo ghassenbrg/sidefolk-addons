@@ -36,7 +36,8 @@ enum Issues {
     /// GitHub's word that it's had enough for now: how long until it takes requests again. Only on a refusal: a Retry-After beside an answer isn't one.
     static func waitFor(status: Int, remaining: String?, reset: String?, retryAfter: String?, now: Date) -> Double? {
         guard status == 403 || status == 429 else { return nil }
-        if let after = retryAfter.flatMap(Double.init) { return Paging.wait(after) }
+        // A Retry-After that isn't a number of seconds ("nan", a date) isn't used; the reset time or a plain refusal says the rest.
+        if let after = retryAfter.flatMap(Double.init).flatMap(Paging.wait) { return after }
         guard remaining == "0" || status == 429 else { return nil }
         return Paging.wait(reset.flatMap(Double.init).map { $0 - now.timeIntervalSince1970 } ?? 60)
     }
@@ -46,7 +47,12 @@ enum Issues {
 
     /// From `page`, up to `pages` of them, as one list, within what one call may take. GitHub asking to wait before the first means nothing was read.
     static func list(_ repo: String, state: String, page: Int, pages: Int) async throws -> ToolReply {
-        let got = try await Paging.gather(from: page, most: min(pages, mostPages)) { at in try await fetch(repo, state: state, page: at) }
+        var got = try await Paging.gather(from: page, most: min(pages, mostPages)) { at, seconds in try await fetch(repo, state: state, page: at, seconds: seconds) }
+        // Past what `page` takes, so not a page to go on from here.
+        if let next = got.next, next > 100 {
+            got.next = nil
+            got.stopped = got.stopped ?? "limit"
+        }
         if got.pages == 0, let wait = got.wait {
             return ToolReply(L("GitHub asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: got.fields)
         }
@@ -56,9 +62,9 @@ enum Issues {
         return ToolReply(text).with(data: got.fields)
     }
 
-    private static func fetch(_ repo: String, state: String, page: Int) async throws -> Paging.Fetched {
+    @Sendable private static func fetch(_ repo: String, state: String, page: Int, seconds: TimeInterval) async throws -> Paging.Fetched {
         let url = Web.url("https://api.github.com/repos/\(repo)/issues", [("state", state), ("per_page", String(perPage)), ("page", String(page))])
-        var request = URLRequest(url: url, timeoutInterval: 8)
+        var request = URLRequest(url: url, timeoutInterval: seconds)
         request.setValue("Sidefolk/1.0", forHTTPHeaderField: "User-Agent")
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         let (data, response): (Data, URLResponse)
@@ -86,6 +92,7 @@ enum Said {
         case "time": out += "\n" + L("It stopped after {count} pages to answer in time.", ["count": String(got.pages)])
         case "error": out += "\n" + L("It stopped after {count} pages: the next one didn't come.", ["count": String(got.pages)])
         case "wait": out += "\n" + L("It stopped after {count} pages: GitHub asks to wait {time}.", ["count": String(got.pages), "time": Format.duration(got.wait ?? 60)])
+        case "limit": out += "\n" + L("It stopped at page 100, as far as it goes.")
         default: break
         }
         if got.truncated { out += "\n" + L("Some of what it read was left out to keep the answer small enough.") }
