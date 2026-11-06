@@ -16,6 +16,83 @@ import SidefolkExtensionKit
 
     private func lane(_ w: World, _ id: String, _ name: String) throws -> Run { try #require(lanes(w, id).first { $0.why == name }) }
 
+    /// A flow on its own that waits a long while, for a lane to call and someone else to stop.
+    private func waiting(_ w: World) throws -> Flow {
+        var x = Flow(id: "x", name: "X", draft: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "w", "wait_minutes": 60], ["id": "t", "text": "x"]]]), state: .on, createdAt: w.now, updatedAt: w.now)
+        x.live = x.draft
+        w.store.save(x)
+        return x
+    }
+
+    private let callsX: [String: Any] = ["name": "calls", "steps": [["id": "c", "call_flow": "X"]]]
+    private let later: [String: Any] = ["name": "later", "steps": [["id": "p", "wait_minutes": 1], ["id": "l", "text": "L"]]]
+
+    @Test func aStopFromOutsideStopsTheCallerWhateverTheJoin() async throws {
+        for join in ["first", "all"] {
+            let w = try World()
+            let x = try waiting(w)
+            let flow = try w.flow([["id": "both", "parallel": [callsX, later], "join": join], ["id": "after", "text": "went on"]])
+            let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+            await w.quiet()
+            w.engine.planEnded(x.id)
+            await w.quiet()
+            #expect(try lane(w, flow.id, "calls").status == .stopped)
+            w.now = w.now.addingTimeInterval(2 * 60)
+            w.engine.tick()
+            await w.quiet()
+            let back = try #require(w.store.run(run.id))
+            #expect(back.status == .stopped, "\(join): a lane stopped by someone else isn't one that didn't count: \(back.status)")
+            #expect(back.values.resolve("after") == nil)
+        }
+    }
+
+    @Test func aStopFromOutsideIsntAFailureToCarryPast() async throws {
+        let w = try World()
+        let x = try waiting(w)
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .failed, text: "no", summary: "")]
+        let flow = try w.flow([["id": "both", "parallel": [callsX, later, bad], "fail_fast": true, "on_failure": "carry_on"], ["id": "after", "text": "went on"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.planEnded(x.id)
+        w.now = w.now.addingTimeInterval(2 * 60)
+        w.engine.tick()
+        await w.quiet()
+        let back = try #require(w.store.run(run.id))
+        #expect(back.status == .stopped, "\(back.status) \(back.problem ?? "")")
+        #expect(back.values.resolve("after") == nil, "carry_on goes past a failure, never past a stop")
+    }
+
+    @Test func aStopAfterTheLimitWentByIsStillAStop() async throws {
+        let w = try World()
+        let x = try waiting(w)
+        var limited = callsX
+        limited["timeout_minutes"] = 5
+        let flow = try w.flow([["id": "both", "parallel": [limited, quick], "on_failure": "carry_on"], ["id": "after", "text": "went on"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        // Past its limit, and stopped by someone else before the clock's next look.
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.planEnded(x.id)
+        await w.quiet()
+        #expect(try lane(w, flow.id, "calls").timedOut == false)
+        #expect(w.store.run(run.id)?.status == .stopped)
+    }
+
+    @Test func aLanesLimitKeepsCountingWhileItsFlowIsPaused() async throws {
+        let w = try World()
+        var limited = slow
+        limited["timeout_minutes"] = 5
+        let flow = try w.flow([["id": "both", "parallel": [limited, quick]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.pause(flow.id)
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(try lane(w, flow.id, "slow").timedOut)
+        #expect(w.store.run(run.id)?.problem?.contains("took longer") == true, "\(w.store.run(run.id)?.problem ?? "")")
+    }
+
     @Test func theFirstToFinishIsEnoughAndTheRestStop() async throws {
         let w = try World()
         let flow = try w.flow([["id": "both", "parallel": [slow, quick], "join": "first"], ["id": "s", "text": "{{both.winner}}|{{both.quick}}"]])

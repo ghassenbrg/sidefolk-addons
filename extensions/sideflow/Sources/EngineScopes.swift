@@ -341,14 +341,19 @@ extension Engine {
             run.status = .waiting
             store.save(run)
             if (need > 0 && done.count >= need) || (step.failFast && done.count + going.count < need) {
+                // Which ones, kept with it: how many finished can't say who stopped the rest.
+                run.woundDown = Array(Set(run.woundDown).union(going.map(\.id))).sorted()
+                store.save(run)
                 for child in going { stop(run: child.id, windingDown: true) }
             }
             return false
         }
         run.waitingOn = []
-        // Lanes it stopped itself, having enough or a lost cause, and lanes past their own limit, are its own doing. Any other stop was someone's: that isn't a failure for a try or a loop to carry past, so this stops too, and what called this hears the same.
-        let woundDown = (need > 0 && done.count >= need) || (step.failFast && done.count < need && children.contains { $0.status == .failed || $0.timedOut })
-        if !woundDown, let stopped = children.first(where: { $0.status == .stopped && !$0.timedOut }) {
+        let stoppedHere = Set(run.woundDown)
+        run.woundDown = []
+        // Lanes it stopped itself, having enough or a lost cause, and lanes past their own limit, are its own doing. Any other stop was someone's, whatever the join: that isn't a failure
+        // for a try or a loop to carry past, nor a lane that didn't count, so this stops too, and what called this hears the same.
+        if let stopped = children.first(where: { $0.status == .stopped && !$0.timedOut && !stoppedHere.contains($0.id) }) {
             run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
             run.status = .stopped
             // What it says for itself, if it does: a plan that ended, a flow nobody read.
