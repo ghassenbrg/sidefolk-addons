@@ -1289,7 +1289,10 @@
     "Export, with unsaved": "未保存を含めて書き出す",
     "Pick the flows to delete or export.": "削除または書き出すルーティンを選んでください。",
     "That's too big to be one file. Export fewer flows at a time.": "1つのファイルには大きすぎます。書き出すルーティンを減らしてください。",
-    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "ルーティンの動作とステップに書かれた内容を含みます。許可した内容、実行記録、アカウントは含みません。"
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "ルーティンの動作とステップに書かれた内容を含みます。許可した内容、実行記録、アカウントは含みません。",
+    "When something happens in Sidefolk": "Sidefolk で何かが起きたとき",
+    "When something it watches changes": "見守っているものが変わったとき",
+    "When you start it": "自分で開始したとき"
   },
   "drops": {
     "flow_file": {

@@ -1319,7 +1319,10 @@
     "Export, with unsaved": "Exportieren, mit Ungesichertem",
     "Pick the flows to delete or export.": "Wähle die Abläufe zum Löschen oder Exportieren.",
     "That's too big to be one file. Export fewer flows at a time.": "Das ist zu groß für eine Datei. Exportiere weniger Abläufe auf einmal.",
-    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Enthält, was die Abläufe tun und was in ihren Schritten steht, nicht deine Erlaubnisse, Durchläufe oder Konten."
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Enthält, was die Abläufe tun und was in ihren Schritten steht, nicht deine Erlaubnisse, Durchläufe oder Konten.",
+    "When something happens in Sidefolk": "Wenn in Sidefolk etwas passiert",
+    "When something it watches changes": "Wenn sich etwas ändert, das er beobachtet",
+    "When you start it": "Wenn du ihn startest"
   },
   "drops": {
     "flow_file": {

@@ -1319,7 +1319,10 @@
     "Export, with unsaved": "Exportar, con lo no guardado",
     "Pick the flows to delete or export.": "Elige las rutinas que quieres eliminar o exportar.",
     "That's too big to be one file. Export fewer flows at a time.": "Es demasiado grande para un solo archivo. Exporta menos rutinas a la vez.",
-    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Guarda lo que hacen las rutinas y lo escrito en sus pasos, no lo que permitiste, sus ejecuciones ni tus cuentas."
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Guarda lo que hacen las rutinas y lo escrito en sus pasos, no lo que permitiste, sus ejecuciones ni tus cuentas.",
+    "When something happens in Sidefolk": "Cuando pasa algo en Sidefolk",
+    "When something it watches changes": "Cuando cambia algo que vigila",
+    "When you start it": "Cuando la inicias"
   },
   "drops": {
     "flow_file": {

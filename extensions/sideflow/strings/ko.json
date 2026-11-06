@@ -1289,7 +1289,10 @@
     "Export, with unsaved": "저장 안 된 변경 포함 내보내기",
     "Pick the flows to delete or export.": "삭제하거나 내보낼 루틴을 고르세요.",
     "That's too big to be one file. Export fewer flows at a time.": "파일 하나에 담기에는 너무 큽니다. 한 번에 더 적은 루틴을 내보내세요.",
-    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "루틴이 하는 일과 단계에 적힌 내용을 담습니다. 허용한 것, 실행 기록, 계정은 담지 않습니다."
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "루틴이 하는 일과 단계에 적힌 내용을 담습니다. 허용한 것, 실행 기록, 계정은 담지 않습니다.",
+    "When something happens in Sidefolk": "Sidefolk에서 무언가가 일어날 때",
+    "When something it watches changes": "지켜보는 것이 바뀔 때",
+    "When you start it": "직접 시작할 때"
   },
   "drops": {
     "flow_file": {
