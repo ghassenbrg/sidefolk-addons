@@ -191,6 +191,31 @@ import SidefolkExtensionKit
         #expect(back.status == .done && back.values.value("s").contains("bad"), "\(back.status) \(back.problem ?? "")")
     }
 
+    @Test func aLaneAskingDidItHappenIsHeldAndItsAnswerStillCounts() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        var limited = bad
+        limited["timeout_minutes"] = 5
+        let flow = try w.flow([["id": "both", "parallel": [limited, quick]], ["id": "after", "text": "went on"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.host.hold = nil
+        // Sidefolk quit mid-step: the lane comes back asking the person whether it happened.
+        w.restart()
+        w.engine.recover()
+        await w.quiet()
+        #expect(try lane(w, flow.id, "bad").status == .interrupted)
+        for _ in 0..<4 {
+            w.now = w.now.addingTimeInterval(3 * 60)
+            w.engine.tick()
+            await w.quiet()
+        }
+        #expect(try lane(w, flow.id, "bad").status == .interrupted, "twelve minutes with the card up isn't time the lane took")
+        w.engine.proceed(try lane(w, flow.id, "bad").id, .carry_on)
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .done && w.store.run(run.id)?.values.value("after") == "went on", "the person's answer still applies: \(w.store.run(run.id)?.problem ?? "")")
+    }
+
     @Test func aRunsLanesShareItsOneLimit() async throws {
         let w = try World()
         let two: [[String: Any]] = [["name": "one", "steps": [["id": "a", "do": "changes.it", "with": ["text": "a"]]]], ["name": "two", "steps": [["id": "b", "do": "changes.it", "with": ["text": "b"]]]]]
