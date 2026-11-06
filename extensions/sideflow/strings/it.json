@@ -1308,7 +1308,11 @@
       "other": "{count} campi"
     },
     "This list says what it may do. Who or where, and every value, are on the approval card.": "Questa lista dice cosa può fare. Chi o dove, e ogni valore, sono sulla scheda di approvazione.",
-    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "Alcuni luoghi di questo passaggio sono stati accorciati o non tenuti: oltre ciò che un passaggio o un’esecuzione ne tiene."
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "Alcuni luoghi di questo passaggio sono stati accorciati o non tenuti: oltre ciò che un passaggio o un’esecuzione ne tiene.",
+    "It uses “{name}”, but that step gave nothing this time.": "Usa «{name}», ma quel passaggio stavolta non ha dato nulla.",
+    "It uses “{name}”, which was skipped, so there's nothing to send.": "Usa «{name}», che è stato saltato, quindi non c’è niente da inviare.",
+    "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "Elemento 9 prima di Elemento 12, come nel Finder. I numeri nelle parole sono letti come parte dei nomi.",
+    "Sort as names": "Ordina come nomi"
   },
   "drops": {
     "flow_file": {

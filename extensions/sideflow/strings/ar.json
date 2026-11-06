@@ -1428,7 +1428,11 @@
       "other": "{count} حقلًا"
     },
     "This list says what it may do. Who or where, and every value, are on the approval card.": "تقول هذه القائمة ما يمكنه فعله. لمن أو إلى أين، وكل قيمة، على بطاقة الموافقة.",
-    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "اختُصرت بعض أماكن هذه الخطوة أو لم يُحتفظ بها: تجاوزت ما تحتفظ به خطوة أو تشغيل."
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "اختُصرت بعض أماكن هذه الخطوة أو لم يُحتفظ بها: تجاوزت ما تحتفظ به خطوة أو تشغيل.",
+    "It uses “{name}”, but that step gave nothing this time.": "يستخدم «{name}»، لكن تلك الخطوة لم تعطِ شيئًا هذه المرة.",
+    "It uses “{name}”, which was skipped, so there's nothing to send.": "يستخدم «{name}» الذي تُخطّي، فلا شيء يُرسل.",
+    "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "العنصر 9 قبل العنصر 12، كما يفعل Finder. تُقرأ الأرقام في الكلمات جزءًا من الأسماء.",
+    "Sort as names": "الفرز كأسماء"
   },
   "drops": {
     "flow_file": {

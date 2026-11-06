@@ -1278,7 +1278,11 @@
       "other": "{count} 个字段"
     },
     "This list says what it may do. Who or where, and every value, are on the approval card.": "这份列表说明它可以做什么。对谁、去哪里以及每个值都在批准卡片上。",
-    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "这一步的部分位置被缩短或未保留：超出了一步或一次运行能保留的量。"
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "这一步的部分位置被缩短或未保留：超出了一步或一次运行能保留的量。",
+    "It uses “{name}”, but that step gave nothing this time.": "它用到“{name}”，但那一步这次什么也没给出。",
+    "It uses “{name}”, which was skipped, so there's nothing to send.": "它用到被跳过的“{name}”，所以没有可发送的内容。",
+    "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "像访达一样，Item 9 排在 Item 12 前面。文字里的数字作为名称的一部分来读。",
+    "Sort as names": "按名称排序"
   },
   "drops": {
     "flow_file": {

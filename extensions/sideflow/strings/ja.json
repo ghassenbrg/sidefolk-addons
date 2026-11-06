@@ -1278,7 +1278,11 @@
       "other": "{count} 項目"
     },
     "This list says what it may do. Who or where, and every value, are on the approval card.": "この一覧はできることを示します。誰に・どこへ、そしてすべての値は承認カードにあります。",
-    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "このステップの場所の一部は短くしたか残していません。1ステップまたは1回の実行で残せる量を超えたためです。"
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "このステップの場所の一部は短くしたか残していません。1ステップまたは1回の実行で残せる量を超えたためです。",
+    "It uses “{name}”, but that step gave nothing this time.": "「{name}」を使いますが、そのステップは今回何も返しませんでした。",
+    "It uses “{name}”, which was skipped, so there's nothing to send.": "「{name}」を使いますが、それは飛ばされたため、送るものがありません。",
+    "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "Finder と同じく、Item 9 を Item 12 の前にします。言葉の中の数は名前の一部として読みます。",
+    "Sort as names": "名前として並べ替え"
   },
   "drops": {
     "flow_file": {
