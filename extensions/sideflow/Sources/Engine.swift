@@ -159,6 +159,10 @@ extension FlowHost {
         }
         run.status = .running
         if !atWait { run.resumeAt = nil }
+        // `{{today}}` and `{{now}}` are when it goes on, not when it began: a form can wait days.
+        let now = clock()
+        run.values.today = Format.date(now, year: true, weekday: true)
+        run.values.now = Format.time(now)
         store.save(run)
         changed()
         var walked = 0

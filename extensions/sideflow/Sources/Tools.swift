@@ -256,7 +256,10 @@ import SidefolkExtensionKit
 
     static func next(_ flow: Flow) -> Date? {
         guard flow.state == .on else { return nil }
-        return flow.running.triggers.compactMap { trigger in flow.countsFrom(trigger).flatMap { Schedule.next(trigger, after: $0) } }.min()
+        // By the clock it goes by, as the engine's tick does: 08:30 in Paris isn't 08:30 here.
+        var clock = Calendar.autoupdatingCurrent
+        if let zone = flow.running.timeZone.flatMap(TimeZone.init(identifier:)) { clock.timeZone = zone }
+        return flow.running.triggers.compactMap { trigger in flow.countsFrom(trigger).flatMap { Schedule.next(trigger, after: $0, calendar: clock) } }.min()
     }
 
     static func status(_ run: Run) -> String {

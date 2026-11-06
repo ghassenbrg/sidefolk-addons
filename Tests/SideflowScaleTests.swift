@@ -101,3 +101,30 @@ import SidefolkExtensionKit
         #expect(words.contains("Needs an add-on") && words.contains("Open Add-ons"))
     }
 }
+
+@MainActor @Suite struct SideflowLaterListTests {
+    @Test func nextGoesByTheFlowsOwnClock() throws {
+        var flow = Flow(id: "f", name: "F", draft: try FlowCodec.body(["trigger": ["type": "schedule", "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"], "at": "08:30"], "time_zone": "Pacific/Kiritimati", "steps": [["id": "a", "text": "x"]]]), createdAt: Date(), updatedAt: Date())
+        flow.state = .on
+        flow.live = flow.draft
+        flow.lastFire = Date(timeIntervalSince1970: 1_800_000_000)
+        let next = try #require(Summaries.next(flow))
+        var there = Calendar(identifier: .gregorian)
+        there.timeZone = TimeZone(identifier: "Pacific/Kiritimati")!
+        #expect(there.component(.hour, from: next) == 8 && there.component(.minute, from: next) == 30)
+    }
+}
+
+extension SideflowLaterListTests {
+    @Test func todayIsTheDayItGoesOnNotTheDayItBegan() async throws {
+        let w = try SideflowTests.World()
+        let flow = try w.flow([["id": "wait", "wait_minutes": 60 * 24], ["id": "t", "text": "{{today}}"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let began = try #require(w.store.run(run.id)?.values.today)
+        w.now = w.now.addingTimeInterval(2 * 86400)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.record(of: "t")?.output != began)
+    }
+}
