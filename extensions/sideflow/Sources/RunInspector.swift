@@ -77,6 +77,24 @@ import SidefolkExtensionKit
         return Section(L("Practice examples"), blocks, place: .trailing, collapsed: flow.chosenExample == nil)
     }
 
+    /// A run in a few cards, for where it was asked about: how far it got, the step that's working or went wrong, and how much is left. The run's page has the rest.
+    static func compact(_ run: Run, _ app: App) -> CardTree {
+        let shown = withLanes(run, app)
+        let steps = shown.body.allSteps
+        let done = steps.filter { step in shown.record(of: step.id).map { [.done, .would, .skipped].contains($0.status) } == true }.count
+        var nodes = [CardTree.Node("start", FlowFile.short(run.flowName, 60), kind: Summaries.status(run), symbol: statusSymbol(run), color: tile[0], state: run.status.isOver ? .done : .active)]
+        if done > 0 { nodes.append(CardTree.Node("done", L(one: "{count} step done", other: "{count} steps done", count: done), symbol: "checkmark", state: .done)) }
+        // The one that matters now: the step it's on, or the one that stopped it.
+        if let here = shown.records.last(where: { [.running, .waiting, .needs_you, .failed, .unknown].contains($0.status) }), let step = shown.body.step(here.step) {
+            var node = CardTree.Node(here.step, FlowFile.short(here.summary, 120), kind: FlowFile.short(Words.label(step, catalog: app.catalog), 30), symbol: look(step, app).symbol, color: look(step, app).color, state: .attention)
+            (node.state, node.pill) = result(here)
+            nodes.append(node)
+        }
+        let left = max(0, steps.count - done - (nodes.count > 2 ? 1 : 0))
+        if left > 0, !run.status.isOver { nodes.append(CardTree.Node("left", L(one: "{count} step to go", other: "{count} steps to go", count: left), symbol: "ellipsis", state: .pending)) }
+        return CardTree(nodes, line: line)
+    }
+
     /// When it ran, how long for and what it used, counting the runs it waited for: lanes and called flows use the same AI and do things too.
     static func runFacts(_ run: Run, _ app: App) -> Section {
         var runs = [run], next = [run.id]

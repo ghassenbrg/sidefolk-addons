@@ -161,12 +161,12 @@ import SidefolkExtensionKit
         }
 
         ext.tool("get_run", "Read a run", "What a run did, step by step, why it stopped and what can be done next. By run id, or a flow's latest.",
-                 input: Schema.object(["run": Schema.string("The run's id."), "flow": Schema.string("A flow's name or id, for its latest run.")])) { args in
+                 input: Schema.object(["run": Schema.string("The run's id."), "flow": Schema.string("A flow's name or id, for its latest run.")])), reply: { args in
             let run: Run?
             if let id = args.string("run") { run = app.store.run(id) } else if let name = args.string("flow") { run = app.store.latest(of: try app.flow(named: name).id) } else { run = app.store.runs().first }
-            guard let run else { return L("No runs yet.") }
-            return Summaries.story(run)
-        }
+            guard let run else { return ToolReply(L("No runs yet.")) }
+            return ToolReply(Summaries.story(run)).showing(tree: Pages.compact(run, app))
+        })
 
         ext.tool("continue_run", "Carry on with a run", "A stopped run's way forward: try_again runs its step again, carry_on skips it and goes on, stop ends the run. Only the person knows whether a step that was interrupted happened: ask them.",
                  input: Schema.object(["run": Schema.string("The run's id."), "how": Schema.string("What to do.", oneOf: ["try_again", "carry_on", "stop"])], required: ["run", "how"])) { args in

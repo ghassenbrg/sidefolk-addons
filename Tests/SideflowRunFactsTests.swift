@@ -209,3 +209,17 @@ import SidefolkExtensionKit
         #expect(back.examples == flow.examples.map { var e = $0; e.at = back.examples[0].at; return e } && back.chosenExample == "e")
     }
 }
+
+@MainActor @Suite(.serialized) struct SideflowCompactCardTests {
+    @Test func aRunInAFewCardsSaysHowFarAndWhatMattersNow() throws {
+        let w = try SideflowTests.World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": (0..<30).map { ["id": "s\($0)", "text": "x"] }])
+        var run = Run(id: "r", flow: "f", flowName: "Big", mode: .live, status: .failed, why: "", startedAt: Date(), body: body)
+        for i in 0..<10 { run.record(.init(step: "s\(i)", status: .done, summary: "", at: Date())) }
+        run.record(.init(step: "s10", status: .failed, summary: "It broke", at: Date()))
+        let tree = Pages.compact(run, app)
+        #expect(tree.nodes.count <= 4)
+        #expect(tree.nodes.contains { $0.title.contains("10") } && tree.nodes.contains { $0.id == "s10" })
+    }
+}
