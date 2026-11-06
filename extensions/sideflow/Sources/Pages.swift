@@ -949,7 +949,7 @@ import SidefolkExtensionKit
         let plan = app.engine.livePlan(version)
         let (steps, shown) = Engine.planLines(body, title: Engine.watchTitle(flow), about: flow.name, oldWatch: flow.watchTitle)
         // A look at another version of it, or at this one before a value in it changed, says nothing of what's shown.
-        let answers = look.flatMap { $0.asked == steps.map(\.line) && $0.lines.count == steps.count ? $0.lines : nil }
+        let answers = look.flatMap { $0.asked == steps.map(PlanLook.key) && $0.lines.count == steps.count ? $0.lines : nil }
         // Alike lines are one, as on the card, however many steps they come from.
         var rows: [(line: String, step: PlanStep, at: Int, count: Int)] = []
         for (i, step) in steps.enumerated() where !step.onlyPassesOn {
@@ -959,7 +959,7 @@ import SidefolkExtensionKit
         if head, let look { notes.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
         if Engine.needsCard(body) {
             notes.append(.note(plan.when))
-            notes += rows.map { .note(allowedLine($0.step, shown[$0.at], times: $0.count, word: allowedWord(answers?[$0.at], asked: answers != nil), app)) }
+            notes += rows.flatMap { allowedLine($0.step, shown[$0.at], times: $0.count, word: allowedWord(answers?[$0.at], asked: answers != nil), app).map { Block.note($0) } }
         } else {
             notes.append(.note(L("It only works with words: it needs nothing allowed.")))
         }
@@ -971,10 +971,11 @@ import SidefolkExtensionKit
         return sections
     }
 
-    /// What a line is and where it goes, as the card names it, on one note: what it is and what Sidefolk says of it, then every place it goes whole, then the rest
-    /// while there's room. Each value is quoted and on one line, so none can pass for another field; the step's own name comes last, since whoever writes the flow chooses it.
-    private static func allowedLine(_ step: PlanStep, _ shown: Engine.PlanShown?, times: Int, word: String, _ app: App) -> String {
-        let room = 400
+    /// What a line is and where it goes, as the card names it: what it is and what Sidefolk says of it, then every place it goes, whole, then the rest while there's room.
+    /// A place that doesn't fit on that note has notes of its own, never cut. Each value is quoted on one line with its own quote marks made plain, so none can pass for
+    /// another field; fields the tool doesn't name are counted; the step's own name comes last, since whoever writes the flow chooses it.
+    private static func allowedLine(_ step: PlanStep, _ shown: Engine.PlanShown?, times: Int, word: String, _ app: App) -> [String] {
+        let room = 380
         let what: String
         var places: [String] = [], rest: [String] = []
         switch shown {
@@ -986,17 +987,24 @@ import SidefolkExtensionKit
             rest.append(L("with its own approval"))
         case nil:
             what = step.tool == "ask.user" ? L("Ask me") : app.catalog.title(of: step.tool)
+            let known = Set(app.catalog.tool(step.tool)?.parameters.map(\.name) ?? [])
+            var extra = 0
             for key in step.input.keys.sorted() where key != "timeout_seconds" {
-                guard let value = valueWords(step.input[key]).map(plain), !value.isEmpty else { continue }
-                if isPlace(key) { places.append("\(key): “\(value.prefix(300))”") } else { rest.append("\(key): “\(value.count > 40 ? String(value.prefix(40)) + "…" : value)”") }
+                if !known.isEmpty, !known.contains(key) { extra += 1 }
+                guard let value = valueWords(step.input[key]).map({ plain($0).replacingOccurrences(of: "“", with: "\"").replacingOccurrences(of: "”", with: "\"") }), !value.isEmpty else { continue }
+                if isPlace(key) { places.append("\(key): “\(value)”") } else { rest.append("\(key): “\(value.count > 40 ? String(value.prefix(40)) + "…" : value)”") }
             }
+            if extra > 0 { rest.insert(L(one: "{count} field the tool doesn't name", other: "{count} fields the tool doesn't name", count: extra), at: 0) }
         }
         var line = (times > 1 ? "\(what) × \(times)" : what) + " — " + word
-        for place in places { line += " · " + place }
+        var more: [String] = []
+        for place in places {
+            if more.isEmpty, line.count + place.count + 3 <= room { line += " · " + place } else { more += notes("…", place, size: room) .map { $0.hasPrefix("…: ") ? String($0.dropFirst(3)) : $0 } }
+        }
         let yours = step.title.map { " · " + L("your name for it: {name}", ["name": plain(String($0.prefix(40)))]) } ?? ""
         for part in rest where line.count + part.count + 3 + yours.count <= room { line += " · " + part }
-        line += yours
-        return line.count > room ? String(line.prefix(room - 1)) + "…" : line
+        if line.count + yours.count <= room { line += yours }
+        return [line] + more
     }
 
     private static func valueWords(_ value: Any?) -> String? {
@@ -1008,18 +1016,34 @@ import SidefolkExtensionKit
         }
     }
 
-    /// Words in a field's name that say it's where something goes: Sidefolk's own list for the card (ExtensionPlanCoverage), taken apart the way it does.
-    static func isPlace(_ key: String) -> Bool {
+    /// Whether a field's name says it's where something goes, as Sidefolk decides for the card. The words and the way a name is taken apart are a copy of
+    /// ExtensionPlanCoverage's in the app: change them together.
+    static func isPlace(_ key: String) -> Bool { !Set(nameWords(in: key)).isDisjoint(with: placeWords) }
+
+    /// A name in lower-case words: camel case, acronyms (`URLPath` is `url`, `path`), digits and plurals taken apart.
+    static func nameWords(in key: String) -> [String] {
+        rawWords(in: key).flatMap { w -> [String] in
+            guard w.count > 3, w.hasSuffix("s"), !w.hasSuffix("ss") else { return [w] }
+            return w.hasSuffix("es") ? [w, String(w.dropLast()), String(w.dropLast(2))] : [w, String(w.dropLast())]
+        }
+    }
+
+    /// The words of a name as written, each once.
+    private static func rawWords(in key: String) -> [String] {
+        let chars = Array(key)
         var words: [String] = [], word = ""
-        for ch in key {
-            guard ch.isLetter || ch.isNumber else { words.append(word); word = ""; continue }
-            if let last = word.last, last.isLowercase && ch.isUppercase { words.append(word); word = "" }
+        func flush() { if !word.isEmpty { words.append(word.lowercased()); word = "" } }
+        for (i, ch) in chars.enumerated() {
+            guard ch.isLetter || ch.isNumber else { flush(); continue }
+            if let last = word.last {
+                let boundary = (last.isLowercase && ch.isUppercase) || (last.isNumber != ch.isNumber)
+                    || (last.isUppercase && ch.isUppercase && i + 1 < chars.count && chars[i + 1].isLowercase)
+                if boundary { flush() }
+            }
             word.append(ch)
         }
-        words.append(word)
-        return words.map { $0.lowercased() }.filter { !$0.isEmpty }.contains { w in
-            placeWords.contains(w) || (w.count > 3 && w.hasSuffix("s") && (placeWords.contains(String(w.dropLast())) || (w.hasSuffix("es") && placeWords.contains(String(w.dropLast(2))))))
-        }
+        flush()
+        return words
     }
 
     static let placeWords: Set<String> = [

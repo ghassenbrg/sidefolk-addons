@@ -165,11 +165,16 @@ struct PlanLook {
 
     init(_ checked: Plans.Checked, of plan: Plan) {
         lines = checked.steps
-        asked = plan.steps.map(\.line)
+        asked = plan.steps.map(Self.key)
         silent = checked.silent
         widened = checked.widened
         new = Set(checked.new.compactMap { plan.steps.indices.contains($0) ? plan.steps[$0].line : nil }).count
         byStep = Dictionary(zip(plan.steps, checked.steps).compactMap { step, line in step.named.map { ($0, line) } }, uniquingKeysWith: { first, _ in first })
+    }
+
+    /// A line as a look tells it apart: what the card shows of it, and what the host keeps beside it: its name, your words for it, where a field comes from.
+    static func key(_ step: PlanStep) -> String {
+        "\(step.line) \(step.named ?? "") \(step.title ?? "") \(step.from.map { JSONText.write($0) } ?? "")"
     }
 
     /// What the flow's head says before anyone presses anything.

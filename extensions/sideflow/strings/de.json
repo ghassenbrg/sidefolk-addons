@@ -1296,7 +1296,19 @@
     "It was given": "Was er bekam",
     "It made": "Was er ergab",
     "Input": "Eingabe",
-    "Only the first part of what it was given was kept.": "Nur der erste Teil dessen, was er bekam, wurde behalten."
+    "Only the first part of what it was given was kept.": "Nur der erste Teil dessen, was er bekam, wurde behalten.",
+    "And {count} more fields, not shown.": {
+      "one": "Und {count} weiteres Feld, nicht gezeigt.",
+      "other": "Und {count} weitere Felder, nicht gezeigt."
+    },
+    "{count} fields the tool doesn't name": {
+      "one": "{count} Feld, das das Werkzeug nicht kennt",
+      "other": "{count} Felder, die das Werkzeug nicht kennt"
+    },
+    "… and about {count} more parts, not shown.": {
+      "one": "… und etwa {count} weiterer Teil, nicht gezeigt.",
+      "other": "… und etwa {count} weitere Teile, nicht gezeigt."
+    }
   },
   "drops": {
     "flow_file": {

@@ -1269,7 +1269,16 @@
     "It was given": "受け取った内容",
     "It made": "返した内容",
     "Input": "入力",
-    "Only the first part of what it was given was kept.": "受け取った内容は最初の部分だけ残しています。"
+    "Only the first part of what it was given was kept.": "受け取った内容は最初の部分だけ残しています。",
+    "And {count} more fields, not shown.": {
+      "other": "ほかに {count} 項目（非表示）。"
+    },
+    "{count} fields the tool doesn't name": {
+      "other": "ツールが定めていない項目 {count} 個"
+    },
+    "… and about {count} more parts, not shown.": {
+      "other": "… ほかに約 {count} 部分（非表示）。"
+    }
   },
   "drops": {
     "flow_file": {

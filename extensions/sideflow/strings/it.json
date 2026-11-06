@@ -1296,7 +1296,19 @@
     "It was given": "Cosa ha ricevuto",
     "It made": "Cosa ha dato",
     "Input": "Input",
-    "Only the first part of what it was given was kept.": "È stata tenuta solo la prima parte di ciò che ha ricevuto."
+    "Only the first part of what it was given was kept.": "È stata tenuta solo la prima parte di ciò che ha ricevuto.",
+    "And {count} more fields, not shown.": {
+      "one": "E {count} altro campo, non mostrato.",
+      "other": "E altri {count} campi, non mostrati."
+    },
+    "{count} fields the tool doesn't name": {
+      "one": "{count} campo che lo strumento non nomina",
+      "other": "{count} campi che lo strumento non nomina"
+    },
+    "… and about {count} more parts, not shown.": {
+      "one": "… e circa {count} altra parte, non mostrata.",
+      "other": "… e circa altre {count} parti, non mostrate."
+    }
   },
   "drops": {
     "flow_file": {

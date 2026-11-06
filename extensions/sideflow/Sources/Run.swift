@@ -159,7 +159,9 @@ struct Run: Equatable, Sendable, Identifiable {
         if r.scope == nil { r.scope = scope }
         if r.attempt == 1 { r.attempt = retries + 1 }
         if let i = records.lastIndex(where: { $0.step == r.step && $0.scope == r.scope }) {
+            // What it was given, and that only part of it was kept, stay with the step when it ends.
             if r.input == nil { r.input = records[i].input }
+            r.inputCut = r.inputCut || records[i].inputCut
             // The same go carrying on: how long it took counts from when it began.
             if r.began == nil, [.running, .waiting, .needs_you].contains(records[i].status) { r.began = records[i].began ?? records[i].at }
             records[i] = r

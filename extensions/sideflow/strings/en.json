@@ -83,6 +83,10 @@
     "An event trigger needs “event”, one of {kinds}.": "An event trigger needs “event”, one of {kinds}.",
     "An hour of Focus when you ask, and a word when it's over.": "An hour of Focus when you ask, and a word when it's over.",
     "And if": "And if",
+    "And {count} more fields, not shown.": {
+      "one": "And {count} more field, not shown.",
+      "other": "And {count} more fields, not shown."
+    },
     "And {count} more lines.": {
       "one": "And {count} more line.",
       "other": "And {count} more lines."
@@ -1028,6 +1032,10 @@
       "one": "{count} difference from what's running. Comes back as unsaved changes.",
       "other": "{count} differences from what's running. Comes back as unsaved changes."
     },
+    "{count} fields the tool doesn't name": {
+      "one": "{count} field the tool doesn't name",
+      "other": "{count} fields the tool doesn't name"
+    },
     "{count} flows can't be read by this version. They're kept, not shown.": {
       "one": "{count} flow can't be read by this version. It's kept, not shown.",
       "other": "{count} flows can't be read by this version. They're kept, not shown."
@@ -1192,6 +1200,10 @@
     "“{what}” isn't a way of writing a number it knows. These there are: {list}.": "“{what}” isn't a way of writing a number it knows. These there are: {list}.",
     "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").",
     "“{zone}” isn't a time zone: use a name like Europe/Paris.": "“{zone}” isn't a time zone: use a name like Europe/Paris.",
+    "… and about {count} more parts, not shown.": {
+      "one": "… and about {count} more part, not shown.",
+      "other": "… and about {count} more parts, not shown."
+    },
     "⌘S": "⌘S"
   }
 }

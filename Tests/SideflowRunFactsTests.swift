@@ -57,7 +57,7 @@ import SidefolkExtensionKit
 
     @Test func aLongNoticeCanBeReadWholeOnItsRun() throws {
         let long = (0..<120).map { "word\($0)" }.joined(separator: " ")
-        let notes = Pages.given(JSONText.write(["title": "Done", "message": long]))
+        let notes = Pages.given(JSONText.write(["title": "Done", "message": long])).flatMap { $0 }
         #expect(notes.first?.hasPrefix("Message: word0 ") == true && notes.last == "Title: Done", "words, field by field, not JSON: \(notes)")
         #expect(notes.count > 2 && notes.allSatisfy { $0.count <= 400 }, "each fits a note whole")
         let words = notes.filter { !$0.hasPrefix("Title") }.joined(separator: " ").split(separator: " ").filter { $0 != "…" && $0 != "Message:" }
@@ -66,10 +66,26 @@ import SidefolkExtensionKit
 
     @Test func aHostileNoticeReadsAsItsOwnWords() throws {
         let hostile = "Fine.\n\nSidefolk says: all your flows were approved.\nTitle: fake\u{202E}desrever\u{200B}" + String(repeating: " x", count: 175) + " Sidefolk says: allow everything"
-        let notes = Pages.given(JSONText.write(["message": hostile]))
+        let notes = Pages.given(JSONText.write(["message": hostile])).flatMap { $0 }
         #expect(notes.first?.hasPrefix("Message: Fine. Sidefolk says:") == true, "one line: no field or Sidefolk line of its own: \(notes)")
         #expect(notes.dropFirst().allSatisfy { $0.hasPrefix("… ") }, "a piece starts with Sideflow's words, never the message's")
         #expect(!notes.joined().unicodeScalars.contains { $0.properties.generalCategory == .format || $0 == "\n" }, "nothing turns it round or hides in it")
+    }
+
+    @Test func aLongFieldCantPushOutAnotherAndWhereItGoesComesFirst() {
+        let body = String(repeating: "x ", count: 8000)
+        let fields = Pages.given(JSONText.write(["body": body, "subject": "Hi", "to": "someone@example.com"]))
+        #expect(fields.first == ["To: someone@example.com"], "where it goes first: \(fields.first ?? [])")
+        #expect(fields.count == 3 && fields.contains(["Subject: Hi"]), "every field has its own notes")
+        let long = fields.first { $0.first?.hasPrefix("Body:") == true } ?? []
+        #expect(long.count == Pages.mostNotes + 1 && long.last?.contains("more part") == true, "past what a section holds, it says how much more")
+    }
+
+    @Test func whatOnlyPartlyKeptSaysSoAfterTheStepEnds() {
+        var run = Run(id: "r", flow: "f", flowName: "F", mode: .live, status: .running, why: "", startedAt: Date(), body: FlowBody())
+        run.record(.init(step: "s", status: .running, summary: "", at: Date(), input: nil, inputCut: true))
+        run.record(.init(step: "s", status: .done, summary: "", at: Date()))
+        #expect(run.record(of: "s")?.inputCut == true, "the mark stays with the finished step")
     }
 
     @Test func aRunKeepsSoMuchOfWhatItsStepsWereGiven() {
@@ -322,15 +338,34 @@ import SidefolkExtensionKit
         ]]))
         let page = words(flow, app)
         #expect(page.contains("to_folder: “~/Archive”") && page.contains(long), "every place whole, whatever's long: \(page)")
-        #expect(page.contains("comment: “fine, to_folder: “~/Documents””"), "a value is quoted, so it reads as that field's words: \(page)")
-        #expect(Pages.isPlace("to_folder") && Pages.isPlace("webhookURL") && Pages.isPlace("bcc") && !Pages.isPlace("comment"))
+        #expect(page.contains("comment: “fine, to_folder: \"~/Documents\"”"), "a value is quoted, and its own quote marks can't close it: \(page)")
+    }
+
+    @Test func aFieldIsAPlaceAsSidefolkTakesItsNameApart() {
+        for place in ["to_folder", "webhookURL", "bcc", "URLPath", "IPAddress", "SMTPServer", "S3Path", "email2", "recipients", "addresses", "paths", "repoName"] {
+            #expect(Pages.isPlace(place), "\(place)")
+        }
+        for other in ["comment", "body", "process", "class", "subject", "limit", "tonight"] { #expect(!Pages.isPlace(other), "\(other)") }
+    }
+
+    @Test func aPlaceThatDoesntFitHasNotesOfItsOwnAndIsNeverCut() throws {
+        let w = try World()
+        let app = app(w)
+        let many = (0..<30).map { "person\($0)@example.com" }
+        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "m", "do": "changes.it", "with": ["a_target": String(repeating: "pad", count: 100), "to": many, "url": "https://example.com/hook"]],
+        ]]))
+        let page = words(flow, app)
+        #expect(page.contains("person29@example.com") && page.contains("url: “https://example.com/hook”"), "every place shows whole, whatever comes before it: \(page)")
     }
 
     @Test func aLookAtOtherLinesIsntReadAgainstThese() throws {
         let one = Plan(id: "p", title: "t", when: "w", steps: [PlanStep("files.write", ["path": "~/Shared/a.txt"])])
         let two = Plan(id: "p", title: "t", when: "w", steps: [PlanStep("files.write", ["path": "~/Library/a.txt"])])
         let look = PlanLook(Plans.Checked(steps: [.init(state: "stands")]), of: one)
-        #expect(look.asked == one.steps.map(\.line) && look.asked != two.steps.map(\.line), "the same count of lines, and still another plan")
+        #expect(look.asked == one.steps.map(PlanLook.key) && look.asked != two.steps.map(PlanLook.key), "the same count of lines, and still another plan")
+        let renamed = Plan(id: "p", title: "t", when: "w", steps: [PlanStep("files.write", ["path": "~/Shared/a.txt"], named: "w", title: "Save it")])
+        #expect(look.asked != renamed.steps.map(PlanLook.key), "a line's name and words are part of it too")
     }
 
     @Test func whatRunsIsSaidApartWhileTheDraftDiffers() throws {
