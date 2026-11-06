@@ -184,8 +184,8 @@ extension FlowHost {
                 finish(&run)
                 return
             }
-            // Asked to pause: here, between steps, where nothing is half done.
-            if store.takeStop(Self.pauseKey(id)) {
+            // Asked to pause: here, between steps, where nothing is half done. Not while it's back from what it waited for and hasn't taken it in yet: that's the middle of a step, and the next gap comes straight after.
+            if run.waitingOn.isEmpty, store.takeStop(Self.pauseKey(id)) {
                 run.status = .waiting
                 run.paused = true
                 store.save(run)
