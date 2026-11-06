@@ -403,7 +403,8 @@ extension FlowHost {
             written["question"] = question
             return await acting(step, tool: "ask.user", input: input, written: written, in: &run)
         case .action(let tool, let input):
-            // A step the person chose to skip has nothing to give: sending its blank would look like an answer.
+            // A step the person chose to skip has nothing to give: sending its blank would look like an answer. Only where this step names it itself: words made from it
+            // by a text step, a lane's copy of it or a called flow's input still carry the blank (the later list, ROADMAP-PROGRESS).
             if let skipped = input.values.flatMap(\.strings).flatMap(Values.references).first(where: { run.record(of: $0)?.status == .skipped }) {
                 return failed(step, why: L("It uses “{name}”, which was skipped, so there's nothing to send.", ["name": skipped]), reads: false, in: &run)
             }
