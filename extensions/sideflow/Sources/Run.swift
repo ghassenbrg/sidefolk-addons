@@ -124,6 +124,8 @@ struct Run: Equatable, Sendable, Identifiable {
     var deadline: Date?
     /// Stopped at its limit by the clock: a stop from anywhere else after the limit went by is still that stop.
     var outOfTime = false
+    /// Since when it's been held, by a pause or for the person, while it would otherwise go on: that time isn't taken from its limit.
+    var heldSince: Date?
     /// Stopped because its time ran out, not because something else was enough.
     var timedOut: Bool { status == .stopped && outOfTime }
     /// The lanes a parallel stopped itself, having enough or a lost cause: any other that ends stopped was stopped by someone else.

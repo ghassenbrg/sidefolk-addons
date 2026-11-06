@@ -63,9 +63,9 @@ import SidefolkExtensionKit
             return Actions.Outcome(status: .ok, text: "result of \(tool)", summary: "Did \(tool)")
         }
 
-        func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
+        func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, counted: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
             heard = progress
-            runIds.append(run)
+            runIds.append(counted)
             return await call(tool, input, plan: plan, written: written)
         }
 
