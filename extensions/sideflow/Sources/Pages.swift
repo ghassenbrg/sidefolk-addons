@@ -22,8 +22,11 @@ import SidefolkExtensionKit
 
     static let mostOnAPage = 126_000
 
-    static func isTooLong(flow id: String, _ app: App) -> Bool {
-        JSONText.write(whole(app, state: Arguments(["flow": id])).sent).utf8.count > mostOnAPage
+    /// Whichever of the flow's tabs it was on: any can be the one that's too long.
+    static func isTooLong(flow id: String, tab: String?, _ app: App) -> Bool {
+        var state: [String: Any] = ["flow": id]
+        if let tab { state["tab"] = tab }
+        return JSONText.write(whole(app, state: Arguments(state)).sent).utf8.count > mostOnAPage
     }
 
     /// A flow or a list too long to draw, with what can be done about it. Every word here is short by being cut.
@@ -31,7 +34,7 @@ import SidefolkExtensionKit
         var body: [Block] = [.note(L("This is too long to show on a page. Delete what's too long, or ask an agent to shorten it."), tone: .warn)]
         if case .flow(let id) = Nav.place(state), let flow = app.store.flow(id) {
             body.append(.note(FlowFile.short(flow.name, 60)))
-            body.append(.action(button(L("Delete this flow"), "delete_too_long", ["flow": flow.id, "page_token": app.pageKey], style: .destructive, symbol: "trash", detail: L("Its runs and what you allowed for it go too. This can't be undone."))))
+            body.append(.action(button(L("Delete this flow"), "delete_too_long", ["flow": flow.id, "tab": state.string("tab") ?? NSNull(), "page_token": app.pageKey], style: .destructive, symbol: "trash", detail: L("Its runs and what you allowed for it go too. This can't be undone."))))
             return Page(summary: summary(app), sections: [Section(L("Too long to show"), body, wide: true)], back: L("All flows"), workspace: true)
         }
         if case .run(let id) = Nav.place(state), let run = app.store.run(id), !run.status.isOver {
