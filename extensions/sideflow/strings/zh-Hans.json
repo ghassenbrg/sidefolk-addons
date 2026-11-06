@@ -1301,7 +1301,8 @@
     "Settings › Trust keeps flows from passing what they read on to this, so it asks each run.": "设置 › 信任 不允许流程把读到的内容传给这里，所以每次运行都会询问。",
     "Stop all {count}": "全部停止（{count}）",
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "这里填入前面步骤生成的文字，所以只有在完全访问下才会自行运行。",
-    "You set Sidefolk to ask every time, so this asks each run.": "你把 Sidefolk 设为每次都询问，所以每次运行都会询问。"
+    "You set Sidefolk to ask every time, so this asks each run.": "你把 Sidefolk 设为每次都询问，所以每次运行都会询问。",
+    "Stop the run": "停止运行"
   },
   "drops": {
     "flow_file": {

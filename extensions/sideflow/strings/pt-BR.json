@@ -1332,7 +1332,8 @@
     "Settings › Trust keeps flows from passing what they read on to this, so it asks each run.": "Ajustes › Confiança impede que os fluxos passem para cá o que leem, então perguntará a cada execução.",
     "Stop all {count}": "Parar todas as {count}",
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "Aqui entram palavras de uma etapa anterior, então só roda sozinha com Acesso total.",
-    "You set Sidefolk to ask every time, so this asks each run.": "Você configurou o Sidefolk para perguntar sempre, então perguntará a cada execução."
+    "You set Sidefolk to ask every time, so this asks each run.": "Você configurou o Sidefolk para perguntar sempre, então perguntará a cada execução.",
+    "Stop the run": "Parar a execução"
   },
   "drops": {
     "flow_file": {

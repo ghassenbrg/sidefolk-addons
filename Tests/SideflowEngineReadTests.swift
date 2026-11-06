@@ -955,6 +955,27 @@ import SidefolkExtensionKit
         #expect(bar.contains("stop_runs"), "and Stop stays, unsaved changes or not")
     }
 
+    /// Stop all on Your flows: every run under way, of every flow, practice included, and only with the page's token; gone when nothing runs.
+    @Test func yourFlowsStopsEverythingUnderWay() async throws {
+        let w = try World()
+        let app = app(w)
+        var one = try make(app, [["id": "w", "wait_minutes": 30]], name: "One")
+        var two = try make(app, [["id": "w", "wait_minutes": 30]], name: "Two")
+        for f in [one, two] { var on = f; on.live = on.draft; on.state = .on; app.store.save(on) }
+        one = try #require(app.store.flow(one.id)); two = try #require(app.store.flow(two.id))
+        #expect(!"\(Pages.homePage(app, state: Arguments([:])))".contains("stop_all"))
+        let a = try #require(app.engine.start(one, mode: .live, why: "t"))
+        let b = try #require(app.engine.start(two, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        let page = "\(Pages.homePage(app, state: Arguments([:])))"
+        #expect(page.contains("stop_all") && page.contains(L("Stop all {count}", ["count": "2"])))
+        _ = try await Actions_UI.handle(Arguments(["op": "stop_all", "page_token": "not the page"]), app)
+        #expect(app.store.run(a.id)?.status == .waiting)
+        _ = try await Actions_UI.handle(Arguments(["op": "stop_all", "page_token": app.pageKey]), app)
+        #expect(app.store.run(a.id)?.status == .stopped && app.store.run(b.id)?.status == .stopped)
+        #expect(!"\(Pages.homePage(app, state: Arguments([:])))".contains("stop_all"))
+    }
+
     /// A run under way can be stopped from the flow's own head, the page's Stop as the person's, and only with the page's token.
     @Test func theFlowsHeadStopsWhatsUnderWay() async throws {
         let w = try World()
