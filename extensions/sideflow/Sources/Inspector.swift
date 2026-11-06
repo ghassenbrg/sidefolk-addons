@@ -333,6 +333,8 @@ import SidefolkExtensionKit
                 main.append(.edit(EditField("\(step.id).count", L("How many in each"), value: String(data.count ?? 10), detail: L("Then go through them with For each: each item is one batch."), kind: .number, tool: "ui", input: input("data_count"))))
             case .fallback:
                 main.append(.edit(EditField("\(step.id).than", L("Otherwise use"), value: data.than ?? "", tokens: tokens, tool: "ui", input: input("data_than"))))
+                // Not a problem to fix, since a flow from before may mean it: but when the value's missing, the run stops here.
+                if (data.than ?? "").trimmed.isEmpty { main.append(.note(L("Nothing is written to use instead, so when the value is missing the run stops here."), tone: .warn)) }
             case .join:
                 main.append(.edit(EditField("\(step.id).separator", L("Between each"), value: data.separator ?? ", ", tool: "ui", input: input("data_separator"))))
             default: break

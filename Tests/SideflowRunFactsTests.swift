@@ -242,7 +242,8 @@ import SidefolkExtensionKit
         guard case .text(let words)? = body.step("use")?.kind else { Issue.record("not text"); return }
         #expect(words == "{{made_or}} here")
         #expect(body.problems(app.catalog).allSatisfy { $0.uses != "made" }, "\(body.problems(app.catalog))")
-        #expect(body.problems(app.catalog).contains { $0.step == "made_or" && $0.text.contains("Say what to use") }, "what to use is left to write, and it says so")
+        let form = String(describing: Inspector.sections(try #require(app.store.flow(flow.id)), app, problems: [])).filter { !"\u{2068}\u{2069}\\".contains($0) }
+        #expect(form.contains("Nothing is written to use instead"), "what to use is left to write, and its form says so")
     }
 }
 
