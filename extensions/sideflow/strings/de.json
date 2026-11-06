@@ -1213,10 +1213,6 @@
     "A practice goes by": "Ein Probelauf hält sich an",
     "A step before this one gives what to use when it wasn't made. Write that in it: until you do, the run stops there when it's missing. You can undo this.": "Ein Schritt davor sagt, was gilt, wenn der Wert nicht entstand. Trag es dort ein: bis dahin hält der Durchlauf dort an, wenn er fehlt. Du kannst das rückgängig machen.",
     "All steps": "Alle Schritte",
-    "And {count} more steps.": {
-      "one": "Und {count} weiterer Schritt.",
-      "other": "Und {count} weitere Schritte."
-    },
     "Choose what": "Was wählen",
     "Delete this example": "Dieses Beispiel löschen",
     "Focus on this": "Darauf konzentrieren",
@@ -1286,7 +1282,16 @@
     "“{name}” needs something to look for.": "„{name}“ braucht etwas zum Suchen.",
     "“{name}” takes {count} things.": "„{name}“ nimmt {count} Dinge.",
     "“{what}” isn't a way of writing a number it knows. These there are: {list}.": "„{what}“ ist keine bekannte Schreibweise für Zahlen. Diese gibt es: {list}.",
-    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "„{what}“ ist nicht eindeutig eine Zahl. Sag, wie sie geschrieben ist: number(Wörter, \"1,234.56\") oder number(Wörter, \"1.234,56\")."
+    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "„{what}“ ist nicht eindeutig eine Zahl. Sag, wie sie geschrieben ist: number(Wörter, \"1,234.56\") oder number(Wörter, \"1.234,56\").",
+    "After you apply": "Nach dem Anwenden",
+    "And {count} more lines.": {
+      "one": "Und {count} weitere Zeile.",
+      "other": "Und {count} weitere Zeilen."
+    },
+    "reads everything before it": "liest alles davor",
+    "reads {list}": "liest {list}",
+    "with its own approval": "mit eigener Erlaubnis",
+    "your name for it: {name}": "dein Name dafür: {name}"
   },
   "drops": {
     "flow_file": {

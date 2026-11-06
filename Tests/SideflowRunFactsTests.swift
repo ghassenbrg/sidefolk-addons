@@ -246,3 +246,63 @@ import SidefolkExtensionKit
         #expect(form.contains("Nothing is written to use instead"), "what to use is left to write, and its form says so")
     }
 }
+
+/// The Permissions tab says what the card holds: what sets the flow off, where each line goes, and what runs while the draft differs.
+@MainActor @Suite(.serialized) struct SideflowPermissionsTabTests {
+    typealias World = SideflowTests.World
+
+    private func app(_ w: World) -> App {
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        return app
+    }
+
+    private func words(_ flow: Flow, _ app: App) -> String {
+        String(describing: Pages.flowAllowedPage(flow, app, state: Arguments([:]))).filter { !"\u{2068}\u{2069}\\".contains($0) }
+    }
+
+    @Test func whatSetsItOffIsALineThoughItsStepsOnlyWorkWithWords() throws {
+        let w = try World()
+        let app = app(w)
+        let watching = app.newFlow(name: "Watching", body: try FlowCodec.body(["trigger": ["type": "watch", "kind": "url_change", "target": "https://x.example"], "steps": [["id": "a", "text": "x"]]]))
+        let page = words(watching, app)
+        #expect(!page.contains("it needs nothing allowed"), "\(page)")
+        #expect(page.contains("target: https://x.example"), "the watch is on the card, so it's here")
+        let timed = app.newFlow(name: "Timed", body: try FlowCodec.body(["trigger": ["type": "schedule", "every_minutes": 15], "steps": [["id": "a", "text": "x"]]]))
+        #expect(!words(timed, app).contains("it needs nothing allowed"), "it runs by itself, so there's a card")
+        let plain = app.newFlow(name: "Plain", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x"]]]))
+        #expect(words(plain, app).contains("it needs nothing allowed"))
+    }
+
+    @Test func aLineSaysWhereItGoesAndItsOwnNameOnlyBeside() throws {
+        let w = try World()
+        let app = app(w)
+        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "send", "name": "Save a note", "do": "changes.it", "with": ["to": "someone@example.com", "text": "hi"]],
+            ["id": "q", "ask": "Go on?"],
+        ]]))
+        let page = words(flow, app)
+        #expect(page.contains("to: someone@example.com"), "\(page)")
+        #expect(page.contains("your name for it: Save a note"))
+        #expect(page.contains("Ask me") && page.contains("question: Go on?"), "a question is on the card too")
+    }
+
+    @Test func whatRunsIsSaidApartWhileTheDraftDiffers() throws {
+        let w = try World()
+        let app = app(w)
+        var flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "send", "do": "changes.it", "with": ["to": "someone@example.com"]],
+        ]]))
+        flow.live = flow.draft
+        flow.state = .on
+        flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x"]]])
+        app.store.save(flow)
+        let page = words(flow, app)
+        #expect(page.contains("Running now") && page.contains("After you apply"), "\(page)")
+        let running = try #require(page.range(of: "Running now")), after = try #require(page.range(of: "After you apply"))
+        let sent = try #require(page.range(of: "to: someone@example.com"), "what runs still sends")
+        #expect(running.upperBound < sent.lowerBound && sent.upperBound < after.lowerBound)
+        flow.draft = flow.live!
+        #expect(!words(flow, app).contains("After you apply"), "the same again is one list")
+    }
+}

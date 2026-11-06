@@ -1213,10 +1213,6 @@
     "A practice goes by": "Un ensayo sigue",
     "A step before this one gives what to use when it wasn't made. Write that in it: until you do, the run stops there when it's missing. You can undo this.": "Un paso antes de este da qué usar cuando el valor no se creó. Escríbelo en él: hasta entonces, la ejecución se detiene ahí cuando falta. Puedes deshacerlo.",
     "All steps": "Todos los pasos",
-    "And {count} more steps.": {
-      "one": "Y {count} paso más.",
-      "other": "Y {count} pasos más."
-    },
     "Choose what": "Elige qué",
     "Delete this example": "Borrar este ejemplo",
     "Focus on this": "Centrarse en esto",
@@ -1286,7 +1282,16 @@
     "“{name}” needs something to look for.": "«{name}» necesita algo que buscar.",
     "“{name}” takes {count} things.": "«{name}» toma {count} cosas.",
     "“{what}” isn't a way of writing a number it knows. These there are: {list}.": "«{what}» no es una forma de escribir números que conozca. Estas hay: {list}.",
-    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "«{what}» no es claramente un número. Di cómo está escrito: number(palabras, \"1,234.56\") o number(palabras, \"1.234,56\")."
+    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "«{what}» no es claramente un número. Di cómo está escrito: number(palabras, \"1,234.56\") o number(palabras, \"1.234,56\").",
+    "After you apply": "Después de aplicar",
+    "And {count} more lines.": {
+      "one": "Y {count} línea más.",
+      "other": "Y {count} líneas más."
+    },
+    "reads everything before it": "lee todo lo anterior",
+    "reads {list}": "lee {list}",
+    "with its own approval": "con su propio permiso",
+    "your name for it: {name}": "tu nombre para él: {name}"
   },
   "drops": {
     "flow_file": {

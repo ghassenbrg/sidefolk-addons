@@ -17,6 +17,8 @@ import SidefolkExtensionKit
     private var preflightAsked: [String: Date] = [:]
     /// What the plan would be if approved now, by flow: Sidefolk's own answer, with nothing shown or changed.
     var planChecks: [String: PlanLook] = [:]
+    /// The same, of what runs, while the draft differs from it: the Permissions tab says both.
+    var runningChecks: [String: PlanLook] = [:]
     /// Where what sets a flow off sits among its steps' checks.
     static let triggerCheck = "start"
     /// A request to the AI to draft a flow, while it runs, and what came of the last.
@@ -132,10 +134,20 @@ import SidefolkExtensionKit
             shown.saved = nil
             let plan2 = engine.livePlan(shown)
             let looked = await host.checkPlan(plan2)
+            // What runs is what the person allowed, whatever the draft says now.
+            var running: (Plan, Plans.Checked?)?
+            if let live = flow.live, live != flow.draft {
+                var it = flow
+                it.draft = live
+                it.saved = nil
+                let plan3 = engine.livePlan(it)
+                running = (plan3, await host.checkPlan(plan3))
+            }
             // A slower look from before an edit doesn't overwrite a newer one.
             guard preflightAsked[id] == asked else { return }
             preflight[id] = out
             planChecks[id] = looked.map { PlanLook($0, of: plan2) }
+            runningChecks[id] = running.flatMap { plan, checked in checked.map { PlanLook($0, of: plan) } }
         }
     }
 }
@@ -146,8 +158,13 @@ struct PlanLook {
     var widened: Bool
     var new: Int
     var byStep: [String: Plans.Checked.Line]
+    /// Each line's answer by place in the plan, and how many lines it was asked about, so a look at another version isn't read against this one.
+    var lines: [Plans.Checked.Line]
+    var asked: Int
 
     init(_ checked: Plans.Checked, of plan: Plan) {
+        lines = checked.steps
+        asked = plan.steps.count
         silent = checked.silent
         widened = checked.widened
         new = Set(checked.new.compactMap { plan.steps.indices.contains($0) ? plan.steps[$0].line : nil }).count

@@ -1191,9 +1191,6 @@
     "A practice goes by": "練習実行で使うもの",
     "A step before this one gives what to use when it wasn't made. Write that in it: until you do, the run stops there when it's missing. You can undo this.": "この前のステップに、値がないときに使うものを書きます。書くまでは、値がないとそこで止まります。元に戻せます。",
     "All steps": "すべてのステップ",
-    "And {count} more steps.": {
-      "other": "ほかに {count} ステップ。"
-    },
     "Choose what": "選ぶ",
     "Delete this example": "この例を削除",
     "Focus on this": "これに絞る",
@@ -1259,7 +1256,15 @@
     "“{name}” needs something to look for.": "「{name}」には探すものが必要です。",
     "“{name}” takes {count} things.": "「{name}」は {count} 個の値を取ります。",
     "“{what}” isn't a way of writing a number it knows. These there are: {list}.": "「{what}」は知っている数の書き方ではありません。使えるもの: {list}。",
-    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "「{what}」ははっきりした数ではありません。書き方を指定してください: number(言葉, \"1,234.56\") または number(言葉, \"1.234,56\")。"
+    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "「{what}」ははっきりした数ではありません。書き方を指定してください: number(言葉, \"1,234.56\") または number(言葉, \"1.234,56\")。",
+    "After you apply": "適用後",
+    "And {count} more lines.": {
+      "other": "ほかに {count} 行。"
+    },
+    "reads everything before it": "前のすべてを読む",
+    "reads {list}": "{list} を読む",
+    "with its own approval": "独自の許可で",
+    "your name for it: {name}": "あなたの呼び名: {name}"
   },
   "drops": {
     "flow_file": {

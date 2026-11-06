@@ -1191,9 +1191,6 @@
     "A practice goes by": "연습 실행이 따르는 것",
     "A step before this one gives what to use when it wasn't made. Write that in it: until you do, the run stops there when it's missing. You can undo this.": "이 단계 앞의 단계가 값이 없을 때 쓸 것을 줍니다. 거기에 적으세요. 적기 전까지는 값이 없으면 실행이 거기서 멈춥니다. 되돌릴 수 있습니다.",
     "All steps": "모든 단계",
-    "And {count} more steps.": {
-      "other": "그리고 {count}단계 더."
-    },
     "Choose what": "무엇을",
     "Delete this example": "이 예시 삭제",
     "Focus on this": "여기에 집중",
@@ -1259,7 +1256,15 @@
     "“{name}” needs something to look for.": "“{name}”에는 찾을 것이 필요합니다.",
     "“{name}” takes {count} things.": "“{name}”은(는) {count}개를 받습니다.",
     "“{what}” isn't a way of writing a number it knows. These there are: {list}.": "“{what}”은(는) 아는 숫자 표기 방식이 아닙니다. 있는 것: {list}.",
-    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "“{what}”은(는) 분명한 숫자가 아닙니다. 쓰인 방식을 알려 주세요: number(글자, \"1,234.56\") 또는 number(글자, \"1.234,56\")."
+    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "“{what}”은(는) 분명한 숫자가 아닙니다. 쓰인 방식을 알려 주세요: number(글자, \"1,234.56\") 또는 number(글자, \"1.234,56\").",
+    "After you apply": "적용한 뒤",
+    "And {count} more lines.": {
+      "other": "그리고 {count}줄 더."
+    },
+    "reads everything before it": "앞의 모든 것을 읽음",
+    "reads {list}": "{list} 읽음",
+    "with its own approval": "자체 승인으로",
+    "your name for it: {name}": "내가 붙인 이름: {name}"
   },
   "drops": {
     "flow_file": {

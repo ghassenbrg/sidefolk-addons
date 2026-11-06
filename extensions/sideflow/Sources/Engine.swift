@@ -1178,7 +1178,16 @@ extension FlowHost {
     /// What a definition asks to be allowed, one line each, the same line once: what the card shows and what Sidefolk's limit on a plan counts.
     /// `about`: the flow's name, as a question sends it: the line has to say what the call will (D201).
     static func planSteps(_ body: FlowBody, title: String, about: String = "", oldWatch: String? = nil) -> [PlanStep] {
+        planLines(body, title: title, about: about, oldWatch: oldWatch).steps
+    }
+
+    /// What a plan's AI and flow lines are about, by place in its steps: the Kit keeps that inside the step, and the Permissions tab says it.
+    enum PlanShown: Equatable { case ai(reads: [String]), flow(String) }
+
+    /// The plan's steps, and for each AI or flow line what it's about.
+    static func planLines(_ body: FlowBody, title: String, about: String = "", oldWatch: String? = nil) -> (steps: [PlanStep], shown: [Int: PlanShown]) {
         var steps: [PlanStep] = []
+        var shown: [Int: PlanShown] = [:]
         var seen = Set<String>(), names = Set<String>()
         func add(_ tool: String, _ input: [String: Any]) {
             let key = tool + JSONText.write(input)
@@ -1225,8 +1234,12 @@ extension FlowHost {
                     let reads = sources([prompt]).filter { $0 != writtenWords }
                     // A saved flow's step called `index` can't be named, so what it reads could go unsaid: no names means everything before it.
                     let unnamed = Values.references(prompt).contains("index") && body.allSteps.contains { $0.id.lowercased() == "index" }
-                    steps.append(.ai(named: name(step), title: step.name, reads: reads.count > mostReads || unnamed ? [] : reads))
-                case .flow(let other), .call(let other, _): steps.append(.flow(other, named: name(step), title: step.name))
+                    let said = reads.count > mostReads || unnamed ? [] : reads
+                    shown[steps.count] = .ai(reads: said)
+                    steps.append(.ai(named: name(step), title: step.name, reads: said))
+                case .flow(let other), .call(let other, _):
+                    shown[steps.count] = .flow(other)
+                    steps.append(.flow(other, named: name(step), title: step.name))
                 case .text(let text):
                     if let as_ = name(step) { steps.append(.value(named: as_, reads: said(sources([text])))) }
                 case .data(let data):
@@ -1267,7 +1280,7 @@ extension FlowHost {
             // It was a watch and isn't now: the watch goes, or it would go on looking.
             add("watch.stop", ["id": oldWatch])
         }
-        return steps
+        return (steps, shown)
     }
 
     /// The steps whose values are the person's own answer. Believed from this pack, so it says no more than it knows; what's built from these says what it reads on its own row.

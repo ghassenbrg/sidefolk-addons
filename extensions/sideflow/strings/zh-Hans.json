@@ -1191,9 +1191,6 @@
     "A practice goes by": "试运行依照",
     "A step before this one gives what to use when it wasn't made. Write that in it: until you do, the run stops there when it's missing. You can undo this.": "这一步前面的一步会给出值缺失时用什么。请写在里面：写好之前，值缺失时运行会停在那里。可以撤销。",
     "All steps": "所有步骤",
-    "And {count} more steps.": {
-      "other": "还有 {count} 步。"
-    },
     "Choose what": "选择",
     "Delete this example": "删除这个示例",
     "Focus on this": "聚焦于此",
@@ -1259,7 +1256,15 @@
     "“{name}” needs something to look for.": "“{name}”需要要找的内容。",
     "“{name}” takes {count} things.": "“{name}”接受 {count} 个值。",
     "“{what}” isn't a way of writing a number it knows. These there are: {list}.": "“{what}”不是它认识的数字写法。可用的有：{list}。",
-    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "“{what}”并不明确是一个数字。请说明写法：number(文字, \"1,234.56\") 或 number(文字, \"1.234,56\")。"
+    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "“{what}”并不明确是一个数字。请说明写法：number(文字, \"1,234.56\") 或 number(文字, \"1.234,56\")。",
+    "After you apply": "应用之后",
+    "And {count} more lines.": {
+      "other": "还有 {count} 行。"
+    },
+    "reads everything before it": "读取前面的全部内容",
+    "reads {list}": "读取 {list}",
+    "with its own approval": "有它自己的批准",
+    "your name for it: {name}": "你给它的名字：{name}"
   },
   "drops": {
     "flow_file": {

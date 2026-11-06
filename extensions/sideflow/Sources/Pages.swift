@@ -939,30 +939,74 @@ import SidefolkExtensionKit
 
     // MARK: What a flow may do
 
-    /// Each step that needs allowing and what Sidefolk says of it now, in the words its form gives. It's Sidefolk's answer, asked afresh, so a changed trust setting shows here.
+    /// What the flow's card holds, line by line, and what Sidefolk says of each now: what sets it off, each tool with where it goes, each AI and flow.
+    /// It's Sidefolk's answer, asked afresh, so a changed trust setting shows here. What runs is said apart from the draft while they differ.
     static func flowAllowedPage(_ flow: Flow, _ app: App, state: Arguments) -> Page {
         app.refreshPreflightIfOld(flow.id)
-        let look = app.planChecks[flow.id]
-        var lines: [(String, String)] = []
-        for step in flow.draft.allSteps {
-            switch step.kind {
-            case .action, .ai, .call, .flow: break
-            default: continue
-            }
-            lines.append((String(Words.label(step, catalog: app.catalog).prefix(40)), allowedWord(look?.byStep[step.id], asked: look != nil)))
+        var sections = [Section(nil, [.bar(head(flow, app, ready: flow.draft.problems(app.catalog).isEmpty)), tabs(flow, state: state)])]
+        let differs = flow.live.map { $0 != flow.draft } ?? false
+        if let live = flow.live, differs || flow.state != .draft {
+            let look = differs ? app.runningChecks[flow.id] : app.planChecks[flow.id]
+            sections.append(Section(L("Running now"), allowed(live, of: flow, look: look, app, head: !differs), wide: true))
         }
-        var body: [Block] = []
-        if let look { body.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
+        if flow.live == nil || differs || flow.state == .draft {
+            sections.append(Section(differs ? L("After you apply") : nil, allowed(flow.draft, of: flow, look: app.planChecks[flow.id], app, head: true), wide: true))
+        }
+        return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), sections, end: [Section(nil, allowedEnding(flow, app), place: .trailing)])
+    }
+
+    /// One version's lines, from the plan the card is made of: its own name for a step only beside what the card says, since anyone writing the flow can choose it.
+    private static func allowed(_ body: FlowBody, of flow: Flow, look: PlanLook?, _ app: App, head: Bool) -> [Block] {
+        var version = flow
+        version.draft = body
+        version.saved = nil
+        let plan = app.engine.livePlan(version)
+        let (steps, shown) = Engine.planLines(body, title: Engine.watchTitle(flow), about: flow.name, oldWatch: flow.watchTitle)
+        // A look at another version of it says nothing of this one.
+        let answers = look.flatMap { $0.asked == steps.count && $0.lines.count == steps.count ? $0.lines : nil }
+        var lines: [(String, String)] = []
+        for (i, step) in steps.enumerated() where !step.onlyPassesOn {
+            let (what, detail) = allowedLine(step, shown[i], app)
+            let word = allowedWord(answers?[i], asked: answers != nil)
+            let yours = step.title.map { L("your name for it: {name}", ["name": String($0.prefix(40))]) }
+            lines.append((String(what.prefix(40)), [word, detail, yours].compactMap { $0?.nonEmpty }.joined(separator: " · ")))
+        }
+        var out: [Block] = []
+        if head, let look { out.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
+        guard Engine.needsCard(body) else { return out + [.note(L("It only works with words: it needs nothing allowed."))] }
+        out.append(.note(plan.when))
         // A section and a list hold so many: past that, the rest are said to be there.
-        let shown = lines.prefix(24 * 20)
-        body += stride(from: 0, to: shown.count, by: 24).map { .facts(nil, Array(shown[$0 ..< min($0 + 24, shown.count)])) }
-        if lines.count > shown.count { body.append(.note(L(one: "And {count} more step.", other: "And {count} more steps.", count: lines.count - shown.count))) }
-        if lines.isEmpty { body.append(.note(L("It only works with words: it needs nothing allowed."))) }
-        let end = [Section(nil, allowedEnding(flow, app), place: .trailing)]
-        return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), [
-            Section(nil, [.bar(head(flow, app, ready: flow.draft.problems(app.catalog).isEmpty)), tabs(flow, state: state)]),
-            Section(nil, body, wide: true),
-        ], end: end)
+        let kept = lines.prefix(24 * 20)
+        out += stride(from: 0, to: kept.count, by: 24).map { .facts(nil, Array(kept[$0 ..< min($0 + 24, kept.count)])) }
+        if lines.count > kept.count { out.append(.note(L(one: "And {count} more line.", other: "And {count} more lines.", count: lines.count - kept.count))) }
+        return out
+    }
+
+    /// What a line is and where it goes, as the card names it: the tool and its values, the AI and what it reads, the flow it sets off.
+    private static func allowedLine(_ step: PlanStep, _ shown: Engine.PlanShown?, _ app: App) -> (String, String?) {
+        switch shown {
+        case .ai(let reads)?: return (L("Write with AI"), reads.isEmpty ? L("reads everything before it") : L("reads {list}", ["list": Format.list(reads)]))
+        case .flow(let name)?: return (L("Run {flow}", ["flow": name]), L("with its own approval"))
+        case nil: break
+        }
+        let what = step.tool == "ask.user" ? L("Ask me") : app.catalog.title(of: step.tool)
+        // Where it goes comes first, so a long value can't push it out of the line.
+        let first = ["target", "path", "folder", "url", "to", "recipient", "recipients", "address", "email"]
+        let keys = first.filter { step.input[$0] != nil } + step.input.keys.sorted().filter { !first.contains($0) }
+        let values = keys.compactMap { key -> String? in
+            guard key != "timeout_seconds", let value = shortValue(step.input[key]) else { return nil }
+            return "\(key): \(value)"
+        }
+        return (what, values.isEmpty ? nil : String(values.joined(separator: ", ").prefix(70)))
+    }
+
+    private static func shortValue(_ value: Any?) -> String? {
+        switch value {
+        case let text as String: return text.isEmpty ? nil : String(text.prefix(60))
+        case let number as NSNumber: return number.stringValue
+        case let list as [Any]: return list.isEmpty ? nil : String(list.compactMap { shortValue($0) }.joined(separator: ", ").prefix(60))
+        default: return nil
+        }
     }
 
     private static func allowedWord(_ line: Plans.Checked.Line?, asked: Bool) -> String {

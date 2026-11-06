@@ -65,6 +65,7 @@
     "Add-ons you install appear here by themselves.": "Add-ons you install appear here by themselves.",
     "Added: {step}": "Added: {step}",
     "After it sets the flow off, for something that keeps changing.": "After it sets the flow off, for something that keeps changing.",
+    "After you apply": "After you apply",
     "After {step}": "After {step}",
     "Agents": "Agents",
     "All": "All",
@@ -82,9 +83,9 @@
     "An event trigger needs “event”, one of {kinds}.": "An event trigger needs “event”, one of {kinds}.",
     "An hour of Focus when you ask, and a word when it's over.": "An hour of Focus when you ask, and a word when it's over.",
     "And if": "And if",
-    "And {count} more steps.": {
-      "one": "And {count} more step.",
-      "other": "And {count} more steps."
+    "And {count} more lines.": {
+      "one": "And {count} more line.",
+      "other": "And {count} more lines."
     },
     "Another flow it started is still running: {name}.": "Another flow it started is still running: {name}.",
     "Another lane already goes by that name.": "Another lane already goes by that name.",
@@ -1005,8 +1006,12 @@
     "isn't": "isn't",
     "mentions": "mentions",
     "nothing that shows": "nothing that shows",
+    "reads everything before it": "reads everything before it",
+    "reads {list}": "reads {list}",
+    "with its own approval": "with its own approval",
     "words": "words",
     "yes or no": "yes or no",
+    "your name for it: {name}": "your name for it: {name}",
     "{condition}: no": "{condition}: no",
     "{condition}: yes": "{condition}: yes",
     "{count} actions": {

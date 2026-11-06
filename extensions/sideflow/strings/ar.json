@@ -1301,14 +1301,6 @@
     "A practice goes by": "يتبع التشغيل التجريبي",
     "A step before this one gives what to use when it wasn't made. Write that in it: until you do, the run stops there when it's missing. You can undo this.": "خطوة قبل هذه تعطي ما يُستخدم حين لا تكون القيمة موجودة. اكتبه فيها: حتى تفعل، يتوقف التشغيل هناك حين تغيب. يمكنك التراجع.",
     "All steps": "كل الخطوات",
-    "And {count} more steps.": {
-      "zero": "و{count} خطوة أخرى.",
-      "one": "وخطوة أخرى.",
-      "two": "وخطوتان أخريان.",
-      "few": "و{count} خطوات أخرى.",
-      "many": "و{count} خطوة أخرى.",
-      "other": "و{count} خطوة أخرى."
-    },
     "Choose what": "اختر ماذا",
     "Delete this example": "حذف هذا المثال",
     "Focus on this": "التركيز على هذا",
@@ -1394,7 +1386,20 @@
     "“{name}” needs something to look for.": "«{name}» يحتاج إلى ما يبحث عنه.",
     "“{name}” takes {count} things.": "«{name}» يأخذ {count} أشياء.",
     "“{what}” isn't a way of writing a number it knows. These there are: {list}.": "«{what}» ليست طريقة لكتابة الأرقام يعرفها. الموجود: {list}.",
-    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "«{what}» ليس رقمًا بوضوح. قل كيف كُتب: number(كلمات, \"1,234.56\") أو number(كلمات, \"1.234,56\")."
+    "“{what}” isn't plainly a number. Say how it's written: number(words, \"1,234.56\") or number(words, \"1.234,56\").": "«{what}» ليس رقمًا بوضوح. قل كيف كُتب: number(كلمات, \"1,234.56\") أو number(كلمات, \"1.234,56\").",
+    "After you apply": "بعد التطبيق",
+    "And {count} more lines.": {
+      "zero": "و{count} سطرًا آخر.",
+      "one": "وسطر آخر.",
+      "two": "وسطران آخران.",
+      "few": "و{count} أسطر أخرى.",
+      "many": "و{count} سطرًا آخر.",
+      "other": "و{count} سطرًا آخر."
+    },
+    "reads everything before it": "يقرأ كل ما قبله",
+    "reads {list}": "يقرأ {list}",
+    "with its own approval": "بموافقته الخاصة",
+    "your name for it: {name}": "اسمك له: {name}"
   },
   "drops": {
     "flow_file": {
