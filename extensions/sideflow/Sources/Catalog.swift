@@ -412,6 +412,8 @@ extension FlowBody {
                 else if let wrong = step.saysNothing { out.append(FlowProblem(step: step.id, text: wrong)) }
             case .data(let data):
                 if data.from.trimmed.isEmpty, let wrong = step.saysNothing { out.append(FlowProblem(step: step.id, text: wrong)) }
+                // An empty "otherwise" would stop the run right there whenever the value's missing: what a fallback is for is saying what to use.
+                if data.op == .fallback, (data.than ?? "").trimmed.isEmpty { out.append(FlowProblem(step: step.id, text: L("Say what to use when it isn't there."))) }
                 if data.op == .work_out, !data.from.trimmed.isEmpty {
                     do { _ = try Expression.parse(data.from) } catch { out.append(FlowProblem(step: step.id, text: (error as? Problem)?.message ?? L("It can't follow what to work out."))) }
                 }

@@ -63,7 +63,7 @@ enum AgentEdits {
         let input: [String: Any] = ["flow": flow.id, "step": id, "name": name]
         // Made on one way and not the other: a fallback says what it is when it wasn't made.
         if problem.onOnePath {
-            return [.action(Pages.button(L("Use “{name}” with a fallback", ["name": name]), "repair_fallback", input, style: .plain, symbol: "arrow.triangle.branch", detail: L("A step before this one gives what to use when it wasn't made. Write that in it. You can undo this.")))]
+            return [.action(Pages.button(L("Use “{name}” with a fallback", ["name": name]), "repair_fallback", input, style: .plain, symbol: "arrow.triangle.branch", detail: L("A step before this one gives what to use when it wasn't made. Write that in it: until you do, it's marked to fix. You can undo this.")))]
         }
         if flow.draft.step(name) == nil {
             return [.action(Pages.button(L("Take “{name}” out of this step", ["name": name]), "repair_drop", input, style: .plain, symbol: "minus.circle", detail: L("Whatever it said there goes too. You can undo this.")))]
