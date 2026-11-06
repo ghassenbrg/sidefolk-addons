@@ -1265,7 +1265,11 @@
     "Too long to show": "أطول من أن يُعرض",
     "Its runs and what you allowed for it go too. This can't be undone.": "تذهب تشغيلاته وما سمحت به أيضًا. لا يمكن التراجع عن هذا.",
     "Show in Finder": "إظهار في Finder",
-    "Sidefolk wouldn't show that file.": "لم يعرض Sidefolk ذلك الملف."
+    "Sidefolk wouldn't show that file.": "لم يعرض Sidefolk ذلك الملف.",
+    "It uses “{name}”, but that step gave nothing this time.": "يستخدم «{name}»، لكن تلك الخطوة لم تعطِ شيئًا هذه المرة.",
+    "It uses “{name}”, which was skipped, so there's nothing to send.": "يستخدم «{name}» الذي تُخطّي، فلا شيء يُرسل.",
+    "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "العنصر 9 قبل العنصر 12، كما يفعل Finder. تُقرأ الأرقام في الكلمات جزءًا من الأسماء.",
+    "Sort as names": "الفرز كأسماء"
   },
   "drops": {
     "flow_file": {

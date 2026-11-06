@@ -1177,7 +1177,11 @@
     "Too long to show": "Zu lang zum Anzeigen",
     "Its runs and what you allowed for it go too. This can't be undone.": "Seine Durchläufe und was du erlaubt hast, verschwinden auch. Das lässt sich nicht rückgängig machen.",
     "Show in Finder": "Im Finder zeigen",
-    "Sidefolk wouldn't show that file.": "Sidefolk wollte diese Datei nicht zeigen."
+    "Sidefolk wouldn't show that file.": "Sidefolk wollte diese Datei nicht zeigen.",
+    "It uses “{name}”, but that step gave nothing this time.": "Er nutzt „{name}“, aber dieser Schritt ergab diesmal nichts.",
+    "It uses “{name}”, which was skipped, so there's nothing to send.": "Er nutzt „{name}“, das übersprungen wurde, also gibt es nichts zu senden.",
+    "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "Element 9 vor Element 12, wie im Finder. Zahlen in den Wörtern zählen als Teil der Namen.",
+    "Sort as names": "Wie Namen sortieren"
   },
   "drops": {
     "flow_file": {

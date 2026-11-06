@@ -1155,7 +1155,11 @@
     "Too long to show": "長すぎて表示できません",
     "Its runs and what you allowed for it go too. This can't be undone.": "実行履歴と許可した内容も削除されます。元に戻せません。",
     "Show in Finder": "Finder で表示",
-    "Sidefolk wouldn't show that file.": "Sidefolk はそのファイルを表示しませんでした。"
+    "Sidefolk wouldn't show that file.": "Sidefolk はそのファイルを表示しませんでした。",
+    "It uses “{name}”, but that step gave nothing this time.": "「{name}」を使いますが、そのステップは今回何も返しませんでした。",
+    "It uses “{name}”, which was skipped, so there's nothing to send.": "「{name}」を使いますが、それは飛ばされたため、送るものがありません。",
+    "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "Finder と同じく、Item 9 を Item 12 の前にします。言葉の中の数は名前の一部として読みます。",
+    "Sort as names": "名前として並べ替え"
   },
   "drops": {
     "flow_file": {
