@@ -109,6 +109,8 @@ extension Engine {
             leave()
             // Nothing inside made anything: nothing for a later step to be sent as if it were an answer.
             if let made { run.values.set(step.id, made) }
+            // One go in practice can end on a way that made nothing: what's after it goes on pretending, as after any step a practice didn't really do.
+            else if run.mode == .practice { run.values.set(step.id, L("(sample)")) }
             let summary = run.mode == .practice ? L("Went round once for practice; it would go on until this holds, {count} times at most", ["count": Format.integer(times)])
                 : L(one: "It held after {count} time", other: "It held after {count} times", count: go)
             var record = Run.Record(step: step.id, status: run.mode == .practice ? .would : .done, summary: summary, output: made.map { Values.text($0).clipped(Self.keptOutput) }, at: clock())
