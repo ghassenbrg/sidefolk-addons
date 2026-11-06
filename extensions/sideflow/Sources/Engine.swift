@@ -105,9 +105,9 @@ extension FlowHost {
         if mode == .practice, trigger == nil, let sample = run.body.triggerSample { run.values.set("trigger", sample) }
         run.setOff = setOff
         // It would fail there, after what comes before it has been done: a call that always runs, here or in what that flow always calls. One inside a condition or a loop may never be reached, so it's for when it is.
-        if mode != .practice, let off = Self.alwaysCalled(run.body, store: store, from: flow.id).lazy.compactMap({ name -> String? in
-            guard let other = self.store.named(name), other.id != flow.id, other.state != .on else { return nil }
-            return name
+        if mode != .practice, let off = Self.alwaysCalled(run.body, store: store, from: flow.id).lazy.compactMap({ call -> String? in
+            guard let other = self.store.named(call.name), other.id != flow.id, other.state != .on else { return nil }
+            return call.name
         }).first {
             run.status = .failed
             run.problem = L("“{name}” isn't on, so it can't run by itself.", ["name": off])
@@ -1237,14 +1237,28 @@ extension FlowHost {
     /// What a value is said to read when words were written into it: no step can be called this, so it counts as from outside.
     static let writtenWords = "written-words"
 
-    /// The flows a run always calls: on its top level, and down through what those always call.
-    @MainActor static func alwaysCalled(_ body: FlowBody, store: FlowStore, from: String) -> [String] {
-        var out: [String] = [], seen: Set<String> = [from], next = [body]
+    /// The flows a run always calls: on its top level, in what always starts there (a try and its last steps, a repeat's first go, every lane a parallel waits for),
+    /// and down through what those always call, in the version each call stays on. A condition, a choice or a list may never get there, so a call in one is for when it does.
+    @MainActor static func alwaysCalled(_ body: FlowBody, store: FlowStore, from: String) -> [(name: String, pin: Int?)] {
+        var out: [(name: String, pin: Int?)] = [], seen: Set<String> = [from], next = [body]
+        func reached(_ steps: [Step]) -> [Step] {
+            steps.flatMap { step -> [Step] in
+                switch step.kind {
+                case .attempt(let tried, _, let always): return [step] + reached(tried) + reached(always)
+                case .repeatUntil(_, _, let inside): return [step] + reached(inside)
+                case .parallel(let lanes) where step.join == .all || step.join == .settled: return [step] + reached(lanes.flatMap(\.steps))
+                default: return [step]
+                }
+            }
+        }
         while let one = next.popLast(), out.count < 32 {
-            for step in one.steps {
+            for step in reached(one.steps) {
                 guard case .call(let name, _) = step.kind else { continue }
-                out.append(name)
-                if let other = store.named(name), seen.insert(other.id).inserted { next.append(other.running) }
+                out.append((name, step.pin))
+                guard let other = store.named(name) else { continue }
+                // What it calls in turn is in the version this call runs: one it stays on, or what's live.
+                let key = other.id + (step.pin.map { "@\($0)" } ?? "")
+                if seen.insert(key).inserted, let held = step.pin.map({ other.body(version: $0) }) ?? other.running { next.append(held) }
             }
         }
         return out

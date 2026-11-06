@@ -47,6 +47,46 @@ import SidefolkExtensionKit
         #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing done before it would fail")
     }
 
+    @Test func aCallThatAlwaysStartsInsideABlockIsFoundBeforeAnythingRuns() throws {
+        let w = try World()
+        var off = try w.flow([["id": "x", "text": "x"]], state: .draft)
+        off.name = "Off"
+        w.store.save(off)
+        let call: [String: Any] = ["id": "c", "call_flow": "Off"]
+        let shapes: [String: [String: Any]] = [
+            "a try": ["id": "b", "try": [call], "recover": [["id": "r", "text": "{{error}}"]]],
+            "a try's last steps": ["id": "b", "try": [["id": "t", "text": "t"]], "recover": [], "always": [call]],
+            "a repeat": ["id": "b", "repeat": [call], "until": ["value": "a", "test": "is", "than": "a"], "times": 2],
+            "a lane it waits for": ["id": "b", "parallel": [["name": "one", "steps": [call]], ["name": "two", "steps": [["id": "t", "text": "t"]]]]],
+        ]
+        for (shape, step) in shapes {
+            let flow = try w.flow([["id": "first", "do": "changes.it"], step])
+            let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+            #expect(run.status == .failed && run.problem?.contains("Off") == true, "\(shape): \(run.problem ?? "")")
+        }
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing done before it would fail")
+    }
+
+    @Test func aPinnedCallIsFollowedInTheVersionItStaysOn() throws {
+        let w = try World()
+        var off = try w.flow([["id": "x", "text": "x"]], state: .draft)
+        off.name = "Off"
+        w.store.save(off)
+        var middle = try w.flow([["id": "c", "call_flow": "Off"]])
+        middle.name = "Middle"
+        // Version 1 called Off; what's live now, version 2, doesn't.
+        let first = try #require(middle.live)
+        middle.keep(first, at: Date(), keeping: [1])
+        middle.live = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "t", "text": "t"]]])
+        middle.draft = middle.live!
+        w.store.save(middle)
+        let latest = try w.flow([["id": "m", "call_flow": "Middle"]])
+        #expect(w.engine.start(latest, mode: .live, why: "t")?.status != .failed, "what's live calls nothing that's off")
+        let held = try w.flow([["id": "first", "do": "changes.it"], ["id": "m", "call_flow": "Middle", "version": 1]])
+        let run = try #require(w.engine.start(held, mode: .live, why: "t"))
+        #expect(run.status == .failed && run.problem?.contains("Off") == true, "\(run.problem ?? "")")
+    }
+
     @Test func whatGaveNothingSaysSoAndWhatDidntRunSaysThat() {
         var run = Run(id: "r", flow: "f", flowName: "F", mode: .live, status: .running, why: "", startedAt: Date(), body: FlowBody())
         #expect(run.whyMissing("a").contains("didn't run"))
