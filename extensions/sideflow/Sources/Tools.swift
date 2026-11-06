@@ -37,6 +37,8 @@ import SidefolkExtensionKit
             let flow = try app.flow(named: try args.required("flow"))
             var out: [String: Any] = ["name": flow.name, "id": flow.id, "state": flow.state.rawValue, "definition": FlowCodec.json(flow.draft), "in_words": Words.aloud(flow.draft, catalog: app.catalog)]
             if flow.hasChanges { out["running_now"] = FlowCodec.json(flow.running) }
+            if flow.live != nil { out["version"] = flow.version }
+            if !flow.revisions.isEmpty { out["versions"] = flow.revisions.map(\.version) }
             let problems = flow.draft.problems(app.catalog).map(\.text)
             if !problems.isEmpty { out["problems"] = problems }
             let fromWords = flow.draft.readsNumbersFromWords(app.catalog)

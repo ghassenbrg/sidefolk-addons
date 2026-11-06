@@ -99,6 +99,12 @@ struct Values: Equatable, Sendable {
         named[name].map { value in said[name].map(JSON.string) ?? value }
     }
 
+    /// What a value written as exactly one value is, its fields and all, rather than the words a tool said with it. For what wants a list or a record.
+    func itself(_ text: String) -> JSON? {
+        guard Self.isOneSlot(text), let slot = Self.slots(text).first else { return nil }
+        return resolve(slot.name, path: slot.path)
+    }
+
     /// `name` with what's after it, or nil when nothing is there.
     func resolve(_ name: String, path: String = "") -> JSON? {
         guard let value = base(name) else { return nil }
@@ -291,16 +297,17 @@ struct Values: Equatable, Sendable {
         return named[root] == nil ? L("It uses “{name}”, but that step didn't run this time.", ["name": name]) : L("It uses “{name}”, but that step's answer doesn't have it.", ["name": name])
     }
 
-    /// What steps left, as a whole: the last with something to say, or if none has, the last that left anything. A failure carried past leaves empty words, which don't take the answer away from what came before it.
-    func lastAnswer(of steps: [Step]) -> JSON? {
-        let left = steps.filter { $0.hasOutput }.compactMap { whole($0.id) }
-        return left.last { $0 != .string("") } ?? left.last
+    /// What steps left, as a whole: the last with something to say, or if none has, the last that left anything. A failure carried past leaves empty words and a data step can leave a null, and neither takes the answer away from what came before it.
+    func lastAnswer(of steps: [Step], itself: Bool = false) -> JSON? {
+        let left = steps.filter { $0.hasOutput }.compactMap { itself ? named[$0.id] : whole($0.id) }
+        return left.last { $0 != .string("") && $0 != .null } ?? left.last
     }
 
-    /// The first of these words' values, when they're nothing but values that came back null: filled in, they'd be a blank at best.
+    /// The first null among these words' values, when they're nothing but values that came back with nothing: filled in, they'd be a blank or a stray comma at best.
     func saysNothing(_ text: String) -> String? {
         let slots = Self.slots(text)
-        guard let first = slots.first, Self.replacingSlots(in: text, { _, _ in "" }).trimmed.isEmpty, slots.allSatisfy({ resolve($0.name, path: $0.path) == .null }) else { return nil }
+        guard !Self.replacingSlots(in: text, { _, _ in "" }).contains(where: { $0.isLetter || $0.isNumber }), slots.allSatisfy({ let said = resolve($0.name, path: $0.path); return said == .null || said == .string("") }),
+              let first = slots.first(where: { resolve($0.name, path: $0.path) == .null }) else { return nil }
         return first.name + first.path
     }
 

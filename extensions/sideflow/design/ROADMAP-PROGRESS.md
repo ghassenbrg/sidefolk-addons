@@ -33,12 +33,9 @@ Known gap, in plain words (the coordinator's ruling, 2026-11-05): when you ask t
 
 ## First after the stack ships (the coordinator, 2026-11-05)
 
-The first fix of the next batch, before the small gaps below (the coordinator's ruling): Stop on a flow whose file can't be read can't clear its waiting starts, so they can go ahead after someone repairs that file. It needs a damaged flows file and a deliberate repair, and what goes ahead runs under the plan the person approved.
+Done on `team/sideflow-lanes`: Stop on a flow whose file can't be read now clears its waiting starts the first time it can be read, through a restart.
 
 Known small gaps accepted for now, to fix first in the next batch:
-- `{{a}} {{b}}` with one null and one empty sends spaces.
-- `{{a}}, {{b}}` with both null sends ",".
-- A final data step's null hides earlier words as the answer.
 - Nulls inside a list passed as one whole value aren't checked.
 - A callee, lane or repeat with only a carried-past failure gives "", so a later `{{k}}` can write a blank (the person's own choice).
 
@@ -75,6 +72,10 @@ Later list: `delete_flow` removing a picked flow makes the press ask again; a na
 The button opened a section with a second Copy button and copied nothing itself: from Runs or Activity nothing showed at all, and with a step selected it sat low in the side panel. It now copies at once from the menu on any tab, like Copy it in words. Both copy what's on screen and say when that includes changes that aren't saved. The label says when it includes unsaved changes, because a menu shows only its label. The page carries the words on every read, so past 20,000 bytes the button says it's too long rather than risk the page not drawing. What it copies comes back through Bring one in as the same flow.
 
 Later list: words still being typed in a field aren't in the copy until that field is left (the host hands over typing after the words were drawn; a general fix is the app's); a half-written draft can be copied and then refused on the way back in; hidden characters like a joiner inside an emoji are removed by the host as it copies, as they were before. Definitions between 20,000 and 30,000 bytes used to offer a second button and now say too long; Export is their way out.
+
+Typed mapping's later list, from its last read: `wrote` is set before the fit check, so a refusal carried on inside a repeat says it would do this all again; `{{a}}, {{b}}` into a list sends a blank entry when b is blank; a page's mark can pass what a run refuses; a practice skips the fit check.
+
+Parallel and called flows' later list: "a, b" written for a called flow's list input is one entry where a tool's list field would split it; a join-stopped lane ending past its limit reads as timed out; after a crash a parallel only joins again once all its lanes are over; a lane's limit keeps counting across a pause; a practice run really sends an old version's AI prompt, as it does a draft's, and passes where a live run refuses; a callee edited mid-run under the old Run isn't caught (gone with L2); steps without ids are numbered by position, so inserting one refuses an identical AI step in an old version; a changed text step can feed an unchanged AI prompt in an old version; a list input over 256 KB becomes one entry of clipped JSON.
 
 ## Left out on purpose
 

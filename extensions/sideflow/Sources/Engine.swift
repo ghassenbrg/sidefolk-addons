@@ -62,6 +62,10 @@ extension FlowHost {
         self.store = store
         self.catalog = catalog
         catalog.findsFlow = { [store] in store.named($0) != nil }
+        catalog.calledBody = { [store] name, pin in
+            guard let flow = store.named(name) else { return nil }
+            return pin.map { flow.body(version: $0) } ?? flow.running
+        }
     }
 
     // MARK: Starting
@@ -164,6 +168,17 @@ extension FlowHost {
             }
             // Asked to stop: between steps, never in the middle of one. What's done stays done.
             if store.takeStop(id) {
+                // Winding down: what it waits for is stopping, and it ends when they all have.
+                if run.waitingOn.contains(where: { store.run($0)?.status.isOver == false }) {
+                    store.askStop(id)
+                    run.status = .waiting
+                    store.save(run)
+                    return
+                }
+                if !run.waitingOn.isEmpty, run.pc < program.ops.count, case .step(let step) = program.ops[run.pc] {
+                    run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
+                }
+                run.waitingOn = []
                 run.status = .stopped
                 run.frames = []
                 finish(&run)
@@ -308,7 +323,7 @@ extension FlowHost {
         case .waitFor(_, _, let minutes):
             return waitingForEvent(step, minutes: minutes, in: &run)
         case .finish(let value):
-            run.output = run.values.fill(native: .string(value))
+            run.output = (run.body.output?.wantsItself == true ? run.values.itself(value) : nil) ?? run.values.fill(native: .string(value))
             run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: run.output.map { Values.text($0).clipped(Self.keptOutput) }, at: clock()))
             ending(in: &run, length: FlowProgram(run.body).ops.count)
             store.save(run)
@@ -680,7 +695,7 @@ extension FlowHost {
         // A flow's own run holds the flow; one that another waits for doesn't: it's that run's business.
         let holds = run.parent == nil
         // The last that has something to say: a loop's insides are gone by its end, and a path not taken never made anything.
-        if run.output == nil, run.status == .done, let last = run.values.lastAnswer(of: run.body.allSteps) { run.output = last }
+        if run.output == nil, run.status == .done, let last = run.values.lastAnswer(of: run.body.allSteps, itself: run.body.output?.wantsItself == true) { run.output = last }
         if run.status.isOver, store.takeStop(Self.personStopKey(run.id)) {
             let all = (clearedOnStop.removeValue(forKey: run.id) ?? 0) + clearQueue(of: run.flow)
             if run.status == .stopped, all > 0 { run.problem = L(one: "Stopped. {count} start waiting its turn was cleared.", other: "Stopped. {count} starts waiting their turn were cleared.", count: all) }
@@ -984,6 +999,8 @@ extension FlowHost {
             // Two ways due together are still one moment: it runs for the first, however many said so.
             if let why = starts.first { start(flow, mode: .live, why: why) }
         }
+        // A lane out of time. Held by a pause, it gets until the pause is over.
+        for run in store.unfinished() where run.deadline.map({ $0 <= now }) == true && !run.paused && !heldByPause(run) { stop(run: run.id, windingDown: true) }
         // One the person paused goes on when they say, whatever it was waiting for before.
         for run in store.unfinished() where run.status == .waiting && !run.paused {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.
@@ -1040,8 +1057,9 @@ extension FlowHost {
     }
 
     /// `byThePerson`: their word means nothing writes after it, so it ends all of what this run is part of, the lanes beside it too, and no try or "go on with the rest" gets past it.
-    /// A stop of any kind stops whatever called this run too (`joined`), never a failure for it to carry past.
-    func stop(run id: String, byThePerson: Bool = false) {
+    /// A stop of any kind stops whatever called this run too (`joined`), never a failure for it to carry past, unless it's a parallel winding down lanes it no longer needs.
+    /// `windingDown`: a run waiting for others ends once they have, not at once, for what can't go on until nothing's still working behind it. The person's Stop doesn't wait.
+    func stop(run id: String, byThePerson: Bool = false, windingDown: Bool = false) {
         // Even from a run that's just ended: its page can still show Stop, and what it was part of is what they mean.
         if byThePerson {
             var top = id, above = store.run(id)?.parent, seen: Set<String> = [id]
@@ -1055,11 +1073,16 @@ extension FlowHost {
                 // On disk: a restart before the step comes back still ends it this way.
                 store.askStop(Self.personStopKey(top))
                 clearedOnStop[top, default: 0] += clearQueue(of: root.flow)
+                if store.isHeldBack(flow: root.flow) { store.askToStopStarts(of: root.flow) }
             }
             if top != id { stop(run: top) }
         }
         guard var run = store.run(id), !run.status.isOver else { return }
-        for child in run.waitingOn { stop(run: child) }
+        for child in run.waitingOn { stop(run: child, windingDown: windingDown) }
+        if windingDown, run.waitingOn.contains(where: { store.run($0)?.status.isOver == false }) {
+            store.askStop(id)
+            return
+        }
         // A run held back has no walk to notice a stop, so it ends here.
         if run.status == .running, !store.isHeldBack(flow: run.flow) {
             store.askStop(id)
@@ -1244,8 +1267,20 @@ extension FlowHost {
 
     private func keepBefore(_ reviewed: FlowBody, in flow: inout Flow) {
         guard let was = flow.live, was != reviewed else { return }
-        flow.revisions.append(Flow.Revision(at: clock(), body: was))
-        flow.revisions = Array(flow.revisions.suffix(Flow.keptRevisions))
+        flow.keep(was, at: clock(), keeping: versionsHeld(of: flow))
+    }
+
+    /// The versions of this flow other flows' steps stay on.
+    private func versionsHeld(of flow: Flow) -> Set<Int> {
+        var out = Set<Int>()
+        for other in store.flows() where other.id != flow.id {
+            for body in [other.draft, other.saved, other.live].compactMap(\.self) {
+                for step in body.allSteps {
+                    if case .call(let name, _) = step.kind, let pin = step.pin, store.named(name)?.id == flow.id { out.insert(pin) }
+                }
+            }
+        }
+        return out
     }
 
     private func settleWatch(_ id: String, wasLive: FlowBody?, wasOn: Bool, reviewed: FlowBody, title: String) async {
@@ -1647,10 +1682,7 @@ extension FlowHost {
         flow.state = .paused
         flow.pausedBecause = here ? L("You ended what you'd allowed, so it asks again before running.") : L("You ended what you'd allowed in Settings, so it asks again before running.")
         let ended = flow.live
-        if let was = flow.live {
-            flow.revisions.append(Flow.Revision(at: clock(), body: was))
-            flow.revisions = Array(flow.revisions.suffix(Flow.keptRevisions))
-        }
+        if let was = flow.live { flow.keep(was, at: clock(), keeping: versionsHeld(of: flow)) }
         flow.live = nil
         store.save(flow)
         // What's under way was running on what they just ended, called by another flow or set off by a draft too. An AI step or a set-off never reaches Sidefolk's check, so this is what stops those.

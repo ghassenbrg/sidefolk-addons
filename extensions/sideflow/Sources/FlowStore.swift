@@ -106,9 +106,33 @@ import SidefolkExtensionKit
         if ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).contains(where: { $0.hasPrefix("flows-damaged-") }) { hasFileAside = true }
         if let data = try? Data(contentsOf: eventsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] { seenEvents = list }
         if let data = try? Data(contentsOf: stopsFile), let list = (try? JSONSerialization.jsonObject(with: data)) as? [String] {
-            stopsAsked = Set(list.filter { runsById[$0.replacingOccurrences(of: "pause:", with: "").replacingOccurrences(of: "person:", with: "")]?.status.isOver == false })
+            stopsAsked = Set(list.filter { $0.hasPrefix(Self.startsStopped) || runsById[$0.replacingOccurrences(of: "pause:", with: "").replacingOccurrences(of: "person:", with: "")]?.status.isOver == false })
         }
+        settleStartsStopped()
     }
+
+    /// Stop was pressed on a flow that couldn't be read, so its waiting starts couldn't be cleared then. They're cleared the first time it can be, before anything could start them.
+    private func settleStartsStopped() {
+        var flowsChanged = false, stopsChanged = false
+        for key in stopsAsked where key.hasPrefix(Self.startsStopped) {
+            let id = String(key.dropFirst(Self.startsStopped.count))
+            if var flow = flowsById[id] {
+                flowsChanged = flowsChanged || !flow.waitingStarts.isEmpty
+                flow.waitingStarts = []
+                flowsById[id] = flow
+            } else if isHeldBack(flow: id) {
+                continue
+            }
+            stopsAsked.remove(key)
+            stopsChanged = true
+        }
+        if flowsChanged { flowsNotSaved = !write(flows().map(Self.json) + unreadable, to: flowsFile) }
+        if stopsChanged { write(stopsAsked.sorted(), to: stopsFile) }
+    }
+
+    func askToStopStarts(of flow: String) { askStop(Self.startsStopped + flow) }
+
+    private static let startsStopped = "starts:"
 
     private var flowsFile: URL { folder.appendingPathComponent("flows.json") }
     private var eventsFile: URL { folder.appendingPathComponent("events.json") }
@@ -242,7 +266,7 @@ import SidefolkExtensionKit
             "created": time(flow.createdAt), "updated": time(flow.updatedAt), "watch_outdated": flow.watchOutdated ? true : nil, "last_fire": time(flow.lastFire), "last_every": flow.lastEvery.isEmpty ? nil : Dictionary(uniqueKeysWithValues: flow.lastEvery.map { (String($0.key), $0.value.timeIntervalSince1970) }), "watch": flow.watchTitle,
             "missed": flow.missed.map(\.timeIntervalSince1970), "start_problem": flow.startProblem, "paused_because": flow.pausedBecause,
             "practiced": flow.practiced.map(FlowCodec.json), "waiting_starts": flow.waitingStarts.isEmpty ? nil : flow.waitingStarts,
-            "revisions": flow.revisions.isEmpty ? nil : flow.revisions.map { ["at": $0.at.timeIntervalSince1970, "body": FlowCodec.json($0.body)] as [String: Any] },
+            "revisions": flow.revisions.isEmpty ? nil : flow.revisions.map { ["at": $0.at.timeIntervalSince1970, "body": FlowCodec.json($0.body), "version": $0.version] as [String: Any] }, "version": flow.version == 1 ? nil : flow.version,
         ]
         return out.compactMapValues { $0 }
     }
@@ -274,8 +298,11 @@ import SidefolkExtensionKit
         flow.waitingStarts = o["waiting_starts"] as? [String] ?? []
         flow.revisions = (o["revisions"] as? [[String: Any]] ?? []).compactMap { r in
             guard let at = date(r["at"]), let body = try? FlowCodec.body(r["body"], saved: true) else { return nil }
-            return Flow.Revision(at: at, body: body)
+            return Flow.Revision(at: at, body: body, version: r["version"] as? Int ?? 0)
         }
+        // From before versions had numbers: in the order they went.
+        flow.version = o["version"] as? Int ?? flow.revisions.count + 1
+        for at in flow.revisions.indices where flow.revisions[at].version == 0 { flow.revisions[at].version = at + 1 }
         return flow
     }
 
@@ -285,7 +312,7 @@ import SidefolkExtensionKit
             "started": time(run.startedAt), "ended": time(run.endedAt), "body": FlowCodec.json(run.body), "pc": run.pc, "values": run.values.named.mapValues(\.any), "said": run.values.said.isEmpty ? nil : run.values.said,
             "today": run.values.today, "now": run.values.now, "records": run.records.map(json), "resume_at": time(run.resumeAt), "retries": run.retries, "tried_again": run.triedAgain == 0 ? nil : run.triedAgain, "problem": run.problem, "frames": run.frames.isEmpty ? nil : run.frames.map(json), "parent": run.parent, "lineage": run.lineage.isEmpty ? nil : run.lineage,
             "waiting_on": run.waitingOn.isEmpty ? nil : run.waitingOn, "output": run.output?.any, "set_off": run.setOff ? true : nil, "paused": run.paused ? true : nil, "set_off_runs": run.setOffRuns.isEmpty ? nil : run.setOffRuns, "start_item": run.startItem?.any, "start_index": run.startIndex?.any, "form": run.form.map { ["step": $0.step, "answers": $0.answers.mapValues(\.any)] as [String: Any] },
-            "connection": run.connection.map { ["tool": $0.tool, "until": $0.until.timeIntervalSince1970] as [String: Any] },
+            "connection": run.connection.map { ["tool": $0.tool, "until": $0.until.timeIntervalSince1970] as [String: Any] }, "deadline": time(run.deadline),
         ]
         return out.compactMapValues { $0 }
     }
@@ -314,6 +341,7 @@ import SidefolkExtensionKit
         run.setOff = o["set_off"] as? Bool ?? false
         run.paused = o["paused"] as? Bool ?? false
         run.setOffRuns = o["set_off_runs"] as? [String] ?? []
+        run.deadline = date(o["deadline"])
         run.startItem = o["start_item"].map { JSON($0) }
         run.startIndex = o["start_index"].map { JSON($0) }
         if let form = o["form"] as? [String: Any], let step = form["step"] as? String {

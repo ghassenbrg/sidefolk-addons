@@ -94,6 +94,7 @@ import SidefolkExtensionKit
             main.append(.note(L("Later steps can use its words: “What set it off”.")))
         }
         main += alsoWhen(flow)
+        more += Self.contract(flow, base: base)
         if case .manual = t {} else {
             more.append(pick(L("If it's set off while running"), options: [("one_more", L("Run once more after")), ("queue", L("Run each in turn")), ("skip", L("Let it go"))], selected: flow.draft.overlap.rawValue, tool: "ui", input: base(flow, "overlap")))
         }
@@ -169,12 +170,17 @@ import SidefolkExtensionKit
             if case .action(let tool, _) = step.kind { for name in app.catalog.tool(tool)?.outputFields ?? [] { out.append(.init("\(label) › \(name)", value: "{{\(step.id).\(name)}}", symbol: symbol, group: earlier)) } }
             if let fields = step.fields { for name in fields.keys.sorted() { out.append(.init("\(label) › \(name)", value: "{{\(step.id).\(name)}}", symbol: symbol, group: earlier)) } }
             if case .form(let form) = step.kind { for field in form.fields { out.append(.init("\(label) › \(field.label)", value: "{{\(step.id).\(field.name)}}", symbol: symbol, group: earlier)) } }
-            if case .parallel(let lanes) = step.kind { for (lane, key) in zip(lanes, Engine.keys(lanes)) { out.append(.init("\(label) › \(lane.name)", value: "{{\(step.id).\(key)}}", symbol: symbol, group: earlier)) } }
+            if case .parallel(let lanes) = step.kind {
+                for (lane, key) in zip(lanes, Engine.keys(lanes)) { out.append(.init("\(label) › \(lane.name)", value: "{{\(step.id).\(key)}}", symbol: symbol, group: earlier)) }
+                if step.join == .first { out.append(.init("\(label) › \(L("The first to finish"))", value: "{{\(step.id).\(Engine.winner)}}", symbol: symbol, group: earlier)) }
+                if step.join == .settled { out.append(.init("\(label) › \(L("Those that didn't finish"))", value: "{{\(step.id).\(Engine.notFinished)}}", symbol: symbol, group: earlier)) }
+            }
         }
         switch flow.draft.trigger {
         case .watch, .event: out.append(.init(L("What set it off"), value: "{{trigger}}", symbol: "bolt", group: always))
         default: break
         }
+        for one in flow.draft.inputs { out.append(.init(L("What it was given › {name}", ["name": one.name]), value: "{{input.\(one.name)}}", symbol: "arrow.down.to.line", group: always)) }
         out.append(.init(L("Today's date"), value: "{{today}}", symbol: "calendar", group: always))
         out.append(.init(L("The time"), value: "{{now}}", symbol: "clock", group: always))
         return out
@@ -198,7 +204,7 @@ import SidefolkExtensionKit
         case .repeatUntil: return (L("Repeat until"), L("It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat."))
         case .choose: return (L("Choose a path"), L("It looks at one value and takes the first path whose words it mentions, or “Otherwise”."))
         case .attempt: return (L("Try"), L("If a step under “Try” fails, the steps under “If it fails” run instead. The steps under “Either way” run in any case."))
-        case .parallel: return (L("At the same time"), L("Each lane runs at once, and it carries on when all are done. If one fails, the step fails."))
+        case .parallel: return (L("At the same time"), L("Each lane runs at once. It carries on when you say below, and a lane it no longer needs is stopped."))
         case .call: return (L("Run a flow and wait"), L("It runs another flow from start to end, then carries on with its result."))
         case .finish: return (L("Finish here"), L("The flow ends at this step. A flow that called this one gets the result."))
         case .data: return (L("Work with data"), L("It changes a value into another, with nothing outside this run."))
@@ -277,16 +283,33 @@ import SidefolkExtensionKit
         case .parallel(let lanes):
             for (at, lane) in lanes.enumerated() {
                 main.append(.edit(EditField("\(step.id).lane.\(at)", L("Lane {count}", ["count": Format.integer(at + 1)]), value: lane.name, tool: "ui", input: input("lane_name", ["lane": at]))))
+                main.append(.edit(EditField("\(step.id).lane_limit.\(at)", L("Give up after, in minutes"), value: lane.timeoutMinutes.map(String.init) ?? "", placeholder: L("No limit"), kind: .number, tool: "ui", input: input("lane_limit", ["lane": at]))))
                 if lanes.count > 2 { main.append(.action(Action(L("Remove this lane"), tool: "ui", input: input("lane_remove", ["lane": at]), style: .plain, symbol: "minus.circle"))) }
             }
             if lanes.count < FlowBody.mostLanes { main.append(.action(Action(L("Add a lane"), tool: "ui", input: input("lane_add"), style: .plain, symbol: "plus.circle"))) }
+            let some = lanes.count > 2 ? (2..<lanes.count).map { Option(String($0), L("When {count} have finished", ["count": Format.integer($0)])) } : []
+            main.append(.picker(L("It carries on"), style: .menu, [Option("all", L("When all have finished")), Option("first", L("When the first has finished"))] + some + [Option("settled", L("When all have ended, whichever way"))], selected: step.join.word, tool: "ui", input: input("lane_join")))
+            switch step.join {
+            case .first: main.append(.note(L("What finished first is also “{value}”.", ["value": "{{\(step.id).\(Engine.winner)}}"])))
+            case .settled: main.append(.note(L("A lane that fails gives nothing. “{value}” lists those that didn't finish.", ["value": "{{\(step.id).\(Engine.notFinished)}}"])))
+            case .all, .atLeast: main.append(.toggle(L("Stop the others as soon as it can't work out"), detail: L("Otherwise they finish first, and then the step fails."), on: step.failFast, tool: "ui", input: input("lane_fail_fast")))
+            }
         case .call(let name, let inputs):
             main.append(flowPicker(flow, selected: name, app, input: input("call_flow")))
-            let wanted = app.store.named(name).map { Self.inputs(of: $0.running) } ?? []
+            let called = app.catalog.calledBody(name, step.pin)
+            let declared = called?.inputs ?? []
+            let wanted = declared.map(\.name) + (called.map(Self.inputs(of:)) ?? []).filter { key in !declared.contains { $0.name == key } }
             for key in wanted {
-                main.append(.edit(EditField("\(step.id).input.\(key)", key.replacingOccurrences(of: "_", with: " ").capitalizedFirst, value: inputs[key] ?? "", tokens: tokens, tool: "ui", input: input("call_input", ["name": key]))))
+                let says = declared.first { $0.name == key }
+                main.append(.edit(EditField("\(step.id).input.\(key)", key.replacingOccurrences(of: "_", with: " ").capitalizedFirst, value: inputs[key] ?? "", detail: says.map { L("It wants {what}.", ["what": $0.type.word]) }, placeholder: says?.required == false ? L("Not needed") : nil, tokens: tokens, tool: "ui", input: input("call_input", ["name": key]))))
             }
             if wanted.isEmpty { main.append(.note(L("That flow asks for nothing to start with. A flow asks for something by using “{{input.name}}” in its steps."))) }
+            if let other = app.store.named(name), !other.revisions.isEmpty || step.pin != nil {
+                let kept = (other.revisions.map { ($0.version, Format.dateTime($0.at)) }.reversed() as [(Int, String)])
+                let options = [Option("", L("Whatever's live"))] + (other.live == nil ? [] : [Option(String(other.version), L("Version {count}, live now", ["count": Format.integer(other.version)]))]) + kept.map { Option(String($0.0), L("Version {count}, until {date}", ["count": Format.integer($0.0), "date": $0.1])) }
+                main.append(.picker(L("Which version"), style: .menu, options, selected: step.pin.map(String.init) ?? "", tool: "ui", input: input("call_pin")))
+                if step.pin != nil { main.append(.note(L("It stays on this one: what changes in that flow doesn't reach here. If that version asks for something new to be allowed, it asks when it runs."))) }
+            }
         case .finish(let value):
             main.append(.edit(EditField("\(step.id).value", L("Its result"), value: value, placeholder: L("Nothing"), tokens: tokens, tool: "ui", input: input("finish_value"))))
         case .data(let data):
@@ -398,6 +421,21 @@ import SidefolkExtensionKit
         return [own, .action(Action(L("Use a value from an earlier step"), tool: "ui", input: input("param_mode", ["name": path, "on": true]), style: .plain, symbol: "arrow.turn.down.right"))]
     }
 
+    /// What it says it takes and gives, for a flow that calls it.
+    private static func contract(_ flow: Flow, base: (Flow, String, [String: Any]) -> [String: Any]) -> [Block] {
+        let types = ValueType.allCases.map { Option($0.rawValue, $0.word.capitalizedFirst) }
+        var out: [Block] = []
+        for (at, one) in flow.draft.inputs.enumerated() {
+            out.append(.edit(EditField("takes.\(at)", L("It takes"), value: one.name, detail: L("Inside this flow: “{value}”.", ["value": "{{input.\(one.name)}}"]), tool: "ui", input: base(flow, "takes_name", ["at": at]))))
+            out.append(.picker(L("As"), style: .menu, types, selected: one.type.rawValue, tool: "ui", input: base(flow, "takes_type", ["at": at])))
+            out.append(.toggle(L("It can't go without it"), on: one.required, tool: "ui", input: base(flow, "takes_required", ["at": at])))
+            out.append(.action(Action(L("Remove this"), tool: "ui", input: base(flow, "takes_remove", ["at": at]), style: .plain, symbol: "minus.circle")))
+        }
+        if flow.draft.inputs.count < Contract.mostInputs { out.append(.action(Action(L("Add something it takes"), tool: "ui", input: base(flow, "takes_add", [:]), style: .plain, symbol: "plus.circle"))) }
+        out.append(.picker(L("What it gives back"), style: .menu, [Option("", L("Whatever it makes"))] + types, selected: flow.draft.output?.rawValue ?? "", tool: "ui", input: base(flow, "gives", [:])))
+        return out
+    }
+
     /// What a value would be, going by the last run: a look, with nothing run.
     private static func preview(_ text: String, _ last: Values?) -> String? {
         guard let last, !Values.slots(text).isEmpty, last.missing(in: [text]).isEmpty else { return nil }
@@ -426,12 +464,15 @@ import SidefolkExtensionKit
     /// The values on offer, each with its type where the tool says and what it was in the last run.
     private static func annotated(_ tokens: [EditField.Token], flow: Flow, _ app: App, last: Values?) -> [Token] {
         var types: [String: String] = [:]
+        for one in flow.draft.inputs { types["{{input.\(one.name)}}"] = one.type.schemaWord }
         for step in flow.draft.allSteps {
             switch step.kind {
             case .action(let tool, _):
                 for (field, type) in app.catalog.tool(tool)?.outputTypes ?? [:] { types["{{\(step.id).\(field)}}"] = type }
             case .form(let form):
                 for field in form.fields { types["{{\(step.id).\(field.name)}}"] = field.kind == .number ? "number" : field.kind == .yes_no ? "boolean" : "string" }
+            case .call(let name, _):
+                if let gives = app.catalog.calledBody(name, step.pin)?.output { types["{{\(step.id)}}"] = gives.schemaWord }
             default: break
             }
         }

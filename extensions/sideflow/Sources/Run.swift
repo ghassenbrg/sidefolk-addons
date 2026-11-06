@@ -120,6 +120,10 @@ struct Run: Equatable, Sendable, Identifiable {
     var startIndex: JSON?
     /// The tool it's waiting to come back, and until when.
     var connection: WaitingConnection?
+    /// A lane's limit: past this, it's stopped.
+    var deadline: Date?
+    /// Stopped because its time ran out, not because something else was enough.
+    var timedOut: Bool { status == .stopped && deadline.flatMap { limit in endedAt.map { limit <= $0 } } == true }
 
     /// What it answers to a run that called it: what it said at its end, or what its last step made.
     var answer: JSON { output ?? .null }

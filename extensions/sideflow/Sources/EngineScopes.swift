@@ -270,10 +270,27 @@ extension Engine {
         if !practicing, pauseIfBlank(other) {
             return failed(step, why: L("It has a step that says nothing, so it's paused until that's fixed."), reads: false, in: &run)
         }
+        let body: FlowBody
+        if let pin = step.pin {
+            guard let held = other.body(version: pin) else {
+                return failed(step, why: L("It stays on version {count} of “{name}”, and that version is no longer kept.", ["count": Format.integer(pin), "name": other.name]), reads: false, in: &run)
+            }
+            if !practicing, Contract.goesBeyond(held, other.running) {
+                return failed(step, why: L("Version {count} of “{name}” has an AI step or sets off a flow that what you've allowed for “{name}” now doesn't have, so it can't stay on that version.", ["count": Format.integer(pin), "name": other.name]), reads: false, in: &run)
+            }
+            body = held
+        } else {
+            body = practicing ? other.draft : other.running
+        }
+        var given = inputs.mapValues { run.values.fill(native: .string($0)) }
+        for input in body.inputs where input.type.wantsItself { if let found = inputs[input.name].flatMap(run.values.itself) { given[input.name] = found } }
+        // A practice run's values from earlier steps may be stand-ins: only what's written out can be held to it.
+        let written = practicing ? Set(inputs.filter { Values.slots($0.value).isEmpty }.keys).union(body.inputs.map(\.name).filter { inputs[$0] == nil }) : nil
+        if let wrong = Contract.check(&given, body.inputs, flow: other.name, written: written) { return failed(step, why: wrong, reads: false, in: &run) }
         var values = Values()
         (values.today, values.now) = (run.values.today, run.values.now)
-        values.set("input", JSON.object(inputs.mapValues { run.values.fill(native: .string($0)) }))
-        let child = startChild(of: run, flow: other.id, flowName: other.name, body: practicing ? other.draft : other.running, mode: practicing ? .practice : run.mode == .once ? .once : .live, why: L("{flow} called it.", ["flow": run.flowName]), values: values)
+        values.set("input", JSON.object(given))
+        let child = startChild(of: run, flow: other.id, flowName: other.name, body: body, mode: practicing ? .practice : run.mode == .once ? .once : .live, why: L("{flow} called it.", ["flow": run.flowName]), values: values)
         run.waitingOn = [child.id]
         run.status = .waiting
         run.record(.init(step: step.id, status: .waiting, summary: L("Waiting for {flow}", ["flow": other.name]), at: clock()))
@@ -290,7 +307,9 @@ extension Engine {
         for lane in lanes {
             var values = run.values
             values.named["item"] = run.values.named["item"]
-            started.append(startChild(of: run, flow: run.flow, flowName: run.flowName, body: FlowBody(steps: lane.steps), mode: run.mode, why: lane.name, values: values))
+            var child = startChild(of: run, flow: run.flow, flowName: run.flowName, body: FlowBody(steps: lane.steps), mode: run.mode, why: lane.name, values: values)
+            child.deadline = lane.timeoutMinutes.map { child.startedAt.addingTimeInterval(Double($0) * 60) }
+            started.append(child)
         }
         run.waitingOn = started.map(\.id)
         run.status = .waiting
@@ -302,7 +321,8 @@ extension Engine {
         return false
     }
 
-    /// Back at a call or a parallel. Carries on when all it waits for are over; a child that needs the person leaves this waiting too.
+    /// Back at a call or a parallel. Carries on when all it waits for are over, so nothing's still working behind it; a child that needs the person leaves this waiting too.
+    /// Enough having finished, or a lost cause it was told not to sit out, stops the rest: it goes on once they have.
     func joined(_ step: Step, in run: inout Run) -> Bool {
         let children = run.waitingOn.compactMap { store.run($0) }
         // Deleted while this waited, most likely. Nobody can say it went wrong or right, so nothing goes on from it: not a recover, not the next item.
@@ -315,38 +335,65 @@ extension Engine {
             run.frames = []
             return false
         }
-        guard children.allSatisfy({ $0.status.isOver }) else {
+        let done = children.filter { $0.status == .done }, need = step.join.needs(children.count)
+        let going = children.filter { !$0.status.isOver }
+        guard going.isEmpty else {
             run.status = .waiting
             store.save(run)
+            if (need > 0 && done.count >= need) || (step.failFast && done.count + going.count < need) {
+                for child in going { stop(run: child.id, windingDown: true) }
+            }
             return false
         }
         run.waitingOn = []
-        // Someone said stop to what this called. That isn't a failure for a try or a loop to carry past: this stops too, and what called this hears the same.
-        if children.contains(where: { $0.status == .stopped }) {
+        // Lanes it stopped itself, having enough or a lost cause, and lanes past their own limit, are its own doing. Any other stop was someone's: that isn't a failure for a try or a loop to carry past, so this stops too, and what called this hears the same.
+        let woundDown = (need > 0 && done.count >= need) || (step.failFast && done.count < need && children.contains { $0.status == .failed || $0.timedOut })
+        if !woundDown, let stopped = children.first(where: { $0.status == .stopped && !$0.timedOut }) {
             run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
             run.status = .stopped
             // What it says for itself, if it does: a plan that ended, a flow nobody read.
-            run.problem = children.first { $0.status == .stopped }?.problem
+            run.problem = stopped.problem
             run.resumeAt = nil
             run.frames = []
             return false
         }
-        if let bad = children.first(where: { $0.status != .done }) {
-            return failed(step, why: bad.problem ?? L("{flow} didn't finish.", ["flow": bad.flowName]), reads: false, in: &run)
+        if done.count < need, let bad = children.first(where: { $0.status == .failed || $0.timedOut }) ?? children.first(where: { $0.status != .done }) {
+            return failed(step, why: Self.whyNotDone(bad), reads: false, in: &run)
         }
         let result: JSON
         if case .parallel(let list) = step.kind {
-            result = .object(Dictionary(zip(Self.keys(list), children).map { ($0, $1.answer) }, uniquingKeysWith: { a, _ in a }))
+            var fields = Dictionary(zip(Self.keys(list), children).map { ($0, $1.status == .done ? $1.answer : .null) }, uniquingKeysWith: { a, _ in a })
+            // Beside the lanes' own, and a lane by that name keeps it.
+            if case .first = step.join, fields[Self.winner] == nil, let first = done.min(by: { ($0.endedAt ?? .distantFuture) < ($1.endedAt ?? .distantFuture) }) { fields[Self.winner] = first.answer }
+            if case .settled = step.join, fields[Self.notFinished] == nil { fields[Self.notFinished] = .array(children.filter { $0.status != .done }.map { .string($0.why) }) }
+            result = .object(fields)
+        } else if let wanted = children[0].body.output, children[0].mode != .practice {
+            let gave = children[0].output
+            guard let fitted = gave.flatMap(wanted.fit) else {
+                return failed(step, why: L("“{flow}” says it gives {type}, and it gave “{value}”.", ["flow": children[0].flowName, "type": wanted.word, "value": gave.map { Values.text($0).clipped(80) } ?? ""]), reads: false, in: &run)
+            }
+            result = fitted
         } else {
             result = children[0].answer
         }
         // A flow that made nothing has given nothing. A null it made is its answer, and so is the blank of a failure it was told to carry past.
         if case .parallel = step.kind { run.values.set(step.id, result) } else if children[0].output != nil { run.values.set(step.id, result) }
-        run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: Values.text(result).clipped(2000), at: clock()))
+        let said = done.count < children.count ? L("{done} of {count} finished", ["done": Format.integer(done.count), "count": Format.integer(children.count)]) : Words.step(step, body: run.body, catalog: catalog)
+        run.record(.init(step: step.id, status: .done, summary: said, output: Values.text(result).clipped(2000), at: clock()))
         run.pc += 1
         run.retries = 0
         store.save(run)
         return true
+    }
+
+    static let winner = "winner", notFinished = "not_finished"
+
+    private static func whyNotDone(_ child: Run) -> String {
+        if child.timedOut, let limit = child.deadline {
+            let minutes = Int((limit.timeIntervalSince(child.startedAt) / 60).rounded())
+            return L(one: "“{lane}” took longer than {count} minute, so it was stopped.", other: "“{lane}” took longer than {count} minutes, so it was stopped.", count: minutes, ["lane": child.why])
+        }
+        return child.problem ?? L("{flow} didn't finish.", ["flow": child.flowName])
     }
 
     /// A lane's name as a value is reached by: `{{step.first_lane}}`.
