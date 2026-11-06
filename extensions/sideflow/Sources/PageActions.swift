@@ -240,7 +240,7 @@ import SidefolkExtensionKit
             }
         case "finish_value":
             try editStep { if case .finish = $0.kind { $0.kind = .finish(text) } }
-        case "data_op", "data_from", "data_field", "data_test", "data_than", "data_descending", "data_count", "data_separator":
+        case "data_op", "data_from", "data_field", "data_test", "data_than", "data_descending", "data_by_name", "data_count", "data_separator":
             try editStep { s in
                 guard case .data(var d) = s.kind else { return }
                 switch op {
@@ -250,6 +250,7 @@ import SidefolkExtensionKit
                 case "data_test": d.test = a.string("value").flatMap(Condition.Test.init(rawValue:))
                 case "data_than": d.than = text
                 case "data_descending": d.descending = a.bool("on") ?? false
+                case "data_by_name": d.byName = a.bool("on") ?? false
                 case "data_count": d.count = Int(text.trimmed).map { max(1, $0) }
                 default: d.separator = text
                 }

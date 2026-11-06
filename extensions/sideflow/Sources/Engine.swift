@@ -104,9 +104,9 @@ extension FlowHost {
         if let trigger { run.values.set("trigger", trigger) }
         if mode == .practice, trigger == nil, let sample = run.body.triggerSample { run.values.set("trigger", sample) }
         run.setOff = setOff
-        // It would fail there, after what comes before it has been done.
-        if mode != .practice, let off = run.body.allSteps.lazy.compactMap({ step -> String? in
-            guard case .call(let name, _) = step.kind, let other = self.store.named(name), other.id != flow.id, other.state != .on else { return nil }
+        // It would fail there, after what comes before it has been done: a call that always runs, here or in what that flow always calls. One inside a condition or a loop may never be reached, so it's for when it is.
+        if mode != .practice, let off = Self.alwaysCalled(run.body, store: store, from: flow.id).lazy.compactMap({ name -> String? in
+            guard let other = self.store.named(name), other.id != flow.id, other.state != .on else { return nil }
             return name
         }).first {
             run.status = .failed
@@ -245,7 +245,7 @@ extension FlowHost {
                 }
             case .choose(let step, let targets, let otherwise):
                 guard case .choose(let value, let paths, _) = step.kind else { break }
-                if let why = step.saysNothing ?? run.values.stopsFor([value], practice: run.mode == .practice).map(run.values.whyMissing) {
+                if let why = step.saysNothing ?? run.values.stopsFor([value], practice: run.mode == .practice).map(run.whyMissing) {
                     guard failed(step, why: why, reads: false, in: &run) else {
                         finish(&run)
                         return
@@ -305,7 +305,7 @@ extension FlowHost {
             return false
         }
         if let name = run.values.stopsFor(step.needsThere, practice: run.mode == .practice) {
-            return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
+            return failed(step, why: run.whyMissing(name), reads: false, in: &run)
         }
         // A real action sent a blank where it needs a value could do anything with it.
         if case .action(let tool, let input) = step.kind, run.mode != .practice, let name = catalog.nothingFor(tool, input, from: run.values) {
@@ -403,6 +403,10 @@ extension FlowHost {
             written["question"] = question
             return await acting(step, tool: "ask.user", input: input, written: written, in: &run)
         case .action(let tool, let input):
+            // A step the person chose to skip has nothing to give: sending its blank would look like an answer.
+            if let skipped = input.values.flatMap(\.strings).flatMap(Values.references).first(where: { run.record(of: $0)?.status == .skipped }) {
+                return failed(step, why: L("It uses “{name}”, which was skipped, so there's nothing to send.", ["name": skipped]), reads: false, in: &run)
+            }
             // Back or not, a wait that ran out is for the person: it could be weeks since they read the card.
             let ranOut = run.connection.map { $0.tool == tool && $0.until <= clock() } ?? false
             if run.mode != .practice, ranOut || Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
@@ -1232,6 +1236,19 @@ extension FlowHost {
 
     /// What a value is said to read when words were written into it: no step can be called this, so it counts as from outside.
     static let writtenWords = "written-words"
+
+    /// The flows a run always calls: on its top level, and down through what those always call.
+    @MainActor static func alwaysCalled(_ body: FlowBody, store: FlowStore, from: String) -> [String] {
+        var out: [String] = [], seen: Set<String> = [from], next = [body]
+        while let one = next.popLast(), out.count < 32 {
+            for step in one.steps {
+                guard case .call(let name, _) = step.kind else { continue }
+                out.append(name)
+                if let other = store.named(name), seen.insert(other.id).inserted { next.append(other.running) }
+            }
+        }
+        return out
+    }
     /// The most a step can say it reads: the host's limit. Past it, say it's from outside rather than be refused.
     static let mostReads = 32
 

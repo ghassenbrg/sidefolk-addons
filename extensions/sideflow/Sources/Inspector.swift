@@ -324,6 +324,7 @@ import SidefolkExtensionKit
                 main.append(.edit(EditField("\(step.id).than", L("This"), value: data.than ?? "", tokens: tokens, tool: "ui", input: input("data_than"))))
             case .sort:
                 main.append(.toggle(L("Largest or last first"), on: data.descending, tool: "ui", input: input("data_descending")))
+                if data.op == .sort { main.append(.toggle(L("Sort as names"), detail: L("Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names."), on: data.byName, tool: "ui", input: input("data_by_name"))) }
             case .first:
                 main.append(.edit(EditField("\(step.id).count", L("How many"), value: String(data.count ?? 1), kind: .number, tool: "ui", input: input("data_count"))))
             case .batches:
