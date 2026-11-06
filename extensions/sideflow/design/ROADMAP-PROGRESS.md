@@ -39,7 +39,7 @@ Known small gaps accepted for now, to fix first in the next batch:
 - Nulls inside a list passed as one whole value aren't checked.
 - A callee, lane or repeat with only a carried-past failure gives "", so a later `{{k}}` can write a blank (the person's own choice).
 
-Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off flow in an untaken branch refuses the whole run; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
+Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
 
 Typed mapping's later list: an entry with a comma in it reads as two in the form and goes as one; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
 

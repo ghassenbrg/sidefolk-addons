@@ -47,15 +47,15 @@ import SidefolkExtensionKit
         #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing done before it would fail")
     }
 
-    @Test func aCallThatAlwaysStartsInsideABlockIsFoundBeforeAnythingRuns() throws {
+    @Test func aCallWhoseFailureWouldEndTheRunIsFoundBeforeAnythingRuns() throws {
         let w = try World()
         var off = try w.flow([["id": "x", "text": "x"]], state: .draft)
         off.name = "Off"
         w.store.save(off)
         let call: [String: Any] = ["id": "c", "call_flow": "Off"]
         let shapes: [String: [String: Any]] = [
-            "a try": ["id": "b", "try": [call], "recover": [["id": "r", "text": "{{error}}"]]],
-            "a try's last steps": ["id": "b", "try": [["id": "t", "text": "t"]], "recover": [], "always": [call]],
+            "a try with nothing to recover with": ["id": "b", "try": [call], "recover": []],
+            "a try's last steps, nothing to recover with": ["id": "b", "try": [["id": "t", "text": "t"]], "recover": [], "always": [call]],
             "a repeat": ["id": "b", "repeat": [call], "until": ["value": "a", "test": "is", "than": "a"], "times": 2],
             "a lane it waits for": ["id": "b", "parallel": [["name": "one", "steps": [call]], ["name": "two", "steps": [["id": "t", "text": "t"]]]]],
         ]
@@ -65,6 +65,27 @@ import SidefolkExtensionKit
             #expect(run.status == .failed && run.problem?.contains("Off") == true, "\(shape): \(run.problem ?? "")")
         }
         #expect(!w.host.calls.contains { $0.tool == "changes.it" }, "nothing done before it would fail")
+    }
+
+    @Test func aFailureSomethingCatchesIsntRefusedUpFront() async throws {
+        let w = try World()
+        var off = try w.flow([["id": "x", "text": "x"]], state: .draft)
+        off.name = "Off"
+        w.store.save(off)
+        let call: [String: Any] = ["id": "c", "call_flow": "Off"]
+        let shapes: [String: [String: Any]] = [
+            "a try that recovers": ["id": "b", "try": [call], "recover": [["id": "r", "text": "{{error}}"]]],
+            "a parallel that settles": ["id": "b", "parallel": [["name": "one", "steps": [call]], ["name": "two", "steps": [["id": "t", "text": "t"]]]], "join": "settled"],
+            "a call that carries on": ["id": "c", "call_flow": "Off", "on_failure": "carry_on"],
+            "inside a step that carries on": ["id": "b", "parallel": [["name": "one", "steps": [call]]], "on_failure": "carry_on"],
+        ]
+        for (shape, step) in shapes {
+            let flow = try w.flow([step, ["id": "after", "text": "went on"]])
+            let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+            #expect(run.status != .failed, "\(shape): \(run.problem ?? "")")
+            await w.quiet()
+            #expect(w.store.run(run.id)?.status == .done, "\(shape) runs, and what catches it does: \(w.store.run(run.id)?.problem ?? "")")
+        }
     }
 
     @Test func aPinnedCallIsFollowedInTheVersionItStaysOn() throws {

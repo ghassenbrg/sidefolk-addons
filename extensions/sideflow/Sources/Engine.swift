@@ -1242,16 +1242,18 @@ extension FlowHost {
     /// What a value is said to read when words were written into it: no step can be called this, so it counts as from outside.
     static let writtenWords = "written-words"
 
-    /// The flows a run always calls: on its top level, in what always starts there (a try and its last steps, a repeat's first go, every lane a parallel waits for),
-    /// and down through what those always call, in the version each call stays on. A condition, a choice or a list may never get there, so a call in one is for when it does.
+    /// The flows a run calls where a failure would certainly end it: its own steps, a repeat's first go, every lane of a parallel that waits for all, and a try with nothing to
+    /// recover with, down through what those calls do the same way, in the version each stays on. A failure something would catch (a try's recover, carry on, a parallel that
+    /// settles), or a step that may never be reached (a condition, a choice, a list), is for when it happens: the call itself still stops there if that flow is off.
     @MainActor static func alwaysCalled(_ body: FlowBody, store: FlowStore, from: String) -> [(name: String, pin: Int?)] {
         var out: [(name: String, pin: Int?)] = [], seen: Set<String> = [from], next = [body]
         func reached(_ steps: [Step]) -> [Step] {
             steps.flatMap { step -> [Step] in
+                guard step.onFailure != .carry_on else { return [] }
                 switch step.kind {
-                case .attempt(let tried, _, let always): return [step] + reached(tried) + reached(always)
+                case .attempt(let tried, let recover, let always): return [step] + (recover.isEmpty ? reached(tried) + reached(always) : [])
                 case .repeatUntil(_, _, let inside): return [step] + reached(inside)
-                case .parallel(let lanes) where step.join == .all || step.join == .settled: return [step] + reached(lanes.flatMap(\.steps))
+                case .parallel(let lanes) where step.join == .all: return [step] + reached(lanes.flatMap(\.steps))
                 default: return [step]
                 }
             }
