@@ -385,6 +385,11 @@ import SidefolkExtensionKit
             app.store.save(f)
         case "repair_move":
             if let id = a.string("step"), let name = a.string("name") { try draft { $0 = Repairs.moved(name, before: id, in: $0) } }
+        case "repair_fallback":
+            guard let id = a.string("step"), let name = a.string("name") else { break }
+            var made = ""
+            try draft { body in (body, made) = Repairs.withFallback(name, before: id, in: body) }
+            if !made.isEmpty { app.nav.inspect(.step(made), in: try flow().id) }
         case "repair_drop":
             if let id = a.string("step"), let name = a.string("name") { try draft { $0 = Repairs.dropped(name, from: id, in: $0) } }
         case "agent_keep":

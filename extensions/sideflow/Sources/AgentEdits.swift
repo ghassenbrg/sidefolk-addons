@@ -61,6 +61,10 @@ enum AgentEdits {
     static func offers(_ problem: FlowProblem, flow: Flow) -> [Block] {
         guard let id = problem.step, let name = problem.uses else { return [] }
         let input: [String: Any] = ["flow": flow.id, "step": id, "name": name]
+        // Made on one way and not the other: a fallback says what it is when it wasn't made.
+        if problem.onOnePath {
+            return [.action(Pages.button(L("Use “{name}” with a fallback", ["name": name]), "repair_fallback", input, style: .plain, symbol: "arrow.triangle.branch", detail: L("A step before this one gives what to use when it wasn't made. Write that in it. You can undo this.")))]
+        }
         if flow.draft.step(name) == nil {
             return [.action(Pages.button(L("Take “{name}” out of this step", ["name": name]), "repair_drop", input, style: .plain, symbol: "minus.circle", detail: L("Whatever it said there goes too. You can undo this.")))]
         }
@@ -70,6 +74,25 @@ enum AgentEdits {
     }
 
     static func moved(_ name: String, before id: String, in body: FlowBody) -> FlowBody { Editing.move(name, before: id, in: body) }
+
+    /// A fallback step just before this one, and this one using it: the fallback's own "otherwise" is left to write, and the step's form shows it.
+    static func withFallback(_ name: String, before id: String, in body: FlowBody) -> (FlowBody, String) {
+        let fresh = Editing.freshId(body, base: "\(name)_or")
+        let fallback = Step(id: fresh, kind: .data(DataStep(op: .fallback, from: "{{\(name)}}", than: "")))
+        var out = Editing.change(id, in: body) { step in
+            step = Editing.rewriting(step, { text in
+                Values.replacingSlots(in: text) { slot, path in slot == name ? "{{\(fresh)\(path)}}" : "{{\(slot)\(path)}}" }
+            }, inside: { $0 })
+        }
+        let list = Editing.siblings(of: id, in: out)
+        let at = list.firstIndex { $0.id == id } ?? 0
+        out = Editing.insert(fallback, after: at == 0 ? "start" : list[at - 1].id, in: out)
+        // At the start of a way through a step, not the flow's own start.
+        if at == 0, let holder = Editing.holders(of: id, in: body).last, let part = holder.parts.first(where: { $0.steps.contains { $0.id == id } }) {
+            out = Editing.place(fresh, after: "\(part.id):\(holder.id)", in: out)
+        }
+        return (out, fresh)
+    }
 
     static func dropped(_ name: String, from id: String, in body: FlowBody) -> FlowBody {
         Editing.change(id, in: body) { step in

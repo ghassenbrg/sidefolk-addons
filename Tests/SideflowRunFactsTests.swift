@@ -223,3 +223,24 @@ import SidefolkExtensionKit
         #expect(tree.nodes.contains { $0.title.contains("10") } && tree.nodes.contains { $0.id == "s10" })
     }
 }
+
+@MainActor @Suite(.serialized) struct SideflowRepairMoreTests {
+    @Test func aValueOnlyOneWayMakesGetsAFallbackBeforeTheStepThatUsesIt() async throws {
+        let w = try SideflowTests.World()
+        let app = App(folder: w.folder.appendingPathComponent("app"))
+        app.engine.host = w.host
+        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [
+            ["id": "b", "if": ["value": "a", "test": "is", "than": "a"], "then": [["id": "made", "text": "x"]], "else": []],
+            ["id": "use", "text": "{{made}} here"],
+        ]]))
+        let problem = try #require(flow.draft.problems(app.catalog).first { $0.uses == "made" })
+        #expect(problem.onOnePath)
+        #expect(String(describing: Repairs.offers(problem, flow: flow)).contains("repair_fallback"))
+        _ = try await Actions_UI.handle(Arguments(["op": "repair_fallback", "flow": flow.id, "step": "use", "name": "made"]), app)
+        let body = try #require(app.store.flow(flow.id)?.draft)
+        #expect(body.steps.map(\.id) == ["b", "made_or", "use"])
+        guard case .text(let words)? = body.step("use")?.kind else { Issue.record("not text"); return }
+        #expect(words == "{{made_or}} here")
+        #expect(body.problems(app.catalog).allSatisfy { $0.uses != "made" }, "\(body.problems(app.catalog))")
+    }
+}
