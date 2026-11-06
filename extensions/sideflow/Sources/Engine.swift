@@ -11,13 +11,13 @@ import SidefolkExtensionKit
     func checkPlan(_ plan: Plan) async -> Plans.Checked?
     func forgetPlan(_ id: String)
     func notify(title: String, body: String?, attention: Bool) async
-    /// A call for a run: it can be followed while it's under way, and asked to stop.
-    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome
+    /// A call for a run: it can be followed while it's under way, and asked to stop. `counted`: what the host's limit for one run counts it under.
+    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, counted: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome
     func cancel(run: String)
 }
 
 extension FlowHost {
-    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
+    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, counted: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
         await call(tool, input, plan: plan, written: written)
     }
     func cancel(run: String) {}
@@ -576,9 +576,12 @@ extension FlowHost {
         let reads = step.reads(catalog)
         let plan = run.mode == .live ? "flow-\(run.flow)" : nil
         let id = run.id
-        // "Try again" is the person asking, so its calls are counted afresh.
-        let counted = run.triedAgain == 0 ? id : "\(id)-\(run.triedAgain)"
-        let outcome = await host?.call(tool, input, plan: plan, written: written, run: counted, progress: { [weak self] in
+        // One run of the flow is one count, its lanes and their lanes too, whichever does the calling: what the card says it may do in a run. "Try again" is the person asking,
+        // so its calls are counted afresh. A flow it calls has its own plan and its own count.
+        let root = sameFlowRoot(of: run)
+        let tries = root.triedAgain + (root.id == run.id ? 0 : run.triedAgain)
+        let counted = tries == 0 ? root.id : "\(root.id)-\(tries)"
+        let outcome = await host?.call(tool, input, plan: plan, written: written, run: id, counted: counted, progress: { [weak self] in
             self?.progress[id] = $0
             self?.changed()
         }) ?? Actions.Outcome(status: .lost, text: "", summary: "", untrusted: false, standing: false)
@@ -618,10 +621,14 @@ extension FlowHost {
             }
             // Not a failure a try or "carry on" gets past: the person said this much and no more.
             run.frames = []
-            run.status = .failed
             run.problem = why
             run.record(.init(step: step.id, status: .failed, summary: step.name ?? said, note: why, at: clock()))
+            // A lane or a called flow: the whole run it's part of ends, every lane and what called it, as a stop from outside does. Nothing in it may carry on past the limit.
+            run.status = run.parent == nil ? .failed : .stopped
             store.save(run)
+            if run.parent != nil { stopFamily(of: run, because: why) }
+            // Paused for the limit, nothing else of it goes on working either: each other run of it stops at its next step, lanes too.
+            for other in store.unfinished() where other.flow == run.flow && other.id != run.id && other.mode != .practice { stop(run: other.id, because: why) }
             return false
         case .busy:
             // Nothing happened, and a minute puts it right: a long list isn't a failure.
@@ -1004,8 +1011,22 @@ extension FlowHost {
             // Two ways due together are still one moment: it runs for the first, however many said so.
             if let why = starts.first { start(flow, mode: .live, why: why) }
         }
-        // A lane out of time. Its flow being paused doesn't hold the clock: what's under way goes on while paused, so its limit has to as well.
-        for var run in store.unfinished() where run.deadline.map({ $0 <= now }) == true && !run.paused {
+        // A lane out of time. What's under way goes on while its flow is paused, so its limit does too; but time it's held, back from a tool the pause keeps it from
+        // using, or waiting for the person, isn't time it took.
+        for var run in store.unfinished() where run.deadline != nil && !run.paused {
+            let held = (run.connection != nil && heldByPause(run)) || run.status == .needs_you || run.form != nil
+            if held {
+                if let since = run.heldSince { run.deadline = run.deadline?.addingTimeInterval(max(0, now.timeIntervalSince(since))) }
+                run.heldSince = now
+                store.save(run)
+                continue
+            }
+            if run.heldSince != nil {
+                run.deadline = run.deadline?.addingTimeInterval(max(0, now.timeIntervalSince(run.heldSince ?? now)))
+                run.heldSince = nil
+                store.save(run)
+            }
+            guard run.deadline.map({ $0 <= now }) == true else { continue }
             run.outOfTime = true
             store.save(run)
             stop(run: run.id, windingDown: true)
@@ -1068,7 +1089,26 @@ extension FlowHost {
     /// `byThePerson`: their word means nothing writes after it, so it ends all of what this run is part of, the lanes beside it too, and no try or "go on with the rest" gets past it.
     /// A stop of any kind stops whatever called this run too (`joined`), never a failure for it to carry past, unless it's a parallel winding down lanes it no longer needs.
     /// `windingDown`: a run waiting for others ends once they have, not at once, for what can't go on until nothing's still working behind it. The person's Stop doesn't wait.
-    func stop(run id: String, byThePerson: Bool = false, windingDown: Bool = false) {
+    /// The run of the same flow that this one is a lane of, however deep: what one run of the flow means for its limits.
+    func sameFlowRoot(of run: Run) -> Run {
+        var root = run, seen: Set<String> = [run.id]
+        while let up = root.parent, seen.insert(up).inserted, let holder = store.run(up), holder.flow == run.flow { root = holder }
+        return root
+    }
+
+    /// Stops what a run is part of, from the top: every lane, every caller, and their callers. The top says why.
+    func stopFamily(of run: Run, because why: String) {
+        var top = run.id, above = run.parent, seen: Set<String> = [run.id]
+        while let here = above, seen.insert(here).inserted, let holder = store.run(here) {
+            if !holder.status.isOver { top = here }
+            above = holder.parent
+        }
+        guard top != run.id else { return }
+        stop(run: top, because: why)
+    }
+
+    /// `because`: what the run says it stopped for, when it's not the person's own Stop.
+    func stop(run id: String, byThePerson: Bool = false, windingDown: Bool = false, because: String? = nil) {
         // Even from a run that's just ended: its page can still show Stop, and what it was part of is what they mean.
         if byThePerson {
             var top = id, above = store.run(id)?.parent, seen: Set<String> = [id]
@@ -1104,7 +1144,7 @@ extension FlowHost {
                 run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
             }
             run.status = .stopped
-            run.problem = nil
+            run.problem = because
             run.resumeAt = nil
             run.form = nil
             run.connection = nil
