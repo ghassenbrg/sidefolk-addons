@@ -1264,7 +1264,8 @@
     "reads everything before it": "앞의 모든 것을 읽음",
     "reads {list}": "{list} 읽음",
     "with its own approval": "자체 승인으로",
-    "your name for it: {name}": "내가 붙인 이름: {name}"
+    "your name for it: {name}": "내가 붙인 이름: {name}",
+    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "서비스가 기다려 달라고 해서 이 단계는 실행되지 않았습니다. 나중에 다시 시도하거나, 스스로 다시 시도하도록 설정하세요."
   },
   "drops": {
     "flow_file": {

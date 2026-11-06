@@ -1399,7 +1399,8 @@
     "reads everything before it": "يقرأ كل ما قبله",
     "reads {list}": "يقرأ {list}",
     "with its own approval": "بموافقته الخاصة",
-    "your name for it: {name}": "اسمك له: {name}"
+    "your name for it: {name}": "اسمك له: {name}",
+    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "طلبت الخدمة الانتظار، فلم تُنفَّذ هذه الخطوة. حاول لاحقًا، أو اضبطها لتعيد المحاولة من تلقاء نفسها."
   },
   "drops": {
     "flow_file": {

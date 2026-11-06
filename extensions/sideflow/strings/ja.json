@@ -1264,7 +1264,8 @@
     "reads everything before it": "前のすべてを読む",
     "reads {list}": "{list} を読む",
     "with its own approval": "独自の許可で",
-    "your name for it: {name}": "あなたの呼び名: {name}"
+    "your name for it: {name}": "あなたの呼び名: {name}",
+    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "サービスから待つよう求められたため、このステップは実行されませんでした。後でもう一度試すか、自動で再試行するよう設定してください。"
   },
   "drops": {
     "flow_file": {

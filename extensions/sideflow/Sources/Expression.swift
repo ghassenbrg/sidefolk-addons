@@ -241,7 +241,10 @@ enum Expression {
         case "!=": return .bool(!same(a, b))
         case "+":
             // Words joined, numbers added: which is decided by what they are, never by what they look like.
-            if case .string(let x) = a, case .string(let y) = b { return try text(x + y, &work) }
+            if case .string(let x) = a, case .string(let y) = b {
+                try fits(x.utf8.count + y.utf8.count)
+                return try text(x + y, &work)
+            }
             if case .number = a, case .number = b { break }
             throw Problem(L("“+” adds two numbers or joins two pieces of words. To use words as a number, say how to read them: number(…)."))
         default: break
@@ -282,8 +285,23 @@ enum Expression {
 
     static func text(_ words: String, _ work: inout Int) throws -> JSON {
         try spend(&work, words.utf8.count / 1000)
-        guard words.utf8.count <= biggestText else { throw Problem(L("That's too much to work out in one step.")) }
+        try fits(words.utf8.count)
         return .string(words)
+    }
+
+    /// Asked before words are put together, with how long they'd come out: past the limit nothing is built, so a few short words can't make a huge one on the way.
+    static func fits(_ bytes: Int) throws {
+        guard bytes <= biggestText else { throw Problem(L("That's too much to work out in one step.")) }
+    }
+
+    /// How many times `find` is in `words`, as a replace counts them: not overlapping, from the start.
+    static func occurrences(of find: String, in words: String) -> Int {
+        var count = 0, from = words.startIndex
+        while let hit = words.range(of: find, range: from ..< words.endIndex) {
+            count += 1
+            from = hit.upperBound
+        }
+        return count
     }
 
     // MARK: What it can do
@@ -370,7 +388,11 @@ enum Expression {
             case "replace":
                 try needs(3...3)
                 guard !words(1).isEmpty else { throw Problem(L("“{name}” needs something to look for.", ["name": name])) }
-                return try Expression.text(words(0).replacingOccurrences(of: words(1), with: words(2)), &work)
+                let (whole, find, with) = (words(0), words(1), words(2))
+                let found = Expression.occurrences(of: find, in: whole)
+                try spend(&work, whole.utf8.count / 1000)
+                try Expression.fits(whole.utf8.count + found * (with.utf8.count - find.utf8.count))
+                return try Expression.text(whole.replacingOccurrences(of: find, with: with), &work)
             case "split":
                 try needs(2...2)
                 guard !words(1).isEmpty else { throw Problem(L("“{name}” needs something to look for.", ["name": name])) }
@@ -379,7 +401,10 @@ enum Expression {
                 return .array(parts.map { .string($0) })
             case "join":
                 try needs(2...2)
-                return try Expression.text(try list(0).map(Values.text).joined(separator: words(1)), &work)
+                let parts = try list(0).map(Values.text), between = words(1)
+                try spend(&work, parts.count)
+                try Expression.fits(parts.reduce(0) { $0 + $1.utf8.count } + max(parts.count - 1, 0) * between.utf8.count)
+                return try Expression.text(parts.joined(separator: between), &work)
             case "first", "last":
                 try needs(1...1)
                 let items = try list(0)

@@ -63,6 +63,16 @@ import SidefolkExtensionKit
         }
     }
 
+    @Test func wordsTooLongToMakeAreRefusedBeforeTheyreMade() throws {
+        let long = String(repeating: "x", count: 1900)
+        #expect(throws: Problem.self, "spaces made 1,900 times longer") { try work("replace({{page}}, \" \", \"\(long)\")", ["page": .string(String(repeating: " ", count: 256_000))]) }
+        let short = String(repeating: "a", count: 300), wide = String(repeating: "y", count: 1600)
+        #expect(throws: Problem.self, "a few letters made huge") { try work("replace(\"\(short)\", \"a\", \"\(wide)\")") }
+        #expect(throws: Problem.self, "a long list joined by long words") { try work("join({{l}}, \"\(String(repeating: "z", count: 1000))\")", ["l": .array(Array(repeating: .string(""), count: 50_000))]) }
+        #expect(try work("replace(\"a-b\", \"-\", \"+\")") == .string("a+b"), "an ordinary one still works")
+        #expect(Expression.occurrences(of: "aa", in: "aaaaa") == 2, "counted as replace does")
+    }
+
     @Test func itHasLimits() throws {
         #expect(throws: Problem.self, "too long") { try work(String(repeating: "1+", count: Expression.longest) + "1") }
         #expect(throws: Problem.self, "too deep") { try work(String(repeating: "(", count: 200) + "1" + String(repeating: ")", count: 200)) }

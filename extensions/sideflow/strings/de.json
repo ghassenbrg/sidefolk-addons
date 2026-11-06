@@ -1291,7 +1291,8 @@
     "reads everything before it": "liest alles davor",
     "reads {list}": "liest {list}",
     "with its own approval": "mit eigener Erlaubnis",
-    "your name for it: {name}": "dein Name dafür: {name}"
+    "your name for it: {name}": "dein Name dafür: {name}",
+    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "Der Dienst bat zu warten, also lief dieser Schritt nicht. Versuch es später noch einmal, oder stell ihn so ein, dass er es selbst erneut versucht."
   },
   "drops": {
     "flow_file": {

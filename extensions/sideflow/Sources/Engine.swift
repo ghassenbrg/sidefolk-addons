@@ -616,7 +616,11 @@ extension FlowHost {
         let said = outcome.summary.nonEmpty.map { Words.resolved($0, values: run.values) } ?? sentence
         switch outcome.status {
         // A service asking to be left alone a while said so in its fields: it did nothing, and it's asked again when the wait is over, a few times at most.
-        case .ok where Self.askedToWait(outcome.data) != nil && run.retries < Self.mostWaitsWhenAsked:
+        // Each go is a call Sidefolk counts against the run's limit, and that limit is what the card counted: a step set to try again has its tries there, one that isn't has none,
+        // so going again would take a later step's call and stop the run halfway. Without one to spare, it says so instead.
+        case .ok where Self.askedToWait(outcome.data) != nil && run.retries >= Self.waitsAllowed(step):
+            return failed(step, why: run.retries == 0 ? L("The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.") : L("The service kept asking to wait, so this step didn't run."), reads: false, in: &run)
+        case .ok where Self.askedToWait(outcome.data) != nil:
             let seconds = min(Self.askedToWait(outcome.data) ?? 60, Self.longestWaitWhenAsked)
             run.retries += 1
             run.resumeAt = clock().addingTimeInterval(seconds)
@@ -624,8 +628,6 @@ extension FlowHost {
             run.record(.init(step: step.id, status: .waiting, summary: step.name ?? said, note: L("The service asked to wait, so it tries again at {time}.", ["time": Format.time(run.resumeAt ?? clock())]), at: clock()))
             store.save(run)
             return false
-        case .ok where Self.askedToWait(outcome.data) != nil:
-            return failed(step, why: L("The service kept asking to wait, so this step didn't run."), reads: false, in: &run)
         case .ok:
             run.actionsDone += 1
             run.values.set(step.id, answer: outcome.text, fields: outcome.data)
@@ -1301,6 +1303,8 @@ extension FlowHost {
         return max(1, (o["retry_after_seconds"] as? NSNumber)?.doubleValue ?? 60)
     }
     static let mostWaitsWhenAsked = 3
+    /// How many more goes a service's "wait" may have: the tries the plan counted for the step, never more than it has.
+    static func waitsAllowed(_ step: Step) -> Int { step.onFailure == .retry ? min(mostWaitsWhenAsked, retriesAtMost) : 0 }
     static let longestWaitWhenAsked: Double = 15 * 60
     /// The most a step can say it reads: the host's limit. Past it, say it's from outside rather than be refused.
     static let mostReads = 32

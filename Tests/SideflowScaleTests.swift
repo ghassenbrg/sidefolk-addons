@@ -102,7 +102,9 @@ import SidefolkExtensionKit
     }
 }
 
-@MainActor @Suite struct SideflowLaterListTests {
+@MainActor @Suite(.serialized) struct SideflowLaterListTests {
+    typealias World = SideflowTests.World
+
     @Test func nextGoesByTheFlowsOwnClock() throws {
         var flow = Flow(id: "f", name: "F", draft: try FlowCodec.body(["trigger": ["type": "schedule", "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"], "at": "08:30"], "time_zone": "Pacific/Kiritimati", "steps": [["id": "a", "text": "x"]]]), createdAt: Date(), updatedAt: Date())
         flow.state = .on
@@ -146,5 +148,33 @@ extension SideflowLaterListTests {
         #expect(Engine.askedToWait(#"{"rate_limited": true}"#) == 60)
         #expect(Engine.askedToWait(#"{"rate_limited": false, "retry_after_seconds": 30}"#) == nil)
         #expect(Engine.askedToWait(nil) == nil)
+    }
+
+    @Test func aWaitTakesNoCallTheCardDidntCountForTheStep() async throws {
+        let w = try World()
+        let wait = Actions.Outcome(status: .ok, text: "", data: #"{"rate_limited": true, "retry_after_seconds": 30}"#)
+        w.host.answers["reads.it"] = [wait, Actions.Outcome(status: .ok, text: "fine")]
+        let flow = try w.flow([["id": "a", "do": "reads.it"], ["id": "b", "do": "changes.it", "with": ["text": "x"]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let back = try #require(w.store.run(run.id))
+        #expect(back.status == .failed && back.problem?.contains("Try again later") == true, "\(back.problem ?? "")")
+        #expect(w.host.calls.filter { $0.tool == "reads.it" }.count == 1, "no second go: it would have been the next step's call")
+        #expect(!w.host.calls.contains { $0.tool == "changes.it" })
+    }
+
+    @Test func aStepSetToTryAgainWaitsWithinItsTries() async throws {
+        let w = try World()
+        let wait = Actions.Outcome(status: .ok, text: "", data: #"{"rate_limited": true, "retry_after_seconds": 30}"#)
+        w.host.answers["reads.it"] = [wait, Actions.Outcome(status: .ok, text: "fine")]
+        let flow = try w.flow([["id": "a", "do": "reads.it", "on_failure": "retry"], ["id": "t", "text": "{{a}}"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .waiting)
+        w.now = w.now.addingTimeInterval(31)
+        w.engine.tick()
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .done, "\(w.store.run(run.id)?.problem ?? "")")
+        #expect(Engine.waitsAllowed(try #require(flow.draft.step("a"))) <= Engine.retriesAtMost, "within what the card counted")
     }
 }
