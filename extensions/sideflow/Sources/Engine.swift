@@ -1016,7 +1016,8 @@ extension FlowHost {
         for listed in store.unfinished() where listed.deadline != nil && !listed.paused {
             // As it is now: stopping one lane stops what's inside it, and a copy from before that would bring it back.
             guard var run = store.run(listed.id), !run.status.isOver, !run.paused else { continue }
-            let held = (run.connection != nil && heldByPause(run)) || run.status == .needs_you || run.form != nil
+            // Waiting for the person: a card it needs, a form, or "did it happen?" after Sidefolk quit mid-step.
+            let held = (run.connection != nil && heldByPause(run)) || run.status == .needs_you || run.status == .interrupted || run.form != nil
             if held {
                 if let since = run.heldSince { run.deadline = run.deadline?.addingTimeInterval(max(0, now.timeIntervalSince(since))) }
                 run.heldSince = now
