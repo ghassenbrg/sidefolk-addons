@@ -1292,7 +1292,16 @@
     "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "루틴이 하는 일과 단계에 적힌 내용을 담습니다. 허용한 것, 실행 기록, 계정은 담지 않습니다.",
     "When something happens in Sidefolk": "Sidefolk에서 무언가가 일어날 때",
     "When something it watches changes": "지켜보는 것이 바뀔 때",
-    "When you start it": "직접 시작할 때"
+    "When you start it": "직접 시작할 때",
+    "Ends the {count} runs under way.": {
+      "one": "진행 중인 실행을 끝냅니다.",
+      "other": "진행 중인 실행 {count}개를 끝냅니다."
+    },
+    "It wasn't there.": "없었습니다.",
+    "Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line.": "줄바꿈이나 카드에 그대로 보일 수 없는 기호가 있어서 실행할 때마다 묻습니다. 한 줄로 쓰세요.",
+    "Settings › Trust keeps flows from passing what they read on to this, so it asks each run.": "설정 › 신뢰에서 흐름이 읽은 내용을 여기로 넘기지 못하게 했기 때문에 실행할 때마다 묻습니다.",
+    "Stop all {count}": "{count}개 모두 중지",
+    "Words an earlier step made go in here, so it runs by itself only under Full access.": "앞 단계에서 만든 말이 여기에 들어가므로 전체 접근에서만 저절로 실행됩니다."
   },
   "drops": {
     "flow_file": {

@@ -1292,7 +1292,16 @@
     "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "ルーティンの動作とステップに書かれた内容を含みます。許可した内容、実行記録、アカウントは含みません。",
     "When something happens in Sidefolk": "Sidefolk で何かが起きたとき",
     "When something it watches changes": "見守っているものが変わったとき",
-    "When you start it": "自分で開始したとき"
+    "When you start it": "自分で開始したとき",
+    "Ends the {count} runs under way.": {
+      "one": "実行中の実行を終了します。",
+      "other": "実行中の{count}件の実行を終了します。"
+    },
+    "It wasn't there.": "見つかりませんでした。",
+    "Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line.": "改行か、カードで正確に表示できない記号が含まれているため、実行のたびに確認します。1行で書いてください。",
+    "Settings › Trust keeps flows from passing what they read on to this, so it asks each run.": "設定 › 信頼 で、フローが読んだものをここへ渡さないようにしているため、実行のたびに確認します。",
+    "Stop all {count}": "{count}件すべて停止",
+    "Words an earlier step made go in here, so it runs by itself only under Full access.": "前のステップで作られた言葉が入るため、フルアクセスのときだけ自動で実行します。"
   },
   "drops": {
     "flow_file": {

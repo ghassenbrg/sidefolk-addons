@@ -1322,7 +1322,16 @@
     "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Contiene cosa fanno le routine e cosa è scritto nei passaggi, non ciò che hai consentito, le esecuzioni o i tuoi account.",
     "When something happens in Sidefolk": "Quando succede qualcosa in Sidefolk",
     "When something it watches changes": "Quando cambia qualcosa che tiene d’occhio",
-    "When you start it": "Quando la avvii"
+    "When you start it": "Quando la avvii",
+    "Ends the {count} runs under way.": {
+      "one": "Termina l’esecuzione in corso.",
+      "other": "Termina le {count} esecuzioni in corso."
+    },
+    "It wasn't there.": "Non c’era.",
+    "Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line.": "Il testo ha un a capo o un segno che la scheda non può mostrare esattamente, quindi chiederà a ogni esecuzione. Scrivilo su una riga.",
+    "Settings › Trust keeps flows from passing what they read on to this, so it asks each run.": "Impostazioni › Fiducia impedisce ai flussi di passare qui ciò che leggono, quindi chiederà a ogni esecuzione.",
+    "Stop all {count}": "Ferma tutte e {count}",
+    "Words an earlier step made go in here, so it runs by itself only under Full access.": "Qui vanno parole di un passaggio precedente, quindi si esegue da sola solo con Accesso completo."
   },
   "drops": {
     "flow_file": {

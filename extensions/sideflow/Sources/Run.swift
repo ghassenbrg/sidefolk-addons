@@ -23,7 +23,7 @@ struct Run: Equatable, Sendable, Identifiable {
     }
 
     struct Record: Equatable, Sendable {
-        enum Status: String, Sendable { case running, done, would, failed, skipped, needs_you, waiting, unknown }
+        enum Status: String, Sendable { case running, done, would, failed, skipped, needs_you, waiting, unknown, stopped }
 
         var step: String
         var status: Status

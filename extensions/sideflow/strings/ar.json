@@ -1442,7 +1442,16 @@
     "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "يحوي ما تفعله الروتينات وما كُتب في خطواتها، لا ما سمحت به ولا تشغيلاتها ولا حساباتك.",
     "When something happens in Sidefolk": "عندما يحدث شيء في Sidefolk",
     "When something it watches changes": "عندما يتغير شيء يراقبه",
-    "When you start it": "عندما تبدؤه"
+    "When you start it": "عندما تبدؤه",
+    "Ends the {count} runs under way.": {
+      "one": "ينهي التشغيل الجاري.",
+      "other": "ينهي التشغيلات الجارية وعددها {count}."
+    },
+    "It wasn't there.": "لم يكن موجودًا.",
+    "Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line.": "في كلماتها فاصل أسطر أو علامة لا تستطيع البطاقة عرضها كما هي، لذا ستسأل في كل تشغيل. اكتبها في سطر واحد.",
+    "Settings › Trust keeps flows from passing what they read on to this, so it asks each run.": "الإعدادات › الثقة تمنع التدفقات من تمرير ما تقرؤه إلى هذا، لذا ستسأل في كل تشغيل.",
+    "Stop all {count}": "إيقاف الكل ({count})",
+    "Words an earlier step made go in here, so it runs by itself only under Full access.": "هنا تُوضع كلمات صنعتها خطوة سابقة، لذا لا تعمل تلقائيًا إلا مع الوصول الكامل."
   },
   "drops": {
     "flow_file": {

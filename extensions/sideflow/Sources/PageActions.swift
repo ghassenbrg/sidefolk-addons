@@ -298,6 +298,10 @@ import SidefolkExtensionKit
             app.engine.endHeldRuns()
         case "stop_run":
             if let id = a.string("run") { app.engine.stop(run: id, byThePerson: a.string("page_token") == app.pageKey) }
+        case "stop_runs":
+            // The flow's own Stop: every run of it under way, as the person's Stop on each run's page.
+            guard a.string("page_token") == app.pageKey, let id = a.string("flow") else { break }
+            for run in app.store.unfinished() where run.flow == id && run.parent == nil && run.mode != .practice { app.engine.stop(run: run.id, byThePerson: true) }
         case "inspect_run":
             if let id = a.string("run"), let target = a.string("target") {
                 // Pressing what's selected puts it away, as on the board.

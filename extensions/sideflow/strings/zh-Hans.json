@@ -1292,7 +1292,16 @@
     "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "包含流程做什么以及步骤里写的内容，不含你允许的内容、运行记录或你的账户。",
     "When something happens in Sidefolk": "当 Sidefolk 中发生某事时",
     "When something it watches changes": "当它关注的内容变化时",
-    "When you start it": "由你启动时"
+    "When you start it": "由你启动时",
+    "Ends the {count} runs under way.": {
+      "one": "结束正在进行的运行。",
+      "other": "结束正在进行的 {count} 次运行。"
+    },
+    "It wasn't there.": "它不在那里。",
+    "Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line.": "其中有换行或卡片无法原样显示的符号，所以每次运行都会询问。请写在一行里。",
+    "Settings › Trust keeps flows from passing what they read on to this, so it asks each run.": "设置 › 信任 不允许流程把读到的内容传给这里，所以每次运行都会询问。",
+    "Stop all {count}": "全部停止（{count}）",
+    "Words an earlier step made go in here, so it runs by itself only under Full access.": "这里填入前面步骤生成的文字，所以只有在完全访问下才会自行运行。"
   },
   "drops": {
     "flow_file": {

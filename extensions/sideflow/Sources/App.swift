@@ -15,6 +15,9 @@ import SidefolkExtensionKit
     /// What Guard says of each step now: its sentence and whether it would ask.
     var preflight: [String: [String: Actions.Check]] = [:]
     private var preflightAsked: [String: Date] = [:]
+    /// What Sidefolk said of a step as it stands, for a while: a page draws often, and every check counts against what Sidefolk allows an extension a minute.
+    private var looked: [String: (at: Date, check: Actions.Check)] = [:]
+    static let lookFor: TimeInterval = 30
     /// What the plan would be if approved now, by flow: Sidefolk's own answer, with nothing shown or changed.
     var planChecks: [String: PlanLook] = [:]
     /// The same, of what runs, while the draft differs from it: the Permissions tab says both.
@@ -123,7 +126,14 @@ import SidefolkExtensionKit
             let plan = flow.live == nil ? nil : flow.planId
             for step in flow.draft.allSteps {
                 guard case .action(let tool, let input) = step.kind else { continue }
-                if let check = await host.check(tool, catalog.filled(tool, input, from: values), plan: plan) { out[step.id] = check }
+                let filled = catalog.filled(tool, input, from: values)
+                let key = "\(tool) \(plan ?? "") " + ((try? JSONSerialization.data(withJSONObject: filled, options: [.sortedKeys])).map { String(decoding: $0, as: UTF8.self) } ?? "")
+                if let kept = looked[key], Date().timeIntervalSince(kept.at) < Self.lookFor { out[step.id] = kept.check; continue }
+                if let check = await host.check(tool, filled, plan: plan) {
+                    out[step.id] = check
+                    looked = looked.filter { Date().timeIntervalSince($0.value.at) < Self.lookFor }
+                    looked[key] = (Date(), check)
+                }
             }
             // What sets it off is asked about too: a watch on a folder that isn't shared wouldn't start.
             if case .watch(let w) = flow.draft.trigger, let check = await host.check("watch.create", Engine.watchInput(w, title: Engine.watchTitle(flow)), plan: plan) {
@@ -191,6 +201,9 @@ struct PlanLook {
         case "server_unpinned": return (L("Its program can't be checked, so it asks each run."), .warn)
         case "shell": return (L("It runs a program, so it asks each run."), .info)
         case "text_to_read": return (L("Its words are read in full each time."), .info)
+        case "unreadable_value": return (L("Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line."), .warn)
+        case "switch_off": return (L("Settings › Trust keeps flows from passing what they read on to this, so it asks each run."), .info)
+        case "filled_value" where line.state == "stands_in_full_access": return (L("Words an earlier step made go in here, so it runs by itself only under Full access."), .info)
         default: break
         }
         switch line.state {

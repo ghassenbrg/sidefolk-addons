@@ -570,7 +570,7 @@ extension FlowHost {
             store.save(run)
             return true
         }
-        let check = await host?.check(tool, input, plan: run.flowPractice)
+        let check = await look(tool, input, plan: run.flowPractice)
         let sentence = Words.resolved(check?.summary ?? Words.step(step, body: run.body, catalog: catalog), values: run.values)
         let readsOnly = catalog.tool(tool)?.readsOnly == true
         if readsOnly, check?.decision == .allow {
@@ -690,6 +690,8 @@ extension FlowHost {
             store.save(run)
             return false
         case .failed, .lost:
+            // What it was meant to change isn't there: nothing happened, so it fails as plainly as an error does.
+            if outcome.notFound { return failed(step, why: outcome.text.nonEmpty ?? L("It wasn't there."), reads: reads, in: &run, said: step.name ?? said) }
             // It may have happened. That's for the person to look at unless they said to carry on, and never to repeat by itself.
             guard !reads, step.onFailure != .carry_on else {
                 return failed(step, why: outcome.text.nonEmpty ?? L("It didn't work."), reads: reads, in: &run, said: step.name ?? said)
@@ -819,6 +821,22 @@ extension FlowHost {
         }
     }
 
+    /// How long a practice waits before asking again when Sidefolk didn't answer a check: it allows an extension so many a minute, and the page's
+    /// own checks share them, so a busy minute isn't "Sidefolk doesn't offer this".
+    static var lookAgainAfter: [Double] = [3, 8, 15]
+
+    private func look(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Check? {
+        if let check = await host?.check(tool, input, plan: plan) { return check }
+        for wait in Self.lookAgainAfter {
+            try? await Task.sleep(for: .seconds(wait))
+            if let check = await host?.check(tool, input, plan: plan) { return check }
+        }
+        return nil
+    }
+
+    /// What the question asking a run's way forward is known by, to take it back.
+    static func forwardKey(_ run: String) -> String { "forward:" + run }
+
     /// Where they are, the question that gets a stopped run going again, answered right there. Nobody answering leaves it where it is, on the page.
     private func askTheWayForward(_ run: Run) async {
         let step = run.records.last?.summary ?? ""
@@ -831,7 +849,9 @@ extension FlowHost {
             // Left behind by an edit, going on means more of a version they replaced: stopping comes first, and trying again would ask the same.
             : stepLeftBehind(run) ? [(L("Stop here"), .stop), (L("Skip this step"), .carry_on)]
             : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
-        guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300, "about": String(run.flowName.prefix(80))], plan: nil, written: nil), answer.ok,
+        let input: [String: Any] = ["question": question, "options": choices.map(\.words), "timeout_seconds": 300, "about": String(run.flowName.prefix(80))]
+        // Keyed by the run, so a choice made on the page or a Stop takes the card back.
+        guard let answer = await host?.call("ask.user", input, plan: nil, written: nil, run: Self.forwardKey(run.id), counted: run.id, progress: { _ in }), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
         // Their own answer, on their own card.
@@ -914,6 +934,8 @@ extension FlowHost {
 
     /// Going on from a run that stopped, for whoever asked: Stop from here ends that run and what it started, and only the person's own does more.
     func proceed(_ id: String, _ how: Forward) {
+        // Chosen here or on its card: the question asking it goes either way.
+        host?.cancel(run: Self.forwardKey(id))
         if how == .stop { return stop(run: id) }
         guard let current = store.run(id), !current.status.isOver, current.status != .running, !store.isHeldBack(flow: current.flow) else { return }
         // A form or another run is what it's waiting for: going past that isn't anyone's to choose from here.
@@ -1185,6 +1207,7 @@ extension FlowHost {
             if top != id { stop(run: top) }
         }
         guard var run = store.run(id), !run.status.isOver else { return }
+        host?.cancel(run: Self.forwardKey(id))
         for child in run.waitingOn { stop(run: child, windingDown: windingDown) }
         if windingDown, run.waitingOn.contains(where: { store.run($0)?.status.isOver == false }) {
             store.askStop(id)
@@ -1200,6 +1223,12 @@ extension FlowHost {
             let program = FlowProgram(run.body)
             if !run.waitingOn.isEmpty, run.pc < program.ops.count, case .step(let step) = program.ops[run.pc] {
                 run.record(.init(step: step.id, status: .unknown, summary: Words.step(step, body: run.body, catalog: catalog), at: clock()))
+            } else if let last = run.records.last, [.waiting, .needs_you].contains(last.status) {
+                // A wait, a form or a card Stop ended says so, rather than still waiting on a run that's over.
+                var ended = last
+                ended.status = .stopped
+                ended.at = clock()
+                run.record(ended)
             }
             run.status = .stopped
             run.problem = because

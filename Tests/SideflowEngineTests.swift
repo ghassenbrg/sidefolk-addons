@@ -119,6 +119,74 @@ import SidefolkExtensionKit
         #expect(back.frames.first?.items.count == 3, "and it knows where it was")
     }
 
+    /// Stop during a wait: the run is over, and the wait says it was stopped rather than still waiting.
+    @Test func aWaitStopHereSaysSo() async throws {
+        let w = try World()
+        let flow = try w.flow([["id": "w", "wait_minutes": 1], ["id": "after", "text": "later"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.record(of: "w")?.status == .waiting)
+        w.engine.stop(run: run.id, byThePerson: true)
+        let back = try #require(w.store.run(run.id))
+        #expect(back.status == .stopped)
+        #expect(back.record(of: "w")?.status == .stopped)
+        #expect(back.record(of: "after") == nil)
+        // Kept through a save and a read back.
+        w.restart()
+        #expect(w.store.run(run.id)?.record(of: "w")?.status == .stopped)
+    }
+
+    /// "You said no": the card asking what now goes when it's chosen on the run's page instead, or the run is stopped.
+    @Test func aChoiceOnThePageTakesTheCardBack() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .denied, text: "You said no.")]
+        let flow = try w.flow([["id": "gone", "do": "changes.it", "with": ["text": "x"]], ["id": "after", "text": "on"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .needs_you)
+        #expect(w.host.forward.count == 1, "it asked what now")
+        w.engine.proceed(run.id, .carry_on)
+        await w.quiet()
+        #expect(w.host.takenBack.contains(run.id))
+        #expect(w.store.run(run.id)?.status == .done)
+
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .denied, text: "You said no.")]
+        let other = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.stop(run: other.id, byThePerson: true)
+        #expect(w.host.takenBack.contains(other.id), "and Stop takes it back too")
+    }
+
+    /// A practice that meets a busy minute asks again, rather than saying Sidefolk doesn't offer what it does.
+    @Test func aPracticeAsksAgainWhenACheckGoesUnanswered() async throws {
+        let w = try World()
+        let was = Engine.lookAgainAfter
+        Engine.lookAgainAfter = [0.01, 0.01]
+        defer { Engine.lookAgainAfter = was }
+        w.host.unanswered = 2
+        let flow = try w.flow([["id": "act", "do": "changes.it", "with": ["text": "x"]]])
+        let run = try #require(w.engine.start(flow, mode: .practice, why: "t"))
+        await w.quiet()
+        let record = try #require(w.store.run(run.id)?.record(of: "act"))
+        #expect(record.status == .would)
+        #expect(record.note != L("Sidefolk doesn't offer this now."))
+        #expect(w.host.unanswered == 0, "it asked three times")
+    }
+
+    /// A note that was never found didn't half-happen: the run fails with Sidefolk's words, and nobody is asked whether it happened.
+    @Test func whatIsNotThereFailsPlainly() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .failed, text: "I couldn't find a note with that id.", notFound: true)]
+        let flow = try w.flow([["id": "gone", "do": "changes.it", "with": ["text": "x"]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let back = try #require(w.store.run(run.id))
+        #expect(back.status == .failed)
+        #expect(back.record(of: "gone")?.status == .failed)
+        #expect(back.problem?.contains("couldn't find a note") == true)
+        #expect(back.problem?.contains("may or may not") != true)
+    }
+
     // MARK: Choose, try, finish
 
     @Test func theFirstPathThatFitsIsTaken() async throws {

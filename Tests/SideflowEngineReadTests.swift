@@ -952,5 +952,27 @@ import SidefolkExtensionKit
         let bar = "\(Pages.head(try #require(app.store.flow(flow.id)), app, ready: true))"
         #expect(bar.contains(L("Discard")))
         #expect(bar.contains(L("Unsaved changes")))
+        #expect(bar.contains("stop_runs"), "and Stop stays, unsaved changes or not")
+    }
+
+    /// A run under way can be stopped from the flow's own head, the page's Stop as the person's, and only with the page's token.
+    @Test func theFlowsHeadStopsWhatsUnderWay() async throws {
+        let w = try World()
+        let app = app(w)
+        var flow = try make(app, [["id": "w", "wait_minutes": 30], ["id": "t", "text": "one"]])
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        #expect(!"\(Pages.head(flow, app, ready: true))".contains("stop_runs"), "nothing under way, no Stop")
+        let first = try #require(app.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        let one = "\(Pages.head(try #require(app.store.flow(flow.id)), app, ready: true))"
+        #expect(one.contains("stop_runs") && one.contains(L("Stop")))
+        try await page(app, "stop_runs", flow, ["page_token": "not the page"])
+        #expect(app.store.run(first.id)?.status == .waiting, "a call without the page's token doesn't stop it")
+        try await page(app, "stop_runs", flow, ["page_token": app.pageKey])
+        #expect(app.store.run(first.id)?.status == .stopped)
+        #expect(app.store.run(first.id)?.record(of: "w")?.status == .stopped)
+        #expect(!"\(Pages.head(try #require(app.store.flow(flow.id)), app, ready: true))".contains("stop_runs"))
     }
 }

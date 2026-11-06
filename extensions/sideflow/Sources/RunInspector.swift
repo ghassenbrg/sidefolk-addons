@@ -199,6 +199,7 @@ import SidefolkExtensionKit
         case .needs_you: L("Needs you")
         case .waiting: L("Waiting")
         case .unknown: L("May or may not have happened")
+        case .stopped: L("Stopped")
         }
     }
 

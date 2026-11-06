@@ -65,14 +65,21 @@ import SidefolkExtensionKit
 
         func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, counted: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
             heard = progress
-            runIds.append(counted)
+            if !run.hasPrefix("forward:") { runIds.append(counted) }
             return await call(tool, input, plan: plan, written: written)
         }
 
-        func cancel(run: String) { cancelled = true }
+        /// The questions asking a run's way forward that were taken back, by the run.
+        var takenBack: [String] = []
+        func cancel(run: String) {
+            if run.hasPrefix("forward:") { takenBack.append(String(run.dropFirst(8))) } else { cancelled = true }
+        }
 
+        /// How many checks go unanswered first, as when Sidefolk's minute of checks is used up.
+        var unanswered = 0
         func check(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Check? {
-            Actions.Check(decision: decision, summary: "Sentence for \(tool)", mutates: tool != "reads.it", standing: plan != nil)
+            if unanswered > 0 { unanswered -= 1; return nil }
+            return Actions.Check(decision: decision, summary: "Sentence for \(tool)", mutates: tool != "reads.it", standing: plan != nil)
         }
 
         /// As Sidefolk has it: one AI request at a time from an extension, and a second gets refused.

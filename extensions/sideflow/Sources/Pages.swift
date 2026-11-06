@@ -656,6 +656,13 @@ import SidefolkExtensionKit
         } else if !running {
             actions.insert(Action(L("Saved"), tool: "ui", input: ui("save", id), style: .plain, symbol: "checkmark", disabled: true), at: 0)
         }
+        // What's under way can be stopped from the flow itself, not only from its run's page, unsaved changes or not.
+        let live = app.store.unfinished().filter { $0.flow == flow.id && $0.parent == nil && $0.mode != .practice }
+        if !live.isEmpty {
+            let label = live.count == 1 ? L("Stop") : L("Stop all {count}", ["count": String(live.count)])
+            actions.insert(button(label, "stop_runs", ["flow": flow.id, "page_token": app.pageKey], symbol: "stop.fill",
+                                  detail: L(one: "Ends the run under way.", other: "Ends the {count} runs under way.", count: live.count)), at: 0)
+        }
         extra += [button(L("Rename"), "rename_open", id, symbol: "pencil"),
                   button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
                   copyDefinition(flow),
@@ -843,6 +850,7 @@ import SidefolkExtensionKit
         case .needs_you: (.attention, Badge(L("Needs you"), tone: .warn))
         case .waiting: (.active, Badge(L("Waiting"), tone: .info))
         case .unknown: (.attention, Badge(L("Unknown"), tone: .warn))
+        case .stopped: (.skipped, Badge(L("Stopped"), tone: .neutral))
         }
     }
 
