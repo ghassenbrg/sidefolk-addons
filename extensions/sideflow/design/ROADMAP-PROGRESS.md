@@ -93,6 +93,14 @@ T entry, for SECURITY's Sideflow section when it lands: *Working a value out.* W
 
 Not read yet; not on a card of its own, since it does nothing outside the run.
 
+## Smaller pieces on the same stack (not compiled yet)
+
+- A question says which flow asks (`about`, D201 on app branch `team/sideflow-ask-about`): needs that app snapshot as the minimum, since an older Sidefolk refuses the field. Every flow with a question gets one new line on its card once; in Auto that stays inside and asks nothing.
+- `Next:` goes by the flow's own time zone; `{{today}}` and `{{now}}` are when a run goes on, not when it began.
+- `{{step_key}}`: the same each time one step of one run is tried again, for a service's idempotency field.
+- A service that answers `{"rate_limited": true, "retry_after_seconds": N}` in its fields did nothing; the step is tried again after the wait, three times at most, at most 15 minutes apart.
+- Pagination isn't built: a cursor from a service's own answer fills a field that isn't free text, so under the host's rule it asks each run, and following pages by itself would ask on every page. It needs a host rule first (Permissions).
+
 ## Left out on purpose
 
 Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.

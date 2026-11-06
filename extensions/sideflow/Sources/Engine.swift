@@ -420,7 +420,7 @@ extension FlowHost {
         case .ai(let prompt):
             return await writing(step, prompt: prompt, in: &run)
         case .ask(let question, let options):
-            var input: [String: Any] = ["question": run.values.fill(question), "timeout_seconds": 300]
+            var input: [String: Any] = ["question": run.values.fill(question), "timeout_seconds": 300, "about": String((store.flow(run.flow)?.name ?? run.flowName).prefix(80))]
             if !options.isEmpty { input["options"] = options }
             if run.mode == .practice {
                 let first = options.first ?? L("(your answer)")
@@ -811,7 +811,7 @@ extension FlowHost {
             // Left behind by an edit, going on means more of a version they replaced: stopping comes first, and trying again would ask the same.
             : stepLeftBehind(run) ? [(L("Stop here"), .stop), (L("Skip this step"), .carry_on)]
             : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
-        guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil, written: nil), answer.ok,
+        guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300, "about": String(run.flowName.prefix(80))], plan: nil, written: nil), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
         // Their own answer, on their own card.
@@ -1173,7 +1173,8 @@ extension FlowHost {
     }
 
     /// What a definition asks to be allowed, one line each, the same line once: what the card shows and what Sidefolk's limit on a plan counts.
-    static func planSteps(_ body: FlowBody, title: String, oldWatch: String? = nil) -> [PlanStep] {
+    /// `about`: the flow's name, as a question sends it: the line has to say what the call will (D201).
+    static func planSteps(_ body: FlowBody, title: String, about: String = "", oldWatch: String? = nil) -> [PlanStep] {
         var steps: [PlanStep] = []
         var seen = Set<String>(), names = Set<String>()
         func add(_ tool: String, _ input: [String: Any]) {
@@ -1213,7 +1214,7 @@ extension FlowHost {
                 switch step.kind {
                 case .action(let tool, let input): steps.append(PlanStep(tool, input.mapValues(\.any), named: name(step), title: step.name))
                 case .ask(let question, let options):
-                    var input: [String: Any] = ["question": question, "timeout_seconds": 300]
+                    var input: [String: Any] = ["question": question, "timeout_seconds": 300, "about": String(about.prefix(80))]
                     if !options.isEmpty { input["options"] = options }
                     steps.append(PlanStep("ask.user", input, named: name(step), title: step.name))
                 case .ai(let prompt):
@@ -1407,7 +1408,7 @@ extension FlowHost {
 
     /// Everything the draft may do, as the person will read it. `intent`: what they pressed, for the card's heading.
     func livePlan(_ flow: Flow, intent: String = "turn_on") -> Plan {
-        let steps = Self.planSteps(flow.kept, title: Self.watchTitle(flow), oldWatch: flow.watchTitle)
+        let steps = Self.planSteps(flow.kept, title: Self.watchTitle(flow), about: flow.name, oldWatch: flow.watchTitle)
         // Setting another flow off needs no tool of its own, so the card says it here.
         let others = flow.kept.allSteps.compactMap { step -> (name: String, full: String)? in
             switch step.kind {
