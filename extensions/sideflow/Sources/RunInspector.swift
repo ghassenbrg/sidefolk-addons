@@ -47,6 +47,10 @@ import SidefolkExtensionKit
         if let note = record.note { blocks.append(.note(note, tone: record.status == .failed || record.status == .unknown ? .warn : .neutral)) }
         if let input = record.input?.nonEmpty { blocks.append(.note(L("It was given: {what}", ["what": input.clipped(Engine.keptOutput)]))) }
         if let output = record.output?.nonEmpty { blocks.append(.note(L("It made: {what}", ["what": output.clipped(Engine.keptOutput)]))) }
+        // A file it made or used, by its place: one press shows it in Finder, through Sidefolk, which checks the folder is one shared with it.
+        for file in Self.files(in: run.values.named[id]).prefix(3) {
+            blocks.append(.action(button(FlowFile.short((file as NSString).lastPathComponent, 40), "reveal", ["path": file], style: .plain, symbol: "doc", detail: L("Show in Finder"))))
+        }
         var out = [Section(Words.label(step, catalog: app.catalog), blocks, place: .trailing)]
         let called = app.store.runs().filter { $0.parent == run.id }
         if !called.isEmpty, [.call, .parallel].contains(where: { $0 == step.waitKind }) {
@@ -54,6 +58,25 @@ import SidefolkExtensionKit
                 .action(Action(child.flowName == run.flowName ? child.why : child.flowName, act: .go(Go(set: place(["run": child.id]), push: true)), symbol: statusSymbol(child), detail: Summaries.status(child)))
             }, place: .trailing))
         }
+        return out
+    }
+
+    /// The files a value names, by the fields that say where a file is: `path`, `file`, `files`, `output`, and the like. Only a whole place from the top of the disk or the home folder.
+    static func files(in value: JSON?) -> [String] {
+        guard let value else { return [] }
+        var out: [String] = []
+        func look(_ v: JSON, key: String?) {
+            switch v {
+            case .string(let s):
+                guard let key, key.range(of: #"(?i)^(path|paths|file|files|output|outputs|saved|made)$"#, options: .regularExpression) != nil else { return }
+                let place = s.trimmed
+                if (place.hasPrefix("/") || place.hasPrefix("~/")), !place.contains("\n"), place.count < 1024, !out.contains(place) { out.append(place) }
+            case .array(let items): for item in items.prefix(20) { look(item, key: key) }
+            case .object(let fields): for (k, item) in fields { look(item, key: k) }
+            default: break
+            }
+        }
+        look(Values.structured(value), key: nil)
         return out
     }
 

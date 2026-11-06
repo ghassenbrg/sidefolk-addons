@@ -290,6 +290,12 @@ import SidefolkExtensionKit
             FlowFile.unstage(id, in: app.folder)
             for flow in made { app.refreshPreflight(flow.id) }
             if let first = made.first { return .flow(first.id) }
+        case "reveal":
+            // Sidefolk's own tool, as Sideflow, with Guard: it shows a file only in a folder shared with it, and says so if not.
+            guard let path = a.string("path"), path.hasPrefix("/") || path.hasPrefix("~/") else { break }
+            if let outcome = await app.engine.host?.call("files.reveal", ["path": path], plan: nil, written: nil), !outcome.ok {
+                throw Problem(outcome.text.nonEmpty ?? L("Sidefolk wouldn't show that file."))
+            }
         case "overlap":
             if let raw = a.string("value"), let overlap = FlowBody.Overlap(rawValue: raw) { try draft { $0.overlap = overlap } }
         case "time_zone":
