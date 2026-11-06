@@ -1,4 +1,5 @@
 import Foundation
+import SidefolkExtensionKit
 
 /// Going through a service's pages inside one call (D202), within what one call may take: Sidefolk gives a tool 30 seconds, and keeps an answer's fields only up to 256 KB.
 /// What was read is never thrown away: stopping early says why and where to go on. (The same file in each connector.)
