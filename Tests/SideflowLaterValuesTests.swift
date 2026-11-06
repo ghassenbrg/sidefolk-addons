@@ -9,7 +9,8 @@ import SidefolkExtensionKit
 
     @Test func aSkippedStepsBlankIsntSentAsAnAnswer() async throws {
         let w = try World()
-        let flow = try w.flow([["id": "q", "do": "fails.it"], ["id": "send", "do": "changes.it", "with": ["q": "{{q}}"]]])
+        w.host.answers["asks.it"] = [Actions.Outcome(status: .denied, text: "Not allowed", summary: "")]
+        let flow = try w.flow([["id": "q", "do": "asks.it"], ["id": "send", "do": "changes.it", "with": ["q": "{{q}}"]]])
         let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
         await w.quiet()
         w.engine.proceed(run.id, .carry_on)
