@@ -572,6 +572,7 @@
     "Several things at once, then carry on": "Several things at once, then carry on",
     "Several ways to go, by one value": "Several ways to go, by one value",
     "Share this folder…": "Share this folder…",
+    "Show in Finder": "Show in Finder",
     "Sideflow has used its AI requests for today.": "Sideflow has used its AI requests for today.",
     "Sideflow is open in Home.": "Sideflow is open in Home.",
     "Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.": "Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.",
@@ -590,6 +591,7 @@
       "one": "Sidefolk wouldn't allow {count} step as it stands: it's marked on the board.",
       "other": "Sidefolk wouldn't allow {count} steps as they stand: they're marked on the board."
     },
+    "Sidefolk wouldn't show that file.": "Sidefolk wouldn't show that file.",
     "Sidefolk's usual pace": "Sidefolk's usual pace",
     "Skip this step": "Skip this step",
     "Skipped": "Skipped",

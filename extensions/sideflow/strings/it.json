@@ -1120,7 +1120,9 @@
     "There's more than this page can show. Read its steps before you turn it on.": "C’è più di quanto questa pagina possa mostrare. Leggi i passaggi prima di attivarla.",
     "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.": "È troppo lungo per una pagina. Elimina ciò che è troppo lungo, o chiedi a un agente di accorciarlo.",
     "Too long to show": "Troppo lungo da mostrare",
-    "Its runs and what you allowed for it go too. This can't be undone.": "Spariscono anche le esecuzioni e ciò che hai permesso. Non si può annullare."
+    "Its runs and what you allowed for it go too. This can't be undone.": "Spariscono anche le esecuzioni e ciò che hai permesso. Non si può annullare.",
+    "Show in Finder": "Mostra nel Finder",
+    "Sidefolk wouldn't show that file.": "Sidefolk non ha voluto mostrare quel file."
   },
   "drops": {
     "flow_file": {

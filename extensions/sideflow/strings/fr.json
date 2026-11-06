@@ -1120,7 +1120,9 @@
     "There's more than this page can show. Read its steps before you turn it on.": "Il y a plus que ce que cette page peut afficher. Lisez ses étapes avant de l’activer.",
     "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.": "C’est trop long pour une page. Supprimez ce qui est trop long, ou demandez à un agent de le raccourcir.",
     "Too long to show": "Trop long à afficher",
-    "Its runs and what you allowed for it go too. This can't be undone.": "Ses exécutions et ce que vous avez autorisé disparaissent aussi. C’est irréversible."
+    "Its runs and what you allowed for it go too. This can't be undone.": "Ses exécutions et ce que vous avez autorisé disparaissent aussi. C’est irréversible.",
+    "Show in Finder": "Afficher dans le Finder",
+    "Sidefolk wouldn't show that file.": "Sidefolk n’a pas voulu afficher ce fichier."
   },
   "drops": {
     "flow_file": {
