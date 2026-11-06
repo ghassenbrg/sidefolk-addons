@@ -45,8 +45,9 @@ import SidefolkExtensionKit
         let fits = try FlowCodec.body(["trigger": ["type": "manual"], "steps": texts("s", FlowBody.maxSteps)])
         #expect(fits.allSteps.count == 100)
         #expect(fits.unfinished == nil)
-        let over = try FlowCodec.body(["trigger": ["type": "manual"], "steps": texts("s", FlowBody.maxSteps + 1)])
-        #expect(over.unfinished?.contains("100") == true, "one more than the board draws, with its start card, under 128")
+        #expect(throws: Problem.self, "one more than the board draws, with its start card, under 128") {
+            try FlowCodec.body(["trigger": ["type": "manual"], "steps": texts("s", FlowBody.maxSteps + 1)])
+        }
     }
 
     @Test func focusingShowsOnlyThatPartAndTheWayBack() async throws {
@@ -63,17 +64,13 @@ import SidefolkExtensionKit
         #expect(Editing.holders(of: "x0", in: flow.draft).map(\.id) == ["o", "i"])
     }
 
-    /// Five levels down: the fifth is past what the board draws.
-    private func deep(_ inner: [[String: Any]]) -> [[String: Any]] {
-        var steps = inner
-        for level in (0..<4).reversed() { steps = [["id": "l\(level)", "try": steps]] }
-        return steps
-    }
-
     @Test func aShutPartSaysHowMuchItHoldsAndWhatsWrongInside() throws {
         let w = try World()
         let app = app(w)
-        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": deep([["id": "five", "try": [["id": "x", "do": "changes.it", "with": ["text": "x"]], ["id": "y", "text": "y"]]]])]))
+        // Deeper than a flow written now may go, as one saved before the limit can be: the fifth level is past what the board draws.
+        var held = Step(id: "five", kind: .attempt(steps: [Step(id: "x", kind: .action(tool: "changes.it", input: ["text": .string("x")])), Step(id: "y", kind: .text("y"))], recover: [], always: []))
+        for level in (0..<4).reversed() { held = Step(id: "l\(level)", kind: .attempt(steps: [held], recover: [], always: [])) }
+        let flow = app.newFlow(name: "Mine", body: FlowBody(steps: [held]))
         func shut() -> CardTree.Node? {
             var level = Pages.tree(flow, app, problems: []).nodes
             for _ in 0..<4 { level = level.last?.branches.first?.nodes ?? [] }
@@ -92,7 +89,7 @@ import SidefolkExtensionKit
         let w = try World()
         let app = App(folder: w.folder.appendingPathComponent("app"))
         app.engine.host = w.host
-        await app.catalog.refresh()
+        app.catalog.use(Actions.Listing(tools: []))
         let both = try #require(Templates.template("both"))
         #expect(!Templates.missing(both, app.catalog).isEmpty, "the test world has no weather extension")
         let words = String(describing: Pages.templateCards(app)).filter { !"\u{2068}\u{2069}\\".contains($0) }
@@ -132,7 +129,8 @@ extension SideflowLaterListTests {
 extension SideflowLaterListTests {
     @Test func aStepsKeyIsTheSameEachTryAndDifferentForEachGo() async throws {
         let w = try SideflowTests.World()
-        let flow = try w.flow([["id": "e", "for_each": "[1, 2]", "steps": [["id": "s", "do": "changes.it", "with": ["q": "{{step_key}}"]]]]])
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "[1, 2]", summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "e", "for_each": "{{r}}", "steps": [["id": "s", "do": "changes.it", "with": ["text": "x", "q": "{{step_key}}"]]]]])
         let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
         await w.quiet()
         let keys = w.host.calls.filter { $0.tool == "changes.it" }.compactMap { $0.input["q"] as? String }

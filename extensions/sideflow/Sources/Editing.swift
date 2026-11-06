@@ -34,7 +34,8 @@ enum Editing {
             return out
         }
         body.steps = mapLists(body.steps) { list in
-            guard let from = list.firstIndex(where: { $0.id == first }), let to = list.firstIndex(where: { $0.id == last }), from <= to, let whole = filled(Array(list[from...to])) else { return list }
+            // Once: the new holder's own list has the same steps, and wrapping them again would never end.
+            guard !done, let from = list.firstIndex(where: { $0.id == first }), let to = list.firstIndex(where: { $0.id == last }), from <= to, let whole = filled(Array(list[from...to])) else { return list }
             done = true
             return Array(list[..<from]) + [whole] + Array(list[(to + 1)...])
         }
