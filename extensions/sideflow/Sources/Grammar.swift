@@ -56,11 +56,12 @@ enum Grammar {
     End to end, for an agent:
       1. create_flow with a definition (its trigger and steps). It's saved as a draft and nothing runs. Read problems in its answer and fix them with update_flow.
       2. practice_flow to try it: what only reads runs for real, the rest says what it would do. get_run reads the result.
-      3. start_flow to turn it on, or run_flow to run it once. Both put a card on the person's desktop and come back at once. Only the person can say yes, never you: tell them a card is waiting.
+      3. start_flow to turn it on, or run_flow to run it once. Only the person can approve, on their desktop, never you. Both come back at once: tell the person what the answer says, a card waiting for them, or that they must press Turn on in Sideflow themselves.
       4. Look later with get_flow: approval is waiting_for_person, allowed, not_allowed (approval_note says why) or not_asked. Don't ask again while it waits.
       5. Once it's allowed, it runs by its trigger, or now with run_flow. list_runs and get_run say how each run went; continue_run carries a stopped one on, as the person chooses.
       6. stop_run stops a run, every run of a flow, or all of them, when the person says stop. pause_flow and resume_flow switch it off and on.
     To put steps inside an if, a loop, a try or lanes, remove them with update_flow and add one step that holds them.
+    Files: import_file shows the person a file they chose, and nothing comes in until they confirm it. export_flows writes a flow file into Sideflow's own data folder; only the person's save panel puts it anywhere else.
     Words with a line break, a tab or hidden marks make that step ask the person every run: write each value on one line.
     """
 }

@@ -118,7 +118,7 @@ import SidefolkExtensionKit
             return ToolReply(L("Practicing “{name}”. Nothing will be changed.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
         })
 
-        ext.tool("start_flow", "Turn a flow on", "Asks the person, on a card on their desktop, to let a flow run by itself as it's written now. Only the person can say yes: it returns at once, so tell them a card is waiting, then look again later with get_flow (its approval says waiting_for_person, allowed or not_allowed). Don't ask again while it waits.",
+        ext.tool("start_flow", "Turn a flow on", "Asks the person to let a flow run by itself as it's written now. Only the person can approve, on their desktop, never you. It returns at once: say what it answered (a card is waiting, or that they must press Turn on in Sideflow themselves), then look again later with get_flow (its approval says waiting_for_person, allowed, not_allowed with approval_note, or not_asked). Don't ask again while it waits.",
                  input: Schema.object(["flow": flowParam], required: ["flow"]), reply: { args in
             let flow = try app.flow(named: try args.required("flow"))
             let problems = flow.kept.problems(app.catalog).map(\.text)
