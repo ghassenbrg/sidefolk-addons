@@ -124,7 +124,7 @@ import SidefolkExtensionKit
             let problems = flow.kept.problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
             if let refused = await asking(flow.id, app) { throw Problem(refused) }
-            return ToolReply(Engine.needsCard(flow.kept) ? L("There's a card asking to turn on “{name}”. It starts once you say yes.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
+            return ToolReply(Engine.needsCard(flow.kept) ? L("“{name}” is on only once the person says yes on their desktop.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
         })
 
         ext.tool("pause_flow", "Pause a flow", "Stops a flow running by itself until it's resumed. Runs under way finish.", input: Schema.object(["flow": flowParam], required: ["flow"])) { args in
@@ -254,7 +254,7 @@ import SidefolkExtensionKit
         return L("“{name}” is running by itself again.", ["name": flow.name])
     }
     if let refused = await asking(flow.id, app) { throw Problem(refused) }
-    return Engine.needsCard(flow.kept) ? L("There's a card asking to turn on “{name}”.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])
+    return Engine.needsCard(flow.kept) ? L("“{name}” is on only once the person says yes on their desktop.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])
 }
 
 /// Asks for the card and looks for a moment: Sidefolk refuses at once when no card can be shown (another agent asked, not the person), and a reply

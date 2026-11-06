@@ -390,8 +390,6 @@
     "The watch saw a change.": "O monitoramento viu uma mudança.",
     "The web": "A web",
     "Then rest (minutes)": "Depois descansar (minutos)",
-    "There's a card asking to turn on “{name}”.": "Há um cartão pedindo para ativar “{name}”.",
-    "There's a card asking to turn on “{name}”. It starts once you say yes.": "Há um cartão pedindo para ativar “{name}”. Ela começa quando você disser sim.",
     "There's no template “{id}”.": "Não existe o modelo “{id}”.",
     "This Mac": "Este Mac",
     "This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.": "Este arquivo está em uma pasta oculta. O Sideflow só vê quando ele muda, nunca o conteúdo.",
@@ -1344,7 +1342,8 @@
       "one": "{count} execução parada: {names}.",
       "other": "{count} execuções paradas: {names}."
     },
-    "A card is waiting for the person to say yes": "Um cartão espera a pessoa dizer sim"
+    "A card is waiting for the person to say yes": "Um cartão espera a pessoa dizer sim",
+    "“{name}” is on only once the person says yes on their desktop.": "“{name}” só fica ativo quando a pessoa diz sim na mesa dela."
   },
   "drops": {
     "flow_file": {

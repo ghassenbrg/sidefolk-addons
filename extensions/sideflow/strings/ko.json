@@ -388,8 +388,6 @@
     "The watch saw a change.": "지켜보기가 변화를 감지했습니다.",
     "The web": "웹",
     "Then rest (minutes)": "그다음 쉬기(분)",
-    "There's a card asking to turn on “{name}”.": "‘{name}’을(를) 켤지 묻는 카드가 있습니다.",
-    "There's a card asking to turn on “{name}”. It starts once you say yes.": "‘{name}’을(를) 켤지 묻는 카드가 있습니다. 예라고 하면 시작됩니다.",
     "There's no template “{id}”.": "‘{id}’ 템플릿이 없습니다.",
     "This Mac": "이 Mac",
     "This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.": "이 파일은 숨김 폴더에 있습니다. Sideflow는 바뀌었을 때만 알 수 있고 내용은 보지 못합니다.",
@@ -1312,7 +1310,8 @@
     "Stopped {count} runs: {names}.": {
       "other": "실행 {count}개를 중지했습니다: {names}."
     },
-    "A card is waiting for the person to say yes": "카드가 사용자의 승인을 기다리고 있습니다"
+    "A card is waiting for the person to say yes": "카드가 사용자의 승인을 기다리고 있습니다",
+    "“{name}” is on only once the person says yes on their desktop.": "“{name}”은(는) 사용자가 데스크톱에서 승인해야 켜집니다."
   },
   "drops": {
     "flow_file": {

@@ -398,8 +398,6 @@
     "The watch saw a change.": "رصدت المراقبة تغييرًا.",
     "The web": "الويب",
     "Then rest (minutes)": "ثم الاستراحة (دقيقة)",
-    "There's a card asking to turn on “{name}”.": "هناك بطاقة تطلب تفعيل «{name}».",
-    "There's a card asking to turn on “{name}”. It starts once you say yes.": "هناك بطاقة تطلب تفعيل «{name}». يبدأ حالما توافق.",
     "There's no template “{id}”.": "لا يوجد قالب «{id}».",
     "This Mac": "جهاز Mac هذا",
     "This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.": "هذا الملف في مجلد مخفي. يرى Sideflow وقت تغيّره فقط، ولا يرى محتواه أبدًا.",
@@ -1472,7 +1470,8 @@
       "many": "أُوقف {count} تشغيلًا: {names}.",
       "other": "أُوقف {count} تشغيل: {names}."
     },
-    "A card is waiting for the person to say yes": "بطاقة تنتظر أن يوافق الشخص"
+    "A card is waiting for the person to say yes": "بطاقة تنتظر أن يوافق الشخص",
+    "“{name}” is on only once the person says yes on their desktop.": "لا يعمل «{name}» إلا بعد أن يوافق الشخص على سطح مكتبه."
   },
   "drops": {
     "flow_file": {

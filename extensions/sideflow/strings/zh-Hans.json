@@ -388,8 +388,6 @@
     "The watch saw a change.": "监视发现了变化。",
     "The web": "网络",
     "Then rest (minutes)": "然后休息（分钟）",
-    "There's a card asking to turn on “{name}”.": "有一张卡片问是否开启“{name}”。",
-    "There's a card asking to turn on “{name}”. It starts once you say yes.": "有一张卡片问是否开启“{name}”。你说好之后它就开始。",
     "There's no template “{id}”.": "没有名为“{id}”的模板。",
     "This Mac": "这台 Mac",
     "This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.": "此文件在隐藏文件夹中。Sideflow 只能看到它何时变化，看不到其内容。",
@@ -1312,7 +1310,8 @@
     "Stopped {count} runs: {names}.": {
       "other": "已停止 {count} 次运行：{names}。"
     },
-    "A card is waiting for the person to say yes": "有一张卡片在等本人同意"
+    "A card is waiting for the person to say yes": "有一张卡片在等本人同意",
+    "“{name}” is on only once the person says yes on their desktop.": "“{name}”要等本人在桌面上同意后才会开启。"
   },
   "drops": {
     "flow_file": {

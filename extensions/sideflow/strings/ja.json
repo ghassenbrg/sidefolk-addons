@@ -388,8 +388,6 @@
     "The watch saw a change.": "監視が変化を見つけました。",
     "The web": "Web",
     "Then rest (minutes)": "そのあと休む（分）",
-    "There's a card asking to turn on “{name}”.": "「{name}」をオンにするか確認するカードがあります。",
-    "There's a card asking to turn on “{name}”. It starts once you say yes.": "「{name}」をオンにするか確認するカードがあります。「はい」と答えると始まります。",
     "There's no template “{id}”.": "テンプレート「{id}」はありません。",
     "This Mac": "このMac",
     "This file is in a hidden folder. Sideflow sees only when it changes, never what's in it.": "このファイルは隠しフォルダにあります。Sideflowにわかるのは変更されたことだけで、中身は見えません。",
@@ -1312,7 +1310,8 @@
     "Stopped {count} runs: {names}.": {
       "other": "{count}件の実行を停止しました: {names}。"
     },
-    "A card is waiting for the person to say yes": "カードが本人の承認を待っています"
+    "A card is waiting for the person to say yes": "カードが本人の承認を待っています",
+    "“{name}” is on only once the person says yes on their desktop.": "「{name}」は、本人がデスクトップで承認してから有効になります。"
   },
   "drops": {
     "flow_file": {
