@@ -231,3 +231,11 @@ struct FlowProgram {
         }
     }
 }
+
+extension Run {
+    /// Why it can't go on with this value, knowing whether the step it names ran.
+    func whyMissing(_ name: String) -> String {
+        let root = name.split(whereSeparator: { $0 == "." || $0 == "[" }).first.map(String.init) ?? name
+        return values.whyMissing(name, ran: record(of: root) != nil)
+    }
+}

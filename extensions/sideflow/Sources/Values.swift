@@ -286,9 +286,11 @@ struct Values: Equatable, Sendable {
     }
 
     /// Why a run can't go on with something it uses. A step that ran may have done something, so the reason has to be the true one.
-    func whyMissing(_ name: String) -> String {
+    /// `ran`: the step it names did run, and left nothing: a called flow or a loop that made nothing isn't a step that didn't run.
+    func whyMissing(_ name: String, ran: Bool = false) -> String {
         let root = name.split(whereSeparator: { $0 == "." || $0 == "[" }).first.map(String.init) ?? name
-        return named[root] == nil ? L("It uses “{name}”, but that step didn't run this time.", ["name": name]) : L("It uses “{name}”, but that step's answer doesn't have it.", ["name": name])
+        if named[root] == nil { return ran ? L("It uses “{name}”, but that step gave nothing this time.", ["name": name]) : L("It uses “{name}”, but that step didn't run this time.", ["name": name]) }
+        return L("It uses “{name}”, but that step's answer doesn't have it.", ["name": name])
     }
 
     /// What steps left, as a whole: the last with something to say, or if none has, the last that left anything. A failure carried past leaves empty words, which don't take the answer away from what came before it.
