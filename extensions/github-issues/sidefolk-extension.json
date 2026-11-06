@@ -10,7 +10,6 @@
   "icon": "icon.pdf",
   "run": { "command": "bin/ext-github-issues" },
   "permissions": { "network": true },
-  "network_purpose": "To read public issues from GitHub",
   "services": [{ "name": "api.github.com", "hosts": ["api.github.com"] }],
   "examples": ["what are the open issues on apple/swift?"],
   "tools": {

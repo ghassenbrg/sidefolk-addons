@@ -2,7 +2,6 @@
   "name": "Issue di GitHub",
   "tagline": "Le issue di un repository pubblico, in sola lettura",
   "description": "Legge le issue di un repository GitHub pubblico, una pagina alla volta, senza account. Una routine può scorrere tutte le pagine e aspetta quando GitHub lo chiede.",
-  "network_purpose": "Per leggere le issue pubbliche su GitHub",
   "tools": {
     "list_issues": {
       "title": "Elenca le issue di un repository",

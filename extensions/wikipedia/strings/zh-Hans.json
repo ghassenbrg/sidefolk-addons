@@ -1,8 +1,7 @@
 {
   "name": "维基百科",
-  "tagline": "用任意语言搜索维基百科",
-  "description": "用你选的语言搜索维基百科，一页一页给出每条结果的标题、一行摘录和地址。",
-  "network_purpose": "用于搜索维基百科",
+  "tagline": "用 16 种语言搜索维基百科",
+  "description": "用 16 种语言之一搜索维基百科，一页一页给出每条结果的标题、一行摘录和地址。",
   "tools": {
     "search_wikipedia": {
       "title": "搜索维基百科",
@@ -11,7 +10,6 @@
   },
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "无法连接维基百科（{error}）。请检查网络连接。",
-    "Give a language code, like en or fr.": "请给出语言代码，例如 en 或 fr。",
     "Nothing found.": "什么也没找到。",
     "There are more: the next page starts at {offset}.": "还有更多：下一页从 {offset} 开始。",
     "Wikipedia answered with HTTP {status}.": "维基百科返回了 HTTP {status}。",
@@ -21,7 +19,8 @@
     "It stopped after {count} pages: the next one didn't come.": "读了 {count} 页就停了：下一页没有来。",
     "Some of what it read was left out to keep the answer small enough.": "为了让回答不至于太大，读到的部分内容被省略了。",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "读了 {count} 页就停了：维基百科要求等待 {time}。",
-    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "未能及时连接 {service}。没有读取任何内容，请稍后再试。"
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "未能及时连接 {service}。没有读取任何内容，请稍后再试。",
+    "Give a language code it reads: {list}.": "请给出它能读的语言代码：{list}。"
   },
   "examples": [
     "在维基百科搜索潮汐锁定"

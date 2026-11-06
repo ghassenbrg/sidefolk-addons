@@ -5,10 +5,13 @@ import SidefolkExtensionKit
 enum Search {
     static let perPage = 10
 
-    /// A Wikipedia's language as its address has it: `en`, `fr`, `pt`, `zh-yue`.
+    /// The Wikipedias it reads: the hosts its install sheet names, and no other.
+    static let languages = ["en", "fr", "es", "de", "it", "pt", "ja", "ko", "zh", "ar", "ru", "nl", "pl", "sv", "uk", "tr"]
+
+    /// A Wikipedia's language as its address has it, one of `languages`.
     static func language(_ text: String?) throws -> String {
         let code = (text ?? "en").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard code.range(of: #"^[a-z]{2,3}(-[a-z]{2,8})?$"#, options: .regularExpression) != nil else { throw Problem(L("Give a language code, like en or fr.")) }
+        guard languages.contains(code) else { throw Problem(L("Give a language code it reads: {list}.", ["list": languages.joined(separator: ", ")])) }
         return code
     }
 

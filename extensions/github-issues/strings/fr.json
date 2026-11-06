@@ -2,7 +2,6 @@
   "name": "Issues GitHub",
   "tagline": "Les issues d’un dépôt public, en lecture seule",
   "description": "Lit les issues d’un dépôt GitHub public, une page à la fois, sans compte. Une routine peut parcourir toutes les pages et attend quand GitHub le demande.",
-  "network_purpose": "Pour lire les issues publiques sur GitHub",
   "tools": {
     "list_issues": {
       "title": "Lister les issues d’un dépôt",

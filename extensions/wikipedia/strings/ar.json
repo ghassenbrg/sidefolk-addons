@@ -1,8 +1,7 @@
 {
   "name": "ويكيبيديا",
-  "tagline": "ابحث في ويكيبيديا بأي من لغاتها",
-  "description": "يبحث في ويكيبيديا باللغة التي تختارها ويعطي عنوان كل نتيجة وسطرًا منها وعنوانها، صفحة في كل مرة.",
-  "network_purpose": "للبحث في ويكيبيديا",
+  "tagline": "ابحث في ويكيبيديا بست عشرة من لغاتها",
+  "description": "يبحث في ويكيبيديا بإحدى 16 لغة ويعطي عنوان كل نتيجة وسطرًا منها وعنوانها، صفحة في كل مرة.",
   "tools": {
     "search_wikipedia": {
       "title": "البحث في ويكيبيديا",
@@ -11,7 +10,6 @@
   },
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "تعذر الوصول إلى ويكيبيديا ({error}). تحقق من الاتصال بالإنترنت.",
-    "Give a language code, like en or fr.": "اكتب رمز لغة، مثل en أو fr.",
     "Nothing found.": "لم يُعثر على شيء.",
     "There are more: the next page starts at {offset}.": "هناك المزيد: تبدأ الصفحة التالية عند {offset}.",
     "Wikipedia answered with HTTP {status}.": "ردّت ويكيبيديا بـ HTTP {status}.",
@@ -21,7 +19,8 @@
     "It stopped after {count} pages: the next one didn't come.": "توقف بعد {count} صفحات: لم تصل الصفحة التالية.",
     "Some of what it read was left out to keep the answer small enough.": "تُرك جزء مما قُرئ ليبقى الجواب صغيرًا بما يكفي.",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "توقف بعد {count} صفحات: تطلب ويكيبيديا الانتظار {time}.",
-    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "تعذر الوصول إلى {service} في الوقت. لم يُقرأ شيء؛ حاول مجددًا بعد قليل."
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "تعذر الوصول إلى {service} في الوقت. لم يُقرأ شيء؛ حاول مجددًا بعد قليل.",
+    "Give a language code it reads: {list}.": "اكتب رمز لغة يقرؤها: {list}."
   },
   "examples": [
     "ابحث في ويكيبيديا عن الانقفال المدي"

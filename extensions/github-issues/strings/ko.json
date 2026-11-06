@@ -2,7 +2,6 @@
   "name": "GitHub 이슈",
   "tagline": "공개 저장소의 이슈, 읽기 전용",
   "description": "공개 GitHub 저장소의 이슈를 계정 없이 한 페이지씩 읽습니다. 루틴은 모든 페이지를 훑을 수 있고, GitHub가 요청하면 기다립니다.",
-  "network_purpose": "GitHub의 공개 이슈를 읽기 위해",
   "tools": {
     "list_issues": {
       "title": "저장소 이슈 목록",

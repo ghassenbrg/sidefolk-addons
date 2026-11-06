@@ -1,8 +1,7 @@
 {
   "name": "Wikipedia",
-  "tagline": "Busca en Wikipedia, en cualquiera de sus idiomas",
-  "description": "Busca en Wikipedia en el idioma que elijas y da el título de cada resultado, una línea de él y su dirección, una página cada vez.",
-  "network_purpose": "Para buscar en Wikipedia",
+  "tagline": "Busca en Wikipedia, en 16 de sus idiomas",
+  "description": "Busca en Wikipedia en uno de 16 idiomas y da el título de cada resultado, una línea de él y su dirección, una página cada vez.",
   "tools": {
     "search_wikipedia": {
       "title": "Buscar en Wikipedia",
@@ -11,7 +10,6 @@
   },
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "No se pudo conectar con Wikipedia ({error}). Revisa la conexión a Internet.",
-    "Give a language code, like en or fr.": "Indica un código de idioma, como en o fr.",
     "Nothing found.": "No se encontró nada.",
     "There are more: the next page starts at {offset}.": "Hay más: la página siguiente empieza en {offset}.",
     "Wikipedia answered with HTTP {status}.": "Wikipedia respondió con HTTP {status}.",
@@ -21,7 +19,8 @@
     "It stopped after {count} pages: the next one didn't come.": "Se detuvo tras {count} páginas: la siguiente no llegó.",
     "Some of what it read was left out to keep the answer small enough.": "Parte de lo leído se dejó fuera para que la respuesta no fuera demasiado grande.",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Se detuvo tras {count} páginas: Wikipedia pide esperar {time}.",
-    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "No se pudo conectar con {service} a tiempo. No se leyó nada; inténtalo de nuevo en un momento."
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "No se pudo conectar con {service} a tiempo. No se leyó nada; inténtalo de nuevo en un momento.",
+    "Give a language code it reads: {list}.": "Indica un código de idioma que lea: {list}."
   },
   "examples": [
     "busca acoplamiento de marea en wikipedia"

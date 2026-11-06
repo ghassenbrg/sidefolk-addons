@@ -1,8 +1,7 @@
 {
   "name": "Wikipédia",
-  "tagline": "Chercher dans Wikipédia, dans n’importe quelle langue",
-  "description": "Cherche dans Wikipédia dans la langue choisie et donne le titre de chaque résultat, une ligne de celui-ci et son adresse, une page à la fois.",
-  "network_purpose": "Pour chercher dans Wikipédia",
+  "tagline": "Chercher dans Wikipédia, dans 16 de ses langues",
+  "description": "Cherche dans Wikipédia dans l’une de 16 langues et donne le titre de chaque résultat, une ligne de celui-ci et son adresse, une page à la fois.",
   "tools": {
     "search_wikipedia": {
       "title": "Chercher dans Wikipédia",
@@ -11,7 +10,6 @@
   },
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Impossible de joindre Wikipédia ({error}). Vérifiez la connexion Internet.",
-    "Give a language code, like en or fr.": "Indiquez un code de langue, comme en ou fr.",
     "Nothing found.": "Rien trouvé.",
     "There are more: the next page starts at {offset}.": "Il y en a d’autres : la page suivante commence à {offset}.",
     "Wikipedia answered with HTTP {status}.": "Wikipédia a répondu HTTP {status}.",
@@ -21,7 +19,8 @@
     "It stopped after {count} pages: the next one didn't come.": "Arrêt après {count} pages : la suivante n’est pas arrivée.",
     "Some of what it read was left out to keep the answer small enough.": "Une partie de ce qui a été lu a été laissée de côté pour garder la réponse assez courte.",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Arrêt après {count} pages : Wikipédia demande d’attendre {time}.",
-    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Impossible de joindre {service} à temps. Rien n’a été lu ; réessayez dans un instant."
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Impossible de joindre {service} à temps. Rien n’a été lu ; réessayez dans un instant.",
+    "Give a language code it reads: {list}.": "Indiquez un code de langue qu’il lit : {list}."
   },
   "examples": [
     "cherche le verrouillage gravitationnel dans wikipédia"

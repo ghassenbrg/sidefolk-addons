@@ -1,8 +1,7 @@
 {
   "name": "Wikipédia",
-  "tagline": "Pesquise na Wikipédia, em qualquer idioma",
-  "description": "Pesquisa na Wikipédia no idioma escolhido e dá o título de cada resultado, uma linha dele e seu endereço, uma página por vez.",
-  "network_purpose": "Para pesquisar na Wikipédia",
+  "tagline": "Pesquise na Wikipédia, em 16 dos seus idiomas",
+  "description": "Pesquisa na Wikipédia em um de 16 idiomas e dá o título de cada resultado, uma linha dele e seu endereço, uma página por vez.",
   "tools": {
     "search_wikipedia": {
       "title": "Pesquisar na Wikipédia",
@@ -11,7 +10,6 @@
   },
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Não foi possível acessar a Wikipédia ({error}). Verifique a conexão com a internet.",
-    "Give a language code, like en or fr.": "Informe um código de idioma, como en ou fr.",
     "Nothing found.": "Nada encontrado.",
     "There are more: the next page starts at {offset}.": "Há mais: a próxima página começa em {offset}.",
     "Wikipedia answered with HTTP {status}.": "A Wikipédia respondeu com HTTP {status}.",
@@ -21,7 +19,8 @@
     "It stopped after {count} pages: the next one didn't come.": "Parou depois de {count} páginas: a próxima não veio.",
     "Some of what it read was left out to keep the answer small enough.": "Parte do que foi lido ficou de fora para a resposta não ficar grande demais.",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Parou depois de {count} páginas: a Wikipédia pede para esperar {time}.",
-    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Não foi possível acessar {service} a tempo. Nada foi lido; tente de novo daqui a pouco."
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Não foi possível acessar {service} a tempo. Nada foi lido; tente de novo daqui a pouco.",
+    "Give a language code it reads: {list}.": "Informe um código de idioma que ele lê: {list}."
   },
   "examples": [
     "pesquise acoplamento de maré na wikipédia"

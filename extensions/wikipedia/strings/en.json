@@ -2,7 +2,7 @@
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Couldn't reach Wikipedia ({error}). Check the internet connection.",
     "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Couldn't reach {service} in time. Nothing was read; try again in a moment.",
-    "Give a language code, like en or fr.": "Give a language code, like en or fr.",
+    "Give a language code it reads: {list}.": "Give a language code it reads: {list}.",
     "It stopped after {count} pages to answer in time.": "It stopped after {count} pages to answer in time.",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "It stopped after {count} pages: Wikipedia asks to wait {time}.",
     "It stopped after {count} pages: the next one didn't come.": "It stopped after {count} pages: the next one didn't come.",

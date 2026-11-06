@@ -1,8 +1,7 @@
 {
   "name": "ウィキペディア",
-  "tagline": "どの言語でもウィキペディアを検索",
-  "description": "選んだ言語でウィキペディアを検索し、各結果のタイトル、1行の抜粋、アドレスを1ページずつ返します。",
-  "network_purpose": "ウィキペディアを検索するため",
+  "tagline": "ウィキペディアを16の言語で検索",
+  "description": "16 の言語のいずれかでウィキペディアを検索し、各結果のタイトル、1行の抜粋、アドレスを1ページずつ返します。",
   "tools": {
     "search_wikipedia": {
       "title": "ウィキペディアを検索",
@@ -11,7 +10,6 @@
   },
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "ウィキペディアに接続できません（{error}）。インターネット接続を確認してください。",
-    "Give a language code, like en or fr.": "en や fr などの言語コードを指定してください。",
     "Nothing found.": "見つかりませんでした。",
     "There are more: the next page starts at {offset}.": "続きがあります。次のページは {offset} から始まります。",
     "Wikipedia answered with HTTP {status}.": "ウィキペディアの応答: HTTP {status}。",
@@ -21,7 +19,8 @@
     "It stopped after {count} pages: the next one didn't come.": "{count} ページで止まりました。次のページが届きませんでした。",
     "Some of what it read was left out to keep the answer small enough.": "答えを小さく保つため、読んだ内容の一部を省きました。",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "{count} ページで止まりました。ウィキペディアから {time} 待つよう求められました。",
-    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "{service} に時間内に接続できませんでした。何も読み取っていません。少ししてからもう一度お試しください。"
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "{service} に時間内に接続できませんでした。何も読み取っていません。少ししてからもう一度お試しください。",
+    "Give a language code it reads: {list}.": "読める言語コードを指定してください: {list}。"
   },
   "examples": [
     "ウィキペディアで潮汐固定を検索"

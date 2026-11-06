@@ -2,7 +2,6 @@
   "name": "GitHub Issues",
   "tagline": "公開リポジトリの Issue を読むだけ",
   "description": "公開 GitHub リポジトリの Issue を、アカウントなしで1ページずつ読みます。ルーティンは全ページをたどれ、GitHub に求められると待ちます。",
-  "network_purpose": "GitHub の公開 Issue を読むため",
   "tools": {
     "list_issues": {
       "title": "リポジトリの Issue を一覧",

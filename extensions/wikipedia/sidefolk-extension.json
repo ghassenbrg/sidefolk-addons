@@ -3,15 +3,14 @@
   "name": "Wikipedia",
   "version": "1.0.0",
   "sidefolk": ">=0.1",
-  "description": "Searches Wikipedia in the language you choose and gives each result's title, a line from it and its address, a page at a time.",
-  "tagline": "Search Wikipedia, in any of its languages",
+  "description": "Searches Wikipedia in one of 16 languages and gives each result's title, a line from it and its address, a page at a time.",
+  "tagline": "Search Wikipedia in 16 of its languages",
   "folk": "scout",
   "author": "Sidefolk",
   "icon": "icon.pdf",
   "run": { "command": "bin/ext-wikipedia" },
   "permissions": { "network": true },
-  "network_purpose": "To search Wikipedia",
-  "services": [{ "name": "wikipedia.org", "hosts": ["*.wikipedia.org"] }],
+  "services": [{ "name": "wikipedia.org", "hosts": ["en.wikipedia.org", "fr.wikipedia.org", "es.wikipedia.org", "de.wikipedia.org", "it.wikipedia.org", "pt.wikipedia.org", "ja.wikipedia.org", "ko.wikipedia.org", "zh.wikipedia.org", "ar.wikipedia.org", "ru.wikipedia.org", "nl.wikipedia.org", "pl.wikipedia.org", "sv.wikipedia.org", "uk.wikipedia.org", "tr.wikipedia.org"] }],
   "examples": ["search wikipedia for tidal locking"],
   "tools": {
     "search_wikipedia": { "timeout": 30, "title": "Search Wikipedia", "summary": "Search Wikipedia for {query}", "risk": "low", "category": "web", "mutates": false }

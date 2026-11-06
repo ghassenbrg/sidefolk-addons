@@ -2,7 +2,6 @@
   "name": "GitHub-Issues",
   "tagline": "Die Issues eines öffentlichen Repositorys, nur lesend",
   "description": "Liest die Issues eines öffentlichen GitHub-Repositorys, Seite für Seite, ohne Konto. Ein Ablauf kann alle Seiten durchgehen und wartet, wenn GitHub darum bittet.",
-  "network_purpose": "Um öffentliche Issues auf GitHub zu lesen",
   "tools": {
     "list_issues": {
       "title": "Issues eines Repositorys auflisten",

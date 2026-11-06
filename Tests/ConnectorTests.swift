@@ -107,7 +107,7 @@ import SidefolkExtensionKit
         #expect(found.items[0]["snippet"] as? String == "Tidal locking \"is\"")
         #expect(found.items[0]["url"] as? String == "https://en.wikipedia.org/wiki/Tidal_locking")
         #expect(found.next == 10)
-        #expect(try Search.language(nil) == "en" && Search.language("zh-yue") == "zh-yue")
-        for bad in ["english", "en.evil.com", "../", "e"] { #expect(throws: Problem.self, "\(bad)") { try Search.language(bad) } }
+        #expect(try Search.language(nil) == "en" && Search.language("ZH") == "zh")
+        for bad in ["english", "en.evil.com", "../", "e", "zh-yue", "xx"] { #expect(throws: Problem.self, "\(bad)") { try Search.language(bad) } }
     }
 }

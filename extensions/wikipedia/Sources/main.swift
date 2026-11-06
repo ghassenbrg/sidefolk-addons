@@ -8,7 +8,7 @@ ext.tool("search_wikipedia", "Search Wikipedia",
          + "its fields say next_page, where the next page starts, when there are more. When Wikipedia is busy before anything is read, rate_limited and retry_after_seconds say how long to wait.",
          input: Schema.object([
              "query": Schema.string("What to look for.", maxLength: 200),
-             "language": Schema.string("The Wikipedia's language code, like en or fr. en if left out.", maxLength: 12),
+             "language": Schema.string("The Wikipedia's language code: en, fr, es, de, it, pt, ja, ko, zh, ar, ru, nl, pl, sv, uk or tr. en if left out.", maxLength: 2),
              "from": Schema.integer("Where a page starts: 0, or a next_page it gave.", minimum: 0, maximum: 10_000),
              "max_pages": Schema.integer("How many pages to go through, 1 to 5. 1 if left out.", minimum: 1, maximum: 5),
          ], required: ["query"]), reply: { args in

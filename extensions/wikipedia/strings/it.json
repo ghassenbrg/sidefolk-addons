@@ -1,8 +1,7 @@
 {
   "name": "Wikipedia",
-  "tagline": "Cerca su Wikipedia, in qualsiasi lingua",
-  "description": "Cerca su Wikipedia nella lingua scelta e dà il titolo di ogni risultato, una riga e il suo indirizzo, una pagina alla volta.",
-  "network_purpose": "Per cercare su Wikipedia",
+  "tagline": "Cerca su Wikipedia, in 16 delle sue lingue",
+  "description": "Cerca su Wikipedia in una di 16 lingue e dà il titolo di ogni risultato, una riga e il suo indirizzo, una pagina alla volta.",
   "tools": {
     "search_wikipedia": {
       "title": "Cerca su Wikipedia",
@@ -11,7 +10,6 @@
   },
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Impossibile raggiungere Wikipedia ({error}). Controlla la connessione a Internet.",
-    "Give a language code, like en or fr.": "Indica un codice di lingua, come en o fr.",
     "Nothing found.": "Nessun risultato.",
     "There are more: the next page starts at {offset}.": "Ce ne sono altri: la pagina successiva inizia da {offset}.",
     "Wikipedia answered with HTTP {status}.": "Wikipedia ha risposto con HTTP {status}.",
@@ -21,7 +19,8 @@
     "It stopped after {count} pages: the next one didn't come.": "Si è fermato dopo {count} pagine: la successiva non è arrivata.",
     "Some of what it read was left out to keep the answer small enough.": "Parte di ciò che ha letto è stata tralasciata per tenere la risposta abbastanza piccola.",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Si è fermato dopo {count} pagine: Wikipedia chiede di aspettare {time}.",
-    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Impossibile raggiungere {service} in tempo. Non è stato letto nulla; riprova tra poco."
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Impossibile raggiungere {service} in tempo. Non è stato letto nulla; riprova tra poco.",
+    "Give a language code it reads: {list}.": "Indica un codice di lingua che legge: {list}."
   },
   "examples": [
     "cerca rotazione sincrona su wikipedia"

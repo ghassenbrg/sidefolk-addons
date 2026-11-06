@@ -1,8 +1,7 @@
 {
   "name": "Wikipedia",
-  "tagline": "Wikipedia durchsuchen, in jeder ihrer Sprachen",
-  "description": "Durchsucht Wikipedia in der gewählten Sprache und gibt Titel, eine Zeile und Adresse jedes Treffers aus, Seite für Seite.",
-  "network_purpose": "Um Wikipedia zu durchsuchen",
+  "tagline": "Wikipedia in 16 ihrer Sprachen durchsuchen",
+  "description": "Durchsucht Wikipedia in einer von 16 Sprachen und gibt Titel, eine Zeile und Adresse jedes Treffers aus, Seite für Seite.",
   "tools": {
     "search_wikipedia": {
       "title": "Wikipedia durchsuchen",
@@ -11,7 +10,6 @@
   },
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Wikipedia ist nicht erreichbar ({error}). Prüfe die Internetverbindung.",
-    "Give a language code, like en or fr.": "Gib einen Sprachcode an, etwa en oder fr.",
     "Nothing found.": "Nichts gefunden.",
     "There are more: the next page starts at {offset}.": "Es gibt mehr: Die nächste Seite beginnt bei {offset}.",
     "Wikipedia answered with HTTP {status}.": "Wikipedia hat mit HTTP {status} geantwortet.",
@@ -21,7 +19,8 @@
     "It stopped after {count} pages: the next one didn't come.": "Nach {count} Seiten angehalten: Die nächste kam nicht.",
     "Some of what it read was left out to keep the answer small enough.": "Ein Teil des Gelesenen wurde weggelassen, damit die Antwort klein genug bleibt.",
     "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Nach {count} Seiten angehalten: Wikipedia bittet, {time} zu warten.",
-    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "{service} war nicht rechtzeitig erreichbar. Es wurde nichts gelesen; versuch es gleich noch einmal."
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "{service} war nicht rechtzeitig erreichbar. Es wurde nichts gelesen; versuch es gleich noch einmal.",
+    "Give a language code it reads: {list}.": "Gib einen Sprachcode an, den es liest: {list}."
   },
   "examples": [
     "such Gezeitenkopplung in Wikipedia"
