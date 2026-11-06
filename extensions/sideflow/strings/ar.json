@@ -1263,7 +1263,9 @@
     "There's more than this page can show. Read its steps before you turn it on.": "هناك أكثر مما تستطيع هذه الصفحة عرضه. اقرأ خطواته قبل تشغيله.",
     "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.": "هذا أطول من أن يُعرض في صفحة. احذف ما هو طويل جدًا، أو اطلب من وكيل تقصيره.",
     "Too long to show": "أطول من أن يُعرض",
-    "Its runs and what you allowed for it go too. This can't be undone.": "تذهب تشغيلاته وما سمحت به أيضًا. لا يمكن التراجع عن هذا."
+    "Its runs and what you allowed for it go too. This can't be undone.": "تذهب تشغيلاته وما سمحت به أيضًا. لا يمكن التراجع عن هذا.",
+    "Show in Finder": "إظهار في Finder",
+    "Sidefolk wouldn't show that file.": "لم يعرض Sidefolk ذلك الملف."
   },
   "drops": {
     "flow_file": {

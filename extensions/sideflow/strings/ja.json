@@ -1153,7 +1153,9 @@
     "There's more than this page can show. Read its steps before you turn it on.": "このページに表示しきれません。オンにする前にステップを読んでください。",
     "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.": "ページに表示するには長すぎます。長すぎるものを削除するか、エージェントに短くしてもらってください。",
     "Too long to show": "長すぎて表示できません",
-    "Its runs and what you allowed for it go too. This can't be undone.": "実行履歴と許可した内容も削除されます。元に戻せません。"
+    "Its runs and what you allowed for it go too. This can't be undone.": "実行履歴と許可した内容も削除されます。元に戻せません。",
+    "Show in Finder": "Finder で表示",
+    "Sidefolk wouldn't show that file.": "Sidefolk はそのファイルを表示しませんでした。"
   },
   "drops": {
     "flow_file": {
