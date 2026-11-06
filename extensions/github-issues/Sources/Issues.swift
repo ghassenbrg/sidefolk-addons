@@ -12,7 +12,8 @@ enum Issues {
 
     /// `owner/name`, as GitHub writes it, and nothing that could be another address.
     static func repository(_ text: String) throws -> String {
-        let plain = text.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: "https://github.com/", with: "")
+        // A repository's page pasted whole is taken for its name. Written as a pattern, so the only address this program names is the one it reaches.
+        let plain = text.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: #"^(https?:/{2})?(www\.)?github\.com/"#, with: "", options: [.regularExpression, .caseInsensitive])
         guard plain.range(of: #"^[A-Za-z0-9_.-]{1,39}/[A-Za-z0-9_.-]{1,100}$"#, options: .regularExpression) != nil, !plain.contains("..") else {
             throw Problem(L("Give the repository as owner/name, like apple/swift."))
         }

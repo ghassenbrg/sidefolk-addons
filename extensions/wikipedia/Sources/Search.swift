@@ -5,8 +5,17 @@ import SidefolkExtensionKit
 enum Search {
     static let perPage = 10
 
-    /// The Wikipedias it reads: the hosts its install sheet names, and no other.
-    static let languages = ["en", "fr", "es", "de", "it", "pt", "ja", "ko", "zh", "ar", "ru", "nl", "pl", "sv", "uk", "tr"]
+    /// The Wikipedias it reads: the hosts its install sheet names, and no other, each written out, so Sidefolk's check of the code sees exactly these.
+    static let sites: [(language: String, address: String)] = [
+        ("en", "https://en.wikipedia.org"), ("fr", "https://fr.wikipedia.org"), ("es", "https://es.wikipedia.org"), ("de", "https://de.wikipedia.org"),
+        ("it", "https://it.wikipedia.org"), ("pt", "https://pt.wikipedia.org"), ("ja", "https://ja.wikipedia.org"), ("ko", "https://ko.wikipedia.org"),
+        ("zh", "https://zh.wikipedia.org"), ("ar", "https://ar.wikipedia.org"), ("ru", "https://ru.wikipedia.org"), ("nl", "https://nl.wikipedia.org"),
+        ("pl", "https://pl.wikipedia.org"), ("sv", "https://sv.wikipedia.org"), ("uk", "https://uk.wikipedia.org"), ("tr", "https://tr.wikipedia.org"),
+    ]
+    static let languages = sites.map(\.language)
+
+    /// Where a language's Wikipedia is: one of `sites`.
+    static func site(_ language: String) -> String { sites.first { $0.language == language }?.address ?? sites[0].address }
 
     /// A Wikipedia's language as its address has it, one of `languages`.
     static func language(_ text: String?) throws -> String {
@@ -26,7 +35,7 @@ enum Search {
         guard let query = object["query"] as? [String: Any], let results = query["search"] as? [[String: Any]] else { throw Problem(L("Wikipedia sent something that isn't a list of results.")) }
         let items: [[String: Any]] = results.map { r in
             let title = r["title"] as? String ?? ""
-            let address = "https://\(language).wikipedia.org/wiki/" + (title.replacingOccurrences(of: " ", with: "_").addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
+            let address = site(language) + "/wiki/" + (title.replacingOccurrences(of: " ", with: "_").addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")
             return ["title": title, "snippet": plain(r["snippet"] as? String ?? ""), "url": address, "words": r["wordcount"] ?? NSNull()]
         }
         let next = ((object["continue"] as? [String: Any])?["sroffset"] as? NSNumber)?.intValue
@@ -54,7 +63,7 @@ enum Search {
     }
 
     @Sendable private static func fetch(_ words: String, language: String, from offset: Int, seconds: TimeInterval) async throws -> Paging.Fetched {
-        let url = Web.url("https://\(language).wikipedia.org/w/api.php", [("action", "query"), ("list", "search"), ("srsearch", words), ("format", "json"),
+        let url = Web.url(site(language) + "/w/api.php", [("action", "query"), ("list", "search"), ("srsearch", words), ("format", "json"),
                                                                           ("srlimit", String(perPage)), ("sroffset", String(offset)), ("maxlag", "5")])
         var request = URLRequest(url: url, timeoutInterval: seconds)
         request.setValue("Sidefolk/1.0 (a Mac companion)", forHTTPHeaderField: "User-Agent")
