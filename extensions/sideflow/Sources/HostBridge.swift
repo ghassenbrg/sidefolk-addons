@@ -9,9 +9,9 @@ import SidefolkExtensionKit
 
     private var requests: [String: String] = [:]
 
-    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
+    func call(_ tool: String, _ input: [String: Any], plan: String?, written: [String: Any]?, run: String, counted: String, progress: @escaping (Actions.Progress) -> Void) async -> Actions.Outcome {
         defer { requests[run] = nil }
-        return await Actions.call(tool, input, plan: plan, written: written, seconds: tool == "ask.user" ? 615 : 300, run: run, request: { [weak self] in self?.requests[run] = $0 }, progress: progress)
+        return await Actions.call(tool, input, plan: plan, written: written, seconds: tool == "ask.user" ? 615 : 300, run: counted, request: { [weak self] in self?.requests[run] = $0 }, progress: progress)
     }
 
     func cancel(run: String) {

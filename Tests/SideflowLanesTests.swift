@@ -93,6 +93,48 @@ import SidefolkExtensionKit
         #expect(w.store.run(run.id)?.problem?.contains("took longer") == true, "\(w.store.run(run.id)?.problem ?? "")")
     }
 
+    @Test func aLaneAtTheRunsLimitStopsTheWholeRun() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .capped, text: "", limit: "run")]
+        let flow = try w.flow([["id": "all", "parallel": [bad, slow, quick], "on_failure": "carry_on"], ["id": "after", "text": "went on"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let back = try #require(w.store.run(run.id))
+        #expect(back.status == .stopped && back.problem?.contains("limit") == true, "carry_on goes past a failure, never past the limit: \(back.status) \(back.problem ?? "")")
+        #expect(back.values.resolve("after") == nil)
+        #expect(try lane(w, flow.id, "slow").status == .stopped, "the other lanes stop too")
+        #expect(w.store.flow(flow.id)?.state == .paused, "the pause is the limit's")
+    }
+
+    @Test func aRunsLanesShareItsOneLimit() async throws {
+        let w = try World()
+        let two: [[String: Any]] = [["name": "one", "steps": [["id": "a", "do": "changes.it", "with": ["text": "a"]]]], ["name": "two", "steps": [["id": "b", "do": "changes.it", "with": ["text": "b"]]]]]
+        w.host.answers["reads.it"] = [Actions.Outcome(status: .ok, text: "[1, 2]", summary: "")]
+        let flow = try w.flow([["id": "r", "do": "reads.it"], ["id": "each", "for_each": "{{r}}", "steps": [["id": "both", "parallel": two]]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(run.id)?.status == .done, "\(w.store.run(run.id)?.problem ?? "")")
+        #expect(w.host.runIds.count == 5 && Set(w.host.runIds) == [run.id], "every lane, every go, counted as the one run: \(w.host.runIds)")
+    }
+
+    @Test func timeALaneIsHeldForThePersonIsntTakenFromItsLimit() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .denied, text: "Not allowed", summary: "")]
+        var limited = bad
+        limited["timeout_minutes"] = 5
+        let flow = try w.flow([["id": "both", "parallel": [limited, quick]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(try lane(w, flow.id, "bad").status == .needs_you)
+        for _ in 0..<3 {
+            w.now = w.now.addingTimeInterval(3 * 60)
+            w.engine.tick()
+            await w.quiet()
+        }
+        #expect(try lane(w, flow.id, "bad").status == .needs_you, "nine minutes waiting for the person, and it's still theirs to answer")
+        #expect(w.store.run(run.id)?.status == .waiting)
+    }
+
     @Test func theFirstToFinishIsEnoughAndTheRestStop() async throws {
         let w = try World()
         let flow = try w.flow([["id": "both", "parallel": [slow, quick], "join": "first"], ["id": "s", "text": "{{both.winner}}|{{both.quick}}"]])
