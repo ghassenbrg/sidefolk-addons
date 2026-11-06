@@ -42,6 +42,7 @@ import SidefolkExtensionKit
         }
         var facts: [(String, String)] = [(L("How it went"), recordWord(record)), (L("When"), Format.dateTime(record.at))]
         if record.attempt > 1 { facts.append((L("Tries"), Format.integer(record.attempt))) }
+        if let took = record.took, took >= 1 { facts.append((L("Took"), Format.duration(took))) }
         blocks.append(.facts(nil, facts))
         blocks.append(.note(record.summary))
         if let note = record.note { blocks.append(.note(note, tone: record.status == .failed || record.status == .unknown ? .warn : .neutral)) }
@@ -59,6 +60,60 @@ import SidefolkExtensionKit
             }, place: .trailing))
         }
         return out
+    }
+
+    /// What a practice can go by: choosing one, and each thing it holds to change, so a practice can go down another way.
+    static func examples(_ flow: Flow, _ app: App) -> Section? {
+        guard !flow.examples.isEmpty else { return nil }
+        var blocks: [Block] = [.picker(L("A practice goes by"), style: .menu, [Option("", L("Nothing kept: reads for real"))] + flow.examples.map { Option($0.id, $0.name) }, selected: flow.chosenExample ?? "", tool: "ui", input: ui("choose_example", ["flow": flow.id]))]
+        if let chosen = flow.examples.first(where: { $0.id == flow.chosenExample }) {
+            blocks.append(.edit(EditField("example.\(chosen.id).name", L("Its name"), value: chosen.name, tool: "ui", input: ui("name_example", ["flow": flow.id, "example": chosen.id]))))
+            for step in flow.draft.allSteps {
+                guard let value = chosen.values[step.id], blocks.count < 20 else { continue }
+                let words: String = if case .string(let plain) = value { plain } else { Values.text(value) }
+                blocks.append(.edit(EditField("example.\(chosen.id).\(step.id)", String(Words.label(step, catalog: app.catalog).prefix(40)), value: words, kind: .multiline, tool: "ui", input: ui("example_value", ["flow": flow.id, "example": chosen.id, "step": step.id]))))
+            }
+            let left = chosen.values.keys.filter { flow.draft.step($0) == nil }.count
+            if left > 0 { blocks.append(.note(L(one: "It holds {count} step this flow no longer has.", other: "It holds {count} steps this flow no longer has.", count: left))) }
+            blocks.append(.action(button(L("Delete this example"), "drop_example", ["flow": flow.id, "example": chosen.id], style: .plain, symbol: "trash")))
+        }
+        blocks.append(.note(L("It stays on this Mac, in this flow. It doesn't go in a copy or a file.")))
+        return Section(L("Practice examples"), blocks, place: .trailing, collapsed: flow.chosenExample == nil)
+    }
+
+    /// A run in a few cards, for where it was asked about: how far it got, the step that's working or went wrong, and how much is left. The run's page has the rest.
+    static func compact(_ run: Run, _ app: App) -> CardTree {
+        let shown = withLanes(run, app)
+        let steps = shown.body.allSteps
+        let done = steps.filter { step in shown.record(of: step.id).map { [.done, .would, .skipped].contains($0.status) } == true }.count
+        var nodes = [CardTree.Node("start", FlowFile.short(run.flowName, 60), kind: Summaries.status(run), symbol: statusSymbol(run), color: tile[0], state: run.status.isOver ? .done : .active)]
+        if done > 0 { nodes.append(CardTree.Node("done", L(one: "{count} step done", other: "{count} steps done", count: done), symbol: "checkmark", state: .done)) }
+        // The one that matters now: the step it's on, or the one that stopped it.
+        if let here = shown.records.last(where: { [.running, .waiting, .needs_you, .failed, .unknown].contains($0.status) }), let step = shown.body.step(here.step) {
+            var node = CardTree.Node(here.step, FlowFile.short(here.summary, 120), kind: FlowFile.short(Words.label(step, catalog: app.catalog), 30), symbol: look(step, app).symbol, color: look(step, app).color, state: .attention)
+            (node.state, node.pill) = result(here)
+            nodes.append(node)
+        }
+        let left = max(0, steps.count - done - (nodes.count > 2 ? 1 : 0))
+        if left > 0, !run.status.isOver { nodes.append(CardTree.Node("left", L(one: "{count} step to go", other: "{count} steps to go", count: left), symbol: "ellipsis", state: .pending)) }
+        return CardTree(nodes, line: line)
+    }
+
+    /// When it ran, how long for and what it used, counting the runs it waited for: lanes and called flows use the same AI and do things too.
+    static func runFacts(_ run: Run, _ app: App) -> Section {
+        var runs = [run], next = [run.id]
+        while let id = next.popLast() {
+            let children = app.store.runs().filter { $0.parent == id }
+            runs += children
+            next += children.map(\.id)
+        }
+        let requests = runs.reduce(0) { $0 + $1.aiRequests }, actions = runs.reduce(0) { $0 + $1.actionsDone }
+        var facts = [(L("Started"), Format.dateTime(run.startedAt))]
+        facts.append((run.endedAt == nil ? L("So far") : L("Took"), Format.duration((run.endedAt ?? Date()).timeIntervalSince(run.startedAt))))
+        if let version = run.version { facts.append((L("Version"), Format.integer(version))) }
+        facts.append((L("AI requests"), Format.integer(requests)))
+        facts.append((L("Actions done"), Format.integer(actions)))
+        return Section(L("About this run"), [.facts(nil, facts)], place: .trailing, collapsed: true)
     }
 
     /// The files a value names, by the fields that say where a file is: `path`, `file`, `files`, `output`, and the like. Only a whole place from the top of the disk or the home folder.

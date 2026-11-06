@@ -99,10 +99,16 @@ extension FlowHost {
         var run = Run(id: UUID().uuidString.lowercased(), flow: flow.id, flowName: flow.name, mode: mode, status: .running, why: why, startedAt: now,
                       // Practice tries what's on the page. A run for real uses what was kept: "only here so far" means that.
                       body: mode == .live || setOff ? flow.running : mode == .once ? flow.kept : flow.draft)
+        if mode == .live || setOff { run.version = flow.version }
         run.values.today = Format.date(now, year: true, weekday: true)
         run.values.now = Format.time(now)
         if let trigger { run.values.set("trigger", trigger) }
         if mode == .practice, trigger == nil, let sample = run.body.triggerSample { run.values.set("trigger", sample) }
+        if mode == .practice, let chosen = flow.examples.first(where: { $0.id == flow.chosenExample }) {
+            run.example = chosen.values
+            run.exampleName = chosen.name
+            if trigger == nil, let words = chosen.trigger { run.values.set("trigger", words) }
+        }
         run.setOff = setOff
         // It would fail there, after what comes before it has been done.
         if mode != .practice, let off = run.body.allSteps.lazy.compactMap({ step -> String? in
@@ -153,6 +159,10 @@ extension FlowHost {
         }
         run.status = .running
         if !atWait { run.resumeAt = nil }
+        // `{{today}}` and `{{now}}` are when it goes on, not when it began: a form can wait days.
+        let now = clock()
+        run.values.today = Format.date(now, year: true, weekday: true)
+        run.values.now = Format.time(now)
         store.save(run)
         changed()
         var walked = 0
@@ -295,6 +305,18 @@ extension FlowHost {
     private func perform(_ step: Step, in run: inout Run) async -> Bool {
         // Reached only by a flow that went on before this was marked: nothing goes to the AI or the person for a step that says nothing.
         if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
+        // What it gave then, with nothing asked or read again. What has no example goes as a practice always does.
+        if run.mode == .practice, let given = run.example?[step.id] {
+            switch step.kind {
+            case .action, .ai, .ask, .form:
+                run.values.set(step.id, given)
+                run.record(.init(step: step.id, status: .would, summary: L("Would: {what}", ["what": Words.step(step, body: run.body, catalog: catalog)]), output: Values.text(given).clipped(Self.keptOutput), note: L("From the example “{name}”, not done for real.", ["name": run.exampleName ?? ""]), at: clock()))
+                run.pc += 1
+                store.save(run)
+                return true
+            default: break
+            }
+        }
         // Sidefolk checks an action against what they read last at each call. Nothing checks these two, so it's looked at here: a run under way when they approved an edit that took one out.
         // Not a call coming back with its answer: that already ran.
         if run.waitingOn.isEmpty, isLeftBehind(step, in: run) {
@@ -337,6 +359,16 @@ extension FlowHost {
                 return true
             }
             do {
+                // Worked out from the values themselves: filled in as words first, words a value holds could read as part of it.
+                if data.op == .work_out {
+                    let made = try Expression.evaluate(data.from, values: run.values)
+                    guard run.values.fits(made) else { throw Problem(L("The result is too long to keep.")) }
+                    run.values.set(step.id, made)
+                    run.record(.init(step: step.id, status: .done, summary: Words.step(step, body: run.body, catalog: catalog), output: Values.text(made).clipped(2000), at: clock(), input: data.from.clipped(2000)))
+                    run.pc += 1
+                    store.save(run)
+                    return true
+                }
                 let from = run.values.fill(native: .string(data.from))
                 let made = try data.apply(to: from, than: run.values.fill(data.than ?? ""), thanValue: data.than.map { run.values.fill(native: .string($0)) })
                 guard run.values.fits(made) else { throw Problem(L("The result is too long to keep.")) }
@@ -388,7 +420,7 @@ extension FlowHost {
         case .ai(let prompt):
             return await writing(step, prompt: prompt, in: &run)
         case .ask(let question, let options):
-            var input: [String: Any] = ["question": run.values.fill(question), "timeout_seconds": 300]
+            var input: [String: Any] = ["question": run.values.fill(question), "timeout_seconds": 300, "about": String((store.flow(run.flow)?.name ?? run.flowName).prefix(80))]
             if !options.isEmpty { input["options"] = options }
             if run.mode == .practice {
                 let first = options.first ?? L("(your answer)")
@@ -407,6 +439,7 @@ extension FlowHost {
             let ranOut = run.connection.map { $0.tool == tool && $0.until <= clock() } ?? false
             if run.mode != .practice, ranOut || Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
             run.connection = nil
+            run.values.stepKey = "\(run.id)-\(step.id)\(run.scope.map { "-\($0)" } ?? "")"
             let filled = catalog.filled(tool, input, from: run.values)
             let cut = catalog.cutShort(tool, input, from: run.values)
             if run.mode != .practice, let wrong = catalog.doesntFit(tool, filled) { return failed(step, why: wrong, reads: false, in: &run) }
@@ -467,6 +500,8 @@ extension FlowHost {
         store.save(run)
         changed()
         let asked = step.fields.map { filled + "\n\n" + AIFields.instruction($0) } ?? filled
+        run.aiRequests += 1
+        store.save(run)
         switch await askingAI(asked, label: run.flowName) {
         case .answer(let text, let madeBy):
             if let fields = step.fields {
@@ -580,7 +615,19 @@ extension FlowHost {
         progress[id] = nil
         let said = outcome.summary.nonEmpty.map { Words.resolved($0, values: run.values) } ?? sentence
         switch outcome.status {
+        // A service asking to be left alone a while said so in its fields: it did nothing, and it's asked again when the wait is over, a few times at most.
+        case .ok where Self.askedToWait(outcome.data) != nil && run.retries < Self.mostWaitsWhenAsked:
+            let seconds = min(Self.askedToWait(outcome.data) ?? 60, Self.longestWaitWhenAsked)
+            run.retries += 1
+            run.resumeAt = clock().addingTimeInterval(seconds)
+            run.status = .waiting
+            run.record(.init(step: step.id, status: .waiting, summary: step.name ?? said, note: L("The service asked to wait, so it tries again at {time}.", ["time": Format.time(run.resumeAt ?? clock())]), at: clock()))
+            store.save(run)
+            return false
+        case .ok where Self.askedToWait(outcome.data) != nil:
+            return failed(step, why: L("The service kept asking to wait, so this step didn't run."), reads: false, in: &run)
         case .ok:
+            run.actionsDone += 1
             run.values.set(step.id, answer: outcome.text, fields: outcome.data)
             // Cut for keeping: it says so, rather than a list that looks whole.
             let cut = outcome.text.count > Values.wordsKept ? L("Its answer was long: only the first {count} characters were kept.", ["count": Format.integer(Values.wordsKept)]) : nil
@@ -767,7 +814,7 @@ extension FlowHost {
             // Left behind by an edit, going on means more of a version they replaced: stopping comes first, and trying again would ask the same.
             : stepLeftBehind(run) ? [(L("Stop here"), .stop), (L("Skip this step"), .carry_on)]
             : [(L("Try again"), .try_again), (L("Skip this step"), .carry_on), (L("Stop here"), .stop)]
-        guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300], plan: nil, written: nil), answer.ok,
+        guard let answer = await host?.call("ask.user", ["question": question, "options": choices.map(\.words), "timeout_seconds": 300, "about": String(run.flowName.prefix(80))], plan: nil, written: nil), answer.ok,
               let chosen = choices.first(where: { $0.words == answer.text.trimmed }),
               let now = store.run(run.id), now.status == run.status, now.pc == run.pc else { return }
         // Their own answer, on their own card.
@@ -1129,7 +1176,8 @@ extension FlowHost {
     }
 
     /// What a definition asks to be allowed, one line each, the same line once: what the card shows and what Sidefolk's limit on a plan counts.
-    static func planSteps(_ body: FlowBody, title: String, oldWatch: String? = nil) -> [PlanStep] {
+    /// `about`: the flow's name, as a question sends it: the line has to say what the call will (D201).
+    static func planSteps(_ body: FlowBody, title: String, about: String = "", oldWatch: String? = nil) -> [PlanStep] {
         var steps: [PlanStep] = []
         var seen = Set<String>(), names = Set<String>()
         func add(_ tool: String, _ input: [String: Any]) {
@@ -1143,9 +1191,10 @@ extension FlowHost {
         // What a value is made from, so the host can follow a step's value back to what really gave it. Words written in with it are a source of their own: an edit
         // could change them with no card, so they never count as the person's.
         func sources(_ texts: [String]) -> [String] {
-            let named = texts.flatMap(Values.references).filter { !["item", "index"].contains($0) }
+            let named = texts.flatMap(Values.references).filter { !["item", "index", "step_key"].contains($0) }
             // Which go it is says nothing of the person, and a saved flow can still have a step called that.
-            let written = texts.flatMap(Values.references).contains("index") || texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
+            // A step's key is the run's own words, no one's to vouch for.
+            let written = texts.flatMap(Values.references).contains { $0 == "index" || $0 == "step_key" } || texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
             let looped = texts.flatMap(Values.references).contains("item") ? ["item"] : []
             return Array(Set(named + looped + (written ? [writtenWords] : []))).sorted()
         }
@@ -1168,7 +1217,7 @@ extension FlowHost {
                 switch step.kind {
                 case .action(let tool, let input): steps.append(PlanStep(tool, input.mapValues(\.any), named: name(step), title: step.name))
                 case .ask(let question, let options):
-                    var input: [String: Any] = ["question": question, "timeout_seconds": 300]
+                    var input: [String: Any] = ["question": question, "timeout_seconds": 300, "about": String(about.prefix(80))]
                     if !options.isEmpty { input["options"] = options }
                     steps.append(PlanStep("ask.user", input, named: name(step), title: step.name))
                 case .ai(let prompt):
@@ -1232,6 +1281,14 @@ extension FlowHost {
 
     /// What a value is said to read when words were written into it: no step can be called this, so it counts as from outside.
     static let writtenWords = "written-words"
+
+    /// A tool's answer that says it wasn't done because it was asked to wait: `{"rate_limited": true, "retry_after_seconds": 30}` in its fields.
+    static func askedToWait(_ fields: String?) -> Double? {
+        guard let fields, let o = JSONText.read(fields) as? [String: Any], o["rate_limited"] as? Bool == true else { return nil }
+        return max(1, (o["retry_after_seconds"] as? NSNumber)?.doubleValue ?? 60)
+    }
+    static let mostWaitsWhenAsked = 3
+    static let longestWaitWhenAsked: Double = 15 * 60
     /// The most a step can say it reads: the host's limit. Past it, say it's from outside rather than be refused.
     static let mostReads = 32
 
@@ -1362,7 +1419,7 @@ extension FlowHost {
 
     /// Everything the draft may do, as the person will read it. `intent`: what they pressed, for the card's heading.
     func livePlan(_ flow: Flow, intent: String = "turn_on") -> Plan {
-        let steps = Self.planSteps(flow.kept, title: Self.watchTitle(flow), oldWatch: flow.watchTitle)
+        let steps = Self.planSteps(flow.kept, title: Self.watchTitle(flow), about: flow.name, oldWatch: flow.watchTitle)
         // Setting another flow off needs no tool of its own, so the card says it here.
         let others = flow.kept.allSteps.compactMap { step -> (name: String, full: String)? in
             switch step.kind {

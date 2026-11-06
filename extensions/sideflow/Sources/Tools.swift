@@ -36,6 +36,7 @@ import SidefolkExtensionKit
                  input: Schema.object(["flow": flowParam], required: ["flow"])) { args in
             let flow = try app.flow(named: try args.required("flow"))
             var out: [String: Any] = ["name": flow.name, "id": flow.id, "state": flow.state.rawValue, "definition": FlowCodec.json(flow.draft), "in_words": Words.aloud(flow.draft, catalog: app.catalog)]
+            out["based_on"] = AgentEdits.fingerprint(flow.draft)
             if flow.hasChanges { out["running_now"] = FlowCodec.json(flow.running) }
             if flow.live != nil { out["version"] = flow.version }
             if !flow.revisions.isEmpty { out["versions"] = flow.revisions.map(\.version) }
@@ -76,12 +77,18 @@ import SidefolkExtensionKit
             return ToolReply(text).showing(tree: Pages.mini(body, pending: true, app)).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
         })
 
-        ext.tool("update_flow", "Change a flow", "Replaces a flow's definition, name, or both. An On flow keeps running as it was until the person applies the change on a card.",
-                 input: Schema.object(["flow": flowParam, "definition": definition, "name": Schema.string("A new name.", maxLength: 60)], required: ["flow"])) { args in
+        ext.tool("update_flow", "Change a flow", "Changes a flow's draft by a list of edits (patch) or a whole new definition, or its name, and says what changed. Pass based_on from get_flow, so a draft someone else changed since isn't written over. An On flow keeps running as it was until the person applies the change on a card.",
+                 input: Schema.object(["flow": flowParam, "definition": definition, "name": Schema.string("A new name.", maxLength: 60),
+                                       "patch": Schema.array(of: ["type": "object", "description": "{\"op\": \"add\", \"after\": \"start\" or a step's id or \"then:<id>\", \"step\": …}, {\"op\": \"remove\", \"id\": …}, {\"op\": \"replace\", \"id\": …, \"step\": …}, {\"op\": \"move\", \"id\": …, \"after\": …}."], "Edits, applied in order: all of them or none.", maxItems: 64),
+                                       "based_on": Schema.string("The based_on get_flow gave.", maxLength: 40)], required: ["flow"])) { args in
             var flow = try app.flow(named: try args.required("flow"))
             // Someone's in the middle of it on the page: their changes aren't to be written over.
             guard !flow.hasUnsaved else { throw Problem(L("This flow has unsaved changes on its page. Ask the person to save or discard them first.")) }
+            if let read = args.string("based_on"), read != AgentEdits.fingerprint(flow.draft) { throw Problem(L("This flow changed since you read it. Read it again with get_flow, and work from that.")) }
+            let before = flow.draft
+            if args.values["definition"] != nil, args.values["patch"] != nil { throw Problem(L("Send a patch or a definition, not both.")) }
             if let raw = args.values["definition"] { flow.draft = try FlowCodec.body(raw) }
+            if let patch = args.values["patch"] as? [[String: Any]] { flow.draft = try AgentEdits.apply(patch, to: flow.draft) }
             if let name = args.string("name") {
                 try app.rename(&flow, to: name)
             }
@@ -89,8 +96,12 @@ import SidefolkExtensionKit
             app.saved(byAnAgent: flow.id)
             if app.store.flowsNotSaved { throw Problem(L("Your flows couldn't be saved to disk. Changes you've made may be lost when Sidefolk quits.")) }
             app.refreshPreflight(flow.id)
+            let changes = Editing.changes(from: before, to: flow.draft, catalog: app.catalog)
+            app.agentEdits[flow.id] = before == flow.draft ? nil : AgentEdit(before: before, after: flow.draft, changes: changes)
             let problems = flow.draft.problems(app.catalog).map(\.text)
             var text = flow.state == .draft ? L("Changed the draft.") : L("Changed. It keeps running as before until you apply this.")
+            if !changes.isEmpty { text += "\n" + changes.map { "- \($0)" }.joined(separator: "\n") }
+            text += "\nbased_on: \(AgentEdits.fingerprint(flow.draft))"
             if !problems.isEmpty { text += "\n" + L("To fix first: {list}", ["list": problems.joined(separator: " ")]) }
             if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { text += "\n" + L("Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.") }
             return text
@@ -150,12 +161,12 @@ import SidefolkExtensionKit
         }
 
         ext.tool("get_run", "Read a run", "What a run did, step by step, why it stopped and what can be done next. By run id, or a flow's latest.",
-                 input: Schema.object(["run": Schema.string("The run's id."), "flow": Schema.string("A flow's name or id, for its latest run.")])) { args in
+                 input: Schema.object(["run": Schema.string("The run's id."), "flow": Schema.string("A flow's name or id, for its latest run.")])), reply: { args in
             let run: Run?
             if let id = args.string("run") { run = app.store.run(id) } else if let name = args.string("flow") { run = app.store.latest(of: try app.flow(named: name).id) } else { run = app.store.runs().first }
-            guard let run else { return L("No runs yet.") }
-            return Summaries.story(run)
-        }
+            guard let run else { return ToolReply(L("No runs yet.")) }
+            return ToolReply(Summaries.story(run)).showing(tree: Pages.compact(run, app))
+        })
 
         ext.tool("continue_run", "Carry on with a run", "A stopped run's way forward: try_again runs its step again, carry_on skips it and goes on, stop ends the run. Only the person knows whether a step that was interrupted happened: ask them.",
                  input: Schema.object(["run": Schema.string("The run's id."), "how": Schema.string("What to do.", oneOf: ["try_again", "carry_on", "stop"])], required: ["run", "how"])) { args in
@@ -257,7 +268,10 @@ import SidefolkExtensionKit
 
     static func next(_ flow: Flow) -> Date? {
         guard flow.state == .on else { return nil }
-        return flow.running.triggers.compactMap { trigger in flow.countsFrom(trigger).flatMap { Schedule.next(trigger, after: $0) } }.min()
+        // By the clock it goes by, as the engine's tick does: 08:30 in Paris isn't 08:30 here.
+        var clock = Calendar.autoupdatingCurrent
+        if let zone = flow.running.timeZone.flatMap(TimeZone.init(identifier:)) { clock.timeZone = zone }
+        return flow.running.triggers.compactMap { trigger in flow.countsFrom(trigger).flatMap { Schedule.next(trigger, after: $0, calendar: clock) } }.min()
     }
 
     static func status(_ run: Run) -> String {
@@ -278,6 +292,7 @@ import SidefolkExtensionKit
 
     static func story(_ run: Run) -> String {
         var lines = ["\(run.flowName): \(status(run)), \(Format.dateTime(run.startedAt)). id \(run.id)", run.why]
+        lines.append(L("Took {time}, with {requests} AI requests and {actions} actions done.", ["time": Format.duration((run.endedAt ?? Date()).timeIntervalSince(run.startedAt)), "requests": Format.integer(run.aiRequests), "actions": Format.integer(run.actionsDone)]))
         for r in run.records {
             lines.append("- \(r.status.rawValue): \(r.summary)" + (r.note.map { " (\($0))" } ?? ""))
             if let output = r.output?.nonEmpty { lines.append("  → " + String(output.prefix(600))) }

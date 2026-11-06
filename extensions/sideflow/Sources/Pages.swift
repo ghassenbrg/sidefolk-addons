@@ -59,6 +59,7 @@ import SidefolkExtensionKit
                 switch state.string("tab") {
                 case "runs": return flowRunsPage(flow, app, state: state)
                 case "activity": return flowActivityPage(flow, app, state: state)
+                case "allowed": return flowAllowedPage(flow, app, state: state)
                 default: return flowPage(flow, app, state: state)
                 }
             }
@@ -338,8 +339,10 @@ import SidefolkExtensionKit
 
     static func templateCards(_ app: App) -> [Card] {
         Templates.all.map { t in
-            let use = button(L("Use this"), "new", ["template": t.id])
-            return Card(t.name, detail: t.line, symbol: t.symbol, color: t.color, actions: [use], tree: (try? FlowCodec.body(t.body)).map { mini($0, pending: true, app) }, press: use)
+            // Said before it's picked: what it needs that isn't here, and where that comes from.
+            let needs = Templates.missing(t, app.catalog)
+            let use = needs.isEmpty ? button(L("Use this"), "new", ["template": t.id]) : button(L("Use this anyway"), "new", ["template": t.id], style: .plain)
+            return Card(t.name, detail: needs.isEmpty ? t.line : L("It needs {list}, from Add-ons. {line}", ["list": Format.list(needs), "line": t.line]), symbol: t.symbol, color: t.color, badge: needs.isEmpty ? nil : Badge(L("Needs an add-on"), tone: .warn), actions: needs.isEmpty ? [use] : [Action(L("Open Add-ons"), act: .settings("addons"), symbol: "puzzlepiece.extension"), use], tree: (try? FlowCodec.body(t.body)).map { mini($0, pending: true, app) }, press: use)
         }
     }
 
@@ -580,8 +583,10 @@ import SidefolkExtensionKit
         runs.go = Go(set: ["tab": "runs"])
         var activity = PageTab("activity", L("Activity"), symbol: "list.bullet", sections: [])
         activity.go = Go(set: ["tab": "activity"])
+        var allowed = PageTab("allowed", L("Permissions"), symbol: "checkmark.seal", sections: [])
+        allowed.go = Go(set: ["tab": "allowed"])
         let chosen = state.string("tab")
-        return .tabs(selected: chosen == "runs" || chosen == "activity" ? chosen : "builder", [builder, runs, activity])
+        return .tabs(selected: ["runs", "activity", "allowed"].contains(chosen) ? chosen : "builder", [builder, runs, activity, allowed])
     }
 
     static func head(_ flow: Flow, _ app: App, ready: Bool, startable: Bool = true) -> PageBar {
@@ -657,6 +662,11 @@ import SidefolkExtensionKit
         var notes: [Block] = []
         if let why = flow.pausedBecause { notes.append(.note(why, tone: .warn)) }
         if let why = flow.startProblem { notes.append(.note(why, tone: .warn)) }
+        if let edit = app.agentEdits[flow.id], edit.after == flow.draft {
+            notes.append(.note(L("An agent changed this: {list}", ["list": edit.changes.isEmpty ? L("nothing that shows") : Format.list(Array(edit.changes.prefix(8)))])))
+            notes.append(.action(button(L("Undo what it changed"), "agent_undo", ["flow": flow.id, "page_token": app.pageKey], style: .plain, symbol: "arrow.uturn.backward")))
+            notes.append(.action(button(L("Keep it"), "agent_keep", ["flow": flow.id], style: .plain, symbol: "checkmark")))
+        }
         if let said = app.engine.quietlySaved(flow) { notes.append(.note(said, tone: .good)) }
         else if flow.hasChanges || flow.live == nil, let look = app.planChecks[flow.id] { notes.append(.note(look.head)) }
         if let last = flow.missed.last {
@@ -664,11 +674,14 @@ import SidefolkExtensionKit
         }
         for p in problems where p.step == nil { notes.append(.note(p.text, tone: .warn)) }
         if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { notes.append(.note(L("Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do."), tone: .warn)) }
+        if let focused = app.nav.focus[flow.id], flow.draft.step(focused) != nil { main.append(Section(nil, [.bar(breadcrumbs(flow, focused, app))], wide: true)) }
         main.append(Section(nil, [.tree(tree(flow, app, problems: problems))], wide: true))
+        if app.nav.focus[flow.id] == nil, flow.draft.allSteps.count > boardHolds { main.append(Section(nil, [.note(L("Some parts of a long flow are shut to fit the board. Focus on one to see inside it."))], wide: true)) }
         var end: [Section] = []
         if !notes.isEmpty { end.append(Section(nil, notes, place: .trailing)) }
         end += Inspector.sections(flow, app, problems: problems)
         end += checks(flow, app, problems: problems)
+        if let examples = examples(flow, app) { end.append(examples) }
         end.append(Section(L("What you'll get"), [arriving(flow, app)], place: .trailing))
         var page = frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), main, end: end)
         let id = ["flow": flow.id]
@@ -677,6 +690,15 @@ import SidefolkExtensionKit
         // Always: pressing it is what hands over what's being typed, which only then makes the flow unsaved. Sidefolk commits the field first.
         page.shortcuts.append(PageShortcut("cmd+s", L("Save"), tool: "ui", input: ui("save", id)))
         return page
+    }
+
+    /// Where a focused board is: every step on the way down, to go back up to.
+    static func breadcrumbs(_ flow: Flow, _ focused: String, _ app: App) -> PageBar {
+        let above = Editing.holders(of: focused, in: flow.draft)
+        let here = flow.draft.step(focused).map { Words.label($0, catalog: app.catalog) } ?? ""
+        return PageBar((above.map { Words.label($0, catalog: app.catalog) } + [here]).joined(separator: " › "), actions: [button(L("All steps"), "focus", ["flow": flow.id], symbol: "arrow.up.left.and.arrow.down.right")] + above.suffix(3).map { step in
+            button(String(Words.label(step, catalog: app.catalog).prefix(24)), "focus", ["flow": flow.id, "step": step.id], style: .plain)
+        })
     }
 
     /// How it stands: what's in the way of turning it on, and what's different from what was saved and from what's running. Read before saving or applying, nothing done.
@@ -716,8 +738,12 @@ import SidefolkExtensionKit
             first.state = .attention
             first.pill = Badge(check.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
         }
-        var nodes = [first]
-        nodes += treeNodes(flow.draft.steps, body: flow.draft, app, run: run.map { withLanes($0, app) }, untested: untested, flow: flow, problems: problems)
+        // Zoomed in on one step, the board is that step and what's inside it.
+        let focused = app.nav.focus[flow.id].flatMap { flow.draft.step($0) }
+        let shown = focused.map { [$0] } ?? flow.draft.steps
+        let folded = foldedToFit(shown, chosen: app.nav.folded[flow.id] ?? [], selected: app.nav.inspecting(flow).stepId.map { Editing.holders(of: $0, in: flow.draft).map(\.id) } ?? [])
+        var nodes = focused == nil ? [first] : []
+        nodes += treeNodes(shown, body: flow.draft, app, run: run.map { withLanes($0, app) }, untested: untested, flow: flow, problems: problems, folded: folded)
         let selected: String? = switch app.nav.inspecting(flow) {
         case .trigger: "start"
         case .step(let id): id
@@ -734,7 +760,33 @@ import SidefolkExtensionKit
                                 button(L("Redo"), "redo", ["flow": flow.id], symbol: "arrow.uturn.forward", detail: L("Redo (⇧⌘Z)"), disabled: app.history[flow.id]?.canRedo != true)], line: line)
     }
 
-    static func treeNodes(_ steps: [Step], body: FlowBody, _ app: App, run: Run?, untested: CardTree.Node.State, flow: Flow?, problems: [FlowProblem], notTaken: Bool = false) -> [CardTree.Node] {
+    /// What Sidefolk draws of one board: past this it leaves cards out without a word, so a board never asks for more.
+    static let boardHolds = 120
+    static let boardDeepest = 4
+
+    /// What's shut on this board: what the person shut, and if that's not enough, the biggest things inside others until it fits. What the selected step sits in stays open.
+    static func foldedToFit(_ steps: [Step], chosen: Set<String>, selected: [String]) -> Set<String> {
+        var shut = chosen.subtracting(selected)
+        func count(_ list: [Step], _ depth: Int) -> Int {
+            list.reduce(0) { sum, step in
+                sum + 1 + (shut.contains(step.id) || depth >= boardDeepest ? 0 : step.parts.reduce(0) { $0 + count($1.steps, depth + 1) })
+            }
+        }
+        // The deepest first and the biggest of those: what's near the top stays in sight longest.
+        var holders: [(step: Step, depth: Int, size: Int)] = []
+        func gather(_ list: [Step], _ depth: Int) {
+            for step in list where !step.parts.isEmpty {
+                holders.append((step, depth, FlowBody(steps: step.parts.flatMap(\.steps)).allSteps.count))
+                for part in step.parts { gather(part.steps, depth + 1) }
+            }
+        }
+        gather(steps, 0)
+        holders.sort { ($0.depth, $0.size) > ($1.depth, $1.size) }
+        for holder in holders where count(steps, 0) > boardHolds && !selected.contains(holder.step.id) { shut.insert(holder.step.id) }
+        return shut
+    }
+
+    static func treeNodes(_ steps: [Step], body: FlowBody, _ app: App, run: Run?, untested: CardTree.Node.State, flow: Flow?, problems: [FlowProblem], notTaken: Bool = false, folded: Set<String> = [], depth: Int = 0) -> [CardTree.Node] {
         steps.map { step in
             let look = look(step, app)
             let check = flow.flatMap { app.preflight[$0.id]?[step.id] }
@@ -764,7 +816,11 @@ import SidefolkExtensionKit
                 node.state = .attention
                 node.pill = Badge(L("No AI set up"), tone: .warn)
             }
-            if !step.parts.isEmpty {
+            // Sidefolk draws so many cards and so many levels: what's past that is shut, says how much it holds, and opens by focusing on it.
+            if !step.parts.isEmpty, folded.contains(step.id) || depth >= boardDeepest {
+                let inside = FlowBody(steps: step.parts.flatMap(\.steps)).allSteps.count
+                if node.pill == nil { node.pill = Badge(L(one: "{count} step inside", other: "{count} steps inside", count: inside), tone: .neutral) }
+            } else if !step.parts.isEmpty {
                 let tested = run?.record(of: step.id) != nil
                 // What ran says which way it went; an empty way was taken when no other ran.
                 let ran = step.parts.map { part in part.steps.contains { inner in run?.records.contains { $0.step == inner.id } == true } }
@@ -772,7 +828,7 @@ import SidefolkExtensionKit
                 node.branches = step.parts.enumerated().map { at, part in
                     let taken: Bool? = tested ? (ran[at] || (!any && part.steps.isEmpty)) : nil
                     return CardTree.Branch("\(part.id):\(step.id)", partLabel(part.id, of: step), tone: .neutral, taken: taken,
-                                           nodes: treeNodes(part.steps, body: body, app, run: run, untested: untested, flow: flow, problems: problems, notTaken: notTaken || taken == false), hint: L("Add a step"))
+                                           nodes: treeNodes(part.steps, body: body, app, run: run, untested: untested, flow: flow, problems: problems, notTaken: notTaken || taken == false, folded: folded, depth: depth + 1), hint: L("Add a step"))
                 }
             }
             return node
@@ -881,6 +937,48 @@ import SidefolkExtensionKit
         return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), [Section(nil, [.bar(head(flow, app, ready: flow.draft.problems(app.catalog).isEmpty)), tabs(flow, state: state)])] + body, end: end)
     }
 
+    // MARK: What a flow may do
+
+    /// Each step that needs allowing and what Sidefolk says of it now, in the words its form gives. It's Sidefolk's answer, asked afresh, so a changed trust setting shows here.
+    static func flowAllowedPage(_ flow: Flow, _ app: App, state: Arguments) -> Page {
+        app.refreshPreflightIfOld(flow.id)
+        let look = app.planChecks[flow.id]
+        var lines: [(String, String)] = []
+        for step in flow.draft.allSteps {
+            switch step.kind {
+            case .action, .ai, .call, .flow: break
+            default: continue
+            }
+            lines.append((String(Words.label(step, catalog: app.catalog).prefix(40)), allowedWord(look?.byStep[step.id], asked: look != nil)))
+        }
+        var body: [Block] = []
+        if let look { body.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
+        // A section and a list hold so many: past that, the rest are said to be there.
+        let shown = lines.prefix(24 * 20)
+        body += stride(from: 0, to: shown.count, by: 24).map { .facts(nil, Array(shown[$0 ..< min($0 + 24, shown.count)])) }
+        if lines.count > shown.count { body.append(.note(L(one: "And {count} more step.", other: "And {count} more steps.", count: lines.count - shown.count))) }
+        if lines.isEmpty { body.append(.note(L("It only works with words: it needs nothing allowed."))) }
+        let end = [Section(nil, allowedEnding(flow, app), place: .trailing)]
+        return frame(app, state: state, here: nil, flow: flow.id, back: L("All flows"), [
+            Section(nil, [.bar(head(flow, app, ready: flow.draft.problems(app.catalog).isEmpty)), tabs(flow, state: state)]),
+            Section(nil, body, wide: true),
+        ], end: end)
+    }
+
+    private static func allowedWord(_ line: Plans.Checked.Line?, asked: Bool) -> String {
+        guard let line else { return asked ? L("Named on the card") : L("Still looking") }
+        if let mark = PlanLook.mark(line) { return mark.words }
+        return line.state == "listed" ? L("Named on the card") : L("Runs by itself once allowed")
+    }
+
+    private static func allowedEnding(_ flow: Flow, _ app: App) -> [Block] {
+        guard app.catalog.plan(flow.planId) != nil else { return [.note(L("Nothing is allowed yet. You read a card the first time it runs for real."))] }
+        return [
+            .note(L("It may only do what you read when you allowed it.")),
+            .action(button(L("End what you allowed"), "end_plan", ["flow": flow.id], symbol: "xmark.seal", detail: L("It pauses, and asks again before it runs."))),
+        ]
+    }
+
     // MARK: A flow's activity
 
     /// Every step it took, newest first, from its runs' own journals: what it did, not how each run went.
@@ -981,6 +1079,10 @@ import SidefolkExtensionKit
         nodes += treeNodes(run.body.steps, body: run.body, app, run: withLanes(run, app), untested: .pending, flow: nil, problems: [])
         let selected = app.nav.runStep[run.id]
         if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }
+        end.append(runFacts(run, app))
+        if run.status.isOver, run.parent == nil, run.example == nil, !run.values.named.isEmpty {
+            end.append(Section(nil, [.action(button(L("Keep for practice"), "keep_example", ["run": run.id], style: .plain, symbol: "pin", detail: L("A practice can go by what this run's steps gave, with nothing asked or read again.")))], place: .trailing))
+        }
         return frame(app, state: state, here: nil, flow: run.flow, back: run.flowName, [
             Section(nil, [.bar(PageBar(run.flowName, pill: Badge(Summaries.status(run), tone: tone(run)), detail: detail, actions: run.status == .running || run.status == .waiting
                 ? (run.status == .running && run.mode != .practice ? [button(L("Pause after this step"), "pause_run", id, symbol: "pause.fill")] : []) + [button(L("Stop"), "stop_run", ["run": run.id, "page_token": app.pageKey], symbol: "stop.fill")]

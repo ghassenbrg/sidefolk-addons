@@ -305,6 +305,10 @@ extension String {
 struct FlowProblem: Equatable {
     var step: String?
     var text: String
+    /// The value it's about, when the problem is a value that isn't there.
+    var uses: String?
+    /// That value is made on only one way through a condition before it.
+    var onOnePath = false
 }
 
 extension FlowBody {
@@ -370,7 +374,7 @@ extension FlowBody {
             for name in strings.flatMap(Values.references) where !seen.contains(name) {
                 out.append(FlowProblem(step: step.id, text: onOnePath.contains(name)
                     ? L("It uses “{name}”, which only one path of the condition before it makes. Use it inside that path, or make it on both.", ["name": name])
-                    : L("It uses “{name}”, which no earlier step makes.", ["name": name])))
+                    : L("It uses “{name}”, which no earlier step makes.", ["name": name]), uses: name, onOnePath: onOnePath.contains(name)))
             }
         }
         /// What a step of the kinds that hold others needs of itself.
@@ -408,6 +412,9 @@ extension FlowBody {
                 else if let wrong = step.saysNothing { out.append(FlowProblem(step: step.id, text: wrong)) }
             case .data(let data):
                 if data.from.trimmed.isEmpty, let wrong = step.saysNothing { out.append(FlowProblem(step: step.id, text: wrong)) }
+                if data.op == .work_out, !data.from.trimmed.isEmpty {
+                    do { _ = try Expression.parse(data.from) } catch { out.append(FlowProblem(step: step.id, text: (error as? Problem)?.message ?? L("It can't follow what to work out."))) }
+                }
             default: break
             }
         }

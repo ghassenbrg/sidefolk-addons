@@ -77,6 +77,32 @@ Typed mapping's later list, from its last read: `wrote` is set before the fit ch
 
 Parallel and called flows' later list: "a, b" written for a called flow's list input is one entry where a tool's list field would split it; a join-stopped lane ending past its limit reads as timed out; after a crash a parallel only joins again once all its lanes are over; a lane's limit keeps counting across a pause; a practice run really sends an old version's AI prompt, as it does a draft's, and passes where a live run refuses; a callee edited mid-run under the old Run isn't caught (gone with L2); steps without ids are numbered by position, so inserting one refuses an identical AI step in an old version; a changed text step can feed an unchanged AI prompt in an old version; a list input over 256 KB becomes one entry of clipped JSON.
 
+## Reading a run and a flow, an agent's patches, repair offers, practice examples
+
+Each on `team/sideflow-diagnosis`, separate from the stack's release, with its own read and T entry (the coordinator's ruling, 2026-11-06).
+
+T entry, for SECURITY's Sideflow section when it lands:
+- *An agent's patch.* `update_flow` takes a list of edits as well as a whole definition, the same edits the page makes. It changes only the draft and adds no way to run or approve anything: what an edit adds is new on the card as before. `based_on` is a mark of the draft it read, so a change someone made since isn't written over; it's a courtesy, not a guard, since leaving it out still writes. The person sees what changed in the page's own words, and can take it back with the page's token.
+- *The Permissions tab.* It only reads: `plan.check`, which shows nothing and changes nothing. Its one action is "End what you allowed", the same one the flow's menu has.
+- *Repair offers.* A press on the page, an edit to the draft, on Undo. A step moved up or a value taken out can change what a step's fed from, so the plan treats it as any edit.
+- *Practice examples.* They hold what a run's steps gave, which can be the person's own words, in the flow's own file in Sideflow's data folder, and no copy or flow file carries them. A practice going by one calls no tool and no AI.
+
+Not verified: real clicks; a real agent's patch.
+
+## The expression language (`Expression.swift`, data op `work_out`)
+
+T entry, for SECURITY's Sideflow section when it lands: *Working a value out.* What a flow writes in `work_out` is a small expression read by Sideflow's own parser and evaluated in Sideflow's process, with no way in it to name a tool, a file, the network or the clock, no loops or definitions, and fixed limits on length (2,000 bytes), depth (32), work (20,000 steps) and text (100 KB). A value comes in by `{{name}}` as a value: it isn't filled in as words first, so what a page or a person's note says can't become part of what's computed. Its result is a value like any other, and it counts as coming from what it names: `sources` reads its slots as any step's, so on a plan it's as far out as the furthest thing it read. An expression can still turn outside words into a number or a piece of words that a later step uses, as a text step can. It's no more than that.
+
+Not read yet; not on a card of its own, since it does nothing outside the run.
+
+## Smaller pieces on the same stack (not compiled yet)
+
+- A question says which flow asks (`about`, D201 on app branch `team/sideflow-ask-about`): needs that app snapshot as the minimum, since an older Sidefolk refuses the field. Every flow with a question gets one new line on its card once; in Auto that stays inside and asks nothing.
+- `Next:` goes by the flow's own time zone; `{{today}}` and `{{now}}` are when a run goes on, not when it began.
+- `{{step_key}}`: the same each time one step of one run is tried again, for a service's idempotency field.
+- A service that answers `{"rate_limited": true, "retry_after_seconds": N}` in its fields did nothing; the step is tried again after the wait, three times at most, at most 15 minutes apart.
+- Pagination isn't built: a cursor from a service's own answer fills a field that isn't free text, so under the host's rule it asks each run, and following pages by itself would ask on every page. It needs a host rule first (Permissions).
+
 ## Left out on purpose
 
 Webhooks, Keychain accounts: they need a security decision of their own. Hosted runner, collaboration, freeform DAG, arbitrary code: the roadmap keeps them out.

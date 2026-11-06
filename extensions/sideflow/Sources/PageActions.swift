@@ -86,6 +86,26 @@ import SidefolkExtensionKit
             }
         case "move_after":
             if let id = a.string("step"), let after = a.string("value") { try draft { $0 = Editing.place(id, after: after, in: $0) } }
+        case "focus":
+            let f = try flow()
+            app.nav.focus[f.id] = a.string("step")?.nonEmpty
+        case "fold":
+            let f = try flow()
+            guard let id = a.string("step") else { break }
+            if app.nav.folded[f.id, default: []].remove(id) == nil { app.nav.folded[f.id, default: []].insert(id) }
+        case "wrap_through":
+            if let id = a.string("step") { app.nav.wrapThrough[id] = a.string("value") }
+        case "wrap":
+            let f = try flow()
+            guard let id = a.string("step"), let kind = a.string("value"), ["if", "for_each", "repeat", "try", "parallel"].contains(kind) else { break }
+            let holder = newStep(kind, in: f.draft, of: f.id, app)
+            let through = app.nav.wrapThrough[id].flatMap { last in Editing.siblings(of: id, in: f.draft).contains { $0.id == last } ? last : nil } ?? id
+            try draft { body in
+                guard let wrapped = Editing.wrap(from: id, through: through, inside: holder, in: body) else { return }
+                body = wrapped
+            }
+            app.nav.wrapThrough[id] = nil
+            app.nav.inspect(.step(holder.id), in: f.id)
         case "up", "down":
             if let id = a.string("step") { try draft { $0 = Editing.nudge(id, by: op == "up" ? -1 : 1, in: $0) } }
         case "rename_open":
@@ -337,6 +357,63 @@ import SidefolkExtensionKit
             }
         case "gives":
             try draft { $0.output = (a.values["value"] as? String).flatMap(ValueType.init(rawValue:)) }
+        case "keep_example":
+            guard let id = a.string("run"), let run = app.store.run(id), var f = app.store.flow(run.flow) else { break }
+            guard f.examples.count < PracticeExample.most else { throw Problem(L("A flow keeps {count} examples at most. Delete one first.", ["count": Format.integer(PracticeExample.most)])) }
+            let made = try PracticeExample.from(run, at: Date())
+            f.examples.append(made)
+            f.chosenExample = made.id
+            app.store.save(f)
+        case "choose_example":
+            var f = try flow()
+            f.chosenExample = a.string("value")?.nonEmpty
+            app.store.save(f)
+        case "drop_example":
+            var f = try flow()
+            f.examples.removeAll { $0.id == a.string("example") }
+            if f.chosenExample == a.string("example") { f.chosenExample = nil }
+            app.store.save(f)
+        case "name_example":
+            var f = try flow()
+            if let at = f.examples.firstIndex(where: { $0.id == a.string("example") }), let name = text.trimmed.nonEmpty { f.examples[at].name = String(name.prefix(60)) }
+            app.store.save(f)
+        case "example_value":
+            var f = try flow()
+            guard let at = f.examples.firstIndex(where: { $0.id == a.string("example") }), let step = a.string("step"), let was = f.examples[at].values[step] else { break }
+            // What it was stays what it is: a number stays a number, and words that aren't one say so.
+            switch was {
+            case .number:
+                guard let number = Editing.number(text) else { throw Problem(L("Write a number here, plainly: like 12 or 12.5.")) }
+                f.examples[at].values[step] = .number(number)
+            case .bool:
+                guard let yes = Editing.yesOrNo(text) else { throw Problem(L("Write yes or no here.")) }
+                f.examples[at].values[step] = .bool(yes)
+            case .array, .object:
+                guard let read = JSONText.read(text), (read is [Any]) == { if case .array = was { true } else { false } }() else { throw Problem(L("That isn't what it was: keep it in the same shape.")) }
+                f.examples[at].values[step] = JSON(read)
+            case .string, .null:
+                f.examples[at].values[step] = .string(text)
+            }
+            app.store.save(f)
+        case "repair_move":
+            if let id = a.string("step"), let name = a.string("name") { try draft { $0 = Repairs.moved(name, before: id, in: $0) } }
+        case "repair_fallback":
+            guard let id = a.string("step"), let name = a.string("name") else { break }
+            var made = ""
+            try draft { body in (body, made) = Repairs.withFallback(name, before: id, in: body) }
+            if !made.isEmpty { app.nav.inspect(.step(made), in: try flow().id) }
+        case "repair_drop":
+            if let id = a.string("step"), let name = a.string("name") { try draft { $0 = Repairs.dropped(name, from: id, in: $0) } }
+        case "agent_keep":
+            app.agentEdits[try flow().id] = nil
+        case "agent_undo":
+            // What an agent's edit replaced, on the page's own press: it's the person's call which of the two stands.
+            var f = try flow()
+            guard a.string("page_token") == app.pageKey, let edit = app.agentEdits[f.id], edit.after == f.draft else { break }
+            f.draft = edit.before
+            app.agentEdits[f.id] = nil
+            app.store.save(f)
+            app.refreshPreflight(f.id)
         case "overlap":
             if let raw = a.string("value"), let overlap = FlowBody.Overlap(rawValue: raw) { try draft { $0.overlap = overlap } }
         case "time_zone":

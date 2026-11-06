@@ -220,7 +220,10 @@ import SidefolkExtensionKit
         func input(_ op: String, _ extra: [String: Any] = [:]) -> [String: Any] { on.merging(extra.merging(["op": op]) { a, _ in a }) { _, new in new } }
         let tokens = tokens(before: step.id, flow: flow, app)
         var main: [Block] = [], more: [Block] = []
-        for p in problems where p.step == step.id { main.append(.note(p.text, tone: .warn)) }
+        for p in problems where p.step == step.id {
+            main.append(.note(p.text, tone: .warn))
+            main += Repairs.offers(p, flow: flow)
+        }
         main += refusal(app.preflight[flow.id]?[step.id])
         if flow.draft.readsNumbersFromWords(app.catalog).contains(step.id) { main.append(.note(L("This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field."), tone: .warn)) }
         let looked = app.planChecks[flow.id]?.byStep[step.id]
@@ -314,7 +317,7 @@ import SidefolkExtensionKit
             main.append(.edit(EditField("\(step.id).value", L("Its result"), value: value, placeholder: L("Nothing"), tokens: tokens, tool: "ui", input: input("finish_value"))))
         case .data(let data):
             main.append(.picker(L("What to do"), style: .menu, DataStep.Op.allCases.map { Option($0.rawValue, Words.dataName($0)) }, selected: data.op.rawValue, tool: "ui", input: input("data_op")))
-            main.append(.edit(EditField("\(step.id).from", L("From"), value: data.from, placeholder: L("Which value"), tokens: tokens, tool: "ui", input: input("data_from"))))
+            main.append(.edit(EditField("\(step.id).from", data.op == .work_out ? L("What to work out") : L("From"), value: data.from, detail: data.op == .work_out ? L("Like round({{price}} * 1.2, 2), or number({{total}}, \"1,234.56\"). It can only compute: it can't reach anything.") : nil, placeholder: data.op == .work_out ? "" : L("Which value"), tokens: tokens, tool: "ui", input: input("data_from"))))
             if [.field, .filter, .sort, .unique, .sum, .group].contains(data.op) {
                 main.append(.edit(EditField("\(step.id).field", L("The field in each"), value: data.field ?? "", detail: L("A name, or a.b for one inside another. Empty for the item itself."), tool: "ui", input: input("data_field"))))
             }
@@ -330,6 +333,8 @@ import SidefolkExtensionKit
                 main.append(.edit(EditField("\(step.id).count", L("How many in each"), value: String(data.count ?? 10), detail: L("Then go through them with For each: each item is one batch."), kind: .number, tool: "ui", input: input("data_count"))))
             case .fallback:
                 main.append(.edit(EditField("\(step.id).than", L("Otherwise use"), value: data.than ?? "", tokens: tokens, tool: "ui", input: input("data_than"))))
+                // Not a problem to fix, since a flow from before may mean it: but when the value's missing, the run stops here.
+                if (data.than ?? "").trimmed.isEmpty { main.append(.note(L("Nothing is written to use instead, so when the value is missing the run stops here."), tone: .warn)) }
             case .join:
                 main.append(.edit(EditField("\(step.id).separator", L("Between each"), value: data.separator ?? ", ", tool: "ui", input: input("data_separator"))))
             default: break
@@ -514,6 +519,21 @@ import SidefolkExtensionKit
         return out
     }
 
+    /// Putting it inside something new, with the steps after it if they belong together. It's one edit, and Undo takes it back.
+    private static func wrapping(_ step: Step, list: [Step], from at: Int, through: String?, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
+        var out: [Block] = []
+        let later = Array(list[at...].prefix(24))
+        if later.count > 1 {
+            let chosen = through.flatMap { last in later.contains { $0.id == last } ? last : nil } ?? step.id
+            out.append(.picker(L("Together with the steps after it"), style: .menu, later.enumerated().map { place, one in
+                Option(one.id, place == 0 ? L("Only this step") : L("Through {step}", ["step": one.name ?? one.id]))
+            }, selected: chosen, tool: "ui", input: input("wrap_through", [:])))
+        }
+        out.append(.picker(L("Wrap it in"), style: .menu, [Option(step.id, L("Choose what")), Option("if", L("If…")), Option("for_each", L("For each")), Option("repeat", L("Repeat until")), Option("try", L("Try")), Option("parallel", L("At the same time"))], selected: step.id, tool: "ui", input: input("wrap", [:])))
+        if !step.parts.isEmpty { out.append(.action(Action(L("Focus on this"), tool: "ui", input: input("focus", [:]), style: .plain, symbol: "scope", detail: L("The board shows only what's inside it.")))) }
+        return out
+    }
+
     /// Moving it: in plain sight, for whoever doesn't find the card's menu or think to drag it.
     private static func moving(_ step: Step, _ flow: Flow, _ app: App, input: (String, [String: Any]) -> [String: Any]) -> [Block] {
         let list = Editing.siblings(of: step.id, in: flow.draft)
@@ -531,6 +551,7 @@ import SidefolkExtensionKit
         let spots = (startsIt ? [] : [Option("start", L("The very start"))]) + kept.map { Option($0.id, L("After {step}", ["step": Words.label($0, catalog: app.catalog)])) }
         if !spots.isEmpty { out.append(.picker(L("Move to"), style: .menu, [Option(step.id, L("Choose a place"))] + spots, selected: step.id, tool: "ui", input: input("move_after", [:]))) }
         if kept.count < places.count { out.append(.note(L("The nearest places are listed. To go further, move it there and choose again."))) }
+        out += wrapping(step, list: list, from: at, through: app.nav.wrapThrough[step.id], input: input)
         return out
     }
 

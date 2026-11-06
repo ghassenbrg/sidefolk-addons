@@ -25,7 +25,7 @@ enum Grammar {
       {"id":"both","parallel":[{"name":"first","steps":[…],"timeout_minutes":10},{"name":"second","steps":[…]}],"join":"all","fail_fast":false}  ({{both.first}}: 2 to 4 lanes. "join": "all", "first" ({{both.winner}} is what finished first), how many are enough as a number, or "settled" (all ended, a failed lane gives null, {{both.not_finished}} lists those). A lane no longer needed or past "timeout_minutes" is stopped. "fail_fast" stops the others once enough can't finish; otherwise they finish, then the step fails)
       {"id":"r","call_flow":"its name","inputs":{"name":"{{value}}"},"version":3}  (waits for it; {{r}} is its result. Inside the flow: {{input.name}}. "version" stays on that version of it, from get_flow's "versions"; left out, whatever's live)
       {"finish":"{{value}}"}  (ends here with this result)
-      {"id":"d","data":{"op":"parse_json|parse_csv|lines|join|field|filter|sort|unique|count|first|sum|number|batches|group|fallback","from":"{{x}}","field":"a.b","test":"contains","than":"words","descending":true,"count":3,"separator":", "}}
+      {"id":"d","data":{"op":"parse_json|parse_csv|lines|join|field|filter|sort|unique|count|first|sum|number|batches|group|fallback|work_out","from":"{{x}}","field":"a.b","test":"contains","than":"words","descending":true,"count":3,"separator":", "}}
       {"id":"f","form":{"title":"Check this","hours":72,"fields":[{"name":"ok","label":"Is it right?","kind":"text|number|yes_no|choice","options":["a","b"],"required":true}]}}  (waits on this page; {{f.ok}})
       {"id":"e","wait_for":{"event":"note.saved","contains":"words","minutes":60}}  (fails if it doesn't happen in time)
       {"id":"x","ai":"what the person's AI should write, with {{values}}"}  (no tools; it only writes text)
@@ -44,6 +44,12 @@ enum Grammar {
     Use list_actions for the tools and their values. To tell the person, use the tool notify.user with title and body.
 
     Running or turning on asks once: the card says everything it does, and nothing asks again unless an edit adds something new. In Full access there's no card. What the host checks is where {{x}} goes. Words from outside run by themselves only in a field of plain words (text, message, body, title, subject, summary, note, comment, description, caption, reason, detail). A field that says where something goes (a url, address, channel, recipient, path, repository) or a choice asks each run unless you write the value out; a field that runs something (command, script, code, sql) refuses them, so write it out. A step's form says which applies.
+
+    work_out's "from" is a small expression: numbers, "words", {{values}}, + - * / %, == != < > <= >=, && || !, and round floor ceil abs min max sum average number percent text upper lower trim length contains starts_with ends_with replace split join first last field default if. It can only compute. number(words) reads only a plain number; number(words, "1,234.56"), "1.234,56" or "1 234,56" says how a number's written, and leaves off a unit or currency around it. percent("12%") is 0.12. A value's words are never read as part of the expression. JSON inside words is read by JSON's rules: {"n":5e3} gives {{s.n}} as 5000.
+
+    {{step_key}} is the same each time one step of one run is tried again, and different for every other: give it to a service's idempotency or request-id field, so trying again doesn't do it twice.
+
+    To change a flow, read it with get_flow and send update_flow a patch and its based_on: small edits keep the rest as it was, and if someone changed it since you read it you're told. The answer lists what changed, and the person sees the same list and can undo it.
 
     Nothing you write runs until the person allows it: flows are drafts until they answer a card that shows what it will do. A practice run reads for real and changes nothing.
     """

@@ -109,6 +109,7 @@ import SidefolkExtensionKit
         switch op {
         case .parse_json: L("Read JSON")
         case .parse_csv: L("Read a table")
+        case .work_out: L("Work it out")
         case .lines: L("Split into lines")
         case .join: L("Join into text")
         case .field: L("Take a field")

@@ -10,6 +10,8 @@ import SidefolkExtensionKit
     var nav = Nav()
     /// Undo and redo, by flow, while the program runs.
     var history: [String: Editing.History] = [:]
+    /// An agent's last change to each flow, while it's still what's there: what it said and what it replaced.
+    var agentEdits: [String: AgentEdit] = [:]
     /// What Guard says of each step now: its sentence and whether it would ask.
     var preflight: [String: [String: Actions.Check]] = [:]
     private var preflightAsked: [String: Date] = [:]
@@ -191,6 +193,8 @@ struct Nav {
         case nothing
         case trigger
         case step(String)
+
+        var stepId: String? { if case .step(let id) = self { id } else { nil } }
     }
 
     /// What's selected on each flow's tree. Nothing to start with: the flow itself and what it will give are what there is to read.
@@ -205,6 +209,10 @@ struct Nav {
     var askedToDeleteAt: Date?
     /// Asked from one flow's own menu, not from choosing some: keeping it goes back to that.
     var askedFromAFlow = false
+    /// How a board is being looked at, never what it holds: the step it's zoomed in on, the ones folded shut, and how far a wrap would reach.
+    var focus: [String: String] = [:]
+    var folded: [String: Set<String>] = [:]
+    var wrapThrough: [String: String] = [:]
     /// What's selected on a run's tree, and which go of a loop.
     var runStep: [String: String] = [:]
     var runScope: [String: String] = [:]
@@ -230,4 +238,10 @@ struct Nav {
     }
 
     static func open(flow id: String) -> [String: Any] { ["flow": id] }
+}
+
+struct AgentEdit {
+    var before: FlowBody
+    var after: FlowBody
+    var changes: [String]
 }

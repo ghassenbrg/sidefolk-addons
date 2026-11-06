@@ -6,7 +6,7 @@ import SidefolkExtensionKit
 /// checks where each can go.
 struct Values: Equatable, Sendable {
     /// Always there, or meaning nothing when not, so never "missing".
-    static let ambient: Set<String> = ["trigger", "today", "now"]
+    static let ambient: Set<String> = ["trigger", "today", "now", "step_key"]
     /// Names a step can't take: these, and what scopes bring.
     static let reserved: Set<String> = ambient.union(["item", "index", "error", "input"])
     /// Longest text kept per value; what a model is given is bounded again.
@@ -20,6 +20,8 @@ struct Values: Equatable, Sendable {
     /// What a tool said in words beside the fields it gave: `{{step}}` in a sentence reads this, `{{step.field}}` the field.
     var said: [String: String] = [:]
     var today = ""
+    /// The same words each time this step of this run is tried, and different for any other: for a service that won't do one thing twice when it's sent it twice.
+    var stepKey = ""
     var now = ""
 
     private static let slot = try! NSRegularExpression(pattern: #"\{\{\s*([A-Za-z0-9_]{1,40})((?:\.[A-Za-z0-9_]{1,40}|\[\d{1,5}\])*)\s*\}\}"#)
@@ -90,6 +92,7 @@ struct Values: Equatable, Sendable {
         switch name {
         case "today": .string(today)
         case "now": .string(now)
+        case "step_key": .string(stepKey)
         default: named[name]
         }
     }

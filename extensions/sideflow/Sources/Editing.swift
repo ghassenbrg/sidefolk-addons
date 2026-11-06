@@ -16,6 +16,45 @@ enum Editing {
         return "\(clean)_\(n)"
     }
 
+    /// These steps of one list, from one to another, put inside a new step made to hold them. What they do doesn't change but for what they're now inside, and anything that used what they make and now can't be sure of it shows as a problem to fix.
+    static func wrap(from first: String, through last: String, inside holder: Step, in body: FlowBody) -> FlowBody? {
+        var body = body, done = false
+        func filled(_ steps: [Step]) -> Step? {
+            var out = holder
+            switch holder.kind {
+            case .branch(let condition, _, let otherwise): out.kind = .branch(condition, then: steps, otherwise: otherwise)
+            case .forEach(let items, let limit, let failure, _): out.kind = .forEach(items: items, limit: limit, onFailure: failure, steps: steps)
+            case .repeatUntil(let until, let times, _): out.kind = .repeatUntil(until: until, times: times, steps: steps)
+            case .attempt(_, let recover, let always): out.kind = .attempt(steps: steps, recover: recover, always: always)
+            case .parallel(let lanes):
+                guard let lane = lanes.first else { return nil }
+                out.kind = .parallel(lanes: [Step.Lane(name: lane.name, steps: steps)] + lanes.dropFirst())
+            default: return nil
+            }
+            return out
+        }
+        body.steps = mapLists(body.steps) { list in
+            guard let from = list.firstIndex(where: { $0.id == first }), let to = list.firstIndex(where: { $0.id == last }), from <= to, let whole = filled(Array(list[from...to])) else { return list }
+            done = true
+            return Array(list[..<from]) + [whole] + Array(list[(to + 1)...])
+        }
+        return done ? body : nil
+    }
+
+    /// The steps holding this one, outermost first.
+    static func holders(of id: String, in body: FlowBody) -> [Step] {
+        func walk(_ list: [Step], _ above: [Step]) -> [Step]? {
+            for step in list {
+                if step.id == id { return above }
+                for part in step.parts {
+                    if let found = walk(part.steps, above + [step]) { return found }
+                }
+            }
+            return nil
+        }
+        return walk(body.steps, []) ?? []
+    }
+
     /// Changes the list a step sits in, wherever it is.
     private static func mapLists(_ steps: [Step], _ change: ([Step]) -> [Step]) -> [Step] {
         change(steps).map { $0.mappingParts { mapLists($0, change) } }
