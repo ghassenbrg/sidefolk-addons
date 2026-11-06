@@ -768,7 +768,6 @@
     "It has no “{field}”.": "ليس فيه «{field}».",
     "It has {count} items, and this step goes through {limit} at most.": "فيه {count} عنصرًا، وتمر هذه الخطوة على {limit} منها على الأكثر.",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "ينظر إلى قيمة ويسلك أول مسار يذكر كلماته، أو «وإلا».",
-    "It made: {what}": "أنتج: {what}",
     "It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.": "يحتاج إلى قائمة، وهذه ليست قائمة. يمكن لـ«تقسيم إلى أسطر» أو «قراءة JSON» إنشاء واحدة.",
     "It runs another flow from start to end, then carries on with its result.": "يشغّل روتينًا آخر من البداية إلى النهاية، ثم يتابع بنتيجته.",
     "It started": "بدأ",
@@ -776,7 +775,6 @@
     "It waits until this happens, or fails when the time runs out.": "ينتظر حدوث هذا، أو يفشل عند انتهاء الوقت.",
     "It waits until {time}.": "ينتظر حتى {time}.",
     "It was given: {name}": "تلقّى: {name}",
-    "It was given: {what}": "تلقّى: {what}",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "استمر وقتًا أطول من اللازم دفعة واحدة، فتوقف: أكثر من {count} خطوة. الحلقات داخل الحلقات تُجمع معًا.",
     "Item {place} · {status}": "العنصر {place} · {status}",
     "Its answer was long: only the first {count} characters were kept.": "كانت إجابته طويلة: لم يُحتفظ إلا بأول {count} حرفًا.",
@@ -1402,7 +1400,9 @@
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "طلبت الخدمة الانتظار، فلم تُنفَّذ هذه الخطوة. حاول لاحقًا، أو اضبطها لتعيد المحاولة من تلقاء نفسها.",
     "To fix inside": "يلزم إصلاح شيء بداخله",
     "Not allowed inside": "بداخله ما لا يُسمح به",
-    "Stopped inside": "توقّف بداخله"
+    "Stopped inside": "توقّف بداخله",
+    "It was given": "ما أُعطي",
+    "It made": "ما أعطاه"
   },
   "drops": {
     "flow_file": {

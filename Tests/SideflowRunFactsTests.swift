@@ -55,6 +55,22 @@ import SidefolkExtensionKit
         #expect(facts.contains("Version") && facts.contains("3"))
     }
 
+    @Test func aLongNoticeCanBeReadWholeOnItsRun() async throws {
+        let w = try World()
+        let app = app(w)
+        let long = (0..<120).map { "word\($0)" }.joined(separator: " ")
+        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "tell", "do": "notify.user", "with": ["title": "Done", "message": long]]]]))
+        var run = Run(id: "r", flow: flow.id, flowName: "Mine", mode: .live, status: .done, why: "", startedAt: Date(), body: flow.draft)
+        run.record(.init(step: "tell", status: .done, summary: "Done", at: Date(), input: JSONText.write(["title": "Done", "message": long])))
+        app.store.save(run)
+        let given = Pages.given(try #require(run.record(of: "tell")?.input))
+        #expect(given.hasPrefix("Message: word0 ") && given.contains("word119") && given.contains("Title: Done"), "words, not JSON")
+        let pieces = Pages.pieces(given)
+        #expect(pieces.count > 2 && pieces.allSatisfy { $0.count <= 380 }, "each piece fits a note whole")
+        #expect(pieces.joined(separator: " ").split(separator: " ").count == given.split(whereSeparator: \.isWhitespace).count, "nothing lost between the pieces")
+        #expect(Engine.keptInput >= 8000, "a notice's message is kept whole")
+    }
+
     @Test func thePermissionsTabNamesEachStepAndOffersTheEnd() async throws {
         let w = try World()
         let app = app(w)

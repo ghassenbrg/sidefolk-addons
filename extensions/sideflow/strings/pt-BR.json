@@ -732,7 +732,6 @@
     "It has no “{field}”.": "Não tem “{field}”.",
     "It has {count} items, and this step goes through {limit} at most.": "Tem {count} itens, e esta etapa percorre {limit} no máximo.",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "Olha um valor e segue pelo primeiro caminho cujas palavras ele menciona, ou “Senão”.",
-    "It made: {what}": "Ela fez: {what}",
     "It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.": "Precisa de uma lista, e isto não é uma. “Dividir em linhas” ou “Ler JSON” podem criar uma.",
     "It runs another flow from start to end, then carries on with its result.": "Executa outra rotina do começo ao fim e depois segue com o resultado dela.",
     "It started": "Ela começou",
@@ -740,7 +739,6 @@
     "It waits until this happens, or fails when the time runs out.": "Espera até isto acontecer, ou falha quando o tempo acaba.",
     "It waits until {time}.": "Espera até {time}.",
     "It was given: {name}": "Ela recebeu: {name}",
-    "It was given: {what}": "Ela recebeu: {what}",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "Ela durou tempo demais de uma vez só, então parou: mais de {count} etapas. Laços dentro de laços se somam.",
     "Item {place} · {status}": "Item {place} · {status}",
     "Its answer was long: only the first {count} characters were kept.": "A resposta dela foi longa: só os primeiros {count} caracteres foram guardados.",
@@ -1294,7 +1292,9 @@
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "O serviço pediu para esperar, então esta etapa não foi feita. Tente mais tarde, ou configure-a para tentar de novo sozinha.",
     "To fix inside": "Corrigir dentro",
     "Not allowed inside": "Não permitido dentro",
-    "Stopped inside": "Parou dentro"
+    "Stopped inside": "Parou dentro",
+    "It was given": "O que recebeu",
+    "It made": "O que deu"
   },
   "drops": {
     "flow_file": {

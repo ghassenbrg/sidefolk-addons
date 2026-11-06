@@ -599,7 +599,7 @@ extension FlowHost {
 
     private func acting(_ step: Step, tool: String, input: [String: Any], written: [String: Any]? = nil, in run: inout Run) async -> Bool {
         let sentence = Words.step(step, body: run.body, catalog: catalog)
-        run.record(.init(step: step.id, status: .running, summary: sentence, at: clock(), input: JSONText.write(input).clipped(2000)))
+        run.record(.init(step: step.id, status: .running, summary: sentence, at: clock(), input: JSONText.write(input).clipped(Self.keptInput)))
         // Written down first, or not done: after a stop, the run must know what it may have done.
         guard store.save(run) else { return cantSave(step, summary: sentence, in: &run) }
         changed()
@@ -1490,6 +1490,8 @@ extension FlowHost {
     var busyPause: TimeInterval = Engine.busyWait
     /// What a run's story keeps of a step's output: it goes on the page, which has a limit of its own. The value itself is kept whole for the next step.
     static let keptOutput = 2000
+    /// What a run's story keeps of what a step was given: a notice's whole message, read back on the run's page.
+    static let keptInput = 8000
     /// Steps in a run between two waits.
     static let longestWalk = 20_000
 

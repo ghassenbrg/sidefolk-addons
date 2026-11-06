@@ -723,7 +723,6 @@
     "It has no “{field}”.": "它没有“{field}”。",
     "It has {count} items, and this step goes through {limit} at most.": "它有 {count} 项，而这个步骤最多处理 {limit} 项。",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "它看一个值，走第一条其词语被提到的路径，否则走“否则”。",
-    "It made: {what}": "它生成了：{what}",
     "It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.": "它需要一个列表，而这不是。“按行拆分”或“读取 JSON”可以生成一个。",
     "It runs another flow from start to end, then carries on with its result.": "它从头到尾运行另一个流程，然后带着它的结果继续。",
     "It started": "它已开始",
@@ -731,7 +730,6 @@
     "It waits until this happens, or fails when the time runs out.": "它会等到这件事发生，时间一到就失败。",
     "It waits until {time}.": "它会等到 {time}。",
     "It was given: {name}": "它收到了：{name}",
-    "It was given: {what}": "它收到了：{what}",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "它一次运行得太久，所以停下了：超过 {count} 个步骤。循环里的循环也会累加。",
     "Item {place} · {status}": "第 {place} 项 · {status}",
     "Its answer was long: only the first {count} characters were kept.": "它的回答很长：只保留了前 {count} 个字符。",
@@ -1267,7 +1265,9 @@
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "服务要求等待，所以这一步没有执行。请稍后再试，或把它设为自动重试。",
     "To fix inside": "里面有待修正",
     "Not allowed inside": "里面有未允许的",
-    "Stopped inside": "里面已停止"
+    "Stopped inside": "里面已停止",
+    "It was given": "收到的内容",
+    "It made": "给出的内容"
   },
   "drops": {
     "flow_file": {

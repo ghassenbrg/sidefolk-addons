@@ -723,7 +723,6 @@
     "It has no “{field}”.": "「{field}」がありません。",
     "It has {count} items, and this step goes through {limit} at most.": "{count}件あり、このステップで処理するのは最大{limit}件です。",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "1つの値を見て、含まれる言葉が最初に一致したルートに進みます。どれもなければ「そうでなければ」です。",
-    "It made: {what}": "作成結果：{what}",
     "It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.": "リストが必要ですが、これはリストではありません。「行に分ける」や「JSONを読む」で作れます。",
     "It runs another flow from start to end, then carries on with its result.": "別のルーティンを最初から最後まで実行し、その結果を受けて続けます。",
     "It started": "開始しました",
@@ -731,7 +730,6 @@
     "It waits until this happens, or fails when the time runs out.": "これが起きるまで待ち、時間切れになると失敗します。",
     "It waits until {time}.": "{time}まで待ちます。",
     "It was given: {name}": "受け取った内容：{name}",
-    "It was given: {what}": "受け取った内容：{what}",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "一度に長く続きすぎたため止まりました。ステップが{count}個を超えています。ループの中のループも数に入ります。",
     "Item {place} · {status}": "項目{place}・{status}",
     "Its answer was long: only the first {count} characters were kept.": "返答が長かったため、最初の{count}文字だけを残しました。",
@@ -1267,7 +1265,9 @@
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "サービスから待つよう求められたため、このステップは実行されませんでした。後でもう一度試すか、自動で再試行するよう設定してください。",
     "To fix inside": "中に要修正",
     "Not allowed inside": "中に許可されないもの",
-    "Stopped inside": "中で停止"
+    "Stopped inside": "中で停止",
+    "It was given": "受け取った内容",
+    "It made": "返した内容"
   },
   "drops": {
     "flow_file": {

@@ -46,13 +46,15 @@ import SidefolkExtensionKit
         blocks.append(.facts(nil, facts))
         blocks.append(.note(record.summary))
         if let note = record.note { blocks.append(.note(note, tone: record.status == .failed || record.status == .unknown ? .warn : .neutral)) }
-        if let input = record.input?.nonEmpty { blocks.append(.note(L("It was given: {what}", ["what": input.clipped(Engine.keptOutput)]))) }
-        if let output = record.output?.nonEmpty { blocks.append(.note(L("It made: {what}", ["what": output.clipped(Engine.keptOutput)]))) }
+        // Whole, in its own sections: a note is cut at 400 characters, and a long notice has to be readable after the run.
+        var whole: [Section] = []
+        if let input = record.input?.nonEmpty { whole.append(Section(L("It was given"), Self.pieces(Self.given(input)).map { .note($0) }, place: .trailing)) }
+        if let output = record.output?.nonEmpty { whole.append(Section(L("It made"), Self.pieces(output).map { .note($0) }, place: .trailing)) }
         // A file it made or used, by its place: one press shows it in Finder, through Sidefolk, which checks the folder is one shared with it.
         for file in Self.files(in: run.values.named[id]).prefix(3) {
             blocks.append(.action(button(FlowFile.short((file as NSString).lastPathComponent, 40), "reveal", ["path": file], style: .plain, symbol: "doc", detail: L("Show in Finder"))))
         }
-        var out = [Section(Words.label(step, catalog: app.catalog), blocks, place: .trailing)]
+        var out = [Section(Words.label(step, catalog: app.catalog), blocks, place: .trailing)] + whole
         let called = app.store.runs().filter { $0.parent == run.id }
         if !called.isEmpty, [.call, .parallel].contains(where: { $0 == step.waitKind }) {
             out.append(Section(L("What it waited for"), called.map { child in
@@ -79,6 +81,29 @@ import SidefolkExtensionKit
         }
         blocks.append(.note(L("It stays on this Mac, in this flow. It doesn't go in a copy or a file.")))
         return Section(L("Practice examples"), blocks, place: .trailing, collapsed: flow.chosenExample == nil)
+    }
+
+    /// What a step was given, field by field: a notice's title and message read as words, not as the JSON it was sent as.
+    static func given(_ raw: String) -> String {
+        guard let fields = JSONText.read(raw) as? [String: Any] else { return raw }
+        return fields.keys.sorted().compactMap { key in
+            let value = (fields[key] as? String) ?? fields[key].map { JSONText.write($0) } ?? ""
+            return value.isEmpty ? nil : "\(key.replacingOccurrences(of: "_", with: " ").capitalizedFirst): \(value)"
+        }.joined(separator: "\n\n")
+    }
+
+    /// Words in pieces a note holds whole, broken between words, as many as a section takes.
+    static func pieces(_ text: String, size: Int = 380, most: Int = 24) -> [String] {
+        var out: [String] = [], rest = Substring(text)
+        while !rest.isEmpty, out.count < most {
+            guard rest.count > size else { out.append(String(rest)); break }
+            let cut = rest.index(rest.startIndex, offsetBy: size)
+            let at = rest[..<cut].lastIndex(where: \.isWhitespace).map { rest.index(after: $0) } ?? cut
+            let piece = String(rest[..<at]).trimmingCharacters(in: .whitespaces)
+            if !piece.isEmpty { out.append(piece) }
+            rest = rest[at...]
+        }
+        return out
     }
 
     /// A run in a few cards, for where it was asked about: how far it got, the step that's working or went wrong, and how much is left. The run's page has the rest.

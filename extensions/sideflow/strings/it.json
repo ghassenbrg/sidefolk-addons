@@ -732,7 +732,6 @@
     "It has no “{field}”.": "Non ha «{field}».",
     "It has {count} items, and this step goes through {limit} at most.": "Ha {count} elementi, e questo passaggio ne scorre {limit} al massimo.",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "Guarda un valore e prende il primo percorso le cui parole menziona, oppure «Altrimenti».",
-    "It made: {what}": "Ha prodotto: {what}",
     "It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.": "Serve una lista, e questa non lo è. «Dividi in righe» o «Leggi JSON» ne possono creare una.",
     "It runs another flow from start to end, then carries on with its result.": "Esegue un’altra routine dall’inizio alla fine, poi prosegue con il suo risultato.",
     "It started": "È partito",
@@ -740,7 +739,6 @@
     "It waits until this happens, or fails when the time runs out.": "Aspetta che succeda questo, oppure non riesce quando il tempo scade.",
     "It waits until {time}.": "Aspetta fino alle {time}.",
     "It was given: {name}": "Ha ricevuto: {name}",
-    "It was given: {what}": "Ha ricevuto: {what}",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "È andata avanti troppo a lungo in un colpo solo, quindi si è fermata: più di {count} passaggi. I cicli dentro i cicli si sommano.",
     "Item {place} · {status}": "Elemento {place} · {status}",
     "Its answer was long: only the first {count} characters were kept.": "La sua risposta era lunga: sono stati tenuti solo i primi {count} caratteri.",
@@ -1294,7 +1292,9 @@
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "Il servizio ha chiesto di aspettare, quindi questo passaggio non è stato fatto. Riprova più tardi, o impostalo perché riprovi da solo.",
     "To fix inside": "Da sistemare dentro",
     "Not allowed inside": "Non consentito dentro",
-    "Stopped inside": "Fermato dentro"
+    "Stopped inside": "Fermato dentro",
+    "It was given": "Cosa ha ricevuto",
+    "It made": "Cosa ha dato"
   },
   "drops": {
     "flow_file": {

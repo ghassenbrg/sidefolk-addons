@@ -723,7 +723,6 @@
     "It has no “{field}”.": "‘{field}’이(가) 없습니다.",
     "It has {count} items, and this step goes through {limit} at most.": "항목이 {count}개 있고, 이 단계는 최대 {limit}개까지 처리합니다.",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "값 하나를 보고, 그 말이 들어 있는 첫 번째 경로로 갑니다. 없으면 ‘아니면’으로 갑니다.",
-    "It made: {what}": "만든 것: {what}",
     "It needs a list, and this isn't one. “Lines” or “Read JSON” can make one.": "목록이 필요한데 이것은 목록이 아닙니다. ‘줄로 나누기’나 ‘JSON 읽기’로 만들 수 있습니다.",
     "It runs another flow from start to end, then carries on with its result.": "다른 루틴을 처음부터 끝까지 실행한 뒤, 그 결과로 이어서 진행합니다.",
     "It started": "시작했습니다",
@@ -731,7 +730,6 @@
     "It waits until this happens, or fails when the time runs out.": "이 일이 일어날 때까지 기다리고, 시간이 다 되면 실패합니다.",
     "It waits until {time}.": "{time}까지 기다립니다.",
     "It was given: {name}": "받은 것: {name}",
-    "It was given: {what}": "받은 것: {what}",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "한 번에 너무 오래 이어져서 멈췄습니다. 단계가 {count}개를 넘었습니다. 반복 안의 반복도 모두 더해집니다.",
     "Item {place} · {status}": "항목 {place} · {status}",
     "Its answer was long: only the first {count} characters were kept.": "답이 길어서 처음 {count}자만 남겼습니다.",
@@ -1267,7 +1265,9 @@
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "서비스가 기다려 달라고 해서 이 단계는 실행되지 않았습니다. 나중에 다시 시도하거나, 스스로 다시 시도하도록 설정하세요.",
     "To fix inside": "안에 고칠 것",
     "Not allowed inside": "안에 허용되지 않음",
-    "Stopped inside": "안에서 멈춤"
+    "Stopped inside": "안에서 멈춤",
+    "It was given": "받은 내용",
+    "It made": "만든 내용"
   },
   "drops": {
     "flow_file": {

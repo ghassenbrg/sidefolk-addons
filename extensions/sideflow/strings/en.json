@@ -326,7 +326,7 @@
     "It looks after the steps inside have run, so it can check what they made.": "It looks after the steps inside have run, so it can check what they made.",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.",
     "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.": "It looks at “{name}”, which is empty or isn't there this time, so it can't tell which way to go.",
-    "It made: {what}": "It made: {what}",
+    "It made": "It made",
     "It may only do what you read when you allowed it.": "It may only do what you read when you allowed it.",
     "It may only do what you read when you turned it on. You can end that in Settings › Add-ons.": "It may only do what you read when you turned it on. You can end that in Settings › Add-ons.",
     "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.": {
@@ -383,8 +383,8 @@
     "It waits until this happens, or fails when the time runs out.": "It waits until this happens, or fails when the time runs out.",
     "It waits until {time}.": "It waits until {time}.",
     "It wants {what}.": "It wants {what}.",
+    "It was given": "It was given",
     "It was given: {name}": "It was given: {name}",
-    "It was given: {what}": "It was given: {what}",
     "It was set off again while it ran.": "It was set off again while it ran.",
     "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.": "It went on too long in one go, so it stopped: more than {count} steps. Loops inside loops add up.",
     "It went round {count} times and it still doesn't hold.": {
