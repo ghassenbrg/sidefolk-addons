@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "Importer un fichier de routine"
+    },
+    "export_flows": {
+      "title": "Écrire des routines dans un fichier"
     }
   },
   "pages": {
@@ -1108,7 +1111,6 @@
     "Move down": "Descendre",
     "Move to": "Déplacer vers",
     "Move up": "Monter",
-    "Pick the flows to delete.": "Choisissez les routines à supprimer.",
     "Select": "Sélectionner",
     "Select all": "Tout sélectionner",
     "Select flows": "Sélectionner des routines",
@@ -1312,7 +1314,12 @@
     "It uses “{name}”, but that step gave nothing this time.": "Elle utilise « {name} », mais cette étape n’a rien donné cette fois.",
     "It uses “{name}”, which was skipped, so there's nothing to send.": "Elle utilise « {name} », qui a été sautée : il n’y a rien à envoyer.",
     "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "Élément 9 avant Élément 12, comme le Finder. Les nombres dans les mots sont lus comme une partie des noms.",
-    "Sort as names": "Trier comme des noms"
+    "Sort as names": "Trier comme des noms",
+    "Export": "Exporter",
+    "Export, with unsaved": "Exporter, non enregistré inclus",
+    "Pick the flows to delete or export.": "Choisissez les routines à supprimer ou à exporter.",
+    "That's too big to be one file. Export fewer flows at a time.": "C’est trop volumineux pour un seul fichier. Exportez moins de routines à la fois.",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Il contient ce que font les routines et ce qui est écrit dans leurs étapes, pas ce que vous avez autorisé, leurs exécutions ni vos comptes."
   },
   "drops": {
     "flow_file": {

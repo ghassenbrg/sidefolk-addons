@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "استيراد ملف روتين"
+    },
+    "export_flows": {
+      "title": "كتابة الروتينات في ملف"
     }
   },
   "pages": {
@@ -1180,7 +1183,6 @@
     "Move down": "نقل لأسفل",
     "Move to": "نقل إلى",
     "Move up": "نقل لأعلى",
-    "Pick the flows to delete.": "اختر الروتينات المراد حذفها.",
     "Select": "تحديد",
     "Select all": "تحديد الكل",
     "Select flows": "تحديد الروتينات",
@@ -1432,7 +1434,12 @@
     "It uses “{name}”, but that step gave nothing this time.": "يستخدم «{name}»، لكن تلك الخطوة لم تعطِ شيئًا هذه المرة.",
     "It uses “{name}”, which was skipped, so there's nothing to send.": "يستخدم «{name}» الذي تُخطّي، فلا شيء يُرسل.",
     "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "العنصر 9 قبل العنصر 12، كما يفعل Finder. تُقرأ الأرقام في الكلمات جزءًا من الأسماء.",
-    "Sort as names": "الفرز كأسماء"
+    "Sort as names": "الفرز كأسماء",
+    "Export": "تصدير",
+    "Export, with unsaved": "تصدير مع غير المحفوظ",
+    "Pick the flows to delete or export.": "اختر الروتينات المراد حذفها أو تصديرها.",
+    "That's too big to be one file. Export fewer flows at a time.": "هذا أكبر من أن يكون ملفًا واحدًا. صدّر عددًا أقل من الروتينات في كل مرة.",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "يحوي ما تفعله الروتينات وما كُتب في خطواتها، لا ما سمحت به ولا تشغيلاتها ولا حساباتك."
   },
   "drops": {
     "flow_file": {

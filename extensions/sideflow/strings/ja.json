@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "ルーティンのファイルを読み込む"
+    },
+    "export_flows": {
+      "title": "ルーティンをファイルに書き出す"
     }
   },
   "pages": {
@@ -1090,7 +1093,6 @@
     "Move down": "下へ移動",
     "Move to": "移動先",
     "Move up": "上へ移動",
-    "Pick the flows to delete.": "削除するルーティンを選んでください。",
     "Select": "選択",
     "Select all": "すべて選択",
     "Select flows": "ルーティンを選択",
@@ -1282,7 +1284,12 @@
     "It uses “{name}”, but that step gave nothing this time.": "「{name}」を使いますが、そのステップは今回何も返しませんでした。",
     "It uses “{name}”, which was skipped, so there's nothing to send.": "「{name}」を使いますが、それは飛ばされたため、送るものがありません。",
     "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "Finder と同じく、Item 9 を Item 12 の前にします。言葉の中の数は名前の一部として読みます。",
-    "Sort as names": "名前として並べ替え"
+    "Sort as names": "名前として並べ替え",
+    "Export": "書き出す",
+    "Export, with unsaved": "未保存を含めて書き出す",
+    "Pick the flows to delete or export.": "削除または書き出すルーティンを選んでください。",
+    "That's too big to be one file. Export fewer flows at a time.": "1つのファイルには大きすぎます。書き出すルーティンを減らしてください。",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "ルーティンの動作とステップに書かれた内容を含みます。許可した内容、実行記録、アカウントは含みません。"
   },
   "drops": {
     "flow_file": {

@@ -35,6 +35,30 @@ import Testing
         #expect(name == "Called")
     }
 
+    @Test func aFileHoldsWhatsOnThePageAndSaysWhenThatIsntSaved() throws {
+        let w = try World()
+        let app = app(w)
+        var flow = app.newFlow(name: "Mine", body: try FlowCodec.body(simple))
+        #expect(Pages.exporting(flow).label == "Export")
+        flow.saved = flow.draft
+        flow.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "changing"]]])
+        #expect(Pages.exporting(flow).label.contains("unsaved") && Pages.exporting(flow).label.count <= 30)
+        let back = try FlowFile.read(FlowFile.write([flow], store: app.store, catalog: app.catalog, sideflow: FlowFile.madeBy))
+        guard case .text("changing")? = back[0].body.step("a")?.kind else { Issue.record("not what's on the page"); return }
+    }
+
+    @Test func aFileIsHandedOverInItsOwnFolderAndWhatCouldntComeBackIsntWritten() throws {
+        let w = try World()
+        let app = app(w)
+        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(simple))
+        let name = try FlowFile.handOver(FlowFile.write([flow], store: app.store, catalog: app.catalog, sideflow: FlowFile.madeBy), in: app.folder)
+        #expect(name.hasPrefix("exports/") && name.hasSuffix(".sideflow"))
+        let back = try String(contentsOf: app.folder.appendingPathComponent(name), encoding: .utf8)
+        #expect(try FlowFile.read(back).map(\.name) == ["Mine"])
+        #expect(throws: Problem.self) { try FlowFile.handOver(String(repeating: " ", count: FlowFile.longest + 1), in: app.folder) }
+        #expect(throws: Problem.self) { try FlowFile.handOver("not a file", in: app.folder) }
+    }
+
     @Test func whatItDoesntKnowIsRefusedNotGuessedAt() throws {
         for bad in ["not json", "[]", #"{"sideflow": 99, "flows": []}"#, #"{"sideflow": 1, "flows": []}"#, #"{"sideflow": "1", "flows": []}"#,
                     #"{"sideflow": 1, "flows": [], "approved": true}"#,

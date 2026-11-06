@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "Ablaufdatei importieren"
+    },
+    "export_flows": {
+      "title": "Abläufe als Datei schreiben"
     }
   },
   "pages": {
@@ -1108,7 +1111,6 @@
     "Move down": "Nach unten",
     "Move to": "Verschieben nach",
     "Move up": "Nach oben",
-    "Pick the flows to delete.": "Wähle die Abläufe aus, die du löschen willst.",
     "Select": "Auswählen",
     "Select all": "Alle auswählen",
     "Select flows": "Abläufe auswählen",
@@ -1312,7 +1314,12 @@
     "It uses “{name}”, but that step gave nothing this time.": "Er nutzt „{name}“, aber dieser Schritt ergab diesmal nichts.",
     "It uses “{name}”, which was skipped, so there's nothing to send.": "Er nutzt „{name}“, das übersprungen wurde, also gibt es nichts zu senden.",
     "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "Element 9 vor Element 12, wie im Finder. Zahlen in den Wörtern zählen als Teil der Namen.",
-    "Sort as names": "Wie Namen sortieren"
+    "Sort as names": "Wie Namen sortieren",
+    "Export": "Exportieren",
+    "Export, with unsaved": "Exportieren, mit Ungesichertem",
+    "Pick the flows to delete or export.": "Wähle die Abläufe zum Löschen oder Exportieren.",
+    "That's too big to be one file. Export fewer flows at a time.": "Das ist zu groß für eine Datei. Exportiere weniger Abläufe auf einmal.",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Enthält, was die Abläufe tun und was in ihren Schritten steht, nicht deine Erlaubnisse, Durchläufe oder Konten."
   },
   "drops": {
     "flow_file": {

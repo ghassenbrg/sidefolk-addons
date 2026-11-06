@@ -211,6 +211,8 @@
     "Every {count} minutes": "Every {count} minutes",
     "Every {days}": "Every {days}",
     "Everything your flows did, newest first.": "Everything your flows did, newest first.",
+    "Export": "Export",
+    "Export, with unsaved": "Export, with unsaved",
     "Extension": "Extension",
     "Failed": "Failed",
     "Field {count}": "Field {count}",
@@ -323,6 +325,7 @@
       "one": "It held after {count} time",
       "other": "It held after {count} times"
     },
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.",
     "It holds {count} steps this flow no longer has.": {
       "one": "It holds {count} step this flow no longer has.",
       "other": "It holds {count} steps this flow no longer has."
@@ -550,7 +553,7 @@
     "Paused “{name}”.": "Paused “{name}”.",
     "Permissions": "Permissions",
     "Pick a value below": "Pick a value below",
-    "Pick the flows to delete.": "Pick the flows to delete.",
+    "Pick the flows to delete or export.": "Pick the flows to delete or export.",
     "Pick which flow": "Pick which flow",
     "Pick which flow to run.": "Pick which flow to run.",
     "Plan and weather together": "Plan and weather together",
@@ -733,6 +736,7 @@
     "That run has already ended.": "That run has already ended.",
     "That run isn't stopped: it's waiting for something.": "That run isn't stopped: it's waiting for something.",
     "That step is gone.": "That step is gone.",
+    "That's too big to be one file. Export fewer flows at a time.": "That's too big to be one file. Export fewer flows at a time.",
     "That's too long to work out: {count} characters at most.": "That's too long to work out: {count} characters at most.",
     "That's too much to work out in one step.": "That's too much to work out in one step.",
     "The AI didn't answer.": "The AI didn't answer.",

@@ -68,6 +68,9 @@
     },
     "import_file": {
       "title": "Importar un archivo de rutina"
+    },
+    "export_flows": {
+      "title": "Escribir rutinas en un archivo"
     }
   },
   "pages": {
@@ -1108,7 +1111,6 @@
     "Move down": "Bajar",
     "Move to": "Mover a",
     "Move up": "Subir",
-    "Pick the flows to delete.": "Elige las rutinas que quieres eliminar.",
     "Select": "Seleccionar",
     "Select all": "Seleccionar todas",
     "Select flows": "Seleccionar rutinas",
@@ -1312,7 +1314,12 @@
     "It uses “{name}”, but that step gave nothing this time.": "Usa «{name}», pero ese paso no dio nada esta vez.",
     "It uses “{name}”, which was skipped, so there's nothing to send.": "Usa «{name}», que se omitió, así que no hay nada que enviar.",
     "Item 9 before Item 12, as Finder does. Numbers in the words are read as part of the names.": "Elemento 9 antes que Elemento 12, como hace el Finder. Los números en las palabras se leen como parte de los nombres.",
-    "Sort as names": "Ordenar como nombres"
+    "Sort as names": "Ordenar como nombres",
+    "Export": "Exportar",
+    "Export, with unsaved": "Exportar, con lo no guardado",
+    "Pick the flows to delete or export.": "Elige las rutinas que quieres eliminar o exportar.",
+    "That's too big to be one file. Export fewer flows at a time.": "Es demasiado grande para un solo archivo. Exporta menos rutinas a la vez.",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Guarda lo que hacen las rutinas y lo escrito en sus pasos, no lo que permitiste, sus ejecuciones ni tus cuentas."
   },
   "drops": {
     "flow_file": {
