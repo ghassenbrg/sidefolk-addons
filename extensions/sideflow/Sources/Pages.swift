@@ -210,14 +210,14 @@ import SidefolkExtensionKit
         let flows = app.store.flows()
         guard !flows.isEmpty else { return firstRun(app, state: state) }
         if let picked = app.nav.pickingFlows { return pickingPage(flows, picked: picked, app, state: state) }
-        var actions = [button(L("Select"), "pick_flows", symbol: "checkmark.circle"), importButton, button(L("New flow"), "new", style: .primary, symbol: "plus")]
-        // Whatever is running, one press away from the first page, practice runs too.
+        var main: [Section] = [Section(nil, [.bar(PageBar(L("Your flows"), detail: L("Your companion runs these for you."), actions: [button(L("Select"), "pick_flows", symbol: "checkmark.circle"), importButton, button(L("New flow"), "new", style: .primary, symbol: "plus")]))])]
+        // Whatever is running, one press away from the first page, practice runs too: a strip of its own, so the page's own buttons all stay.
         let running = app.store.unfinished().filter { $0.parent == nil }
         if !running.isEmpty {
-            actions.insert(button(running.count == 1 ? L("Stop the run") : L("Stop all {count}", ["count": String(running.count)]), "stop_all", ["page_token": app.pageKey],
-                                  style: .destructive, symbol: "stop.fill", detail: L(one: "Ends the run under way.", other: "Ends the {count} runs under way.", count: running.count)), at: 0)
+            let stop = button(running.count == 1 ? L("Stop the run") : L("Stop all {count}", ["count": String(running.count)]), "stop_all", ["page_token": app.pageKey],
+                              style: .destructive, symbol: "stop.fill", detail: L(one: "Ends the run under way.", other: "Ends the {count} runs under way.", count: running.count))
+            main.append(Section(nil, [.bar(PageBar(L("Running now"), detail: Format.list(Array(Set(running.map(\.flowName))).sorted()), actions: [stop]))]))
         }
-        var main: [Section] = [Section(nil, [.bar(PageBar(L("Your flows"), detail: L("Your companion runs these for you."), actions: actions))])]
         var body: [Section] = []
         let on = flows.filter { $0.state == .on }
         let nextUp = on.compactMap { flow in Summaries.next(flow).map { (flow, $0) } }.min { $0.1 < $1.1 }
