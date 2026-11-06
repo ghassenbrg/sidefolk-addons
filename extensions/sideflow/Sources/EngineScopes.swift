@@ -11,7 +11,7 @@ extension Engine {
         guard case .forEach(let items, let limit, let failure, let steps) = step.kind else { return true }
         if let wrong = step.saysNothing { return failed(step, why: wrong, reads: false, in: &run) }
         if let name = run.values.stopsFor([items], practice: run.mode == .practice) {
-            return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
+            return failed(step, why: run.whyMissing(name), reads: false, in: &run)
         }
         var list: [JSON]
         switch Values.structured(run.values.fill(native: .string(items))) {
@@ -109,6 +109,8 @@ extension Engine {
             leave()
             // Nothing inside made anything: nothing for a later step to be sent as if it were an answer.
             if let made { run.values.set(step.id, made) }
+            // One go in practice can end on a way that made nothing: what's after it goes on pretending, as after any step a practice didn't really do.
+            else if run.mode == .practice { run.values.set(step.id, L("(sample)")) }
             let summary = run.mode == .practice ? L("Went round once for practice; it would go on until this holds, {count} times at most", ["count": Format.integer(times)])
                 : L(one: "It held after {count} time", other: "It held after {count} times", count: go)
             var record = Run.Record(step: step.id, status: run.mode == .practice ? .would : .done, summary: summary, output: made.map { Values.text($0).clipped(Self.keptOutput) }, at: clock())

@@ -487,6 +487,7 @@ enum FlowCodec {
             if let v = d.test { data["test"] = v.rawValue }
             if let v = d.than { data["than"] = v }
             if d.descending { data["descending"] = true }
+            if d.byName { data["by_name"] = true }
             if let v = d.count { data["count"] = v }
             if let v = d.separator { data["separator"] = v }
             out["data"] = data
@@ -745,7 +746,7 @@ enum FlowCodec {
                 guard let known = Condition.Test(rawValue: t) else { throw Problem(L("“test” is one of {tests}.", ["tests": Condition.Test.allCases.map(\.rawValue).joined(separator: ", ")])) }
                 test = known
             }
-            kind = .data(DataStep(op: op, from: from, field: (raw["field"] as? String)?.nonEmpty, test: test, than: raw["than"] as? String, descending: raw["descending"] as? Bool ?? false,
+            kind = .data(DataStep(op: op, from: from, field: (raw["field"] as? String)?.nonEmpty, test: test, than: raw["than"] as? String, descending: raw["descending"] as? Bool ?? false, byName: raw["by_name"] as? Bool ?? false,
                                   count: ((raw["count"] as? NSNumber)?.intValue).map { max($0, 1) }, separator: raw["separator"] as? String))
         } else if let raw = o["form"] as? [String: Any] {
             let list = raw["fields"] as? [[String: Any]] ?? []

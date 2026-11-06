@@ -290,14 +290,17 @@ struct Values: Equatable, Sendable {
     /// Whether these words come only from what a practice made up, so there's nothing in them to work anything out from.
     func pretends(_ text: String) -> Bool {
         Self.slots(text).contains { slot in
-            isSampleField(slot.name + slot.path) || words(slot.name, path: slot.path) == L("(sample)")
+            // Made-up words carried into other words, by a text step, are still made up.
+            isSampleField(slot.name + slot.path) || words(slot.name, path: slot.path).contains(L("(sample)"))
         }
     }
 
     /// Why a run can't go on with something it uses. A step that ran may have done something, so the reason has to be the true one.
-    func whyMissing(_ name: String) -> String {
+    /// `ran`: the step it names did run, and left nothing: a called flow or a loop that made nothing isn't a step that didn't run.
+    func whyMissing(_ name: String, ran: Bool = false) -> String {
         let root = name.split(whereSeparator: { $0 == "." || $0 == "[" }).first.map(String.init) ?? name
-        return named[root] == nil ? L("It uses “{name}”, but that step didn't run this time.", ["name": name]) : L("It uses “{name}”, but that step's answer doesn't have it.", ["name": name])
+        if named[root] == nil { return ran ? L("It uses “{name}”, but that step gave nothing this time.", ["name": name]) : L("It uses “{name}”, but that step didn't run this time.", ["name": name]) }
+        return L("It uses “{name}”, but that step's answer doesn't have it.", ["name": name])
     }
 
     /// What steps left, as a whole: the last with something to say, or if none has, the last that left anything. A failure carried past leaves empty words and a data step can leave a null, and neither takes the answer away from what came before it.

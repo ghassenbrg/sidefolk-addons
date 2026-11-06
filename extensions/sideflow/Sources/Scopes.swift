@@ -170,6 +170,8 @@ struct DataStep: Equatable, Sendable {
     var test: Condition.Test?
     var than: String?
     var descending = false
+    /// A sort that reads every item as a name, as Finder does: `Item 9` before `Item 12`. The person's word that these are names, not numbers.
+    var byName = false
     var count: Int?
     var separator: String?
 
@@ -227,6 +229,7 @@ struct DataStep: Equatable, Sendable {
             // What it's sorted by, each once. Blanks and rows without it go last either way round, and if nothing has it the field's name is probably wrong.
             let keys = try items.map { item -> SortKey in
                 guard let found = at(item), found != .null, !Values.text(found).trimmed.isEmpty else { return .blank }
+                if byName { return .name(Values.text(found).trimmed) }
                 if case .number(let n) = Condition.reading(of: found) { return .number(n) }
                 let text = Values.text(found).trimmed
                 guard SortKey.canOrder(text) else { throw Condition.Unreadable(words: text) }
@@ -329,7 +332,7 @@ enum AIFields {
 
 /// What a sort orders by.
 enum SortKey: Equatable {
-    case number(Double), words(String), blank
+    case number(Double), words(String), name(String), blank
 
     var isNumber: Bool { if case .number = self { true } else { false } }
     var words: String? { if case .words(let text) = self { text } else { nil } }
@@ -338,6 +341,7 @@ enum SortKey: Equatable {
         switch (self, other) {
         case (.number(let a), .number(let b)): a < b
         case (.words(let a), .words(let b)): a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+        case (.name(let a), .name(let b)): a.localizedStandardCompare(b) == .orderedAscending
         default: false
         }
     }

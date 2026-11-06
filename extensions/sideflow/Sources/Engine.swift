@@ -110,10 +110,10 @@ extension FlowHost {
             if trigger == nil, let words = chosen.trigger { run.values.set("trigger", words) }
         }
         run.setOff = setOff
-        // It would fail there, after what comes before it has been done.
-        if mode != .practice, let off = run.body.allSteps.lazy.compactMap({ step -> String? in
-            guard case .call(let name, _) = step.kind, let other = self.store.named(name), other.id != flow.id, other.state != .on else { return nil }
-            return name
+        // It would fail there, after what comes before it has been done: a call that always runs, here or in what that flow always calls. One inside a condition or a loop may never be reached, so it's for when it is.
+        if mode != .practice, let off = Self.alwaysCalled(run.body, store: store, from: flow.id).lazy.compactMap({ call -> String? in
+            guard let other = self.store.named(call.name), other.id != flow.id, other.state != .on else { return nil }
+            return call.name
         }).first {
             run.status = .failed
             run.problem = L("“{name}” isn't on, so it can't run by itself.", ["name": off])
@@ -194,8 +194,8 @@ extension FlowHost {
                 finish(&run)
                 return
             }
-            // Asked to pause: here, between steps, where nothing is half done.
-            if store.takeStop(Self.pauseKey(id)) {
+            // Asked to pause: here, between steps, where nothing is half done. Not while it's back from what it waited for and hasn't taken it in yet: that's the middle of a step, and the next gap comes straight after.
+            if run.waitingOn.isEmpty, store.takeStop(Self.pauseKey(id)) {
                 run.status = .waiting
                 run.paused = true
                 store.save(run)
@@ -255,7 +255,7 @@ extension FlowHost {
                 }
             case .choose(let step, let targets, let otherwise):
                 guard case .choose(let value, let paths, _) = step.kind else { break }
-                if let why = step.saysNothing ?? run.values.stopsFor([value], practice: run.mode == .practice).map(run.values.whyMissing) {
+                if let why = step.saysNothing ?? run.values.stopsFor([value], practice: run.mode == .practice).map(run.whyMissing) {
                     guard failed(step, why: why, reads: false, in: &run) else {
                         finish(&run)
                         return
@@ -327,7 +327,7 @@ extension FlowHost {
             return false
         }
         if let name = run.values.stopsFor(step.needsThere, practice: run.mode == .practice) {
-            return failed(step, why: run.values.whyMissing(name), reads: false, in: &run)
+            return failed(step, why: run.whyMissing(name), reads: false, in: &run)
         }
         // A real action sent a blank where it needs a value could do anything with it.
         if case .action(let tool, let input) = step.kind, run.mode != .practice, let name = catalog.nothingFor(tool, input, from: run.values) {
@@ -435,6 +435,11 @@ extension FlowHost {
             written["question"] = question
             return await acting(step, tool: "ask.user", input: input, written: written, in: &run)
         case .action(let tool, let input):
+            // A step the person chose to skip has nothing to give: sending its blank would look like an answer. Only where this step names it itself: words made from it
+            // by a text step, a lane's copy of it or a called flow's input still carry the blank (the later list, ROADMAP-PROGRESS).
+            if let skipped = input.values.flatMap(\.strings).flatMap(Values.references).first(where: { run.record(of: $0)?.status == .skipped }) {
+                return failed(step, why: L("It uses “{name}”, which was skipped, so there's nothing to send.", ["name": skipped]), reads: false, in: &run)
+            }
             // Back or not, a wait that ran out is for the person: it could be weeks since they read the card.
             let ranOut = run.connection.map { $0.tool == tool && $0.until <= clock() } ?? false
             if run.mode != .practice, ranOut || Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
@@ -1366,6 +1371,35 @@ extension FlowHost {
         return perRun < Plans.mostPerRun && runsPerDay(body) * perRun <= loopsPerDay
     }
     static let longestWaitWhenAsked: Double = 15 * 60
+
+    /// The flows a run calls where a failure would certainly end it: its own steps, a repeat's first go, every lane of a parallel that waits for all, and a try with nothing to
+    /// recover with, down through what those calls do the same way, in the version each stays on. A failure something would catch (a try's recover, carry on, a parallel that
+    /// settles), or a step that may never be reached (a condition, a choice, a list), is for when it happens: the call itself still stops there if that flow is off.
+    @MainActor static func alwaysCalled(_ body: FlowBody, store: FlowStore, from: String) -> [(name: String, pin: Int?)] {
+        var out: [(name: String, pin: Int?)] = [], seen: Set<String> = [from], next = [body]
+        func reached(_ steps: [Step]) -> [Step] {
+            steps.flatMap { step -> [Step] in
+                guard step.onFailure != .carry_on else { return [] }
+                switch step.kind {
+                case .attempt(let tried, let recover, let always): return [step] + (recover.isEmpty ? reached(tried) + reached(always) : [])
+                case .repeatUntil(_, _, let inside): return [step] + reached(inside)
+                case .parallel(let lanes) where step.join == .all: return [step] + reached(lanes.flatMap(\.steps))
+                default: return [step]
+                }
+            }
+        }
+        while let one = next.popLast(), out.count < 32 {
+            for step in reached(one.steps) {
+                guard case .call(let name, _) = step.kind else { continue }
+                out.append((name, step.pin))
+                guard let other = store.named(name) else { continue }
+                // What it calls in turn is in the version this call runs: one it stays on, or what's live.
+                let key = other.id + (step.pin.map { "@\($0)" } ?? "")
+                if seen.insert(key).inserted, let held = step.pin.map({ other.body(version: $0) }) ?? other.running { next.append(held) }
+            }
+        }
+        return out
+    }
     /// The most a step can say it reads: the host's limit. Past it, say it's from outside rather than be refused.
     static let mostReads = 32
 

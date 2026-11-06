@@ -39,7 +39,7 @@ Known small gaps accepted for now, to fix first in the next batch:
 - Nulls inside a list passed as one whole value aren't checked.
 - A callee, lane or repeat with only a carried-past failure gives "", so a later `{{k}}` can write a blank (the person's own choice).
 
-Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off flow in an untaken branch refuses the whole run; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
+Also on the later list: `{{k}}` after a called flow or repeat that made nothing says "didn't run"; a practice's single go can stop `{{again}}`; a practice can read with a made-up value through a text step; a null field in text goes as ""; a field over 8,000 characters is clipped with no note; an off grandchild fails mid-run; a page Run that fails at start gives no notice; extracting a step makes optional values required; a 500×3 loop hits the per-run limit; `runAgain` starts a paused flow; a busy `plan.check` blanks marks.
 
 Typed mapping's later list: an entry with a comma in it reads as two in the form and goes as one; a flow an agent wrote with words for a list or number may ask each run, since the plan holds the words and the call sends the list.
 
@@ -54,6 +54,8 @@ The person hears before a real run: a step's form and the flow's page mark a ste
 Later list, for the expression language: units, currencies, thousands marks, percent.
 
 A sort takes numbers, words with no digits in them, or dates written year first, and blanks go last either way round. Anything else with digits in it stops (`Item 12`, `USD 1,500`, `Q1 2026`), since which of those read as numbers never ended, as it didn't for reading a number out of words. So does a list of numbers and words together, and a field no row has. Later list: a sort that says it's by name, so `Item 9` comes before `Item 12` on the person's word; a JSON number with more than 17 digits after the point is rounded.
+
+Later list, values (a read, 2026-11-06): a skipped step's blank isn't sent where an action names that step itself; reached another way, through a text step's words, a lane (lanes copy values, not what each step did) or a called flow's input, it still goes as an empty answer. Carrying "this was skipped" with a value through those is for later.
 
 Stop isn't a failure (the coordinator's ruling, 2026-11-06): a called run or a lane that ends by a Stop, whoever said it, stops what called it too, once what's beside it has ended, and so on up. A loop told to collect failures doesn't go on to its next item, and a try's recover doesn't run. An agent's stop still reaches only that run and what it started, and whatever called it: not the lanes beside it, not a flow's waiting starts.
 
