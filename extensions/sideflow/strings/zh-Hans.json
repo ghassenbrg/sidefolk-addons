@@ -1258,8 +1258,6 @@
     "And {count} more lines.": {
       "other": "还有 {count} 行。"
     },
-    "reads everything before it": "读取前面的全部内容",
-    "reads {list}": "读取 {list}",
     "with its own approval": "有它自己的批准",
     "your name for it: {name}": "你给它的名字：{name}",
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "服务要求等待，所以这一步没有执行。请稍后再试，或把它设为自动重试。",
@@ -1275,11 +1273,12 @@
     "… and about {count} more parts, not shown.": {
       "other": "… 还有约 {count} 部分未显示。"
     },
-    "+{count} more fields": {
-      "other": "+{count} 个字段"
-    },
     "Some words of this step were not kept; the places it used are shown.": "这一步的部分文字没有保留；它用到的位置会显示。",
-    "The whole plan with every value is on the approval card.": "包含每个值的完整计划在批准卡片上。"
+    "{count} fields": {
+      "other": "{count} 个字段"
+    },
+    "This list says what it may do. Who or where, and every value, are on the approval card.": "这份列表说明它可以做什么。对谁、去哪里以及每个值都在批准卡片上。",
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "这一步的部分位置被缩短或未保留：超出了一步或一次运行能保留的量。"
   },
   "drops": {
     "flow_file": {

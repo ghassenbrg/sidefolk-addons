@@ -1393,8 +1393,6 @@
       "many": "و{count} سطرًا آخر.",
       "other": "و{count} سطرًا آخر."
     },
-    "reads everything before it": "يقرأ كل ما قبله",
-    "reads {list}": "يقرأ {list}",
     "with its own approval": "بموافقته الخاصة",
     "your name for it: {name}": "اسمك له: {name}",
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "طلبت الخدمة الانتظار، فلم تُنفَّذ هذه الخطوة. حاول لاحقًا، أو اضبطها لتعيد المحاولة من تلقاء نفسها.",
@@ -1420,16 +1418,17 @@
       "many": "… ونحو {count} جزءًا آخر لا يظهر.",
       "other": "… ونحو {count} جزءًا آخر لا يظهر."
     },
-    "+{count} more fields": {
-      "zero": "+{count} حقلًا آخر",
-      "one": "+حقل آخر",
-      "two": "+حقلان آخران",
-      "few": "+{count} حقول أخرى",
-      "many": "+{count} حقلًا آخر",
-      "other": "+{count} حقلًا آخر"
-    },
     "Some words of this step were not kept; the places it used are shown.": "لم يُحتفظ ببعض كلمات هذه الخطوة؛ الأماكن التي استخدمتها ظاهرة.",
-    "The whole plan with every value is on the approval card.": "الخطة كاملة بكل قيمة فيها على بطاقة الموافقة."
+    "{count} fields": {
+      "zero": "{count} حقلًا",
+      "one": "حقل واحد",
+      "two": "حقلان",
+      "few": "{count} حقول",
+      "many": "{count} حقلًا",
+      "other": "{count} حقلًا"
+    },
+    "This list says what it may do. Who or where, and every value, are on the approval card.": "تقول هذه القائمة ما يمكنه فعله. لمن أو إلى أين، وكل قيمة، على بطاقة الموافقة.",
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "اختُصرت بعض أماكن هذه الخطوة أو لم يُحتفظ بها: تجاوزت ما تحتفظ به خطوة أو تشغيل."
   },
   "drops": {
     "flow_file": {

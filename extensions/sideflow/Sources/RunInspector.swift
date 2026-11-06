@@ -54,6 +54,7 @@ import SidefolkExtensionKit
         var also: [Block] = []
         if fields.count > Self.mostFields { also.append(.note(L(one: "And {count} more field, not shown.", other: "And {count} more fields, not shown.", count: fields.count - Self.mostFields))) }
         if record.inputCut { also.append(.note(L("Some words of this step were not kept; the places it used are shown."), tone: .neutral)) }
+        if record.placesCut { also.append(.note(L("Some places of this step were shortened or not kept: past what a step or a run keeps of them."), tone: .neutral)) }
         if !also.isEmpty { whole.append(Section(fields.isEmpty ? L("It was given") : nil, also, place: .trailing)) }
         if let output = record.output?.nonEmpty { whole.append(Section(L("It made"), Self.notes(L("Answer"), output).map { .note($0) }, place: .trailing)) }
         // A file it made or used, by its place: one press shows it in Finder, through Sidefolk, which checks the folder is one shared with it.
@@ -93,7 +94,7 @@ import SidefolkExtensionKit
     /// Field by field, each its notes: where it goes first (Sidefolk's place words), then the rest by name.
     static func given(_ raw: String) -> [[String]] {
         guard let fields = JSONText.read(raw) as? [String: Any] else { return [notes(L("Input"), raw)] }
-        let keys = fields.keys.sorted { (FieldNames.isPlace($0) ? 0 : 1, $0) < (FieldNames.isPlace($1) ? 0 : 1, $1) }
+        let keys = fields.keys.sorted { (FieldNames.isFreeText($0, plainText: true) ? 1 : 0, $0) < (FieldNames.isFreeText($1, plainText: true) ? 1 : 0, $1) }
         return keys.map { key in notes(key.replacingOccurrences(of: "_", with: " ").capitalizedFirst, (fields[key] as? String) ?? fields[key].map { JSONText.write($0) } ?? "") }
     }
 

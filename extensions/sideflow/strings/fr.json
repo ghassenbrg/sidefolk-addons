@@ -1285,8 +1285,6 @@
       "one": "Et {count} autre ligne.",
       "other": "Et {count} autres lignes."
     },
-    "reads everything before it": "lit tout ce qui précède",
-    "reads {list}": "lit {list}",
     "with its own approval": "avec sa propre autorisation",
     "your name for it: {name}": "votre nom pour elle : {name}",
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "Le service a demandé d’attendre, cette étape ne s’est donc pas faite. Réessayez plus tard, ou réglez-la pour qu’elle réessaie d’elle-même.",
@@ -1304,12 +1302,13 @@
       "one": "… et environ {count} autre partie, non affichée.",
       "other": "… et environ {count} autres parties, non affichées."
     },
-    "+{count} more fields": {
-      "one": "+{count} autre champ",
-      "other": "+{count} autres champs"
-    },
     "Some words of this step were not kept; the places it used are shown.": "Certains mots de cette étape n’ont pas été gardés ; les endroits qu’elle a utilisés sont affichés.",
-    "The whole plan with every value is on the approval card.": "Le plan entier, avec chaque valeur, est sur la carte d’autorisation."
+    "{count} fields": {
+      "one": "{count} champ",
+      "other": "{count} champs"
+    },
+    "This list says what it may do. Who or where, and every value, are on the approval card.": "Cette liste dit ce qu’elle peut faire. Qui ou où, et chaque valeur, sont sur la carte d’autorisation.",
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "Certains endroits de cette étape ont été raccourcis ou non gardés : au-delà de ce qu’une étape ou une exécution en garde."
   },
   "drops": {
     "flow_file": {

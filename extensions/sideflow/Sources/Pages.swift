@@ -958,6 +958,7 @@ import SidefolkExtensionKit
         var notes: [Block] = []
         if head, let look { notes.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
         if Engine.needsCard(body) {
+            notes.append(.note(whatNotWho))
             notes.append(.note(plan.when))
             notes += rows.map { .note(allowedLine($0.step, shown[$0.at], times: $0.count, word: allowedWord(answers?[$0.at], asked: answers != nil), app)) }
         } else {
@@ -971,45 +972,23 @@ import SidefolkExtensionKit
         return sections
     }
 
-    /// What a line is and where it goes, as the card names it, on one note: what it is and what Sidefolk says of it, then its fields, every one that isn't words to read
-    /// first (where it goes, an amount, an id), each value quoted on one line, its own quote marks made plain, cut with "…". The card has every value whole.
+    /// What a line is, on one note: the tool, what Sidefolk says of it, and how many fields it fills. Never a value: who or where, and every value, are the card's to
+    /// show whole, and a value shown here could be cut short or made to look like another. The step's own name comes last, since whoever writes the flow chooses it.
     private static func allowedLine(_ step: PlanStep, _ shown: Engine.PlanShown?, times: Int, word: String, _ app: App) -> String {
-        let what: String
-        var fields: [String] = []
+        var parts: [String]
         switch shown {
-        case .ai(let reads)?:
-            what = L("Write with AI")
-            fields.append(reads.isEmpty ? L("reads everything before it") : L("reads {list}", ["list": Format.list(reads)]))
-        case .flow(let name)?:
-            what = L("Run {flow}", ["flow": plain(name)])
-            fields.append(L("with its own approval"))
+        case .ai?: parts = [L("Write with AI")]
+        case .flow(let name)?: parts = [L("Run {flow}", ["flow": plain(String(name.prefix(60)))]), L("with its own approval")]
         case nil:
-            what = step.tool == "ask.user" ? L("Ask me") : app.catalog.title(of: step.tool)
-            let keys = step.input.keys.filter { $0 != "timeout_seconds" }.sorted { (FieldNames.isFreeText($0) ? 1 : 0, $0) < (FieldNames.isFreeText($1) ? 1 : 0, $1) }
-            fields = keys.compactMap { key in
-                guard let value = valueWords(step.input[key]).map({ plain($0).replacingOccurrences(of: "“", with: "\"").replacingOccurrences(of: "”", with: "\"") }), !value.isEmpty else { return nil }
-                return "\(key) “\(value.count > longestValue ? String(value.prefix(longestValue)) + "…" : value)”"
-            }
+            parts = [step.tool == "ask.user" ? L("Ask me") : app.catalog.title(of: step.tool)]
+            let fields = step.input.keys.filter { $0 != "timeout_seconds" }.count
+            if fields > 0 { parts.append(L(one: "{count} field", other: "{count} fields", count: fields)) }
         }
-        var line = (times > 1 ? "\(what) × \(times)" : what) + " — " + word
-        if !fields.isEmpty { line += " · " + fields.prefix(mostLineFields).joined(separator: " · ") }
-        if fields.count > mostLineFields { line += " · " + L(one: "+{count} more field", other: "+{count} more fields", count: fields.count - mostLineFields) }
-        if let title = step.title { line += " · " + L("your name for it: {name}", ["name": plain(String(title.prefix(40)))]) }
-        return line.count > longestLine ? String(line.prefix(longestLine - 1)) + "…" : line
+        if times > 1 { parts[0] += " × \(times)" }
+        parts.insert(word, at: 1)
+        if let title = step.title { parts.append(L("your name for it: {name}", ["name": plain(String(title.prefix(40)))])) }
+        return parts.joined(separator: " · ")
     }
-
-    /// A note is cut at 400 characters on the page, so a line says itself within that.
-    static let longestValue = 120, mostLineFields = 6, longestLine = 400
-
-    private static func valueWords(_ value: Any?) -> String? {
-        switch value {
-        case let text as String: return text
-        case let number as NSNumber: return number.stringValue
-        case let list as [Any]: return list.compactMap { valueWords($0) }.joined(separator: ", ")
-        default: return nil
-        }
-    }
-
 
     private static func allowedWord(_ line: Plans.Checked.Line?, asked: Bool) -> String {
         guard let line else { return asked ? L("Named on the card") : L("Still looking") }
@@ -1017,8 +996,10 @@ import SidefolkExtensionKit
         return line.state == "listed" ? L("Named on the card") : L("Runs by itself once allowed")
     }
 
+    static var whatNotWho: String { L("This list says what it may do. Who or where, and every value, are on the approval card.") }
+
     private static func allowedEnding(_ flow: Flow, _ app: App) -> [Block] {
-        let whole = Block.note(L("The whole plan with every value is on the approval card."))
+        let whole = Block.note(whatNotWho)
         guard app.catalog.plan(flow.planId) != nil else { return [whole, .note(L("Nothing is allowed yet. You read a card the first time it runs for real."))] }
         return [
             whole,

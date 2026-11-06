@@ -1258,8 +1258,6 @@
     "And {count} more lines.": {
       "other": "ほかに {count} 行。"
     },
-    "reads everything before it": "前のすべてを読む",
-    "reads {list}": "{list} を読む",
     "with its own approval": "独自の許可で",
     "your name for it: {name}": "あなたの呼び名: {name}",
     "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "サービスから待つよう求められたため、このステップは実行されませんでした。後でもう一度試すか、自動で再試行するよう設定してください。",
@@ -1275,11 +1273,12 @@
     "… and about {count} more parts, not shown.": {
       "other": "… ほかに約 {count} 部分（非表示）。"
     },
-    "+{count} more fields": {
-      "other": "+{count} 項目"
-    },
     "Some words of this step were not kept; the places it used are shown.": "このステップの言葉の一部は残していません。使った場所は表示しています。",
-    "The whole plan with every value is on the approval card.": "すべての値を含む計画全体は承認カードにあります。"
+    "{count} fields": {
+      "other": "{count} 項目"
+    },
+    "This list says what it may do. Who or where, and every value, are on the approval card.": "この一覧はできることを示します。誰に・どこへ、そしてすべての値は承認カードにあります。",
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "このステップの場所の一部は短くしたか残していません。1ステップまたは1回の実行で残せる量を超えたためです。"
   },
   "drops": {
     "flow_file": {

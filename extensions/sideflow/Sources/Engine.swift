@@ -599,8 +599,10 @@ extension FlowHost {
 
     private func acting(_ step: Step, tool: String, input: [String: Any], written: [String: Any]? = nil, in run: inout Run) async -> Bool {
         let sentence = Words.step(step, body: run.body, catalog: catalog)
-        let (given, cut) = Self.kept(input, in: run)
-        run.record(.init(step: step.id, status: .running, summary: sentence, at: clock(), input: given, inputCut: cut))
+        let kept = Self.kept(input, in: run, textFields: catalog.tool(tool).map { Set($0.parameters.filter { $0.kind == .text }.map(\.name)) })
+        run.keptWordBytes += kept.words
+        run.keptPlaceBytes += kept.places
+        run.record(.init(step: step.id, status: .running, summary: sentence, at: clock(), input: kept.input, inputCut: kept.wordsCut, placesCut: kept.placesCut))
         // Written down first, or not done: after a stop, the run must know what it may have done.
         guard store.save(run) else { return cantSave(step, summary: sentence, in: &run) }
         changed()
@@ -1549,35 +1551,57 @@ extension FlowHost {
     /// since a hundred steps going round a loop would otherwise fill its file.
     static let keptInput = 8000
     static let keptInputPerRun = 200_000
-    static let keptPlace = 2000
+    static let keptPlace = 2000, keptPlacesPerStep = 20_000, keptPlacesPerRun = 400_000
 
-    /// What's kept of a step's input, and whether any of its words were left out. Where it goes is always kept, so the run's page can say it, up to `keptPlace` each;
-    /// other fields up to `keptInput` each, while the run has room left for words.
-    static func kept(_ input: [String: Any], in run: Run) -> (String?, Bool) {
-        var cut = false
-        func clip(_ value: Any, _ most: Int) -> Any {
+    /// What's kept of a step's input, for its run's page: every field that isn't words to read, the places, up to `keptPlace` each, `keptPlacesPerStep` a step and
+    /// `keptPlacesPerRun` a run; words to read up to `keptInput` each while the run has `keptInputPerRun` left. A list or a record is kept as its JSON text. What it
+    /// says it kept is added to the run's own totals, so no step reads back through the others.
+    static func kept(_ input: [String: Any], in run: Run, textFields: Set<String>?) -> Kept {
+        var out = Kept()
+        func words(_ value: Any) -> String {
             switch value {
-            case let text as String where text.count > most:
-                cut = true
-                return String(text.prefix(most)) + "…"
-            case let list as [Any]: return list.map { clip($0, most) }
-            case let fields as [String: Any]: return fields.mapValues { clip($0, most) }
-            default: return value
+            case let text as String: return text
+            case let number as NSNumber: return number.stringValue
+            case let list as [Any] where list.allSatisfy({ $0 is String || $0 is NSNumber }): return list.map(words).joined(separator: ", ")
+            default: return JSONText.write(value)
             }
         }
-        var room = keptInputPerRun - run.records.reduce(0) { $0 + ($1.input?.utf8.count ?? 0) }
-        var out: [String: Any] = [:]
-        for key in input.keys.sorted() where FieldNames.isPlace(key) { out[key] = clip(input[key] as Any, keptPlace) }
-        for key in input.keys.sorted() where !FieldNames.isPlace(key) {
-            let value = clip(input[key] as Any, keptInput), size = JSONText.write([key: value]).utf8.count
-            guard size <= room else {
-                cut = true
-                continue
+        func clip(_ text: String, _ most: Int) -> String { text.count > most ? String(text.prefix(most)) + "…" : text }
+        var fields: [String: String] = [:]
+        var placesLeft = min(keptPlacesPerStep, keptPlacesPerRun - run.keptPlaceBytes), wordsLeft = keptInputPerRun - run.keptWordBytes
+        for key in input.keys.sorted() {
+            guard let value = input[key] else { continue }
+            let text = words(value)
+            if FieldNames.isFreeText(key, plainText: value is String && (textFields?.contains(key) ?? true)) {
+                let kept = clip(text, keptInput)
+                if kept.count != text.count { out.wordsCut = true }
+                guard kept.utf8.count <= wordsLeft else {
+                    out.wordsCut = true
+                    continue
+                }
+                fields[key] = kept
+                wordsLeft -= kept.utf8.count
+                out.words += kept.utf8.count
+            } else {
+                let kept = clip(text, keptPlace)
+                if kept.count != text.count { out.placesCut = true }
+                guard kept.utf8.count <= placesLeft else {
+                    out.placesCut = true
+                    continue
+                }
+                fields[key] = kept
+                placesLeft -= kept.utf8.count
+                out.places += kept.utf8.count
             }
-            out[key] = value
-            room -= size
         }
-        return (out.isEmpty ? nil : JSONText.write(out), cut)
+        out.input = fields.isEmpty ? nil : JSONText.write(fields)
+        return out
+    }
+
+    struct Kept {
+        var input: String?
+        var words = 0, places = 0
+        var wordsCut = false, placesCut = false
     }
 
     /// Steps in a run between two waits.

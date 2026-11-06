@@ -40,8 +40,10 @@ struct Run: Equatable, Sendable, Identifiable {
         var input: String?
         /// When this go of it began, when that's not the moment it ended.
         var began: Date?
-        /// Only the first part of what it was given was kept: the run had kept all it keeps.
+        /// Some of its words weren't kept: cut, or past what the run keeps of words.
         var inputCut = false
+        /// Some places were shortened or not kept: past what a field, a step or the run keeps of them.
+        var placesCut = false
         /// How long it took, once it's more than a moment.
         var took: TimeInterval? { began.map { at.timeIntervalSince($0) } }
     }
@@ -140,6 +142,8 @@ struct Run: Equatable, Sendable, Identifiable {
     var outOfTime = false
     /// Since when it's been held, by a pause or for the person, while it would otherwise go on: that time isn't taken from its limit.
     var heldSince: Date?
+    /// How much of its steps' input it has kept, words and places, against what a run keeps.
+    var keptWordBytes = 0, keptPlaceBytes = 0
     /// Stopped because its time ran out, not because something else was enough.
     var timedOut: Bool { status == .stopped && outOfTime }
     /// The lanes a parallel stopped itself, having enough or a lost cause: any other that ends stopped was stopped by someone else.
@@ -162,6 +166,7 @@ struct Run: Equatable, Sendable, Identifiable {
             // What it was given, and that only part of it was kept, stay with the step when it ends.
             if r.input == nil { r.input = records[i].input }
             r.inputCut = r.inputCut || records[i].inputCut
+            r.placesCut = r.placesCut || records[i].placesCut
             // The same go carrying on: how long it took counts from when it began.
             if r.began == nil, [.running, .waiting, .needs_you].contains(records[i].status) { r.began = records[i].began ?? records[i].at }
             records[i] = r

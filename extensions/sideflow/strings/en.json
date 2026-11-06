@@ -3,10 +3,6 @@
     "(sample)": "(sample)",
     "(too long to keep)": "(too long to keep)",
     "(your answer)": "(your answer)",
-    "+{count} more fields": {
-      "one": "+{count} more field",
-      "other": "+{count} more fields"
-    },
     "2 to 4, with commas between them. None lets you type.": "2 to 4, with commas between them. None lets you type.",
     "A choice in a form needs at least two answers.": "A choice in a form needs at least two answers.",
     "A condition is “and” or “or”, not both.": "A condition is “and” or “or”, not both.",
@@ -675,6 +671,7 @@
     "Skipped": "Skipped",
     "So far": "So far",
     "Some columns have no name.": "Some columns have no name.",
+    "Some places of this step were shortened or not kept: past what a step or a run keeps of them.": "Some places of this step were shortened or not kept: past what a step or a run keeps of them.",
     "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.",
     "Some words of this step were not kept; the places it used are shown.": "Some words of this step were not kept; the places it used are shown.",
     "Sort": "Sort",
@@ -768,7 +765,6 @@
     "The watch saw a change.": "The watch saw a change.",
     "The web": "The web",
     "The whole address of the page or site.": "The whole address of the page or site.",
-    "The whole plan with every value is on the approval card.": "The whole plan with every value is on the approval card.",
     "Their runs and what you allowed for them go too. This can't be undone.": "Their runs and what you allowed for them go too. This can't be undone.",
     "Then go through them with For each: each item is one batch.": "Then go through them with For each: each item is one batch.",
     "Then it counts as this step failing.": "Then it counts as this step failing.",
@@ -798,6 +794,7 @@
     "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.": "This is too long to show on a page. Delete what's too long, or ask an agent to shorten it.",
     "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.": "This is what Sideflow can tell from the file. The real safeguard is the card when you turn it on.",
     "This item": "This item",
+    "This list says what it may do. Who or where, and every value, are on the approval card.": "This list says what it may do. Who or where, and every value, are on the approval card.",
     "This number": "This number",
     "This says where it goes. Write it here, or it asks each run.": "This says where it goes. Write it here, or it asks each run.",
     "This step didn't finish. It may or may not have happened.": "This step didn't finish. It may or may not have happened.",
@@ -1020,8 +1017,6 @@
     "isn't": "isn't",
     "mentions": "mentions",
     "nothing that shows": "nothing that shows",
-    "reads everything before it": "reads everything before it",
-    "reads {list}": "reads {list}",
     "with its own approval": "with its own approval",
     "words": "words",
     "yes or no": "yes or no",
@@ -1036,6 +1031,10 @@
     "{count} differences from what's running. Comes back as unsaved changes.": {
       "one": "{count} difference from what's running. Comes back as unsaved changes.",
       "other": "{count} differences from what's running. Comes back as unsaved changes."
+    },
+    "{count} fields": {
+      "one": "{count} field",
+      "other": "{count} fields"
     },
     "{count} flows can't be read by this version. They're kept, not shown.": {
       "one": "{count} flow can't be read by this version. It's kept, not shown.",
