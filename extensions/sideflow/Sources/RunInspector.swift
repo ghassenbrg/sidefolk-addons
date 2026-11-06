@@ -132,6 +132,9 @@ import SidefolkExtensionKit
         return kept.split(separator: " ", omittingEmptySubsequences: true).joined(separator: " ")
     }
 
+    /// Where the Ask card's "Open in Home" goes: the run's own page, the whole of it, with its flow.
+    static func openInHome(_ run: Run) -> (page: String, state: [String: Any]) { ("flows", ["flow": run.flow, "run": run.id]) }
+
     /// A run in a few cards, for where it was asked about: how far it got, the step that's working or went wrong, and how much is left. The run's page has the rest.
     static func compact(_ run: Run, _ app: App) -> CardTree {
         let shown = withLanes(run, app)

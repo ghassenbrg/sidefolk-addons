@@ -165,7 +165,8 @@ import SidefolkExtensionKit
             let run: Run?
             if let id = args.string("run") { run = app.store.run(id) } else if let name = args.string("flow") { run = app.store.latest(of: try app.flow(named: name).id) } else { run = app.store.runs().first }
             guard let run else { return ToolReply(L("No runs yet.")) }
-            return ToolReply(Summaries.story(run)).showing(tree: Pages.compact(run, app))
+            let opens = Pages.openInHome(run)
+            return ToolReply(Summaries.story(run)).showing(tree: Pages.compact(run, app)).offering(page: opens.page, state: opens.state)
         })
 
         ext.tool("continue_run", "Carry on with a run", "A stopped run's way forward: try_again runs its step again, carry_on skips it and goes on, stop ends the run. Only the person knows whether a step that was interrupted happened: ask them.",

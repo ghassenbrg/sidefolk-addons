@@ -138,6 +138,13 @@ import SidefolkExtensionKit
         #expect(last.keptPlaceBytes <= Engine.keptPlacesPerRun && last.keptWordBytes <= Engine.keptInputPerRun)
     }
 
+    @Test func theAskCardOpensTheRunsOwnPage() {
+        let run = Run(id: "r1", flow: "f1", flowName: "F", mode: .live, status: .running, why: "", startedAt: Date(), body: FlowBody())
+        let opens = Pages.openInHome(run)
+        #expect(opens.page == "flows", "the page the manifest declares")
+        #expect(Nav.place(Arguments(opens.state)) == .run("r1"), "and the page goes to that run")
+    }
+
     @Test func thePermissionsTabNamesEachStepAndOffersTheEnd() async throws {
         let w = try World()
         let app = app(w)
