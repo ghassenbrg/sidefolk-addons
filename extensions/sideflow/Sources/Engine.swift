@@ -1004,6 +1004,9 @@ extension FlowHost {
         run.pc = old.pc
         let again = Set(FlowBody(steps: stepsFromHere(old)).allSteps.map(\.id))
         run.records = old.records.filter { !again.contains($0.step) }
+        // What it keeps of its steps' input counts from the old run's: it holds what that kept, so a try again doesn't start a new allowance.
+        run.keptWordBytes = old.keptWordBytes
+        run.keptPlaceBytes = old.keptPlaceBytes
         store.save(run)
         return run
     }
@@ -1558,23 +1561,25 @@ extension FlowHost {
     /// says it kept is added to the run's own totals, so no step reads back through the others.
     static func kept(_ input: [String: Any], in run: Run, textFields: Set<String>?) -> Kept {
         var out = Kept()
+        // As it was given: true stays true, a list or a record its JSON, so nothing reads as something else.
         func words(_ value: Any) -> String {
             switch value {
             case let text as String: return text
+            case let number as NSNumber where CFGetTypeID(number) == CFBooleanGetTypeID(): return number.boolValue ? "true" : "false"
             case let number as NSNumber: return number.stringValue
-            case let list as [Any] where list.allSatisfy({ $0 is String || $0 is NSNumber }): return list.map(words).joined(separator: ", ")
+            case is NSNull: return "null"
             default: return JSONText.write(value)
             }
         }
-        func clip(_ text: String, _ most: Int) -> String { text.count > most ? String(text.prefix(most)) + "…" : text }
+        func clip(_ text: String, _ most: Int) -> (text: String, cut: Bool) { text.count > most ? (String(text.prefix(most)) + "…", true) : (text, false) }
         var fields: [String: String] = [:]
         var placesLeft = min(keptPlacesPerStep, keptPlacesPerRun - run.keptPlaceBytes), wordsLeft = keptInputPerRun - run.keptWordBytes
         for key in input.keys.sorted() {
             guard let value = input[key] else { continue }
             let text = words(value)
             if FieldNames.isFreeText(key, plainText: value is String && (textFields?.contains(key) ?? true)) {
-                let kept = clip(text, keptInput)
-                if kept.count != text.count { out.wordsCut = true }
+                let (kept, cut) = clip(text, keptInput)
+                if cut { out.wordsCut = true }
                 guard kept.utf8.count <= wordsLeft else {
                     out.wordsCut = true
                     continue
@@ -1583,8 +1588,8 @@ extension FlowHost {
                 wordsLeft -= kept.utf8.count
                 out.words += kept.utf8.count
             } else {
-                let kept = clip(text, keptPlace)
-                if kept.count != text.count { out.placesCut = true }
+                let (kept, cut) = clip(text, keptPlace)
+                if cut { out.placesCut = true }
                 guard kept.utf8.count <= placesLeft else {
                     out.placesCut = true
                     continue

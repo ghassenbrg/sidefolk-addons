@@ -978,7 +978,7 @@ import SidefolkExtensionKit
         var parts: [String]
         switch shown {
         case .ai?: parts = [L("Write with AI")]
-        case .flow(let name)?: parts = [L("Run {flow}", ["flow": plain(String(name.prefix(60)))]), L("with its own approval")]
+        case .flow(let name)?: parts = [L("Run {flow}", ["flow": plain(name.count > 60 ? String(name.prefix(60)) + "…" : name)]), L("with its own approval")]
         case nil:
             parts = [step.tool == "ask.user" ? L("Ask me") : app.catalog.title(of: step.tool)]
             let fields = step.input.keys.filter { $0 != "timeout_seconds" }.count

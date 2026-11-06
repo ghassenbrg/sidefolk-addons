@@ -115,6 +115,29 @@ import SidefolkExtensionKit
         #expect(record.places > 0, "and counted")
     }
 
+    @Test func aCutOfOneCharacterSaysSoAndValuesKeepTheirKind() {
+        let run = Run(id: "r", flow: "f", flowName: "F", mode: .live, status: .running, why: "", startedAt: Date(), body: FlowBody())
+        #expect(Engine.kept(["to": String(repeating: "a", count: Engine.keptPlace + 1)], in: run, textFields: nil).placesCut, "one over is still cut")
+        #expect(Engine.kept(["message": String(repeating: "a", count: Engine.keptInput + 1)], in: run, textFields: nil).wordsCut)
+        #expect(!Engine.kept(["to": String(repeating: "a", count: Engine.keptPlace)], in: run, textFields: nil).placesCut, "exactly the most isn't")
+        let kinds = JSONText.read(Engine.kept(["on": true, "none": NSNull(), "to": ["a@example.com", "b, c@example.com"]], in: run, textFields: nil).input ?? "") as? [String: Any]
+        #expect(kinds?["on"] as? String == "true" && kinds?["none"] as? String == "null", "\(kinds ?? [:])")
+        #expect((kinds?["to"] as? String)?.hasPrefix("[") == true, "a list reads as a list, not one string with commas")
+    }
+
+    @Test func tryingAgainFromHereDoesntStartANewAllowance() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .error, text: "broken"), Actions.Outcome(status: .error, text: "broken"), Actions.Outcome(status: .error, text: "broken")]
+        let flow = try w.flow([["id": "r", "do": "reads.it", "with": ["to": "someone@example.com"]], ["id": "c", "do": "changes.it", "with": ["text": "x"]]])
+        var last = try #require(await w.settled(w.engine.start(flow, mode: .live, why: "t")))
+        let first = last.keptPlaceBytes + last.keptWordBytes
+        for _ in 0..<2 {
+            last = try #require(await w.settled(w.engine.runAgain(last.id, fromHere: true)))
+        }
+        #expect(first > 0 && last.keptPlaceBytes + last.keptWordBytes >= first, "it counts on from what it holds")
+        #expect(last.keptPlaceBytes <= Engine.keptPlacesPerRun && last.keptWordBytes <= Engine.keptInputPerRun)
+    }
+
     @Test func thePermissionsTabNamesEachStepAndOffersTheEnd() async throws {
         let w = try World()
         let app = app(w)
