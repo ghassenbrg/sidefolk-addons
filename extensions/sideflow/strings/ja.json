@@ -1164,7 +1164,6 @@
     "It may only do what you read when you allowed it.": "許可したときに読んだ内容だけを実行できます。",
     "It needs “{name}”.": "「{name}」が必要です。",
     "It only works with words: it needs nothing allowed.": "言葉だけを扱うので、許可は必要ありません。",
-    "It should say add, remove, replace or move.": "add、remove、replace、move のいずれかを指定してください。",
     "Keep it": "このままにする",
     "Move “{name}” before this step": "「{name}」をこのステップの前に移動",
     "Named on the card": "カードに記載",
@@ -1311,7 +1310,9 @@
       "other": "{count}件の実行を停止しました: {names}。"
     },
     "A card is waiting for the person to say yes": "カードが本人の承認を待っています",
-    "“{name}” is on only once the person says yes on their desktop.": "「{name}」は、本人がデスクトップで承認してから有効になります。"
+    "“{name}” is on only once the person says yes on their desktop.": "「{name}」は、本人がデスクトップで承認してから有効になります。",
+    "“{from}” and “{through}” should be steps of one list, the first before the other.": "「{from}」と「{through}」は、同じリストのステップで、前者が先である必要があります。",
+    "It should say add, remove, replace, move or wrap.": "add、remove、replace、move、wrap のどれかを指定してください。"
   },
   "drops": {
     "flow_file": {

@@ -1164,7 +1164,6 @@
     "It may only do what you read when you allowed it.": "它只能做你允许时读到的那些事。",
     "It needs “{name}”.": "需要“{name}”。",
     "It only works with words: it needs nothing allowed.": "它只处理文字，不需要任何许可。",
-    "It should say add, remove, replace or move.": "应为 add、remove、replace 或 move。",
     "Keep it": "保留",
     "Move “{name}” before this step": "把“{name}”移到这一步之前",
     "Named on the card": "卡片上会写明",
@@ -1311,7 +1310,9 @@
       "other": "已停止 {count} 次运行：{names}。"
     },
     "A card is waiting for the person to say yes": "有一张卡片在等本人同意",
-    "“{name}” is on only once the person says yes on their desktop.": "“{name}”要等本人在桌面上同意后才会开启。"
+    "“{name}” is on only once the person says yes on their desktop.": "“{name}”要等本人在桌面上同意后才会开启。",
+    "“{from}” and “{through}” should be steps of one list, the first before the other.": "“{from}”和“{through}”应是同一列表中的步骤，且前者在前。",
+    "It should say add, remove, replace, move or wrap.": "应为 add、remove、replace、move 或 wrap。"
   },
   "drops": {
     "flow_file": {

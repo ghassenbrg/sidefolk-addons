@@ -1274,7 +1274,6 @@
     "It may only do what you read when you allowed it.": "لا يمكنه سوى فعل ما قرأته عند السماح به.",
     "It needs “{name}”.": "يلزم «{name}».",
     "It only works with words: it needs nothing allowed.": "يعمل بالكلمات فقط: لا يحتاج إلى أي إذن.",
-    "It should say add, remove, replace or move.": "يجب أن يقول add أو remove أو replace أو move.",
     "Keep it": "الإبقاء عليه",
     "Move “{name}” before this step": "نقل «{name}» قبل هذه الخطوة",
     "Named on the card": "مذكور في البطاقة",
@@ -1471,7 +1470,9 @@
       "other": "أُوقف {count} تشغيل: {names}."
     },
     "A card is waiting for the person to say yes": "بطاقة تنتظر أن يوافق الشخص",
-    "“{name}” is on only once the person says yes on their desktop.": "لا يعمل «{name}» إلا بعد أن يوافق الشخص على سطح مكتبه."
+    "“{name}” is on only once the person says yes on their desktop.": "لا يعمل «{name}» إلا بعد أن يوافق الشخص على سطح مكتبه.",
+    "“{from}” and “{through}” should be steps of one list, the first before the other.": "يجب أن يكون «{from}» و«{through}» خطوتين في قائمة واحدة، والأولى قبل الأخرى.",
+    "It should say add, remove, replace, move or wrap.": "يجب أن تقول add أو remove أو replace أو move أو wrap."
   },
   "drops": {
     "flow_file": {

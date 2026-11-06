@@ -373,7 +373,7 @@
     "It sets off a flow of yours: {list}": "It sets off a flow of yours: {list}",
     "It sets off another flow: {list}": "It sets off another flow: {list}",
     "It sets that flow off and carries on, without waiting for it.": "It sets that flow off and carries on, without waiting for it.",
-    "It should say add, remove, replace or move.": "It should say add, remove, replace or move.",
+    "It should say add, remove, replace, move or wrap.": "It should say add, remove, replace, move or wrap.",
     "It started": "It started",
     "It starts": "It starts",
     "It starts: {when}": "It starts: {when}",
@@ -1188,6 +1188,7 @@
     "“{flow}” says it gives {type}, and it gave “{value}”.": "“{flow}” says it gives {type}, and it gave “{value}”.",
     "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.": "“{flow}” wants {type} for “{input}”, and this gives it “{value}”.",
     "“{flow}” wants {type} for “{input}”.": "“{flow}” wants {type} for “{input}”.",
+    "“{from}” and “{through}” should be steps of one list, the first before the other.": "“{from}” and “{through}” should be steps of one list, the first before the other.",
     "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.": "“{id}” can't name a step: use up to 24 lowercase letters, digits and _.",
     "“{key}” isn't something a {what} has.": "“{key}” isn't something a {what} has.",
     "“{lane}” took longer than {count} minutes, so it was stopped.": {

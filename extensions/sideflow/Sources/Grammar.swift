@@ -60,7 +60,7 @@ enum Grammar {
       4. Look later with get_flow: approval is waiting_for_person, allowed, not_allowed (approval_note says why) or not_asked. Don't ask again while it waits.
       5. Once it's allowed, it runs by its trigger, or now with run_flow. list_runs and get_run say how each run went; continue_run carries a stopped one on, as the person chooses.
       6. stop_run stops a run, every run of a flow, or all of them, when the person says stop. pause_flow and resume_flow switch it off and on.
-    To put steps inside an if, a loop, a try or lanes, remove them with update_flow and add one step that holds them.
+    To put steps inside an if, a loop, a try or lanes, send update_flow {"op":"wrap","from":"a","through":"c","step":{"id":"t","try":[],"recover":[]}}: steps a through c go into the step's first part.
     Files: import_file shows the person a file they chose, and nothing comes in until they confirm it. export_flows writes a flow file into Sideflow's own data folder; only the person's save panel puts it anywhere else.
     Words with a line break, a tab or hidden marks make that step ask the person every run: write each value on one line.
     """

@@ -1164,7 +1164,6 @@
     "It may only do what you read when you allowed it.": "허용할 때 읽은 내용만 할 수 있습니다.",
     "It needs “{name}”.": "“{name}”이(가) 필요합니다.",
     "It only works with words: it needs nothing allowed.": "글만 다루므로 허용할 것이 없습니다.",
-    "It should say add, remove, replace or move.": "add, remove, replace, move 중 하나여야 합니다.",
     "Keep it": "유지",
     "Move “{name}” before this step": "“{name}”을(를) 이 단계 앞으로 이동",
     "Named on the card": "카드에 표시됨",
@@ -1311,7 +1310,9 @@
       "other": "실행 {count}개를 중지했습니다: {names}."
     },
     "A card is waiting for the person to say yes": "카드가 사용자의 승인을 기다리고 있습니다",
-    "“{name}” is on only once the person says yes on their desktop.": "“{name}”은(는) 사용자가 데스크톱에서 승인해야 켜집니다."
+    "“{name}” is on only once the person says yes on their desktop.": "“{name}”은(는) 사용자가 데스크톱에서 승인해야 켜집니다.",
+    "“{from}” and “{through}” should be steps of one list, the first before the other.": "“{from}”와(과) “{through}”은(는) 같은 목록의 단계여야 하고, 앞의 것이 먼저여야 합니다.",
+    "It should say add, remove, replace, move or wrap.": "add, remove, replace, move, wrap 중 하나여야 합니다."
   },
   "drops": {
     "flow_file": {

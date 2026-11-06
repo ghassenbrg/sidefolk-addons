@@ -190,6 +190,18 @@ import SidefolkExtensionKit
         }
     }
 
+    /// The page's Wrap in, for agents: steps side by side go into the step given, and steps not side by side, or the wrong way round, are refused.
+    @Test func aPatchWrapsStepsAsThePageDoes() throws {
+        let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "one"], ["id": "b", "text": "two"], ["id": "c", "text": "three"]]])
+        let out = try AgentEdits.apply([["op": "wrap", "from": "a", "through": "b", "step": ["id": "t", "try": [], "recover": [["id": "r", "text": "saved"]]]]], to: body)
+        #expect(out.steps.map(\.id) == ["t", "c"])
+        #expect(out.allSteps.map(\.id).contains("a") && out.allSteps.map(\.id).contains("b") && out.allSteps.map(\.id).contains("r"))
+        let one = try AgentEdits.apply([["op": "wrap", "from": "c", "step": ["id": "w", "if": ["value": "x", "test": "not_empty"], "then": [], "else": []]]], to: body)
+        #expect(one.steps.map(\.id) == ["a", "b", "w"])
+        #expect(throws: (any Error).self) { try AgentEdits.apply([["op": "wrap", "from": "b", "through": "a", "step": ["id": "t", "try": [], "recover": []]]], to: body) }
+        #expect(throws: (any Error).self) { try AgentEdits.apply([["op": "wrap", "from": "nope", "step": ["id": "t", "try": [], "recover": []]]], to: body) }
+    }
+
     @Test func aDraftChangedSinceItWasReadIsntWrittenOver() throws {
         let one = AgentEdits.fingerprint(try FlowCodec.body(two))
         #expect(one == AgentEdits.fingerprint(try FlowCodec.body(two)), "the same draft, the same mark")

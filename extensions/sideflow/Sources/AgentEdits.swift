@@ -47,8 +47,16 @@ enum AgentEdits {
                 let moved = Editing.place(id, after: after, in: out)
                 guard moved != out || after == "start" else { throw wrong(L("“{name}” can't go inside itself.", ["name": id])) }
                 out = moved
+            case "wrap":
+                // Steps side by side, from one through another, put inside a step the agent gives (an if, a loop, a try or lanes), as the page's Wrap in.
+                let first = try existing("from")
+                let last = edit["through"] == nil ? first : try existing("through")
+                guard let wrapped = Editing.wrap(from: first, through: last, inside: try step(), in: out) else {
+                    throw wrong(L("“{from}” and “{through}” should be steps of one list, the first before the other.", ["from": first, "through": last]))
+                }
+                out = wrapped
             default:
-                throw wrong(L("It should say add, remove, replace or move."))
+                throw wrong(L("It should say add, remove, replace, move or wrap."))
             }
         }
         // All of it as a whole, by what a whole definition has to be: two steps of one id, too deep.

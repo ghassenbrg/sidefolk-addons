@@ -1186,7 +1186,6 @@
     "It may only do what you read when you allowed it.": "Può fare solo ciò che hai letto quando l’hai permessa.",
     "It needs “{name}”.": "Manca «{name}».",
     "It only works with words: it needs nothing allowed.": "Lavora solo con le parole: non c’è nulla da permettere.",
-    "It should say add, remove, replace or move.": "Deve dire add, remove, replace o move.",
     "Keep it": "Tieni",
     "Move “{name}” before this step": "Sposta «{name}» prima di questo passaggio",
     "Named on the card": "Indicato sulla scheda",
@@ -1343,7 +1342,9 @@
       "other": "{count} esecuzioni fermate: {names}."
     },
     "A card is waiting for the person to say yes": "Una scheda aspetta che la persona dica di sì",
-    "“{name}” is on only once the person says yes on their desktop.": "«{name}» è attivo solo quando la persona dice sì sulla sua scrivania."
+    "“{name}” is on only once the person says yes on their desktop.": "«{name}» è attivo solo quando la persona dice sì sulla sua scrivania.",
+    "“{from}” and “{through}” should be steps of one list, the first before the other.": "«{from}» e «{through}» devono essere passaggi di una stessa lista, il primo prima dell’altro.",
+    "It should say add, remove, replace, move or wrap.": "Dovrebbe dire add, remove, replace, move o wrap."
   },
   "drops": {
     "flow_file": {
