@@ -1240,7 +1240,6 @@
     "Nothing kept: reads for real": "Nichts behalten: liest wirklich",
     "Only this step": "Nur dieser Schritt",
     "Practice examples": "Beispiele für Probeläufe",
-    "Some parts of a long flow are shut to fit the board. Focus on one to see inside it.": "Teile eines langen Ablaufs sind zugeklappt, damit er passt. Konzentrier dich auf einen, um hineinzusehen.",
     "That goes too deep to work out.": "Das ist zu tief verschachtelt zum Rechnen.",
     "That isn't what it was: keep it in the same shape.": "Das ist nicht mehr, was es war: Behalte die Form bei.",
     "That number is too big to work out exactly.": "Die Zahl ist zu groß, um genau zu rechnen.",
@@ -1292,7 +1291,10 @@
     "reads {list}": "liest {list}",
     "with its own approval": "mit eigener Erlaubnis",
     "your name for it: {name}": "dein Name dafür: {name}",
-    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "Der Dienst bat zu warten, also lief dieser Schritt nicht. Versuch es später noch einmal, oder stell ihn so ein, dass er es selbst erneut versucht."
+    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "Der Dienst bat zu warten, also lief dieser Schritt nicht. Versuch es später noch einmal, oder stell ihn so ein, dass er es selbst erneut versucht.",
+    "To fix inside": "Darin zu beheben",
+    "Not allowed inside": "Darin nicht erlaubt",
+    "Stopped inside": "Darin angehalten"
   },
   "drops": {
     "flow_file": {

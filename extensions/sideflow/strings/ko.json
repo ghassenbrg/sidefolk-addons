@@ -1217,7 +1217,6 @@
     "Nothing kept: reads for real": "보관 없음: 실제로 읽기",
     "Only this step": "이 단계만",
     "Practice examples": "연습 예시",
-    "Some parts of a long flow are shut to fit the board. Focus on one to see inside it.": "긴 루틴은 맞추려고 일부를 접어 두었습니다. 안을 보려면 그 부분에 집중하세요.",
     "That goes too deep to work out.": "너무 깊이 중첩되어 계산할 수 없습니다.",
     "That isn't what it was: keep it in the same shape.": "원래 모양이 아닙니다. 같은 모양을 유지하세요.",
     "That number is too big to work out exactly.": "숫자가 너무 커서 정확히 계산할 수 없습니다.",
@@ -1265,7 +1264,10 @@
     "reads {list}": "{list} 읽음",
     "with its own approval": "자체 승인으로",
     "your name for it: {name}": "내가 붙인 이름: {name}",
-    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "서비스가 기다려 달라고 해서 이 단계는 실행되지 않았습니다. 나중에 다시 시도하거나, 스스로 다시 시도하도록 설정하세요."
+    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "서비스가 기다려 달라고 해서 이 단계는 실행되지 않았습니다. 나중에 다시 시도하거나, 스스로 다시 시도하도록 설정하세요.",
+    "To fix inside": "안에 고칠 것",
+    "Not allowed inside": "안에 허용되지 않음",
+    "Stopped inside": "안에서 멈춤"
   },
   "drops": {
     "flow_file": {

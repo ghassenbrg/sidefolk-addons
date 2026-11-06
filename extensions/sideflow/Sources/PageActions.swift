@@ -89,10 +89,6 @@ import SidefolkExtensionKit
         case "focus":
             let f = try flow()
             app.nav.focus[f.id] = a.string("step")?.nonEmpty
-        case "fold":
-            let f = try flow()
-            guard let id = a.string("step") else { break }
-            if app.nav.folded[f.id, default: []].remove(id) == nil { app.nav.folded[f.id, default: []].insert(id) }
         case "wrap_through":
             if let id = a.string("step") { app.nav.wrapThrough[id] = a.string("value") }
         case "wrap":

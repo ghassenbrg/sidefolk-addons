@@ -1332,7 +1332,6 @@
     "Nothing kept: reads for real": "لا شيء محفوظ: يقرأ فعليًا",
     "Only this step": "هذه الخطوة فقط",
     "Practice examples": "أمثلة للتجربة",
-    "Some parts of a long flow are shut to fit the board. Focus on one to see inside it.": "طُويت أجزاء من روتين طويل ليتسع. ركّز على أحدها لترى ما فيه.",
     "That goes too deep to work out.": "هذا متداخل أكثر من أن يُحسب.",
     "That isn't what it was: keep it in the same shape.": "ليس كما كان: حافظ على الشكل نفسه.",
     "That number is too big to work out exactly.": "هذا الرقم أكبر من أن يُحسب بدقة.",
@@ -1400,7 +1399,10 @@
     "reads {list}": "يقرأ {list}",
     "with its own approval": "بموافقته الخاصة",
     "your name for it: {name}": "اسمك له: {name}",
-    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "طلبت الخدمة الانتظار، فلم تُنفَّذ هذه الخطوة. حاول لاحقًا، أو اضبطها لتعيد المحاولة من تلقاء نفسها."
+    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "طلبت الخدمة الانتظار، فلم تُنفَّذ هذه الخطوة. حاول لاحقًا، أو اضبطها لتعيد المحاولة من تلقاء نفسها.",
+    "To fix inside": "يلزم إصلاح شيء بداخله",
+    "Not allowed inside": "بداخله ما لا يُسمح به",
+    "Stopped inside": "توقّف بداخله"
   },
   "drops": {
     "flow_file": {

@@ -15,8 +15,6 @@ import SidefolkExtensionKit
 
     private func texts(_ prefix: String, _ count: Int) -> [[String: Any]] { (0..<count).map { ["id": "\(prefix)\($0)", "text": "x"] } }
 
-    private func nodes(_ list: [CardTree.Node]) -> Int { list.reduce(0) { $0 + 1 + $1.branches.reduce(0) { $0 + nodes($1.nodes) } } }
-
     @Test func stepsGoInsideSomethingAsOneEditAndUndoTakesThemOut() async throws {
         let w = try World()
         let app = app(w)
@@ -43,22 +41,12 @@ import SidefolkExtensionKit
         #expect(Editing.wrap(from: "s0", through: "s1", inside: Step(id: "h", kind: .text("x")), in: body) == nil, "nothing to hold them")
     }
 
-    @Test func aHugeBoardFitsAndSaysSoAndNothingIsLeftOutWithoutAWord() throws {
-        let w = try World()
-        let app = app(w)
-        let holders: [[String: Any]] = (0..<8).map { ["id": "h\($0)", "try": texts("i\($0)x", 24)] }
-        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": holders]))
-        #expect(flow.draft.allSteps.count == 200)
-        let tree = Pages.tree(flow, app, problems: [])
-        #expect(nodes(tree.nodes) <= Pages.boardHolds + 1, "\(nodes(tree.nodes))")
-        let page = String(describing: Pages.flowPage(flow, app, state: Arguments([:]))).filter { !"\u{2068}\u{2069}\\".contains($0) }
-        #expect(page.contains("steps inside") && page.contains("Focus on one"))
-    }
-
-    @Test func whatsSelectedStaysInSight() {
-        let inner = Step(id: "inner", kind: .text("x"))
-        let holder = Step(id: "h", kind: .attempt(steps: [inner] + (0..<200).map { Step(id: "t\($0)", kind: .text("x")) }, recover: [], always: []))
-        #expect(!Pages.foldedToFit([holder], chosen: ["h"], selected: ["h"]).contains("h"))
+    @Test func aFlowHasAsManyStepsAsTheBoardCanShow() throws {
+        let fits = try FlowCodec.body(["trigger": ["type": "manual"], "steps": texts("s", FlowBody.maxSteps)])
+        #expect(fits.allSteps.count == 100)
+        #expect(fits.unfinished == nil)
+        let over = try FlowCodec.body(["trigger": ["type": "manual"], "steps": texts("s", FlowBody.maxSteps + 1)])
+        #expect(over.unfinished?.contains("100") == true, "one more than the board draws, with its start card, under 128")
     }
 
     @Test func focusingShowsOnlyThatPartAndTheWayBack() async throws {
@@ -75,15 +63,25 @@ import SidefolkExtensionKit
         #expect(Editing.holders(of: "x0", in: flow.draft).map(\.id) == ["o", "i"])
     }
 
-    @Test func aFoldedPartSaysHowMuchItHolds() async throws {
+    /// Five levels down: the fifth is past what the board draws.
+    private func deep(_ inner: [[String: Any]]) -> [[String: Any]] {
+        var steps = inner
+        for level in (0..<4).reversed() { steps = [["id": "l\(level)", "try": steps]] }
+        return steps
+    }
+
+    @Test func aShutPartSaysHowMuchItHoldsAndWhatsWrongInside() throws {
         let w = try World()
         let app = app(w)
-        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "o", "try": texts("x", 3)]]]))
-        _ = try await Actions_UI.handle(Arguments(["op": "fold", "flow": flow.id, "step": "o"]), app)
-        let folded = Pages.tree(flow, app, problems: []).nodes[1]
-        #expect(folded.branches.isEmpty && folded.pill?.text.contains("3") == true)
-        _ = try await Actions_UI.handle(Arguments(["op": "fold", "flow": flow.id, "step": "o"]), app)
-        #expect(!Pages.tree(flow, app, problems: []).nodes[1].branches.isEmpty)
+        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": deep([["id": "five", "try": [["id": "x", "do": "changes.it", "with": ["text": "x"]], ["id": "y", "text": "y"]]]])]))
+        func shut() -> CardTree.Node? {
+            var level = Pages.tree(flow, app, problems: []).nodes
+            for _ in 0..<4 { level = level.last?.branches.first?.nodes ?? [] }
+            return level.first
+        }
+        #expect(shut()?.branches.isEmpty == true && shut()?.pill?.text.contains("2") == true, "\(String(describing: shut()?.pill))")
+        app.preflight[flow.id] = ["x": Actions.Check(decision: .deny, summary: "", mutates: true, standing: false)]
+        #expect(shut()?.pill?.text == "Not allowed inside", "a step it hides can't do what it says")
     }
 }
 

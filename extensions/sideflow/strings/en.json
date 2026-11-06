@@ -475,6 +475,7 @@
     "None of your flows uses an extension or a server yet.": "None of your flows uses an extension or a server yet.",
     "None yet": "None yet",
     "Not allowed": "Not allowed",
+    "Not allowed inside": "Not allowed inside",
     "Not needed": "Not needed",
     "Not now": "Not now",
     "Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.": "Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.",
@@ -665,7 +666,6 @@
     "Skipped": "Skipped",
     "So far": "So far",
     "Some columns have no name.": "Some columns have no name.",
-    "Some parts of a long flow are shut to fit the board. Focus on one to see inside it.": "Some parts of a long flow are shut to fit the board. Focus on one to see inside it.",
     "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.",
     "Sort": "Sort",
     "Sort out what sets it off first.": "Sort out what sets it off first.",
@@ -685,6 +685,7 @@
     "Stop when": "Stop when",
     "Stopped": "Stopped",
     "Stopped before this came back.": "Stopped before this came back.",
+    "Stopped inside": "Stopped inside",
     "Stopped. {count} starts waiting their turn were cleared.": {
       "one": "Stopped. {count} start waiting its turn was cleared.",
       "other": "Stopped. {count} starts waiting their turn were cleared."
@@ -802,6 +803,7 @@
     "Time to look up.": "Time to look up.",
     "To fix": "To fix",
     "To fix first: {list}": "To fix first: {list}",
+    "To fix inside": "To fix inside",
     "Today's date": "Today's date",
     "Together with the steps after it": "Together with the steps after it",
     "Too long to copy from here": "Too long to copy from here",

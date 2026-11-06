@@ -24,7 +24,7 @@ Each its own landing, with independent reads until a clean one, a suite on a bui
 2. Parallel: lane timeouts, sibling-cancel policy, other join modes. Declared types and a version pin for called flows.
 3. Saved and pinned fixtures for practice; the explained diff and patch for the AI builder; the editor's repair offers (a producer moves, an agent edit conflicts); a Permissions tab, elapsed and usage in the inspector.
 4. Stable-file detection and rename handling; idempotency keys; file and artifact references; durable job handles only if a tool needs them.
-5. Scale: 100-200 cards (the board draws 64), breadcrumbs and focus on a subflow, wrap in a scope, resizable panels, compact Ask card.
+5. Scale: 100-200 cards (the board draws 64), breadcrumbs and focus on a subflow, wrap in a scope, resizable panels, compact Ask card. 200 steps is considered, not built: it needs Sidefolk's board to show more than 128 cards, or to page. A flow stays at 100 steps, which fit with the start card, and a part past the fourth level is shut with what's wrong inside it on its card.
 6. The expression language (sandboxed, with its own security note); two reference connectors; pagination and rate-limit metadata; dependency-aware templates.
 
 Also stated and owed: the later lists in each landing's MERGE-READY, among them a write's thrown error going to "did it happen?" rather than Recover, "Next:" ignoring the flow's time zone, `{{today}}` going stale over a days-long form, Skip sending a later action an empty value.

@@ -270,7 +270,8 @@ struct FlowBody: Equatable, Sendable {
     var inputs: [FlowInput] = []
     var output: ValueType?
 
-    static let maxSteps = 200
+    /// Sidefolk's board draws 128 cards: with the start card, this many always fit. More is for when the board can show more (ROADMAP-PROGRESS, later list).
+    static let maxSteps = 100
     static let longestQueue = 20
     static let longestLoop = 500
     static let mostRepeats = 100

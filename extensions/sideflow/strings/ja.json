@@ -1217,7 +1217,6 @@
     "Nothing kept: reads for real": "保存なし: 実際に読む",
     "Only this step": "このステップだけ",
     "Practice examples": "練習用の例",
-    "Some parts of a long flow are shut to fit the board. Focus on one to see inside it.": "長いルーティンは収まるよう一部を閉じています。中を見るにはそこに絞ってください。",
     "That goes too deep to work out.": "入れ子が深すぎて計算できません。",
     "That isn't what it was: keep it in the same shape.": "元の形と違います。同じ形のままにしてください。",
     "That number is too big to work out exactly.": "数が大きすぎて正確に計算できません。",
@@ -1265,7 +1264,10 @@
     "reads {list}": "{list} を読む",
     "with its own approval": "独自の許可で",
     "your name for it: {name}": "あなたの呼び名: {name}",
-    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "サービスから待つよう求められたため、このステップは実行されませんでした。後でもう一度試すか、自動で再試行するよう設定してください。"
+    "The service asked to wait, so this step didn't run. Try again later, or set it to try again by itself.": "サービスから待つよう求められたため、このステップは実行されませんでした。後でもう一度試すか、自動で再試行するよう設定してください。",
+    "To fix inside": "中に要修正",
+    "Not allowed inside": "中に許可されないもの",
+    "Stopped inside": "中で停止"
   },
   "drops": {
     "flow_file": {
