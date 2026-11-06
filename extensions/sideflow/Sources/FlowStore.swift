@@ -188,11 +188,20 @@ import SidefolkExtensionKit
     func unfinished() -> [Run] { runsById.values.filter { !$0.status.isOver }.sorted { $0.startedAt < $1.startedAt } }
 
     /// Whether it reached the disk: the engine won't act on a run it couldn't write down. What's in memory is current either way, for the page to show.
-    @discardableResult func save(_ run: Run) -> Bool {
+    /// `clock`: the lane clock is saving, the one that sets a lane's limit, how long it was held, and that it ran out of time.
+    @discardableResult func save(_ run: Run, clock: Bool = false) -> Bool {
         guard !goneRuns.contains(run.id) else { return true }
         // What it runs is set when it starts, and only a rename changes it, here: a walk mid-step holds an older copy and mustn't put that back.
+        // The same for its time: a walk that began before the clock last looked would give back time the clock already counted.
         var run = run
-        if let kept = runsById[run.id] { run.body = kept.body }
+        if let kept = runsById[run.id] {
+            run.body = kept.body
+            if !clock {
+                run.deadline = kept.deadline
+                run.heldSince = kept.heldSince
+                run.outOfTime = kept.outOfTime
+            }
+        }
         runsById[run.id] = run
         let saved = write(Self.json(run), to: runsFolder.appendingPathComponent("\(run.id).json"))
         // Counted as the person counts them: a flow's own runs. What one waited for goes with it, and never before it.
