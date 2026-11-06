@@ -45,7 +45,8 @@ enum Paging {
     struct OutOfTime: Error {}
 
     /// `fetch` gets the page and how long it may take, which it gives its request; the page is also stopped at that time, however slowly it trickles in.
-    static func gather(from start: Int, most: Int, clock: @escaping () -> Date = Date.init, fetch: @escaping @Sendable (Int, TimeInterval) async throws -> Fetched) async throws -> Gathered {
+    /// `service`: its name, for saying in words that the first page didn't come in time (a reading only, so nothing changed).
+    static func gather(from start: Int, most: Int, service: String, clock: @escaping () -> Date = Date.init, fetch: @escaping @Sendable (Int, TimeInterval) async throws -> Fetched) async throws -> Gathered {
         var out = Gathered(next: start), bytes = 0
         let began = clock()
         while let at = out.next, out.pages < max(most, 1) {
@@ -57,7 +58,10 @@ enum Paging {
             let one: Fetched
             do { one = try await within(min(longestPage, max(left, 1))) { try await fetch(at, min(longestPage, max(left, 1))) } } catch {
                 // The first page failing is the call failing; a later one leaves what came before.
-                guard out.pages > 0 else { throw error }
+                guard out.pages > 0 else {
+                    if error is OutOfTime { throw Problem(L("Couldn't reach {service} in time. Nothing was read; try again in a moment.", ["service": service])) }
+                    throw error
+                }
                 out.stopped = error is OutOfTime ? "time" : "error"
                 break
             }

@@ -47,11 +47,12 @@ enum Issues {
 
     /// From `page`, up to `pages` of them, as one list, within what one call may take. GitHub asking to wait before the first means nothing was read.
     static func list(_ repo: String, state: String, page: Int, pages: Int) async throws -> ToolReply {
-        var got = try await Paging.gather(from: page, most: min(pages, mostPages)) { at, seconds in try await fetch(repo, state: state, page: at, seconds: seconds) }
+        var got = try await Paging.gather(from: page, most: min(pages, mostPages), service: "GitHub") { at, seconds in try await fetch(repo, state: state, page: at, seconds: seconds) }
         // Past what `page` takes, so not a page to go on from here.
+        // Past what `page` takes, so not a page to go on from here, whatever else stopped it.
         if let next = got.next, next > 100 {
             got.next = nil
-            got.stopped = got.stopped ?? "limit"
+            got.stopped = "limit"
         }
         if got.pages == 0, let wait = got.wait {
             return ToolReply(L("GitHub asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: got.fields)

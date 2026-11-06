@@ -20,7 +20,8 @@
     "It stopped after {count} pages to answer in time.": "Se detuvo tras {count} páginas para responder a tiempo.",
     "It stopped after {count} pages: the next one didn't come.": "Se detuvo tras {count} páginas: la siguiente no llegó.",
     "Some of what it read was left out to keep the answer small enough.": "Parte de lo leído se dejó fuera para que la respuesta no fuera demasiado grande.",
-    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Se detuvo tras {count} páginas: Wikipedia pide esperar {time}."
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Se detuvo tras {count} páginas: Wikipedia pide esperar {time}.",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "No se pudo conectar con {service} a tiempo. No se leyó nada; inténtalo de nuevo en un momento."
   },
   "examples": [
     "busca acoplamiento de marea en wikipedia"

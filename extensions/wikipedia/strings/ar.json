@@ -20,7 +20,8 @@
     "It stopped after {count} pages to answer in time.": "توقف بعد {count} صفحات ليجيب في الوقت.",
     "It stopped after {count} pages: the next one didn't come.": "توقف بعد {count} صفحات: لم تصل الصفحة التالية.",
     "Some of what it read was left out to keep the answer small enough.": "تُرك جزء مما قُرئ ليبقى الجواب صغيرًا بما يكفي.",
-    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "توقف بعد {count} صفحات: تطلب ويكيبيديا الانتظار {time}."
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "توقف بعد {count} صفحات: تطلب ويكيبيديا الانتظار {time}.",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "تعذر الوصول إلى {service} في الوقت. لم يُقرأ شيء؛ حاول مجددًا بعد قليل."
   },
   "examples": [
     "ابحث في ويكيبيديا عن الانقفال المدي"

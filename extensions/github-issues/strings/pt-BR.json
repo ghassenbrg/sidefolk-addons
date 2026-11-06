@@ -22,7 +22,8 @@
     "It stopped after {count} pages: the next one didn't come.": "Parou depois de {count} páginas: a próxima não veio.",
     "Some of what it read was left out to keep the answer small enough.": "Parte do que foi lido ficou de fora para a resposta não ficar grande demais.",
     "It stopped after {count} pages: GitHub asks to wait {time}.": "Parou depois de {count} páginas: o GitHub pede para esperar {time}.",
-    "It stopped at page 100, as far as it goes.": "Parou na página 100, o máximo."
+    "It stopped at page 100, as far as it goes.": "Parou na página 100, o máximo.",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Não foi possível acessar {service} a tempo. Nada foi lido; tente de novo daqui a pouco."
   },
   "examples": [
     "quais são as issues abertas de apple/swift?"

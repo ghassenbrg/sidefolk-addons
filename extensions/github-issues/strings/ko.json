@@ -22,7 +22,8 @@
     "It stopped after {count} pages: the next one didn't come.": "{count}페이지에서 멈췄습니다. 다음 페이지가 오지 않았습니다.",
     "Some of what it read was left out to keep the answer small enough.": "답이 너무 커지지 않도록 읽은 내용 일부를 뺐습니다.",
     "It stopped after {count} pages: GitHub asks to wait {time}.": "{count}페이지에서 멈췄습니다. GitHub가 {time} 기다려 달라고 합니다.",
-    "It stopped at page 100, as far as it goes.": "100페이지에서 멈췄습니다. 더는 갈 수 없습니다."
+    "It stopped at page 100, as far as it goes.": "100페이지에서 멈췄습니다. 더는 갈 수 없습니다.",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "{service}에 제시간에 연결하지 못했습니다. 아무것도 읽지 않았습니다. 잠시 후 다시 시도하세요."
   },
   "examples": [
     "apple/swift의 열린 이슈는?"

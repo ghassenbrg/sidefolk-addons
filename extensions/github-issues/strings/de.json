@@ -22,7 +22,8 @@
     "It stopped after {count} pages: the next one didn't come.": "Nach {count} Seiten angehalten: Die nächste kam nicht.",
     "Some of what it read was left out to keep the answer small enough.": "Ein Teil des Gelesenen wurde weggelassen, damit die Antwort klein genug bleibt.",
     "It stopped after {count} pages: GitHub asks to wait {time}.": "Nach {count} Seiten angehalten: GitHub bittet, {time} zu warten.",
-    "It stopped at page 100, as far as it goes.": "Bei Seite 100 angehalten, weiter geht es nicht."
+    "It stopped at page 100, as far as it goes.": "Bei Seite 100 angehalten, weiter geht es nicht.",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "{service} war nicht rechtzeitig erreichbar. Es wurde nichts gelesen; versuch es gleich noch einmal."
   },
   "examples": [
     "welche Issues sind bei apple/swift offen?"

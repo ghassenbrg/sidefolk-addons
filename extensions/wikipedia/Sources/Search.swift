@@ -34,7 +34,7 @@ enum Search {
 
     /// From `offset`, up to `pages` pages, as one list, within what one call may take (D202). Busy before the first means nothing was read.
     static func find(_ words: String, language: String, from offset: Int, pages: Int) async throws -> ToolReply {
-        let got = try await Paging.gather(from: offset, most: min(pages, mostPages)) { at, seconds in try await fetch(words, language: language, from: at, seconds: seconds) }
+        let got = try await Paging.gather(from: offset, most: min(pages, mostPages), service: "Wikipedia") { at, seconds in try await fetch(words, language: language, from: at, seconds: seconds) }
         if got.pages == 0, let wait = got.wait {
             return ToolReply(L("Wikipedia asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: got.fields)
         }

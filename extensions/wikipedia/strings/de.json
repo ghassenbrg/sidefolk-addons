@@ -20,7 +20,8 @@
     "It stopped after {count} pages to answer in time.": "Nach {count} Seiten angehalten, um rechtzeitig zu antworten.",
     "It stopped after {count} pages: the next one didn't come.": "Nach {count} Seiten angehalten: Die nächste kam nicht.",
     "Some of what it read was left out to keep the answer small enough.": "Ein Teil des Gelesenen wurde weggelassen, damit die Antwort klein genug bleibt.",
-    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Nach {count} Seiten angehalten: Wikipedia bittet, {time} zu warten."
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Nach {count} Seiten angehalten: Wikipedia bittet, {time} zu warten.",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "{service} war nicht rechtzeitig erreichbar. Es wurde nichts gelesen; versuch es gleich noch einmal."
   },
   "examples": [
     "such Gezeitenkopplung in Wikipedia"

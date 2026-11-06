@@ -1,6 +1,7 @@
 {
   "text": {
     "Couldn't reach GitHub ({error}). Check the internet connection.": "Couldn't reach GitHub ({error}). Check the internet connection.",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Couldn't reach {service} in time. Nothing was read; try again in a moment.",
     "GitHub answered with HTTP {status}.": "GitHub answered with HTTP {status}.",
     "GitHub asks to wait {time} before asking again. Nothing was read.": "GitHub asks to wait {time} before asking again. Nothing was read.",
     "GitHub has no public repository {repo}.": "GitHub has no public repository {repo}.",

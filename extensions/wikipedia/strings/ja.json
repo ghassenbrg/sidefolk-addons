@@ -20,7 +20,8 @@
     "It stopped after {count} pages to answer in time.": "時間内に答えるため、{count} ページで止めました。",
     "It stopped after {count} pages: the next one didn't come.": "{count} ページで止まりました。次のページが届きませんでした。",
     "Some of what it read was left out to keep the answer small enough.": "答えを小さく保つため、読んだ内容の一部を省きました。",
-    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "{count} ページで止まりました。ウィキペディアから {time} 待つよう求められました。"
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "{count} ページで止まりました。ウィキペディアから {time} 待つよう求められました。",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "{service} に時間内に接続できませんでした。何も読み取っていません。少ししてからもう一度お試しください。"
   },
   "examples": [
     "ウィキペディアで潮汐固定を検索"

@@ -20,7 +20,8 @@
     "It stopped after {count} pages to answer in time.": "Arrêt après {count} pages pour répondre à temps.",
     "It stopped after {count} pages: the next one didn't come.": "Arrêt après {count} pages : la suivante n’est pas arrivée.",
     "Some of what it read was left out to keep the answer small enough.": "Une partie de ce qui a été lu a été laissée de côté pour garder la réponse assez courte.",
-    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Arrêt après {count} pages : Wikipédia demande d’attendre {time}."
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Arrêt après {count} pages : Wikipédia demande d’attendre {time}.",
+    "Couldn't reach {service} in time. Nothing was read; try again in a moment.": "Impossible de joindre {service} à temps. Rien n’a été lu ; réessayez dans un instant."
   },
   "examples": [
     "cherche le verrouillage gravitationnel dans wikipédia"

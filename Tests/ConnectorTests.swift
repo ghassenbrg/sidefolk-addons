@@ -43,7 +43,7 @@ import SidefolkExtensionKit
     @Test func pagesStopInTimeAndKeepWhatWasRead() async throws {
         var now = Date(timeIntervalSince1970: 0)
         let clock = Clock()
-        let got = try await Paging.gather(from: 1, most: 10, clock: { clock.now }) { at, seconds in
+        let got = try await Paging.gather(from: 1, most: 10, service: "GitHub", clock: { clock.now }) { at, seconds in
             #expect(seconds <= Paging.longestPage)
             clock.now = clock.now.addingTimeInterval(7)
             return page(at, next: at + 1)
@@ -54,16 +54,16 @@ import SidefolkExtensionKit
 
     @Test func aLaterPageFailingKeepsTheOnesBefore() async throws {
         struct Down: Error {}
-        let got = try await Paging.gather(from: 1, most: 5) { at, _ in
+        let got = try await Paging.gather(from: 1, most: 5, service: "GitHub") { at, _ in
             if at == 2 { throw Down() }
             return page(at, next: at + 1)
         }
         #expect(got.items.count == 1 && got.stopped == "error" && got.next == 2)
-        await #expect(throws: Down.self, "the first failing is the call failing") { try await Paging.gather(from: 1, most: 5) { _, _ in throw Down() } }
+        await #expect(throws: Down.self, "the first failing is the call failing") { try await Paging.gather(from: 1, most: 5, service: "GitHub") { _, _ in throw Down() } }
     }
 
     @Test func aWaitAfterSomePagesSaysSoWithWhatWasRead() async throws {
-        let got = try await Paging.gather(from: 1, most: 5) { at, _ in
+        let got = try await Paging.gather(from: 1, most: 5, service: "GitHub") { at, _ in
             at == 3 ? ext_github_issues.Paging.Fetched(items: [], next: 3, wait: 40) : page(at, next: at + 1)
         }
         #expect(got.pages == 2 && got.stopped == "wait" && got.next == 3)
@@ -72,7 +72,7 @@ import SidefolkExtensionKit
 
     @Test func whatsReadStaysUnderWhatSidefolkKeeps() async throws {
         let big = String(repeating: "x", count: 1000)
-        let got = try await Paging.gather(from: 1, most: 10) { at, _ in
+        let got = try await Paging.gather(from: 1, most: 10, service: "GitHub") { at, _ in
             ext_github_issues.Paging.Fetched(items: (0..<30).map { ["title": big, "page": at, "n": $0] }, next: at + 1, wait: nil)
         }
         let size = try JSONSerialization.data(withJSONObject: got.fields).count
@@ -81,6 +81,15 @@ import SidefolkExtensionKit
         // Nothing skipped: every page it kept is whole, and where it goes on is the first page it didn't keep.
         let pages = Set(got.items.compactMap { $0["page"] as? Int })
         #expect(got.items.count == pages.count * 30 && got.next == (pages.max() ?? 0) + 1)
+    }
+
+    @Test func aFirstPageThatDoesntComeInTimeSaysSoInWords() async throws {
+        do {
+            _ = try await Paging.gather(from: 1, most: 1, service: "GitHub") { _, _ in throw ext_github_issues.Paging.OutOfTime() }
+            Issue.record("it should fail")
+        } catch let problem as Problem {
+            #expect(problem.message.contains("GitHub") && problem.message.contains("in time"))
+        }
     }
 
     @Test func aPageThatTricklesInIsStoppedAtItsTime() async throws {
