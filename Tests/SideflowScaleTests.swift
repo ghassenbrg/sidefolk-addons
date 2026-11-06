@@ -139,3 +139,12 @@ extension SideflowLaterListTests {
         #expect(keys.count == 2 && Set(keys).count == 2 && keys.allSatisfy { $0.hasPrefix(run.id) })
     }
 }
+
+extension SideflowLaterListTests {
+    @Test func aServiceThatAsksToWaitIsAskedAgainLaterAndNotForEver() throws {
+        #expect(Engine.askedToWait(#"{"rate_limited": true, "retry_after_seconds": 30}"#) == 30)
+        #expect(Engine.askedToWait(#"{"rate_limited": true}"#) == 60)
+        #expect(Engine.askedToWait(#"{"rate_limited": false, "retry_after_seconds": 30}"#) == nil)
+        #expect(Engine.askedToWait(nil) == nil)
+    }
+}
