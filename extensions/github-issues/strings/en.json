@@ -1,0 +1,12 @@
+{
+  "text": {
+    "Couldn't reach GitHub ({error}). Check the internet connection.": "Couldn't reach GitHub ({error}). Check the internet connection.",
+    "GitHub answered with HTTP {status}.": "GitHub answered with HTTP {status}.",
+    "GitHub asks to wait {time} before asking again. Nothing was read.": "GitHub asks to wait {time} before asking again. Nothing was read.",
+    "GitHub has no public repository {repo}.": "GitHub has no public repository {repo}.",
+    "GitHub sent something that isn't a list of issues.": "GitHub sent something that isn't a list of issues.",
+    "Give the repository as owner/name, like apple/swift.": "Give the repository as owner/name, like apple/swift.",
+    "No issues on this page.": "No issues on this page.",
+    "There's another page: page {page}.": "There's another page: page {page}."
+  }
+}

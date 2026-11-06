@@ -1,0 +1,19 @@
+{
+  "id": "dev.sidefolk.github-issues",
+  "name": "GitHub Issues",
+  "version": "1.0.0",
+  "sidefolk": ">=0.1",
+  "description": "Reads the issues of a public GitHub repository, a page at a time, with no account. A flow can go through every page and waits when GitHub asks it to.",
+  "tagline": "A public repository's issues, read only",
+  "folk": "scout",
+  "author": "Sidefolk",
+  "icon": "icon.pdf",
+  "run": { "command": "bin/ext-github-issues" },
+  "permissions": { "network": true },
+  "network_purpose": "To read public issues from GitHub",
+  "services": [{ "name": "api.github.com", "hosts": ["api.github.com"] }],
+  "examples": ["what are the open issues on apple/swift?"],
+  "tools": {
+    "list_issues": { "title": "List a repository's issues", "summary": "List {state} issues of {repository}", "risk": "low", "category": "web", "mutates": false }
+  }
+}

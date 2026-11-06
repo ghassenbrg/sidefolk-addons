@@ -1,0 +1,11 @@
+{
+  "text": {
+    "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Couldn't reach Wikipedia ({error}). Check the internet connection.",
+    "Give a language code, like en or fr.": "Give a language code, like en or fr.",
+    "Nothing found.": "Nothing found.",
+    "There are more: the next page starts at {offset}.": "There are more: the next page starts at {offset}.",
+    "Wikipedia answered with HTTP {status}.": "Wikipedia answered with HTTP {status}.",
+    "Wikipedia asks to wait {time} before asking again. Nothing was read.": "Wikipedia asks to wait {time} before asking again. Nothing was read.",
+    "Wikipedia sent something that isn't a list of results.": "Wikipedia sent something that isn't a list of results."
+  }
+}
