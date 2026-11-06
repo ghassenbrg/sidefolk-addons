@@ -757,7 +757,6 @@
     "Let it go": "Deixar passar",
     "May or may not have happened": "Pode ter acontecido ou não",
     "Nobody filled in “{title}” in time.": "Ninguém preencheu “{title}” a tempo.",
-    "Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.": "Ainda sem ensaio: {ways}. Um ensaio segue um caminho; “No ensaio, fingir que dá” em uma etapa pode mandá-lo por outro.",
     "Note it and go on": "Anotar e seguir",
     "Nothing": "Nada",
     "Nothing to go through": "Nada para percorrer",
@@ -1333,7 +1332,8 @@
     "Stop all {count}": "Parar todas as {count}",
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "Aqui entram palavras de uma etapa anterior, então só roda sozinha com Acesso total.",
     "You set Sidefolk to ask every time, so this asks each run.": "Você configurou o Sidefolk para perguntar sempre, então perguntará a cada execução.",
-    "Stop the run": "Parar a execução"
+    "Stop the run": "Parar a execução",
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "O ensaio ainda não testou estes caminhos: {ways}. Cada ensaio segue um caminho, então os outros só são testados quando uma execução real os toma."
   },
   "drops": {
     "flow_file": {

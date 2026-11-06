@@ -737,7 +737,7 @@ import SidefolkExtensionKit
         if !Connections.missing(flow, app.catalog, app.store).isEmpty {
             all.append(.action(go(L("See connections"), place(["view": "connections"]), symbol: "link")))
         }
-        if !untried.isEmpty { all.append(.note(L("Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.", ["ways": Format.list(untried)]))) }
+        if !untried.isEmpty { all.append(.note(L("Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.", ["ways": Format.list(untried)]))) }
         out.append(Section(count == 0 ? L("Check") : L(one: "Check: {count} thing to fix", other: "Check: {count} things to fix", count: count), all, place: .trailing, collapsed: count == 0 && untried.isEmpty))
         func changes(_ title: String, from: FlowBody, to: FlowBody) {
             let lines = Editing.changes(from: from, to: to, catalog: app.catalog)

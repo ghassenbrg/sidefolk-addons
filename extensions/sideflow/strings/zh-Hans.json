@@ -748,7 +748,6 @@
     "Let it go": "放过它",
     "May or may not have happened": "可能发生了，也可能没有",
     "Nobody filled in “{title}” in time.": "没有人及时填写“{title}”。",
-    "Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.": "尚未试运行：{ways}。一次试运行只走一条路；步骤上的“试运行时，假装它给出”可以让它走另一条。",
     "Note it and go on": "记下来，继续",
     "Nothing": "无",
     "Nothing to go through": "没有可遍历的内容",
@@ -1302,7 +1301,8 @@
     "Stop all {count}": "全部停止（{count}）",
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "这里填入前面步骤生成的文字，所以只有在完全访问下才会自行运行。",
     "You set Sidefolk to ask every time, so this asks each run.": "你把 Sidefolk 设为每次都询问，所以每次运行都会询问。",
-    "Stop the run": "停止运行"
+    "Stop the run": "停止运行",
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "试运行还没走过这些路：{ways}。每次试运行只走一条路，其余的要等真正运行走到时才会试到。"
   },
   "drops": {
     "flow_file": {

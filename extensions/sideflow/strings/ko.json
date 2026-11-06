@@ -749,7 +749,6 @@
     "Look at": "살펴볼 것",
     "May or may not have happened": "일어났을 수도, 아닐 수도 있음",
     "Nobody filled in “{title}” in time.": "‘{title}’을(를) 제시간에 채운 사람이 없습니다.",
-    "Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.": "아직 연습하지 않음: {ways}. 연습 실행은 한 가지 길로 갑니다. 단계의 ‘연습 실행에서는 이 값을 준 것으로 하기’로 다른 길로 보낼 수 있습니다.",
     "Note it and go on": "메모하고 계속하기",
     "Nothing": "없음",
     "Nothing to go through": "훑어볼 것이 없음",
@@ -1302,7 +1301,8 @@
     "Stop all {count}": "{count}개 모두 중지",
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "앞 단계에서 만든 말이 여기에 들어가므로 전체 접근에서만 저절로 실행됩니다.",
     "You set Sidefolk to ask every time, so this asks each run.": "Sidefolk가 매번 묻도록 설정했으므로 실행할 때마다 묻습니다.",
-    "Stop the run": "실행 중지"
+    "Stop the run": "실행 중지",
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "연습에서 아직 시도하지 않은 길: {ways}. 연습은 매번 한 길로만 가므로, 나머지는 실제 실행이 그 길로 갈 때 처음 시도됩니다."
   },
   "drops": {
     "flow_file": {

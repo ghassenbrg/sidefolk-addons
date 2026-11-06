@@ -793,7 +793,6 @@
     "Let it go": "تركه يمر",
     "May or may not have happened": "قد يكون حدث أو لا",
     "Nobody filled in “{title}” in time.": "لم يملأ أحد «{title}» في الوقت المناسب.",
-    "Not practiced yet: {ways}. A practice run takes one way; “In practice, pretend it gives” on a step can send it down another.": "لم تُجرَّب بعد: {ways}. تسلك التجربة طريقًا واحدًا؛ ويمكن لـ«في التجربة، تظاهر أنه يعطي» في خطوة أن تدفعها إلى طريق آخر.",
     "Note it and go on": "دوّنه وتابع",
     "Nothing": "لا شيء",
     "Nothing to go through": "لا شيء للمرور عليه",
@@ -1457,7 +1456,8 @@
     "Stop all {count}": "إيقاف الكل ({count})",
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "هنا تُوضع كلمات صنعتها خطوة سابقة، لذا لا تعمل تلقائيًا إلا مع الوصول الكامل.",
     "You set Sidefolk to ask every time, so this asks each run.": "ضبطت Sidefolk ليسأل في كل مرة، لذا ستسأل هذه الخطوة في كل تشغيل.",
-    "Stop the run": "إيقاف التشغيل"
+    "Stop the run": "إيقاف التشغيل",
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "لم يسلك التشغيل التجريبي هذه الطرق بعد: {ways}. كل تشغيل تجريبي يسلك طريقًا واحدًا، فلا تُجرَّب الطرق الأخرى إلا عندما يسلكها تشغيل حقيقي."
   },
   "drops": {
     "flow_file": {
