@@ -128,3 +128,14 @@ extension SideflowLaterListTests {
         #expect(w.store.run(run.id)?.record(of: "t")?.output != began)
     }
 }
+
+extension SideflowLaterListTests {
+    @Test func aStepsKeyIsTheSameEachTryAndDifferentForEachGo() async throws {
+        let w = try SideflowTests.World()
+        let flow = try w.flow([["id": "e", "for_each": "[1, 2]", "steps": [["id": "s", "do": "changes.it", "with": ["q": "{{step_key}}"]]]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        let keys = w.host.calls.filter { $0.tool == "changes.it" }.compactMap { $0.input["q"] as? String }
+        #expect(keys.count == 2 && Set(keys).count == 2 && keys.allSatisfy { $0.hasPrefix(run.id) })
+    }
+}

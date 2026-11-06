@@ -47,6 +47,8 @@ enum Grammar {
 
     work_out's "from" is a small expression: numbers, "words", {{values}}, + - * / %, == != < > <= >=, && || !, and round floor ceil abs min max sum average number percent text upper lower trim length contains starts_with ends_with replace split join first last field default if. It can only compute. number(words) reads only a plain number; number(words, "1,234.56"), "1.234,56" or "1 234,56" says how a number's written, and leaves off a unit or currency around it. percent("12%") is 0.12. A value's words are never read as part of the expression. JSON inside words is read by JSON's rules: {"n":5e3} gives {{s.n}} as 5000.
 
+    {{step_key}} is the same each time one step of one run is tried again, and different for every other: give it to a service's idempotency or request-id field, so trying again doesn't do it twice.
+
     To change a flow, read it with get_flow and send update_flow a patch and its based_on: small edits keep the rest as it was, and if someone changed it since you read it you're told. The answer lists what changed, and the person sees the same list and can undo it.
 
     Nothing you write runs until the person allows it: flows are drafts until they answer a card that shows what it will do. A practice run reads for real and changes nothing.

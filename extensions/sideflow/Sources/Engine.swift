@@ -439,6 +439,7 @@ extension FlowHost {
             let ranOut = run.connection.map { $0.tool == tool && $0.until <= clock() } ?? false
             if run.mode != .practice, ranOut || Connections.isMissing(tool, catalog) { return waitingForConnection(step, tool: tool, in: &run) }
             run.connection = nil
+            run.values.stepKey = "\(run.id)-\(step.id)\(run.scope.map { "-\($0)" } ?? "")"
             let filled = catalog.filled(tool, input, from: run.values)
             let cut = catalog.cutShort(tool, input, from: run.values)
             if run.mode != .practice, let wrong = catalog.doesntFit(tool, filled) { return failed(step, why: wrong, reads: false, in: &run) }
@@ -1175,9 +1176,10 @@ extension FlowHost {
         // What a value is made from, so the host can follow a step's value back to what really gave it. Words written in with it are a source of their own: an edit
         // could change them with no card, so they never count as the person's.
         func sources(_ texts: [String]) -> [String] {
-            let named = texts.flatMap(Values.references).filter { !["item", "index"].contains($0) }
+            let named = texts.flatMap(Values.references).filter { !["item", "index", "step_key"].contains($0) }
             // Which go it is says nothing of the person, and a saved flow can still have a step called that.
-            let written = texts.flatMap(Values.references).contains("index") || texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
+            // A step's key is the run's own words, no one's to vouch for.
+            let written = texts.flatMap(Values.references).contains { $0 == "index" || $0 == "step_key" } || texts.contains { text in !Values.replacingSlots(in: text) { _, _ in "" }.trimmed.isEmpty }
             let looped = texts.flatMap(Values.references).contains("item") ? ["item"] : []
             return Array(Set(named + looped + (written ? [writtenWords] : []))).sorted()
         }
