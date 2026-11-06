@@ -149,6 +149,48 @@ import SidefolkExtensionKit
         #expect(cBack.status != .stopped && cBack.problem?.contains("limit") != true, "C's own run of B has its own count, and C isn't told of A's limit: \(cBack.status)")
     }
 
+    @Test func aLaneTriedAgainAfterBeingHeldStillRunsOutOfTime() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .denied, text: "Not allowed", summary: "")]
+        var limited = bad
+        limited["timeout_minutes"] = 5
+        let flow = try w.flow([["id": "both", "parallel": [limited, quick]]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.engine.tick()
+        w.now = w.now.addingTimeInterval(2 * 60)
+        w.engine.tick()
+        // Tried again, it's working now, and its walk holds a copy from before the clock's last look.
+        w.host.hold = "changes.it"
+        w.host.honoursCancel = true
+        w.engine.proceed(try lane(w, flow.id, "bad").id, .try_again)
+        await w.quiet()
+        for _ in 0..<8 {
+            w.now = w.now.addingTimeInterval(2 * 60)
+            w.engine.tick()
+            await w.quiet()
+        }
+        #expect(try lane(w, flow.id, "bad").timedOut, "held two minutes, then working: its limit comes, however often the clock looks")
+        #expect(w.store.run(run.id)?.problem?.contains("took longer") == true, "\(w.store.run(run.id)?.problem ?? "")")
+    }
+
+    @Test func aLaneMidStepAtItsLimitIsOutOfTimeAndASettledParallelGoesOn() async throws {
+        let w = try World()
+        w.host.hold = "changes.it"
+        w.host.honoursCancel = true
+        var limited = bad
+        limited["timeout_minutes"] = 5
+        let flow = try w.flow([["id": "both", "parallel": [limited, quick], "join": "settled"], ["id": "s", "text": "{{both.not_finished}}"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(try lane(w, flow.id, "bad").timedOut, "the walk's own save at its end keeps what the clock said")
+        let back = try #require(w.store.run(run.id))
+        #expect(back.status == .done && back.values.value("s").contains("bad"), "\(back.status) \(back.problem ?? "")")
+    }
+
     @Test func aRunsLanesShareItsOneLimit() async throws {
         let w = try World()
         let two: [[String: Any]] = [["name": "one", "steps": [["id": "a", "do": "changes.it", "with": ["text": "a"]]]], ["name": "two", "steps": [["id": "b", "do": "changes.it", "with": ["text": "b"]]]]]
