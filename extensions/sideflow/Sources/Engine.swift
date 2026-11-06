@@ -1708,7 +1708,10 @@ extension FlowHost {
         // What they read is what goes live: anything changed while the card waits stays in the draft.
         let reviewed = flow.kept, reviewedTitle = Self.watchTitle(flow)
         Task {
+            // Known while the card is up, so an agent asking how it stands hears "waiting for the person".
+            if Self.needsCard(reviewed) { asking.insert(id) }
             let answer: Plans.Answer? = Self.needsCard(reviewed) ? await host?.approve(plan) : .allowed(standing: [])
+            asking.remove(id)
             guard let answer, var current = store.flow(id) else { return }
             switch answer {
             case .allowed(_, let silent, _):
@@ -1730,6 +1733,9 @@ extension FlowHost {
             changed()
         }
     }
+
+    /// Flows whose turn-on card is up now.
+    private(set) var asking: Set<String> = []
 
     func pause(_ id: String) {
         guard var flow = store.flow(id), flow.state == .on else { return }

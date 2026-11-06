@@ -71,6 +71,9 @@
     },
     "export_flows": {
       "title": "Escribir rutinas en un archivo"
+    },
+    "stop_run": {
+      "title": "Detener una ejecución"
     }
   },
   "pages": {
@@ -1333,7 +1336,15 @@
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "Aquí van palabras de un paso anterior, así que solo se ejecuta sola con Acceso total.",
     "You set Sidefolk to ask every time, so this asks each run.": "Configuraste Sidefolk para preguntar siempre, así que preguntará en cada ejecución.",
     "Stop the run": "Detener la ejecución",
-    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "El ensayo aún no ha tomado estos caminos: {ways}. Cada ensayo toma un camino, así que los demás solo se prueban cuando una ejecución real los toma."
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "El ensayo aún no ha tomado estos caminos: {ways}. Cada ensayo toma un camino, así que los demás solo se prueban cuando una ejecución real los toma.",
+    "There's no run with that id.": "No hay ninguna ejecución con ese id.",
+    "Say which run, which flow, or all.": "Di qué ejecución, qué flujo o todas.",
+    "Nothing of that is running.": "Nada de eso está en curso.",
+    "Stopped {count} runs: {names}.": {
+      "one": "{count} ejecución detenida: {names}.",
+      "other": "{count} ejecuciones detenidas: {names}."
+    },
+    "A card is waiting for the person to say yes": "Una tarjeta espera a que la persona diga que sí"
   },
   "drops": {
     "flow_file": {

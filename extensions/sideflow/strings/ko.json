@@ -71,6 +71,9 @@
     },
     "export_flows": {
       "title": "루틴을 파일로 쓰기"
+    },
+    "stop_run": {
+      "title": "실행 중지"
     }
   },
   "pages": {
@@ -1302,7 +1305,14 @@
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "앞 단계에서 만든 말이 여기에 들어가므로 전체 접근에서만 저절로 실행됩니다.",
     "You set Sidefolk to ask every time, so this asks each run.": "Sidefolk가 매번 묻도록 설정했으므로 실행할 때마다 묻습니다.",
     "Stop the run": "실행 중지",
-    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "연습에서 아직 시도하지 않은 길: {ways}. 연습은 매번 한 길로만 가므로, 나머지는 실제 실행이 그 길로 갈 때 처음 시도됩니다."
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "연습에서 아직 시도하지 않은 길: {ways}. 연습은 매번 한 길로만 가므로, 나머지는 실제 실행이 그 길로 갈 때 처음 시도됩니다.",
+    "There's no run with that id.": "그 ID의 실행이 없습니다.",
+    "Say which run, which flow, or all.": "어떤 실행인지, 어떤 흐름인지, 또는 전부인지 말해 주세요.",
+    "Nothing of that is running.": "그중 실행 중인 것이 없습니다.",
+    "Stopped {count} runs: {names}.": {
+      "other": "실행 {count}개를 중지했습니다: {names}."
+    },
+    "A card is waiting for the person to say yes": "카드가 사용자의 승인을 기다리고 있습니다"
   },
   "drops": {
     "flow_file": {

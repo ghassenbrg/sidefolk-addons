@@ -113,6 +113,24 @@ import SidefolkExtensionKit
         if preflightAsked[id].map({ Date().timeIntervalSince($0) > 2 }) ?? true { refreshPreflight(id) }
     }
 
+    /// stop_run: one run, every run of a flow, or all of them, each as the person's Stop. What it stopped; nothing when none of it was running.
+    func stopping(run id: String?, flow name: String?, all: Bool) throws -> [Run] {
+        let going: [Run]
+        if all {
+            going = store.unfinished().filter { $0.parent == nil }
+        } else if let id {
+            guard let run = store.run(id) else { throw Problem(L("There's no run with that id.")) }
+            going = run.status.isOver ? [] : [run]
+        } else if let name {
+            let flow = try flow(named: name)
+            going = store.unfinished().filter { $0.flow == flow.id && $0.parent == nil }
+        } else {
+            throw Problem(L("Say which run, which flow, or all."))
+        }
+        for run in going { engine.stop(run: run.id, byThePerson: true) }
+        return going
+    }
+
     /// Whether the page marks a step by what Sidefolk said of it. A "no" for a step filled from an earlier one is about the "…" standing in for that value,
     /// not about what it will be: it's checked again when it runs, so it isn't marked Not allowed on the board.
     static func shows(_ check: Actions.Check, _ input: [String: JSON]) -> Bool {

@@ -37,6 +37,8 @@ import SidefolkExtensionKit
             let flow = try app.flow(named: try args.required("flow"))
             var out: [String: Any] = ["name": flow.name, "id": flow.id, "state": flow.state.rawValue, "definition": FlowCodec.json(flow.draft), "in_words": Words.aloud(flow.draft, catalog: app.catalog)]
             out["based_on"] = AgentEdits.fingerprint(flow.draft)
+            out["approval"] = Summaries.approval(flow, app)
+            if let why = flow.startProblem { out["approval_note"] = why }
             if flow.hasChanges { out["running_now"] = FlowCodec.json(flow.running) }
             if flow.live != nil { out["version"] = flow.version }
             if !flow.revisions.isEmpty { out["versions"] = flow.revisions.map(\.version) }
@@ -116,7 +118,7 @@ import SidefolkExtensionKit
             return ToolReply(L("Practicing “{name}”. Nothing will be changed.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
         })
 
-        ext.tool("start_flow", "Turn a flow on", "Asks the person, on a card, to let a flow run by itself as it's written now. It's on only once they say yes; say that a card is waiting.",
+        ext.tool("start_flow", "Turn a flow on", "Asks the person, on a card on their desktop, to let a flow run by itself as it's written now. Only the person can say yes: it returns at once, so tell them a card is waiting, then look again later with get_flow (its approval says waiting_for_person, allowed or not_allowed). Don't ask again while it waits.",
                  input: Schema.object(["flow": flowParam], required: ["flow"]), reply: { args in
             let flow = try app.flow(named: try args.required("flow"))
             let problems = flow.kept.problems(app.catalog).map(\.text)
@@ -129,6 +131,13 @@ import SidefolkExtensionKit
             let flow = try app.flow(named: try args.required("flow"))
             app.engine.pause(flow.id)
             return L("Paused “{name}”.", ["name": flow.name])
+        }
+
+        ext.tool("stop_run", "Stop a run", "Stops what's under way, as the person's Stop does: one run by its id, every run of a flow, or with all, every run of every flow, practice included. What a step already did stays done; a step under way is told to stop. Use it when the person says stop.",
+                 input: Schema.object(["run": Schema.string("A run's id, from list_runs or get_run.", maxLength: 80), "flow": flowParam, "all": Schema.boolean("Every run under way, of every flow.")])) { args in
+            let going = try app.stopping(run: args.string("run"), flow: args.string("flow"), all: args.bool("all") == true)
+            guard !going.isEmpty else { return L("Nothing of that is running.") }
+            return L(one: "Stopped {count} run: {names}.", other: "Stopped {count} runs: {names}.", count: going.count, ["names": Format.list(Array(Set(going.map(\.flowName))).sorted())])
         }
 
         ext.tool("resume_flow", "Resume a flow", "Lets a paused flow run by itself again. If it changed since, this asks on a card.", input: Schema.object(["flow": flowParam], required: ["flow"])) { args in
@@ -269,8 +278,17 @@ import SidefolkExtensionKit
         }
     }
 
+    /// How the person's approval stands, for an agent: only they can give it, so it reads this and looks again later.
+    static func approval(_ flow: Flow, _ app: App) -> String {
+        if app.engine.asking.contains(flow.id) { return "waiting_for_person" }
+        if flow.startProblem != nil { return "not_allowed" }
+        if flow.live != nil { return flow.hasChanges ? "allowed_changes_not_applied" : "allowed" }
+        return "not_asked"
+    }
+
     static func line(_ flow: Flow, _ app: App) -> String {
         var parts = ["\(flow.name) [\(stateWord(flow))]", Words.triggers(flow.running)]
+        if app.engine.asking.contains(flow.id) { parts.append(L("A card is waiting for the person to say yes")) }
         if let next = next(flow) { parts.append(L("Next: {when}", ["when": Format.dateTime(next)])) }
         if let last = app.store.latest(of: flow.id) { parts.append(L("Last: {status}", ["status": status(last)])) }
         return parts.joined(separator: " · ")

@@ -71,6 +71,9 @@
     },
     "export_flows": {
       "title": "将流程写入文件"
+    },
+    "stop_run": {
+      "title": "停止运行"
     }
   },
   "pages": {
@@ -1302,7 +1305,14 @@
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "这里填入前面步骤生成的文字，所以只有在完全访问下才会自行运行。",
     "You set Sidefolk to ask every time, so this asks each run.": "你把 Sidefolk 设为每次都询问，所以每次运行都会询问。",
     "Stop the run": "停止运行",
-    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "试运行还没走过这些路：{ways}。每次试运行只走一条路，其余的要等真正运行走到时才会试到。"
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "试运行还没走过这些路：{ways}。每次试运行只走一条路，其余的要等真正运行走到时才会试到。",
+    "There's no run with that id.": "没有这个 ID 的运行。",
+    "Say which run, which flow, or all.": "请说明是哪次运行、哪个流程，还是全部。",
+    "Nothing of that is running.": "这些都没有在运行。",
+    "Stopped {count} runs: {names}.": {
+      "other": "已停止 {count} 次运行：{names}。"
+    },
+    "A card is waiting for the person to say yes": "有一张卡片在等本人同意"
   },
   "drops": {
     "flow_file": {

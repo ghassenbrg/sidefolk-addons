@@ -71,6 +71,9 @@
     },
     "export_flows": {
       "title": "كتابة الروتينات في ملف"
+    },
+    "stop_run": {
+      "title": "إيقاف تشغيل"
     }
   },
   "pages": {
@@ -1457,7 +1460,19 @@
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "هنا تُوضع كلمات صنعتها خطوة سابقة، لذا لا تعمل تلقائيًا إلا مع الوصول الكامل.",
     "You set Sidefolk to ask every time, so this asks each run.": "ضبطت Sidefolk ليسأل في كل مرة، لذا ستسأل هذه الخطوة في كل تشغيل.",
     "Stop the run": "إيقاف التشغيل",
-    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "لم يسلك التشغيل التجريبي هذه الطرق بعد: {ways}. كل تشغيل تجريبي يسلك طريقًا واحدًا، فلا تُجرَّب الطرق الأخرى إلا عندما يسلكها تشغيل حقيقي."
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "لم يسلك التشغيل التجريبي هذه الطرق بعد: {ways}. كل تشغيل تجريبي يسلك طريقًا واحدًا، فلا تُجرَّب الطرق الأخرى إلا عندما يسلكها تشغيل حقيقي.",
+    "There's no run with that id.": "لا يوجد تشغيل بهذا المعرّف.",
+    "Say which run, which flow, or all.": "قل أي تشغيل، أو أي تدفق، أو الكل.",
+    "Nothing of that is running.": "لا شيء من ذلك قيد التشغيل.",
+    "Stopped {count} runs: {names}.": {
+      "zero": "لم يُوقف أي تشغيل.",
+      "one": "أُوقف تشغيل واحد: {names}.",
+      "two": "أُوقف تشغيلان: {names}.",
+      "few": "أُوقفت {count} تشغيلات: {names}.",
+      "many": "أُوقف {count} تشغيلًا: {names}.",
+      "other": "أُوقف {count} تشغيل: {names}."
+    },
+    "A card is waiting for the person to say yes": "بطاقة تنتظر أن يوافق الشخص"
   },
   "drops": {
     "flow_file": {

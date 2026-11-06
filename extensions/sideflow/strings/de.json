@@ -71,6 +71,9 @@
     },
     "export_flows": {
       "title": "Abläufe als Datei schreiben"
+    },
+    "stop_run": {
+      "title": "Einen Lauf stoppen"
     }
   },
   "pages": {
@@ -1333,7 +1336,15 @@
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "Hier stehen Wörter aus einem früheren Schritt, daher läuft er nur bei Vollzugriff von selbst.",
     "You set Sidefolk to ask every time, so this asks each run.": "Du hast Sidefolk so eingestellt, dass es jedes Mal fragt, daher fragt er bei jedem Lauf.",
     "Stop the run": "Lauf stoppen",
-    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "Der Probelauf hat diese Wege noch nicht genommen: {ways}. Jeder Probelauf nimmt einen Weg, die anderen werden erst bei einem echten Lauf ausprobiert."
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "Der Probelauf hat diese Wege noch nicht genommen: {ways}. Jeder Probelauf nimmt einen Weg, die anderen werden erst bei einem echten Lauf ausprobiert.",
+    "There's no run with that id.": "Es gibt keinen Lauf mit dieser ID.",
+    "Say which run, which flow, or all.": "Sag, welcher Lauf, welcher Ablauf oder alle.",
+    "Nothing of that is running.": "Davon läuft nichts.",
+    "Stopped {count} runs: {names}.": {
+      "one": "{count} Lauf gestoppt: {names}.",
+      "other": "{count} Läufe gestoppt: {names}."
+    },
+    "A card is waiting for the person to say yes": "Eine Karte wartet darauf, dass die Person Ja sagt"
   },
   "drops": {
     "flow_file": {

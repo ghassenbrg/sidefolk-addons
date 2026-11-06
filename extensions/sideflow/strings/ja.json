@@ -71,6 +71,9 @@
     },
     "export_flows": {
       "title": "ルーティンをファイルに書き出す"
+    },
+    "stop_run": {
+      "title": "実行を停止"
     }
   },
   "pages": {
@@ -1302,7 +1305,14 @@
     "Words an earlier step made go in here, so it runs by itself only under Full access.": "前のステップで作られた言葉が入るため、フルアクセスのときだけ自動で実行します。",
     "You set Sidefolk to ask every time, so this asks each run.": "Sidefolkを毎回確認する設定にしているため、実行のたびに確認します。",
     "Stop the run": "実行を停止",
-    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "練習でまだ試していない道: {ways}。練習は毎回ひとつの道を通るので、ほかの道は本番の実行で通ったときに初めて試されます。"
+    "Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.": "練習でまだ試していない道: {ways}。練習は毎回ひとつの道を通るので、ほかの道は本番の実行で通ったときに初めて試されます。",
+    "There's no run with that id.": "そのIDの実行はありません。",
+    "Say which run, which flow, or all.": "どの実行か、どのフローか、すべてかを指定してください。",
+    "Nothing of that is running.": "該当するものは実行中ではありません。",
+    "Stopped {count} runs: {names}.": {
+      "other": "{count}件の実行を停止しました: {names}。"
+    },
+    "A card is waiting for the person to say yes": "カードが本人の承認を待っています"
   },
   "drops": {
     "flow_file": {

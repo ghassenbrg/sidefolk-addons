@@ -964,6 +964,52 @@ import SidefolkExtensionKit
         #expect(App.shows(yes, ["id": .string("{{which.id}}")]))
     }
 
+    /// What an agent reads of the person's approval: not asked, waiting while the card is up, allowed, or not allowed with why.
+    @Test func anAgentReadsHowTheApprovalStands() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, [["id": "s", "do": "reads.it", "with": ["n": 1]]])
+        #expect(Summaries.approval(flow, app) == "not_asked")
+        w.host.planWait = .milliseconds(300)
+        app.engine.turnOn(flow.id)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(Summaries.approval(try #require(app.store.flow(flow.id)), app) == "waiting_for_person")
+        #expect(Summaries.line(try #require(app.store.flow(flow.id)), app).contains(L("A card is waiting for the person to say yes")))
+        try await Task.sleep(for: .milliseconds(400))
+        #expect(Summaries.approval(try #require(app.store.flow(flow.id)), app) == "allowed")
+        w.host.planWait = nil
+        w.host.planAnswer = .refused("denied")
+        var changed = try #require(app.store.flow(flow.id))
+        changed.draft = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "s", "do": "reads.it", "with": ["n": 2]]]])
+        app.store.save(changed)
+        app.engine.turnOn(flow.id)
+        try await Task.sleep(for: .milliseconds(200))
+        #expect(Summaries.approval(try #require(app.store.flow(flow.id)), app) == "not_allowed")
+    }
+
+    /// stop_run, the agents' Stop: a run by id, a flow's runs, or all; nothing named is refused, and what's over isn't stopped again.
+    @Test func stopRunStopsWhatItsToldTo() async throws {
+        let w = try World()
+        let app = app(w)
+        var one = try make(app, [["id": "w", "wait_minutes": 30]], name: "One")
+        var two = try make(app, [["id": "w", "wait_minutes": 30]], name: "Two")
+        for f in [one, two] { var on = f; on.live = on.draft; on.state = .on; app.store.save(on) }
+        one = try #require(app.store.flow(one.id)); two = try #require(app.store.flow(two.id))
+        let a = try #require(app.engine.start(one, mode: .live, why: "t"))
+        let b = try #require(app.engine.start(two, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        #expect(throws: (any Error).self) { try app.stopping(run: nil, flow: nil, all: false) }
+        #expect(throws: (any Error).self) { try app.stopping(run: "nope", flow: nil, all: false) }
+        #expect(try app.stopping(run: a.id, flow: nil, all: false).map(\.id) == [a.id])
+        #expect(app.store.run(a.id)?.status == .stopped && app.store.run(b.id)?.status == .waiting)
+        #expect(try app.stopping(run: a.id, flow: nil, all: false).isEmpty, "already over")
+        #expect(try app.stopping(run: nil, flow: "Two", all: false).map(\.id) == [b.id])
+        let c = try #require(app.engine.start(one, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        #expect(try app.stopping(run: nil, flow: nil, all: true).map(\.id) == [c.id])
+        #expect(app.store.unfinished().isEmpty)
+    }
+
     /// Stop all on Your flows: every run under way, of every flow, practice included, and only with the page's token; gone when nothing runs.
     @Test func yourFlowsStopsEverythingUnderWay() async throws {
         let w = try World()

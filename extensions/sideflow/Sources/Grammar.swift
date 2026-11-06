@@ -52,5 +52,15 @@ enum Grammar {
     To change a flow, read it with get_flow and send update_flow a patch and its based_on: small edits keep the rest as it was, and if someone changed it since you read it you're told. The answer lists what changed, and the person sees the same list and can undo it.
 
     Nothing you write runs until the person allows it: flows are drafts until they answer a card that shows what it will do. A practice run reads for real and changes nothing.
+
+    End to end, for an agent:
+      1. create_flow with a definition (its trigger and steps). It's saved as a draft and nothing runs. Read problems in its answer and fix them with update_flow.
+      2. practice_flow to try it: what only reads runs for real, the rest says what it would do. get_run reads the result.
+      3. start_flow to turn it on, or run_flow to run it once. Both put a card on the person's desktop and come back at once. Only the person can say yes, never you: tell them a card is waiting.
+      4. Look later with get_flow: approval is waiting_for_person, allowed, not_allowed (approval_note says why) or not_asked. Don't ask again while it waits.
+      5. Once it's allowed, it runs by its trigger, or now with run_flow. list_runs and get_run say how each run went; continue_run carries a stopped one on, as the person chooses.
+      6. stop_run stops a run, every run of a flow, or all of them, when the person says stop. pause_flow and resume_flow switch it off and on.
+    To put steps inside an if, a loop, a try or lanes, remove them with update_flow and add one step that holds them.
+    Words with a line break, a tab or hidden marks make that step ask the person every run: write each value on one line.
     """
 }

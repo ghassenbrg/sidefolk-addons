@@ -4,6 +4,7 @@
     "(too long to keep)": "(too long to keep)",
     "(your answer)": "(your answer)",
     "2 to 4, with commas between them. None lets you type.": "2 to 4, with commas between them. None lets you type.",
+    "A card is waiting for the person to say yes": "A card is waiting for the person to say yes",
     "A choice in a form needs at least two answers.": "A choice in a form needs at least two answers.",
     "A condition is “and” or “or”, not both.": "A condition is “and” or “or”, not both.",
     "A file appears": "A file appears",
@@ -508,6 +509,7 @@
     "Nothing matches. Sideflow can use Sidefolk's tools and other extensions' tools when they're on.": "Nothing matches. Sideflow can use Sidefolk's tools and other extensions' tools when they're on.",
     "Nothing more of this run.": "Nothing more of this run.",
     "Nothing new to allow": "Nothing new to allow",
+    "Nothing of that is running.": "Nothing of that is running.",
     "Nothing runs yet": "Nothing runs yet",
     "Nothing to fix. Everything it needs is allowed or will ask you.": "Nothing to fix. Everything it needs is allowed or will ask you.",
     "Nothing to go through": "Nothing to go through",
@@ -645,6 +647,7 @@
     "Say what's new with the AI": "Say what's new with the AI",
     "Say which list": "Say which list",
     "Say which list to go through.": "Say which list to go through.",
+    "Say which run, which flow, or all.": "Say which run, which flow, or all.",
     "Second": "Second",
     "See connections": "See connections",
     "Select": "Select",
@@ -709,6 +712,10 @@
     "Stopped": "Stopped",
     "Stopped before this came back.": "Stopped before this came back.",
     "Stopped inside": "Stopped inside",
+    "Stopped {count} runs: {names}.": {
+      "one": "Stopped {count} run: {names}.",
+      "other": "Stopped {count} runs: {names}."
+    },
     "Stopped. {count} starts waiting their turn were cleared.": {
       "one": "Stopped. {count} start waiting its turn was cleared.",
       "other": "Stopped. {count} starts waiting their turn were cleared."
@@ -795,6 +802,7 @@
     "There's no one flow called “{name}”. Pick it again.": "There's no one flow called “{name}”. Pick it again.",
     "There's no other flow to run yet.": "There's no other flow to run yet.",
     "There's no other one flow called “{name}”. Pick it again.": "There's no other one flow called “{name}”. Pick it again.",
+    "There's no run with that id.": "There's no run with that id.",
     "There's no step “{name}”.": "There's no step “{name}”.",
     "There's no template “{id}”.": "There's no template “{id}”.",
     "There's nothing called “{name}” to work out with. These there are: {list}.": "There's nothing called “{name}” to work out with. These there are: {list}.",
