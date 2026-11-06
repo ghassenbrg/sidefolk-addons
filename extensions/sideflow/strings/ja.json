@@ -1301,7 +1301,8 @@
     "Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line.": "改行か、カードで正確に表示できない記号が含まれているため、実行のたびに確認します。1行で書いてください。",
     "Settings › Trust keeps flows from passing what they read on to this, so it asks each run.": "設定 › 信頼 で、フローが読んだものをここへ渡さないようにしているため、実行のたびに確認します。",
     "Stop all {count}": "{count}件すべて停止",
-    "Words an earlier step made go in here, so it runs by itself only under Full access.": "前のステップで作られた言葉が入るため、フルアクセスのときだけ自動で実行します。"
+    "Words an earlier step made go in here, so it runs by itself only under Full access.": "前のステップで作られた言葉が入るため、フルアクセスのときだけ自動で実行します。",
+    "You set Sidefolk to ask every time, so this asks each run.": "Sidefolkを毎回確認する設定にしているため、実行のたびに確認します。"
   },
   "drops": {
     "flow_file": {

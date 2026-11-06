@@ -202,6 +202,7 @@ struct PlanLook {
         case "shell": return (L("It runs a program, so it asks each run."), .info)
         case "text_to_read": return (L("Its words are read in full each time."), .info)
         case "unreadable_value": return (L("Its words have a line break or a mark the card can't show exactly, so it asks each run. Write them on one line."), .warn)
+        case "ask_every_time": return (L("You set Sidefolk to ask every time, so this asks each run."), .info)
         case "switch_off": return (L("Settings › Trust keeps flows from passing what they read on to this, so it asks each run."), .info)
         case "filled_value" where line.state == "stands_in_full_access": return (L("Words an earlier step made go in here, so it runs by itself only under Full access."), .info)
         default: break
