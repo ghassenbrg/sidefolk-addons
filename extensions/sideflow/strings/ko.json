@@ -1269,16 +1269,17 @@
     "It was given": "받은 내용",
     "It made": "만든 내용",
     "Input": "입력",
-    "Only the first part of what it was given was kept.": "받은 내용은 앞부분만 보관했습니다.",
     "And {count} more fields, not shown.": {
       "other": "그리고 표시하지 않은 항목 {count}개."
     },
-    "{count} fields the tool doesn't name": {
-      "other": "도구가 정하지 않은 항목 {count}개"
-    },
     "… and about {count} more parts, not shown.": {
       "other": "… 그리고 표시하지 않은 약 {count}개 부분."
-    }
+    },
+    "+{count} more fields": {
+      "other": "+{count}개 항목"
+    },
+    "Some words of this step were not kept; the places it used are shown.": "이 단계의 일부 글은 보관하지 않았습니다. 사용한 위치는 표시됩니다.",
+    "The whole plan with every value is on the approval card.": "모든 값을 담은 전체 계획은 승인 카드에 있습니다."
   },
   "drops": {
     "flow_file": {

@@ -1404,7 +1404,6 @@
     "It was given": "ما أُعطي",
     "It made": "ما أعطاه",
     "Input": "المُدخل",
-    "Only the first part of what it was given was kept.": "احتُفظ بالجزء الأول فقط مما أُعطي.",
     "And {count} more fields, not shown.": {
       "zero": "و{count} حقلًا آخر لا يظهر.",
       "one": "وحقل آخر لا يظهر.",
@@ -1413,14 +1412,6 @@
       "many": "و{count} حقلًا آخر لا يظهر.",
       "other": "و{count} حقلًا آخر لا يظهر."
     },
-    "{count} fields the tool doesn't name": {
-      "zero": "{count} حقلًا لا تسمّيه الأداة",
-      "one": "حقل لا تسمّيه الأداة",
-      "two": "حقلان لا تسمّيهما الأداة",
-      "few": "{count} حقول لا تسمّيها الأداة",
-      "many": "{count} حقلًا لا تسمّيه الأداة",
-      "other": "{count} حقلًا لا تسمّيه الأداة"
-    },
     "… and about {count} more parts, not shown.": {
       "zero": "… ونحو {count} جزءًا آخر لا يظهر.",
       "one": "… وجزء آخر تقريبًا لا يظهر.",
@@ -1428,7 +1419,17 @@
       "few": "… ونحو {count} أجزاء أخرى لا تظهر.",
       "many": "… ونحو {count} جزءًا آخر لا يظهر.",
       "other": "… ونحو {count} جزءًا آخر لا يظهر."
-    }
+    },
+    "+{count} more fields": {
+      "zero": "+{count} حقلًا آخر",
+      "one": "+حقل آخر",
+      "two": "+حقلان آخران",
+      "few": "+{count} حقول أخرى",
+      "many": "+{count} حقلًا آخر",
+      "other": "+{count} حقلًا آخر"
+    },
+    "Some words of this step were not kept; the places it used are shown.": "لم يُحتفظ ببعض كلمات هذه الخطوة؛ الأماكن التي استخدمتها ظاهرة.",
+    "The whole plan with every value is on the approval card.": "الخطة كاملة بكل قيمة فيها على بطاقة الموافقة."
   },
   "drops": {
     "flow_file": {

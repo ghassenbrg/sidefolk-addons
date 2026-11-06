@@ -1296,19 +1296,20 @@
     "It was given": "Lo que recibió",
     "It made": "Lo que dio",
     "Input": "Entrada",
-    "Only the first part of what it was given was kept.": "Solo se guardó la primera parte de lo que recibió.",
     "And {count} more fields, not shown.": {
       "one": "Y {count} campo más, sin mostrar.",
       "other": "Y {count} campos más, sin mostrar."
     },
-    "{count} fields the tool doesn't name": {
-      "one": "{count} campo que la herramienta no nombra",
-      "other": "{count} campos que la herramienta no nombra"
-    },
     "… and about {count} more parts, not shown.": {
       "one": "… y unas {count} parte más, sin mostrar.",
       "other": "… y unas {count} partes más, sin mostrar."
-    }
+    },
+    "+{count} more fields": {
+      "one": "+{count} campo más",
+      "other": "+{count} campos más"
+    },
+    "Some words of this step were not kept; the places it used are shown.": "Algunas palabras de este paso no se guardaron; se muestran los lugares que usó.",
+    "The whole plan with every value is on the approval card.": "El plan completo, con cada valor, está en la tarjeta de aprobación."
   },
   "drops": {
     "flow_file": {

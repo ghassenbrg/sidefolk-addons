@@ -1269,16 +1269,17 @@
     "It was given": "收到的内容",
     "It made": "给出的内容",
     "Input": "输入",
-    "Only the first part of what it was given was kept.": "收到的内容只保留了前一部分。",
     "And {count} more fields, not shown.": {
       "other": "还有 {count} 个字段未显示。"
     },
-    "{count} fields the tool doesn't name": {
-      "other": "{count} 个工具未列出的字段"
-    },
     "… and about {count} more parts, not shown.": {
       "other": "… 还有约 {count} 部分未显示。"
-    }
+    },
+    "+{count} more fields": {
+      "other": "+{count} 个字段"
+    },
+    "Some words of this step were not kept; the places it used are shown.": "这一步的部分文字没有保留；它用到的位置会显示。",
+    "The whole plan with every value is on the approval card.": "包含每个值的完整计划在批准卡片上。"
   },
   "drops": {
     "flow_file": {

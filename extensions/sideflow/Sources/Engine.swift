@@ -1548,25 +1548,37 @@ extension FlowHost {
     /// since a hundred steps going round a loop would otherwise fill its file.
     static let keptInput = 8000
     static let keptInputPerRun = 200_000
+    static let keptPlace = 2000
 
-    /// What's kept of a step's input: each field's words cut at `keptInput`, as long as the run has room left, and whether anything was left out.
+    /// What's kept of a step's input, and whether any of its words were left out. Where it goes is always kept, so the run's page can say it, up to `keptPlace` each;
+    /// other fields up to `keptInput` each, while the run has room left for words.
     static func kept(_ input: [String: Any], in run: Run) -> (String?, Bool) {
         var cut = false
-        func clip(_ value: Any) -> Any {
+        func clip(_ value: Any, _ most: Int) -> Any {
             switch value {
-            case let text as String where text.count > keptInput:
+            case let text as String where text.count > most:
                 cut = true
-                return String(text.prefix(keptInput))
-            case let list as [Any]: return list.map(clip)
-            case let fields as [String: Any]: return fields.mapValues(clip)
+                return String(text.prefix(most)) + "…"
+            case let list as [Any]: return list.map { clip($0, most) }
+            case let fields as [String: Any]: return fields.mapValues { clip($0, most) }
             default: return value
             }
         }
-        let written = JSONText.write(clip(input))
-        let room = keptInputPerRun - run.records.reduce(0) { $0 + ($1.input?.utf8.count ?? 0) }
-        guard written.utf8.count <= room else { return (nil, true) }
-        return (written, cut)
+        var room = keptInputPerRun - run.records.reduce(0) { $0 + ($1.input?.utf8.count ?? 0) }
+        var out: [String: Any] = [:]
+        for key in input.keys.sorted() where FieldNames.isPlace(key) { out[key] = clip(input[key] as Any, keptPlace) }
+        for key in input.keys.sorted() where !FieldNames.isPlace(key) {
+            let value = clip(input[key] as Any, keptInput), size = JSONText.write([key: value]).utf8.count
+            guard size <= room else {
+                cut = true
+                continue
+            }
+            out[key] = value
+            room -= size
+        }
+        return (out.isEmpty ? nil : JSONText.write(out), cut)
     }
+
     /// Steps in a run between two waits.
     static let longestWalk = 20_000
 

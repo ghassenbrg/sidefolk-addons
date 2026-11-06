@@ -3,6 +3,10 @@
     "(sample)": "(sample)",
     "(too long to keep)": "(too long to keep)",
     "(your answer)": "(your answer)",
+    "+{count} more fields": {
+      "one": "+{count} more field",
+      "other": "+{count} more fields"
+    },
     "2 to 4, with commas between them. None lets you type.": "2 to 4, with commas between them. None lets you type.",
     "A choice in a form needs at least two answers.": "A choice in a form needs at least two answers.",
     "A condition is “and” or “or”, not both.": "A condition is “and” or “or”, not both.",
@@ -522,7 +526,6 @@
     "Only here so far. ⌘S keeps them, ⌘Z steps back.": "Only here so far. ⌘S keeps them, ⌘Z steps back.",
     "Only if it mentions": "Only if it mentions",
     "Only reads": "Only reads",
-    "Only the first part of what it was given was kept.": "Only the first part of what it was given was kept.",
     "Only the first {count} flows can be picked at once. Delete these, and the rest come up.": "Only the first {count} flows can be picked at once. Delete these, and the rest come up.",
     "Only the first {count} goes can be picked here.": "Only the first {count} goes can be picked here.",
     "Only this step": "Only this step",
@@ -673,6 +676,7 @@
     "So far": "So far",
     "Some columns have no name.": "Some columns have no name.",
     "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.": "Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.",
+    "Some words of this step were not kept; the places it used are shown.": "Some words of this step were not kept; the places it used are shown.",
     "Sort": "Sort",
     "Sort out what sets it off first.": "Sort out what sets it off first.",
     "Split into batches": "Split into batches",
@@ -764,6 +768,7 @@
     "The watch saw a change.": "The watch saw a change.",
     "The web": "The web",
     "The whole address of the page or site.": "The whole address of the page or site.",
+    "The whole plan with every value is on the approval card.": "The whole plan with every value is on the approval card.",
     "Their runs and what you allowed for them go too. This can't be undone.": "Their runs and what you allowed for them go too. This can't be undone.",
     "Then go through them with For each: each item is one batch.": "Then go through them with For each: each item is one batch.",
     "Then it counts as this step failing.": "Then it counts as this step failing.",
@@ -1031,10 +1036,6 @@
     "{count} differences from what's running. Comes back as unsaved changes.": {
       "one": "{count} difference from what's running. Comes back as unsaved changes.",
       "other": "{count} differences from what's running. Comes back as unsaved changes."
-    },
-    "{count} fields the tool doesn't name": {
-      "one": "{count} field the tool doesn't name",
-      "other": "{count} fields the tool doesn't name"
     },
     "{count} flows can't be read by this version. They're kept, not shown.": {
       "one": "{count} flow can't be read by this version. It's kept, not shown.",
