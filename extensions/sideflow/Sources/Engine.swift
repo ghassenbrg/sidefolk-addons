@@ -1004,8 +1004,12 @@ extension FlowHost {
             // Two ways due together are still one moment: it runs for the first, however many said so.
             if let why = starts.first { start(flow, mode: .live, why: why) }
         }
-        // A lane out of time. Held by a pause, it gets until the pause is over.
-        for run in store.unfinished() where run.deadline.map({ $0 <= now }) == true && !run.paused && !heldByPause(run) { stop(run: run.id, windingDown: true) }
+        // A lane out of time. Its flow being paused doesn't hold the clock: what's under way goes on while paused, so its limit has to as well.
+        for var run in store.unfinished() where run.deadline.map({ $0 <= now }) == true && !run.paused {
+            run.outOfTime = true
+            store.save(run)
+            stop(run: run.id, windingDown: true)
+        }
         // One the person paused goes on when they say, whatever it was waiting for before.
         for run in store.unfinished() where run.status == .waiting && !run.paused {
             // Back: the same step goes now. Whether it may is still Sidefolk's to say, by the same plan or a card.

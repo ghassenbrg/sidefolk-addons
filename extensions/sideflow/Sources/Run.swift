@@ -122,8 +122,12 @@ struct Run: Equatable, Sendable, Identifiable {
     var connection: WaitingConnection?
     /// A lane's limit: past this, it's stopped.
     var deadline: Date?
+    /// Stopped at its limit by the clock: a stop from anywhere else after the limit went by is still that stop.
+    var outOfTime = false
     /// Stopped because its time ran out, not because something else was enough.
-    var timedOut: Bool { status == .stopped && deadline.flatMap { limit in endedAt.map { limit <= $0 } } == true }
+    var timedOut: Bool { status == .stopped && outOfTime }
+    /// The lanes a parallel stopped itself, having enough or a lost cause: any other that ends stopped was stopped by someone else.
+    var woundDown: [String] = []
 
     /// What it answers to a run that called it: what it said at its end, or what its last step made.
     var answer: JSON { output ?? .null }
