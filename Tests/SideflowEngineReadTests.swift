@@ -955,6 +955,15 @@ import SidefolkExtensionKit
         #expect(bar.contains("stop_runs"), "and Stop stays, unsaved changes or not")
     }
 
+    /// A no for a step filled from an earlier step is about the stand-in, so the board doesn't say Not allowed; one for words written in it does.
+    @Test func aNoForAValueFromEarlierIsntNotAllowed() {
+        let no = Actions.Check(decision: .deny, summary: "", mutates: true, standing: false)
+        let yes = Actions.Check(decision: .allow, summary: "", mutates: true, standing: false)
+        #expect(!App.shows(no, ["id": .string("{{which.id}}")]))
+        #expect(App.shows(no, ["id": .string("0123")]))
+        #expect(App.shows(yes, ["id": .string("{{which.id}}")]))
+    }
+
     /// Stop all on Your flows: every run under way, of every flow, practice included, and only with the page's token; gone when nothing runs.
     @Test func yourFlowsStopsEverythingUnderWay() async throws {
         let w = try World()

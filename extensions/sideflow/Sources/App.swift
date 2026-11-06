@@ -113,6 +113,12 @@ import SidefolkExtensionKit
         if preflightAsked[id].map({ Date().timeIntervalSince($0) > 2 }) ?? true { refreshPreflight(id) }
     }
 
+    /// Whether the page marks a step by what Sidefolk said of it. A "no" for a step filled from an earlier one is about the "…" standing in for that value,
+    /// not about what it will be: it's checked again when it runs, so it isn't marked Not allowed on the board.
+    static func shows(_ check: Actions.Check, _ input: [String: JSON]) -> Bool {
+        check.decision != .deny || !input.values.flatMap(\.strings).contains { !Values.references($0).isEmpty }
+    }
+
     func refreshPreflight(_ id: String) {
         guard let flow = store.flow(id) else { return }
         let asked = Date()
@@ -128,9 +134,9 @@ import SidefolkExtensionKit
                 guard case .action(let tool, let input) = step.kind else { continue }
                 let filled = catalog.filled(tool, input, from: values)
                 let key = "\(tool) \(plan ?? "") " + ((try? JSONSerialization.data(withJSONObject: filled, options: [.sortedKeys])).map { String(decoding: $0, as: UTF8.self) } ?? "")
-                if let kept = looked[key], Date().timeIntervalSince(kept.at) < Self.lookFor { out[step.id] = kept.check; continue }
+                if let kept = looked[key], Date().timeIntervalSince(kept.at) < Self.lookFor { if Self.shows(kept.check, input) { out[step.id] = kept.check }; continue }
                 if let check = await host.check(tool, filled, plan: plan) {
-                    out[step.id] = check
+                    if Self.shows(check, input) { out[step.id] = check }
                     looked = looked.filter { Date().timeIntervalSince($0.value.at) < Self.lookFor }
                     looked[key] = (Date(), check)
                 }
