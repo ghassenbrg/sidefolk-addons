@@ -113,7 +113,8 @@ import SidefolkExtensionKit
         if preflightAsked[id].map({ Date().timeIntervalSince($0) > 2 }) ?? true { refreshPreflight(id) }
     }
 
-    /// stop_run: one run, every run of a flow, or all of them, each as the person's Stop. What it stopped; nothing when none of it was running.
+    /// stop_run: one run, every run of a flow (as the flow's own Stop: practice has its own), or all of them, practice too. Said to be stopped when asked,
+    /// not on its page, so a run doesn't read as the person's own Stop, and what's waiting its turn stays in line. What it stopped; nothing when none was running.
     func stopping(run id: String?, flow name: String?, all: Bool) throws -> [Run] {
         let going: [Run]
         if all {
@@ -123,11 +124,11 @@ import SidefolkExtensionKit
             going = run.status.isOver ? [] : [run]
         } else if let name {
             let flow = try flow(named: name)
-            going = store.unfinished().filter { $0.flow == flow.id && $0.parent == nil }
+            going = store.unfinished().filter { $0.flow == flow.id && $0.parent == nil && $0.mode != .practice }
         } else {
             throw Problem(L("Say which run, which flow, or all."))
         }
-        for run in going { engine.stop(run: run.id, byThePerson: true) }
+        for run in going { engine.stop(run: run.id, because: L("Stopped when asked to, not from its page.")) }
         return going
     }
 
