@@ -6,7 +6,11 @@
     "GitHub has no public repository {repo}.": "GitHub has no public repository {repo}.",
     "GitHub sent something that isn't a list of issues.": "GitHub sent something that isn't a list of issues.",
     "Give the repository as owner/name, like apple/swift.": "Give the repository as owner/name, like apple/swift.",
+    "It stopped after {count} pages to answer in time.": "It stopped after {count} pages to answer in time.",
+    "It stopped after {count} pages: GitHub asks to wait {time}.": "It stopped after {count} pages: GitHub asks to wait {time}.",
+    "It stopped after {count} pages: the next one didn't come.": "It stopped after {count} pages: the next one didn't come.",
     "No issues on this page.": "No issues on this page.",
+    "Some of what it read was left out to keep the answer small enough.": "Some of what it read was left out to keep the answer small enough.",
     "There's another page: page {page}.": "There's another page: page {page}."
   }
 }

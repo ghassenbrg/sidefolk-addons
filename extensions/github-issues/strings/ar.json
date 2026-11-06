@@ -17,7 +17,11 @@
     "GitHub sent something that isn't a list of issues.": "أرسل GitHub شيئًا ليس قائمة مشكلات.",
     "Give the repository as owner/name, like apple/swift.": "اكتب المستودع على شكل owner/name، مثل apple/swift.",
     "No issues on this page.": "لا توجد مشكلات في هذه الصفحة.",
-    "There's another page: page {page}.": "هناك صفحة أخرى: الصفحة {page}."
+    "There's another page: page {page}.": "هناك صفحة أخرى: الصفحة {page}.",
+    "It stopped after {count} pages to answer in time.": "توقف بعد {count} صفحات ليجيب في الوقت.",
+    "It stopped after {count} pages: the next one didn't come.": "توقف بعد {count} صفحات: لم تصل الصفحة التالية.",
+    "Some of what it read was left out to keep the answer small enough.": "تُرك جزء مما قُرئ ليبقى الجواب صغيرًا بما يكفي.",
+    "It stopped after {count} pages: GitHub asks to wait {time}.": "توقف بعد {count} صفحات: يطلب GitHub الانتظار {time}."
   },
   "examples": [
     "ما المشكلات المفتوحة في apple/swift؟"

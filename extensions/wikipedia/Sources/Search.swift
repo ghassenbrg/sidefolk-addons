@@ -32,32 +32,28 @@ enum Search {
 
     static let mostPages = 5
 
-    /// From `offset`, up to `pages` pages, as one list (D202). Busy before the first means nothing was read; after it, what was read comes back with where to go on.
+    /// From `offset`, up to `pages` pages, as one list, within what one call may take (D202). Busy before the first means nothing was read.
     static func find(_ words: String, language: String, from offset: Int, pages: Int) async throws -> ToolReply {
-        var items: [[String: Any]] = [], next: Int? = offset, read = 0
-        while let at = next, read < min(max(pages, 1), mostPages) {
-            let one = try await fetch(words, language: language, from: at)
-            if let wait = one.wait {
-                guard read > 0 else {
-                    return ToolReply(L("Wikipedia asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: ["rate_limited": true, "retry_after_seconds": Int(wait.rounded(.up))])
-                }
-                break
-            }
-            items += one.items
-            next = one.next
-            read += 1
+        let got = try await Paging.gather(from: offset, most: min(pages, mostPages)) { at in try await fetch(words, language: language, from: at) }
+        if got.pages == 0, let wait = got.wait {
+            return ToolReply(L("Wikipedia asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: got.fields)
         }
-        var text = items.isEmpty ? L("Nothing found.") : items.prefix(50).map { "\($0["title"] as? String ?? ""): \($0["snippet"] as? String ?? "")" }.joined(separator: "\n")
-        if let next { text += "\n" + L("There are more: the next page starts at {offset}.", ["offset": String(next)]) }
-        var fields: [String: Any] = ["items": items, "count": items.count, "pages": read]
-        if let next { fields["next_page"] = next }
-        return ToolReply(text).with(data: fields)
+        var text = got.items.isEmpty ? L("Nothing found.") : got.items.prefix(50).map { "\($0["title"] as? String ?? ""): \($0["snippet"] as? String ?? "")" }.joined(separator: "\n")
+        switch got.stopped {
+        case "time": text += "\n" + L("It stopped after {count} pages to answer in time.", ["count": String(got.pages)])
+        case "error": text += "\n" + L("It stopped after {count} pages: the next one didn't come.", ["count": String(got.pages)])
+        case "wait": text += "\n" + L("It stopped after {count} pages: Wikipedia asks to wait {time}.", ["count": String(got.pages), "time": Format.duration(got.wait ?? 5)])
+        default: break
+        }
+        if got.truncated { text += "\n" + L("Some of what it read was left out to keep the answer small enough.") }
+        if let next = got.next { text += "\n" + L("There are more: the next page starts at {offset}.", ["offset": String(next)]) }
+        return ToolReply(text).with(data: got.fields)
     }
 
-    private static func fetch(_ words: String, language: String, from offset: Int) async throws -> (items: [[String: Any]], next: Int?, wait: Double?) {
+    private static func fetch(_ words: String, language: String, from offset: Int) async throws -> Paging.Fetched {
         let url = Web.url("https://\(language).wikipedia.org/w/api.php", [("action", "query"), ("list", "search"), ("srsearch", words), ("format", "json"),
                                                                           ("srlimit", String(perPage)), ("sroffset", String(offset)), ("maxlag", "5")])
-        var request = URLRequest(url: url, timeoutInterval: 20)
+        var request = URLRequest(url: url, timeoutInterval: 8)
         request.setValue("Sidefolk/1.0 (a Mac companion)", forHTTPHeaderField: "User-Agent")
         let (data, response): (Data, URLResponse)
         do { (data, response) = try await URLSession.shared.data(for: request) } catch {
@@ -67,10 +63,10 @@ enum Search {
         let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] ?? [:]
         // Busy, as Wikipedia says with `maxlag` or a 429: nothing was read, and how long to wait.
         if http?.statusCode == 429 || (object["error"] as? [String: Any])?["code"] as? String == "maxlag" {
-            return ([], offset, http?.value(forHTTPHeaderField: "retry-after").flatMap(Double.init) ?? 5)
+            return Paging.Fetched(items: [], next: offset, wait: Paging.wait(http?.value(forHTTPHeaderField: "retry-after").flatMap(Double.init)) ?? 5)
         }
         guard let status = http?.statusCode, (200..<300).contains(status) else { throw Problem(L("Wikipedia answered with HTTP {status}.", ["status": String(http?.statusCode ?? 0)])) }
         let found = try read(object, language: language)
-        return (found.items, found.next, nil)
+        return Paging.Fetched(items: found.items, next: found.next, wait: nil)
     }
 }

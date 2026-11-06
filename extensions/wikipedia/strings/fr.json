@@ -16,7 +16,11 @@
     "There are more: the next page starts at {offset}.": "Il y en a d’autres : la page suivante commence à {offset}.",
     "Wikipedia answered with HTTP {status}.": "Wikipédia a répondu HTTP {status}.",
     "Wikipedia asks to wait {time} before asking again. Nothing was read.": "Wikipédia demande d’attendre {time} avant de redemander. Rien n’a été lu.",
-    "Wikipedia sent something that isn't a list of results.": "Wikipédia a envoyé autre chose qu’une liste de résultats."
+    "Wikipedia sent something that isn't a list of results.": "Wikipédia a envoyé autre chose qu’une liste de résultats.",
+    "It stopped after {count} pages to answer in time.": "Arrêt après {count} pages pour répondre à temps.",
+    "It stopped after {count} pages: the next one didn't come.": "Arrêt après {count} pages : la suivante n’est pas arrivée.",
+    "Some of what it read was left out to keep the answer small enough.": "Une partie de ce qui a été lu a été laissée de côté pour garder la réponse assez courte.",
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Arrêt après {count} pages : Wikipédia demande d’attendre {time}."
   },
   "examples": [
     "cherche le verrouillage gravitationnel dans wikipédia"

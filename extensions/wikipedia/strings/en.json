@@ -2,7 +2,11 @@
   "text": {
     "Couldn't reach Wikipedia ({error}). Check the internet connection.": "Couldn't reach Wikipedia ({error}). Check the internet connection.",
     "Give a language code, like en or fr.": "Give a language code, like en or fr.",
+    "It stopped after {count} pages to answer in time.": "It stopped after {count} pages to answer in time.",
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "It stopped after {count} pages: Wikipedia asks to wait {time}.",
+    "It stopped after {count} pages: the next one didn't come.": "It stopped after {count} pages: the next one didn't come.",
     "Nothing found.": "Nothing found.",
+    "Some of what it read was left out to keep the answer small enough.": "Some of what it read was left out to keep the answer small enough.",
     "There are more: the next page starts at {offset}.": "There are more: the next page starts at {offset}.",
     "Wikipedia answered with HTTP {status}.": "Wikipedia answered with HTTP {status}.",
     "Wikipedia asks to wait {time} before asking again. Nothing was read.": "Wikipedia asks to wait {time} before asking again. Nothing was read.",

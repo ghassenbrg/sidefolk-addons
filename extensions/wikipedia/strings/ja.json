@@ -16,7 +16,11 @@
     "There are more: the next page starts at {offset}.": "続きがあります。次のページは {offset} から始まります。",
     "Wikipedia answered with HTTP {status}.": "ウィキペディアの応答: HTTP {status}。",
     "Wikipedia asks to wait {time} before asking again. Nothing was read.": "ウィキペディアから、再度問い合わせる前に {time} 待つよう求められました。何も読み取っていません。",
-    "Wikipedia sent something that isn't a list of results.": "ウィキペディアから結果の一覧ではないものが届きました。"
+    "Wikipedia sent something that isn't a list of results.": "ウィキペディアから結果の一覧ではないものが届きました。",
+    "It stopped after {count} pages to answer in time.": "時間内に答えるため、{count} ページで止めました。",
+    "It stopped after {count} pages: the next one didn't come.": "{count} ページで止まりました。次のページが届きませんでした。",
+    "Some of what it read was left out to keep the answer small enough.": "答えを小さく保つため、読んだ内容の一部を省きました。",
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "{count} ページで止まりました。ウィキペディアから {time} 待つよう求められました。"
   },
   "examples": [
     "ウィキペディアで潮汐固定を検索"

@@ -33,44 +33,32 @@ enum Issues {
         return Page(items: items, next: more ? page + 1 : nil)
     }
 
-    /// GitHub's word that it's had enough for now: how long until it takes requests again.
+    /// GitHub's word that it's had enough for now: how long until it takes requests again. Only on a refusal: a Retry-After beside an answer isn't one.
     static func waitFor(status: Int, remaining: String?, reset: String?, retryAfter: String?, now: Date) -> Double? {
-        if let after = retryAfter.flatMap(Double.init) { return after }
-        guard status == 403 || status == 429, remaining == "0" || status == 429 else { return nil }
-        let until = reset.flatMap(Double.init).map { $0 - now.timeIntervalSince1970 } ?? 60
-        return max(1, until)
+        guard status == 403 || status == 429 else { return nil }
+        if let after = retryAfter.flatMap(Double.init) { return Paging.wait(after) }
+        guard remaining == "0" || status == 429 else { return nil }
+        return Paging.wait(reset.flatMap(Double.init).map { $0 - now.timeIntervalSince1970 } ?? 60)
     }
 
     /// The most pages one call goes through: the flow's plan never carries a cursor, so going through them here asks nothing more of the person (D202).
     static let mostPages = 10
 
-    /// From `page`, up to `pages` of them, as one list. GitHub asking to wait before the first means nothing was read; after it, what was read comes back with where to go on.
+    /// From `page`, up to `pages` of them, as one list, within what one call may take. GitHub asking to wait before the first means nothing was read.
     static func list(_ repo: String, state: String, page: Int, pages: Int) async throws -> ToolReply {
-        var items: [[String: Any]] = [], at = page, next: Int? = page, read = 0
-        while let current = next, read < min(max(pages, 1), mostPages) {
-            let one = try await fetch(repo, state: state, page: current)
-            if let wait = one.wait {
-                guard read > 0 else {
-                    return ToolReply(L("GitHub asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: ["rate_limited": true, "retry_after_seconds": Int(wait.rounded(.up))])
-                }
-                break
-            }
-            items += one.page.items
-            at = current
-            next = one.page.next
-            read += 1
+        let got = try await Paging.gather(from: page, most: min(pages, mostPages)) { at in try await fetch(repo, state: state, page: at) }
+        if got.pages == 0, let wait = got.wait {
+            return ToolReply(L("GitHub asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: got.fields)
         }
-        let lines = items.prefix(60).map { "#\($0["number"].map { "\($0)" } ?? "") \($0["title"] as? String ?? "") (\($0["state"] as? String ?? ""))" }
+        let lines = got.items.prefix(60).map { "#\($0["number"].map { "\($0)" } ?? "") \($0["title"] as? String ?? "") (\($0["state"] as? String ?? ""))" }
         var text = lines.isEmpty ? L("No issues on this page.") : lines.joined(separator: "\n")
-        if let next { text += "\n" + L("There's another page: page {page}.", ["page": String(next)]) }
-        var data: [String: Any] = ["items": items, "count": items.count, "page": at, "pages": read]
-        if let next { data["next_page"] = next }
-        return ToolReply(text).with(data: data)
+        text += Said.stopped(got)
+        return ToolReply(text).with(data: got.fields)
     }
 
-    private static func fetch(_ repo: String, state: String, page: Int) async throws -> (page: Page, wait: Double?) {
+    private static func fetch(_ repo: String, state: String, page: Int) async throws -> Paging.Fetched {
         let url = Web.url("https://api.github.com/repos/\(repo)/issues", [("state", state), ("per_page", String(perPage)), ("page", String(page))])
-        var request = URLRequest(url: url, timeoutInterval: 20)
+        var request = URLRequest(url: url, timeoutInterval: 8)
         request.setValue("Sidefolk/1.0", forHTTPHeaderField: "User-Agent")
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         let (data, response): (Data, URLResponse)
@@ -81,10 +69,27 @@ enum Issues {
         let status = http?.statusCode ?? 0
         if let wait = waitFor(status: status, remaining: http?.value(forHTTPHeaderField: "x-ratelimit-remaining"), reset: http?.value(forHTTPHeaderField: "x-ratelimit-reset"),
                               retryAfter: http?.value(forHTTPHeaderField: "retry-after"), now: Date()) {
-            return (Page(items: [], next: page), wait)
+            return Paging.Fetched(items: [], next: page, wait: wait)
         }
         if status == 404 { throw Problem(L("GitHub has no public repository {repo}.", ["repo": repo])) }
         guard (200..<300).contains(status) else { throw Problem(L("GitHub answered with HTTP {status}.", ["status": String(status)])) }
-        return (try read(data, page: page, linkHeader: http?.value(forHTTPHeaderField: "link")), nil)
+        let found = try read(data, page: page, linkHeader: http?.value(forHTTPHeaderField: "link"))
+        return Paging.Fetched(items: found.items, next: found.next, wait: nil)
+    }
+}
+
+/// What a stop before the end says to a person, in words beside the fields.
+enum Said {
+    static func stopped(_ got: Paging.Gathered) -> String {
+        var out = ""
+        switch got.stopped {
+        case "time": out += "\n" + L("It stopped after {count} pages to answer in time.", ["count": String(got.pages)])
+        case "error": out += "\n" + L("It stopped after {count} pages: the next one didn't come.", ["count": String(got.pages)])
+        case "wait": out += "\n" + L("It stopped after {count} pages: GitHub asks to wait {time}.", ["count": String(got.pages), "time": Format.duration(got.wait ?? 60)])
+        default: break
+        }
+        if got.truncated { out += "\n" + L("Some of what it read was left out to keep the answer small enough.") }
+        if let next = got.next { out += "\n" + L("There's another page: page {page}.", ["page": String(next)]) }
+        return out
     }
 }

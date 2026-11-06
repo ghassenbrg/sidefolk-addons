@@ -16,7 +16,11 @@
     "There are more: the next page starts at {offset}.": "还有更多：下一页从 {offset} 开始。",
     "Wikipedia answered with HTTP {status}.": "维基百科返回了 HTTP {status}。",
     "Wikipedia asks to wait {time} before asking again. Nothing was read.": "维基百科要求等待 {time} 后再请求。没有读取任何内容。",
-    "Wikipedia sent something that isn't a list of results.": "维基百科发来的不是结果列表。"
+    "Wikipedia sent something that isn't a list of results.": "维基百科发来的不是结果列表。",
+    "It stopped after {count} pages to answer in time.": "为了按时回答，读了 {count} 页就停了。",
+    "It stopped after {count} pages: the next one didn't come.": "读了 {count} 页就停了：下一页没有来。",
+    "Some of what it read was left out to keep the answer small enough.": "为了让回答不至于太大，读到的部分内容被省略了。",
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "读了 {count} 页就停了：维基百科要求等待 {time}。"
   },
   "examples": [
     "在维基百科搜索潮汐锁定"

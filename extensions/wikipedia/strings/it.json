@@ -16,7 +16,11 @@
     "There are more: the next page starts at {offset}.": "Ce ne sono altri: la pagina successiva inizia da {offset}.",
     "Wikipedia answered with HTTP {status}.": "Wikipedia ha risposto con HTTP {status}.",
     "Wikipedia asks to wait {time} before asking again. Nothing was read.": "Wikipedia chiede di aspettare {time} prima di chiedere di nuovo. Non è stato letto nulla.",
-    "Wikipedia sent something that isn't a list of results.": "Wikipedia ha inviato qualcosa che non è un elenco di risultati."
+    "Wikipedia sent something that isn't a list of results.": "Wikipedia ha inviato qualcosa che non è un elenco di risultati.",
+    "It stopped after {count} pages to answer in time.": "Si è fermato dopo {count} pagine per rispondere in tempo.",
+    "It stopped after {count} pages: the next one didn't come.": "Si è fermato dopo {count} pagine: la successiva non è arrivata.",
+    "Some of what it read was left out to keep the answer small enough.": "Parte di ciò che ha letto è stata tralasciata per tenere la risposta abbastanza piccola.",
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Si è fermato dopo {count} pagine: Wikipedia chiede di aspettare {time}."
   },
   "examples": [
     "cerca rotazione sincrona su wikipedia"

@@ -17,7 +17,11 @@
     "GitHub sent something that isn't a list of issues.": "GitHub a envoyé autre chose qu’une liste d’issues.",
     "Give the repository as owner/name, like apple/swift.": "Indiquez le dépôt sous la forme propriétaire/nom, comme apple/swift.",
     "No issues on this page.": "Aucune issue sur cette page.",
-    "There's another page: page {page}.": "Il y a une autre page : la page {page}."
+    "There's another page: page {page}.": "Il y a une autre page : la page {page}.",
+    "It stopped after {count} pages to answer in time.": "Arrêt après {count} pages pour répondre à temps.",
+    "It stopped after {count} pages: the next one didn't come.": "Arrêt après {count} pages : la suivante n’est pas arrivée.",
+    "Some of what it read was left out to keep the answer small enough.": "Une partie de ce qui a été lu a été laissée de côté pour garder la réponse assez courte.",
+    "It stopped after {count} pages: GitHub asks to wait {time}.": "Arrêt après {count} pages : GitHub demande d’attendre {time}."
   },
   "examples": [
     "quelles sont les issues ouvertes de apple/swift ?"

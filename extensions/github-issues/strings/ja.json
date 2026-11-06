@@ -17,7 +17,11 @@
     "GitHub sent something that isn't a list of issues.": "GitHub から Issue の一覧ではないものが届きました。",
     "Give the repository as owner/name, like apple/swift.": "リポジトリは owner/name の形で指定してください（例: apple/swift）。",
     "No issues on this page.": "このページに Issue はありません。",
-    "There's another page: page {page}.": "次のページがあります: {page} ページ目。"
+    "There's another page: page {page}.": "次のページがあります: {page} ページ目。",
+    "It stopped after {count} pages to answer in time.": "時間内に答えるため、{count} ページで止めました。",
+    "It stopped after {count} pages: the next one didn't come.": "{count} ページで止まりました。次のページが届きませんでした。",
+    "Some of what it read was left out to keep the answer small enough.": "答えを小さく保つため、読んだ内容の一部を省きました。",
+    "It stopped after {count} pages: GitHub asks to wait {time}.": "{count} ページで止まりました。GitHub から {time} 待つよう求められました。"
   },
   "examples": [
     "apple/swift の未解決の Issue は？"

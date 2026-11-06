@@ -14,6 +14,6 @@
   "services": [{ "name": "api.github.com", "hosts": ["api.github.com"] }],
   "examples": ["what are the open issues on apple/swift?"],
   "tools": {
-    "list_issues": { "title": "List a repository's issues", "summary": "List {state} issues of {repository}", "risk": "low", "category": "web", "mutates": false }
+    "list_issues": { "timeout": 30, "title": "List a repository's issues", "summary": "List {state} issues of {repository}", "risk": "low", "category": "web", "mutates": false }
   }
 }

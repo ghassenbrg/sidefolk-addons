@@ -14,6 +14,6 @@
   "services": [{ "name": "wikipedia.org", "hosts": ["*.wikipedia.org"] }],
   "examples": ["search wikipedia for tidal locking"],
   "tools": {
-    "search_wikipedia": { "title": "Search Wikipedia", "summary": "Search Wikipedia for {query}", "risk": "low", "category": "web", "mutates": false }
+    "search_wikipedia": { "timeout": 30, "title": "Search Wikipedia", "summary": "Search Wikipedia for {query}", "risk": "low", "category": "web", "mutates": false }
   }
 }

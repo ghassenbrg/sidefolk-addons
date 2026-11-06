@@ -16,7 +16,11 @@
     "There are more: the next page starts at {offset}.": "Há mais: a próxima página começa em {offset}.",
     "Wikipedia answered with HTTP {status}.": "A Wikipédia respondeu com HTTP {status}.",
     "Wikipedia asks to wait {time} before asking again. Nothing was read.": "A Wikipédia pede para esperar {time} antes de perguntar de novo. Nada foi lido.",
-    "Wikipedia sent something that isn't a list of results.": "A Wikipédia enviou algo que não é uma lista de resultados."
+    "Wikipedia sent something that isn't a list of results.": "A Wikipédia enviou algo que não é uma lista de resultados.",
+    "It stopped after {count} pages to answer in time.": "Parou depois de {count} páginas para responder a tempo.",
+    "It stopped after {count} pages: the next one didn't come.": "Parou depois de {count} páginas: a próxima não veio.",
+    "Some of what it read was left out to keep the answer small enough.": "Parte do que foi lido ficou de fora para a resposta não ficar grande demais.",
+    "It stopped after {count} pages: Wikipedia asks to wait {time}.": "Parou depois de {count} páginas: a Wikipédia pede para esperar {time}."
   },
   "examples": [
     "pesquise acoplamento de maré na wikipédia"
