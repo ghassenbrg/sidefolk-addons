@@ -1446,9 +1446,9 @@
     "When something it watches changes": "عندما يتغير شيء يراقبه",
     "When you start it": "عندما تبدؤه",
     "Ends the {count} runs under way.": {
-      "zero": "لا تشغيلات جارية لإنهائها.",
-      "one": "ينهي التشغيل الجاري.",
-      "two": "ينهي التشغيلين الجاريين.",
+      "zero": "ينهي {count} تشغيل جارٍ.",
+      "one": "ينهي التشغيل الجاري ({count}).",
+      "two": "ينهي التشغيلين الجاريين ({count}).",
       "few": "ينهي {count} تشغيلات جارية.",
       "many": "ينهي {count} تشغيلًا جاريًا.",
       "other": "ينهي {count} تشغيل جارٍ."
@@ -1465,9 +1465,9 @@
     "Say which run, which flow, or all.": "قل أي تشغيل، أو أي تدفق، أو الكل.",
     "Nothing of that is running.": "لا شيء من ذلك قيد التشغيل.",
     "Stopped {count} runs: {names}.": {
-      "zero": "لم يُوقف أي تشغيل.",
-      "one": "أُوقف تشغيل واحد: {names}.",
-      "two": "أُوقف تشغيلان: {names}.",
+      "zero": "أُوقف {count} تشغيل: {names}.",
+      "one": "أُوقف تشغيل واحد ({count}): {names}.",
+      "two": "أُوقف تشغيلان ({count}): {names}.",
       "few": "أُوقفت {count} تشغيلات: {names}.",
       "many": "أُوقف {count} تشغيلًا: {names}.",
       "other": "أُوقف {count} تشغيل: {names}."
