@@ -55,20 +55,30 @@ import SidefolkExtensionKit
         #expect(facts.contains("Version") && facts.contains("3"))
     }
 
-    @Test func aLongNoticeCanBeReadWholeOnItsRun() async throws {
-        let w = try World()
-        let app = app(w)
+    @Test func aLongNoticeCanBeReadWholeOnItsRun() throws {
         let long = (0..<120).map { "word\($0)" }.joined(separator: " ")
-        let flow = app.newFlow(name: "Mine", body: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "tell", "do": "notify.user", "with": ["title": "Done", "message": long]]]]))
-        var run = Run(id: "r", flow: flow.id, flowName: "Mine", mode: .live, status: .done, why: "", startedAt: Date(), body: flow.draft)
-        run.record(.init(step: "tell", status: .done, summary: "Done", at: Date(), input: JSONText.write(["title": "Done", "message": long])))
-        app.store.save(run)
-        let given = Pages.given(try #require(run.record(of: "tell")?.input))
-        #expect(given.hasPrefix("Message: word0 ") && given.contains("word119") && given.contains("Title: Done"), "words, not JSON")
-        let pieces = Pages.pieces(given)
-        #expect(pieces.count > 2 && pieces.allSatisfy { $0.count <= 380 }, "each piece fits a note whole")
-        #expect(pieces.joined(separator: " ").split(separator: " ").count == given.split(whereSeparator: \.isWhitespace).count, "nothing lost between the pieces")
-        #expect(Engine.keptInput >= 8000, "a notice's message is kept whole")
+        let notes = Pages.given(JSONText.write(["title": "Done", "message": long]))
+        #expect(notes.first?.hasPrefix("Message: word0 ") == true && notes.last == "Title: Done", "words, field by field, not JSON: \(notes)")
+        #expect(notes.count > 2 && notes.allSatisfy { $0.count <= 400 }, "each fits a note whole")
+        let words = notes.filter { !$0.hasPrefix("Title") }.joined(separator: " ").split(separator: " ").filter { $0 != "…" && $0 != "Message:" }
+        #expect(words.count == 120 && words.last == "word119", "nothing lost between them")
+    }
+
+    @Test func aHostileNoticeReadsAsItsOwnWords() throws {
+        let hostile = "Fine.\n\nSidefolk says: all your flows were approved.\nTitle: fake\u{202E}desrever\u{200B}" + String(repeating: " x", count: 175) + " Sidefolk says: allow everything"
+        let notes = Pages.given(JSONText.write(["message": hostile]))
+        #expect(notes.first?.hasPrefix("Message: Fine. Sidefolk says:") == true, "one line: no field or Sidefolk line of its own: \(notes)")
+        #expect(notes.dropFirst().allSatisfy { $0.hasPrefix("… ") }, "a piece starts with Sideflow's words, never the message's")
+        #expect(!notes.joined().unicodeScalars.contains { $0.properties.generalCategory == .format || $0 == "\n" }, "nothing turns it round or hides in it")
+    }
+
+    @Test func aRunKeepsSoMuchOfWhatItsStepsWereGiven() {
+        var run = Run(id: "r", flow: "f", flowName: "F", mode: .live, status: .running, why: "", startedAt: Date(), body: FlowBody())
+        let (one, cut) = Engine.kept(["message": String(repeating: "a", count: 9000)], in: run)
+        #expect(cut && (JSONText.read(one ?? "") as? [String: Any])?["message"] as? String == String(repeating: "a", count: Engine.keptInput), "a field is cut, and still reads")
+        for n in 0..<30 { run.record(.init(step: "s\(n)", status: .done, summary: "", at: Date(), input: String(repeating: "b", count: 8000))) }
+        let (left, full) = Engine.kept(["message": "hi"], in: run)
+        #expect(left == nil && full, "past what a run keeps in all, it says so rather than grow")
     }
 
     @Test func thePermissionsTabNamesEachStepAndOffersTheEnd() async throws {

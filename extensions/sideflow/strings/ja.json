@@ -1267,7 +1267,9 @@
     "Not allowed inside": "中に許可されないもの",
     "Stopped inside": "中で停止",
     "It was given": "受け取った内容",
-    "It made": "返した内容"
+    "It made": "返した内容",
+    "Input": "入力",
+    "Only the first part of what it was given was kept.": "受け取った内容は最初の部分だけ残しています。"
   },
   "drops": {
     "flow_file": {

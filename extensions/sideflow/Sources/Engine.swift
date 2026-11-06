@@ -599,7 +599,8 @@ extension FlowHost {
 
     private func acting(_ step: Step, tool: String, input: [String: Any], written: [String: Any]? = nil, in run: inout Run) async -> Bool {
         let sentence = Words.step(step, body: run.body, catalog: catalog)
-        run.record(.init(step: step.id, status: .running, summary: sentence, at: clock(), input: JSONText.write(input).clipped(Self.keptInput)))
+        let (given, cut) = Self.kept(input, in: run)
+        run.record(.init(step: step.id, status: .running, summary: sentence, at: clock(), input: given, inputCut: cut))
         // Written down first, or not done: after a stop, the run must know what it may have done.
         guard store.save(run) else { return cantSave(step, summary: sentence, in: &run) }
         changed()
@@ -1490,8 +1491,29 @@ extension FlowHost {
     var busyPause: TimeInterval = Engine.busyWait
     /// What a run's story keeps of a step's output: it goes on the page, which has a limit of its own. The value itself is kept whole for the next step.
     static let keptOutput = 2000
-    /// What a run's story keeps of what a step was given: a notice's whole message, read back on the run's page.
+    /// What a run's story keeps of what a step was given: a notice's whole message, read back on the run's page. Each field so much, and a run so much in all,
+    /// since a hundred steps going round a loop would otherwise fill its file.
     static let keptInput = 8000
+    static let keptInputPerRun = 200_000
+
+    /// What's kept of a step's input: each field's words cut at `keptInput`, as long as the run has room left, and whether anything was left out.
+    static func kept(_ input: [String: Any], in run: Run) -> (String?, Bool) {
+        var cut = false
+        func clip(_ value: Any) -> Any {
+            switch value {
+            case let text as String where text.count > keptInput:
+                cut = true
+                return String(text.prefix(keptInput))
+            case let list as [Any]: return list.map(clip)
+            case let fields as [String: Any]: return fields.mapValues(clip)
+            default: return value
+            }
+        }
+        let written = JSONText.write(clip(input))
+        let room = keptInputPerRun - run.records.reduce(0) { $0 + ($1.input?.utf8.count ?? 0) }
+        guard written.utf8.count <= room else { return (nil, true) }
+        return (written, cut)
+    }
     /// Steps in a run between two waits.
     static let longestWalk = 20_000
 

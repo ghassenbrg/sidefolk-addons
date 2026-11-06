@@ -1402,7 +1402,9 @@
     "Not allowed inside": "بداخله ما لا يُسمح به",
     "Stopped inside": "توقّف بداخله",
     "It was given": "ما أُعطي",
-    "It made": "ما أعطاه"
+    "It made": "ما أعطاه",
+    "Input": "المُدخل",
+    "Only the first part of what it was given was kept.": "احتُفظ بالجزء الأول فقط مما أُعطي."
   },
   "drops": {
     "flow_file": {

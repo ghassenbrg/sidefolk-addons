@@ -40,6 +40,8 @@ struct Run: Equatable, Sendable, Identifiable {
         var input: String?
         /// When this go of it began, when that's not the moment it ended.
         var began: Date?
+        /// Only the first part of what it was given was kept: the run had kept all it keeps.
+        var inputCut = false
         /// How long it took, once it's more than a moment.
         var took: TimeInterval? { began.map { at.timeIntervalSince($0) } }
     }

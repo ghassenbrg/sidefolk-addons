@@ -48,8 +48,10 @@ import SidefolkExtensionKit
         if let note = record.note { blocks.append(.note(note, tone: record.status == .failed || record.status == .unknown ? .warn : .neutral)) }
         // Whole, in its own sections: a note is cut at 400 characters, and a long notice has to be readable after the run.
         var whole: [Section] = []
-        if let input = record.input?.nonEmpty { whole.append(Section(L("It was given"), Self.pieces(Self.given(input)).map { .note($0) }, place: .trailing)) }
-        if let output = record.output?.nonEmpty { whole.append(Section(L("It made"), Self.pieces(output).map { .note($0) }, place: .trailing)) }
+        var given: [Block] = record.input?.nonEmpty.map { Self.given($0).map { .note($0) } } ?? []
+        if record.inputCut { given.append(.note(L("Only the first part of what it was given was kept."), tone: .neutral)) }
+        if !given.isEmpty { whole.append(Section(L("It was given"), given, place: .trailing)) }
+        if let output = record.output?.nonEmpty { whole.append(Section(L("It made"), Self.notes(L("Answer"), output).map { .note($0) }, place: .trailing)) }
         // A file it made or used, by its place: one press shows it in Finder, through Sidefolk, which checks the folder is one shared with it.
         for file in Self.files(in: run.values.named[id]).prefix(3) {
             blocks.append(.action(button(FlowFile.short((file as NSString).lastPathComponent, 40), "reveal", ["path": file], style: .plain, symbol: "doc", detail: L("Show in Finder"))))
@@ -83,27 +85,41 @@ import SidefolkExtensionKit
         return Section(L("Practice examples"), blocks, place: .trailing, collapsed: flow.chosenExample == nil)
     }
 
-    /// What a step was given, field by field: a notice's title and message read as words, not as the JSON it was sent as.
-    static func given(_ raw: String) -> String {
-        guard let fields = JSONText.read(raw) as? [String: Any] else { return raw }
-        return fields.keys.sorted().compactMap { key in
-            let value = (fields[key] as? String) ?? fields[key].map { JSONText.write($0) } ?? ""
-            return value.isEmpty ? nil : "\(key.replacingOccurrences(of: "_", with: " ").capitalizedFirst): \(value)"
-        }.joined(separator: "\n\n")
+    /// What a step was given, field by field: a notice's title and message read as words, not as the JSON it was sent as. The names are the step's own fields.
+    static func given(_ raw: String) -> [String] {
+        guard let fields = JSONText.read(raw) as? [String: Any] else { return notes(L("Input"), raw) }
+        return Array(fields.keys.sorted().flatMap { key in
+            notes(key.replacingOccurrences(of: "_", with: " ").capitalizedFirst, (fields[key] as? String) ?? fields[key].map { JSONText.write($0) } ?? "")
+        }.prefix(mostNotes))
     }
 
-    /// Words in pieces a note holds whole, broken between words, as many as a section takes.
-    static func pieces(_ text: String, size: Int = 380, most: Int = 24) -> [String] {
-        var out: [String] = [], rest = Substring(text)
-        while !rest.isEmpty, out.count < most {
-            guard rest.count > size else { out.append(String(rest)); break }
-            let cut = rest.index(rest.startIndex, offsetBy: size)
-            let at = rest[..<cut].lastIndex(where: \.isWhitespace).map { rest.index(after: $0) } ?? cut
-            let piece = String(rest[..<at]).trimmingCharacters(in: .whitespaces)
-            if !piece.isEmpty { out.append(piece) }
-            rest = rest[at...]
+    static let mostNotes = 24
+
+    /// One field's words in notes a page holds whole, broken between words. Each starts with Sideflow's own words, the field's name or "…", never with the field's,
+    /// and the words are one line with nothing hidden: a message can't make a note that reads as another field, or as Sidefolk.
+    static func notes(_ name: String, _ text: String, size: Int = 360) -> [String] {
+        var out: [String] = [], rest = Substring(plain(text))
+        while !rest.isEmpty, out.count < mostNotes {
+            var piece = rest
+            if rest.count > size {
+                let cut = rest.index(rest.startIndex, offsetBy: size)
+                piece = rest[..<(rest[..<cut].lastIndex(of: " ").map { rest.index(after: $0) } ?? cut)]
+            }
+            rest = rest[piece.endIndex...]
+            let words = piece.trimmingCharacters(in: .whitespaces)
+            guard !words.isEmpty else { continue }
+            out.append(out.isEmpty ? "\(name): \(words)" : "… \(words)")
         }
         return out
+    }
+
+    /// Words with nothing hidden in them and on one line: what turns text round or hides it goes, and line breaks become spaces.
+    static func plain(_ text: String) -> String {
+        let kept = text.unicodeScalars.map { scalar -> String in
+            if scalar.properties.generalCategory == .format || scalar.properties.isDefaultIgnorableCodePoint { return "" }
+            return CharacterSet.newlines.contains(scalar) || scalar.properties.generalCategory == .control ? " " : String(scalar)
+        }.joined()
+        return kept.split(separator: " ", omittingEmptySubsequences: true).joined(separator: " ")
     }
 
     /// A run in a few cards, for where it was asked about: how far it got, the step that's working or went wrong, and how much is left. The run's page has the rest.

@@ -1267,7 +1267,9 @@
     "Not allowed inside": "里面有未允许的",
     "Stopped inside": "里面已停止",
     "It was given": "收到的内容",
-    "It made": "给出的内容"
+    "It made": "给出的内容",
+    "Input": "输入",
+    "Only the first part of what it was given was kept.": "收到的内容只保留了前一部分。"
   },
   "drops": {
     "flow_file": {

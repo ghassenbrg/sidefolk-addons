@@ -1294,7 +1294,9 @@
     "Not allowed inside": "No permitido dentro",
     "Stopped inside": "Detenido dentro",
     "It was given": "Lo que recibió",
-    "It made": "Lo que dio"
+    "It made": "Lo que dio",
+    "Input": "Entrada",
+    "Only the first part of what it was given was kept.": "Solo se guardó la primera parte de lo que recibió."
   },
   "drops": {
     "flow_file": {

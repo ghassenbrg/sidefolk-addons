@@ -392,13 +392,13 @@ import SidefolkExtensionKit
     }
 
     private static func json(_ r: Run.Record) -> [String: Any] {
-        let out: [String: Any?] = ["step": r.step, "status": r.status.rawValue, "summary": r.summary, "began": time(r.began), "output": r.output.map { String($0.prefix(4000)) }, "note": r.note, "scope": r.scope, "attempt": r.attempt == 1 ? nil : r.attempt, "input": r.input, "at": r.at.timeIntervalSince1970]
+        let out: [String: Any?] = ["step": r.step, "status": r.status.rawValue, "summary": r.summary, "began": time(r.began), "output": r.output.map { String($0.prefix(4000)) }, "note": r.note, "scope": r.scope, "attempt": r.attempt == 1 ? nil : r.attempt, "input": r.input, "input_cut": r.inputCut ? true : nil, "at": r.at.timeIntervalSince1970]
         return out.compactMapValues { $0 }
     }
 
     private static func record(_ o: [String: Any]) -> Run.Record? {
         guard let step = o["step"] as? String, let status = Run.Record.Status(rawValue: o["status"] as? String ?? "") else { return nil }
         return Run.Record(step: step, status: status, summary: o["summary"] as? String ?? "", output: o["output"] as? String, note: o["note"] as? String, at: date(o["at"]) ?? Date(),
-                          scope: o["scope"] as? String, attempt: (o["attempt"] as? NSNumber)?.intValue ?? 1, input: o["input"] as? String, began: date(o["began"]))
+                          scope: o["scope"] as? String, attempt: (o["attempt"] as? NSNumber)?.intValue ?? 1, input: o["input"] as? String, began: date(o["began"]), inputCut: o["input_cut"] as? Bool ?? false)
     }
 }
