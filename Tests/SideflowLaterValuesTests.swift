@@ -77,7 +77,7 @@ import SidefolkExtensionKit
             "a try that recovers": ["id": "b", "try": [call], "recover": [["id": "r", "text": "{{error}}"]]],
             "a parallel that settles": ["id": "b", "parallel": [["name": "one", "steps": [call]], ["name": "two", "steps": [["id": "t", "text": "t"]]]], "join": "settled"],
             "a call that carries on": ["id": "c", "call_flow": "Off", "on_failure": "carry_on"],
-            "inside a step that carries on": ["id": "b", "parallel": [["name": "one", "steps": [call]]], "on_failure": "carry_on"],
+            "inside a step that carries on": ["id": "b", "parallel": [["name": "one", "steps": [call]], ["name": "two", "steps": [["id": "t", "text": "t"]]]], "on_failure": "carry_on"],
         ]
         for (shape, step) in shapes {
             let flow = try w.flow([step, ["id": "after", "text": "went on"]])

@@ -443,7 +443,7 @@ enum Expression {
             let shape = plain.unicodeScalars.map { digits.contains($0) ? "d" : String($0) }.joined()
             guard let first = plain.firstIndex(where: { $0.isASCII && $0.isNumber }), let last = plain.lastIndex(where: { $0.isASCII && $0.isNumber }), shape.contains("d") else { throw cant() }
             let negative = plain[..<first].contains("-") || plain[..<first].contains("−")
-            let before = plain[..<first].filter { !"-− ".contains($0) }, after = plain[plain.index(after: last)...].trimmed
+            let before = plain[..<first].filter { !"-− ".contains($0) }, after = String(plain[plain.index(after: last)...]).trimmed
             guard !before.contains(where: \.isNumber), !after.contains(where: \.isNumber) else { throw cant() }
             plain = String(plain[first...last])
             let spaced = group == " " ? plain.replacingOccurrences(of: "\u{00A0}", with: " ").replacingOccurrences(of: "\u{202F}", with: " ") : plain

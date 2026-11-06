@@ -347,8 +347,9 @@ import SidefolkExtensionKit
         return app
     }
 
+    /// What the tab says: its own sections, not the flow's head, whose menu carries the whole definition for Copy.
     private func words(_ flow: Flow, _ app: App) -> String {
-        String(describing: Pages.flowAllowedPage(flow, app, state: Arguments([:]))).filter { !"\u{2068}\u{2069}\\".contains($0) }
+        Pages.flowAllowedPage(flow, app, state: Arguments([:])).sections.map { String(describing: $0) }.filter { !$0.contains("bar(") }.joined().filter { !"\u{2068}\u{2069}\\".contains($0) }
     }
 
     @Test func whatSetsItOffIsALineThoughItsStepsOnlyWorkWithWords() throws {

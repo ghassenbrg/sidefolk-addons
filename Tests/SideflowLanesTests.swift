@@ -111,8 +111,8 @@ import SidefolkExtensionKit
         w.host.answers["changes.it"] = [Actions.Outcome(status: .denied, text: "Not allowed", summary: "")]
         // The outer lane has 5 minutes; inside it, a lane with an hour waits for the person, so it's held.
         let inner: [String: Any] = ["name": "inner", "timeout_minutes": 60, "steps": [["id": "x", "do": "changes.it", "with": ["text": "x"]]]]
-        let outer: [String: Any] = ["name": "outer", "timeout_minutes": 5, "steps": [["id": "nested", "parallel": [inner]]]]
-        let flow = try w.flow([["id": "both", "parallel": [outer]], ["id": "after", "text": "went on"]])
+        let outer: [String: Any] = ["name": "outer", "timeout_minutes": 5, "steps": [["id": "nested", "parallel": [inner, quicker]]]]
+        let flow = try w.flow([["id": "both", "parallel": [outer, quick]], ["id": "after", "text": "went on"]])
         let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
         await w.quiet()
         #expect(try lane(w, flow.id, "inner").status == .needs_you)

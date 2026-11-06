@@ -231,7 +231,8 @@ import SidefolkExtensionKit
 
     /// What Sidefolk keeps of a list or a section: past it, the rest wouldn't show. And how many sections that leaves room for.
     static let inABlock = 24
-    static let mostToPick = inABlock * 12
+    /// What a page of flows to pick can hold beside the sidebar's list of them all, within a page's size.
+    static let mostToPick = inABlock * 8
     /// Long enough that the second click of a double click isn't taken for being sure.
     static let settling: TimeInterval = 0.6
 
@@ -954,10 +955,6 @@ import SidefolkExtensionKit
 
     /// One version's lines, from the plan the card is made of: its own name for a step only beside what the card says, since anyone writing the flow can choose it.
     private static func allowed(_ body: FlowBody, of flow: Flow, look: PlanLook?, _ app: App, head: Bool, title: String?) -> [Section] {
-        var version = flow
-        version.draft = body
-        version.saved = nil
-        let plan = app.engine.livePlan(version)
         let (steps, shown) = Engine.planLines(body, title: Engine.watchTitle(flow), about: flow.name, oldWatch: flow.watchTitle)
         // A look at another version of it, or at this one before a value in it changed, says nothing of what's shown.
         let answers = look.flatMap { $0.asked == steps.map(PlanLook.key) && $0.lines.count == steps.count ? $0.lines : nil }
@@ -970,7 +967,7 @@ import SidefolkExtensionKit
         if head, let look { notes.append(.note(look.head, tone: look.new > 0 || look.widened ? .warn : .neutral)) }
         if Engine.needsCard(body) {
             notes.append(.note(whatNotWho))
-            notes.append(.note(plan.when))
+            notes.append(.note(startsWords(body)))
             notes += rows.map { .note(allowedLine($0.step, shown[$0.at], times: $0.count, word: allowedWord(answers?[$0.at], asked: answers != nil), app)) }
         } else {
             notes.append(.note(L("It only works with words: it needs nothing allowed.")))
@@ -1005,6 +1002,18 @@ import SidefolkExtensionKit
         guard let line else { return asked ? L("Named on the card") : L("Still looking") }
         if let mark = PlanLook.mark(line) { return mark.words }
         return line.state == "listed" ? L("Named on the card") : L("Runs by itself once allowed")
+    }
+
+    /// What sets it off, by kind only: a watched page or a sentence it waits for is a value, and the card has it.
+    static func startsWords(_ body: FlowBody) -> String {
+        Format.list(body.triggers.map { trigger in
+            switch trigger {
+            case .manual: L("When you start it")
+            case .days, .every: Words.trigger(trigger)
+            case .watch: L("When something it watches changes")
+            case .event: L("When something happens in Sidefolk")
+            }
+        }, or: true)
     }
 
     static var whatNotWho: String { L("This list says what it may do. Who or where, and every value, are on the approval card.") }
