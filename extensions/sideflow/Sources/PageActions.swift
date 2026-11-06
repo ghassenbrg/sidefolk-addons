@@ -383,6 +383,12 @@ import SidefolkExtensionKit
                 f.examples[at].values[step] = .string(text)
             }
             app.store.save(f)
+        case "reveal":
+            // Sidefolk's own tool, as Sideflow, with Guard: it shows a file only in a folder shared with it, and says so if not.
+            guard let path = a.string("path"), path.hasPrefix("/") || path.hasPrefix("~/") else { break }
+            if let outcome = await app.engine.host?.call("files.reveal", ["path": path], plan: nil, written: nil), !outcome.ok {
+                throw Problem(outcome.text.nonEmpty ?? L("Sidefolk wouldn't show that file."))
+            }
         case "repair_move":
             if let id = a.string("step"), let name = a.string("name") { try draft { $0 = Repairs.moved(name, before: id, in: $0) } }
         case "repair_fallback":
