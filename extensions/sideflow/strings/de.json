@@ -1182,9 +1182,9 @@
     "Sidefolk wouldn't show that file.": "Sidefolk wollte diese Datei nicht zeigen.",
     "Export": "Exportieren",
     "Export, with unsaved": "Exportieren, mit Ungesichertem",
-    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "Die Datei enthält, was die Abläufe tun, und alles, was in ihre Schritte eingetippt wurde. Sie enthält nicht, was du erlaubt hast, ihre Durchläufe oder deine Konten.",
     "Pick the flows to delete or export.": "Wähle die Abläufe zum Löschen oder Exportieren.",
-    "That's too big to be one file. Export fewer flows at a time.": "Das ist zu groß für eine Datei. Exportiere weniger Abläufe auf einmal."
+    "That's too big to be one file. Export fewer flows at a time.": "Das ist zu groß für eine Datei. Exportiere weniger Abläufe auf einmal.",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Enthält, was die Abläufe tun und was in ihren Schritten steht, nicht deine Erlaubnisse, Durchläufe oder Konten."
   },
   "drops": {
     "flow_file": {

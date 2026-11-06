@@ -1270,9 +1270,9 @@
     "Sidefolk wouldn't show that file.": "لم يعرض Sidefolk ذلك الملف.",
     "Export": "تصدير",
     "Export, with unsaved": "تصدير مع غير المحفوظ",
-    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "يحتوي الملف على ما تفعله الروتينات وكل ما كُتب في خطواتها، ولا يحتوي على ما سمحت به أو على تشغيلاتها أو حساباتك.",
     "Pick the flows to delete or export.": "اختر الروتينات المراد حذفها أو تصديرها.",
-    "That's too big to be one file. Export fewer flows at a time.": "هذا أكبر من أن يكون ملفًا واحدًا. صدّر عددًا أقل من الروتينات في كل مرة."
+    "That's too big to be one file. Export fewer flows at a time.": "هذا أكبر من أن يكون ملفًا واحدًا. صدّر عددًا أقل من الروتينات في كل مرة.",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "يحوي ما تفعله الروتينات وما كُتب في خطواتها، لا ما سمحت به ولا تشغيلاتها ولا حساباتك."
   },
   "drops": {
     "flow_file": {

@@ -1160,9 +1160,9 @@
     "Sidefolk wouldn't show that file.": "Sidefolk はそのファイルを表示しませんでした。",
     "Export": "書き出す",
     "Export, with unsaved": "未保存を含めて書き出す",
-    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "ファイルには、ルーティンの動作とステップに入力された内容が含まれます。許可した内容、実行履歴、アカウントは含まれません。",
     "Pick the flows to delete or export.": "削除または書き出すルーティンを選んでください。",
-    "That's too big to be one file. Export fewer flows at a time.": "1つのファイルには大きすぎます。書き出すルーティンを減らしてください。"
+    "That's too big to be one file. Export fewer flows at a time.": "1つのファイルには大きすぎます。書き出すルーティンを減らしてください。",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "ルーティンの動作とステップに書かれた内容を含みます。許可した内容、実行記録、アカウントは含みません。"
   },
   "drops": {
     "flow_file": {

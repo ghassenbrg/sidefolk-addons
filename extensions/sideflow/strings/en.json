@@ -296,6 +296,7 @@
       "one": "It held after {count} time",
       "other": "It held after {count} times"
     },
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.",
     "It keeps an eye on: {list}": "It keeps an eye on: {list}",
     "It looks after the steps inside have run, so it can check what they made.": "It looks after the steps inside have run, so it can check what they made.",
     "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.": "It looks at one value and takes the first path whose words it mentions, or “Otherwise”.",
@@ -673,7 +674,6 @@
     "The choices": "The choices",
     "The field in each": "The field in each",
     "The file": "The file",
-    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.",
     "The first to finish": "The first to finish",
     "The flow ends at this step. A flow that called this one gets the result.": "The flow ends at this step. A flow that called this one gets the result.",
     "The folder": "The folder",

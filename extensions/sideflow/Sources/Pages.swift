@@ -557,7 +557,8 @@ import SidefolkExtensionKit
 
     /// Copies at once, as the button says, on any tab. It's what's on screen, like the words beside it, and a menu shows only its label, so the label says when that isn't saved.
     /// As a file, where the person picks: Sidefolk's panel, and Sideflow never learns where. The label's in the menu's words, so it says what a copy says.
-    static var exportNote: String { L("The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.") }
+    /// One line on the save panel, which shows a page's note cut at 140 characters in any language.
+    static var exportNote: String { L("It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.") }
 
     static func exporting(_ flow: Flow) -> Action {
         Action(flow.hasUnsaved ? L("Export, with unsaved") : L("Export"), act: .save(name: flow.name, type: FlowFile.type, tool: "export_flows", input: ["flows": [flow.id]], note: exportNote), symbol: "square.and.arrow.up")

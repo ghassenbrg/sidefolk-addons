@@ -1182,9 +1182,9 @@
     "Sidefolk wouldn't show that file.": "Sidefolk no quiso mostrar ese archivo.",
     "Export": "Exportar",
     "Export, with unsaved": "Exportar, con lo no guardado",
-    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "El archivo guarda lo que hacen las rutinas y lo que se haya escrito en sus pasos. No guarda lo que permitiste, sus ejecuciones ni tus cuentas.",
     "Pick the flows to delete or export.": "Elige las rutinas que quieres eliminar o exportar.",
-    "That's too big to be one file. Export fewer flows at a time.": "Es demasiado grande para un solo archivo. Exporta menos rutinas a la vez."
+    "That's too big to be one file. Export fewer flows at a time.": "Es demasiado grande para un solo archivo. Exporta menos rutinas a la vez.",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "Guarda lo que hacen las rutinas y lo escrito en sus pasos, no lo que permitiste, sus ejecuciones ni tus cuentas."
   },
   "drops": {
     "flow_file": {

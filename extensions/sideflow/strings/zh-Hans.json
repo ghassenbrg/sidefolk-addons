@@ -1160,9 +1160,9 @@
     "Sidefolk wouldn't show that file.": "Sidefolk 没有显示那个文件。",
     "Export": "导出",
     "Export, with unsaved": "导出（含未保存内容）",
-    "The file holds what the flows do and anything typed into their steps. It doesn't hold what you allowed, their runs or your accounts.": "文件包含流程要做的事和步骤里输入的内容，不包含你允许的内容、运行记录或账户。",
     "Pick the flows to delete or export.": "选择要删除或导出的流程。",
-    "That's too big to be one file. Export fewer flows at a time.": "内容太大，无法放进一个文件。请一次导出较少的流程。"
+    "That's too big to be one file. Export fewer flows at a time.": "内容太大，无法放进一个文件。请一次导出较少的流程。",
+    "It holds what the flows do and what's typed in their steps, not what you allowed, their runs or your accounts.": "包含流程做什么以及步骤里写的内容，不含你允许的内容、运行记录或你的账户。"
   },
   "drops": {
     "flow_file": {
