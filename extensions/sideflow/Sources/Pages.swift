@@ -626,19 +626,14 @@ import SidefolkExtensionKit
         } else {
             switch flow.state {
             case .draft:
-                if practiced(flow, app) != nil {
-                    actions = [button(L("Practice run"), "practice", id, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
-                               button(L("Run now"), "run", id, symbol: "play.fill", detail: fix ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first, once.") : nil), disabled: !ready),
-                               button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart)]
-                } else {
-                    actions = [button(L("Practice run"), "practice", id, style: .primary, symbol: "play.fill", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready)]
-                    extra.append(button(L("Run now"), "run", id, symbol: "play.fill", detail: fix ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first, once.") : nil), disabled: !ready))
-                    extra.append(button(L("Turn on without practicing"), "start", id, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart))
-                }
+                // One main button, and it's the one that makes the flow work: Turn on. Practice stays beside it, Run now in the menu.
+                actions = [button(L("Practice run"), "practice", id, symbol: "play", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
+                           button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart)]
+                extra.append(button(L("Run now"), "run", id, symbol: "play.fill", detail: fix ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first, once.") : nil), disabled: !ready))
             case .on:
                 actions = flow.hasChanges
-                    ? [button(L("Practice run"), "practice", id, symbol: "play.fill", disabled: !ready), button(L("Apply changes"), "start", id, style: .primary, symbol: "checkmark", detail: cantStart, disabled: !canStart)]
-                    : [button(L("Run now"), "run", id, symbol: "play.fill"), button(L("Pause"), "pause", id, symbol: "pause.fill")]
+                    ? [button(L("Practice run"), "practice", id, symbol: "play", disabled: !ready), button(L("Apply changes"), "start", id, style: .primary, symbol: "checkmark", detail: cantStart, disabled: !canStart)]
+                    : [button(L("Pause"), "pause", id, symbol: "pause.fill"), button(L("Run now"), "run", id, style: .primary, symbol: "play.fill")]
                 if flow.hasChanges {
                     extra.append(button(L("Run now"), "run", id, symbol: "play.fill", detail: fix ?? L("Applies your changes, asking only what's new."), disabled: !ready))
                     extra.append(button(L("Go back to what's running"), "back_to_live", id, symbol: "arrow.uturn.backward"))
@@ -667,8 +662,11 @@ import SidefolkExtensionKit
         let live = app.store.unfinished().filter { $0.flow == flow.id && $0.parent == nil && $0.mode != .practice }
         if !live.isEmpty {
             let label = live.count == 1 ? L("Stop") : L("Stop all {count}", ["count": String(live.count)])
-            actions.insert(button(label, "stop_runs", ["flow": flow.id, "page_token": app.pageKey], symbol: "stop.fill",
-                                  detail: L(one: "Ends the run under way.", other: "Ends the {count} runs under way.", count: live.count)), at: 0)
+            // While it runs, Stop is the main button, unless there are changes to keep or drop first.
+            let main = !saveFirst
+            if main { for i in actions.indices where actions[i].style == .primary { actions[i].style = .secondary } }
+            actions.append(button(label, "stop_runs", ["flow": flow.id, "page_token": app.pageKey], style: main ? .primary : .secondary, symbol: "stop.fill",
+                                  detail: L(one: "Ends the run under way.", other: "Ends the {count} runs under way.", count: live.count)))
         }
         extra += [button(L("Rename"), "rename_open", id, symbol: "pencil"),
                   button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),

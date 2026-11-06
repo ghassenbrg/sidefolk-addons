@@ -976,6 +976,33 @@ import SidefolkExtensionKit
         #expect(!"\(Pages.homePage(app, state: Arguments([:])))".contains("stop_all"))
     }
 
+    /// The head has one main button, and it follows the flow: Turn on for a draft, Run now when it's on, Stop while it runs, Resume when paused.
+    @Test func theHeadsMainButtonFollowsTheFlow() async throws {
+        let w = try World()
+        let app = app(w)
+        func main(_ id: String) throws -> String? {
+            let flow = try #require(app.store.flow(id))
+            return Pages.head(flow, app, ready: true).actions.last { $0.style == .primary }?.label
+        }
+        var flow = try make(app, [["id": "w", "wait_minutes": 30]])
+        #expect(try main(flow.id) == L("Turn on"))
+        #expect(Pages.head(flow, app, ready: true).actions.contains { $0.label == L("Practice run") && $0.style != .primary }, "practice is beside it, not the main one")
+        flow.live = flow.draft
+        flow.state = .on
+        app.store.save(flow)
+        #expect(try main(flow.id) == L("Run now"))
+        _ = try #require(app.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        #expect(try main(flow.id) == L("Stop"))
+        let running = try #require(app.store.flow(flow.id))
+        #expect(Pages.head(running, app, ready: true).actions.filter { $0.style == .primary }.count == 1, "one main button")
+        flow = try #require(app.store.flow(flow.id))
+        flow.state = .paused
+        app.store.save(flow)
+        _ = try await Actions_UI.handle(Arguments(["op": "stop_all", "page_token": app.pageKey]), app)
+        #expect(try main(flow.id) == L("Resume"))
+    }
+
     /// A run under way can be stopped from the flow's own head, the page's Stop as the person's, and only with the page's token.
     @Test func theFlowsHeadStopsWhatsUnderWay() async throws {
         let w = try World()
