@@ -1015,17 +1015,17 @@ extension FlowHost {
             if held {
                 if let since = run.heldSince { run.deadline = run.deadline?.addingTimeInterval(max(0, now.timeIntervalSince(since))) }
                 run.heldSince = now
-                store.save(run)
+                store.save(run, clock: true)
                 continue
             }
             if run.heldSince != nil {
                 run.deadline = run.deadline?.addingTimeInterval(max(0, now.timeIntervalSince(run.heldSince ?? now)))
                 run.heldSince = nil
-                store.save(run)
+                store.save(run, clock: true)
             }
             guard run.deadline.map({ $0 <= now }) == true else { continue }
             run.outOfTime = true
-            store.save(run)
+            store.save(run, clock: true)
             stop(run: run.id, windingDown: true)
         }
         // One the person paused goes on when they say, whatever it was waiting for before.
