@@ -41,7 +41,34 @@ enum Issues {
         return max(1, until)
     }
 
-    static func list(_ repo: String, state: String, page: Int) async throws -> ToolReply {
+    /// The most pages one call goes through: the flow's plan never carries a cursor, so going through them here asks nothing more of the person (D202).
+    static let mostPages = 10
+
+    /// From `page`, up to `pages` of them, as one list. GitHub asking to wait before the first means nothing was read; after it, what was read comes back with where to go on.
+    static func list(_ repo: String, state: String, page: Int, pages: Int) async throws -> ToolReply {
+        var items: [[String: Any]] = [], at = page, next: Int? = page, read = 0
+        while let current = next, read < min(max(pages, 1), mostPages) {
+            let one = try await fetch(repo, state: state, page: current)
+            if let wait = one.wait {
+                guard read > 0 else {
+                    return ToolReply(L("GitHub asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: ["rate_limited": true, "retry_after_seconds": Int(wait.rounded(.up))])
+                }
+                break
+            }
+            items += one.page.items
+            at = current
+            next = one.page.next
+            read += 1
+        }
+        let lines = items.prefix(60).map { "#\($0["number"].map { "\($0)" } ?? "") \($0["title"] as? String ?? "") (\($0["state"] as? String ?? ""))" }
+        var text = lines.isEmpty ? L("No issues on this page.") : lines.joined(separator: "\n")
+        if let next { text += "\n" + L("There's another page: page {page}.", ["page": String(next)]) }
+        var data: [String: Any] = ["items": items, "count": items.count, "page": at, "pages": read]
+        if let next { data["next_page"] = next }
+        return ToolReply(text).with(data: data)
+    }
+
+    private static func fetch(_ repo: String, state: String, page: Int) async throws -> (page: Page, wait: Double?) {
         let url = Web.url("https://api.github.com/repos/\(repo)/issues", [("state", state), ("per_page", String(perPage)), ("page", String(page))])
         var request = URLRequest(url: url, timeoutInterval: 20)
         request.setValue("Sidefolk/1.0", forHTTPHeaderField: "User-Agent")
@@ -54,17 +81,10 @@ enum Issues {
         let status = http?.statusCode ?? 0
         if let wait = waitFor(status: status, remaining: http?.value(forHTTPHeaderField: "x-ratelimit-remaining"), reset: http?.value(forHTTPHeaderField: "x-ratelimit-reset"),
                               retryAfter: http?.value(forHTTPHeaderField: "retry-after"), now: Date()) {
-            // Nothing was read: said in words for a person, and in fields for a flow, which waits and asks again.
-            return ToolReply(L("GitHub asks to wait {time} before asking again. Nothing was read.", ["time": Format.duration(wait)])).with(data: ["rate_limited": true, "retry_after_seconds": Int(wait.rounded(.up))])
+            return (Page(items: [], next: page), wait)
         }
         if status == 404 { throw Problem(L("GitHub has no public repository {repo}.", ["repo": repo])) }
         guard (200..<300).contains(status) else { throw Problem(L("GitHub answered with HTTP {status}.", ["status": String(status)])) }
-        let found = try read(data, page: page, linkHeader: http?.value(forHTTPHeaderField: "link"))
-        let lines = found.items.prefix(30).map { "#\($0["number"].map { "\($0)" } ?? "") \($0["title"] as? String ?? "") (\($0["state"] as? String ?? ""))" }
-        var text = lines.isEmpty ? L("No issues on this page.") : lines.joined(separator: "\n")
-        if found.next != nil { text += "\n" + L("There's another page: page {page}.", ["page": String(page + 1)]) }
-        var data: [String: Any] = ["items": found.items, "count": found.items.count, "page": page]
-        if let next = found.next { data["next_page"] = next }
-        return ToolReply(text).with(data: data)
+        return (try read(data, page: page, linkHeader: http?.value(forHTTPHeaderField: "link")), nil)
     }
 }
