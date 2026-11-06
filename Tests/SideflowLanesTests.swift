@@ -106,6 +106,49 @@ import SidefolkExtensionKit
         #expect(w.store.flow(flow.id)?.state == .paused, "the pause is the limit's")
     }
 
+    @Test func aLaneStoppedByTheClockStaysStoppedWithWhatsInside() async throws {
+        let w = try World()
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .denied, text: "Not allowed", summary: "")]
+        // The outer lane has 5 minutes; inside it, a lane with an hour waits for the person, so it's held.
+        let inner: [String: Any] = ["name": "inner", "timeout_minutes": 60, "steps": [["id": "x", "do": "changes.it", "with": ["text": "x"]]]]
+        let outer: [String: Any] = ["name": "outer", "timeout_minutes": 5, "steps": [["id": "nested", "parallel": [inner]]]]
+        let flow = try w.flow([["id": "both", "parallel": [outer]], ["id": "after", "text": "went on"]])
+        let run = try #require(w.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(try lane(w, flow.id, "inner").status == .needs_you)
+        w.now = w.now.addingTimeInterval(6 * 60)
+        w.engine.tick()
+        await w.quiet()
+        #expect(try lane(w, flow.id, "outer").timedOut)
+        #expect(try lane(w, flow.id, "inner").status == .stopped, "the clock's own look at it mustn't bring it back")
+        w.engine.tick()
+        await w.quiet()
+        #expect(try lane(w, flow.id, "inner").status == .stopped)
+        #expect(w.store.run(run.id)?.status.isOver == true)
+    }
+
+    @Test func aCappedRunStopsOnlyWhatItsPartOf() async throws {
+        let w = try World()
+        var b = Flow(id: "b", name: "B", draft: try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "x", "do": "changes.it", "with": ["text": "x"]]]]), state: .on, createdAt: w.now, updatedAt: w.now)
+        b.live = b.draft
+        w.store.save(b)
+        // C's call to B is held at its tool, under way; then A's call to B reaches B's limit.
+        w.host.hold = "changes.it"
+        let c = try w.flow([["id": "cb", "call_flow": "B"], ["id": "after", "text": "C went on"]])
+        let cRun = try #require(w.engine.start(c, mode: .live, why: "t"))
+        await w.quiet()
+        w.host.hold = nil
+        w.host.answers["changes.it"] = [Actions.Outcome(status: .capped, text: "", limit: "run")]
+        var a = try w.flow([["id": "ab", "call_flow": "B"]])
+        a.name = "A"
+        w.store.save(a)
+        let aRun = try #require(w.engine.start(a, mode: .live, why: "t"))
+        await w.quiet()
+        #expect(w.store.run(aRun.id)?.status == .stopped && w.store.run(aRun.id)?.problem?.contains("limit") == true)
+        let cBack = try #require(w.store.run(cRun.id))
+        #expect(cBack.status != .stopped && cBack.problem?.contains("limit") != true, "C's own run of B has its own count, and C isn't told of A's limit: \(cBack.status)")
+    }
+
     @Test func aRunsLanesShareItsOneLimit() async throws {
         let w = try World()
         let two: [[String: Any]] = [["name": "one", "steps": [["id": "a", "do": "changes.it", "with": ["text": "a"]]]], ["name": "two", "steps": [["id": "b", "do": "changes.it", "with": ["text": "b"]]]]]

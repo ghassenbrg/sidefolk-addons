@@ -671,9 +671,9 @@ extension FlowHost {
             // A lane or a called flow: the whole run it's part of ends, every lane and what called it, as a stop from outside does. Nothing in it may carry on past the limit.
             run.status = run.parent == nil ? .failed : .stopped
             store.save(run)
+            // Only what this run is part of: another run of the flow, called by another flow or tried from a draft, has its own count, and finishes as runs under way do
+            // when a flow is paused, unless it reaches its own limit.
             if run.parent != nil { stopFamily(of: run, because: why) }
-            // Paused for the limit, nothing else of it goes on working either: each other run of it stops at its next step, lanes too.
-            for other in store.unfinished() where other.flow == run.flow && other.id != run.id && other.mode != .practice { stop(run: other.id, because: why) }
             return false
         case .busy:
             // Nothing happened, and a minute puts it right: a long list isn't a failure.
@@ -1058,7 +1058,9 @@ extension FlowHost {
         }
         // A lane out of time. What's under way goes on while its flow is paused, so its limit does too; but time it's held, back from a tool the pause keeps it from
         // using, or waiting for the person, isn't time it took.
-        for var run in store.unfinished() where run.deadline != nil && !run.paused {
+        for listed in store.unfinished() where listed.deadline != nil && !listed.paused {
+            // As it is now: stopping one lane stops what's inside it, and a copy from before that would bring it back.
+            guard var run = store.run(listed.id), !run.status.isOver, !run.paused else { continue }
             let held = (run.connection != nil && heldByPause(run)) || run.status == .needs_you || run.form != nil
             if held {
                 if let since = run.heldSince { run.deadline = run.deadline?.addingTimeInterval(max(0, now.timeIntervalSince(since))) }
