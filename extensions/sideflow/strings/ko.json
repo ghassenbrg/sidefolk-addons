@@ -1312,7 +1312,9 @@
     "A card is waiting for the person to say yes": "카드가 사용자의 승인을 기다리고 있습니다",
     "“{name}” is on only once the person says yes on their desktop.": "“{name}”은(는) 사용자가 데스크톱에서 승인해야 켜집니다.",
     "“{from}” and “{through}” should be steps of one list, the first before the other.": "“{from}”와(과) “{through}”은(는) 같은 목록의 단계여야 하고, 앞의 것이 먼저여야 합니다.",
-    "It should say add, remove, replace, move or wrap.": "add, remove, replace, move, wrap 중 하나여야 합니다."
+    "It should say add, remove, replace, move or wrap.": "add, remove, replace, move, wrap 중 하나여야 합니다.",
+    "A card's place is two numbers, each at most {count} from the start.": "카드의 위치는 두 숫자이고, 각각 시작점에서 최대 {count}입니다.",
+    "Stopped when asked to, not from its page.": "페이지가 아닌 요청으로 중지되었습니다."
   },
   "drops": {
     "flow_file": {

@@ -10,6 +10,18 @@ enum AgentEdits {
         return SHA256.hash(data: data).prefix(8).map { String(format: "%02x", $0) }.joined()
     }
 
+    /// `place` edits: a card's place on the board, or `clear` for Tidy up. Bounded as the page's are; a step that isn't there, or a place outside the bounds, is refused.
+    static func placed(_ edits: [[String: Any]], layout: [String: Layout.Place], body: FlowBody) throws -> [String: Layout.Place] {
+        var out = layout
+        for edit in edits {
+            if edit["clear"] as? Bool == true { out = [:]; continue }
+            guard let id = edit["id"] as? String, id == "start" || body.step(id) != nil else { throw Problem(L("There's no step “{name}”.", ["name": edit["id"] as? String ?? ""])) }
+            guard let at = Layout.place(edit["x"], edit["y"]) else { throw Problem(L("A card's place is two numbers, each at most {count} from the start.", ["count": Format.integer(Int(Layout.farthest))])) }
+            out[id] = at
+        }
+        return Layout.kept(out, for: body)
+    }
+
     static func apply(_ patch: [[String: Any]], to body: FlowBody) throws -> FlowBody {
         var out = body
         for (at, edit) in patch.enumerated() {

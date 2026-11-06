@@ -84,6 +84,18 @@ import SidefolkExtensionKit
                     try draft { $0 = Editing.move(id, before: (move["before"] as? String)?.nonEmpty, in: $0) }
                 }
             }
+        case "place":
+            // Where a card is drawn, or Tidy up: only the flow's layout changes. Nothing that runs, nothing approved, no new version (D235).
+            guard var f = app.store.flow(a.string("flow") ?? ""), let p = a.values["place"] as? [String: Any] else { break }
+            if p["clear"] as? Bool == true {
+                f.layout = [:]
+            } else if let id = p["id"] as? String, id == "start" || f.draft.step(id) != nil, let at = Layout.place(p["x"], p["y"]) {
+                f.layout[id] = at
+                f.layout = Layout.kept(f.layout, for: f.draft)
+            } else {
+                break
+            }
+            app.store.save(f)
         case "move_after":
             if let id = a.string("step"), let after = a.string("value") { try draft { $0 = Editing.place(id, after: after, in: $0) } }
         case "focus":
@@ -330,7 +342,11 @@ import SidefolkExtensionKit
         case "import_confirm":
             // A file comes from anywhere and another extension can call this, so only the page's own button counts.
             guard a.string("page_token") == app.pageKey, let id = a.string("id"), let words = FlowFile.staged(id, in: app.folder) else { break }
-            let made = try FlowFile.arriving(try FlowFile.read(words), store: app.store).map { app.newFlow(name: $0.name, body: $0.body) }
+            let made = try FlowFile.arriving(try FlowFile.read(words), store: app.store).map { incoming -> Flow in
+                var flow = app.newFlow(name: incoming.name, body: incoming.body)
+                if !incoming.layout.isEmpty { flow.layout = incoming.layout; app.store.save(flow) }
+                return flow
+            }
             FlowFile.unstage(id, in: app.folder)
             for flow in made { app.refreshPreflight(flow.id) }
             if let first = made.first { return .flow(first.id) }

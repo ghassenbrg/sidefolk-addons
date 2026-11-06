@@ -38,7 +38,8 @@ import SidefolkExtensionKit
             var out: [String: Any] = ["name": flow.name, "id": flow.id, "state": flow.state.rawValue, "definition": FlowCodec.json(flow.draft), "in_words": Words.aloud(flow.draft, catalog: app.catalog)]
             out["based_on"] = AgentEdits.fingerprint(flow.draft)
             out["approval"] = Summaries.approval(flow, app)
-            if let why = flow.startProblem { out["approval_note"] = why }
+            if let why = flow.startProblem ?? (flow.live == nil ? flow.pausedBecause : nil) { out["approval_note"] = why }
+            if !flow.layout.isEmpty { out["layout"] = Layout.json(Layout.kept(flow.layout, for: flow.draft)) }
             if flow.hasChanges { out["running_now"] = FlowCodec.json(flow.running) }
             if flow.live != nil { out["version"] = flow.version }
             if !flow.revisions.isEmpty { out["versions"] = flow.revisions.map(\.version) }
@@ -81,7 +82,7 @@ import SidefolkExtensionKit
 
         ext.tool("update_flow", "Change a flow", "Changes a flow's draft by a list of edits (patch) or a whole new definition, or its name, and says what changed. Pass based_on from get_flow, so a draft someone else changed since isn't written over. An On flow keeps running as it was until the person applies the change on a card.",
                  input: Schema.object(["flow": flowParam, "definition": definition, "name": Schema.string("A new name.", maxLength: 60),
-                                       "patch": Schema.array(of: ["type": "object", "description": "{\"op\": \"add\", \"after\": \"start\" or a step's id or \"then:<id>\", \"step\": …}, {\"op\": \"remove\", \"id\": …}, {\"op\": \"replace\", \"id\": …, \"step\": …}, {\"op\": \"move\", \"id\": …, \"after\": …}."], "Edits, applied in order: all of them or none.", maxItems: 64),
+                                       "patch": Schema.array(of: ["type": "object", "description": "{\"op\": \"add\", \"after\": \"start\" or a step's id or \"then:<id>\", \"step\": …}, {\"op\": \"remove\", \"id\": …}, {\"op\": \"replace\", \"id\": …, \"step\": …}, {\"op\": \"move\", \"id\": …, \"after\": …}, {\"op\": \"wrap\", \"from\": …, \"through\": …, \"step\": …}, {\"op\": \"place\", \"id\": …, \"x\": …, \"y\": …} or {\"op\": \"place\", \"clear\": true} (where a card is drawn on the board, only)."], "Edits, applied in order: all of them or none.", maxItems: 64),
                                        "based_on": Schema.string("The based_on get_flow gave.", maxLength: 40)], required: ["flow"])) { args in
             var flow = try app.flow(named: try args.required("flow"))
             // Someone's in the middle of it on the page: their changes aren't to be written over.
@@ -90,7 +91,11 @@ import SidefolkExtensionKit
             let before = flow.draft
             if args.values["definition"] != nil, args.values["patch"] != nil { throw Problem(L("Send a patch or a definition, not both.")) }
             if let raw = args.values["definition"] { flow.draft = try FlowCodec.body(raw) }
-            if let patch = args.values["patch"] as? [[String: Any]] { flow.draft = try AgentEdits.apply(patch, to: flow.draft) }
+            if let patch = args.values["patch"] as? [[String: Any]] {
+                // A card's place is only where it's drawn: it goes on the flow's layout, never into the definition (D235).
+                flow.draft = try AgentEdits.apply(patch.filter { $0["op"] as? String != "place" }, to: flow.draft)
+                flow.layout = try AgentEdits.placed(patch.filter { $0["op"] as? String == "place" }, layout: flow.layout, body: flow.draft)
+            }
             if let name = args.string("name") {
                 try app.rename(&flow, to: name)
             }
@@ -283,6 +288,8 @@ import SidefolkExtensionKit
         if app.engine.asking.contains(flow.id) { return "waiting_for_person" }
         if flow.startProblem != nil { return "not_allowed" }
         if flow.live != nil { return flow.hasChanges ? "allowed_changes_not_applied" : "allowed" }
+        // Revoked, or ended by itself after 60 days unused: nothing stands until they allow it again.
+        if flow.state == .paused, flow.pausedBecause != nil { return "ended" }
         return "not_asked"
     }
 

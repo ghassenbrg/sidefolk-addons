@@ -345,6 +345,8 @@ struct Flow: Equatable, Sendable, Identifiable {
     var examples: [PracticeExample] = []
     /// The one a practice goes by, if any.
     var chosenExample: String?
+    /// Where the person put each card on the board, by step (D235): only how it's drawn, never part of what runs or is approved.
+    var layout: [String: Layout.Place] = [:]
     /// Why the card didn't end in On, for the page.
     var startProblem: String?
     /// Stopped by the runaway guard.

@@ -5,6 +5,7 @@
     "(your answer)": "(your answer)",
     "2 to 4, with commas between them. None lets you type.": "2 to 4, with commas between them. None lets you type.",
     "A card is waiting for the person to say yes": "A card is waiting for the person to say yes",
+    "A card's place is two numbers, each at most {count} from the start.": "A card's place is two numbers, each at most {count} from the start.",
     "A choice in a form needs at least two answers.": "A choice in a form needs at least two answers.",
     "A condition is “and” or “or”, not both.": "A condition is “and” or “or”, not both.",
     "A file appears": "A file appears",
@@ -712,6 +713,7 @@
     "Stopped": "Stopped",
     "Stopped before this came back.": "Stopped before this came back.",
     "Stopped inside": "Stopped inside",
+    "Stopped when asked to, not from its page.": "Stopped when asked to, not from its page.",
     "Stopped {count} runs: {names}.": {
       "one": "Stopped {count} run: {names}.",
       "other": "Stopped {count} runs: {names}."

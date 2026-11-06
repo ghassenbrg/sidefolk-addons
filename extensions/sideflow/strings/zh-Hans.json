@@ -1312,7 +1312,9 @@
     "A card is waiting for the person to say yes": "有一张卡片在等本人同意",
     "“{name}” is on only once the person says yes on their desktop.": "“{name}”要等本人在桌面上同意后才会开启。",
     "“{from}” and “{through}” should be steps of one list, the first before the other.": "“{from}”和“{through}”应是同一列表中的步骤，且前者在前。",
-    "It should say add, remove, replace, move or wrap.": "应为 add、remove、replace、move 或 wrap。"
+    "It should say add, remove, replace, move or wrap.": "应为 add、remove、replace、move 或 wrap。",
+    "A card's place is two numbers, each at most {count} from the start.": "卡片的位置是两个数字，每个离起点最多 {count}。",
+    "Stopped when asked to, not from its page.": "应请求停止，而不是在它的页面上。"
   },
   "drops": {
     "flow_file": {

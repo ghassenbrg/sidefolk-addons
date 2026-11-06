@@ -274,6 +274,7 @@ import SidefolkExtensionKit
             "id": flow.id, "name": flow.name, "draft": FlowCodec.json(flow.draft), "saved": flow.saved.map(FlowCodec.json), "live": flow.live.map(FlowCodec.json), "state": flow.state.rawValue,
             "created": time(flow.createdAt), "updated": time(flow.updatedAt), "watch_outdated": flow.watchOutdated ? true : nil, "last_fire": time(flow.lastFire), "last_every": flow.lastEvery.isEmpty ? nil : Dictionary(uniqueKeysWithValues: flow.lastEvery.map { (String($0.key), $0.value.timeIntervalSince1970) }), "watch": flow.watchTitle,
             "missed": flow.missed.map(\.timeIntervalSince1970), "start_problem": flow.startProblem, "paused_because": flow.pausedBecause,
+            "layout": flow.layout.isEmpty ? nil : Layout.json(Layout.kept(flow.layout, for: flow.draft)),
             "practiced": flow.practiced.map(FlowCodec.json), "waiting_starts": flow.waitingStarts.isEmpty ? nil : flow.waitingStarts,
             "examples": flow.examples.isEmpty ? nil : flow.examples.map { ["id": $0.id, "name": $0.name, "at": $0.at.timeIntervalSince1970, "trigger": $0.trigger as Any, "values": $0.values.mapValues(\.any)] as [String: Any] }, "chosen_example": flow.chosenExample,
             "revisions": flow.revisions.isEmpty ? nil : flow.revisions.map { ["at": $0.at.timeIntervalSince1970, "body": FlowCodec.json($0.body), "version": $0.version] as [String: Any] }, "version": flow.version == 1 ? nil : flow.version,
@@ -289,6 +290,7 @@ import SidefolkExtensionKit
             return PracticeExample(id: id, name: name, at: date(e["at"]) ?? Date(), trigger: e["trigger"] as? String, values: values.mapValues { JSON($0) })
         }
         flow.chosenExample = o["chosen_example"] as? String
+        flow.layout = Layout.kept(Layout.read(o["layout"]), for: draft)
         // What's live can't be read: kept as it was, rather than an On flow running its draft.
         if let raw = o["live"] {
             guard let live = try? FlowCodec.body(raw, saved: true) else { return nil }

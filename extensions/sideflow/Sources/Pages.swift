@@ -756,7 +756,8 @@ import SidefolkExtensionKit
         let live = flow.state == .on && !flow.hasChanges && !flow.hasUnsaved
         let run = live ? app.store.runs(of: flow.id).first { $0.mode == .live && $0.body == flow.draft } : practice(flow, app)
         let untested: CardTree.Node.State = flow.state == .draft || flow.hasChanges || flow.hasUnsaved ? .pending : .none
-        var first = CardTree.Node("start", FlowFile.short(Words.triggers(flow.draft), 240), kind: L("It starts"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true)
+        var first = CardTree.Node("start", FlowFile.short(Words.triggers(flow.draft), 240), kind: L("It starts"), symbol: triggerSymbol(flow.draft.trigger), color: tile[0], state: run != nil ? .done : untested, fixed: true,
+                                  at: flow.layout["start"].map { ($0.x, $0.y) })
         if let check = app.preflight[flow.id]?[App.triggerCheck], check.decision == .deny {
             first.state = .attention
             first.pill = Badge(check.share != nil ? L("Needs a folder") : L("Not allowed"), tone: .warn)
@@ -765,7 +766,7 @@ import SidefolkExtensionKit
         let focused = app.nav.focus[flow.id].flatMap { flow.draft.step($0) }
         let shown = focused.map { [$0] } ?? flow.draft.steps
         var nodes = focused == nil ? [first] : []
-        nodes += treeNodes(shown, body: flow.draft, app, run: run.map { withLanes($0, app) }, untested: untested, flow: flow, problems: problems)
+        nodes += treeNodes(shown, body: flow.draft, app, run: run.map { withLanes($0, app) }, untested: untested, flow: flow, problems: problems, places: flow.layout)
         let selected: String? = switch app.nav.inspecting(flow) {
         case .trigger: "start"
         case .step(let id): id
@@ -779,19 +780,21 @@ import SidefolkExtensionKit
                         tools: [quick(L("Add a condition"), "if", "arrow.triangle.branch"), quick(L("Write with AI"), "ai", "sparkles"), quick(L("Tell me"), "tell", "bell"),
                                 button(L("Practice run"), "practice", ["flow": flow.id], symbol: "play", disabled: !problems.isEmpty),
                                 button(L("Undo"), "undo", ["flow": flow.id], symbol: "arrow.uturn.backward", detail: L("Undo (⌘Z)"), disabled: app.history[flow.id]?.canUndo != true),
-                                button(L("Redo"), "redo", ["flow": flow.id], symbol: "arrow.uturn.forward", detail: L("Redo (⇧⌘Z)"), disabled: app.history[flow.id]?.canRedo != true)], line: line)
+                                button(L("Redo"), "redo", ["flow": flow.id], symbol: "arrow.uturn.forward", detail: L("Redo (⇧⌘Z)"), disabled: app.history[flow.id]?.canRedo != true)], line: line,
+                        placed: .init(tool: "ui", input: ui("place", ["flow": flow.id]), key: "place"))
     }
 
     /// How many levels Sidefolk draws on one board: what's deeper is shut, and opens by focusing on it.
     static let boardDeepest = 4
 
-    static func treeNodes(_ steps: [Step], body: FlowBody, _ app: App, run: Run?, untested: CardTree.Node.State, flow: Flow?, problems: [FlowProblem], notTaken: Bool = false, depth: Int = 0) -> [CardTree.Node] {
+    static func treeNodes(_ steps: [Step], body: FlowBody, _ app: App, run: Run?, untested: CardTree.Node.State, flow: Flow?, problems: [FlowProblem], notTaken: Bool = false, depth: Int = 0, places: [String: Layout.Place] = [:]) -> [CardTree.Node] {
         steps.map { step in
             let look = look(step, app)
             let check = flow.flatMap { app.preflight[$0.id]?[step.id] }
             let said = Words.card(step, body: body, catalog: app.catalog)
             // What's shown of what's written: a step can hold far more than a card, and a page fails whole past its limit.
-            var node = CardTree.Node(step.id, FlowFile.short(said.line, 240), kind: FlowFile.short(said.head, 30), symbol: look.symbol, color: look.color, state: untested)
+            var node = CardTree.Node(step.id, FlowFile.short(said.line, 240), kind: FlowFile.short(said.head, 30), symbol: look.symbol, color: look.color, state: untested,
+                                     at: places[step.id].map { ($0.x, $0.y) })
             if let problem = problems.first(where: { $0.step == step.id }) {
                 node.state = .attention
                 node.pill = Badge(L("To fix"), tone: .warn)
@@ -838,7 +841,7 @@ import SidefolkExtensionKit
                 node.branches = step.parts.enumerated().map { at, part in
                     let taken: Bool? = tested ? (ran[at] || (!any && part.steps.isEmpty)) : nil
                     return CardTree.Branch("\(part.id):\(step.id)", partLabel(part.id, of: step), tone: .neutral, taken: taken,
-                                           nodes: treeNodes(part.steps, body: body, app, run: run, untested: untested, flow: flow, problems: problems, notTaken: notTaken || taken == false, depth: depth + 1), hint: L("Add a step"))
+                                           nodes: treeNodes(part.steps, body: body, app, run: run, untested: untested, flow: flow, problems: problems, notTaken: notTaken || taken == false, depth: depth + 1, places: places), hint: L("Add a step"))
                 }
             }
             return node
@@ -1138,7 +1141,8 @@ import SidefolkExtensionKit
             end.append(Section(L("What it came to"), [.notice(PageNotice(title: run.flowName, body: output, time: run.endedAt.map { Format.time($0) }))], place: .trailing))
         }
         var nodes = [CardTree.Node("start", FlowFile.short(run.why, 240), kind: L("It started"), symbol: triggerSymbol(run.body.trigger), color: tile[0], state: .done, fixed: true)]
-        nodes += treeNodes(run.body.steps, body: run.body, app, run: withLanes(run, app), untested: .pending, flow: nil, problems: [])
+        // The flow's places as they are now: a run doesn't keep its own.
+        nodes += treeNodes(run.body.steps, body: run.body, app, run: withLanes(run, app), untested: .pending, flow: nil, problems: [], places: app.store.flow(run.flow)?.layout ?? [:])
         let selected = app.nav.runStep[run.id]
         if let selected { end = stepDetail(run, step: selected, scope: app.nav.runScope[run.id], app) + end }
         end.append(runFacts(run, app))

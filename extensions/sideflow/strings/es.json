@@ -1344,7 +1344,9 @@
     "A card is waiting for the person to say yes": "Una tarjeta espera a que la persona diga que sí",
     "“{name}” is on only once the person says yes on their desktop.": "«{name}» solo se activa cuando la persona dice que sí en su escritorio.",
     "“{from}” and “{through}” should be steps of one list, the first before the other.": "«{from}» y «{through}» deben ser pasos de una misma lista, el primero antes del otro.",
-    "It should say add, remove, replace, move or wrap.": "Debe decir add, remove, replace, move o wrap."
+    "It should say add, remove, replace, move or wrap.": "Debe decir add, remove, replace, move o wrap.",
+    "A card's place is two numbers, each at most {count} from the start.": "El lugar de una tarjeta son dos números, cada uno a lo sumo {count} del inicio.",
+    "Stopped when asked to, not from its page.": "Detenido a petición, no desde su página."
   },
   "drops": {
     "flow_file": {

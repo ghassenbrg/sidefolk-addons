@@ -4,7 +4,8 @@ import SidefolkExtensionKit
 /// A flow as a file (D200): `name.sideflow`, readable JSON that an agent can write too. What it holds is the definition and what that needs, never an approval, a run or an account.
 /// A file comes from anywhere: it's read here, shown in plain words, and only then brought in, always as a draft and off.
 enum FlowFile {
-    static let format = 1
+    /// 2 once a flow in it has a layout; a file without one stays 1, so an older Sideflow still reads it.
+    static let format = 2
     static let type = "sideflow"
     static let longest = 1_000_000
     static let mostFlows = 12
@@ -13,17 +14,19 @@ enum FlowFile {
     struct Incoming: Equatable {
         var name: String
         var body: FlowBody
+        /// Where its cards were on the board: checked and bounded, and dropped where it names no step.
+        var layout: [String: Layout.Place] = [:]
     }
 
     // MARK: Writing
 
     /// These flows as they are on the page, the same as a copy, and the flows they call as last saved. The samples go: a practice's made-up values can be the person's own words. What's typed into a step stays, and the page says so.
     @MainActor static func write(_ flows: [Flow], store: FlowStore, catalog: Catalog, sideflow: String) -> String {
-        var all = flows.map { (name: $0.name, body: $0.draft) }, seen = Set(flows.map(\.id)), next = flows.map(\.draft)
+        var all = flows.map { (name: $0.name, body: $0.draft, layout: Layout.kept($0.layout, for: $0.draft)) }, seen = Set(flows.map(\.id)), next = flows.map(\.draft)
         while let body = next.popLast() {
             for name in calls(body) {
                 guard let called = store.named(name), seen.insert(called.id).inserted else { continue }
-                all.append((called.name, called.kept))
+                all.append((called.name, called.kept, [:]))
                 next.append(called.kept)
             }
         }
@@ -42,8 +45,11 @@ enum FlowFile {
             return line
         }]
         // Readable, as a file you might open and keep: the order of its keys stays put from one export to the next.
-        let whole: [String: Any] = ["sideflow": format, "needs": needs, "flows": all.map { flow in
-            ["name": flow.name, "flow": withoutSamples(FlowCodec.json(flow.body))] as [String: Any]
+        let placed = all.contains { !$0.layout.isEmpty }
+        let whole: [String: Any] = ["sideflow": placed ? format : 1, "needs": needs, "flows": all.map { flow in
+            var one: [String: Any] = ["name": flow.name, "flow": withoutSamples(FlowCodec.json(flow.body))]
+            if !flow.layout.isEmpty { one["layout"] = Layout.json(flow.layout) }
+            return one
         }]
         let data = (try? JSONSerialization.data(withJSONObject: whole, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])) ?? Data()
         return String(decoding: data, as: UTF8.self) + "\n"
@@ -115,7 +121,7 @@ enum FlowFile {
         }
         var names = Set<String>()
         return try raw.map { item in
-            guard Set(item.keys).isSubset(of: ["name", "flow"]) else { throw Problem(L("That isn't a Sideflow file or a flow's definition.")) }
+            guard Set(item.keys).isSubset(of: ["name", "flow", "layout"]), item["layout"] == nil || top["sideflow"] != nil else { throw Problem(L("That isn't a Sideflow file or a flow's definition.")) }
             // A definition on its own can leave its name out. In a file, a call may be naming it.
             let written = (item["name"] as? String)?.trimmed ?? ""
             if written.isEmpty, top["sideflow"] != nil { throw Problem(L("Every flow in a file needs a name.")) }
@@ -128,7 +134,8 @@ enum FlowFile {
             guard names.insert(folded(name)).inserted else { throw Problem(L("Two flows in this file are called “{name}”.", ["name": name])) }
             do {
                 // A practice's made-up answers aren't for someone else's practice to go by.
-                return Incoming(name: name, body: try FlowCodec.body((item["flow"] as? [String: Any]).map(withoutSamples) ?? item["flow"]))
+                let body = try FlowCodec.body((item["flow"] as? [String: Any]).map(withoutSamples) ?? item["flow"])
+                return Incoming(name: name, body: body, layout: Layout.kept(Layout.read(item["layout"]), for: body))
             } catch let problem as Problem {
                 throw Problem(L("“{name}” can't be brought in: {why}", ["name": name, "why": problem.message]))
             }
@@ -168,7 +175,7 @@ enum FlowFile {
         return incoming.map { item in
             var body = item.body
             for (old, new) in renamed { body = body.calling(old, instead: new) }
-            return Incoming(name: renamed[item.name] ?? item.name, body: body)
+            return Incoming(name: renamed[item.name] ?? item.name, body: body, layout: item.layout)
         }
     }
 

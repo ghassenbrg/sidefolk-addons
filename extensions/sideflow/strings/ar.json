@@ -1472,7 +1472,9 @@
     "A card is waiting for the person to say yes": "بطاقة تنتظر أن يوافق الشخص",
     "“{name}” is on only once the person says yes on their desktop.": "لا يعمل «{name}» إلا بعد أن يوافق الشخص على سطح مكتبه.",
     "“{from}” and “{through}” should be steps of one list, the first before the other.": "يجب أن يكون «{from}» و«{through}» خطوتين في قائمة واحدة، والأولى قبل الأخرى.",
-    "It should say add, remove, replace, move or wrap.": "يجب أن تقول add أو remove أو replace أو move أو wrap."
+    "It should say add, remove, replace, move or wrap.": "يجب أن تقول add أو remove أو replace أو move أو wrap.",
+    "A card's place is two numbers, each at most {count} from the start.": "مكان البطاقة رقمان، كل منهما على بُعد {count} على الأكثر من البداية.",
+    "Stopped when asked to, not from its page.": "أُوقف بطلب، لا من صفحته."
   },
   "drops": {
     "flow_file": {
