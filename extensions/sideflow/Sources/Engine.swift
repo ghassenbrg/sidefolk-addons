@@ -1762,7 +1762,7 @@ extension FlowHost {
     }
 
     /// The one flow this sets off or calls that's off, to turn on with it: only when that's the only flow it names, that one names none (no chains), and it
-    /// can be read as it is. Otherwise each is turned on by itself, as before.
+    /// can be read as it is. Otherwise each is turned on by itself, as before (D242; what may be approved together, T71).
     func goesWith(_ flow: Flow) -> Flow? {
         let names = Set(flow.kept.allSteps.compactMap(\.calledFlow))
         guard names.count == 1, let name = names.first, let other = store.named(name), other.id != flow.id, other.state != .on, !asking.contains(other.id),
