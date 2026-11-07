@@ -116,12 +116,12 @@ enum FlowFile {
             guard flows.count <= mostFlows else { throw Problem(L("A file holds at most {count} flows.", ["count": Format.integer(mostFlows)])) }
             raw = flows
         } else {
-            guard Set(top.keys).isSubset(of: ["name", "flow"]), top["flow"] != nil else { throw Problem(L("That isn't a Sideflow file or a flow's definition.")) }
+            guard Set(top.keys).isSubset(of: ["name", "flow", "layout"]), top["flow"] != nil else { throw Problem(L("That isn't a Sideflow file or a flow's definition.")) }
             raw = [top]
         }
         var names = Set<String>()
         return try raw.map { item in
-            guard Set(item.keys).isSubset(of: ["name", "flow", "layout"]), item["layout"] == nil || top["sideflow"] != nil else { throw Problem(L("That isn't a Sideflow file or a flow's definition.")) }
+            guard Set(item.keys).isSubset(of: ["name", "flow", "layout"]) else { throw Problem(L("That isn't a Sideflow file or a flow's definition.")) }
             // A definition on its own can leave its name out. In a file, a call may be naming it.
             let written = (item["name"] as? String)?.trimmed ?? ""
             if written.isEmpty, top["sideflow"] != nil { throw Problem(L("Every flow in a file needs a name.")) }

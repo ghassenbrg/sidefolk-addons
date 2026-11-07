@@ -32,6 +32,9 @@ import SidefolkExtensionKit
         #expect(Layout.place(Double.infinity, 1) == nil)
         #expect(Layout.place(4001, 0) == nil && Layout.place(0, -4001) == nil)
         #expect(Layout.place(true, 1) == nil)
+        // Read from JSON, 0 and 1 are numbers, and true is not.
+        let fromJSON = try #require(JSONText.read(#"{"a": [0, 1], "b": [true, 1]}"#))
+        #expect(Layout.read(fromJSON) == ["a": Layout.Place(x: 0, y: 1)])
         #expect(Layout.place("12", 1) == nil)
         let body = try FlowCodec.body(["trigger": ["type": "manual"], "steps": [["id": "a", "text": "x"]]])
         let read = Layout.read(["a": [1, 2], "gone": [3, 4], "start": [0, 0], "bad": [1], "huge": [1e9, 0], "../x": [1, 1]])
@@ -101,7 +104,8 @@ import SidefolkExtensionKit
         #expect((JSONText.read(placed) as? [String: Any])?["sideflow"] as? Int == 2)
         #expect(try FlowFile.read(placed).first?.layout == ["a": Layout.Place(x: 5, y: 6)])
         #expect(try FlowFile.read(plain).first?.layout.isEmpty == true)
-        #expect(throws: (any Error).self) { try FlowFile.read(#"{"name": "X", "flow": {"trigger": {"type": "manual"}, "steps": []}, "layout": {"a": [1, 2]}}"#) }
+        // A definition copied on its own carries its places too, for steps it has.
+        #expect(try FlowFile.read(#"{"name": "X", "flow": {"trigger": {"type": "manual"}, "steps": [{"id": "a", "text": "x"}]}, "layout": {"a": [1, 2], "gone": [3, 4]}}"#).first?.layout == ["a": Layout.Place(x: 1, y: 2)])
         #expect(throws: (any Error).self) { try FlowFile.read(#"{"sideflow": 3, "flows": [{"name": "X", "flow": {"trigger": {"type": "manual"}, "steps": []}}]}"#) }
     }
 
@@ -113,6 +117,76 @@ import SidefolkExtensionKit
         #expect(try AgentEdits.placed([["op": "place", "clear": true]], layout: out, body: body).isEmpty)
         #expect(throws: (any Error).self) { try AgentEdits.placed([["op": "place", "id": "nope", "x": 1, "y": 1]], layout: [:], body: body) }
         #expect(throws: (any Error).self) { try AgentEdits.placed([["op": "place", "id": "a", "x": 9_999, "y": 1]], layout: [:], body: body) }
+    }
+
+    /// Past the bound, which places a file keeps follows the ids' order, not how a dictionary happens to list them.
+    @Test func readingKeepsTheSamePlacesEveryTime() {
+        let many = Dictionary(uniqueKeysWithValues: (0..<300).map { (String(format: "s%03d", $0), [Double($0), 0] as [Any]) })
+        let read = Layout.read(many)
+        #expect(read.count == Layout.most * 2)
+        #expect(read["s000"] != nil && read["s199"] != nil && read["s200"] == nil)
+    }
+
+    /// A copied card sits beside the one it copies; a new holder takes the first wrapped step's place, and what it holds is laid out with it.
+    @Test func duplicatingAndWrappingKeepPlacesSensible() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try on(app, [["id": "a", "text": "x"], ["id": "b", "text": "y"]])
+        try await place(app, flow, ["id": "a", "x": 100, "y": 200])
+        _ = try await Actions_UI.handle(Arguments(["op": "dup_step", "flow": flow.id, "step": "a"]), app)
+        let copied = try #require(app.store.flow(flow.id))
+        let new = try #require(copied.draft.steps.map(\.id).first { $0 != "a" && $0 != "b" })
+        #expect(copied.layout[new] == Layout.Place(x: 140, y: 240))
+        _ = try await Actions_UI.handle(Arguments(["op": "wrap", "flow": flow.id, "step": "a", "value": "try"]), app)
+        let wrapped = try #require(app.store.flow(flow.id))
+        let holder = try #require(wrapped.draft.steps.first { $0.id != "b" && $0.id != new })
+        #expect(wrapped.layout[holder.id] == Layout.Place(x: 100, y: 200))
+        #expect(wrapped.layout["a"] == nil, "inside the holder now, laid out with it")
+    }
+
+    /// Copy as a definition carries the places, and bringing it back keeps them.
+    @Test func copyAsADefinitionCarriesThePlaces() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try on(app, [["id": "a", "text": "x"]])
+        try await place(app, flow, ["id": "a", "x": 7, "y": 8])
+        let placed = try #require(app.store.flow(flow.id))
+        let copied = "\(Pages.copyDefinition(placed))"
+        #expect(copied.contains("layout"))
+        #expect(!"\(Pages.copyDefinition(flow))".contains("layout"), "nothing placed, nothing extra")
+    }
+
+    /// Undo takes a move back, one step, and Redo brings it again; a second drag of the same card a moment later is the same move.
+    @Test func undoTakesAMoveBack() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try on(app, [["id": "a", "text": "x"]])
+        try await place(app, flow, ["id": "a", "x": 10, "y": 10])
+        try await place(app, flow, ["id": "a", "x": 30, "y": 30])
+        #expect(app.store.flow(flow.id)?.layout["a"] == Layout.Place(x: 30, y: 30))
+        _ = try await Actions_UI.handle(Arguments(["op": "undo", "flow": flow.id]), app)
+        #expect(app.store.flow(flow.id)?.layout.isEmpty == true, "one drag, one step back")
+        _ = try await Actions_UI.handle(Arguments(["op": "redo", "flow": flow.id]), app)
+        #expect(app.store.flow(flow.id)?.layout["a"] == Layout.Place(x: 30, y: 30))
+        let after = try #require(app.store.flow(flow.id))
+        #expect(after.draft == flow.draft && after.live == flow.live && !after.hasChanges, "nothing that runs moved")
+        try await place(app, after, ["clear": true])
+        _ = try await Actions_UI.handle(Arguments(["op": "undo", "flow": flow.id]), app)
+        #expect(app.store.flow(flow.id)?.layout["a"] == Layout.Place(x: 30, y: 30), "Tidy up is a step of its own")
+    }
+
+    /// A run waiting on a form shows that form on the flow's own page, so nobody has to go looking in its runs.
+    @Test func aWaitingFormIsOnTheFlowsOwnPage() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try on(app, [["id": "f", "form": ["title": "Tell me", "fields": [["name": "who", "label": "What should it call you?", "kind": "text", "required": true]]]], ["id": "t", "text": "{{f.who}}"]])
+        #expect(!"\(Pages.flowPage(flow, app, state: Arguments([:])))".contains("form_send"))
+        let run = try #require(app.engine.start(flow, mode: .live, why: "t"))
+        await w.quiet(app.store)
+        #expect(app.store.run(run.id)?.form != nil)
+        let now = try #require(app.store.flow(flow.id))
+        let page = "\(Pages.flowPage(now, app, state: Arguments([:])))"
+        #expect(page.contains("form_send") && page.contains("What should it call you?"))
     }
 
     /// After Revoke or the 60-day end, an agent reads "ended", not "allowed".

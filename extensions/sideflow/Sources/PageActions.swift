@@ -23,7 +23,7 @@ import SidefolkExtensionKit
             guard f.draft.depth <= FlowBody.maxDepth || f.draft.depth <= before.depth else { throw Problem(L("That goes too deep: a flow can hold steps inside steps {count} levels down.", ["count": Format.integer(FlowBody.maxDepth)])) }
             // Typing in a field is one step back: the same field, moments apart.
             let typing = ["step_name", "ai_prompt", "compose", "question", "options", "param", "cond_value", "cond_than", "watch_target", "watch_contains", "watch_pattern", "event_contains", "each_items", "choose_value", "path_when", "lane_name", "lane_limit", "takes_name", "call_input", "finish_value", "data_from", "data_field", "data_than", "data_separator", "form_title", "form_label", "form_options", "wait_contains", "sample", "trigger_sample", "time_zone"].contains(op)
-            app.history[f.id, default: Editing.History()].record(before, key: typing ? "\(op)|\(a.string("step") ?? "")|\(a.string("name") ?? "")" : nil, at: Date())
+            app.history[f.id, default: Editing.History()].record(before, layout: f.layout, key: typing ? "\(op)|\(a.string("step") ?? "")|\(a.string("name") ?? "")" : nil, at: Date())
             f.hold(before)
             app.store.save(f)
             app.refreshPreflight(f.id)
@@ -86,7 +86,9 @@ import SidefolkExtensionKit
             }
         case "place":
             // Where a card is drawn, or Tidy up: only the flow's layout changes. Nothing that runs, nothing approved, no new version (D235).
+            // No page token, unlike Stop: nothing approved reads a place, and update_flow's patch may move cards too (Permissions' read, 2026-11-07).
             guard var f = app.store.flow(a.string("flow") ?? ""), let p = a.values["place"] as? [String: Any] else { break }
+            let before = f.layout
             if p["clear"] as? Bool == true {
                 f.layout = [:]
             } else if let id = p["id"] as? String, id == "start" || f.draft.step(id) != nil, let at = Layout.place(p["x"], p["y"]) {
@@ -95,6 +97,9 @@ import SidefolkExtensionKit
             } else {
                 break
             }
+            guard f.layout != before else { break }
+            // A move is one step back, like an edit; one card dragged again a moment later is the same move. Tidy up is a step of its own.
+            app.history[f.id, default: Editing.History()].record(f.draft, layout: before, key: (p["id"] as? String).map { "place|\($0)" }, at: Date())
             app.store.save(f)
         case "move_after":
             if let id = a.string("step"), let after = a.string("value") { try draft { $0 = Editing.place(id, after: after, in: $0) } }
@@ -111,6 +116,13 @@ import SidefolkExtensionKit
             try draft { body in
                 guard let wrapped = Editing.wrap(from: id, through: through, inside: holder, in: body) else { return }
                 body = wrapped
+            }
+            // The new holder takes the first wrapped step's place; what's inside it is laid out with it.
+            if var now = app.store.flow(f.id), let at = now.layout[id], let made = now.draft.step(holder.id) {
+                func inside(_ s: Step) -> [String] { s.parts.flatMap { $0.steps.flatMap { [$0.id] + inside($0) } } }
+                for inner in inside(made) { now.layout[inner] = nil }
+                now.layout[holder.id] = at
+                app.store.save(now)
             }
             app.nav.wrapThrough[id] = nil
             app.nav.inspect(.step(holder.id), in: f.id)
@@ -329,7 +341,7 @@ import SidefolkExtensionKit
         case "bring_back":
             var f = try flow()
             guard let at = a.int("revision"), f.revisions.indices.contains(at) else { break }
-            app.history[f.id, default: Editing.History()].record(f.draft, key: nil, at: Date())
+            app.history[f.id, default: Editing.History()].record(f.draft, layout: f.layout, key: nil, at: Date())
             f.show(f.revisions[at].body)
             app.store.save(f)
             app.refreshPreflight(f.id)
@@ -569,7 +581,7 @@ import SidefolkExtensionKit
             // Back to what Save last kept. Undo brings it back.
             var f = try flow()
             guard let kept = f.saved else { break }
-            app.history[f.id, default: Editing.History()].record(f.draft, key: nil, at: Date())
+            app.history[f.id, default: Editing.History()].record(f.draft, layout: f.layout, key: nil, at: Date())
             f.draft = kept
             f.saved = nil
             f.settleNote()
@@ -578,7 +590,7 @@ import SidefolkExtensionKit
         case "back_to_live":
             var f = try flow()
             guard let live = f.live else { break }
-            app.history[f.id, default: Editing.History()].record(f.draft, key: nil, at: Date())
+            app.history[f.id, default: Editing.History()].record(f.draft, layout: f.layout, key: nil, at: Date())
             f.hold(f.draft)
             f.draft = live
             f.saved = nil
@@ -588,11 +600,12 @@ import SidefolkExtensionKit
         case "undo", "redo":
             var f = try flow()
             let current = f.draft
-            guard let other = op == "undo" ? app.history[f.id]?.back(from: current) : app.history[f.id]?.forward(from: current) else { break }
-            f.show(other)
+            guard let other = op == "undo" ? app.history[f.id]?.back(from: current, layout: f.layout) : app.history[f.id]?.forward(from: current, layout: f.layout) else { break }
+            f.show(other.body)
+            f.layout = Layout.kept(other.layout, for: f.draft)
             app.store.save(f)
             app.refreshPreflight(f.id)
-            if case .step(let id) = app.nav.inspecting(f), other.step(id) == nil { app.nav.inspect(.nothing, in: f.id) }
+            if case .step(let id) = app.nav.inspecting(f), other.body.step(id) == nil { app.nav.inspect(.nothing, in: f.id) }
         case "extract":
             let f = try flow()
             guard let id = a.string("step"), let step = f.draft.step(id) else { return .stay }
@@ -616,6 +629,11 @@ import SidefolkExtensionKit
             let f = try flow()
             guard let id = a.string("step") ?? { if case .step(let s) = app.nav.inspecting(f) { s } else { nil } }(), let (body, new) = Editing.duplicate(id, in: f.draft) else { break }
             try draft { $0 = body }
+            // A copy of a placed card sits beside it, a little down and to the right, never past the board's edge.
+            if var now = app.store.flow(f.id), let at = now.layout[id] {
+                now.layout[new] = Layout.place(min(at.x + 40, Layout.farthest), min(at.y + 40, Layout.farthest))
+                app.store.save(now)
+            }
             app.nav.inspect(.step(new), in: f.id)
         case "delete_too_long":
             // The page that says so has no room for a question first, and only that page holds this.

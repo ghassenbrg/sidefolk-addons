@@ -394,8 +394,14 @@ enum Editing {
         static let longest = 100
         static let typingGap: TimeInterval = 2
 
-        private(set) var undo: [FlowBody] = []
-        private(set) var redo: [FlowBody] = []
+        /// What a step back brings back: the draft, and where its cards were (D235), so moving a card is undone like an edit.
+        struct Entry: Equatable {
+            var body: FlowBody
+            var layout: [String: Layout.Place] = [:]
+        }
+
+        private(set) var undo: [Entry] = []
+        private(set) var redo: [Entry] = []
         private var lastKey: String?
         private var lastAt: Date?
 
@@ -404,27 +410,27 @@ enum Editing {
 
         mutating func breakTyping() { (lastKey, lastAt) = (nil, nil) }
 
-        mutating func record(_ before: FlowBody, key: String?, at now: Date) {
+        mutating func record(_ before: FlowBody, layout: [String: Layout.Place] = [:], key: String?, at now: Date) {
             redo = []
             if let key, key == lastKey, let lastAt, now.timeIntervalSince(lastAt) < Self.typingGap {
                 self.lastAt = now
                 return
             }
-            undo.append(before)
+            undo.append(Entry(body: before, layout: layout))
             if undo.count > Self.longest { undo.removeFirst() }
             (lastKey, lastAt) = (key, now)
         }
 
-        mutating func back(from current: FlowBody) -> FlowBody? {
+        mutating func back(from current: FlowBody, layout: [String: Layout.Place] = [:]) -> Entry? {
             guard let last = undo.popLast() else { return nil }
-            redo.append(current)
+            redo.append(Entry(body: current, layout: layout))
             (lastKey, lastAt) = (nil, nil)
             return last
         }
 
-        mutating func forward(from current: FlowBody) -> FlowBody? {
+        mutating func forward(from current: FlowBody, layout: [String: Layout.Place] = [:]) -> Entry? {
             guard let next = redo.popLast() else { return nil }
-            undo.append(current)
+            undo.append(Entry(body: current, layout: layout))
             (lastKey, lastAt) = (nil, nil)
             return next
         }

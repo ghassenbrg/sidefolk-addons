@@ -576,7 +576,11 @@ import SidefolkExtensionKit
     }
 
     static func copyDefinition(_ flow: Flow) -> Action {
-        copying(JSONText.write(["name": flow.name, "flow": FlowCodec.json(flow.draft)] as [String: Any]), flow, L("Copy as a definition"), unsaved: L("Copy definition, with unsaved"), symbol: "curlybraces")
+        // Where its cards sit goes with it, beside the definition: an older Sideflow refuses the copy whole rather than taking half.
+        var copy: [String: Any] = ["name": flow.name, "flow": FlowCodec.json(flow.draft)]
+        let places = Layout.kept(flow.layout, for: flow.draft)
+        if !places.isEmpty { copy["layout"] = Layout.json(places) }
+        return copying(JSONText.write(copy), flow, L("Copy as a definition"), unsaved: L("Copy definition, with unsaved"), symbol: "curlybraces")
     }
 
     static func copyWords(_ flow: Flow, _ app: App) -> Action {

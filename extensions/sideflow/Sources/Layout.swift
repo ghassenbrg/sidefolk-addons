@@ -16,7 +16,10 @@ enum Layout {
     /// A place within the bounds, in whole points; nil for anything that isn't two finite numbers in them.
     static func place(_ x: Any?, _ y: Any?) -> Place? {
         func number(_ value: Any?) -> Double? {
-            guard let n = (value as? NSNumber)?.doubleValue ?? (value as? Double), n.isFinite, abs(n) <= farthest, !(value is Bool) else { return nil }
+            // A true or false isn't a place. Asked as `is Bool`, a number read from JSON that happens to be 0 or 1 would say yes too.
+            if value is Bool && !(value is Int || value is Double) { return nil }
+            if let n = value as? NSNumber, CFGetTypeID(n) == CFBooleanGetTypeID() { return nil }
+            guard let n = (value as? NSNumber)?.doubleValue ?? (value as? Double), n.isFinite, abs(n) <= farthest else { return nil }
             return n.rounded()
         }
         guard let x = number(x), let y = number(y) else { return nil }
@@ -37,7 +40,8 @@ enum Layout {
     static func read(_ value: Any?) -> [String: Place] {
         guard let o = value as? [String: Any] else { return [:] }
         var out: [String: Place] = [:]
-        for (id, at) in o.prefix(most * 2) {
+        // In the ids' own order, so which ones a file past the bound keeps never depends on how a dictionary happens to list them.
+        for (id, at) in o.sorted(by: { $0.key < $1.key }).prefix(most * 2) {
             guard id.range(of: #"^[A-Za-z0-9_.:-]{1,64}$"#, options: .regularExpression) != nil, let pair = at as? [Any], pair.count == 2, let place = place(pair[0], pair[1]) else { continue }
             out[id] = place
         }
