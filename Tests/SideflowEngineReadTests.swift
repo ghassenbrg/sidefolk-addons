@@ -949,10 +949,12 @@ import SidefolkExtensionKit
         await w.quiet(app.store)
         #expect(app.store.run(run.id)?.status == .waiting)
         try await page(app, "compose", flow, ["step": "t", "text": "two"])
-        let bar = "\(Pages.head(try #require(app.store.flow(flow.id)), app, ready: true))"
-        #expect(bar.contains(L("Discard")))
-        #expect(bar.contains(L("Unsaved changes")))
-        #expect(bar.contains("stop_runs"), "and Stop stays, unsaved changes or not")
+        let head = Pages.head(try #require(app.store.flow(flow.id)), app, ready: true)
+        #expect((head.actions + head.menu).contains { $0.label == L("Discard") })
+        #expect(head.pill?.text == L("Unsaved changes"))
+        // Sidefolk draws three of a bar's buttons and drops the rest, so Stop has to be one of them.
+        #expect(head.actions.count <= Pages.barButtons)
+        #expect(head.actions.contains { $0.input["op"] as? String == "stop_runs" }, "and Stop stays, unsaved changes or not")
     }
 
     /// A no for a step filled from an earlier step is about the stand-in, so the board doesn't say Not allowed; one for words written in it does.

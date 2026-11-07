@@ -53,6 +53,32 @@ import SidefolkExtensionKit
         #expect(asking.contains("Leftover") && asking.contains(L("History keeps its record of what they did.")))
     }
 
+    /// Every bar on these pages holds no more buttons than Sidefolk draws: Delete, on the page that picks flows, is one of them.
+    @Test func barsKeepToWhatSidefolkDraws() async throws {
+        let w = try World()
+        let app = app(w)
+        let flow = try make(app, "Deep", [["id": "a", "if": ["value": "1", "test": "is", "than": "1"], "then": [
+            ["id": "b", "if": ["value": "1", "test": "is", "than": "1"], "then": [
+                ["id": "c", "if": ["value": "1", "test": "is", "than": "1"], "then": [
+                    ["id": "d", "text": "deep"]], "else": []]], "else": []]], "else": []]])
+        _ = try make(app, "Other", [["id": "a", "text": "1"]])
+        func bars(_ page: Page) -> [PageBar] {
+            page.sections.flatMap { $0.blocks.compactMap { if case .bar(let bar) = $0 { bar } else { nil } } }
+        }
+        func fits(_ page: Page, _ why: Comment) { #expect(!bars(page).isEmpty && bars(page).allSatisfy { $0.actions.count <= Pages.barButtons }, why) }
+        fits(Pages.homePage(app, state: Arguments([:])), "Your flows")
+        try await page(app, ["op": "pick_flows"])
+        try await page(app, ["op": "pick_state", "value": "draft"])
+        let picking = Pages.homePage(app, state: Arguments([:]))
+        fits(picking, "picking")
+        #expect(bars(picking).contains { $0.actions.contains { $0.input["op"] as? String == "pick_delete" } })
+        try await page(app, ["op": "pick_delete"])
+        fits(Pages.homePage(app, state: Arguments([:])), "asking")
+        try await page(app, ["op": "pick_none"])
+        try await page(app, ["op": "focus", "flow": flow.id, "step": "d"])
+        fits(Pages.flowPage(try #require(app.store.flow(flow.id)), app, state: Arguments([:])), "focused under three holders")
+    }
+
     /// Picking by state, and the shortcut for old drafts that never ran: only those, and the question still comes first.
     @Test func pickingByStateAndOldDrafts() async throws {
         let w = try World()

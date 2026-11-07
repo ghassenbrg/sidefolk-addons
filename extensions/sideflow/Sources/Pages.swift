@@ -256,6 +256,8 @@ import SidefolkExtensionKit
     static let inABlock = 24
     /// What a page of flows to pick can hold beside the sidebar's list of them all, within a page's size.
     static let mostToPick = inABlock * 8
+    /// What Sidefolk draws of a bar's buttons; the rest would be lost, so they go to its menu.
+    static let barButtons = 3
     /// Long enough that the second click of a double click isn't taken for being sure.
     static let settling: TimeInterval = 0.6
 
@@ -290,13 +292,13 @@ import SidefolkExtensionKit
             return frame(app, state: state, here: "flows", main)
         }
         let detail = chosen.isEmpty ? L("Pick the flows to delete or export.") : L(one: "{count} selected", other: "{count} selected", count: chosen.count)
+        // Select all waits in the menu, so Delete stays in sight (barButtons).
         main.append(Section(nil, [.bar(PageBar(L("Select flows"), detail: detail, actions: [
             button(L("Done"), "pick_none"),
-            button(L("Select all"), "pick_all", disabled: chosen.count == flows.count),
             Action(L("Export"), act: .save(name: chosen.count == 1 ? chosen[0].name : L("Flows"), type: FlowFile.type, tool: "export_flows", input: ["flows": chosen.map(\.id)], note: exportNote), symbol: "square.and.arrow.up",
                    detail: chosen.count > FlowFile.mostFlows ? L("A file holds at most {count} flows.", ["count": Format.integer(FlowFile.mostFlows)]) : nil, disabled: chosen.isEmpty || chosen.count > FlowFile.mostFlows),
             button(chosen.isEmpty ? L("Delete") : L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count), "pick_delete", style: .destructive, symbol: "trash", disabled: chosen.isEmpty),
-        ]))]))
+        ], menu: [button(L("Select all"), "pick_all", disabled: chosen.count == flows.count)]))]))
         main.append(Section(nil, [.bar(PageBar(L("Select by state"), detail: nil, actions: [
             button(L("Drafts"), "pick_state", ["value": "draft"], disabled: !flows.contains { $0.state == .draft }),
             button(L("Paused"), "pick_state", ["value": "paused"], disabled: !flows.contains { $0.state == .paused }),
@@ -699,6 +701,10 @@ import SidefolkExtensionKit
             actions.append(button(label, "stop_runs", ["flow": flow.id, "page_token": app.pageKey], style: main ? .primary : .secondary, symbol: "stop.fill",
                                   detail: L(one: "Ends the run under way.", other: "Ends the {count} runs under way.", count: live.count)))
         }
+        // Past what a bar draws, what can't be pressed now goes to the menu first, then the earliest: Stop, last, stays.
+        while actions.count > barButtons {
+            extra.insert(actions.remove(at: actions.firstIndex { $0.disabled } ?? 0), at: 0)
+        }
         extra += [button(L("Rename"), "rename_open", id, symbol: "pencil"),
                   button(L("Duplicate"), "duplicate", id, symbol: "plus.square.on.square"),
                   copyDefinition(flow),
@@ -755,7 +761,7 @@ import SidefolkExtensionKit
     static func breadcrumbs(_ flow: Flow, _ focused: String, _ app: App) -> PageBar {
         let above = Editing.holders(of: focused, in: flow.draft)
         let here = flow.draft.step(focused).map { Words.label($0, catalog: app.catalog) } ?? ""
-        return PageBar((above.map { Words.label($0, catalog: app.catalog) } + [here]).joined(separator: " › "), actions: [button(L("All steps"), "focus", ["flow": flow.id], symbol: "arrow.up.left.and.arrow.down.right")] + above.suffix(3).map { step in
+        return PageBar((above.map { Words.label($0, catalog: app.catalog) } + [here]).joined(separator: " › "), actions: [button(L("All steps"), "focus", ["flow": flow.id], symbol: "arrow.up.left.and.arrow.down.right")] + above.suffix(barButtons - 1).map { step in
             button(String(Words.label(step, catalog: app.catalog).prefix(24)), "focus", ["flow": flow.id, "step": step.id], style: .plain)
         })
     }
