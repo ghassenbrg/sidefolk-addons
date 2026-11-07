@@ -34,6 +34,8 @@ import SidefolkExtensionKit
         #expect(words.contains(L(one: "Removed {count} step, and {inner} inside it. ⌘Z brings them back.", other: "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.", count: 2, ["inner": "1"])))
         try await page(app, ["op": "undo", "flow": flow.id])
         #expect(app.store.flow(flow.id)?.draft == flow.draft, "one Undo, all of them back")
+        // The builder's board offers the selection's hook, to the same op, under "steps".
+        #expect(Pages.tree(after, app, problems: []).removeMany?.key == "steps")
         // One card, as before.
         try await page(app, ["op": "remove", "flow": flow.id, "step": "c"])
         #expect(app.store.flow(flow.id)?.draft.allSteps.map(\.id).contains("c") == false)

@@ -817,7 +817,8 @@ import SidefolkExtensionKit
                                 button(L("Practice run"), "practice", ["flow": flow.id], symbol: "play", disabled: !problems.isEmpty),
                                 button(L("Undo"), "undo", ["flow": flow.id], symbol: "arrow.uturn.backward", detail: L("Undo (⌘Z)"), disabled: app.history[flow.id]?.canUndo != true),
                                 button(L("Redo"), "redo", ["flow": flow.id], symbol: "arrow.uturn.forward", detail: L("Redo (⇧⌘Z)"), disabled: app.history[flow.id]?.canRedo != true)], line: line,
-                        placed: .init(tool: "ui", input: ui("place", ["flow": flow.id]), key: "place"))
+                        placed: .init(tool: "ui", input: ui("place", ["flow": flow.id]), key: "place"),
+                        removeMany: .init(tool: "ui", input: ui("remove", ["flow": flow.id]), key: "steps"))
     }
 
     /// How many levels Sidefolk draws on one board: what's deeper is shut, and opens by focusing on it.
