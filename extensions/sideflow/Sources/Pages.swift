@@ -701,6 +701,10 @@ import SidefolkExtensionKit
         if let focused = app.nav.focus[flow.id], flow.draft.step(focused) != nil { main.append(Section(nil, [.bar(breadcrumbs(flow, focused, app))], wide: true)) }
         main.append(Section(nil, [.tree(tree(flow, app, problems: problems))], wide: true))
         var end: [Section] = []
+        // A run of it waiting for you to fill something in: the form is here, first, where you are, not only on the run's own page.
+        for run in app.store.unfinished().filter({ $0.flow == flow.id && $0.parent == nil && $0.form != nil }).sorted(by: { $0.startedAt > $1.startedAt }).prefix(1) {
+            if let form = formSection(run, app) { end.append(form) }
+        }
         if !notes.isEmpty { end.append(Section(nil, notes, place: .trailing)) }
         end += Inspector.sections(flow, app, problems: problems)
         end += checks(flow, app, problems: problems)
