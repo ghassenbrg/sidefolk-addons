@@ -196,18 +196,18 @@ import SidefolkExtensionKit
             return (tool?.title ?? name, first.map { String($0.prefix(160)) } ?? L("One action. Later steps can use its result."))
         case .ai: return (L("Write with AI"), L("Your AI writes this text from only the words below, with no tools. Later steps can use it. Each use counts toward your AI's usage."))
         case .ask: return (L("Ask me"), L("It stops and asks you on a card. Later steps can use your answer."))
-        case .text: return (L("Compose text"), L("Puts words and values together for later steps."))
+        case .text: return (L("Compose text"), L("Puts words and earlier answers together for later steps."))
         case .branch: return (L("Condition"), L("It checks something, then takes one of two paths: “If so” or “Otherwise”."))
         case .wait: return (L("Wait"), L("Up to a day. It carries on after Sidefolk restarts."))
         case .flow: return (L("Run another flow"), L("It sets that flow off and carries on, without waiting for it."))
         case .forEach: return (L("For each"), L("It goes through a list, doing the steps inside once per item."))
         case .repeatUntil: return (L("Repeat until"), L("It does the steps inside, looks, and goes round again until this holds. Everything it does each time counts, so keep what's inside safe to repeat."))
-        case .choose: return (L("Choose a path"), L("It looks at one value and takes the first path whose words it mentions, or “Otherwise”."))
+        case .choose: return (L("Choose a path"), L("It looks at one answer and goes the first way whose words it mentions, or “Otherwise”."))
         case .attempt: return (L("Try"), L("If a step under “Try” fails, the steps under “If it fails” run instead. The steps under “Either way” run in any case."))
-        case .parallel: return (L("At the same time"), L("Each lane runs at once. It carries on when you say below, and a lane it no longer needs is stopped."))
+        case .parallel: return (L("At the same time"), L("The lanes run at the same time. It goes on when you choose below, and a lane it no longer needs is stopped."))
         case .call: return (L("Run a flow and wait"), L("It runs another flow from start to end, then carries on with its result."))
         case .finish: return (L("Finish here"), L("The flow ends at this step. A flow that called this one gets the result."))
-        case .data: return (L("Work with data"), L("It changes a value into another, with nothing outside this run."))
+        case .data: return (L("Work with data"), L("It works something out from what earlier steps gave. It reaches nothing outside this run."))
         case .form: return (L("A form for you"), L("It stops and waits for you to fill this in on this page, for days if need be, and carries on after a restart."))
         case .waitFor: return (L("Wait for something"), L("It waits until this happens, or fails when the time runs out."))
         }
@@ -225,14 +225,14 @@ import SidefolkExtensionKit
             main += Repairs.offers(p, flow: flow)
         }
         main += refusal(app.preflight[flow.id]?[step.id])
-        if flow.draft.readsNumbersFromWords(app.catalog).contains(step.id) { main.append(.note(L("This compares words, so it stops if they aren't plainly one number. Take the number from a tool's field or an AI step's field."), tone: .warn)) }
+        if flow.draft.readsNumbersFromWords(app.catalog).contains(step.id) { main.append(.note(L("This needs a plain number, like 12, and stops if it gets anything else. Use a number an earlier step gave as a number."), tone: .warn)) }
         let looked = app.planChecks[flow.id]?.byStep[step.id]
         if let looked {
             if let mark = PlanLook.mark(looked) { main.append(.note(mark.words, tone: mark.tone)) }
         } else if case .action(let name, _) = step.kind, app.catalog.tool(name)?.risk == "high" {
             main.append(.note(L("Sidefolk can't vouch for what this one does, so it asks you each time, whatever you've allowed.")))
         } else if Hints.asksEachTime(step) {
-            main.append(.note(L("A value filled in when it runs could send it anywhere, so this step asks you each time. Write it out in full and it won't.")))
+            main.append(.note(L("This says where it goes, and an earlier step fills it in, so it asks you each time. Type the place in yourself and it won't.")))
         }
         switch step.kind {
         case .action(let name, let values):
@@ -335,7 +335,7 @@ import SidefolkExtensionKit
             case .fallback:
                 main.append(.edit(EditField("\(step.id).than", L("Otherwise use"), value: data.than ?? "", tokens: tokens, tool: "ui", input: input("data_than"))))
                 // Not a problem to fix, since a flow from before may mean it: but when the value's missing, the run stops here.
-                if (data.than ?? "").trimmed.isEmpty { main.append(.note(L("Nothing is written to use instead, so when the value is missing the run stops here."), tone: .warn)) }
+                if (data.than ?? "").trimmed.isEmpty { main.append(.note(L("Nothing is written to use instead, so if this is empty the run stops here."), tone: .warn)) }
             case .join:
                 main.append(.edit(EditField("\(step.id).separator", L("Between each"), value: data.separator ?? ", ", tool: "ui", input: input("data_separator"))))
             default: break
@@ -356,7 +356,7 @@ import SidefolkExtensionKit
             main.append(.edit(EditField("\(step.id).minutes", L("For up to (minutes)"), value: String(minutes), kind: .number, tool: "ui", input: input("wait_minutes"))))
         }
         if case .action = step.kind {
-            more.append(.edit(EditField("\(step.id).sample", L("In practice, pretend it gives"), value: step.sample ?? "", detail: L("A practice run uses this instead of running it, to try a way a real answer would take. JSON stays JSON."), kind: .multiline, tool: "ui", input: input("sample"))))
+            more.append(.edit(EditField("\(step.id).sample", L("For a practice run, pretend it answers"), value: step.sample ?? "", detail: L("A practice run uses this instead of the real answer, so you can try where another answer would go."), kind: .multiline, tool: "ui", input: input("sample"))))
         }
         more.append(.edit(EditField("\(step.id).name", L("Call this step"), value: step.name ?? "", placeholder: Words.label(step, catalog: app.catalog), tool: "ui", input: input("step_name"))))
         if step.hasOutput {

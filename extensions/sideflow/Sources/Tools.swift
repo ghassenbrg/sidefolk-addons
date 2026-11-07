@@ -110,7 +110,7 @@ import SidefolkExtensionKit
             if !changes.isEmpty { text += "\n" + changes.map { "- \($0)" }.joined(separator: "\n") }
             text += "\nbased_on: \(AgentEdits.fingerprint(flow.draft))"
             if !problems.isEmpty { text += "\n" + L("To fix first: {list}", ["list": problems.joined(separator: " ")]) }
-            if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { text += "\n" + L("Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do.") }
+            if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { text += "\n" + L("Some steps need a plain number, like 12. If what they get isn't one, they stop and say why.") }
             return text
         }
 

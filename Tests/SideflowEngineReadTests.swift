@@ -893,9 +893,9 @@ import SidefolkExtensionKit
         let app = app(w)
         let flow = try make(app, [["id": "r", "do": "reads.it"], ["id": "t", "ai": "words"]])
         app.nav.inspect(.step("t"), in: flow.id)
-        #expect(!drawn(Inspector.sections(flow, app, problems: [])).contains(L("In practice, pretend it gives")))
+        #expect(!drawn(Inspector.sections(flow, app, problems: [])).contains(L("For a practice run, pretend it answers")))
         app.nav.inspect(.step("r"), in: flow.id)
-        #expect(drawn(Inspector.sections(flow, app, problems: [])).contains(L("In practice, pretend it gives")))
+        #expect(drawn(Inspector.sections(flow, app, problems: [])).contains(L("For a practice run, pretend it answers")))
     }
 
     @Test func aVersionBroughtBackIsUnsavedAndChangesNothingThatsRunning() async throws {

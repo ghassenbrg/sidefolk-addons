@@ -697,7 +697,7 @@ import SidefolkExtensionKit
             notes.append(.note(L(one: "It missed {count} run, last at {time}: Sidefolk or your Mac was off.", other: "It missed {count} runs, last at {time}: Sidefolk or your Mac was off.", count: flow.missed.count, ["time": Format.dateTime(last)]), tone: .warn))
         }
         for p in problems where p.step == nil { notes.append(.note(p.text, tone: .warn)) }
-        if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { notes.append(.note(L("Some steps read a number from words, and stop if they aren't plainly one number. Each one's form says what to do."), tone: .warn)) }
+        if !flow.draft.readsNumbersFromWords(app.catalog).isEmpty { notes.append(.note(L("Some steps need a plain number, like 12. If what they get isn't one, they stop and say why."), tone: .warn)) }
         if let focused = app.nav.focus[flow.id], flow.draft.step(focused) != nil { main.append(Section(nil, [.bar(breadcrumbs(flow, focused, app))], wide: true)) }
         main.append(Section(nil, [.tree(tree(flow, app, problems: problems))], wide: true))
         var end: [Section] = []
@@ -738,7 +738,7 @@ import SidefolkExtensionKit
             all.append(.action(go(L("See connections"), place(["view": "connections"]), symbol: "link")))
         }
         if !untried.isEmpty { all.append(.note(L("Practice hasn't tried these ways yet: {ways}. Each practice goes one way, so the others are only tried when a real run takes them.", ["ways": Format.list(untried)]))) }
-        out.append(Section(count == 0 ? L("Check") : L(one: "Check: {count} thing to fix", other: "Check: {count} things to fix", count: count), all, place: .trailing, collapsed: count == 0 && untried.isEmpty))
+        out.append(Section(count == 0 ? L("Before it runs") : L(one: "Before it runs: {count} thing to fix", other: "Before it runs: {count} things to fix", count: count), all, place: .trailing, collapsed: count == 0 && untried.isEmpty))
         func changes(_ title: String, from: FlowBody, to: FlowBody) {
             let lines = Editing.changes(from: from, to: to, catalog: app.catalog)
             guard !lines.isEmpty else { return }
@@ -881,7 +881,7 @@ import SidefolkExtensionKit
             .init("parallel", L("At the same time"), detail: L("Several things at once, then carry on"), meta: L("Logic"), symbol: "arrow.triangle.branch", color: "#3B6FF5", categories: ["logic"]),
             .init("call", L("Run a flow and wait"), detail: L("Use another flow and its result"), meta: L("Logic"), symbol: "arrow.triangle.turn.up.right.circle.fill", color: "#5B8DEF", categories: ["logic"]),
             .init("finish", L("Finish here"), detail: L("End the flow, with a result"), meta: L("Logic"), symbol: "flag.checkered", color: "#6B7A90", categories: ["logic"]),
-            .init("data", L("Work with data"), detail: L("Filter, sort, count, read a table or JSON"), meta: L("Logic"), symbol: "tablecells", color: "#6B7A90", categories: ["logic"]),
+            .init("data", L("Work with data"), detail: L("Sort, count or pick from a list or a table"), meta: L("Logic"), symbol: "tablecells", color: "#6B7A90", categories: ["logic"]),
             .init("form", L("A form for you"), detail: L("Several questions, and it waits days if need be"), meta: L("Reaches you"), symbol: "list.clipboard", color: "#F2B33D", categories: ["logic"]),
             .init("wait_for", L("Wait for something"), detail: L("Until something happens, or time runs out"), meta: L("Logic"), symbol: "hourglass.badge.plus", color: "#6B7A90", categories: ["logic"]),
         ]
@@ -1032,7 +1032,7 @@ import SidefolkExtensionKit
         }, or: true)
     }
 
-    static var whatNotWho: String { L("This list says what it may do. Who or where, and every value, are on the approval card.") }
+    static var whatNotWho: String { L("What it may do, in short. Who, where and every word it uses are on the card you approve.") }
 
     private static func allowedEnding(_ flow: Flow, _ app: App) -> [Block] {
         let whole = Block.note(whatNotWho)
