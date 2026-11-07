@@ -1370,7 +1370,10 @@
     "{count} old drafts": {
       "one": "{count} vieux brouillon",
       "other": "{count} vieux brouillons"
-    }
+    },
+    "You read what it and “{name}” will do first, and both are turned on.": "Vous lisez d'abord ce que lui et « {name} » feront, puis les deux sont activés.",
+    "“{name}” and “{other}”, which it calls, are on only once the person says yes on their desktop, on one card.": "« {name} » et « {other} », qu'il appelle, ne sont activés qu'une fois que la personne dit oui sur son bureau, sur une seule carte.",
+    "“{name}” isn't on: {why}": "« {name} » n'est pas activé : {why}"
   },
   "drops": {
     "flow_file": {

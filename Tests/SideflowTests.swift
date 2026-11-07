@@ -105,6 +105,16 @@ import SidefolkExtensionKit
             return planAnswer
         }
 
+        var alsoPlans: [Plan] = []
+        /// What Sidefolk says of the second plan when it saves the first; nil, as a copy that showed the first plan's card alone.
+        var alsoAnswer: Plans.Answer?
+        func approve(_ plan: Plan, also: Plan) async -> (Plans.Answer, also: Plans.Answer?) {
+            alsoPlans.append(also)
+            let main = await approve(plan)
+            guard case .allowed = main else { return (main, nil) }
+            return (main, alsoAnswer)
+        }
+
         func forgetPlan(_ id: String) { forgotten.append(id) }
         func notify(title: String, body: String?, attention: Bool) async { notices.append((title, body, attention)) }
     }

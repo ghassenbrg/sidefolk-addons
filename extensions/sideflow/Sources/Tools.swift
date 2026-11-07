@@ -128,7 +128,11 @@ import SidefolkExtensionKit
             let flow = try app.flow(named: try args.required("flow"))
             let problems = flow.kept.problems(app.catalog).map(\.text)
             guard problems.isEmpty else { throw Problem(L("To fix first: {list}", ["list": problems.joined(separator: " ")])) }
+            let with = app.engine.goesWith(flow)
             if let refused = await asking(flow.id, app) { throw Problem(refused) }
+            if let with {
+                return ToolReply(L("“{name}” and “{other}”, which it calls, are on only once the person says yes on their desktop, on one card.", ["name": flow.name, "other": with.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
+            }
             return ToolReply(Engine.needsCard(flow.kept) ? L("“{name}” is on only once the person says yes on their desktop.", ["name": flow.name]) : L("“{name}” is on.", ["name": flow.name])).opening(page: "flows", state: Nav.open(flow: flow.id), push: true)
         })
 

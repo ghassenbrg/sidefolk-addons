@@ -661,7 +661,8 @@ import SidefolkExtensionKit
             case .draft:
                 // One main button, and it's the one that makes the flow work: Turn on. Practice stays beside it, Run now in the menu.
                 actions = [button(L("Practice run"), "practice", id, symbol: "play", detail: fix ?? L("Reads for real, changes nothing."), disabled: !ready),
-                           button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart)]
+                           button(L("Turn on"), "start", id, style: .primary, symbol: "power", detail: cantStart ?? app.engine.goesWith(flow).map { L("You read what it and “{name}” will do first, and both are turned on.", ["name": $0.name]) }
+                               ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first.") : L("It only runs when you start it.")), disabled: !canStart)]
                 extra.append(button(L("Run now"), "run", id, symbol: "play.fill", detail: fix ?? (Engine.needsCard(flow.kept) ? L("You read what it will do first, once.") : nil), disabled: !ready))
             case .on:
                 actions = flow.hasChanges

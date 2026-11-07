@@ -1333,7 +1333,10 @@
     },
     "{count} old drafts": {
       "other": "오래된 초안 {count}개"
-    }
+    },
+    "You read what it and “{name}” will do first, and both are turned on.": "먼저 이 흐름과 “{name}”이 할 일을 읽고 나면 둘 다 켜집니다.",
+    "“{name}” and “{other}”, which it calls, are on only once the person says yes on their desktop, on one card.": "“{name}”와 그것이 호출하는 “{other}”는 사용자가 데스크톱의 카드 한 장에서 예라고 해야만 켜집니다.",
+    "“{name}” isn't on: {why}": "“{name}”이 켜져 있지 않습니다: {why}"
   },
   "drops": {
     "flow_file": {

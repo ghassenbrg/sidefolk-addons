@@ -1026,6 +1026,7 @@
     "You ended what you'd allowed, so it asks again before running.": "You ended what you'd allowed, so it asks again before running.",
     "You have no flows yet.": "You have no flows yet.",
     "You ran it again.": "You ran it again.",
+    "You read what it and “{name}” will do first, and both are turned on.": "You read what it and “{name}” will do first, and both are turned on.",
     "You read what it will do first, once.": "You read what it will do first, once.",
     "You read what it will do first.": "You read what it will do first.",
     "You said no, so it stays as it was.": "You said no, so it stays as it was.",
@@ -1221,6 +1222,7 @@
       "one": "“{lane}” took longer than {count} minute, so it was stopped.",
       "other": "“{lane}” took longer than {count} minutes, so it was stopped."
     },
+    "“{name}” and “{other}”, which it calls, are on only once the person says yes on their desktop, on one card.": "“{name}” and “{other}”, which it calls, are on only once the person says yes on their desktop, on one card.",
     "“{name}” can't be brought in: {why}": "“{name}” can't be brought in: {why}",
     "“{name}” can't be called from here: there's no other flow by that name, or it would end up calling itself.": "“{name}” can't be called from here: there's no other flow by that name, or it would end up calling itself.",
     "“{name}” can't go inside itself.": "“{name}” can't go inside itself.",
@@ -1240,6 +1242,7 @@
     "“{name}” is running by itself again.": "“{name}” is running by itself again.",
     "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.": "“{name}” isn't a plain name for a flow: it's too long, or has hidden characters in it.",
     "“{name}” isn't on, so it can't run by itself.": "“{name}” isn't on, so it can't run by itself.",
+    "“{name}” isn't on: {why}": "“{name}” isn't on: {why}",
     "“{name}” keeps 0 to 10 places.": "“{name}” keeps 0 to 10 places.",
     "“{name}” needs a list here.": "“{name}” needs a list here.",
     "“{name}” needs a value.": "“{name}” needs a value.",

@@ -267,7 +267,7 @@ extension Engine {
         }
         let practicing = run.mode == .practice
         guard practicing || other.state == .on else {
-            return failed(step, why: L("“{name}” isn't on, so it can't run by itself.", ["name": name]), reads: false, in: &run)
+            return failed(step, why: notOn(name), reads: false, in: &run)
         }
         if !practicing, pauseIfBlank(other) {
             return failed(step, why: L("It has a step that says nothing, so it's paused until that's fixed."), reads: false, in: &run)

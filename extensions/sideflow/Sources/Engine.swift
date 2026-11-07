@@ -8,6 +8,8 @@ import SidefolkExtensionKit
     func check(_ tool: String, _ input: [String: Any], plan: String?) async -> Actions.Check?
     func write(_ prompt: String, label: String) async -> AI.Result
     func approve(_ plan: Plan) async -> Plans.Answer
+    /// One card for both, one answer; the second is nil unless Sidefolk said it saved `also` too.
+    func approve(_ plan: Plan, also: Plan) async -> (Plans.Answer, also: Plans.Answer?)
     func checkPlan(_ plan: Plan) async -> Plans.Checked?
     func forgetPlan(_ id: String)
     func notify(title: String, body: String?, attention: Bool) async
@@ -22,6 +24,8 @@ extension FlowHost {
     }
     func cancel(run: String) {}
     func checkPlan(_ plan: Plan) async -> Plans.Checked? { nil }
+    /// As a copy of Sidefolk without it: the first plan's card alone.
+    func approve(_ plan: Plan, also: Plan) async -> (Plans.Answer, also: Plans.Answer?) { (await approve(plan), nil) }
 }
 
 /// Runs flows. It decides nothing about what is allowed: every action goes to Sidefolk, which asks or doesn't; here is only the order of
@@ -116,7 +120,7 @@ extension FlowHost {
             return call.name
         }).first {
             run.status = .failed
-            run.problem = L("“{name}” isn't on, so it can't run by itself.", ["name": off])
+            run.problem = notOn(off)
             active.insert(flow.id)
             finish(&run)
             return run
@@ -480,6 +484,8 @@ extension FlowHost {
                 if let started, started.status.isOver, let why = started.problem { return failed(step, why: why, reads: false, in: &run) }
                 if let started { run.setOffRuns.append(started.id) }
                 run.record(.init(step: step.id, status: .done, summary: started != nil ? L("Ran {flow}", ["flow": other.name]) : run.mode == .once && isRunning(other.id) ? L("{flow} was already running, so it didn't start", ["flow": other.name]) : L("{flow} was already running or held back, so its own rule for that decides", ["flow": other.name]), at: clock()))
+            } else if store.named(name).map({ $0.id != run.flow }) == true {
+                return failed(step, why: notOn(name), reads: false, in: &run)
             } else {
                 return failed(step, why: L("“{name}” can't run: it isn't on, or there's no other flow by that name.", ["name": name]), reads: false, in: &run)
             }
@@ -1707,31 +1713,68 @@ extension FlowHost {
         }
         // What they read is what goes live: anything changed while the card waits stays in the draft.
         let reviewed = flow.kept, reviewedTitle = Self.watchTitle(flow)
+        // The flow it calls, turned on with it on the same card, each read in full and approved on its own terms.
+        let other = goesWith(flow)
+        let alsoPlan = other.map { livePlan($0) }, otherReviewed = other?.kept, otherTitle = other.map(Self.watchTitle)
         Task {
+            let asks = Self.needsCard(reviewed) || other != nil
             // Known while the card is up, so an agent asking how it stands hears "waiting for the person".
-            if Self.needsCard(reviewed) { asking.insert(id) }
-            let answer: Plans.Answer? = Self.needsCard(reviewed) ? await host?.approve(plan) : .allowed(standing: [])
+            if asks { asking.insert(id) }
+            if let other { asking.insert(other.id) }
+            var answer: Plans.Answer? = asks ? nil : .allowed(standing: []), alsoAnswer: Plans.Answer?
+            if let alsoPlan, let host {
+                (answer, alsoAnswer) = await host.approve(plan, also: alsoPlan)
+            } else if asks {
+                answer = await host?.approve(plan)
+            }
             asking.remove(id)
+            if let other { asking.remove(other.id) }
             guard let answer, var current = store.flow(id) else { return }
             switch answer {
             case .allowed(_, let silent, _):
-                quietlyApproved[id] = silent ? reviewed : nil
-                let wasLive = current.live, wasOn = current.state == .on
-                keepBefore(reviewed, in: &current)
-                current.live = reviewed
-                current.state = .on
-                current.pausedBecause = nil
-                current.lastFire = clock()
-                current.lastEvery = [:]
-                current.startProblem = nil
-                store.save(current)
-                await settleWatch(id, wasLive: wasLive, wasOn: wasOn, reviewed: reviewed, title: reviewedTitle)
+                await wentOn(id, reviewed: reviewed, title: reviewedTitle, silent: silent)
+                // Only what Sidefolk said it saved: an older copy showed this flow's card alone, and the other stays off.
+                if let other, let otherReviewed, let otherTitle, case .allowed(_, let silent, _)? = alsoAnswer {
+                    await wentOn(other.id, reviewed: otherReviewed, title: otherTitle, silent: silent)
+                }
             case .refused(let reason):
                 current.startProblem = Words.planRefusal(reason)
                 store.save(current)
             }
             changed()
         }
+    }
+
+    /// Approved: what they read goes live and it's on.
+    private func wentOn(_ id: String, reviewed: FlowBody, title: String, silent: Bool) async {
+        guard var current = store.flow(id) else { return }
+        quietlyApproved[id] = silent ? reviewed : nil
+        let wasLive = current.live, wasOn = current.state == .on
+        keepBefore(reviewed, in: &current)
+        current.live = reviewed
+        current.state = .on
+        current.pausedBecause = nil
+        current.lastFire = clock()
+        current.lastEvery = [:]
+        current.startProblem = nil
+        store.save(current)
+        await settleWatch(id, wasLive: wasLive, wasOn: wasOn, reviewed: reviewed, title: title)
+    }
+
+    /// The one flow this sets off or calls that's off, to turn on with it: only when that's the only flow it names, that one names none (no chains), and it
+    /// can be read as it is. Otherwise each is turned on by itself, as before.
+    func goesWith(_ flow: Flow) -> Flow? {
+        let names = Set(flow.kept.allSteps.compactMap(\.calledFlow))
+        guard names.count == 1, let name = names.first, let other = store.named(name), other.id != flow.id, other.state != .on, !asking.contains(other.id),
+              other.kept.unfinished == nil, !other.kept.allSteps.contains(where: { $0.calledFlow != nil }), Self.needsCard(other.kept),
+              Self.lines(livePlan(other).steps) <= Plans.maxSteps else { return nil }
+        return other
+    }
+
+    /// Why a flow this one calls can't run, and when its approval was ended or it was paused, why that was.
+    func notOn(_ name: String) -> String {
+        guard let other = store.named(name), other.state == .paused, let why = other.pausedBecause else { return L("“{name}” isn't on, so it can't run by itself.", ["name": name]) }
+        return L("“{name}” isn't on: {why}", ["name": name, "why": why])
     }
 
     /// Flows whose turn-on card is up now.
@@ -1962,6 +2005,16 @@ extension FlowHost {
             current.watchTitle = nil
             current.watchOutdated = false
             store.save(current)
+        }
+    }
+}
+
+extension Step {
+    /// The flow it sets off or calls, by name.
+    var calledFlow: String? {
+        switch kind {
+        case .flow(let name), .call(let name, _): name
+        default: nil
         }
     }
 }

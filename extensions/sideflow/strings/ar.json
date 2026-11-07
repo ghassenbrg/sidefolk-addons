@@ -1518,7 +1518,10 @@
       "few": "{count} مسودات قديمة",
       "many": "{count} مسودة قديمة",
       "other": "{count} مسودة قديمة"
-    }
+    },
+    "You read what it and “{name}” will do first, and both are turned on.": "تقرأ أولًا ما سيفعله هو و«{name}»، ثم يُشغَّل الاثنان.",
+    "“{name}” and “{other}”, which it calls, are on only once the person says yes on their desktop, on one card.": "لا يعمل «{name}» و«{other}» الذي يستدعيه إلا بعد أن يوافق الشخص على سطح مكتبه، في بطاقة واحدة.",
+    "“{name}” isn't on: {why}": "«{name}» ليس قيد التشغيل: {why}"
   },
   "drops": {
     "flow_file": {

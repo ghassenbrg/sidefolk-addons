@@ -1333,7 +1333,10 @@
     },
     "{count} old drafts": {
       "other": "古い下書き {count} 件"
-    }
+    },
+    "You read what it and “{name}” will do first, and both are turned on.": "まずこのフローと「{name}」が何をするかを読み、両方がオンになります。",
+    "“{name}” and “{other}”, which it calls, are on only once the person says yes on their desktop, on one card.": "「{name}」と、それが呼び出す「{other}」は、本人がデスクトップの1枚のカードで「はい」と答えたときにだけオンになります。",
+    "“{name}” isn't on: {why}": "「{name}」はオンではありません：{why}"
   },
   "drops": {
     "flow_file": {

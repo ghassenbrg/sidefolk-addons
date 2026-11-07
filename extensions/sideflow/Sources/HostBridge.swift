@@ -29,6 +29,7 @@ import SidefolkExtensionKit
     }
 
     func approve(_ plan: Plan) async -> Plans.Answer { await Plans.approve(plan) }
+    func approve(_ plan: Plan, also: Plan) async -> (Plans.Answer, also: Plans.Answer?) { await Plans.approve(plan, also: also) }
     func checkPlan(_ plan: Plan) async -> Plans.Checked? { await Plans.check(plan) }
     func forgetPlan(_ id: String) { Plans.forget(id) }
 
