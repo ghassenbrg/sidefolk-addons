@@ -199,6 +199,16 @@ import SidefolkExtensionKit
         return run
     }
 
+    /// How long a draft nobody touched counts as left over.
+    static var oldAfter: TimeInterval = 86_400
+
+    /// Drafts that never ran, practice aside, and weren't changed for a day.
+    static func oldDrafts(_ app: App) -> [Flow] {
+        app.store.flows().filter { flow in
+            flow.state == .draft && flow.live == nil && Date().timeIntervalSince(flow.updatedAt) > oldAfter && !app.store.runs(of: flow.id).contains { $0.mode != .practice }
+        }
+    }
+
     /// The last practice run, as long as the flow hasn't changed since.
     static func practice(_ flow: Flow, _ app: App) -> Run? {
         app.store.runs(of: flow.id).first { $0.mode == .practice && $0.body == flow.draft }
@@ -229,6 +239,12 @@ import SidefolkExtensionKit
             StatItem(L("Runs this week"), Format.integer(week.count), symbol: "chart.bar", tone: bad > 0 ? .warn : .neutral, color: bad > 0 ? nil : quiet),
         ])], wide: true))
         body += needsYou(app)
+        // Left over from trying things: drafts that never ran and nobody touched for a day.
+        let old = oldDrafts(app)
+        if old.count >= 2 {
+            body.append(Section(nil, [.bar(PageBar(L(one: "{count} old draft", other: "{count} old drafts", count: old.count), detail: L("Never run, and untouched for a day or more."),
+                                                   actions: [button(L(one: "Delete {count} old draft…", other: "Delete {count} old drafts…", count: old.count), "pick_old", style: .destructive, symbol: "trash")]))], wide: true))
+        }
         body.append(Section(nil, [.cards(size: .small, flows.map { card($0, app) })], wide: true))
         body.append(Section(nil, describing(app), wide: true))
         body.append(Section(L("Bring one in"), [.edit(EditField("import", L("A flow's definition"), value: "", detail: L("One copied from Sideflow. It comes in as a draft: nothing runs until you've read it and turned it on."), placeholder: "{\"name\": …, \"flow\": …}", kind: .multiline, tool: "ui", input: ui("import")))], collapsed: true, wide: true))
@@ -264,7 +280,10 @@ import SidefolkExtensionKit
                 }
                 if let first = runs.first { blocks.append(.note(L("“{other}” runs “{name}”, and that step won't work after this.", ["other": other.name, "name": first]), tone: .warn)) }
             }
+            let running = chosen.filter { app.engine.isRunning($0.id) }.count
+            if running > 0 { blocks.append(.note(L(one: "{count} of them is running now. It's stopped first.", other: "{count} of them are running now. They're stopped first.", count: running), tone: .warn)) }
             blocks.append(.note(L("Their runs and what you allowed for them go too. This can't be undone.")))
+            blocks.append(.note(L("History keeps its record of what they did.")))
             let sure = L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count)
             main.append(Section(nil, [.bar(PageBar(L(one: "Delete this flow?", other: "Delete these {count} flows?", count: chosen.count), detail: nil, actions: [button(L("Keep them"), "pick_keep"), button(sure, "pick_delete_sure", ["page_token": app.pageKey, "named": chosen.map(\.id)], style: .destructive, symbol: "trash")]))]))
             main.append(Section(nil, blocks, wide: true))
@@ -277,6 +296,11 @@ import SidefolkExtensionKit
             Action(L("Export"), act: .save(name: chosen.count == 1 ? chosen[0].name : L("Flows"), type: FlowFile.type, tool: "export_flows", input: ["flows": chosen.map(\.id)], note: exportNote), symbol: "square.and.arrow.up",
                    detail: chosen.count > FlowFile.mostFlows ? L("A file holds at most {count} flows.", ["count": Format.integer(FlowFile.mostFlows)]) : nil, disabled: chosen.isEmpty || chosen.count > FlowFile.mostFlows),
             button(chosen.isEmpty ? L("Delete") : L(one: "Delete {count} flow", other: "Delete {count} flows", count: chosen.count), "pick_delete", style: .destructive, symbol: "trash", disabled: chosen.isEmpty),
+        ]))]))
+        main.append(Section(nil, [.bar(PageBar(L("Select by state"), detail: nil, actions: [
+            button(L("Drafts"), "pick_state", ["value": "draft"], disabled: !flows.contains { $0.state == .draft }),
+            button(L("Paused"), "pick_state", ["value": "paused"], disabled: !flows.contains { $0.state == .paused }),
+            button(L("On"), "pick_state", ["value": "on"], disabled: !flows.contains { $0.state == .on }),
         ]))]))
         let shown = Array(flows.prefix(mostToPick))
         for start in stride(from: 0, to: shown.count, by: inABlock) {
@@ -316,8 +340,11 @@ import SidefolkExtensionKit
         // Paused by something other than the person: Home says why, not only the flow's own page.
         if flow.state == .paused, let why = flow.pausedBecause?.nonEmpty { meta = why }
         let look = flowLook(flow), word = stateWord(flow, app)
-        return Card(flow.name, detail: meta, symbol: look.symbol, color: look.color, badge: Badge(word.0, tone: word.1), tree: mini(flow.running, pending: flow.state == .draft && practiced(flow, app) == nil, app),
-                    press: go(L("Open"), place(Nav.open(flow: flow.id))))
+        var card = Card(flow.name, detail: meta, symbol: look.symbol, color: look.color, badge: Badge(word.0, tone: word.1), tree: mini(flow.running, pending: flow.state == .draft && practiced(flow, app) == nil, app),
+                        press: go(L("Open"), place(Nav.open(flow: flow.id))))
+        // Deleting doesn't need the flow opened first: its menu asks the same question the page does.
+        card.menu = (L("More"), [button(L("Delete this flow"), "ask_delete", ["flow": flow.id], style: .destructive, symbol: "trash")])
+        return card
     }
 
     /// A flow's small drawing of itself: its shape, for recognising it.
@@ -695,6 +722,7 @@ import SidefolkExtensionKit
             notes.append(.action(button(L("Undo what it changed"), "agent_undo", ["flow": flow.id, "page_token": app.pageKey], style: .plain, symbol: "arrow.uturn.backward")))
             notes.append(.action(button(L("Keep it"), "agent_keep", ["flow": flow.id], style: .plain, symbol: "checkmark")))
         }
+        if let removed = app.removals[flow.id], Date().timeIntervalSince(removed.at) < 30 { notes.append(.note(removed.words)) }
         if let said = app.engine.quietlySaved(flow) { notes.append(.note(said, tone: .good)) }
         else if flow.hasChanges || flow.live == nil, let look = app.planChecks[flow.id] { notes.append(.note(look.head)) }
         if let last = flow.missed.last {

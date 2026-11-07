@@ -1346,6 +1346,30 @@
     "Before it runs: {count} things to fix": {
       "one": "Antes de ejecutarse: {count} cosa que arreglar",
       "other": "Antes de ejecutarse: {count} cosas que arreglar"
+    },
+    "Delete {count} old drafts…": {
+      "one": "Eliminar {count} borrador viejo…",
+      "other": "Eliminar {count} borradores viejos…"
+    },
+    "History keeps its record of what they did.": "El historial guarda lo que hicieron.",
+    "More": "Más",
+    "Never run, and untouched for a day or more.": "Nunca ejecutados y sin tocar desde hace un día o más.",
+    "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.": {
+      "one": "{count} paso quitado, y {inner} dentro. ⌘Z los devuelve.",
+      "other": "{count} pasos quitados, y {inner} dentro. ⌘Z los devuelve."
+    },
+    "Removed {count} steps. ⌘Z brings them back.": {
+      "one": "{count} paso quitado. ⌘Z lo devuelve.",
+      "other": "{count} pasos quitados. ⌘Z los devuelve."
+    },
+    "Select by state": "Elegir por estado",
+    "{count} of them are running now. They're stopped first.": {
+      "one": "{count} de ellos se está ejecutando. Se detiene primero.",
+      "other": "{count} de ellos se están ejecutando. Se detienen primero."
+    },
+    "{count} old drafts": {
+      "one": "{count} borrador viejo",
+      "other": "{count} borradores viejos"
     }
   },
   "drops": {

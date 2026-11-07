@@ -1346,6 +1346,30 @@
     "Before it runs: {count} things to fix": {
       "one": "Avant qu’elle tourne : {count} chose à corriger",
       "other": "Avant qu’elle tourne : {count} choses à corriger"
+    },
+    "Delete {count} old drafts…": {
+      "one": "Supprimer {count} vieux brouillon…",
+      "other": "Supprimer {count} vieux brouillons…"
+    },
+    "History keeps its record of what they did.": "L’historique garde la trace de ce qu’elles ont fait.",
+    "More": "Plus",
+    "Never run, and untouched for a day or more.": "Jamais exécutés, et pas touchés depuis un jour ou plus.",
+    "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.": {
+      "one": "{count} étape retirée, et {inner} à l’intérieur. ⌘Z les ramène.",
+      "other": "{count} étapes retirées, et {inner} à l’intérieur. ⌘Z les ramène."
+    },
+    "Removed {count} steps. ⌘Z brings them back.": {
+      "one": "{count} étape retirée. ⌘Z la ramène.",
+      "other": "{count} étapes retirées. ⌘Z les ramène."
+    },
+    "Select by state": "Choisir par état",
+    "{count} of them are running now. They're stopped first.": {
+      "one": "{count} d’entre elles tourne en ce moment. Elle est arrêtée d’abord.",
+      "other": "{count} d’entre elles tournent en ce moment. Elles sont arrêtées d’abord."
+    },
+    "{count} old drafts": {
+      "one": "{count} vieux brouillon",
+      "other": "{count} vieux brouillons"
     }
   },
   "drops": {

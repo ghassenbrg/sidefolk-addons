@@ -1314,6 +1314,25 @@
     "Before it runs": "运行之前",
     "Before it runs: {count} things to fix": {
       "other": "运行之前：有 {count} 处要修改"
+    },
+    "Delete {count} old drafts…": {
+      "other": "删除 {count} 个旧草稿…"
+    },
+    "History keeps its record of what they did.": "历史记录会保留它们做过的事。",
+    "More": "更多",
+    "Never run, and untouched for a day or more.": "从未运行过，且一天或更久没改动。",
+    "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.": {
+      "other": "已移除 {count} 个步骤，以及其中的 {inner} 个。⌘Z 可以找回。"
+    },
+    "Removed {count} steps. ⌘Z brings them back.": {
+      "other": "已移除 {count} 个步骤。⌘Z 可以找回。"
+    },
+    "Select by state": "按状态选择",
+    "{count} of them are running now. They're stopped first.": {
+      "other": "其中 {count} 个正在运行，会先停下。"
+    },
+    "{count} old drafts": {
+      "other": "{count} 个旧草稿"
     }
   },
   "drops": {

@@ -436,6 +436,21 @@ enum Editing {
         }
     }
 
+    /// Of the steps asked to go, the ones there are, each once, without any inside another that goes too (taking the holder takes them), in the flow's order.
+    static func removable(_ ids: [String], in body: FlowBody) -> [String] {
+        let asked = Set(ids)
+        var out: [String] = []
+        func walk(_ list: [Step], under: Bool) {
+            for step in list {
+                let goes = asked.contains(step.id) && !under
+                if goes { out.append(step.id) }
+                for part in step.parts { walk(part.steps, under: under || goes) }
+            }
+        }
+        walk(body.steps, under: false)
+        return out
+    }
+
     /// One place up or down among its own.
     static func nudge(_ id: String, by delta: Int, in body: FlowBody) -> FlowBody {
         var body = body

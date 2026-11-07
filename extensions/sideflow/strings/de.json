@@ -1346,6 +1346,30 @@
     "Before it runs: {count} things to fix": {
       "one": "Bevor er läuft: {count} Sache zu beheben",
       "other": "Bevor er läuft: {count} Sachen zu beheben"
+    },
+    "Delete {count} old drafts…": {
+      "one": "{count} alten Entwurf löschen…",
+      "other": "{count} alte Entwürfe löschen…"
+    },
+    "History keeps its record of what they did.": "Der Verlauf behält, was sie getan haben.",
+    "More": "Mehr",
+    "Never run, and untouched for a day or more.": "Nie gelaufen und seit einem Tag oder länger unberührt.",
+    "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.": {
+      "one": "{count} Schritt entfernt, mit {inner} darin. ⌘Z holt sie zurück.",
+      "other": "{count} Schritte entfernt, mit {inner} darin. ⌘Z holt sie zurück."
+    },
+    "Removed {count} steps. ⌘Z brings them back.": {
+      "one": "{count} Schritt entfernt. ⌘Z holt ihn zurück.",
+      "other": "{count} Schritte entfernt. ⌘Z holt sie zurück."
+    },
+    "Select by state": "Nach Zustand wählen",
+    "{count} of them are running now. They're stopped first.": {
+      "one": "{count} davon läuft gerade. Er wird zuerst gestoppt.",
+      "other": "{count} davon laufen gerade. Sie werden zuerst gestoppt."
+    },
+    "{count} old drafts": {
+      "one": "{count} alter Entwurf",
+      "other": "{count} alte Entwürfe"
     }
   },
   "drops": {

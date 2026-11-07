@@ -72,9 +72,19 @@ import SidefolkExtensionKit
             try draft { $0 = Editing.insert(new, after: a.string("after") ?? "start", in: $0) }
             app.nav.inspect(.step(new.id), in: f.id)
         case "remove":
-            if let id = a.string("step") {
-                try draft { $0 = Editing.remove(id, from: $0) }
-                app.nav.inspect(.nothing, in: try flow().id)
+            // One card (the tree's `remove`), or several the board had selected (`remove_many`, a list under "steps"): one change, so one Undo brings them all back.
+            let f = try flow()
+            let asked = a.string("step").map { [$0] } ?? a.strings("steps")
+            let ids = Editing.removable(asked, in: f.draft)
+            guard !ids.isEmpty else { break }
+            let inner = ids.compactMap { f.draft.step($0) }.reduce(0) { $0 + FlowBody(steps: [$1]).allSteps.count - 1 }
+            try draft { body in for id in ids { body = Editing.remove(id, from: body) } }
+            app.nav.inspect(.nothing, in: f.id)
+            if ids.count > 1 || inner > 0 {
+                let said = inner > 0
+                    ? L(one: "Removed {count} step, and {inner} inside it. ⌘Z brings them back.", other: "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.", count: ids.count, ["inner": Format.integer(inner)])
+                    : L(one: "Removed {count} step. ⌘Z brings it back.", other: "Removed {count} steps. ⌘Z brings them back.", count: ids.count)
+                app.removals[f.id] = (said, Date())
             }
         case "reorder":
             if let move = a.values["move"] as? [String: Any], let id = move["id"] as? String {
@@ -656,6 +666,17 @@ import SidefolkExtensionKit
                 if a.bool("on") == false { app.nav.pickingFlows?.remove(id) } else { app.nav.pickingFlows?.insert(id) }
                 app.nav.askingToDelete = false
             }
+        case "pick_state":
+            guard let state = a.string("value").flatMap(Flow.State.init(rawValue:)) else { break }
+            app.nav.pickingFlows = Set(app.store.flows().filter { $0.state == state }.prefix(Pages.mostToPick).map(\.id))
+            app.nav.askingToDelete = false
+        case "pick_old":
+            // Straight to the question: it names each one, and nothing goes until it's answered.
+            let old = Pages.oldDrafts(app).prefix(Pages.mostToPick).map(\.id)
+            guard !old.isEmpty else { break }
+            app.nav.pickingFlows = Set(old)
+            app.nav.askingToDelete = true
+            app.nav.askedToDeleteAt = Date()
         case "pick_all":
             app.nav.pickingFlows = Set(app.store.flows().prefix(Pages.mostToPick).map(\.id))
             app.nav.askingToDelete = false

@@ -10,6 +10,8 @@ import SidefolkExtensionKit
     var nav = Nav()
     /// Undo and redo, by flow, while the program runs.
     var history: [String: Editing.History] = [:]
+    /// What the last removal took, said on the flow's page for a little while (with how to bring it back).
+    var removals: [String: (words: String, at: Date)] = [:]
     /// An agent's last change to each flow, while it's still what's there: what it said and what it replaced.
     var agentEdits: [String: AgentEdit] = [:]
     /// What Guard says of each step now: its sentence and whether it would ask.

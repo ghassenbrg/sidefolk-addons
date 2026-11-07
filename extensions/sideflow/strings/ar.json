@@ -1474,6 +1474,50 @@
       "few": "قبل أن يعمل: {count} أشياء لإصلاحها",
       "many": "قبل أن يعمل: {count} شيئًا لإصلاحه",
       "other": "قبل أن يعمل: {count} شيء لإصلاحه"
+    },
+    "Delete {count} old drafts…": {
+      "zero": "حذف {count} مسودات قديمة…",
+      "one": "حذف مسودة قديمة واحدة ({count})…",
+      "two": "حذف مسودتين قديمتين ({count})…",
+      "few": "حذف {count} مسودات قديمة…",
+      "many": "حذف {count} مسودة قديمة…",
+      "other": "حذف {count} مسودة قديمة…"
+    },
+    "History keeps its record of what they did.": "يحتفظ السجل بما فعلته.",
+    "More": "المزيد",
+    "Never run, and untouched for a day or more.": "لم تُشغَّل قط، ولم تُلمس منذ يوم أو أكثر.",
+    "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.": {
+      "zero": "أُزيلت {count} خطوات، و{inner} بداخلها. ⌘Z يعيدها.",
+      "one": "أُزيلت خطوة واحدة ({count})، و{inner} بداخلها. ⌘Z يعيدها.",
+      "two": "أُزيلت خطوتان ({count})، و{inner} بداخلهما. ⌘Z يعيدها.",
+      "few": "أُزيلت {count} خطوات، و{inner} بداخلها. ⌘Z يعيدها.",
+      "many": "أُزيلت {count} خطوة، و{inner} بداخلها. ⌘Z يعيدها.",
+      "other": "أُزيلت {count} خطوة، و{inner} بداخلها. ⌘Z يعيدها."
+    },
+    "Removed {count} steps. ⌘Z brings them back.": {
+      "zero": "أُزيلت {count} خطوات. ⌘Z يعيدها.",
+      "one": "أُزيلت خطوة واحدة ({count}). ⌘Z يعيدها.",
+      "two": "أُزيلت خطوتان ({count}). ⌘Z يعيدهما.",
+      "few": "أُزيلت {count} خطوات. ⌘Z يعيدها.",
+      "many": "أُزيلت {count} خطوة. ⌘Z يعيدها.",
+      "other": "أُزيلت {count} خطوة. ⌘Z يعيدها."
+    },
+    "Select by state": "اختر حسب الحالة",
+    "{count} of them are running now. They're stopped first.": {
+      "zero": "{count} منها قيد التشغيل الآن. تُوقف أولًا.",
+      "one": "واحد منها ({count}) قيد التشغيل الآن. يُوقف أولًا.",
+      "two": "اثنان منها ({count}) قيد التشغيل الآن. يُوقفان أولًا.",
+      "few": "{count} منها قيد التشغيل الآن. تُوقف أولًا.",
+      "many": "{count} منها قيد التشغيل الآن. تُوقف أولًا.",
+      "other": "{count} منها قيد التشغيل الآن. تُوقف أولًا."
+    },
+    "{count} old drafts": {
+      "zero": "{count} مسودات قديمة",
+      "one": "مسودة قديمة واحدة ({count})",
+      "two": "مسودتان قديمتان ({count})",
+      "few": "{count} مسودات قديمة",
+      "many": "{count} مسودة قديمة",
+      "other": "{count} مسودة قديمة"
     }
   },
   "drops": {

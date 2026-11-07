@@ -1314,6 +1314,25 @@
     "Before it runs": "実行の前に",
     "Before it runs: {count} things to fix": {
       "other": "実行の前に: 直すことが {count} 件"
+    },
+    "Delete {count} old drafts…": {
+      "other": "古い下書き {count} 件を削除…"
+    },
+    "History keeps its record of what they did.": "履歴には、それらがしたことの記録が残ります。",
+    "More": "その他",
+    "Never run, and untouched for a day or more.": "一度も実行されず、1日以上触れられていません。",
+    "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.": {
+      "other": "{count} 件のステップと、その中の {inner} 件を取り除きました。⌘Z で戻せます。"
+    },
+    "Removed {count} steps. ⌘Z brings them back.": {
+      "other": "{count} 件のステップを取り除きました。⌘Z で戻せます。"
+    },
+    "Select by state": "状態で選ぶ",
+    "{count} of them are running now. They're stopped first.": {
+      "other": "そのうち {count} 件は実行中です。先に停止します。"
+    },
+    "{count} old drafts": {
+      "other": "古い下書き {count} 件"
     }
   },
   "drops": {

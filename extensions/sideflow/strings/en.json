@@ -161,6 +161,10 @@
       "one": "Delete {count} flow",
       "other": "Delete {count} flows"
     },
+    "Delete {count} old drafts…": {
+      "one": "Delete {count} old draft…",
+      "other": "Delete {count} old drafts…"
+    },
     "Deleted “{name}”.": "Deleted “{name}”.",
     "Different from what's running": "Different from what's running",
     "Discard": "Discard",
@@ -268,6 +272,7 @@
     "Group by a field": "Group by a field",
     "Have the AI write: {what}": "Have the AI write: {what}",
     "Here": "Here",
+    "History keeps its record of what they did.": "History keeps its record of what they did.",
     "How it tells you": "How it tells you",
     "How it went": "How it went",
     "How many": "How many",
@@ -460,6 +465,7 @@
     "Missing": "Missing",
     "Mon": "Mon",
     "Monday": "Monday",
+    "More": "More",
     "More options": "More options",
     "Morning brief": "Morning brief",
     "Move down": "Move down",
@@ -472,6 +478,7 @@
     "Needs a folder": "Needs a folder",
     "Needs an add-on": "Needs an add-on",
     "Needs you": "Needs you",
+    "Never run, and untouched for a day or more.": "Never run, and untouched for a day or more.",
     "New flow": "New flow",
     "Next run": "Next run",
     "Next: {flow} at {time}": "Next: {flow} at {time}",
@@ -593,6 +600,14 @@
     "Remove this lane": "Remove this lane",
     "Remove this path": "Remove this path",
     "Remove this step": "Remove this step",
+    "Removed {count} steps, and {inner} inside them. ⌘Z brings them back.": {
+      "one": "Removed {count} step, and {inner} inside it. ⌘Z brings them back.",
+      "other": "Removed {count} steps, and {inner} inside them. ⌘Z brings them back."
+    },
+    "Removed {count} steps. ⌘Z brings them back.": {
+      "one": "Removed {count} step. ⌘Z brings it back.",
+      "other": "Removed {count} steps. ⌘Z brings them back."
+    },
     "Removed: {step}": "Removed: {step}",
     "Rename": "Rename",
     "Repeat until": "Repeat until",
@@ -650,6 +665,7 @@
     "See connections": "See connections",
     "Select": "Select",
     "Select all": "Select all",
+    "Select by state": "Select by state",
     "Select flows": "Select flows",
     "Send": "Send",
     "Send a patch or a definition, not both.": "Send a patch or a definition, not both.",
@@ -1086,6 +1102,14 @@
     "{count} of them are on. They stop running.": {
       "one": "{count} of them is on. It stops running.",
       "other": "{count} of them are on. They stop running."
+    },
+    "{count} of them are running now. They're stopped first.": {
+      "one": "{count} of them is running now. It's stopped first.",
+      "other": "{count} of them are running now. They're stopped first."
+    },
+    "{count} old drafts": {
+      "one": "{count} old draft",
+      "other": "{count} old drafts"
     },
     "{count} runs are waiting for flows that can't be read now. They go on if the flows come back.": {
       "one": "{count} run is waiting for a flow that can't be read now. It goes on if the flow comes back.",
